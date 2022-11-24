@@ -1034,7 +1034,6 @@ public class GlobalCtrl : MonoBehaviour
 
             // new mean position should be controller left - meanPos of loaded molecule (thus shifted to origin + controller left) 
             // meanPos = controllerRight.transform.position - meanPos;  // add molecules relative to this position
-            meanPos = meanPos;  // add molecules relative to this position
             Debug.Log(string.Format("-meanPos + C : {0,12:f6} {1,12:f6} {2,12:f6} ", meanPos.x, meanPos.y, meanPos.z));
         } else
         {
@@ -1228,6 +1227,11 @@ public class GlobalCtrl : MonoBehaviour
         Vector3 current_pos = Camera.main.transform.position;
         Vector3 current_lookat = Camera.main.transform.forward;
         Vector3 create_position = current_pos + 0.5f * current_lookat;
+
+        Debug.Log("[GlobalCtrl] CreateAtomUI called");
+        Debug.LogWarning("[GlobalCtrl] CreateAtomUI called");
+        Debug.LogError("[GlobalCtrl] CreateAtomUI called");
+
         CreateAtom(idInScene, ChemicalID, create_position);
     }
 
