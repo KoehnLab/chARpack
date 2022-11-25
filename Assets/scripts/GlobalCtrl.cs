@@ -7,6 +7,12 @@ using StructClass;
 using System.IO;
 using System;
 using System.Globalization;
+using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
+using System.Reflection;
+
+
+
 [Serializable]
 /// <summary>
 /// globalctrl, where everything starts
@@ -34,6 +40,7 @@ public class GlobalCtrl : MonoBehaviour
     //public static UIMainMenu UIMain { get; private set; }
     //public static UISaveMenu UISave { get; private set; }
 
+    public GameObject myBoundingBoxPrefab;
     public Material atomMatPrefab;
     /// <summary>
     /// list with all currently existing atoms
@@ -723,6 +730,13 @@ public class GlobalCtrl : MonoBehaviour
         Molecule tempMolecule = new GameObject().AddComponent<Molecule>();
         tempMolecule.transform.position = pos;
         tempMolecule.f_Init(idAtom, atomWorld.transform);
+        //TODO fix
+        //BoundingBox niceBbox = myBoundingBoxPrefab.GetComponent<BoundingBox>();
+        //tempMolecule.gameObject.AddComponent(niceBbox);
+        //Destroy(tempMolecule.gameObject.GetComponent<SphereCollider>());
+        //BoxCollider boxCollider = tempMolecule.gameObject.AddComponent<BoxCollider>();
+        //niceBbox.Target = tempMolecule.gameObject;
+        //niceBbox.BoundsOverride = boxCollider;
 
         // 0: none; 1: sp1; 2: sp2;  3: sp3;  4: hypervalent trig. bipy; 5: unused;  6: hypervalent octahedral
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
@@ -1341,4 +1355,5 @@ public class GlobalCtrl : MonoBehaviour
         if (isAnyAtomChanged)
             CFileHelper.SaveData(Application.dataPath + "/MoleculeFolder/ElementData.xml", list_ElementData);
     }
+
 }

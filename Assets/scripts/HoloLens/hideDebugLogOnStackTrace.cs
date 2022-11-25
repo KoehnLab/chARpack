@@ -16,6 +16,9 @@ public class hideDebugLogOnStackTrace : MonoBehaviour
     // get deactivated
     void OnDisable()
     {
-        debugLogGO.SetActive(true);
+        if (debugLogGO != null)
+        {
+            debugLogGO.SetActive(true);
+        }
     }
 }

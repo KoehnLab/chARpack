@@ -18,7 +18,7 @@ public class DebugWindow : MonoBehaviour
 
     void OnEnable()
     {
-        //debugWindow.SetActive(false);
+        debugWindow.SetActive(false);
         if (!isEnabled)
         {
             Application.logMessageReceived += LogMessage;
