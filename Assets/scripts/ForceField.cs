@@ -134,15 +134,21 @@ public class ForceField : MonoBehaviour
             FFlog.WriteLine("Log starts at " + Time.time.ToString("f6"));
             FFlog.WriteLine("LogLevel = " + LogLevel);
         }
-        ;
+
         //scalingfactor = GetComponent<GlobalCtrl>().scale / 154f;
         //conversion factor from atomic model to unity
         //scalingfactor = GetComponent<GlobalCtrl>().scale / GetComponent<GlobalCtrl>().u2pm;
         scalingfactor = GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm;
         timeFactor = (1.5f / (float)nTimeSteps);
 
+        Dictionary<string, ElementData> element_dict = GlobalCtrl.Instance.Dic_ElementData;
+        if ( element_dict == null)
+        {
+            Debug.LogError("[ForceField] Could not obtain element dictionary from globalCtrl instance.");
+        }
+
         rhs.Clear();
-        foreach (KeyValuePair<string, ElementData> pair in GlobalCtrl.Instance.Dic_ElementData)
+        foreach (KeyValuePair<string, ElementData> pair in element_dict)
         {
             rhs.Add(pair.Key, pair.Value.m_radius * fac);
         }

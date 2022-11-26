@@ -326,15 +326,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6742094790733259646, guid: 64790b91b91094d49942373c4e83c237, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 6742094790733259646, guid: 64790b91b91094d49942373c4e83c237, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.0000000018626451
+      value: 0.032000005
       objectReference: {fileID: 0}
     - target: {fileID: 6742094790733259646, guid: 64790b91b91094d49942373c4e83c237, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.016
+      value: 0.016
       objectReference: {fileID: 0}
     - target: {fileID: 6742094790733259646, guid: 64790b91b91094d49942373c4e83c237, type: 3}
       propertyPath: m_LocalPosition.z
@@ -709,6 +709,7 @@ GameObject:
   m_Component:
   - component: {fileID: 684068573}
   - component: {fileID: 684068572}
+  - component: {fileID: 684068574}
   m_Layer: 0
   m_Name: globalCtrlScript
   m_TagString: Untagged
@@ -770,6 +771,19 @@ Transform:
   m_Father: {fileID: 1947685334}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &684068574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 684068571}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4a2e314eeaf58e4c9c967eec413cdda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movement: []
 --- !u!1 &690894127
 GameObject:
   m_ObjectHideFlags: 0
@@ -1334,7 +1348,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6742094790733259646, guid: 64790b91b91094d49942373c4e83c237, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6742094790733259646, guid: 64790b91b91094d49942373c4e83c237, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1342,7 +1356,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6742094790733259646, guid: 64790b91b91094d49942373c4e83c237, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.016
+      value: -0.016
       objectReference: {fileID: 0}
     - target: {fileID: 6742094790733259646, guid: 64790b91b91094d49942373c4e83c237, type: 3}
       propertyPath: m_LocalPosition.z
@@ -3435,7 +3449,7 @@ GameObject:
   - component: {fileID: 342184825278198195}
   - component: {fileID: 8264282565853627170}
   m_Layer: 0
-  m_Name: CreateAtom
+  m_Name: CreateCAtom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3541,7 +3555,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Create Atom
+  m_text: Create Carbon Atom
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6a84f857bec7e7345843ae29404c57ce, type: 2}
   m_sharedMaterial: {fileID: 21202819797275496, guid: 6a84f857bec7e7345843ae29404c57ce, type: 2}
@@ -6151,7 +6165,7 @@ GameObject:
   - component: {fileID: 2753193458336806266}
   - component: {fileID: 5781004132874487787}
   m_Layer: 0
-  m_Name: ButtonThree
+  m_Name: ClearMolecules
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6342,7 +6356,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Menu Three
+  m_text: Clear All Molecules
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6a84f857bec7e7345843ae29404c57ce, type: 2}
   m_sharedMaterial: {fileID: 21202819797275496, guid: 6a84f857bec7e7345843ae29404c57ce, type: 2}
@@ -6549,7 +6563,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4181861232999017938}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.032000005, y: 0.016, z: 1}
+  m_LocalPosition: {x: -0.031999998, y: -0.016, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6559,7 +6573,7 @@ Transform:
   - {fileID: 2099940455359033688}
   - {fileID: 2098035089500792900}
   m_Father: {fileID: 7883149401989337982}
-  m_RootOrder: 4
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &4181861234661294456
 MeshRenderer:
@@ -7556,7 +7570,7 @@ MonoBehaviour:
   iconSprite: {fileID: 21300000, guid: 20f25674b9512834f88938d45ed495d7, type: 3}
   iconQuadRenderer: {fileID: 4181861234661294456}
   iconQuadTextureNameID: _MainTex
-  iconQuadTexture: {fileID: 2800000, guid: 937867e9be7912d4a903cd401ee0a959, type: 3}
+  iconQuadTexture: {fileID: 2800000, guid: 8d0274d8bc6a17844a08b493920d9491, type: 3}
   defaultButtonQuadMaterial: {fileID: 2100000, guid: fa419ab56051229449e3b813df8f295f, type: 2}
   iconSet: {fileID: 11400000, guid: 8b386ef895f7c924f8c4b03d1d3ed683, type: 2}
   defaultIconSet: {fileID: 11400000, guid: 8b386ef895f7c924f8c4b03d1d3ed683, type: 2}
@@ -8265,7 +8279,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5982746245355895481}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.031999998, y: -0.016, z: 1}
+  m_LocalPosition: {x: 0.0000000018626451, y: 0.016, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -8276,7 +8290,7 @@ Transform:
   - {fileID: 8364239411463896879}
   - {fileID: 179300634629005168}
   m_Father: {fileID: 7883149401989337982}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6063532053008275610
 GameObject:
@@ -8610,21 +8624,9 @@ MonoBehaviour:
   OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: ToggleRecording
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SaveRecordedInput
+      - m_Target: {fileID: 684068572}
+        m_TargetAssemblyTypeName: GlobalCtrl, Assembly-CSharp
+        m_MethodName: DeleteAll
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8905,6 +8907,11 @@ MonoBehaviour:
     Radius: 0
     Transform: {fileID: 1765997329611911162}
     Colliders: []
+  - Name: ButtonThree
+    Offset: {x: 0, y: 0}
+    Radius: 0
+    Transform: {fileID: 4181861234626931507}
+    Colliders: []
   - Name: Toggle Mesh
     Offset: {x: 0, y: 0}
     Radius: 0
@@ -8919,11 +8926,6 @@ MonoBehaviour:
     Offset: {x: 0, y: 0}
     Radius: 0
     Transform: {fileID: 375127469}
-    Colliders: []
-  - Name: ButtonThree
-    Offset: {x: 0, y: 0}
-    Radius: 0
-    Transform: {fileID: 4181861234626931507}
     Colliders: []
   - Name: ButtonSix
     Offset: {x: 0, y: 0}
@@ -10510,10 +10512,10 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1765997329611911162}
+  - {fileID: 4181861234626931507}
   - {fileID: 5982746246949207128}
   - {fileID: 1407821725}
   - {fileID: 375127469}
-  - {fileID: 4181861234626931507}
   - {fileID: 8620029838067419220}
   m_Father: {fileID: 5201862996929635492}
   m_RootOrder: 2

@@ -74,6 +74,19 @@ public class Molecule : MonoBehaviour
         isMarked = mark;
     }
 
+    public Vector3 getCenter()
+    {
+        Vector3 center = new Vector3(0.0f, 0.0f, 0.0f);
+        int num_atoms = atomList.Count;
+
+        foreach (Atom atom in atomList)
+        {
+            center += atom.transform.position;
+        }
+        center /= num_atoms > 0 ? num_atoms : 1;
+
+        return center;
+    }
 
 
     // Start is called before the first frame update
@@ -85,6 +98,7 @@ public class Molecule : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        BoxCollider bc = gameObject.GetComponent<BoxCollider>();
+        bc.transform.position = getCenter();
     }
 }

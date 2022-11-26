@@ -10,7 +10,7 @@ public static class ExtensionMethods
         Type type = comp.GetType();
         if (type != other.GetType()) return null; // type mis-match
         //BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Default | BindingFlags.DeclaredOnly;
-        BindingFlags flags = BindingFlags.GetField;
+        BindingFlags flags = BindingFlags.Public | BindingFlags.DeclaredOnly;
         PropertyInfo[] pinfos = type.GetProperties(flags);
         foreach (var pinfo in pinfos)
         {

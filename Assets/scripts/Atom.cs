@@ -68,8 +68,13 @@ public class Atom : MonoBehaviour
         this.gameObject.layer = 6;
         this.GetComponent<SphereCollider>().isTrigger = true;
         // add HoloLens interaction scripts
-        this.gameObject.AddComponent<ObjectManipulator>();
-        this.gameObject.AddComponent<NearInteractionGrabbable>();
+        ObjectManipulator objMani = this.gameObject.AddComponent<ObjectManipulator>();
+        objMani.ReleaseBehavior = 0;
+        //Debug.Log("[Atom] Physics release behavoir " + objMani.ReleaseBehavior.ToString());
+
+        NearInteractionGrabbable grab =  this.gameObject.AddComponent<NearInteractionGrabbable>();
+        grab.ShowTetherWhenManipulating = true;
+
         //I don't want to create the materials for all elements from the beginning,
         //so I only create a material for an element at the first time when I create this element,
         //and then add this material to the dictionary

@@ -136,7 +136,7 @@ public class GlobalCtrl : MonoBehaviour
     public Stack<List<cmlData>> systemState = new Stack<List<cmlData>>();
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         // make sure that numbers are printed with a dot as required by any post-processing with standard software
         CultureInfo.CurrentCulture = new CultureInfo("en-US", false);
@@ -731,12 +731,12 @@ public class GlobalCtrl : MonoBehaviour
         tempMolecule.transform.position = pos;
         tempMolecule.f_Init(idAtom, atomWorld.transform);
         //TODO fix
+        BoxCollider boxCollider = tempMolecule.gameObject.AddComponent<BoxCollider>();
         //BoundingBox niceBbox = myBoundingBoxPrefab.GetComponent<BoundingBox>();
         //tempMolecule.gameObject.AddComponent(niceBbox);
-        //Destroy(tempMolecule.gameObject.GetComponent<SphereCollider>());
-        //BoxCollider boxCollider = tempMolecule.gameObject.AddComponent<BoxCollider>();
-        //niceBbox.Target = tempMolecule.gameObject;
-        //niceBbox.BoundsOverride = boxCollider;
+        BoundingBox niceBbox = tempMolecule.gameObject.AddComponent<BoundingBox>();
+        niceBbox.Target = tempMolecule.gameObject;
+        niceBbox.BoundsOverride = boxCollider;
 
         // 0: none; 1: sp1; 2: sp2;  3: sp3;  4: hypervalent trig. bipy; 5: unused;  6: hypervalent octahedral
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
@@ -1241,10 +1241,6 @@ public class GlobalCtrl : MonoBehaviour
         Vector3 current_pos = Camera.main.transform.position;
         Vector3 current_lookat = Camera.main.transform.forward;
         Vector3 create_position = current_pos + 0.5f * current_lookat;
-
-        Debug.Log("[GlobalCtrl] CreateAtomUI called");
-        Debug.LogWarning("[GlobalCtrl] CreateAtomUI called");
-        Debug.LogError("[GlobalCtrl] CreateAtomUI called");
 
         CreateAtom(idInScene, ChemicalID, create_position);
     }
