@@ -1,5 +1,7 @@
 # Molecular Builder for HoloLens2
 
+This project is developed with Unity version [2021.3.12f1](unityhub://2021.3.12f1/8af3c3e441b1).
+
 Important:
 
 MRTK tarballs not checked into git.
