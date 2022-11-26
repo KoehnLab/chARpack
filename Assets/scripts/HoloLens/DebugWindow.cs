@@ -16,7 +16,7 @@ public class DebugWindow : MonoBehaviour
 
     private enum Color { red, green, blue, black, white, yellow, orange };
 
-    void OnEnable()
+    void Start()
     {
         debugWindow.SetActive(false);
         if (!isEnabled)
@@ -26,7 +26,7 @@ public class DebugWindow : MonoBehaviour
         }
     }
 
-    void OnDisable()
+    void OnDestroy()
     {
         if (isEnabled)
         {
