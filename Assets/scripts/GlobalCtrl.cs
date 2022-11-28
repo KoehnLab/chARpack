@@ -41,6 +41,8 @@ public class GlobalCtrl : MonoBehaviour
     //public static UISaveMenu UISave { get; private set; }
 
     public GameObject myBoundingBoxPrefab;
+    public GameObject myAtomPrefab;
+
     public Material atomMatPrefab;
     /// <summary>
     /// list with all currently existing atoms
@@ -727,23 +729,20 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="pos">position, where the atom should be created</param>
     public void CreateAtom(int idAtom, string ChemicalAbbre, Vector3 pos)
     {
+        //GameObject tempMoleculeGO = Instantiate(myBoundingBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        //Molecule tempMolecule = tempMoleculeGO.AddComponent<Molecule>();
         Molecule tempMolecule = new GameObject().AddComponent<Molecule>();
         tempMolecule.transform.position = pos;
         tempMolecule.f_Init(idAtom, atomWorld.transform);
-        //TODO fix
-        BoxCollider boxCollider = tempMolecule.gameObject.AddComponent<BoxCollider>();
-        //BoundingBox niceBbox = myBoundingBoxPrefab.GetComponent<BoundingBox>();
-        //tempMolecule.gameObject.AddComponent(niceBbox);
-        BoundingBox niceBbox = tempMolecule.gameObject.AddComponent<BoundingBox>();
-        niceBbox.Target = tempMolecule.gameObject;
-        niceBbox.BoundsOverride = boxCollider;
 
         // 0: none; 1: sp1; 2: sp2;  3: sp3;  4: hypervalent trig. bipy; 5: unused;  6: hypervalent octahedral
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
         tempData.m_hybridization = curHybrid;
         tempData.m_bondNum = Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization)); // a preliminary solution
 
-        Atom tempAtom = GameObject.CreatePrimitive(PrimitiveType.Sphere).AddComponent<Atom>();
+        //Atom tempAtom = GameObject.CreatePrimitive(PrimitiveType.Sphere).AddComponent<Atom>();
+        GameObject tempAtomGO = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        Atom tempAtom = tempAtomGO.AddComponent<Atom>();
         tempAtom.f_Init(tempData, tempMolecule, Vector3.zero ,idAtom);
         List_curAtoms.Add(tempAtom);
         //Dic_curAtoms.Add(idInScene, tempAtom);
@@ -832,7 +831,9 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="pos">the position, where the dummy is created</param>
     public void CreateDummy(int idDummy, Molecule inputMole, Atom mainAtom, Vector3 pos)
     {
-        Atom dummy = GameObject.CreatePrimitive(PrimitiveType.Sphere).AddComponent<Atom>();
+        //Atom dummy = GameObject.CreatePrimitive(PrimitiveType.Sphere).AddComponent<Atom>();
+        GameObject dummyGO = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        Atom dummy = dummyGO.AddComponent<Atom>();
         dummy.f_Init(Dic_ElementData["Dummy"], inputMole, pos, idDummy);//0 for dummy
         List_curAtoms.Add(dummy);
         CreateBond(mainAtom, dummy, inputMole);
@@ -1252,6 +1253,11 @@ public class GlobalCtrl : MonoBehaviour
     public void changeAtomMode()
     {
         allAtomMode = !allAtomMode;
+        //foreach (Molecule molecule in List_curMolecules)
+        //{
+        //    molecule.GetComponent<BoundingBox>().enabled = !allAtomMode; 
+        //}
+
     }
 
     public void getRepulsionScale(float value)

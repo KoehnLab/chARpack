@@ -88,6 +88,24 @@ public class Molecule : MonoBehaviour
         return center;
     }
 
+    public float getMaxDistFromCenter(Vector3 center)
+    {
+        List<float> dists = new List<float>();
+
+        foreach (Atom atom in atomList)
+        {
+            Vector3 atom_pos = atom.transform.position;
+            dists.Add(Mathf.Sqrt(center[0]*atom_pos[0] + center[1] * atom_pos[1] + center[2] * atom_pos[2]));
+        }
+
+        float max_dist = 0.0f;
+        foreach (float dist in dists)
+        {
+            max_dist = Mathf.Max(max_dist, dist);
+        }
+
+        return max_dist;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -98,7 +116,10 @@ public class Molecule : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        BoxCollider bc = gameObject.GetComponent<BoxCollider>();
-        bc.transform.position = getCenter();
+        //BoxCollider bc = gameObject.GetComponent<BoxCollider>();
+        //Vector3 center = getCenter();
+        //bc.transform.position = center;
+        //float max_dist = getMaxDistFromCenter(center);
+        //bc.size = new Vector3(max_dist / 4.0f, max_dist / 4.0f, max_dist / 4.0f);
     }
 }

@@ -729,7 +729,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 040ea6f42c6108143bf276ffcc860177, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myBoundingBoxPrefab: {fileID: 7377244445179915796, guid: bf048a9970cb97f44a46f7c758da93a0, type: 3}
+  myBoundingBoxPrefab: {fileID: 3171056966652697625, guid: da5a9a3f460b12b40a2abf0d372cc8ec, type: 3}
+  myAtomPrefab: {fileID: 7377244445179915796, guid: bf048a9970cb97f44a46f7c758da93a0, type: 3}
   atomMatPrefab: {fileID: 2100000, guid: a5e028070ace428d8971079be1d965a6, type: 2}
   idInScene: 0
   scale: 0.5
@@ -1333,14 +1334,14 @@ PrefabInstance:
     - target: {fileID: 4238929520169732924, guid: 64790b91b91094d49942373c4e83c237, type: 3}
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 875288283}
+      objectReference: {fileID: 684068572}
     - target: {fileID: 4238929520169732924, guid: 64790b91b91094d49942373c4e83c237, type: 3}
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: toggle
+      value: changeAtomMode
       objectReference: {fileID: 0}
     - target: {fileID: 4238929520169732924, guid: 64790b91b91094d49942373c4e83c237, type: 3}
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: toggleAllAtomMode, Assembly-CSharp
+      value: GlobalCtrl, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 6413889394266691908, guid: 64790b91b91094d49942373c4e83c237, type: 3}
       propertyPath: m_IsActive

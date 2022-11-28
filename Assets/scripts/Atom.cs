@@ -66,7 +66,8 @@ public class Atom : MonoBehaviour
         this.gameObject.name = m_data.m_name;
         this.gameObject.tag = "Atom";
         this.gameObject.layer = 6;
-        this.GetComponent<SphereCollider>().isTrigger = true;
+        //this.GetComponent<SphereCollider>().isTrigger = true;
+        this.GetComponent<BoxCollider>().isTrigger = true;
         // add HoloLens interaction scripts
         ObjectManipulator objMani = this.gameObject.AddComponent<ObjectManipulator>();
         objMani.ReleaseBehavior = 0;
@@ -88,8 +89,8 @@ public class Atom : MonoBehaviour
         }
         GetComponent<MeshRenderer>().material = GlobalCtrl.Instance.Dic_AtomMat[m_data.m_id];
         m_mat = GetComponent<MeshRenderer>().material;
-        m_rigid = gameObject.AddComponent<Rigidbody>();
-        m_rigid.useGravity = false;
+        //m_rigid = gameObject.AddComponent<Rigidbody>();
+        //m_rigid.useGravity = false;
 
 
         this.transform.parent = inputMole.transform;
