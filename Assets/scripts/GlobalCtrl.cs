@@ -1355,7 +1355,7 @@ public class GlobalCtrl : MonoBehaviour
     private void OnApplicationQuit()
     {
         if (isAnyAtomChanged)
-            CFileHelper.SaveData(Application.dataPath + "/MoleculeFolder/ElementData.xml", list_ElementData);
+            CFileHelper.SaveData(Application.streamingAssetsPath + "/MoleculeFolder/ElementData.xml", list_ElementData);
     }
 
 }

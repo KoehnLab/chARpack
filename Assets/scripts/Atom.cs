@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
-public class Atom : MonoBehaviour
+public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 {
     private static Atom instance;
     public static Atom Instance
@@ -22,12 +22,42 @@ public class Atom : MonoBehaviour
         }
     }
 
+    public void OnPointerDown(MixedRealityPointerEventData eventData)
+    {
+        // Intentionally empty
+    }
+    public void OnPointerClicked(MixedRealityPointerEventData eventData) 
+    {
+        // Intentionally empty
+    }
+    public void OnPointerDragged(MixedRealityPointerEventData eventData)
+    {
+        // Intentionally empty
+    }
+
+    // This function is triggered when a grabbed object is dropped
+    public void OnPointerUp(MixedRealityPointerEventData eventData) 
+    {
+        if (GlobalCtrl.Instance.collision)
+        {
+            Atom d1 = GlobalCtrl.Instance.collider1;
+            Atom d2 = GlobalCtrl.Instance.collider2;
+
+            Atom a1 = Atom.Instance.dummyFindMain(d1);
+            Atom a2 = Atom.Instance.dummyFindMain(d2);
+
+            if (!Atom.Instance.alreadyConnected(a1, a2))
+                GlobalCtrl.Instance.MergeMolecule(GlobalCtrl.Instance.collider1, GlobalCtrl.Instance.collider2);
+
+        }
+        Debug.Log($"[Atom] OnPointerUp: {eventData}");
+    }
 
     public int m_idInScene;
     public Molecule m_molecule;
     public ElementData m_data { get; private set; }
     // we have to clarify the role of m_data: Is this just basic (and constant) data?
-         // 0: none; 1: sp1; 2: sp2;  3: sp3;  4: hypervalent trig. bipy; 5: unused;  6: hypervalent octahedral
+    // 0: none; 1: sp1; 2: sp2;  3: sp3;  4: hypervalent trig. bipy; 5: unused;  6: hypervalent octahedral
     public Material m_mat;
     //public int m_nBondP;
     public Rigidbody m_rigid;
@@ -37,17 +67,8 @@ public class Atom : MonoBehaviour
     public bool isMarked = false;
 
     public GameObject m_ActiveHand = null;
-    // Start is called before the first frame update
-    void Start()
-    {
 
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
     /// <summary>
     /// initialises the atom with all it's attributes
     /// </summary>
@@ -68,13 +89,7 @@ public class Atom : MonoBehaviour
         this.gameObject.layer = 6;
         //this.GetComponent<SphereCollider>().isTrigger = true;
         this.GetComponent<BoxCollider>().isTrigger = true;
-        // add HoloLens interaction scripts
-        ObjectManipulator objMani = this.gameObject.AddComponent<ObjectManipulator>();
-        objMani.ReleaseBehavior = 0;
-        //Debug.Log("[Atom] Physics release behavoir " + objMani.ReleaseBehavior.ToString());
 
-        NearInteractionGrabbable grab =  this.gameObject.AddComponent<NearInteractionGrabbable>();
-        grab.ShowTetherWhenManipulating = true;
 
         //I don't want to create the materials for all elements from the beginning,
         //so I only create a material for an element at the first time when I create this element,
@@ -260,6 +275,7 @@ public class Atom : MonoBehaviour
 
     private void OnTriggerEnter(Collider collider)
     {
+        // Debug.Log($"[Atom] Collision Detected: {collider.name}");
         if (collider.name.StartsWith("Dummy") && this.name.StartsWith("Dummy") && GlobalCtrl.Instance.collision == false)
         {
 
@@ -275,7 +291,7 @@ public class Atom : MonoBehaviour
     {
         if (collider.name.StartsWith("Dummy") && this.name.StartsWith("Dummy"))
         {
-            if(GlobalCtrl.Instance.collider1 != null)
+            if (GlobalCtrl.Instance.collider1 != null)
             {
                 GlobalCtrl.Instance.collider1.colorSwapSelect(0);
                 GlobalCtrl.Instance.collider1 = null;
@@ -284,7 +300,7 @@ public class Atom : MonoBehaviour
             {
                 GlobalCtrl.Instance.collider2.colorSwapSelect(0);
                 GlobalCtrl.Instance.collider2 = null;
-            }    
+            }
             GlobalCtrl.Instance.collision = false;
         }
     }
