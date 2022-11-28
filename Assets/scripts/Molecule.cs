@@ -110,10 +110,10 @@ public class Molecule : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //BoxCollider bc = gameObject.GetComponent<BoxCollider>();
-        //Vector3 center = getCenter();
-        //bc.transform.position = center;
-        //float max_dist = getMaxDistFromCenter(center);
-        //bc.size = new Vector3(max_dist / 4.0f, max_dist / 4.0f, max_dist / 4.0f);
+        BoxCollider bc = gameObject.GetComponent<BoxCollider>();
+        Vector3 center = getCenter();
+        bc.transform.position = center;
+        float max_dist = getMaxDistFromCenter(center);
+        bc.size = new Vector3(max_dist / 4.0f, max_dist / 4.0f, max_dist / 4.0f);
     }
 }

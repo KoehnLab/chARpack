@@ -10,8 +10,7 @@ using System.Globalization;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Reflection;
-
-
+using Microsoft.MixedReality.Toolkit.Input;
 
 [Serializable]
 /// <summary>
@@ -729,9 +728,15 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="pos">position, where the atom should be created</param>
     public void CreateAtom(int idAtom, string ChemicalAbbre, Vector3 pos)
     {
-        //GameObject tempMoleculeGO = Instantiate(myBoundingBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity);
-        //Molecule tempMolecule = tempMoleculeGO.AddComponent<Molecule>();
-        Molecule tempMolecule = new GameObject().AddComponent<Molecule>();
+        GameObject tempMoleculeGO = Instantiate(myBoundingBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        tempMoleculeGO.GetComponent<Collider>().enabled = !allAtomMode;
+        tempMoleculeGO.GetComponent<BoundingBox>().enabled = !allAtomMode;
+        tempMoleculeGO.GetComponent<ObjectManipulator>().enabled = !allAtomMode;
+        tempMoleculeGO.GetComponent<NearInteractionGrabbable>().enabled = !allAtomMode;
+        tempMoleculeGO.GetComponent<ConstraintManager>().enabled = !allAtomMode;
+        Molecule tempMolecule = tempMoleculeGO.AddComponent<Molecule>();
+
+        // Molecule tempMolecule = new GameObject().AddComponent<Molecule>();
         tempMolecule.transform.position = pos;
         tempMolecule.f_Init(idAtom, atomWorld.transform);
 
@@ -1253,10 +1258,15 @@ public class GlobalCtrl : MonoBehaviour
     public void changeAtomMode()
     {
         allAtomMode = !allAtomMode;
-        //foreach (Molecule molecule in List_curMolecules)
-        //{
-        //    molecule.GetComponent<BoundingBox>().enabled = !allAtomMode; 
-        //}
+        foreach (Molecule molecule in List_curMolecules)
+        {
+            molecule.GetComponent<Collider>().enabled = !allAtomMode;
+            molecule.GetComponent<BoundingBox>().enabled = !allAtomMode;
+            molecule.GetComponent<ObjectManipulator>().enabled = !allAtomMode;
+            molecule.GetComponent<NearInteractionGrabbable>().enabled = !allAtomMode;
+            molecule.GetComponent<ConstraintManager>().enabled = !allAtomMode;
+            Debug.Log($"[GlobalCtrl] All Atom Mode is {allAtomMode}");
+        }
 
     }
 
