@@ -6,8 +6,10 @@ public class myBoundingBox : MonoBehaviour
 {
 
     public Material myLineMaterial;
+    public GameObject cornerHandle;
     private LineRenderer myLR;
     private Bounds localBounds;
+    private BoxCollider[] corners;
 
     private void getBounds()
     {
@@ -77,6 +79,25 @@ public class myBoundingBox : MonoBehaviour
         myLR.startWidth = 0.001f;
         myLR.endWidth = 0.001f;
         myLR.positionCount = 16;
+
+        getBounds();
+
+        Vector3[] corners = new Vector3[1];
+        corners[0] = localBounds.min;
+
+        // add colliders on all 8 corners
+        foreach (var corner in corners)
+        {
+            var cornerCollider = gameObject.AddComponent<BoxCollider>();
+            cornerCollider.center = corner;
+            var handle = Instantiate(cornerHandle, transform);
+            handle.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);
+            handle.transform.position = corner;
+            var currentRot = handle.transform.localRotation;
+            handle.transform.RotateAroundLocal(Vector3.forward, Mathf.PI);
+            handle.transform.RotateAroundLocal(Vector3.up, -Mathf.PI/2);
+
+        }
 
 
     }
