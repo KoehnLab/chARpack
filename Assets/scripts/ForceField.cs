@@ -139,7 +139,8 @@ public class ForceField : MonoBehaviour
         //conversion factor from atomic model to unity
         //scalingfactor = GetComponent<GlobalCtrl>().scale / GetComponent<GlobalCtrl>().u2pm;
         scalingfactor = GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm;
-        timeFactor = (1.5f / (float)nTimeSteps);
+        //timeFactor = (1.5f / (float)nTimeSteps);
+        timeFactor = (4.0f / (float)nTimeSteps);
 
         Dictionary<string, ElementData> element_dict = GlobalCtrl.Instance.Dic_ElementData;
         if ( element_dict == null)

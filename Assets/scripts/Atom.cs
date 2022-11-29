@@ -112,14 +112,14 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         this.transform.localPosition = pos;
         
         this.transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.Instance.scale/GlobalCtrl.Instance.u2pm) * GlobalCtrl.Instance.atomScale;
-        Debug.Log(string.Format("Added latest {0}:  rad={1}  scale={2}  hyb={3}  nBonds={4}", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Instance.atomScale, m_data.m_hybridization, m_data.m_bondNum));
+        //Debug.Log(string.Format("Added latest {0}:  rad={1}  scale={2}  hyb={3}  nBonds={4}", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Instance.atomScale, m_data.m_hybridization, m_data.m_bondNum));
 
         //Initial positions for dummies
         m_posForDummies = new List<Vector3>();
         Vector3 offset = new Vector3(0, 100, 0);
         // TODO: make this dependent on m_nBond and m_hybridization:
 
-        Debug.Log("Hybrid: " + m_data.m_hybridization.ToString());
+        //Debug.Log("Hybrid: " + m_data.m_hybridization.ToString());
 
         switch (m_data.m_hybridization)
         {

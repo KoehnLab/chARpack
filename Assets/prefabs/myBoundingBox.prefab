@@ -44,4 +44,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8a044b7bdac18043a94acf4fa780f4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  WireFrameMaterial: {fileID: 2100000, guid: a923a5d1aebc7fe449b4ab3289da537b, type: 2}
+  myLineMaterial: {fileID: 2100000, guid: a50237e3265fe9149a16e889fd8d8b4c, type: 2}
