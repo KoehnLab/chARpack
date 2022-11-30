@@ -50,7 +50,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
                 GlobalCtrl.Instance.MergeMolecule(GlobalCtrl.Instance.collider1, GlobalCtrl.Instance.collider2);
 
         }
-        Debug.Log($"[Atom] OnPointerUp: {eventData}");
+        //Debug.Log($"[Atom] OnPointerUp: {eventData}");
     }
 
     public int m_idInScene;

@@ -1,9 +1,82 @@
+using Microsoft.MixedReality.Toolkit.Input;
+using Microsoft.MixedReality.Toolkit.UI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Molecule : MonoBehaviour
+public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
+    public void OnPointerDown(MixedRealityPointerEventData eventData)
+    {
+        if (eventData.Pointer is SpherePointer)
+        {
+            Debug.Log($"Grab start from {eventData.Pointer.PointerName}");
+        }
+        // change material of grabbed object
+        var bbox = gameObject.GetComponent<myBoundingBox>();
+        if (bbox.myHandleGrabbedMaterial != null)
+        {
+            foreach (var handle in bbox.cornerHandles)
+            {
+                Renderer[] renderers = handle.GetComponentsInChildren<Renderer>();
+
+                for (int j = 0; j < renderers.Length; ++j)
+                {
+                    renderers[j].material = bbox.myHandleGrabbedMaterial;
+                }
+            }
+        }
+        if (bbox.myLineGrabbedMaterial != null)
+        {
+            bbox.myLR.material = bbox.myLineGrabbedMaterial;
+        }
+
+    }
+    public void OnPointerClicked(MixedRealityPointerEventData eventData)
+    {
+        // Intentionally empty
+    }
+    public void OnPointerDragged(MixedRealityPointerEventData eventData)
+    {
+        // Intentionally empty
+    }
+
+    // This function is triggered when a grabbed object is dropped
+    public void OnPointerUp(MixedRealityPointerEventData eventData)
+    {
+        if (GlobalCtrl.Instance.collision)
+        {
+            Atom d1 = GlobalCtrl.Instance.collider1;
+            Atom d2 = GlobalCtrl.Instance.collider2;
+
+            Atom a1 = Atom.Instance.dummyFindMain(d1);
+            Atom a2 = Atom.Instance.dummyFindMain(d2);
+
+            if (!Atom.Instance.alreadyConnected(a1, a2))
+                GlobalCtrl.Instance.MergeMolecule(GlobalCtrl.Instance.collider1, GlobalCtrl.Instance.collider2);
+
+        }
+        // change material back to normal
+        var bbox = gameObject.GetComponent<myBoundingBox>();
+        if (bbox.myHandleMaterial != null)
+        {
+            foreach (var handle in bbox.cornerHandles)
+            {
+                Renderer[] renderers = handle.GetComponentsInChildren<Renderer>();
+
+                for (int j = 0; j < renderers.Length; ++j)
+                {
+                    renderers[j].material = bbox.myHandleMaterial;
+                }
+            }
+        }
+        if (bbox.myLineMaterial != null)
+        {
+            bbox.myLR.material = bbox.myLineMaterial;
+        }
+    }
+
+
     /// <summary>
     /// molecule id
     /// </summary>
@@ -33,7 +106,12 @@ public class Molecule : MonoBehaviour
         this.transform.parent = inputParent;
         atomList = new List<Atom>();
         bondList = new List<Bond>();
-        
+        var collider = gameObject.AddComponent<BoxCollider>();
+        collider.size = new Vector3(0.001f,0.001f,0.001f);
+        // these objects take input from corner colliders and manipulate the moluecule
+        gameObject.AddComponent<ObjectManipulator>();
+        gameObject.AddComponent<NearInteractionGrabbable>();
+
     }
 
     /// <summary>
