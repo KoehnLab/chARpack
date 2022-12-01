@@ -86,7 +86,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 
         this.gameObject.name = m_data.m_name;
         this.gameObject.tag = "Atom";
-        this.gameObject.layer = 6;
+        //this.gameObject.layer = 6;
         //this.GetComponent<SphereCollider>().isTrigger = true;
         this.GetComponent<BoxCollider>().isTrigger = true;
 

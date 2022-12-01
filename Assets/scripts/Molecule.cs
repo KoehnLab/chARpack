@@ -8,10 +8,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
     public void OnPointerDown(MixedRealityPointerEventData eventData)
     {
-        if (eventData.Pointer is SpherePointer)
-        {
-            Debug.Log($"Grab start from {eventData.Pointer.PointerName}");
-        }
         // change material of grabbed object
         var bbox = gameObject.GetComponent<myBoundingBox>();
         if (bbox.myHandleGrabbedMaterial != null)
@@ -107,7 +103,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         atomList = new List<Atom>();
         bondList = new List<Bond>();
         var collider = gameObject.AddComponent<BoxCollider>();
-        collider.size = new Vector3(0.001f,0.001f,0.001f);
+        collider.size = new Vector3(0.001f, 0.001f, 0.001f);
         // these objects take input from corner colliders and manipulate the moluecule
         gameObject.AddComponent<ObjectManipulator>();
         gameObject.AddComponent<NearInteractionGrabbable>();

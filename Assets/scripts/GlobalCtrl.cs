@@ -111,9 +111,10 @@ public class GlobalCtrl : MonoBehaviour
 
     public bool forceField = true;
     public bool allAtomMode = true;
-    public bool collision = false;
-    public Atom collider1;
-    public Atom collider2;
+
+    [HideInInspector] public bool collision = false;
+    [HideInInspector] public Atom collider1;
+    [HideInInspector] public Atom collider2;
 
     public float repulsionScale = 0.1f;
 
@@ -729,6 +730,7 @@ public class GlobalCtrl : MonoBehaviour
     public void CreateAtom(int idAtom, string ChemicalAbbre, Vector3 pos)
     {
         GameObject tempMoleculeGO = Instantiate(myBoundingBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        //var tempMoleculeGO = new GameObject();
         //tempMoleculeGO.GetComponent<Collider>().enabled = !allAtomMode;
         //tempMoleculeGO.GetComponent<BoundingBox>().enabled = !allAtomMode;
         //tempMoleculeGO.GetComponent<ObjectManipulator>().enabled = !allAtomMode;
@@ -749,6 +751,11 @@ public class GlobalCtrl : MonoBehaviour
         GameObject tempAtomGO = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         Atom tempAtom = tempAtomGO.AddComponent<Atom>();
         tempAtom.f_Init(tempData, tempMolecule, Vector3.zero ,idAtom);
+
+        var ni = tempAtom.GetComponent<NearInteractionGrabbable>();
+        
+
+
         List_curAtoms.Add(tempAtom);
         //Dic_curAtoms.Add(idInScene, tempAtom);
         idInScene++;

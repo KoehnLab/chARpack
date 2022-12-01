@@ -14,9 +14,8 @@ public class myBoundingBox : MonoBehaviour
     public Material myHandleGrabbedMaterial;
     public GameObject cornerHandle;
 
-    // TODO dont show in gui
-    public LineRenderer myLR;
-    public GameObject[] cornerHandles = new GameObject[8];
+    [HideInInspector] public LineRenderer myLR;
+    [HideInInspector] public GameObject[] cornerHandles = new GameObject[8];
 
     private Quaternion[] cornerOrientation = new Quaternion[8];
     private Bounds localBounds;
@@ -113,7 +112,6 @@ public class myBoundingBox : MonoBehaviour
         corners[6] = localBounds.min;
         corners[7] = new Vector3(localBounds.max.x, localBounds.min.y, localBounds.min.z);
 
-        
         cornerOrientation[0] = Quaternion.Euler(0, 90, 0);
         cornerOrientation[1] = Quaternion.Euler(0, 0, 0);
         cornerOrientation[2] = Quaternion.Euler(0, 0, 90);
