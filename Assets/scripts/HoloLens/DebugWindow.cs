@@ -10,6 +10,7 @@ public class DebugWindow : MonoBehaviour
     public GameObject debugWindow;
     public GameObject logEntryPrefab;
     public GameObject scrollingObjectCollection;
+    public GameObject clippingBox;
 
     private bool isEnabled = false;
     private bool showStackTrace = false;
@@ -69,8 +70,17 @@ public class DebugWindow : MonoBehaviour
         //newLogEntry.transform.position -= new Vector3(0.0f, 1.0f, 0.0f) * 3.0f * 0.032f * (gridObjCollectionGO.transform.childCount - 1);
         // update collection also repositions all content
 
+        // update on collection places all items in order
         gridObjCollectionGO.GetComponent<GridObjectCollection>().UpdateCollection();
+        // update on scoll content makes the list scrollable
         scrollingObjectCollection.GetComponent<ScrollingObjectCollection>().UpdateContent();
+        // add all renderers of a log entry to the clipping box renderer list to make the buttons disappear when out of bounds
+        var cb = clippingBox.GetComponent<ClippingBox>();
+        var renderers = newLogEntry.GetComponentsInChildren<Renderer>();
+        foreach (var renderer in renderers)
+        {
+            cb.AddRenderer(renderer);
+        }
 
 
 
@@ -78,6 +88,8 @@ public class DebugWindow : MonoBehaviour
     public void toggleVisible()
     {
         debugWindow.SetActive(!debugWindow.activeSelf);
+        // somehow the renderer list for clipping gets emptied after disable
+        updateClipping();
     }
     public void toggleStackTrace()
     {
@@ -99,6 +111,22 @@ public class DebugWindow : MonoBehaviour
         {
             Application.logMessageReceived -= LogMessage;
             isEnabled = false;
+        }
+    }
+
+    public void updateClipping()
+    {
+        if (debugWindow.activeSelf)
+        {
+            var cb = clippingBox.GetComponent<ClippingBox>();
+            foreach (Transform child in gridObjCollectionGO.transform)
+            {
+                var renderers = child.GetComponentsInChildren<Renderer>();
+                foreach (var renderer in renderers)
+                {
+                    cb.AddRenderer(renderer);
+                }
+            }
         }
     }
 

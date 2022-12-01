@@ -10,6 +10,8 @@ using StructClass;
 public class ForceField : MonoBehaviour
 {
 
+    public bool enableForceField = true;
+
     public struct BondTerm
     {
         public int Atom1; public int Atom2; public float kBond; public float Req;
@@ -120,8 +122,15 @@ public class ForceField : MonoBehaviour
     //                level = 1000 more details on forces
     //                level = 10000 maximum detail level
     StreamWriter FFlog;
-    const int LogLevel = 0;
+    public int LogLevel = 0;
 
+    /// <summary>
+    /// Toggles the force field during runtime
+    /// </summary>
+    public void toggleForceField()
+    {
+        enableForceField = !enableForceField;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -166,19 +175,17 @@ public class ForceField : MonoBehaviour
     }
 
     // Update is called once per frame
-
     void FixedUpdate()
     {
         frame += 1;
-        if (LogLevel >= 100 && GlobalCtrl.Instance.forceField)
+        if (LogLevel >= 100 && enableForceField)
         {
             FFlog.WriteLine("Current frame: " + frame);
             FFlog.WriteLine("Current time:  " + Time.time.ToString("f6") + "  Delta: " + Time.deltaTime.ToString("f6"));
         }
         // If the forcefield is active, update all connections and forces, else only update connections
-        if (GlobalCtrl.Instance.forceField)
+        if (enableForceField)
         {
-
             // generate the basic lists and check if atoms have been added/removed/changed
             bool changed = generateLists();
 
@@ -195,7 +202,6 @@ public class ForceField : MonoBehaviour
         {
             scaleConnections();
         }
-
     }
 
     /*
@@ -600,28 +606,31 @@ public class ForceField : MonoBehaviour
                             {
                                 //Bond bondJK = Bond.Instance.getBond(Atom.Instance.getAtomByID(jdx), Atom.Instance.getAtomByID(kdx)); //??
                                 //print(bondJK.m_bondOrder);
-                                if (false) //bondJK.m_bondOrder == 2.0f)
-                                {
-                                    newTorsion.vk = 0.45f * k0 / nTorsTerm;
-                                    newTorsion.nn = 2;
-                                    newTorsion.phieq = 180f; // Mathf.PI;
-                                    //print("3. Case 2 sp2, Doppelbindung");
-                                }
-                                else //if(bondJK.m_bondOrder == 1.0f || bondJK.m_bondOrder == 1.5f)       
-                                {
-                                    newTorsion.vk = 0.05f * k0 / nTorsTerm;
-                                    newTorsion.nn = 2;
-                                    newTorsion.phieq = 180f; // Mathf.PI;
-                                    //print("3. Case 2 sp2, singlebond or resonant atoms");
-                                    /*if(exocyclic dihedral single bond involving two aromatic atoms)   //f) exception for exocyclic dihedral single bond involving two aromatic atoms ??
-                                        {
-                                             newTorsion.vk = 10f;
-                                             newTorsion.nn = 2;
-                                             newTorsion.phieq = 180f;
-                                             print("exocyclic dihedral single bond involving two aromatic atoms");
-                                        }
-                                    */
-                                }
+                                //if (false) //bondJK.m_bondOrder == 2.0f)
+                                //{
+                                //    newTorsion.vk = 0.45f * k0 / nTorsTerm;
+                                //    newTorsion.nn = 2;
+                                //    newTorsion.phieq = 180f; // Mathf.PI;
+                                //    //print("3. Case 2 sp2, Doppelbindung");
+                                //}
+                                //else //if(bondJK.m_bondOrder == 1.0f || bondJK.m_bondOrder == 1.5f)       
+                                //{
+                                //    newTorsion.vk = 0.05f * k0 / nTorsTerm;
+                                //    newTorsion.nn = 2;
+                                //    newTorsion.phieq = 180f; // Mathf.PI;
+                                //    //print("3. Case 2 sp2, singlebond or resonant atoms");
+                                //    /*if(exocyclic dihedral single bond involving two aromatic atoms)   //f) exception for exocyclic dihedral single bond involving two aromatic atoms ??
+                                //        {
+                                //             newTorsion.vk = 10f;
+                                //             newTorsion.nn = 2;
+                                //             newTorsion.phieq = 180f;
+                                //             print("exocyclic dihedral single bond involving two aromatic atoms");
+                                //        }
+                                //    */
+                                //}
+                                newTorsion.vk = 0.05f * k0 / nTorsTerm;
+                                newTorsion.nn = 2;
+                                newTorsion.phieq = 180f; // Mathf.PI
                             }
                             else if (atomHybridization[jdx] == 4 && atomHybridization[kdx] == 4)
                             {

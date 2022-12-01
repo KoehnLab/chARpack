@@ -19,6 +19,7 @@ public class hideDebugLogOnStackTrace : MonoBehaviour
         if (debugLogGO != null)
         {
             debugLogGO.SetActive(true);
+            debugLogGO.GetComponent<DebugWindow>().updateClipping();
         }
     }
 }

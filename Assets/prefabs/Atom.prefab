@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 3878503817280090212}
   - component: {fileID: 6109299877718134216}
   - component: {fileID: 4994947135205735893}
+  - component: {fileID: -7045672895053097098}
   m_Layer: 0
   m_Name: Atom
   m_TagString: Untagged
@@ -160,7 +161,7 @@ MonoBehaviour:
   hostTransform: {fileID: 6290116706028262637}
   manipulationType: 1
   twoHandedManipulationType: 7
-  allowFarManipulation: 1
+  allowFarManipulation: 0
   useForcesForNearManipulation: 1
   oneHandRotationModeNear: 1
   oneHandRotationModeFar: 1
@@ -188,3 +189,15 @@ MonoBehaviour:
   onHoverExited:
     m_PersistentCalls:
       m_Calls: []
+--- !u!122 &-7045672895053097098
+Halo:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7377244445179915796}
+  m_Enabled: 0
+  m_Color:
+    serializedVersion: 2
+    rgba: 4294939721
+  m_Size: 0.02

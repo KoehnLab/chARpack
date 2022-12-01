@@ -4,6 +4,7 @@ using StructClass;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 [Serializable]
@@ -24,7 +25,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 
     public void OnPointerDown(MixedRealityPointerEventData eventData)
     {
-        // Intentionally empty
+        // give it a glow halo
+        (GetComponent("Halo") as Behaviour).enabled = true;
     }
     public void OnPointerClicked(MixedRealityPointerEventData eventData) 
     {
@@ -38,6 +40,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     // This function is triggered when a grabbed object is dropped
     public void OnPointerUp(MixedRealityPointerEventData eventData) 
     {
+        // remove glow
+        (GetComponent("Halo") as Behaviour).enabled = false;
+
+        // check for potential merge
         if (GlobalCtrl.Instance.collision)
         {
             Atom d1 = GlobalCtrl.Instance.collider1;
@@ -90,7 +96,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         //this.GetComponent<SphereCollider>().isTrigger = true;
         this.GetComponent<BoxCollider>().isTrigger = true;
 
-
         //I don't want to create the materials for all elements from the beginning,
         //so I only create a material for an element at the first time when I create this element,
         //and then add this material to the dictionary
@@ -104,14 +109,14 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         }
         GetComponent<MeshRenderer>().material = GlobalCtrl.Instance.Dic_AtomMat[m_data.m_id];
         m_mat = GetComponent<MeshRenderer>().material;
-        //m_rigid = gameObject.AddComponent<Rigidbody>();
-        //m_rigid.useGravity = false;
-
 
         this.transform.parent = inputMole.transform;
-        this.transform.localPosition = pos;
-        
+        this.transform.localPosition = pos;    
         this.transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.Instance.scale/GlobalCtrl.Instance.u2pm) * GlobalCtrl.Instance.atomScale;
+        // at this point we have the size of the atom, so we can adjust the size of the halo
+        //
+
+
         //Debug.Log(string.Format("Added latest {0}:  rad={1}  scale={2}  hyb={3}  nBonds={4}", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Instance.atomScale, m_data.m_hybridization, m_data.m_bondNum));
 
         //Initial positions for dummies
@@ -209,7 +214,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             numConnected++;
         }
 
-        Debug.Log(string.Format("Modified latest {0}:  rad={1}   scale={2} ", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Instance.atomScale));
+        // Debug.Log(string.Format("Modified latest {0}:  rad={1}   scale={2} ", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Instance.atomScale));
     }
 
 

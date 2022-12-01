@@ -109,9 +109,6 @@ public class GlobalCtrl : MonoBehaviour
     public Material markedMat;
     public Material bondMat;
 
-    public bool forceField = true;
-    public bool allAtomMode = true;
-
     [HideInInspector] public bool collision = false;
     [HideInInspector] public Atom collider1;
     [HideInInspector] public Atom collider2;
@@ -128,6 +125,7 @@ public class GlobalCtrl : MonoBehaviour
     //public GameObject fav4;
     //public GameObject fav5;
     //public List<GameObject> favoritesGO = new List<GameObject>(5);
+
     /// <summary>
     /// the last created atom, init to default "C"
     /// </summary>
@@ -443,6 +441,7 @@ public class GlobalCtrl : MonoBehaviour
     {
         markToDeleteCore(false);
     }
+
     /// <summary>
     /// this method deletes everything in the scene, it is called on clicking the delete button in the UI
     /// </summary>
@@ -450,7 +449,6 @@ public class GlobalCtrl : MonoBehaviour
     {
         markToDeleteCore(true);
     }
-
 
     /// <summary>
     /// this method initialises the delete process, it is called by markToDelete or DeleteAll
@@ -729,13 +727,8 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="pos">position, where the atom should be created</param>
     public void CreateAtom(int idAtom, string ChemicalAbbre, Vector3 pos)
     {
+        // create atom from atom prefab
         GameObject tempMoleculeGO = Instantiate(myBoundingBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity);
-        //var tempMoleculeGO = new GameObject();
-        //tempMoleculeGO.GetComponent<Collider>().enabled = !allAtomMode;
-        //tempMoleculeGO.GetComponent<BoundingBox>().enabled = !allAtomMode;
-        //tempMoleculeGO.GetComponent<ObjectManipulator>().enabled = !allAtomMode;
-        //tempMoleculeGO.GetComponent<NearInteractionGrabbable>().enabled = !allAtomMode;
-        //tempMoleculeGO.GetComponent<ConstraintManager>().enabled = !allAtomMode;
         Molecule tempMolecule = tempMoleculeGO.AddComponent<Molecule>();
 
         //Molecule tempMolecule = new GameObject().AddComponent<Molecule>();
@@ -751,11 +744,6 @@ public class GlobalCtrl : MonoBehaviour
         GameObject tempAtomGO = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         Atom tempAtom = tempAtomGO.AddComponent<Atom>();
         tempAtom.f_Init(tempData, tempMolecule, Vector3.zero ,idAtom);
-
-        var ni = tempAtom.GetComponent<NearInteractionGrabbable>();
-        
-
-
         List_curAtoms.Add(tempAtom);
         //Dic_curAtoms.Add(idInScene, tempAtom);
         idInScene++;
@@ -765,6 +753,16 @@ public class GlobalCtrl : MonoBehaviour
         }
 
         List_curMolecules.Add(tempMolecule);
+
+        Debug.Log("[GlobalCtrl] Created Atom!");
+        Debug.Log("[GlobalCtrl] Created Atom!");
+        Debug.Log("[GlobalCtrl] Created Atom!");
+        Debug.Log("[GlobalCtrl] Created Atom!");
+        Debug.Log("[GlobalCtrl] Created Atom!");
+        Debug.Log("[GlobalCtrl] Created Atom!");
+        Debug.Log("[GlobalCtrl] Created Atom!");
+        Debug.Log("[GlobalCtrl] Created Atom!");
+
     }
 
     /// <summary>
@@ -798,9 +796,9 @@ public class GlobalCtrl : MonoBehaviour
 
 
     /// <summary>
-    /// this method saturates all atoms, which means that all dummys are replaced by hydrogens
+    /// all dummys are replaced by hydrogens
     /// </summary>
-    public void SaturateAll()
+    public void replaceDummies()
     {
         // cancel any collision
         collision = false;
@@ -827,7 +825,8 @@ public class GlobalCtrl : MonoBehaviour
     {
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
         tempData.m_hybridization = hybrid;
-        Atom tempAtom = GameObject.CreatePrimitive(PrimitiveType.Sphere).AddComponent<Atom>();
+        GameObject tempAtomGO = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        Atom tempAtom = tempAtomGO.AddComponent<Atom>();
         tempAtom.f_Init(tempData, mol, pos, idAtom);
         List_curAtoms.Add(tempAtom);
         idInScene++;
@@ -907,34 +906,7 @@ public class GlobalCtrl : MonoBehaviour
 
     #region export import
 
-    /// <summary>
-    /// this method initialises the saved files and refreshes them
-    /// </summary>
-    public void initSavedFiles()
-    {
-        //int counter = -25;
-        //string path = Application.dataPath + "/SavedMolecules/";
-        //DirectoryInfo info = new DirectoryInfo(path);
-        //FileInfo[] fileInfo = info.GetFiles();
-        //foreach(FileInfo file in fileInfo)
-        //{
-        //    if (file.Extension.Equals(".xml"))
-        //    {
-        //        string name = file.Name.Substring(0, file.Name.Length - 4);
-        //        GameObject button = Instantiate(savedFileButtonPrefab);
-        //        button.transform.parent = scrollview.transform;
-                
-                
-        //        button.transform.localScale = Vector3.one;
-        //        button.transform.localRotation = Quaternion.Euler(0, 0, 0);
 
-        //        button.GetComponentInChildren<Text>().text = name;
-        //        button.transform.localPosition = new Vector3(125, counter, 0);
-        //        counter -= 40;
-        //    }
-            
-        //}
-    }
 
     /// <summary>
     /// this method converts the selected input molecule to lists which then are saved in an XML format
@@ -1038,7 +1010,7 @@ public class GlobalCtrl : MonoBehaviour
     /// this method loads a saved molecule into the workspace
     /// </summary>
     /// <param name="name">name of the saved molecule</param>
-    public void LoadMolecule(string name, int param)
+    public void LoadMolecule(string name, int param = 0)
     {
         int maxID = getMaxID() + 1;
 
@@ -1048,7 +1020,7 @@ public class GlobalCtrl : MonoBehaviour
 
         if(param == 0)
         {
-            loadData = (List<cmlData>)CFileHelper.LoadData(Application.dataPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
+            loadData = (List<cmlData>)CFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
             int nMol = 0;
             foreach (cmlData molecule in loadData)
             {
@@ -1057,11 +1029,12 @@ public class GlobalCtrl : MonoBehaviour
             }
             if (nMol > 0) meanPos /= (float)nMol;
 
-            Debug.Log(string.Format("meanPos : {0,12:f6} {1,12:f6} {2,12:f6} ", meanPos.x, meanPos.y, meanPos.z));
 
-            // new mean position should be controller left - meanPos of loaded molecule (thus shifted to origin + controller left) 
-            // meanPos = controllerRight.transform.position - meanPos;  // add molecules relative to this position
-            Debug.Log(string.Format("-meanPos + C : {0,12:f6} {1,12:f6} {2,12:f6} ", meanPos.x, meanPos.y, meanPos.z));
+            // new mean position should be in front of camera
+            Vector3 current_pos = Camera.main.transform.position;
+            Vector3 current_lookat = Camera.main.transform.forward;
+            Vector3 create_position = current_pos + 0.5f * current_lookat;
+            meanPos = create_position - meanPos;  // add molecules relative to this position
         } else
         {
             loadData = null;
@@ -1256,25 +1229,6 @@ public class GlobalCtrl : MonoBehaviour
         Vector3 create_position = current_pos + 0.5f * current_lookat;
 
         CreateAtom(idInScene, ChemicalID, create_position);
-    }
-
-    /// <summary>
-    /// this method changes the atom mode
-    /// either the whole molecule or only a single atom is grabbed, depending on the mode
-    /// </summary>
-    public void changeAtomMode()
-    {
-        allAtomMode = !allAtomMode;
-        foreach (Molecule molecule in List_curMolecules)
-        {
-            //molecule.GetComponent<Collider>().enabled = !allAtomMode;
-            //molecule.GetComponent<BoundingBox>().enabled = !allAtomMode;
-            //molecule.GetComponent<ObjectManipulator>().enabled = !allAtomMode;
-            //molecule.GetComponent<NearInteractionGrabbable>().enabled = !allAtomMode;
-            //molecule.GetComponent<ConstraintManager>().enabled = !allAtomMode;
-            Debug.Log($"[GlobalCtrl] All Atom Mode is {allAtomMode}");
-        }
-
     }
 
     public void getRepulsionScale(float value)
