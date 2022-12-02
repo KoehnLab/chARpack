@@ -542,7 +542,7 @@ MonoBehaviour:
   interactable: {fileID: 6880208385366382200}
   seeItSayItLabel: {fileID: 0}
   seeItSayItLabelText: {fileID: 0}
-  iconStyle: 0
+  iconStyle: 3
   iconCharLabel: {fileID: 0}
   iconCharFont: {fileID: 0}
   iconChar: 0
@@ -577,8 +577,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4051095203374262568}
   - component: {fileID: 4051095203374262612}
-  - component: {fileID: 4051095203374262613}
-  - component: {fileID: 4051095203374262570}
   - component: {fileID: 4051095203374262571}
   m_Layer: 0
   m_Name: TextMeshPro
@@ -649,22 +647,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &4051095203374262613
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4051095203374262569}
-  m_Mesh: {fileID: 0}
---- !u!222 &4051095203374262570
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4051095203374262569}
-  m_CullTransparentMesh: 0
 --- !u!114 &4051095203374262571
 MonoBehaviour:
   m_ObjectHideFlags: 0

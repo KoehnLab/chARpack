@@ -754,15 +754,6 @@ public class GlobalCtrl : MonoBehaviour
 
         List_curMolecules.Add(tempMolecule);
 
-        Debug.Log("[GlobalCtrl] Created Atom!");
-        Debug.Log("[GlobalCtrl] Created Atom!");
-        Debug.Log("[GlobalCtrl] Created Atom!");
-        Debug.Log("[GlobalCtrl] Created Atom!");
-        Debug.Log("[GlobalCtrl] Created Atom!");
-        Debug.Log("[GlobalCtrl] Created Atom!");
-        Debug.Log("[GlobalCtrl] Created Atom!");
-        Debug.Log("[GlobalCtrl] Created Atom!");
-
     }
 
     /// <summary>
@@ -912,7 +903,7 @@ public class GlobalCtrl : MonoBehaviour
     /// this method converts the selected input molecule to lists which then are saved in an XML format
     /// </summary>
     /// <param name="inputMole">the molecule which will be saved</param>
-    public void SaveMolecule(int param)
+    public void SaveMolecule(int param, string name = "")
     {
         Vector3 meanPos = new Vector3(0.0f, 0.0f, 0.0f); // average position if several molecule blocks are saved
         int nMol = 0;   // number of molecule blocks
@@ -948,8 +939,8 @@ public class GlobalCtrl : MonoBehaviour
 
         if(param == 0)
         {
-            //CFileHelper.SaveData(Application.dataPath + "/SavedMolecules/" + UISave.inputfield + ".xml", saveData);
-            //ForceFieldConsole.Instance.statusOut("Saved Molecule as : " + UISave.inputfield + ".xml");
+            CFileHelper.SaveData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", saveData);
+            Debug.Log($"[GlobalCtrl] Saved Molecule as: {name}.xml");
         } else
         {
             systemState.Push(saveData);
@@ -1022,6 +1013,7 @@ public class GlobalCtrl : MonoBehaviour
         {
             loadData = (List<cmlData>)CFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
             int nMol = 0;
+            Debug.Log($"[GlobalCtrl] LoadMolecule: {loadData}");
             foreach (cmlData molecule in loadData)
             {
                 nMol++;
@@ -1068,8 +1060,7 @@ public class GlobalCtrl : MonoBehaviour
                     molecule.bondArray[i].id2 += maxID;
                 }
 
-                Molecule tempMolecule = new GameObject().AddComponent<Molecule>();
-                tempMolecule.transform.position = molecule.molePos + meanPos;
+                Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos + meanPos, Quaternion.identity).AddComponent<Molecule>();
                 tempMolecule.f_Init(idInScene, atomWorld.transform);
                 List_curMolecules.Add(tempMolecule);
 

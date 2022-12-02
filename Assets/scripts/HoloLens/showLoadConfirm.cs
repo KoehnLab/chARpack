@@ -12,6 +12,7 @@ public class showLoadConfirm : MonoBehaviour
         set
         {
             m_mol_name = value;
+            GetComponent<ButtonConfigHelper>().MainLabelText = m_mol_name;
         }
     }
 

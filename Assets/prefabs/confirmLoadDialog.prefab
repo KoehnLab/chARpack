@@ -10,8 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7468319300395874735}
   - component: {fileID: 5367231812667146783}
-  - component: {fileID: 1592325853444770467}
-  - component: {fileID: 3793907823977769346}
   - component: {fileID: 159000554812626877}
   m_Layer: 0
   m_Name: DescriptionText
@@ -82,22 +80,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &1592325853444770467
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 190946822623862982}
-  m_Mesh: {fileID: 0}
---- !u!222 &3793907823977769346
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 190946822623862982}
-  m_CullTransparentMesh: 0
 --- !u!114 &159000554812626877
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1335,7 +1317,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2088793923548435263}
   - component: {fileID: 2088793923548435267}
-  - component: {fileID: 2088793923548435266}
   - component: {fileID: 2088793923548435260}
   m_Layer: 0
   m_Name: TextMeshPro
@@ -1406,14 +1387,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &2088793923548435266
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2088793923548435262}
-  m_Mesh: {fileID: 0}
 --- !u!114 &2088793923548435260
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3383,7 +3356,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6253652075333902960}
   - component: {fileID: 6253652075333902860}
-  - component: {fileID: 6253652075333902861}
   - component: {fileID: 6253652075333902963}
   m_Layer: 0
   m_Name: TextMeshPro
@@ -3454,14 +3426,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &6253652075333902861
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6253652075333902961}
-  m_Mesh: {fileID: 0}
 --- !u!114 &6253652075333902963
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3859,8 +3823,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7437779592616156793}
   - component: {fileID: 2551617730836011252}
-  - component: {fileID: 5101660660510540866}
-  - component: {fileID: 7074184669492589203}
   - component: {fileID: 951009076429837284}
   m_Layer: 0
   m_Name: TitleText
@@ -3931,22 +3893,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &5101660660510540866
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6961661645475943391}
-  m_Mesh: {fileID: 0}
---- !u!222 &7074184669492589203
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6961661645475943391}
-  m_CullTransparentMesh: 0
 --- !u!114 &951009076429837284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4049,7 +3995,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7168696578685126564}
   - component: {fileID: 7168696578685126616}
-  - component: {fileID: 7168696578685126617}
   - component: {fileID: 7168696578685126567}
   m_Layer: 0
   m_Name: TextMeshPro
@@ -4120,14 +4065,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &7168696578685126617
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7168696578685126565}
-  m_Mesh: {fileID: 0}
 --- !u!114 &7168696578685126567
 MonoBehaviour:
   m_ObjectHideFlags: 0
