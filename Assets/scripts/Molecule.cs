@@ -2,12 +2,15 @@ using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.UI;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
+    private Stopwatch stopwatch;
     public void OnPointerDown(MixedRealityPointerEventData eventData)
     {
+        stopwatch = Stopwatch.StartNew();
         // change material of grabbed object
         var bbox = gameObject.GetComponent<myBoundingBox>();
         if (bbox.myHandleGrabbedMaterial != null)
@@ -40,6 +43,18 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     // This function is triggered when a grabbed object is dropped
     public void OnPointerUp(MixedRealityPointerEventData eventData)
     {
+        stopwatch.Stop();
+        if (stopwatch.ElapsedMilliseconds < 200)
+        {
+            if (isMarked)
+            {
+                markMolecule(false);
+            }
+            else
+            {
+                markMolecule(true);
+            }
+        }
         if (GlobalCtrl.Instance.collision)
         {
             Atom d1 = GlobalCtrl.Instance.collider1;

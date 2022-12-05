@@ -4,12 +4,17 @@ using StructClass;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
 
 [Serializable]
 public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 {
+    public GameObject myAtomToolTipPrefab;
+    private Stopwatch stopwatch;
+    private GameObject toolTipInstance = null;
+
     private static Atom instance;
     public static Atom Instance
     {
@@ -27,6 +32,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     {
         // give it a glow halo
         (GetComponent("Halo") as Behaviour).enabled = true;
+        stopwatch = Stopwatch.StartNew();
     }
     public void OnPointerClicked(MixedRealityPointerEventData eventData) 
     {
@@ -42,6 +48,29 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     {
         // remove glow
         (GetComponent("Halo") as Behaviour).enabled = false;
+
+        stopwatch.Stop();
+        //UnityEngine.Debug.Log($"[Atom] Interaction stopwatch: {stopwatch.ElapsedMilliseconds} [ms]");
+        if (stopwatch.ElapsedMilliseconds < 200)
+        {
+            if (isMarked)
+            {
+                markAtom(false);
+                if (toolTipInstance != null)
+                {
+                    Destroy(toolTipInstance);
+                }
+            }
+            else
+            {
+                markAtom(true);
+                // create tool tip
+                toolTipInstance = Instantiate(myAtomToolTipPrefab);
+                // add atom as connector
+                toolTipInstance.GetComponent<ToolTipConnector>().Target = gameObject;
+
+            }
+        }
 
         // check for potential merge
         if (GlobalCtrl.Instance.collision)
@@ -59,20 +88,20 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         //Debug.Log($"[Atom] OnPointerUp: {eventData}");
     }
 
-    public int m_idInScene;
-    public Molecule m_molecule;
-    public ElementData m_data { get; private set; }
+    [HideInInspector] public int m_idInScene;
+    [HideInInspector] public Molecule m_molecule;
+    [HideInInspector] public ElementData m_data { get; private set; }
     // we have to clarify the role of m_data: Is this just basic (and constant) data?
     // 0: none; 1: sp1; 2: sp2;  3: sp3;  4: hypervalent trig. bipy; 5: unused;  6: hypervalent octahedral
-    public Material m_mat;
+    [HideInInspector] public Material m_mat;
     //public int m_nBondP;
-    public Rigidbody m_rigid;
-    public bool isGrabbed = false;
-    public List<Vector3> m_posForDummies;
+    [HideInInspector] public Rigidbody m_rigid;
+    [HideInInspector] public bool isGrabbed = false;
+    [HideInInspector] public List<Vector3> m_posForDummies;
 
-    public bool isMarked = false;
+    [HideInInspector] public bool isMarked = false;
 
-    public GameObject m_ActiveHand = null;
+    [HideInInspector] public GameObject m_ActiveHand = null;
 
 
     /// <summary>
@@ -162,7 +191,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
                 break;
             default:  // fall-back ... we have to see how to do error handling here
                 m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
-                Debug.Log("InitDummies: Landed in Fallback!");
+                UnityEngine.Debug.Log("[Atom] InitDummies: Landed in Fallback!");
                 break;
 
         }
@@ -273,7 +302,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         if (col == 1)
             this.GetComponent<Renderer>().material = GlobalCtrl.Instance.selectedMat;
         else if (col == 2 || this.isMarked)
-            this.GetComponent<Renderer>().material.color = new Color(this.GetComponent<Renderer>().material.color.r, this.GetComponent<Renderer>().material.color.g, this.GetComponent<Renderer>().material.color.b, 0.5f);
+            //this.GetComponent<Renderer>().material.color = new Color(this.GetComponent<Renderer>().material.color.r, this.GetComponent<Renderer>().material.color.g, this.GetComponent<Renderer>().material.color.b, 0.5f);
+            this.GetComponent<Renderer>().material = GlobalCtrl.Instance.markedMat;
         else
             this.GetComponent<Renderer>().material = GlobalCtrl.Instance.Dic_AtomMat[m_data.m_id];
     }

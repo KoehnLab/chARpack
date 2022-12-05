@@ -740,9 +740,7 @@ public class GlobalCtrl : MonoBehaviour
         tempData.m_hybridization = curHybrid;
         tempData.m_bondNum = Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization)); // a preliminary solution
 
-        //Atom tempAtom = GameObject.CreatePrimitive(PrimitiveType.Sphere).AddComponent<Atom>();
-        GameObject tempAtomGO = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity);
-        Atom tempAtom = tempAtomGO.AddComponent<Atom>();
+        Atom tempAtom = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<Atom>();
         tempAtom.f_Init(tempData, tempMolecule, Vector3.zero ,idAtom);
         List_curAtoms.Add(tempAtom);
         //Dic_curAtoms.Add(idInScene, tempAtom);
@@ -816,8 +814,7 @@ public class GlobalCtrl : MonoBehaviour
     {
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
         tempData.m_hybridization = hybrid;
-        GameObject tempAtomGO = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity);
-        Atom tempAtom = tempAtomGO.AddComponent<Atom>();
+        Atom tempAtom = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<Atom>();
         tempAtom.f_Init(tempData, mol, pos, idAtom);
         List_curAtoms.Add(tempAtom);
         idInScene++;
@@ -833,9 +830,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="pos">the position, where the dummy is created</param>
     public void CreateDummy(int idDummy, Molecule inputMole, Atom mainAtom, Vector3 pos)
     {
-        //Atom dummy = GameObject.CreatePrimitive(PrimitiveType.Sphere).AddComponent<Atom>();
-        GameObject dummyGO = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity);
-        Atom dummy = dummyGO.AddComponent<Atom>();
+        Atom dummy = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<Atom>();
         dummy.f_Init(Dic_ElementData["Dummy"], inputMole, pos, idDummy);//0 for dummy
         List_curAtoms.Add(dummy);
         CreateBond(mainAtom, dummy, inputMole);

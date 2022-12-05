@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 6109299877718134216}
   - component: {fileID: 4994947135205735893}
   - component: {fileID: -7045672895053097098}
+  - component: {fileID: -5052192153474105092}
   m_Layer: 0
   m_Name: Atom
   m_TagString: Untagged
@@ -201,3 +202,24 @@ Halo:
     serializedVersion: 2
     rgba: 4294939721
   m_Size: 0.02
+--- !u!114 &-5052192153474105092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7377244445179915796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad25123af20a58d45b73d5668055c686, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myAtomToolTipPrefab: {fileID: 4014241828956980662, guid: 33347aa8682d4914b89119cea9427e04, type: 3}
+  m_idInScene: 0
+  m_molecule: {fileID: 0}
+  m_mat: {fileID: 0}
+  m_rigid: {fileID: 0}
+  isGrabbed: 0
+  m_posForDummies: []
+  isMarked: 0
+  m_ActiveHand: {fileID: 0}
