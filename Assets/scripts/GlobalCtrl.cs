@@ -1229,7 +1229,7 @@ public class GlobalCtrl : MonoBehaviour
         Debug.Log(string.Format("repulsionScale, new val: {0, 6:f3}", repulsionScale));
     }
 
-    public void getHybridization(float value)
+    public void setHybridization(float value)
     {
         // set value from slider
         curHybrid = (int)value;
