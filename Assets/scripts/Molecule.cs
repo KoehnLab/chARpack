@@ -52,6 +52,17 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             }
             else
             {
+                // unmark every atom an bond of the molecule first
+                Atom[] atoms = GetComponentsInChildren<Atom>();
+                Bond[] bonds = GetComponentsInChildren<Bond>();
+                foreach (var atom in atoms)
+                {
+                    atom.markAtom(false);
+                }
+                foreach (var bond in bonds)
+                {
+                    bond.markBond(false);
+                }
                 markMolecule(true);
             }
         }

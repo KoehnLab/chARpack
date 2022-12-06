@@ -521,6 +521,15 @@ public class GlobalCtrl : MonoBehaviour
         foreach(Molecule m in delMoleculeList)
         {
             List_curMolecules.Remove(m);
+            foreach (var atom in m.atomList)
+            {
+                atom.markAtom(false);
+            }
+            foreach (var bond in m.bondList)
+            {
+                bond.markBond(false);
+            }
+            m.markMolecule(false);
             Destroy(m.gameObject);
 
         }
@@ -534,6 +543,52 @@ public class GlobalCtrl : MonoBehaviour
         {
             int size = m.atomList.Count;
             for(int i = 0; i < size; i++)
+            {
+                Atom a = m.atomList[i];
+                int count = 0;
+                while (a.m_data.m_bondNum > a.connectedAtoms(a).Count)
+                {
+                    CreateDummy(idInScene, m, a, calcDummyPos(a, positionsRestore, count));
+                    count++;
+
+                }
+            }
+        }
+    }
+
+    // TODO make this work
+    public void deleteAtom(Atom to_delete)
+    {
+        Dictionary<Atom, List<Vector3>> positionsRestore = new Dictionary<Atom, List<Vector3>>();
+        List<Atom> delAtomList = new List<Atom>();
+        List<Bond> delBondList = new List<Bond>();
+        List<Molecule> delMoleculeList = new List<Molecule>();
+        List<Molecule> addMoleculeList = new List<Molecule>();
+
+
+        delAtomList.Add(to_delete);
+
+        createTopoMap(to_delete.m_molecule, delAtomList, delBondList, addMoleculeList);
+        delAtomList.Clear();
+        delBondList.Clear();
+        delMoleculeList.Add(to_delete.m_molecule);
+
+        foreach (Molecule m in delMoleculeList)
+        {
+            List_curMolecules.Remove(m);
+            Destroy(m.gameObject);
+
+        }
+
+        foreach (Molecule m in addMoleculeList)
+        {
+            List_curMolecules.Add(m);
+        }
+
+        foreach (Molecule m in List_curMolecules)
+        {
+            int size = m.atomList.Count;
+            for (int i = 0; i < size; i++)
             {
                 Atom a = m.atomList[i];
                 int count = 0;

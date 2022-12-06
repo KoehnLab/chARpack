@@ -21,12 +21,12 @@ public class Bond : MonoBehaviour
     }
 
 
-    public int atomID1;
-    public int atomID2;
-    public float m_bondOrder;  // 1.0 for single bonds; 1.5 for resonant bonds; 2.0 for double bonds; idea is to scale the bond diameter by this value
-    public float m_bondDistance;
-    public Molecule m_molecule;
-    public bool isMarked = false;
+    [HideInInspector] public int atomID1;
+    [HideInInspector] public int atomID2;
+    [HideInInspector] public float m_bondOrder;  // 1.0 for single bonds; 1.5 for resonant bonds; 2.0 for double bonds; idea is to scale the bond diameter by this value
+    [HideInInspector] public float m_bondDistance;
+    [HideInInspector] public Molecule m_molecule;
+    [HideInInspector] public bool isMarked = false;
 
     /// <summary>
     /// initialises the bond between two atoms

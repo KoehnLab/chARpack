@@ -96,7 +96,9 @@ public class loadSaveWindow : MonoBehaviour
 
     public void openSaveDialog()
     {
-        Instantiate(saveDialogPrefab);
+        var saveDialogInstance = Instantiate(saveDialogPrefab);
+        // put the dialog a bit further away
+        saveDialogInstance.transform.position += 0.5f * Camera.main.transform.forward;
         gameObject.SetActive(false);
     }
 

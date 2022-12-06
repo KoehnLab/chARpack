@@ -12,8 +12,10 @@ using UnityEngine;
 public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 {
     public GameObject myAtomToolTipPrefab;
+    public GameObject deleteMeButtonPrefab;
     private Stopwatch stopwatch;
     private GameObject toolTipInstance = null;
+    private float toolTipDistanceWeight = 5.0f;
 
     private static Atom instance;
     public static Atom Instance
@@ -53,22 +55,43 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         //UnityEngine.Debug.Log($"[Atom] Interaction stopwatch: {stopwatch.ElapsedMilliseconds} [ms]");
         if (stopwatch.ElapsedMilliseconds < 200)
         {
-            if (isMarked)
+            if (m_molecule.isMarked)
             {
-                markAtom(false);
-                if (toolTipInstance != null)
-                {
-                    Destroy(toolTipInstance);
-                }
+                m_molecule.markMolecule(false);
             }
             else
             {
-                markAtom(true);
-                // create tool tip
-                toolTipInstance = Instantiate(myAtomToolTipPrefab);
-                // add atom as connector
-                toolTipInstance.GetComponent<ToolTipConnector>().Target = gameObject;
-
+                if (isMarked)
+                {
+                    markAtom(false);
+                }
+                else
+                {
+                    markAtom(true);
+                    // create tool tip
+                    toolTipInstance = Instantiate(myAtomToolTipPrefab);
+                    // calc position for tool tip
+                    // first: get position in the bounding box and decide if the tool tip spawns left, right, top or bottom of the box
+                    Vector3 mol_center = m_molecule.getCenter();
+                    // project to camera coordnates
+                    Vector2 mol_center_in_cam = new Vector2(Vector3.Dot(mol_center, Camera.main.transform.right), Vector3.Dot(mol_center, Camera.main.transform.up));
+                    Vector2 atom_pos_in_cam = new Vector2(Vector3.Dot(transform.position, Camera.main.transform.right), Vector3.Dot(transform.position, Camera.main.transform.up));
+                    // calc diff
+                    Vector2 diff_mol_atom = atom_pos_in_cam - mol_center_in_cam;
+                    // enhance diff for final tool tip pos
+                    Vector3 ttpos = transform.position + toolTipDistanceWeight * diff_mol_atom[0] * Camera.main.transform.right + toolTipDistanceWeight * diff_mol_atom[1] * Camera.main.transform.up;
+                    toolTipInstance.transform.position = ttpos;
+                    // add atom as connector
+                    toolTipInstance.GetComponent<myToolTipConnector>().Target = gameObject;
+                    string toolTipText = $"Name: {m_data.m_name}\nHybrid.: {m_data.m_hybridization}\nMass: {m_data.m_mass}\nRadius: {m_data.m_radius}\nNumBonds: {m_data.m_bondNum}";
+                    toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+                    if (m_data.m_abbre != "Dummy")
+                    {
+                        var delButtonInstance = Instantiate(deleteMeButtonPrefab);
+                        delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Instance.markToDelete(); });
+                        toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
+                    }
+                }
             }
         }
 
@@ -458,8 +481,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         if (this.isMarked)
         {
             colorSwapSelect(2);
-        } else
+        }
+        else
         {
+            if (toolTipInstance != null)
+            {
+                Destroy(toolTipInstance);
+            }
             colorSwapSelect(0);
         }
     }
