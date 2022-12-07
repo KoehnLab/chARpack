@@ -3,6 +3,7 @@ using Microsoft.MixedReality.Toolkit.UI;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using UnityEngine;
 
 public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
@@ -64,6 +65,24 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                     bond.markBond(false);
                 }
                 markMolecule(true);
+                // create tool tip
+                toolTipInstance = Instantiate(myToolTipPrefab);
+                // put tool top to the right 
+                Vector3 ttpos = transform.position + toolTipDistanceWeight  * Camera.main.transform.right + toolTipDistanceWeight * Camera.main.transform.up;
+                toolTipInstance.transform.position = ttpos;
+                // add atom as connector
+                toolTipInstance.GetComponent<myToolTipConnector>().Target = gameObject;
+                // calc some meta data to show
+                float tot_mass = 0.0f;
+                calcMetaData(ref tot_mass);
+                var mol_center = getCenter();
+                var max_dist = getMaxDistFromCenter(mol_center);
+                string toolTipText = $"NumAtoms: {atomList.Count}\nNumBonds: {bondList.Count}\nTotMass: {tot_mass.ToString("0.00")}\nMaxRadius: {max_dist.ToString("0.00")}";
+                toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+                var delButtonInstance = Instantiate(deleteMeButtonPrefab);
+                delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Instance.markToDelete(); });
+                toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
+
             }
         }
         if (GlobalCtrl.Instance.collision)
@@ -98,6 +117,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    private GameObject myToolTipPrefab;
+    private GameObject deleteMeButtonPrefab;
+    private GameObject toolTipInstance;
+    private float toolTipDistanceWeight = 0.1f;
 
     /// <summary>
     /// molecule id
@@ -128,11 +151,24 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         this.transform.parent = inputParent;
         atomList = new List<Atom>();
         bondList = new List<Bond>();
+        // TODO put collider into a corner
         var collider = gameObject.AddComponent<BoxCollider>();
         collider.size = new Vector3(0.001f, 0.001f, 0.001f);
         // these objects take input from corner colliders and manipulate the moluecule
         gameObject.AddComponent<ObjectManipulator>();
         gameObject.AddComponent<NearInteractionGrabbable>();
+
+        // load prefabs
+        myToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKAtomToolTip");
+        if (myToolTipPrefab == null)
+        {
+            throw new FileNotFoundException("[Molecule] MRTKAtomToolTip prefab not found - please check the configuration");
+        }
+        deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
+        if (deleteMeButtonPrefab == null)
+        {
+            throw new FileNotFoundException("[Molecule] DeleteMeButton prefab not found - please check the configuration");
+        }
 
     }
 
@@ -172,6 +208,13 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             b.markBond(mark);
         }
         isMarked = mark;
+        if (!mark)
+        {
+            if (toolTipInstance != null)
+            {
+                Destroy(toolTipInstance);
+            }
+        }
     }
 
     public Vector3 getCenter()
@@ -207,13 +250,16 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         return max_dist;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void calcMetaData(ref float mass)
     {
-        //BoxCollider bc = gameObject.GetComponent<BoxCollider>();
-        //Vector3 center = getCenter();
-        //bc.transform.position = center;
-        //float max_dist = getMaxDistFromCenter(center);
-        //bc.size = new Vector3(max_dist / 4.0f, max_dist / 4.0f, max_dist / 4.0f);
+        // calc total mass
+        float tot_mass = 0.0f;
+        foreach (var atom in atomList)
+        {
+            tot_mass += atom.m_data.m_mass;
+        }
+        mass = tot_mass;
+
     }
+
 }
