@@ -53,35 +53,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             }
             else
             {
-                // unmark every atom an bond of the molecule first
-                Atom[] atoms = GetComponentsInChildren<Atom>();
-                Bond[] bonds = GetComponentsInChildren<Bond>();
-                foreach (var atom in atoms)
-                {
-                    atom.markAtom(false);
-                }
-                foreach (var bond in bonds)
-                {
-                    bond.markBond(false);
-                }
                 markMolecule(true);
-                // create tool tip
-                toolTipInstance = Instantiate(myToolTipPrefab);
-                // put tool top to the right 
-                Vector3 ttpos = transform.position + toolTipDistanceWeight  * Camera.main.transform.right + toolTipDistanceWeight * Camera.main.transform.up;
-                toolTipInstance.transform.position = ttpos;
-                // add atom as connector
-                toolTipInstance.GetComponent<myToolTipConnector>().Target = gameObject;
-                // calc some meta data to show
-                float tot_mass = 0.0f;
-                calcMetaData(ref tot_mass);
-                var mol_center = getCenter();
-                var max_dist = getMaxDistFromCenter(mol_center);
-                string toolTipText = $"NumAtoms: {atomList.Count}\nNumBonds: {bondList.Count}\nTotMass: {tot_mass.ToString("0.00")}\nMaxRadius: {max_dist.ToString("0.00")}";
-                toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
-                var delButtonInstance = Instantiate(deleteMeButtonPrefab);
-                delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Instance.markToDelete(); });
-                toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
 
             }
         }
@@ -120,7 +92,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private GameObject myToolTipPrefab;
     private GameObject deleteMeButtonPrefab;
     private GameObject toolTipInstance;
-    private float toolTipDistanceWeight = 0.1f;
+    private float toolTipDistanceWeight = 0.01f;
 
     /// <summary>
     /// molecule id
@@ -198,6 +170,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void markMolecule(bool mark)
     {
+
         foreach (Atom a in this.atomList)
         {
             a.markAtom(mark);
@@ -213,6 +186,13 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             if (toolTipInstance != null)
             {
                 Destroy(toolTipInstance);
+            }
+        } 
+        else
+        {
+            if (toolTipInstance == null)
+            {
+                createToolTip();
             }
         }
     }
@@ -262,4 +242,32 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     }
 
+    private void createToolTip()
+    {
+        // create tool tip
+        toolTipInstance = Instantiate(myToolTipPrefab);
+        // put tool top to the right 
+        Vector3 ttpos = transform.position + toolTipDistanceWeight * Camera.main.transform.right + toolTipDistanceWeight * Camera.main.transform.up;
+        toolTipInstance.transform.position = ttpos;
+        // add atom as connector
+        toolTipInstance.GetComponent<myToolTipConnector>().Target = gameObject;
+        // calc some meta data to show
+        float tot_mass = 0.0f;
+        calcMetaData(ref tot_mass);
+        var mol_center = getCenter();
+        var max_dist = getMaxDistFromCenter(mol_center);
+        string toolTipText = $"NumAtoms: {atomList.Count}\nNumBonds: {bondList.Count}\nTotMass: {tot_mass.ToString("0.00")}\nMaxRadius: {max_dist.ToString("0.00")}";
+        toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        var delButtonInstance = Instantiate(deleteMeButtonPrefab);
+        delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Instance.markToDelete(); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
+    }
+
+    public void OnDestroy()
+    {
+        if (toolTipInstance != null)
+        {
+            Destroy(toolTipInstance);
+        }
+    }
 }

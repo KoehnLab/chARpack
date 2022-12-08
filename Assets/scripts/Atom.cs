@@ -15,7 +15,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     public GameObject deleteMeButtonPrefab;
     private Stopwatch stopwatch;
     private GameObject toolTipInstance = null;
-    private float toolTipDistanceWeight = 5.0f;
+    private float toolTipDistanceWeight = 2.5f;
 
     private static Atom instance;
     public static Atom Instance
@@ -63,34 +63,11 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             {
                 if (isMarked)
                 {
-                    markAtom(false);
+                    markAtom(false, true);
                 }
                 else
                 {
-                    markAtom(true);
-                    // create tool tip
-                    toolTipInstance = Instantiate(myAtomToolTipPrefab);
-                    // calc position for tool tip
-                    // first: get position in the bounding box and decide if the tool tip spawns left, right, top or bottom of the box
-                    Vector3 mol_center = m_molecule.getCenter();
-                    // project to camera coordnates
-                    Vector2 mol_center_in_cam = new Vector2(Vector3.Dot(mol_center, Camera.main.transform.right), Vector3.Dot(mol_center, Camera.main.transform.up));
-                    Vector2 atom_pos_in_cam = new Vector2(Vector3.Dot(transform.position, Camera.main.transform.right), Vector3.Dot(transform.position, Camera.main.transform.up));
-                    // calc diff
-                    Vector2 diff_mol_atom = atom_pos_in_cam - mol_center_in_cam;
-                    // enhance diff for final tool tip pos
-                    Vector3 ttpos = transform.position + toolTipDistanceWeight * diff_mol_atom[0] * Camera.main.transform.right + toolTipDistanceWeight * diff_mol_atom[1] * Camera.main.transform.up;
-                    toolTipInstance.transform.position = ttpos;
-                    // add atom as connector
-                    toolTipInstance.GetComponent<myToolTipConnector>().Target = gameObject;
-                    string toolTipText = $"Name: {m_data.m_name}\nHybrid.: {m_data.m_hybridization}\nMass: {m_data.m_mass}\nRadius: {m_data.m_radius}\nNumBonds: {m_data.m_bondNum}";
-                    toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
-                    if (m_data.m_abbre != "Dummy")
-                    {
-                        var delButtonInstance = Instantiate(deleteMeButtonPrefab);
-                        delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Instance.markToDelete(); });
-                        toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
-                    }
+                    markAtom(true, true);
                 }
             }
         }
@@ -473,14 +450,18 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     /// this method marks the atom in a different color if selected
     /// </summary>
     /// <param name="mark">true or false if the atom should be marked</param>
-    public void markAtom(bool mark)
+    public void markAtom(bool mark, bool toolTip = false)
     {
 
         this.isMarked = mark;
 
-        if (this.isMarked)
+        if (isMarked)
         {
             colorSwapSelect(2);
+            if (toolTipInstance == null && toolTip)
+            {
+                createToolTip();
+            }
         }
         else
         {
@@ -490,8 +471,47 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             }
             colorSwapSelect(0);
         }
+        // destroy tooltip of marked without flag
+        if (!toolTip)
+        {
+            Destroy(toolTipInstance);
+        }
+    }
+
+    private void createToolTip()
+    {
+        // create tool tip
+        toolTipInstance = Instantiate(myAtomToolTipPrefab);
+        // calc position for tool tip
+        // first: get position in the bounding box and decide if the tool tip spawns left, right, top or bottom of the box
+        Vector3 mol_center = m_molecule.getCenter();
+        // project to camera coordnates
+        Vector2 mol_center_in_cam = new Vector2(Vector3.Dot(mol_center, Camera.main.transform.right), Vector3.Dot(mol_center, Camera.main.transform.up));
+        Vector2 atom_pos_in_cam = new Vector2(Vector3.Dot(transform.position, Camera.main.transform.right), Vector3.Dot(transform.position, Camera.main.transform.up));
+        // calc diff
+        Vector2 diff_mol_atom = atom_pos_in_cam - mol_center_in_cam;
+        // enhance diff for final tool tip pos
+        Vector3 ttpos = transform.position + toolTipDistanceWeight * diff_mol_atom[0] * Camera.main.transform.right + toolTipDistanceWeight * diff_mol_atom[1] * Camera.main.transform.up;
+        toolTipInstance.transform.position = ttpos;
+        // add atom as connector
+        toolTipInstance.GetComponent<myToolTipConnector>().Target = gameObject;
+        string toolTipText = $"Name: {m_data.m_name}\nHybrid.: {m_data.m_hybridization}\nMass: {m_data.m_mass}\nRadius: {m_data.m_radius}\nNumBonds: {m_data.m_bondNum}";
+        toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        if (m_data.m_abbre != "Dummy")
+        {
+            var delButtonInstance = Instantiate(deleteMeButtonPrefab);
+            delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Instance.markToDelete(); });
+            toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
+        }
     }
 
 
+    public void OnDestroy()
+    {
+        if (toolTipInstance != null)
+        {
+            Destroy(toolTipInstance);
+        }
+    }
 
 }

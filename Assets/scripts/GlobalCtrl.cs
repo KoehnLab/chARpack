@@ -109,6 +109,8 @@ public class GlobalCtrl : MonoBehaviour
     public Material markedMat;
     public Material bondMat;
 
+    private bool bondsInForeground = false;
+
     [HideInInspector] public bool collision = false;
     [HideInInspector] public Atom collider1;
     [HideInInspector] public Atom collider2;
@@ -555,6 +557,40 @@ public class GlobalCtrl : MonoBehaviour
             }
         }
     }
+
+    // This method toggles everything in a background layer and 
+    // toggles the bonds in the front layer 
+    public void toggleBondLayer()
+    {
+        bondsInForeground = !bondsInForeground;
+        int bondLayer = 7;
+        int atomLayer = 0;
+        if (bondsInForeground)
+        {
+            bondLayer = 0;
+            atomLayer = 6;
+        }
+        foreach (var molecule in List_curMolecules)
+        {
+            molecule.gameObject.layer = atomLayer;
+            foreach (Transform child in molecule.transform)
+            {
+                child.gameObject.layer = atomLayer;
+                if (child.name == "box")
+                {
+                    foreach (Transform box_collider in child)
+                    {
+                        box_collider.gameObject.layer = atomLayer;
+                    }
+                }
+            }
+            foreach (var bond in molecule.bondList)
+            {
+                bond.gameObject.layer = bondLayer;
+            }
+        }
+    }
+
 
     // TODO make this work
     public void deleteAtom(Atom to_delete)

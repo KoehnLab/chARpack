@@ -1,8 +1,12 @@
+using Microsoft.MixedReality.Toolkit.Input;
+using Microsoft.MixedReality.Toolkit.UI;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using UnityEngine;
 
-public class Bond : MonoBehaviour
+public class Bond : MonoBehaviour, IMixedRealityPointerHandler
 {
     /// <summary>
     /// instance of global control
@@ -21,6 +25,41 @@ public class Bond : MonoBehaviour
     }
 
 
+    private Stopwatch stopwatch;
+    public void OnPointerDown(MixedRealityPointerEventData eventData)
+    {
+        stopwatch = Stopwatch.StartNew();
+    }
+    public void OnPointerClicked(MixedRealityPointerEventData eventData)
+    {
+        // Intentionally empty
+    }
+    public void OnPointerDragged(MixedRealityPointerEventData eventData)
+    {
+        // Intentionally empty
+    }
+
+    // This function is triggered when a grabbed object is dropped
+    public void OnPointerUp(MixedRealityPointerEventData eventData)
+    {
+        stopwatch.Stop();
+        if (stopwatch.ElapsedMilliseconds < 200)
+        {
+            if (isMarked)
+            {
+                markBond(false, true);
+            }
+            else
+            {
+                markBond(true, true);
+            }
+        }
+    }
+
+    private GameObject myToolTipPrefab;
+    private GameObject deleteMeButtonPrefab;
+    private GameObject toolTipInstance;
+    private float toolTipDistanceWeight = 2.5f;
     [HideInInspector] public int atomID1;
     [HideInInspector] public int atomID2;
     [HideInInspector] public float m_bondOrder;  // 1.0 for single bonds; 1.5 for resonant bonds; 2.0 for double bonds; idea is to scale the bond diameter by this value
@@ -49,6 +88,18 @@ public class Bond : MonoBehaviour
         transform.parent = inputMole.transform;
         float distance = Vector3.Distance(_atom1.transform.position, _atom2.transform.position);
         transform.localScale = new Vector3(m_bondOrder, m_bondOrder, distance);
+
+        // load prefabs
+        myToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKAtomToolTip");
+        if (myToolTipPrefab == null)
+        {
+            throw new FileNotFoundException("[Molecule] MRTKAtomToolTip prefab not found - please check the configuration");
+        }
+        deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
+        if (deleteMeButtonPrefab == null)
+        {
+            throw new FileNotFoundException("[Molecule] DeleteMeButton prefab not found - please check the configuration");
+        }
     }
 
     /// <summary>
@@ -70,17 +121,30 @@ public class Bond : MonoBehaviour
     /// this method marks a bond in a different color if it is selected
     /// </summary>
     /// <param name="mark">true or false if selected</param>
-    public void markBond(bool mark)
+    public void markBond(bool mark, bool toolTip = false)
     {
-        this.isMarked = mark;
+        isMarked = mark;
 
-        if (this.isMarked)
+        if (isMarked)
         {
             colorSwapSelect(2);
+            if (toolTipInstance == null && toolTip)
+            {
+                createToolTip();
+            }
         }
         else
         {
             colorSwapSelect(0);
+            if (toolTipInstance != null)
+            {
+                Destroy(toolTipInstance);
+            }
+        }
+        // destroy tooltip of marked without flag
+        if (!toolTip)
+        {
+            Destroy(toolTipInstance);
         }
     }
 
@@ -114,15 +178,42 @@ public class Bond : MonoBehaviour
         return null;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    private void createToolTip()
     {
-        
+        // create tool tip
+        toolTipInstance = Instantiate(myToolTipPrefab);
+        // calc position for tool tip
+        // first: get position in the bounding box and decide if the tool tip spawns left, right, top or bottom of the box
+        Vector3 mol_center = m_molecule.getCenter();
+        // project to camera coordnates
+        Vector2 mol_center_in_cam = new Vector2(Vector3.Dot(mol_center, Camera.main.transform.right), Vector3.Dot(mol_center, Camera.main.transform.up));
+        Vector2 atom_pos_in_cam = new Vector2(Vector3.Dot(transform.position, Camera.main.transform.right), Vector3.Dot(transform.position, Camera.main.transform.up));
+        // calc diff
+        Vector2 diff_mol_atom = atom_pos_in_cam - mol_center_in_cam;
+        // enhance diff for final tool tip pos
+        Vector3 ttpos = transform.position + toolTipDistanceWeight * diff_mol_atom[0] * Camera.main.transform.right + toolTipDistanceWeight * diff_mol_atom[1] * Camera.main.transform.up;
+        toolTipInstance.transform.position = ttpos;
+        // add bond as connector
+        toolTipInstance.GetComponent<myToolTipConnector>().Target = gameObject;
+        // show meta data
+        var atom1 = Atom.Instance.getAtomByID(atomID1);
+        var atom2 = Atom.Instance.getAtomByID(atomID2);
+        string toolTipText = $"Distance: {m_bondDistance}\nOrder: {m_bondOrder}\nAtom1: {atom1.m_data.m_name}\nAtom2: {atom2.m_data.m_name}";
+        toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        if (atom1.m_data.m_abbre != "Dummy" && atom2.m_data.m_abbre != "Dummy")
+        {
+            var delButtonInstance = Instantiate(deleteMeButtonPrefab);
+            delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Instance.markToDelete(); });
+            toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    public void OnDestroy()
     {
-        
+        if (toolTipInstance != null)
+        {
+            Destroy(toolTipInstance);
+        }
     }
+
 }
