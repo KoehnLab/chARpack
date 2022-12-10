@@ -155,9 +155,9 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
     public void colorSwapSelect(int col)
     {
         if (col == 2)
-            this.GetComponentInChildren<Renderer>().material = GlobalCtrl.Instance.markedMat;
+            this.GetComponentInChildren<Renderer>().material = GlobalCtrl.Singleton.markedMat;
         else
-            this.GetComponentInChildren<Renderer>().material = GlobalCtrl.Instance.bondMat;
+            this.GetComponentInChildren<Renderer>().material = GlobalCtrl.Singleton.bondMat;
     }
 
     /// <summary>
@@ -203,7 +203,7 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
         if (atom1.m_data.m_abbre != "Dummy" && atom2.m_data.m_abbre != "Dummy")
         {
             var delButtonInstance = Instantiate(deleteMeButtonPrefab);
-            delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Instance.markToDelete(); });
+            delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.markToDelete(); });
             toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
         }
     }

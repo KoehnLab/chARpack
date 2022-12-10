@@ -31,7 +31,7 @@ public class showLoadConfirm : MonoBehaviour
     {
         if (obj.Result == DialogButtonType.Yes)
         {
-            GlobalCtrl.Instance.LoadMolecule(m_mol_name);
+            GlobalCtrl.Singleton.LoadMolecule(m_mol_name);
         }
     }
 

@@ -24,7 +24,7 @@ public class doTheSave : MonoBehaviour
             }
             return;
         }
-        GlobalCtrl.Instance.SaveMolecule(0,name);
+        GlobalCtrl.Singleton.SaveMolecule(0,name);
         Destroy(saveDialog);
     }
 

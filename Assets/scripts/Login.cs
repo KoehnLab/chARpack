@@ -17,28 +17,33 @@ public class Login : MonoBehaviour
             }
             else if (_singleton != value)
             {
-                Debug.Log($"{nameof(Login)} instance already exists, destroying duplicate!");
+                Debug.Log($"[{nameof(Login)}] Instance already exists, destroying duplicate!");
                 Destroy(value);
             }
 
         }
     }
 
-    public GameObject serverListInstance;
+    [HideInInspector] public GameObject serverListInstance;
+    [HideInInspector] public GameObject serverListPrefab;
 
     private void Awake()
     {
         Singleton = this;
+        serverListPrefab = (GameObject)Resources.Load("prefabs/ServerList");
+
     }
 
 
     public void normal()
     {
+        LoginData.normal_mode = true;
         SceneManager.LoadScene("MainScene");
     }
 
     public void host()
     {
+        Debug.Log("[Login] Starting Server.");
         SceneManager.LoadScene("ServerScene");
     }
 
@@ -52,13 +57,12 @@ public class Login : MonoBehaviour
 
     public void showServerList()
     {
-        GameObject serverListPrefab = (GameObject)Resources.Load("prefabs/ServerList");
         if (serverListInstance == null)
         {
             Vector3 spawnPos = transform.position - new Vector3(1, 0, 0) * 0.1f + new Vector3(0, 1, 0) * 0.1f;
             serverListInstance = Instantiate(serverListPrefab, spawnPos, Quaternion.identity);
             gameObject.SetActive(false);
         }
-
     }
+
 }

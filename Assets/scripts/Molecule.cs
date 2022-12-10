@@ -57,16 +57,16 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
             }
         }
-        if (GlobalCtrl.Instance.collision)
+        if (GlobalCtrl.Singleton.collision)
         {
-            Atom d1 = GlobalCtrl.Instance.collider1;
-            Atom d2 = GlobalCtrl.Instance.collider2;
+            Atom d1 = GlobalCtrl.Singleton.collider1;
+            Atom d2 = GlobalCtrl.Singleton.collider2;
 
             Atom a1 = Atom.Instance.dummyFindMain(d1);
             Atom a2 = Atom.Instance.dummyFindMain(d2);
 
             if (!Atom.Instance.alreadyConnected(a1, a2))
-                GlobalCtrl.Instance.MergeMolecule(GlobalCtrl.Instance.collider1, GlobalCtrl.Instance.collider2);
+                GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
 
         }
         // change material back to normal
@@ -162,8 +162,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             b.m_molecule = newParent;
             newParent.bondList.Add(b);
         }
-        GlobalCtrl.Instance.List_curMolecules.Remove(oldParent);
-        //GlobalCtrl.Instance.Dic_curMolecules.Remove(m_id);
+        GlobalCtrl.Singleton.List_curMolecules.Remove(oldParent);
+        //GlobalCtrl.Singleton.Dic_curMolecules.Remove(m_id);
         Destroy(this.gameObject);
     }
 
@@ -259,7 +259,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string toolTipText = $"NumAtoms: {atomList.Count}\nNumBonds: {bondList.Count}\nTotMass: {tot_mass.ToString("0.00")}\nMaxRadius: {max_dist.ToString("0.00")}";
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
         var delButtonInstance = Instantiate(deleteMeButtonPrefab);
-        delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Instance.markToDelete(); });
+        delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.markToDelete(); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
     }
 

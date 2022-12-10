@@ -84,12 +84,12 @@ public class ContextMenu : MonoBehaviour
     public void setAtomFavorite(int i)
     {
         if(selectedAtom.m_data.m_abbre != "Dummy")
-            GlobalCtrl.Instance.setFavorite(i, selectedAtom.m_data.m_abbre, favoritesMenuGO);
+            GlobalCtrl.Singleton.setFavorite(i, selectedAtom.m_data.m_abbre, favoritesMenuGO);
     }
 
     public void ChangeAtomType(int i)
     {
-        GlobalCtrl.Instance.ChangeAtom(selectedAtom.m_idInScene, GlobalCtrl.Instance.favorites[i - 1]);
+        GlobalCtrl.Singleton.ChangeAtom(selectedAtom.m_idInScene, GlobalCtrl.Singleton.favorites[i - 1]);
         selectedAtom.markAtom(true);
         titleName.text = selectedAtom.m_data.m_name;
     }
@@ -97,7 +97,7 @@ public class ContextMenu : MonoBehaviour
 
     public void translateHybrid(int hybrid)
     {
-        GlobalCtrl.Instance.modifyHybrid(selectedAtom, hybrid);
+        GlobalCtrl.Singleton.modifyHybrid(selectedAtom, hybrid);
     }
 
     public void setMoleculeOption(Molecule m)
@@ -122,7 +122,7 @@ public class ContextMenu : MonoBehaviour
         {
             if (a.m_data.m_abbre == "Dummy")
             {
-                GlobalCtrl.Instance.ChangeAtom(a.m_idInScene, "H");
+                GlobalCtrl.Singleton.ChangeAtom(a.m_idInScene, "H");
                 a.markAtom(true);
             }
         }

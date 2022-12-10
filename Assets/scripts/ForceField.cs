@@ -10,6 +10,23 @@ using StructClass;
 public class ForceField : MonoBehaviour
 {
 
+    private static ForceField _singleton;
+    public static ForceField Singleton
+    {
+        get => _singleton;
+        private set
+        {
+            if (_singleton == null)
+                _singleton = value;
+            else if (_singleton != value)
+            {
+                Debug.Log($"[{nameof(ForceField)}] Instance already exists, destroying duplicate!");
+                Destroy(value);
+            }
+        }
+    }
+
+
     public bool enableForceField = true;
 
     public struct BondTerm
@@ -124,6 +141,15 @@ public class ForceField : MonoBehaviour
     StreamWriter FFlog;
     public int LogLevel = 0;
 
+
+    /// <summary>
+    /// Create Singleton
+    /// </summary>
+    private void Awake()
+    {
+        Singleton = this;
+    }
+
     /// <summary>
     /// Toggles the force field during runtime
     /// </summary>
@@ -147,11 +173,11 @@ public class ForceField : MonoBehaviour
         //scalingfactor = GetComponent<GlobalCtrl>().scale / 154f;
         //conversion factor from atomic model to unity
         //scalingfactor = GetComponent<GlobalCtrl>().scale / GetComponent<GlobalCtrl>().u2pm;
-        scalingfactor = GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm;
+        scalingfactor = GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm;
         //timeFactor = (1.5f / (float)nTimeSteps);
         timeFactor = (4.0f / (float)nTimeSteps);
 
-        Dictionary<string, ElementData> element_dict = GlobalCtrl.Instance.Dic_ElementData;
+        Dictionary<string, ElementData> element_dict = GlobalCtrl.Singleton.Dic_ElementData;
         if ( element_dict == null)
         {
             Debug.LogError("[ForceField] Could not obtain element dictionary from globalCtrl instance.");
@@ -232,7 +258,7 @@ public class ForceField : MonoBehaviour
         // Maybe use Dictionary of current Molecules in scene, each Molecule includes a list of all its atoms and all its bonds
         // Acces to Dictionary like 2 lines below; Dictionary accessible via GlobalCtrl.Instance.Dic_curMolecules
         // cycle Atoms
-        foreach (Atom At in GlobalCtrl.Instance.List_curAtoms)
+        foreach (Atom At in GlobalCtrl.Singleton.List_curAtoms)
         //foreach (KeyValuePair<int, Atom> At in GlobalCtrl.Instance.Dic_curAtoms)
         {
             // NUllcheck
@@ -328,7 +354,7 @@ public class ForceField : MonoBehaviour
 
         {
             int iAtom = 0;
-            foreach (Atom At1 in GlobalCtrl.Instance.List_curAtoms)
+            foreach (Atom At1 in GlobalCtrl.Singleton.List_curAtoms)
             //foreach (KeyValuePair<int, Atom> At1 in GlobalCtrl.Instance.Dic_curAtoms)
             {
                 if (At1 != null)
@@ -770,7 +796,7 @@ public class ForceField : MonoBehaviour
         if (LogLevel >= 1000) FFlog.WriteLine("calcRepForces for {0} - {1}", hsTerm.Atom1, hsTerm.Atom2);
         //bond vector
         Vector3 rij = position[hsTerm.Atom1] - position[hsTerm.Atom2];
-        float delta = rij.magnitude - hsTerm.Rcrit * GlobalCtrl.Instance.repulsionScale;
+        float delta = rij.magnitude - hsTerm.Rcrit * GlobalCtrl.Singleton.repulsionScale;
         //Debug.Log(string.Format("D nb term {0,4} {1,4}: rij = {2,14:f2}", hsTerm.Atom1, hsTerm.Atom2, rij.magnitude));
         if (delta<0.0f)
         {
@@ -1030,7 +1056,6 @@ public class ForceField : MonoBehaviour
 
     }
 
-
     void applyMovements()
     {
         for (int iAtom = 0; iAtom < nAtoms; iAtom++)
@@ -1051,7 +1076,7 @@ public class ForceField : MonoBehaviour
         // Calculate distance between atoms
         // Scale, transform position, LookAt
         
-        foreach(Molecule mol in GlobalCtrl.Instance.List_curMolecules)
+        foreach(Molecule mol in GlobalCtrl.Singleton.List_curMolecules)
         //foreach(KeyValuePair<int, Molecule> mol in GlobalCtrl.Instance.Dic_curMolecules)
         {
             foreach(Bond bond in mol.bondList)

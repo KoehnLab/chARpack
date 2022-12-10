@@ -2,6 +2,8 @@ using RiptideNetworking;
 using RiptideNetworking.Utils;
 using UnityEngine;
 using System;
+using Microsoft.MixedReality.Toolkit.UI;
+using UnityEngine.SceneManagement;
 
 public class NetworkManagerClient : MonoBehaviour
 {
@@ -18,26 +20,31 @@ public class NetworkManagerClient : MonoBehaviour
             }
             else if (_singleton != value)
             {
-                Debug.Log($"{nameof(NetworkManagerClient)} instance already exists, destroying duplicate!");
+                Debug.Log($"[{nameof(NetworkManagerClient)}] Instance already exists, destroying duplicate!");
                 Destroy(value);
             }
 
         }
     }
 
+    [HideInInspector] public GameObject showErrorPrefab;
     public Client Client { get; private set; }
-
-    [SerializeField] private string ip;
-    [SerializeField] private ushort port;
 
     private void Awake()
     {
+        if (LoginData.normal_mode)
+        {
+            Debug.Log($"[{nameof(NetworkManagerClient)}] No network connection reqested - shutting down.");
+            Destroy(gameObject);
+            return;
+        }
         Singleton = this;
     }
 
     private void Start()
     {
         RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
+        showErrorPrefab = (GameObject)Resources.Load("prefabs/confirmLoadDialog");
 
         Client = new Client();
         Client.Connected += DidConnect;
@@ -63,7 +70,7 @@ public class NetworkManagerClient : MonoBehaviour
     /// </summary>
     public void Connect()
     {
-        Client.Connect($"{ip}:{port}");
+        Client.Connect($"{LoginData.ip}:{LoginData.port}");
     }
 
     /// <summary>
@@ -83,7 +90,19 @@ public class NetworkManagerClient : MonoBehaviour
     /// <param name="e"></param>
     private void FailedToConnect(object sender, EventArgs e)
     {
+        var myDialog = Dialog.Open(showErrorPrefab, DialogButtonType.OK, "Connection Failed", $"Connection to {LoginData.ip}:{LoginData.port} failed\nGoing back to Login Screen.", true);
+        if (myDialog != null)
+        {
+            myDialog.OnClosed += OnClosedDialogEvent;
+        }
+    }
 
+    private void OnClosedDialogEvent(DialogResult obj)
+    {
+        if (obj.Result == DialogButtonType.OK)
+        {
+            SceneManager.LoadScene("LoginScreenScene");
+        }
     }
 
     /// <summary>

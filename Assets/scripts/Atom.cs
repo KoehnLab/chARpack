@@ -73,16 +73,16 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         }
 
         // check for potential merge
-        if (GlobalCtrl.Instance.collision)
+        if (GlobalCtrl.Singleton.collision)
         {
-            Atom d1 = GlobalCtrl.Instance.collider1;
-            Atom d2 = GlobalCtrl.Instance.collider2;
+            Atom d1 = GlobalCtrl.Singleton.collider1;
+            Atom d2 = GlobalCtrl.Singleton.collider2;
 
             Atom a1 = Atom.Instance.dummyFindMain(d1);
             Atom a2 = Atom.Instance.dummyFindMain(d2);
 
             if (!Atom.Instance.alreadyConnected(a1, a2))
-                GlobalCtrl.Instance.MergeMolecule(GlobalCtrl.Instance.collider1, GlobalCtrl.Instance.collider2);
+                GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
 
         }
         //Debug.Log($"[Atom] OnPointerUp: {eventData}");
@@ -130,23 +130,23 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         //and then add this material to the dictionary
         //So next time when I need to create this element,
         //I will use the dictionary to get a copy of an existent material.
-        if (!GlobalCtrl.Instance.Dic_AtomMat.ContainsKey(m_data.m_id))
+        if (!GlobalCtrl.Singleton.Dic_AtomMat.ContainsKey(m_data.m_id))
         {
-            Material tempMat = Instantiate(GlobalCtrl.Instance.atomMatPrefab);
+            Material tempMat = Instantiate(GlobalCtrl.Singleton.atomMatPrefab);
             tempMat.color = m_data.m_color;
-            GlobalCtrl.Instance.Dic_AtomMat.Add(m_data.m_id, tempMat);
+            GlobalCtrl.Singleton.Dic_AtomMat.Add(m_data.m_id, tempMat);
         }
-        GetComponent<MeshRenderer>().material = GlobalCtrl.Instance.Dic_AtomMat[m_data.m_id];
+        GetComponent<MeshRenderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
         m_mat = GetComponent<MeshRenderer>().material;
 
         this.transform.parent = inputMole.transform;
         this.transform.localPosition = pos;    
-        this.transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.Instance.scale/GlobalCtrl.Instance.u2pm) * GlobalCtrl.Instance.atomScale;
+        this.transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.Singleton.scale/GlobalCtrl.Singleton.u2pm) * GlobalCtrl.Singleton.atomScale;
         // at this point we have the size of the atom, so we can adjust the size of the halo
         //
 
 
-        //Debug.Log(string.Format("Added latest {0}:  rad={1}  scale={2}  hyb={3}  nBonds={4}", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Instance.atomScale, m_data.m_hybridization, m_data.m_bondNum));
+        //Debug.Log(string.Format("Added latest {0}:  rad={1}  scale={2}  hyb={3}  nBonds={4}", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale, m_data.m_hybridization, m_data.m_bondNum));
 
         //Initial positions for dummies
         m_posForDummies = new List<Vector3>();
@@ -160,37 +160,37 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             case (0):
                 break;
             case (1): // linear, max 2 bonds
-                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
-                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 120) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
+                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 120) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
                 break;
             case (2): // trigonal, max 3 bonds
-                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
-                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 120) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
-                if (m_data.m_bondNum > 2) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 240) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
+                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 120) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                if (m_data.m_bondNum > 2) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 240) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
                 break;
             case (3): // tetrahedral
-                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
-                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(70.53f, 60, 180) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
-                if (m_data.m_bondNum > 2) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(-70.53f, 0, 180) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
-                if (m_data.m_bondNum > 3) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(-70.53f, 120, 180) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
+                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(70.53f, 60, 180) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                if (m_data.m_bondNum > 2) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(-70.53f, 0, 180) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                if (m_data.m_bondNum > 3) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(-70.53f, 120, 180) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
                 break;
             case (4): // trigonal bipyramidal
-                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
-                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 180) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
-                if (m_data.m_bondNum > 2) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 90) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
-                if (m_data.m_bondNum > 3) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(120, 0, 180) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
-                if (m_data.m_bondNum > 4) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(240, 0, 180) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
+                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 180) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                if (m_data.m_bondNum > 2) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 90) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                if (m_data.m_bondNum > 3) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(120, 0, 180) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                if (m_data.m_bondNum > 4) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(240, 0, 180) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
                 break;
             case (6): // octahedral  (with 4 bonds: quadratic planar)
-                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
-                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 180) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
-                if (m_data.m_bondNum > 2) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 90) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
-                if (m_data.m_bondNum > 3) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(180, 0, 90) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
-                if (m_data.m_bondNum > 4) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(90, 0, 90) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
-                if (m_data.m_bondNum > 5) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(270, 0, 90) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
+                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 180) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                if (m_data.m_bondNum > 2) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 90) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                if (m_data.m_bondNum > 3) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(180, 0, 90) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                if (m_data.m_bondNum > 4) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(90, 0, 90) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                if (m_data.m_bondNum > 5) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(270, 0, 90) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
                 break;
             default:  // fall-back ... we have to see how to do error handling here
-                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm));
+                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
                 UnityEngine.Debug.Log("[Atom] InitDummies: Landed in Fallback!");
                 break;
 
@@ -209,16 +209,16 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         m_data = newData;
         int dummyLimit = this.m_data.m_bondNum;
         this.gameObject.name = m_data.m_name;
-        if (!GlobalCtrl.Instance.Dic_AtomMat.ContainsKey(m_data.m_id))
+        if (!GlobalCtrl.Singleton.Dic_AtomMat.ContainsKey(m_data.m_id))
         {
-            Material tempMat = Instantiate(GlobalCtrl.Instance.atomMatPrefab);
+            Material tempMat = Instantiate(GlobalCtrl.Singleton.atomMatPrefab);
             tempMat.color = m_data.m_color;
-            GlobalCtrl.Instance.Dic_AtomMat.Add(m_data.m_id, tempMat);
+            GlobalCtrl.Singleton.Dic_AtomMat.Add(m_data.m_id, tempMat);
         }
-        GetComponent<MeshRenderer>().material = GlobalCtrl.Instance.Dic_AtomMat[m_data.m_id];
+        GetComponent<MeshRenderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
         m_mat = GetComponent<MeshRenderer>().material;
 
-        this.transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.Instance.scale / GlobalCtrl.Instance.u2pm) * GlobalCtrl.Instance.atomScale;
+        this.transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm) * GlobalCtrl.Singleton.atomScale;
 
 
         foreach(Atom a in this.connectedDummys(this))
@@ -228,7 +228,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
                 numConnected--;
                 Destroy(a.gameObject);
                 this.m_molecule.atomList.Remove(a);
-                GlobalCtrl.Instance.List_curAtoms.Remove(a);
+                GlobalCtrl.Singleton.List_curAtoms.Remove(a);
                 Bond b = a.connectedBonds()[0];
                 Destroy(b.gameObject);
                 this.m_molecule.bondList.Remove(b);
@@ -243,7 +243,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             numConnected++;
         }
 
-        // Debug.Log(string.Format("Modified latest {0}:  rad={1}   scale={2} ", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Instance.atomScale));
+        // Debug.Log(string.Format("Modified latest {0}:  rad={1}   scale={2} ", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale));
     }
 
 
@@ -259,12 +259,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         {
             case (0):
                 position = this.transform.localPosition + new Vector3(0,0,0.05f);
-                GlobalCtrl.Instance.CreateDummy(GlobalCtrl.Instance.idInScene, this.m_molecule, this, position);
+                GlobalCtrl.Singleton.CreateDummy(GlobalCtrl.Singleton.idInScene, this.m_molecule, this, position);
                 break;
             case (1):
                 firstVec = this.transform.localPosition - conAtoms[0].transform.localPosition;
                 position = this.transform.localPosition + firstVec;
-                GlobalCtrl.Instance.CreateDummy(GlobalCtrl.Instance.idInScene, this.m_molecule, this, position);
+                GlobalCtrl.Singleton.CreateDummy(GlobalCtrl.Singleton.idInScene, this.m_molecule, this, position);
                 break;
             case (2):
                 firstVec = this.transform.localPosition - conAtoms[0].transform.localPosition;
@@ -272,7 +272,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
                 position = this.transform.localPosition + ((firstVec + secondVec) / 2.0f);
                 if (position == this.transform.localPosition)
                     position = Vector3.Cross(firstVec, secondVec);
-                GlobalCtrl.Instance.CreateDummy(GlobalCtrl.Instance.idInScene, this.m_molecule, this, position);
+                GlobalCtrl.Singleton.CreateDummy(GlobalCtrl.Singleton.idInScene, this.m_molecule, this, position);
                 break;
             case (3):
                 firstVec = conAtoms[1].transform.localPosition - conAtoms[0].transform.localPosition;
@@ -286,7 +286,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
                 if ((sideCheck1 >= 0 && sideCheck2 >= 0) || (sideCheck1 <= 0 && sideCheck2 <= 0))
                     position = this.transform.localPosition - normalVec;
 
-                GlobalCtrl.Instance.CreateDummy(GlobalCtrl.Instance.idInScene, this.m_molecule, this, position);
+                GlobalCtrl.Singleton.CreateDummy(GlobalCtrl.Singleton.idInScene, this.m_molecule, this, position);
                 break;
             default:
                 break;
@@ -300,25 +300,25 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     public void colorSwapSelect(int col)
     {
         if (col == 1)
-            this.GetComponent<Renderer>().material = GlobalCtrl.Instance.selectedMat;
+            this.GetComponent<Renderer>().material = GlobalCtrl.Singleton.selectedMat;
         else if (col == 2 || this.isMarked)
             //this.GetComponent<Renderer>().material.color = new Color(this.GetComponent<Renderer>().material.color.r, this.GetComponent<Renderer>().material.color.g, this.GetComponent<Renderer>().material.color.b, 0.5f);
-            this.GetComponent<Renderer>().material = GlobalCtrl.Instance.markedMat;
+            this.GetComponent<Renderer>().material = GlobalCtrl.Singleton.markedMat;
         else
-            this.GetComponent<Renderer>().material = GlobalCtrl.Instance.Dic_AtomMat[m_data.m_id];
+            this.GetComponent<Renderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
     }
 
     private void OnTriggerEnter(Collider collider)
     {
         // Debug.Log($"[Atom] Collision Detected: {collider.name}");
-        if (collider.name.StartsWith("Dummy") && this.name.StartsWith("Dummy") && GlobalCtrl.Instance.collision == false)
+        if (collider.name.StartsWith("Dummy") && this.name.StartsWith("Dummy") && GlobalCtrl.Singleton.collision == false)
         {
 
-            GlobalCtrl.Instance.collision = true;
-            GlobalCtrl.Instance.collider1 = collider.GetComponent<Atom>();
-            GlobalCtrl.Instance.collider2 = this.GetComponent<Atom>();
-            GlobalCtrl.Instance.collider1.colorSwapSelect(1);
-            GlobalCtrl.Instance.collider2.colorSwapSelect(1);
+            GlobalCtrl.Singleton.collision = true;
+            GlobalCtrl.Singleton.collider1 = collider.GetComponent<Atom>();
+            GlobalCtrl.Singleton.collider2 = this.GetComponent<Atom>();
+            GlobalCtrl.Singleton.collider1.colorSwapSelect(1);
+            GlobalCtrl.Singleton.collider2.colorSwapSelect(1);
         }
     }
 
@@ -326,17 +326,17 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     {
         if (collider.name.StartsWith("Dummy") && this.name.StartsWith("Dummy"))
         {
-            if (GlobalCtrl.Instance.collider1 != null)
+            if (GlobalCtrl.Singleton.collider1 != null)
             {
-                GlobalCtrl.Instance.collider1.colorSwapSelect(0);
-                GlobalCtrl.Instance.collider1 = null;
+                GlobalCtrl.Singleton.collider1.colorSwapSelect(0);
+                GlobalCtrl.Singleton.collider1 = null;
             }
-            if (GlobalCtrl.Instance.collider2 != null)
+            if (GlobalCtrl.Singleton.collider2 != null)
             {
-                GlobalCtrl.Instance.collider2.colorSwapSelect(0);
-                GlobalCtrl.Instance.collider2 = null;
+                GlobalCtrl.Singleton.collider2.colorSwapSelect(0);
+                GlobalCtrl.Singleton.collider2 = null;
             }
-            GlobalCtrl.Instance.collision = false;
+            GlobalCtrl.Singleton.collision = false;
         }
     }
 
@@ -398,8 +398,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     /// <returns>the searched atom</returns>
     public Atom getAtomByID(float id)
     {
-        foreach (Atom atom in GlobalCtrl.Instance.List_curAtoms)
-        //foreach (KeyValuePair<int, Atom> atom in GlobalCtrl.Instance.Dic_curAtoms)
+        foreach (Atom atom in GlobalCtrl.Singleton.List_curAtoms)
+        //foreach (KeyValuePair<int, Atom> atom in GlobalCtrl.Singleton.Dic_curAtoms)
         {
             if (atom.m_idInScene == (int)id)
                 return atom;
@@ -418,7 +418,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         if (dummy.m_data.m_name == "Dummy")
         {
             Bond b = dummy.m_molecule.bondList.Find(p => p.atomID1 == dummy.m_idInScene || p.atomID2 == dummy.m_idInScene);      
-            Atom atom1 = GlobalCtrl.Instance.List_curAtoms.Find((x) => x.GetComponent<Atom>() == b.findTheOther(dummy));
+            Atom atom1 = GlobalCtrl.Singleton.List_curAtoms.Find((x) => x.GetComponent<Atom>() == b.findTheOther(dummy));
             return atom1;
         }
         else
@@ -500,7 +500,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         if (m_data.m_abbre != "Dummy")
         {
             var delButtonInstance = Instantiate(deleteMeButtonPrefab);
-            delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Instance.markToDelete(); });
+            delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.markToDelete(); });
             toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
         }
     }

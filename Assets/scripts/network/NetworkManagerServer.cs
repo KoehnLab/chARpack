@@ -17,7 +17,7 @@ public class NetworkManagerServer : MonoBehaviour
             }
             else if (_singleton != value)
             {
-                Debug.Log($"{nameof(NetworkManagerServer)} instance already exists, destroying duplicate!");
+                Debug.Log($"[{nameof(NetworkManagerServer)}] Instance already exists, destroying duplicate!");
                 Destroy(value);
             }
 
@@ -25,9 +25,6 @@ public class NetworkManagerServer : MonoBehaviour
     }
 
     public Server Server { get; private set; }
-
-    [SerializeField] private ushort port;
-    [SerializeField] private ushort maxClientCount;
 
     private bool ServerStarted = false;
 
@@ -52,7 +49,7 @@ public class NetworkManagerServer : MonoBehaviour
     public static void StartServer()
     {
         Singleton.Server = new Server();
-        Singleton.Server.Start(Singleton.port, Singleton.maxClientCount);
+        Singleton.Server.Start(LoginData.port, LoginData.maxConnections);
         Singleton.Server.ClientDisconnected += Singleton.ClientDisconnected;
 
         Debug.Log("started server");

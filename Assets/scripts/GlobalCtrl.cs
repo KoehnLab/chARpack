@@ -19,18 +19,21 @@ using Microsoft.MixedReality.Toolkit.Input;
 public class GlobalCtrl : MonoBehaviour
 {
     /// <summary>
-    /// instance of global control
+    /// singleton of global control
     /// </summary>
-    private static GlobalCtrl instance;
-    public static GlobalCtrl Instance
+    private static GlobalCtrl _singleton;
+    public static GlobalCtrl Singleton
     {
-        get
+        get => _singleton;
+        private set
         {
-            if (instance == null)
+            if (_singleton == null)
+                _singleton = value;
+            else if (_singleton != value)
             {
-                instance = FindObjectOfType<GlobalCtrl>();
+                Debug.Log($"[{nameof(GlobalCtrl)}] Instance already exists, destroying duplicate!");
+                Destroy(value);
             }
-            return instance;
         }
     }
 
@@ -38,7 +41,7 @@ public class GlobalCtrl : MonoBehaviour
     //public static ControllerManager CtrlManager { get; private set; }
     //public static UIMainMenu UIMain { get; private set; }
     //public static UISaveMenu UISave { get; private set; }
-
+    [HideInInspector] public GameObject exitConfirmPrefab;
     public GameObject myBoundingBoxPrefab;
     public GameObject myAtomPrefab;
 
@@ -140,6 +143,8 @@ public class GlobalCtrl : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+        // create singleton
+        Singleton = this;
         // make sure that numbers are printed with a dot as required by any post-processing with standard software
         CultureInfo.CurrentCulture = new CultureInfo("en-US", false);
         CultureInfo.CurrentUICulture = new CultureInfo("en-US", false);
@@ -170,6 +175,8 @@ public class GlobalCtrl : MonoBehaviour
         {
             Debug.LogError("[GlobalCtrl] Dic_ElementData is empty.");
         }
+
+        exitConfirmPrefab = (GameObject)Resources.Load("prefabs/confirmLoadDialog");
 
         ///<summary>
         ///Manages Controller, gets called by individual scripts for each controller (Vive, Oculus, ...)
@@ -1067,7 +1074,7 @@ public class GlobalCtrl : MonoBehaviour
         // shift coordinates such that COM is at origin (and convert to Aangstroem units)
         for (int iAtom = 0; iAtom < nAtoms; iAtom++)
         {
-            coords[iAtom] = (coords[iAtom] - COM) * GlobalCtrl.Instance.u2aa / GlobalCtrl.Instance.scale ;
+            coords[iAtom] = (coords[iAtom] - COM) * this.u2aa / this.scale ;
         }
 
         // Write to file
@@ -1391,10 +1398,21 @@ public class GlobalCtrl : MonoBehaviour
 
     #endregion
 
-    public void BackToMain()
+    public void backToMain()
     {
-        // TODO: should have a save guard
-        SceneManager.LoadScene("Init");
+        var myDialog = Dialog.Open(exitConfirmPrefab, DialogButtonType.Yes | DialogButtonType.No, "Confirm Exit", $"Are you sure you want quit?", true);
+        if (myDialog != null)
+        {
+            myDialog.OnClosed += OnClosedDialogEvent;
+        }
+    }
+
+    private void OnClosedDialogEvent(DialogResult obj)
+    {
+        if (obj.Result == DialogButtonType.Yes)
+        {
+            SceneManager.LoadScene("LoginScreenScene");
+        }
     }
 
     /// <summary>
