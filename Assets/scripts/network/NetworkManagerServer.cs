@@ -52,7 +52,7 @@ public class NetworkManagerServer : MonoBehaviour
         Singleton.Server.Start(LoginData.port, LoginData.maxConnections);
         Singleton.Server.ClientDisconnected += Singleton.ClientDisconnected;
 
-        Debug.Log("started server");
+        Debug.Log("[NetworkManagerServer] Server started.");
 
         Singleton.ServerStarted = true;
     }
@@ -80,6 +80,7 @@ public class NetworkManagerServer : MonoBehaviour
     /// <param name="e"></param>
     private void ClientDisconnected(object sender, ClientDisconnectedEventArgs e)
     {
-
+        // destroy user gameObject
+        Destroy(UserServer.list[e.Id].gameObject);
     }
 }

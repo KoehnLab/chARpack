@@ -5,6 +5,7 @@ using System;
 using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine.SceneManagement;
 
+
 public class NetworkManagerClient : MonoBehaviour
 {
     private static NetworkManagerClient _singleton;
@@ -112,7 +113,7 @@ public class NetworkManagerClient : MonoBehaviour
     /// <param name="e"></param>
     private void ClientDisconnnected(object sender, ClientDisconnectedEventArgs e)
     {
-
+        Destroy(UserClient.list[e.Id].gameObject);
     }
 
     /// <summary>
@@ -124,5 +125,23 @@ public class NetworkManagerClient : MonoBehaviour
     {
 
     }
+    /// <summary>
+    /// Sends a message with the device name and the device type to the server
+    /// </summary>
+    public void sendName()
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.deviceNameAndType);
+        message.AddString(SystemInfo.deviceName);
+        message.AddUShort(getDeviceType());
+        Client.Send(message);
+    }
 
+    /// <summary>
+    /// Returns the type of this device
+    /// </summary>
+    public ushort getDeviceType()
+    {
+        // TODO implement
+        return (ushort)DeviceType.HoloLens;
+    }
 }
