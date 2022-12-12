@@ -81,7 +81,7 @@ public class NetworkManagerClient : MonoBehaviour
     /// <param name="e"></param>
     private void DidConnect(object sender, EventArgs e)
     {
-
+        sendName();
     }
 
     /// <summary>

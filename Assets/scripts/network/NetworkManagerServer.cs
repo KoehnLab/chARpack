@@ -51,6 +51,7 @@ public class NetworkManagerServer : MonoBehaviour
         Singleton.Server = new Server();
         Singleton.Server.Start(LoginData.port, LoginData.maxConnections);
         Singleton.Server.ClientDisconnected += Singleton.ClientDisconnected;
+        //Singleton.Server.ClientConnected += Singleton.ClientConnected; client invokes sendName
 
         Debug.Log("[NetworkManagerServer] Server started.");
 

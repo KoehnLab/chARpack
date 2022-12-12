@@ -185,6 +185,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isServer: 0
+  connectButtonText: {fileID: 4275170402944493143}
 --- !u!4 &1135660619
 Transform:
   m_ObjectHideFlags: 0

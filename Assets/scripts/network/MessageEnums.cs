@@ -8,7 +8,7 @@ public enum ClientToServerID : ushort
     positionAndRotation = 2,
 }
 
-public enum ServerToClientID
+public enum ServerToClientID : ushort
 {
     userSpawned = 1,
     bcastPositionAndRotation = 2,

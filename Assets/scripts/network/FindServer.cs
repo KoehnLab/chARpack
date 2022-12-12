@@ -1,6 +1,7 @@
 using RiptideNetworking.Utils;
 using System.Collections.Generic;
 using System.Net;
+using TMPro;
 using UnityEngine;
 
 public class FindServer : MonoBehaviour
@@ -11,7 +12,9 @@ public class FindServer : MonoBehaviour
         public ushort port;
     }
     [HideInInspector] public List<ServerData> serverList = new List<ServerData>();
+    [HideInInspector] public List<ServerData> manualServerList = new List<ServerData>();
     public bool isServer = false;
+    public GameObject connectButtonText;
 
     private static FindServer _singleton;
     public static FindServer Singleton
@@ -46,7 +49,8 @@ public class FindServer : MonoBehaviour
         {
             Debug.Log("[FindServer:Client] Started looking for server via repeated broadcast.");
             InvokeRepeating("HelloThere", 2.0f, 5.0f);
-        } else
+        } 
+        else
         {
             Debug.Log("[FindServer:Server] Started listening for client brodcasts.");
             ImHere();
@@ -56,8 +60,14 @@ public class FindServer : MonoBehaviour
     //Client
     public void HelloThere()
     {
+        // update connect button with number of servers
+        if (connectButtonText != null)
+        {
+            connectButtonText.GetComponent<TextMeshPro>().text = $"Connect ({serverList.Count})";
+        }
         serverList.Clear();
         lanDiscovery.SendBroadcast();
+        Debug.Log("[FindServer:Client] Broadcast sent.");
     }
 
     //Server

@@ -10,14 +10,13 @@ public class UserServer : MonoBehaviour
     public ushort ID;
     public string deviceName;
     public DeviceType deviceType;
-    private static GameObject holoLensUserPrefab;
     public GameObject head;
     public GameObject leftHand;
     public GameObject rightHand;
 
     public void Start()
     {
-        holoLensUserPrefab = (GameObject)Resources.Load("prefabs/HoloLensUser");
+        
     }
 
     public static void spawn(ushort id_, string deviceName_, DeviceType deviceType_)
@@ -30,6 +29,7 @@ public class UserServer : MonoBehaviour
         UserServer user;
         if (deviceType_ == DeviceType.HoloLens)
         {
+            var holoLensUserPrefab = (GameObject)Resources.Load("prefabs/HoloLensUser");
             user = Instantiate(holoLensUserPrefab).GetComponent<UserServer>();
         } 
         else
@@ -54,7 +54,9 @@ public class UserServer : MonoBehaviour
 
     private void applyPositionAndRotation(Vector3 pos, Vector3 forward)
     {
-        // TODO
+        var head = transform.Find("Head");
+        head.transform.position = pos;
+        head.GetComponent<Camera>().transform.forward = forward;
     }
 
     #region Messages
@@ -92,7 +94,7 @@ public class UserServer : MonoBehaviour
     }
 
     [MessageHandler((ushort)ClientToServerID.positionAndRotation)]
-    private void bcastPositionAndRotation(ushort fromClientId, Message message)
+    private static void bcastPositionAndRotation(ushort fromClientId, Message message)
     {
         var pos = message.GetVector3();
         var forward = message.GetVector3();
@@ -105,6 +107,7 @@ public class UserServer : MonoBehaviour
         bcastMessage.AddVector3(pos);
         bcastMessage.AddVector3(forward);
         NetworkManagerServer.Singleton.Server.SendToAll(bcastMessage);
+        Debug.Log("[UserServer] Pos and Rot received and relayed");
     }
 
 

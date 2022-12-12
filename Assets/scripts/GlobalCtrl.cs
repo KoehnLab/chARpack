@@ -176,7 +176,7 @@ public class GlobalCtrl : MonoBehaviour
             Debug.LogError("[GlobalCtrl] Dic_ElementData is empty.");
         }
 
-        exitConfirmPrefab = (GameObject)Resources.Load("prefabs/confirmLoadDialog");
+        exitConfirmPrefab = (GameObject)Resources.Load("prefabs/confirmDialog");
 
         ///<summary>
         ///Manages Controller, gets called by individual scripts for each controller (Vive, Oculus, ...)

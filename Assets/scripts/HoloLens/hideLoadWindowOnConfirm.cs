@@ -9,8 +9,11 @@ public class hideLoadWindowOnConfirm : MonoBehaviour
     // become active
     void OnEnable()
     {
-        loadConfirmGO = FindObjectOfType<loadSaveWindow>().gameObject;
-        loadConfirmGO.SetActive(false);
+        if (loadConfirmGO != null)
+        {
+            loadConfirmGO = FindObjectOfType<loadSaveWindow>().gameObject;
+            loadConfirmGO.SetActive(false);
+        }
     }
 
     // get deactivated

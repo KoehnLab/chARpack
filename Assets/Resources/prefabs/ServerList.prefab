@@ -31,7 +31,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 477276558746994542}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.1155, y: -0.02, z: 0}
+  m_LocalPosition: {x: -0.082499996, y: -0.02, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -39,7 +39,7 @@ Transform:
   - {fileID: 8618375504219655727}
   - {fileID: 6565546795126414711}
   m_Father: {fileID: 8609912644662688077}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &5916569987591523092
 BoxCollider:
@@ -2513,7 +2513,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8609912644250216698}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.0704, y: -0.0191, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2533,7 +2533,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nodeList:
-  - Name: PressableButtonHoloLens2
+  - Name: ServerEntry
     Offset: {x: 0, y: 0}
     Radius: 0
     Transform: {fileID: 0}
@@ -2543,7 +2543,7 @@ MonoBehaviour:
   surfaceType: 1
   orientType: 0
   layout: 3
-  anchor: 0
+  anchor: 4
   anchorAlongAxis: 0
   columnAlignment: 0
   rowAlignment: 0
@@ -2553,7 +2553,7 @@ MonoBehaviour:
   rows: 6
   columns: 4
   cellWidth: 0.034
-  cellHeight: 0.034
+  cellHeight: 0.32
   assetVersion: 1
 --- !u!1 &8609912644264496672
 GameObject:
@@ -2581,8 +2581,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8609912644264496672}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.068, y: -0.051000003, z: 0}
-  m_LocalScale: {x: 0.136, y: 0.102000006, z: 0.024}
+  m_LocalPosition: {x: 0.07, y: -0.051000003, z: -0.0033}
+  m_LocalScale: {x: 0.14, y: 0.102000006, z: 0.04}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8609912644981234065}
@@ -2595,7 +2595,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8609912644264496672}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 75fa637a68e599040bdd08afc22b3bfa, type: 3}
   m_Name: 
@@ -3235,7 +3235,7 @@ GameObject:
   - component: {fileID: 8609912644462630669}
   - component: {fileID: 8609912644462630668}
   m_Layer: 0
-  m_Name: Refresh
+  m_Name: ManualAdd
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3249,7 +3249,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8609912644462630674}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.082499996, y: -0.02, z: 0}
+  m_LocalPosition: {x: -0.1155, y: -0.02, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3257,7 +3257,7 @@ Transform:
   - {fileID: 8609912643734040186}
   - {fileID: 8609912643788956995}
   m_Father: {fileID: 8609912644662688077}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &8609912644462630666
 BoxCollider:
@@ -3430,7 +3430,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: -7011374829428565376}
         m_TargetAssemblyTypeName: ServerList, Assembly-CSharp
-        m_MethodName: refresh
+        m_MethodName: manualAddServer
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3734,9 +3734,9 @@ MonoBehaviour:
   iconSprite: {fileID: 21300000, guid: 20f25674b9512834f88938d45ed495d7, type: 3}
   iconQuadRenderer: {fileID: 8609912643166623627}
   iconQuadTextureNameID: _MainTex
-  iconQuadTexture: {fileID: 2800000, guid: 559e1da0e65611c4f93ec931e1e6a8a2, type: 3}
+  iconQuadTexture: {fileID: 2800000, guid: f437b9fb7e4b40b43a18b930eac67508, type: 3}
   defaultButtonQuadMaterial: {fileID: 0}
-  iconSet: {fileID: 11400000, guid: 8b386ef895f7c924f8c4b03d1d3ed683, type: 2}
+  iconSet: {fileID: 11400000, guid: c8d98d7c7e5e773439c23c5ff2225e2e, type: 2}
   defaultIconSet: {fileID: 0}
 --- !u!1 &8609912644477976894
 GameObject:
@@ -4596,7 +4596,7 @@ Transform:
   m_GameObject: {fileID: 8609912644567345863}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.0298, y: -0.0613, z: -0.015744388}
-  m_LocalScale: {x: 1.8, y: 1.8, z: 1.8}
+  m_LocalScale: {x: 1.8, y: 1.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8609912644981234065}
@@ -5645,7 +5645,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8609912644658065072}
   - component: {fileID: 8609912644658065075}
-  - component: {fileID: 8609912644658065074}
   - component: {fileID: 8609912644658065073}
   m_Layer: 0
   m_Name: Title
@@ -5716,14 +5715,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!222 &8609912644658065074
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8609912644658065079}
-  m_CullTransparentMesh: 0
 --- !u!114 &8609912644658065073
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5845,8 +5836,8 @@ Transform:
   m_LocalScale: {x: 2.4030607, y: 23.668642, z: 284.0909}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8258385122718109457}
   - {fileID: 8609912644462630675}
+  - {fileID: 8258385122718109457}
   - {fileID: 8609912644600912497}
   - {fileID: 8609912644711510789}
   m_Father: {fileID: 8609912644990699329}
@@ -5865,15 +5856,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nodeList:
-  - Name: Refresh (1)
-    Offset: {x: 0, y: 0}
-    Radius: 0
-    Transform: {fileID: 8258385122718109457}
-    Colliders: []
   - Name: Refresh
     Offset: {x: 0, y: 0}
     Radius: 0
     Transform: {fileID: 8609912644462630675}
+    Colliders: []
+  - Name: Refresh (1)
+    Offset: {x: 0, y: 0}
+    Radius: 0
+    Transform: {fileID: 8258385122718109457}
     Colliders: []
   - Name: Pressable Button (1)
     Offset: {x: 0, y: 0}
@@ -7114,6 +7105,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serverEntryPrefab: {fileID: 0}
+  manualAddServerPrefab: {fileID: 0}
   clippingBox: {fileID: 8609912644264496672}
   gridObjectCollection: {fileID: 8609912644250216698}
   scrollingObjectCollection: {fileID: 8609912644981234069}
@@ -7175,7 +7167,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8609912644981234069}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.0163, y: 0.0143, z: 0.002}
+  m_LocalPosition: {x: -0.0179, y: 0.0143, z: 0.002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7236,9 +7228,9 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   animationLength: 0.25
-  cellsPerTier: 4
+  cellsPerTier: 1
   tiersPerPage: 3
-  cellWidth: 0.034
+  cellWidth: 0.14
   cellHeight: 0.034
   cellDepth: 0.024
   bounceMultiplier: 0.1
@@ -7274,8 +7266,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.136, y: 0.102000006, z: 0.001}
-  m_Center: {x: 0.068, y: -0.051000003, z: 0.013}
+  m_Size: {x: 0.14, y: 0.102000006, z: 0.001}
+  m_Center: {x: 0.07, y: -0.051000003, z: 0.013}
 --- !u!114 &8609912644981234071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7292,8 +7284,8 @@ MonoBehaviour:
   debounceThreshold: 0.01
   localForward: {x: -0, y: -0, z: -1}
   localUp: {x: 0, y: 1, z: 0}
-  localCenter: {x: 0.068, y: -0.051000003, z: -0.012}
-  bounds: {x: 0.136, y: 0.102000006}
+  localCenter: {x: 0.07, y: -0.051000003, z: -0.012}
+  bounds: {x: 0.14, y: 0.102000006}
   touchableCollider: {fileID: 8609912644981234064}
 --- !u!1 &8609912644990699328
 GameObject:
