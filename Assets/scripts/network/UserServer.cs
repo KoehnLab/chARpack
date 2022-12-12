@@ -14,11 +14,6 @@ public class UserServer : MonoBehaviour
     public GameObject leftHand;
     public GameObject rightHand;
 
-    public void Start()
-    {
-        
-    }
-
     public static void spawn(ushort id_, string deviceName_, DeviceType deviceType_)
     {
         foreach (UserServer otherUser in list.Values)
@@ -54,7 +49,6 @@ public class UserServer : MonoBehaviour
 
     private void applyPositionAndRotation(Vector3 pos, Vector3 forward)
     {
-        var head = transform.Find("Head");
         head.transform.position = pos;
         head.GetComponent<Camera>().transform.forward = forward;
     }
@@ -107,7 +101,6 @@ public class UserServer : MonoBehaviour
         bcastMessage.AddVector3(pos);
         bcastMessage.AddVector3(forward);
         NetworkManagerServer.Singleton.Server.SendToAll(bcastMessage);
-        Debug.Log("[UserServer] Pos and Rot received and relayed");
     }
 
 

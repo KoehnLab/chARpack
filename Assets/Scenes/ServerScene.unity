@@ -123,6 +123,77 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &110378750
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 110378752}
+  - component: {fileID: 110378751}
+  m_Layer: 0
+  m_Name: globalCtrlScript
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &110378751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 110378750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 040ea6f42c6108143bf276ffcc860177, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  exitConfirmPrefab: {fileID: 0}
+  myBoundingBoxPrefab: {fileID: 7362249118518364358, guid: 48b9becbc0966d742a6c4463366a1a58, type: 3}
+  myAtomPrefab: {fileID: 7377244445179915796, guid: bf048a9970cb97f44a46f7c758da93a0, type: 3}
+  atomMatPrefab: {fileID: 2100000, guid: a5e028070ace428d8971079be1d965a6, type: 2}
+  idInScene: 0
+  scale: 0.5
+  u2pm: 1000
+  u2aa: 10
+  atomScale: 0.4
+  dataFolder: MoleculeFolder
+  atomWorld: {fileID: 0}
+  bondPrefab: {fileID: 6023341437175460837, guid: a6ff830e30b8fae40abd9ac1c7189f08, type: 3}
+  selectedMat: {fileID: 2100000, guid: 27a6136d64696da4eba1b89b3df8d3df, type: 2}
+  markedMat: {fileID: 2100000, guid: a50237e3265fe9149a16e889fd8d8b4c, type: 2}
+  bondMat: {fileID: 2100000, guid: d5334c45caee46be937b095a1e977dc6, type: 2}
+  collision: 0
+  collider1: {fileID: 0}
+  collider2: {fileID: 0}
+  repulsionScale: 0.1
+  curHybrid: 3
+  favorites:
+  - 
+  - 
+  - 
+  - 
+  - 
+  numAtoms: 0
+--- !u!4 &110378752
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 110378750}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.59838676, y: -1.0767684, z: 2.1146715}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &445067727
 GameObject:
   m_ObjectHideFlags: 0
@@ -237,6 +308,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isServer: 1
+  connectButtonText: {fileID: 0}
 --- !u!4 &1555226761
 Transform:
   m_ObjectHideFlags: 0
@@ -296,5 +368,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e312dd54155c86c4a8e69e9cbfb1a5cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 0
-  maxClientCount: 0

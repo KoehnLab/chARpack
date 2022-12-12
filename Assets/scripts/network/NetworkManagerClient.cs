@@ -54,6 +54,9 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Disconnected += DidDisconnect;
 
         Connect();
+
+        // subscribe to event manager events
+        EventManager.Singleton.OnCreateAtom += atomCreated;
     }
 
     private void FixedUpdate()
@@ -143,5 +146,14 @@ public class NetworkManagerClient : MonoBehaviour
     {
         // TODO implement
         return (ushort)DeviceType.HoloLens;
+    }
+
+    public void atomCreated(int id, string abbre, Vector3 pos)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.atomCreated);
+        message.AddInt(id);
+        message.AddString(abbre);
+        message.AddVector3(pos);
+        Client.Send(message);
     }
 }

@@ -6,6 +6,7 @@ public enum ClientToServerID : ushort
 {
     deviceNameAndType = 1,
     positionAndRotation = 2,
+    atomCreated = 3,
 }
 
 public enum ServerToClientID : ushort

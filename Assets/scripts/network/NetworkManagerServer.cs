@@ -84,4 +84,20 @@ public class NetworkManagerServer : MonoBehaviour
         // destroy user gameObject
         Destroy(UserServer.list[e.Id].gameObject);
     }
+
+    #region Messages
+
+    [MessageHandler((ushort)ClientToServerID.atomCreated)]
+    private static void getAtomCreated(ushort fromClientId, Message message)
+    {
+        var id = message.GetInt();
+        var abbre = message.GetString();
+        var pos = message.GetVector3();
+        GlobalCtrl.Singleton.CreateAtom(id, abbre, pos);
+
+        //TODO Broadcast to other clients
+    }
+    
+
+    #endregion
 }
