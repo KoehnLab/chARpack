@@ -850,6 +850,8 @@ public class GlobalCtrl : MonoBehaviour
 
         List_curMolecules.Add(tempMolecule);
 
+        EventManager.Singleton.CreateAtom(idAtom, ChemicalAbbre, pos);
+
     }
 
     /// <summary>
