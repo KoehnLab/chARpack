@@ -34,7 +34,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     }
     public void OnPointerClicked(MixedRealityPointerEventData eventData)
     {
-        // Intentionally empty
+        EventManager.Singleton.MoveMolecule(m_id,transform.position, transform.rotation);
     }
     public void OnPointerDragged(MixedRealityPointerEventData eventData)
     {
@@ -97,7 +97,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// <summary>
     /// molecule id
     /// </summary>
-    public int m_id;
+    public ushort m_id;
 
 
     public bool isMarked;
@@ -115,7 +115,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// </summary>
     /// <param name="idInScene">the ID in the scene o the molecule</param>
     /// <param name="inputParent"> the parent of the molecule</param>
-    public void f_Init(int idInScene, Transform inputParent)
+    public void f_Init(ushort idInScene, Transform inputParent)
     {
         m_id = idInScene;
         isMarked = false;

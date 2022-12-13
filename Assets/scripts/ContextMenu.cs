@@ -81,7 +81,7 @@ public class ContextMenu : MonoBehaviour
         selectedMolecule = null;
     }
 
-    public void setAtomFavorite(int i)
+    public void setAtomFavorite(ushort i)
     {
         if(selectedAtom.m_data.m_abbre != "Dummy")
             GlobalCtrl.Singleton.setFavorite(i, selectedAtom.m_data.m_abbre, favoritesMenuGO);
@@ -95,7 +95,7 @@ public class ContextMenu : MonoBehaviour
     }
 
 
-    public void translateHybrid(int hybrid)
+    public void translateHybrid(ushort hybrid)
     {
         GlobalCtrl.Singleton.modifyHybrid(selectedAtom, hybrid);
     }

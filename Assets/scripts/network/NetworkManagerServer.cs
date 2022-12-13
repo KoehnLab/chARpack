@@ -90,7 +90,7 @@ public class NetworkManagerServer : MonoBehaviour
     [MessageHandler((ushort)ClientToServerID.atomCreated)]
     private static void getAtomCreated(ushort fromClientId, Message message)
     {
-        var id = message.GetInt();
+        var id = message.GetUShort();
         var abbre = message.GetString();
         var pos = message.GetVector3();
         GlobalCtrl.Singleton.CreateAtom(id, abbre, pos);

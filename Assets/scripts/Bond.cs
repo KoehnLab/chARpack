@@ -60,8 +60,8 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
     private GameObject deleteMeButtonPrefab;
     private GameObject toolTipInstance;
     private float toolTipDistanceWeight = 2.5f;
-    [HideInInspector] public int atomID1;
-    [HideInInspector] public int atomID2;
+    [HideInInspector] public ushort atomID1;
+    [HideInInspector] public ushort atomID2;
     [HideInInspector] public float m_bondOrder;  // 1.0 for single bonds; 1.5 for resonant bonds; 2.0 for double bonds; idea is to scale the bond diameter by this value
     [HideInInspector] public float m_bondDistance;
     [HideInInspector] public Molecule m_molecule;

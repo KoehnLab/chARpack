@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+
+
 namespace StructClass
 {
     /// <summary>
@@ -18,16 +20,16 @@ namespace StructClass
     [Serializable]
     public struct ElementData
     {
-        public int m_id;
+        public ushort m_id;
         public string m_name;
         public string m_abbre;
         public ElementType m_type;
         public float m_mass;
         public float m_radius;
-        public int m_bondNum;
-        public int m_hybridization;
+        public uint m_bondNum;
+        public ushort m_hybridization;
         public Color m_color;
-        public ElementData(int id,string name, string abbre, ElementType type, float mass, float radius,int count, int hyb, float red, float green, float blue)                  
+        public ElementData(ushort id,string name, string abbre, ElementType type, float mass, float radius, uint count, ushort hyb, float red, float green, float blue)                  
         {
             m_id = id;
             m_name = name;
@@ -40,7 +42,7 @@ namespace StructClass
             m_color = new Color(red,green,blue);
         }
 
-        public ElementData(int id, string name, string abbre, ElementType type, float mass, float radius,int count, int hyb, Color color)
+        public ElementData(ushort id, string name, string abbre, ElementType type, float mass, float radius, uint count, ushort hyb, Color color)
         {
             m_id = id;
             m_name = name;
@@ -54,20 +56,16 @@ namespace StructClass
         }
     }
 
-    // hybrid
-    // 
-
-
     /// <summary>
     /// structure of an atom in cml
     /// </summary>
     public struct cmlAtom
     {
-        public int id;
+        public ushort id;
         public string abbre;
-        public int hybrid;
+        public ushort hybrid;
         public Vector3 pos;
-        public cmlAtom(int _id,string name,int hybridisation, Vector3 _pos)
+        public cmlAtom(ushort _id,string name, ushort hybridisation, Vector3 _pos)
         {
             id = _id;
             abbre = name;
@@ -83,10 +81,10 @@ namespace StructClass
     /// </summary>
     public struct cmlBond
     {
-        public int id1;
-        public int id2;
+        public ushort id1;
+        public ushort id2;
         public float order;
-        public cmlBond(int a,int b, float c)
+        public cmlBond(ushort a, ushort b, float c)
         {
             id1 = a;
             id2 = b;

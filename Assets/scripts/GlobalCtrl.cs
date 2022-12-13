@@ -13,9 +13,6 @@ using System.Reflection;
 using Microsoft.MixedReality.Toolkit.Input;
 
 [Serializable]
-/// <summary>
-/// globalctrl, where everything starts
-/// </summary>
 public class GlobalCtrl : MonoBehaviour
 {
     /// <summary>
@@ -37,10 +34,6 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
-    // TODO HOLOLENS DEACTIVATED
-    //public static ControllerManager CtrlManager { get; private set; }
-    //public static UIMainMenu UIMain { get; private set; }
-    //public static UISaveMenu UISave { get; private set; }
     [HideInInspector] public GameObject exitConfirmPrefab;
     public GameObject myBoundingBoxPrefab;
     public GameObject myAtomPrefab;
@@ -52,7 +45,7 @@ public class GlobalCtrl : MonoBehaviour
     public List<Atom> List_curAtoms { get; private set; }
     //public Dictionary<int, Atom> Dic_curAtoms{get;private set;}
 
-    public int idInScene=0;
+    public ushort idInScene=0;
     /// <summary>
     /// all data of element
     /// </summary>
@@ -92,20 +85,6 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     public GameObject atomWorld;
 
-    /// <summary>
-    /// gameObject of Controllers for direct access
-    /// </summary>
-    //public GameObject controllerLeft;
-    //public GameObject controllerRight;
-    //public GameObject pointerLeft;
-    //public GameObject pointerRight;
-    //public GameObject savedFileButtonPrefab;
-    //public GameObject scrollview;
-
-    //public GameObject contextMenu;
-    //public GameObject periodictable;
-    //public GameObject btnPerTable;
-
     public Bond bondPrefab;
     private bool isAnyAtomChanged;
     public Material selectedMat;
@@ -120,7 +99,7 @@ public class GlobalCtrl : MonoBehaviour
 
     public float repulsionScale = 0.1f;
 
-    public int curHybrid = 3;
+    public ushort curHybrid = 3;
 
     Dictionary<Atom, List<Atom>> groupedAtoms = new Dictionary<Atom, List<Atom>>();
     public List<string> favorites = new List<string>(new string[5]);
@@ -178,23 +157,6 @@ public class GlobalCtrl : MonoBehaviour
 
         exitConfirmPrefab = (GameObject)Resources.Load("prefabs/confirmDialog");
 
-        ///<summary>
-        ///Manages Controller, gets called by individual scripts for each controller (Vive, Oculus, ...)
-        ///Directly calls the methods which should be executed
-        /// </summary>
-        // CtrlManager = GetComponent<ControllerManager>();
-
-        // CtrlManager.f_Init();
-        // UIMain = FindObjectOfType<UIMainMenu>();
-        // UIMain.f_Init();
-        // UIMain.gameObject.SetActive(false);
-
-        //UISave = FindObjectOfType<UISaveMenu>();
-        //if (UISave) UISave.gameObject.SetActive(false);
-
-        //contextMenu.SetActive(false);
-        //if (periodictable) periodictable.SetActive(false);
-
         favorites.Add("C");
         favorites.Add("N");
         favorites.Add("O");
@@ -215,230 +177,12 @@ public class GlobalCtrl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        /*
-        #region Controls
-        //print(CtrlManager.L)
-        //Press Touchpad
-        if (CtrlManager.GetPrimary2DPress(WhichHand.left))
-        {
-            SwitchUIMain();
-        }
-            //            Vector2 posPadTouch = CtrlManager.GetPrimary2DTouch(WhichHand.left);
-            //            Debug.Log(string.Format("2DTouch: {0,8:f3} {1,8:f3}", posPadTouch.x, posPadTouch.y));
-
-            //            if (posPadTouch.x <= 0.5f && posPadTouch.x >= -0.5f && posPadTouch.y <= -0.5f)
-            //{
-            //Press Back: Toggle Main Menu
-            //if (!UIMain.gameObject.activeSelf)
-            //    UIMain.deactivateKeyboard();
-            //}
-            //            else if(posPadTouch.x <= 0.5f && posPadTouch.x >= -0.5f && posPadTouch.y >=0.5f){
-            //                //Press Front:
-            //                CreateAtom(idInScene, lastAtom, controllerLeft.transform.position + new Vector3(0.01f, 0, 0.01f));
-            // }
-            //            else if (posPadTouch.x <= -0.7f && posPadTouch.y >= -0.3f && posPadTouch.y <= 0.3f)
-            //            {
-            //                //Press Left:
-            //                CreateAtom(idInScene, "H", controllerLeft.transform.position + new Vector3(0.1f, 0, 0));
-            //            }
-            //            else if (posPadTouch.x >= 0.7f && posPadTouch.y >= -0.3f && posPadTouch.y <= 0.3f)
-            //            {
-            //                //Press Right:
-            //                CreateAtom(idInScene, "O", controllerLeft.transform.position + new Vector3(0.1f, 0, 0));
-            //            }
-
-        if (CtrlManager.GetPrimary2DPress(WhichHand.right))
-        {
-            CreateAtom(idInScene, lastAtom, controllerRight.transform.position + new Vector3(0.01f, 0, 0.01f));
-        }
-        
-        if (CtrlManager.GraspingDown(WhichHand.left))
-        {
-            //Pickup left
-            controllerLeft.GetComponent<InteractionGrab>().Pickup();
-        }
-        if (CtrlManager.GraspingDown(WhichHand.right))
-        {
-            //Pickup right
-            controllerRight.GetComponent<InteractionGrab>().Pickup();
-        }
-        if (CtrlManager.Grasping(WhichHand.left))
-        {
-            //Hold left
-            controllerLeft.GetComponent<InteractionGrab>().HoldDown();
-        }
-        if (CtrlManager.Grasping(WhichHand.right))
-        {
-            //Hold right
-            controllerRight.GetComponent<InteractionGrab>().HoldDown();
-        }
-        if (CtrlManager.GraspingUp(WhichHand.left))
-        {
-            //Drop left
-            controllerLeft.GetComponent<InteractionGrab>().Drop();
-        }
-        if (CtrlManager.GraspingUp(WhichHand.right))
-        {
-            //Drop right
-            controllerRight.GetComponent<InteractionGrab>().Drop();
-        }
-
-
-
-        //TODO:
-        //Set Laserpointer as soon as trigger is touched, confirm Laserpointer on Trigger click
-
-        //Trigger Laserpointer left Hand
-        if (CtrlManager.triggerPercent(WhichHand.left) > 0.001f)
-            controllerLeft.transform.GetChild(1).gameObject.SetActive(true);
-        else
-            controllerLeft.transform.GetChild(1).gameObject.SetActive(false);
-
-        //Trigger Laserpointer Right Hand
-        if (CtrlManager.triggerPercent(WhichHand.right) > 0.001f)
-            controllerRight.transform.GetChild(1).gameObject.SetActive(true);
-        else
-            controllerRight.transform.GetChild(1).gameObject.SetActive(false);
-
-
-        if (CtrlManager.triggerDown(WhichHand.left))
-        {
-            GameObject hit = controllerLeft.transform.GetChild(1).GetComponent<PointerRay>().getTarget();
-            if(hit != null)
-                objSelect(hit);
-        }
-        if (CtrlManager.triggerDown(WhichHand.right))
-        {
-            GameObject hit = controllerRight.transform.GetChild(1).GetComponent<PointerRay>().getTarget();
-            if (hit != null)
-                objSelect(hit);
-        }
-
-        #endregion
-        */
-
-
-
         if (numAtoms != List_curAtoms.Count)
         {
             SaveMolecule(1);
             numAtoms = List_curAtoms.Count;
         }
-            
-
-
     }
-
-
-    /// <summary>
-    /// this method selects an object if it is hit with the laserpointer and confirmed with a trigger click
-    /// </summary>
-    /// <param name="hit">the gameobject which is hit</param>
-    public void objSelect(GameObject hit)
-    {
-        //if (allAtomMode)
-        //{
-        //    //if it is an atom (Molecule)
-        //    if (hit.layer == 6)
-        //    {
-        //        if (hit.GetComponent<Atom>().isMarked)
-        //        {
-        //            hit.GetComponentInParent<Molecule>().markMolecule(false);
-        //            Molecule intermediate = (Molecule)getNextMarked(0);
-        //            if (intermediate == null)
-        //                contextMenu.SetActive(false);
-        //            else
-        //                contextMenu.GetComponent<ContextMenu>().setMoleculeOption(intermediate);
-        //        }
-        //        else
-        //        {
-        //            hit.GetComponentInParent<Molecule>().markMolecule(true);
-        //            contextMenu.SetActive(true);
-        //            Vector3 tempForward = new Vector3(Camera.main.transform.forward.x, 0, Camera.main.transform.forward.z);
-        //            Ray ray = new Ray(Camera.main.transform.position, tempForward);
-        //            contextMenu.transform.position = ray.GetPoint(1);
-        //            contextMenu.transform.LookAt(ray.GetPoint(7));
-        //            //contextMenu.transform.position = UIMain.transform.position + new Vector3(8, 0, -3);
-        //            contextMenu.GetComponent<ContextMenu>().setMoleculeOption(hit.GetComponentInParent<Molecule>());
-        //        }
-        //    }
-        //    //if it is a bond
-        //    if (hit.layer == 7)
-        //    {
-        //        if (hit.GetComponentInParent<Bond>().isMarked)
-        //        {
-        //            hit.GetComponentInParent<Molecule>().markMolecule(false);
-        //            Bond intermediate = (Bond)getNextMarked(2);
-        //            if (intermediate == null)
-        //                contextMenu.SetActive(false);
-        //            else
-        //                contextMenu.GetComponent<ContextMenu>().setBondOption(intermediate);
-        //        }
-        //        else
-        //        {
-        //            hit.GetComponentInParent<Molecule>().markMolecule(true);
-        //            contextMenu.SetActive(true);
-        //            Vector3 tempForward = new Vector3(Camera.main.transform.forward.x, 0, Camera.main.transform.forward.z);
-        //            Ray ray = new Ray(Camera.main.transform.position, tempForward);
-        //            contextMenu.transform.position = ray.GetPoint(1);
-        //            contextMenu.transform.LookAt(ray.GetPoint(7));
-        //            contextMenu.GetComponent<ContextMenu>().setMoleculeOption(hit.GetComponentInParent<Molecule>());
-        //        }
-        //    }
-
-        //}
-        //else
-        //{
-        //    //if it is an atom
-        //    if (hit.layer == 6)
-        //    {
-        //        if (hit.GetComponent<Atom>().isMarked)
-        //        {
-        //            hit.GetComponent<Atom>().markAtom(false);
-        //            Atom intermediate = (Atom)getNextMarked(1);
-        //            if (intermediate == null)
-        //                contextMenu.SetActive(false);
-        //            else
-        //                contextMenu.GetComponent<ContextMenu>().setAtomOption(intermediate);
-        //        }
-        //        else
-        //        {
-        //            hit.GetComponent<Atom>().markAtom(true);
-        //            contextMenu.SetActive(true);
-        //            Vector3 tempForward = new Vector3(Camera.main.transform.forward.x, 0, Camera.main.transform.forward.z);
-        //            Ray ray = new Ray(Camera.main.transform.position, tempForward);
-        //            contextMenu.transform.position = ray.GetPoint(1);
-        //            contextMenu.transform.LookAt(ray.GetPoint(7));
-        //            contextMenu.GetComponent<ContextMenu>().setAtomOption(hit.GetComponent<Atom>());
-        //        }
-        //    }
-        //    //if if is a bond
-        //    if (hit.layer == 7)
-        //    {
-        //        if (hit.GetComponentInParent<Bond>().isMarked)
-        //        {
-        //            hit.GetComponentInParent<Bond>().markBond(false);
-        //            Bond intermediate = (Bond)getNextMarked(2);
-        //            if (intermediate == null)
-        //                contextMenu.SetActive(false);
-        //            else
-        //                contextMenu.GetComponent<ContextMenu>().setBondOption(intermediate);
-        //        }
-        //        else
-        //        {
-        //            hit.GetComponentInParent<Bond>().markBond(true);
-        //            contextMenu.SetActive(true);
-        //            Vector3 tempForward = new Vector3(Camera.main.transform.forward.x, 0, Camera.main.transform.forward.z);
-        //            Ray ray = new Ray(Camera.main.transform.position, tempForward);
-        //            contextMenu.transform.position = ray.GetPoint(1);
-        //            contextMenu.transform.LookAt(ray.GetPoint(7));
-        //            contextMenu.GetComponent<ContextMenu>().setBondOption(hit.GetComponentInParent<Bond>());
-        //        }
-        //    }
-
-        //}
-    }
-
 
 
     #region delete
@@ -823,7 +567,7 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     /// <param name="ChemicalID">chemical ID of the atom which should be created</param>
     /// <param name="pos">position, where the atom should be created</param>
-    public void CreateAtom(int idAtom, string ChemicalAbbre, Vector3 pos)
+    public void CreateAtom(ushort idAtom, string ChemicalAbbre, Vector3 pos)
     {
         // create atom from atom prefab
         GameObject tempMoleculeGO = Instantiate(myBoundingBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity);
@@ -836,7 +580,7 @@ public class GlobalCtrl : MonoBehaviour
         // 0: none; 1: sp1; 2: sp2;  3: sp3;  4: hypervalent trig. bipy; 5: unused;  6: hypervalent octahedral
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
         tempData.m_hybridization = curHybrid;
-        tempData.m_bondNum = Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization)); // a preliminary solution
+        tempData.m_bondNum = (ushort)Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization)); // a preliminary solution
 
         Atom tempAtom = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<Atom>();
         tempAtom.f_Init(tempData, tempMolecule, Vector3.zero ,idAtom);
@@ -849,8 +593,6 @@ public class GlobalCtrl : MonoBehaviour
         }
 
         List_curMolecules.Add(tempMolecule);
-
-        EventManager.Singleton.CreateAtom(idAtom, ChemicalAbbre, pos);
 
     }
 
@@ -866,18 +608,18 @@ public class GlobalCtrl : MonoBehaviour
 
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
         tempData.m_hybridization = chgAtom.m_data.m_hybridization;
-        tempData.m_bondNum = Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization));
+        tempData.m_bondNum = (ushort)Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization));
 
         chgAtom.f_Modify(tempData);
     }
 
-    public void modifyHybrid(Atom atom, int hybrid)
+    public void modifyHybrid(Atom atom, ushort hybrid)
     {
         SaveMolecule(1);
         print("hybrid:   " + hybrid);
         ElementData tempData = Dic_ElementData[atom.m_data.m_abbre];
         tempData.m_hybridization = hybrid;
-        tempData.m_bondNum = Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization));
+        tempData.m_bondNum = (ushort)Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization));
 
         atom.f_Modify(tempData);
         atom.markAtom(true);
@@ -910,7 +652,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="ChemicalAbbre">chemical abbrevation</param>
     /// <param name="pos">position, where the atom should be created</param>
     /// <param name="mol">molecule, to which the atom belongs</param>
-    public Atom RebuildAtom(int idAtom, string ChemicalAbbre, int hybrid, Vector3 pos, Molecule mol)
+    public Atom RebuildAtom(ushort idAtom, string ChemicalAbbre, ushort hybrid, Vector3 pos, Molecule mol)
     {
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
         tempData.m_hybridization = hybrid;
@@ -928,7 +670,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="inputMole">the molecule to which the dummy belongs</param>
     /// <param name="mainAtom">the main atom to which the dummy is connected</param>
     /// <param name="pos">the position, where the dummy is created</param>
-    public void CreateDummy(int idDummy, Molecule inputMole, Atom mainAtom, Vector3 pos)
+    public void CreateDummy(ushort idDummy, Molecule inputMole, Atom mainAtom, Vector3 pos)
     {
         Atom dummy = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<Atom>();
         dummy.f_Init(Dic_ElementData["Dummy"], inputMole, pos, idDummy);//0 for dummy
@@ -1098,7 +840,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="name">name of the saved molecule</param>
     public void LoadMolecule(string name, int param = 0)
     {
-        int maxID = getMaxID() + 1;
+        ushort maxID = (ushort)(getMaxID() + 1);
 
         List<cmlData> loadData;
 
@@ -1176,7 +918,7 @@ public class GlobalCtrl : MonoBehaviour
 
             }
             shrinkIDs();
-            idInScene = getMaxID() + 1;
+            idInScene = (ushort)(getMaxID() + 1);
         }
         
 
@@ -1215,9 +957,9 @@ public class GlobalCtrl : MonoBehaviour
     /// this method gets the maximum atomID currently in the scene
     /// </summary>
     /// <returns>id</returns>
-    public int getMaxID()
+    public ushort getMaxID()
     {
-        int id = 0;
+        ushort id = 0;
         foreach(Atom a in List_curAtoms)
         {
             if (a.m_idInScene >= id)
@@ -1232,9 +974,9 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     public void shrinkIDs()
     {
-        int numAtoms = List_curAtoms.Count;
+        uint numAtoms = (uint)List_curAtoms.Count;
 
-        for(int i = 0; i <= numAtoms; i++)
+        for(ushort i = 0; i <= numAtoms; i++)
         {
             if(Atom.Instance.getAtomByID(i) == null)
             {
@@ -1247,7 +989,7 @@ public class GlobalCtrl : MonoBehaviour
     /// this method swaps the ID of an atom with a new ID
     /// </summary>
     /// <param name="idNew">new ID</param>
-    public void swapID(int idNew)
+    public void swapID(ushort idNew)
     {
         foreach(Atom a in List_curAtoms)
         {
@@ -1276,45 +1018,14 @@ public class GlobalCtrl : MonoBehaviour
 
     #region ui functions
 
-    /// <summary>
-    /// this method controls the main UI
-    /// UI can be toggled on and off
-    /// </summary>
-    public void SwitchUIMain()
-    {
-        //UIMain.gameObject.SetActive(!UIMain.gameObject.activeSelf);
-        //Vector3 tempForward = new Vector3(Camera.main.transform.forward.x, 0, Camera.main.transform.forward.z);
-        //Ray ray = new Ray(Camera.main.transform.position, tempForward);
-        //if (UIMain.gameObject.activeSelf)
-        //{
-        //    UIMain.transform.position = ray.GetPoint(6);
-        //    UIMain.transform.LookAt(ray.GetPoint(7));
-        //}
-    }
-
-
-    public void switchPeriodicTable()
-    {
-        //periodictable.SetActive(!periodictable.activeSelf);
-        //if (btnPerTable.GetComponentInChildren<Text>().text == "show periodic table")
-        //{
-        //    btnPerTable.GetComponentInChildren<Text>().text = "hide periodic table";
-        //}
-        //else
-        //{
-        //    btnPerTable.GetComponentInChildren<Text>().text = "show periodic table";
-        //}
-    }
-
     public void createAtomUI(string ChemicalID)
     {
         lastAtom = ChemicalID; // remember this for later
-        //CreateAtom(idInScene, ChemicalID, controllerLeft.transform.position + new Vector3(0.01f, 0, 0.01f));
-        Vector3 current_pos = Camera.main.transform.position;
-        Vector3 current_lookat = Camera.main.transform.forward;
-        Vector3 create_position = current_pos + 0.5f * current_lookat;
-
+        Vector3 create_position = Camera.main.transform.position + 0.5f * Camera.main.transform.forward;
         CreateAtom(idInScene, ChemicalID, create_position);
+
+        // Let the networkManager know about the user action
+        EventManager.Singleton.CreateAtom(idInScene, ChemicalID, create_position);
     }
 
     public void getRepulsionScale(float value)
@@ -1327,7 +1038,7 @@ public class GlobalCtrl : MonoBehaviour
     public void setHybridization(float value)
     {
         // set value from slider
-        curHybrid = (int)value;
+        curHybrid = (ushort)value;
         Debug.Log(string.Format("curHybrid, new val: {0, 6}", curHybrid));
     }
 
@@ -1344,14 +1055,14 @@ public class GlobalCtrl : MonoBehaviour
 
     public void setFavorite(int pos, string abbre, List<GameObject> favMenu)
     {
-        //favorites[pos - 1] = abbre;
+        favorites[pos - 1] = abbre;
         //Transform temp = null;
-        //for(int i = 0; i<periodictable.transform.childCount; i++)
+        //for (int i = 0; i < periodictable.transform.childCount; i++)
         //{
         //    if (periodictable.transform.GetChild(i).transform.Find("Btn_" + GetElementbyAbbre(abbre).m_name) != null)
         //        temp = periodictable.transform.GetChild(i).transform.Find("Btn_" + GetElementbyAbbre(abbre).m_name);
         //}
-        //
+
         //favMenu[pos - 1].transform.GetComponent<Image>().sprite = temp.GetComponent<Image>().sprite;
         //favoritesGO[pos - 1].transform.GetComponent<Image>().sprite = temp.GetComponent<Image>().sprite;
     }

@@ -27,9 +27,9 @@ public class EventManager : MonoBehaviour
 
     #region Delegates
 
-    public delegate void CreateAtomAction(int id, string abbre, Vector3 pos);
+    public delegate void CreateAtomAction(ushort id, string abbre, Vector3 pos);
     public event CreateAtomAction OnCreateAtom;
-    public void CreateAtom(int id, string abbre, Vector3 pos)
+    public void CreateAtom(ushort id, string abbre, Vector3 pos)
     {
         if (OnCreateAtom != null)
         {
@@ -37,11 +37,25 @@ public class EventManager : MonoBehaviour
         }
     }
 
-    public delegate void MoveMoleculeAction();
+    public delegate void MoveMoleculeAction(ushort id, Vector3 pos, Quaternion quat);
     public static event MoveMoleculeAction OnMoveMolecule;
+    public void MoveMolecule(ushort id, Vector3 pos, Quaternion quat)
+    {
+        if (OnMoveMolecule != null)
+        {
+            OnMoveMolecule(id, pos, quat);
+        }
+    }
 
-    public delegate void MoveAtomAction();
+    public delegate void MoveAtomAction(ushort id, Vector3 pos);
     public static event MoveAtomAction OnMoveAtom;
+    public void MoveAtom(ushort id, Vector3 pos)
+    {
+        if (OnMoveAtom != null)
+        {
+            OnMoveAtom(id, pos);
+        }
+    }
 
     #endregion
 

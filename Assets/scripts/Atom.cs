@@ -88,7 +88,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         //Debug.Log($"[Atom] OnPointerUp: {eventData}");
     }
 
-    [HideInInspector] public int m_idInScene;
+    [HideInInspector] public ushort m_idInScene;
     [HideInInspector] public Molecule m_molecule;
     [HideInInspector] public ElementData m_data { get; private set; }
     // we have to clarify the role of m_data: Is this just basic (and constant) data?
@@ -111,7 +111,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="inputMole"></param>
     /// <param name="pos"></param>
     /// <param name="idInScene"></param>
-    public void f_Init(ElementData inputData, Molecule inputMole, Vector3 pos, int idInScene)
+    public void f_Init(ElementData inputData, Molecule inputMole, Vector3 pos, ushort idInScene)
     {
         m_idInScene = idInScene;
         m_molecule = inputMole;
@@ -207,7 +207,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     {
         int numConnected = this.connectedAtoms(this).Count;
         m_data = newData;
-        int dummyLimit = this.m_data.m_bondNum;
+        uint dummyLimit = this.m_data.m_bondNum;
         this.gameObject.name = m_data.m_name;
         if (!GlobalCtrl.Singleton.Dic_AtomMat.ContainsKey(m_data.m_id))
         {

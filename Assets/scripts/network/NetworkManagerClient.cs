@@ -148,10 +148,10 @@ public class NetworkManagerClient : MonoBehaviour
         return (ushort)DeviceType.HoloLens;
     }
 
-    public void atomCreated(int id, string abbre, Vector3 pos)
+    public void atomCreated(ushort id, string abbre, Vector3 pos)
     {
         Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.atomCreated);
-        message.AddInt(id);
+        message.AddUShort(id);
         message.AddString(abbre);
         message.AddVector3(pos);
         Client.Send(message);
