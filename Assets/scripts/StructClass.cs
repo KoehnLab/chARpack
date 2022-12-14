@@ -98,11 +98,15 @@ namespace StructClass
     public struct cmlData
     {
         public Vector3 molePos;
+        public Quaternion moleQuat;
+        public ushort moleID;
         public cmlAtom[] atomArray;
         public cmlBond[] bondArray;
-        public cmlData(Vector3 pos, List<cmlAtom> a, List<cmlBond> b)
+        public cmlData(Vector3 pos, Quaternion quat, ushort id, List<cmlAtom> a, List<cmlBond> b)
         {
             molePos = pos;
+            moleQuat = quat;
+            moleID = id;
             atomArray = a.ToArray();
             bondArray = b.ToArray();
         }

@@ -7,15 +7,21 @@ public enum ClientToServerID : ushort
     deviceNameAndType = 1,
     positionAndRotation = 2,
     atomCreated = 3,
+    moleculeMoved = 4,
+    atomMoved = 5,
 }
 
 public enum ServerToClientID : ushort
 {
     userSpawned = 1,
     bcastPositionAndRotation = 2,
+    bcastAtomCreated = 3,
+    bcastMoleculeMoved = 4,
+    bcastAtomMoved = 5,
+    sendAtomWorld = 6
 }
 
-public enum DeviceType : ushort
+public enum myDeviceType : ushort
 {
     HoloLens = 1,
     Mobile = 2,

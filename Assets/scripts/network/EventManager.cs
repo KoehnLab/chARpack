@@ -25,36 +25,32 @@ public class EventManager : MonoBehaviour
         }
     }
 
+    private void Awake()
+    {
+        Singleton = this;
+    }
+
     #region Delegates
 
     public delegate void CreateAtomAction(ushort id, string abbre, Vector3 pos);
     public event CreateAtomAction OnCreateAtom;
     public void CreateAtom(ushort id, string abbre, Vector3 pos)
     {
-        if (OnCreateAtom != null)
-        {
-            OnCreateAtom(id, abbre, pos);
-        }
+        OnCreateAtom?.Invoke(id, abbre, pos);
     }
 
     public delegate void MoveMoleculeAction(ushort id, Vector3 pos, Quaternion quat);
-    public static event MoveMoleculeAction OnMoveMolecule;
+    public event MoveMoleculeAction OnMoveMolecule;
     public void MoveMolecule(ushort id, Vector3 pos, Quaternion quat)
     {
-        if (OnMoveMolecule != null)
-        {
-            OnMoveMolecule(id, pos, quat);
-        }
+        OnMoveMolecule?.Invoke(id, pos, quat);
     }
 
     public delegate void MoveAtomAction(ushort id, Vector3 pos);
-    public static event MoveAtomAction OnMoveAtom;
+    public event MoveAtomAction OnMoveAtom;
     public void MoveAtom(ushort id, Vector3 pos)
     {
-        if (OnMoveAtom != null)
-        {
-            OnMoveAtom(id, pos);
-        }
+        OnMoveAtom?.Invoke(id, pos);
     }
 
     #endregion

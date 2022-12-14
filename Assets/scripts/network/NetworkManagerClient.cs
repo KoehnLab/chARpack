@@ -1,10 +1,11 @@
+using Microsoft.MixedReality.Toolkit.UI;
 using RiptideNetworking;
 using RiptideNetworking.Utils;
-using UnityEngine;
+using StructClass;
 using System;
-using Microsoft.MixedReality.Toolkit.UI;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.SceneManagement;
-
 
 public class NetworkManagerClient : MonoBehaviour
 {
@@ -56,7 +57,10 @@ public class NetworkManagerClient : MonoBehaviour
         Connect();
 
         // subscribe to event manager events
-        EventManager.Singleton.OnCreateAtom += atomCreated;
+        EventManager.Singleton.OnCreateAtom += sendAtomCreated;
+        EventManager.Singleton.OnMoveMolecule += sendMoleculeMoved;
+        EventManager.Singleton.OnMoveAtom += sendAtomMoved;
+
     }
 
     private void FixedUpdate()
@@ -128,6 +132,30 @@ public class NetworkManagerClient : MonoBehaviour
     {
 
     }
+
+    /// <summary>
+    /// Returns the type of this device
+    /// </summary>
+    public ushort getDeviceType()
+    {
+        myDeviceType currentDeviceType;
+        if (SystemInfo.deviceType == DeviceType.Handheld)
+        {
+            currentDeviceType = myDeviceType.Mobile;
+        }
+        else if (SystemInfo.deviceType == DeviceType.Desktop)
+        {
+            currentDeviceType = myDeviceType.PC;
+        }
+        else
+        {
+            currentDeviceType = myDeviceType.HoloLens;
+        }
+
+        return (ushort)currentDeviceType;
+    }
+
+    #region Messages
     /// <summary>
     /// Sends a message with the device name and the device type to the server
     /// </summary>
@@ -139,16 +167,7 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
-    /// <summary>
-    /// Returns the type of this device
-    /// </summary>
-    public ushort getDeviceType()
-    {
-        // TODO implement
-        return (ushort)DeviceType.HoloLens;
-    }
-
-    public void atomCreated(ushort id, string abbre, Vector3 pos)
+    public void sendAtomCreated(ushort id, string abbre, Vector3 pos)
     {
         Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.atomCreated);
         message.AddUShort(id);
@@ -156,4 +175,91 @@ public class NetworkManagerClient : MonoBehaviour
         message.AddVector3(pos);
         Client.Send(message);
     }
+
+    public void sendMoleculeMoved(ushort id, Vector3 pos, Quaternion quat)
+    {
+        Message message = Message.Create(MessageSendMode.unreliable, ClientToServerID.moleculeMoved);
+        message.AddUShort(id);
+        message.AddVector3(pos);
+        message.AddQuaternion(quat);
+        Client.Send(message);
+    }
+
+    public void sendAtomMoved(ushort id, Vector3 pos)
+    {
+        Message message = Message.Create(MessageSendMode.unreliable, ClientToServerID.atomMoved);
+        message.AddUShort(id);
+        message.AddVector3(pos);
+        Client.Send(message);
+    }
+
+    [MessageHandler((ushort)ServerToClientID.sendAtomWorld)]
+    private static void getAtomWorld(Message message)
+    {
+        var count = message.GetUShort();
+        List<cmlData> atomWorld = new List<cmlData>(); 
+        for (ushort i = 0; i < count; i++)
+        {
+            atomWorld.Add(message.GetCmlData());
+        }
+        // do the recreation
+        if (atomWorld.Count > 0)
+        {
+            GlobalCtrl.Singleton.rebuildAtomWorld(atomWorld);
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastAtomCreated)]
+    private static void getAtomCreated(Message message)
+    {
+        var client_id = message.GetUShort();
+        var atom_id = message.GetUShort();
+        var abbre = message.GetString();
+        var pos = message.GetVector3();
+
+        // do the create
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            GlobalCtrl.Singleton.CreateAtom(atom_id, abbre, pos);
+        }
+
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastMoleculeMoved)]
+    private static void getMoleculeMoved(Message message)
+    {
+        var client_id = message.GetUShort();
+        var molecule_id = message.GetUShort();
+        var pos = message.GetVector3();
+        var quat = message.GetQuaternion();
+
+        // do the move
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            GlobalCtrl.Singleton.moveMolecule(molecule_id, pos, quat);
+        }
+
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastAtomMoved)]
+    private static void getAtomMoved(Message message)
+    {
+        var client_id = message.GetUShort();
+        var atom_id = message.GetUShort();
+        var pos = message.GetVector3();
+
+        // do the move
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            GlobalCtrl.Singleton.moveAtom(atom_id, pos);
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.sendAtomWorld)]
+    private static void getAtomWorld(Message message)
+    {
+        
+    }
+
+    #endregion
 }

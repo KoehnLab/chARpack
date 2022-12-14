@@ -11,6 +11,7 @@ using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Reflection;
 using Microsoft.MixedReality.Toolkit.Input;
+using System.Linq;
 
 [Serializable]
 public class GlobalCtrl : MonoBehaviour
@@ -45,7 +46,7 @@ public class GlobalCtrl : MonoBehaviour
     public List<Atom> List_curAtoms { get; private set; }
     //public Dictionary<int, Atom> Dic_curAtoms{get;private set;}
 
-    public ushort idInScene=0;
+    public ushort idInScene = 0;
     /// <summary>
     /// all data of element
     /// </summary>
@@ -217,14 +218,14 @@ public class GlobalCtrl : MonoBehaviour
         foreach (Molecule m in List_curMolecules)
         {
             // add to delete list
-            foreach(Atom a in m.atomList)
+            foreach (Atom a in m.atomList)
             {
                 List<Vector3> conPos = new List<Vector3>();
                 foreach (Atom at in a.connectedAtoms(a))
                 {
                     if (at.isMarked || deleteAll)
                     {
-                        if(!delAtomList.Contains(at))
+                        if (!delAtomList.Contains(at))
                             delAtomList.Add(at);
 
                         if (a.m_data.m_abbre == "H" && !delAtomList.Contains(a))
@@ -237,11 +238,11 @@ public class GlobalCtrl : MonoBehaviour
             }
 
             // add to delete List
-            foreach(Bond b in m.bondList)
+            foreach (Bond b in m.bondList)
             {
                 if (b.isMarked || deleteAll)
                 {
-                    if(Atom.Instance.getAtomByID(b.atomID1).m_data.m_abbre != "Dummy" && Atom.Instance.getAtomByID(b.atomID2).m_data.m_abbre != "Dummy")
+                    if (Atom.Instance.getAtomByID(b.atomID1).m_data.m_abbre != "Dummy" && Atom.Instance.getAtomByID(b.atomID2).m_data.m_abbre != "Dummy")
                     {
                         delBondList.Add(b);
 
@@ -271,7 +272,7 @@ public class GlobalCtrl : MonoBehaviour
             delMoleculeList.Add(m);
         }
 
-        foreach(Molecule m in delMoleculeList)
+        foreach (Molecule m in delMoleculeList)
         {
             List_curMolecules.Remove(m);
             foreach (var atom in m.atomList)
@@ -295,7 +296,7 @@ public class GlobalCtrl : MonoBehaviour
         foreach (Molecule m in List_curMolecules)
         {
             int size = m.atomList.Count;
-            for(int i = 0; i < size; i++)
+            for (int i = 0; i < size; i++)
             {
                 Atom a = m.atomList[i];
                 int count = 0;
@@ -401,16 +402,16 @@ public class GlobalCtrl : MonoBehaviour
     {
         groupedAtoms.Clear();
         // for all atoms in the molecule
-        for(int i = 0; i < m.atomList.Count; i++)
+        for (int i = 0; i < m.atomList.Count; i++)
         {
             List<Atom> groupingStash = new List<Atom>();
             Atom a = m.atomList[i];
             bool search = true;
             // for all groups
-            foreach(KeyValuePair<Atom, List<Atom>> pair in groupedAtoms)
+            foreach (KeyValuePair<Atom, List<Atom>> pair in groupedAtoms)
             {
                 // for each atom in a group
-                foreach(Atom at in pair.Value)
+                foreach (Atom at in pair.Value)
                 {
                     // if the atom is in the group
                     if (at.m_idInScene == a.m_idInScene)
@@ -468,17 +469,17 @@ public class GlobalCtrl : MonoBehaviour
     {
         int i = 0;
         List<Atom> deleteList = new List<Atom>();
-        foreach(Atom a in delAtomList)
+        foreach (Atom a in delAtomList)
         {
             List<Atom> conDummys = a.connectedDummys(a);
             i++;
-            foreach(Atom d in conDummys)
+            foreach (Atom d in conDummys)
             {
                 if (!delAtomList.Contains(d))
                 {
                     deleteList.Add(d);
                 }
-                    
+
             }
         }
 
@@ -505,14 +506,14 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="addMoleculeList">list of new molecules</param>
     public void cleanup(Molecule m, List<Atom> delAtomList, List<Bond> delBondList, List<Molecule> addMoleculeList)
     {
-        foreach(KeyValuePair<Atom, List<Atom>> pair in groupedAtoms)
+        foreach (KeyValuePair<Atom, List<Atom>> pair in groupedAtoms)
         {
             Molecule tempMolecule = new GameObject().AddComponent<Molecule>();
             tempMolecule.transform.position = m.transform.position;
             tempMolecule.f_Init(idInScene, atomWorld.transform);
             addMoleculeList.Add(tempMolecule);
             idInScene++;
-            foreach(Atom a in pair.Value)
+            foreach (Atom a in pair.Value)
             {
                 a.transform.parent = tempMolecule.transform;
                 a.m_molecule = tempMolecule;
@@ -521,7 +522,7 @@ public class GlobalCtrl : MonoBehaviour
         }
 
         Dictionary<Bond, Molecule> tempBondDict = new Dictionary<Bond, Molecule>();
-        foreach(Bond b in m.bondList)
+        foreach (Bond b in m.bondList)
         {
             if (!delBondList.Contains(b))
             {
@@ -533,11 +534,11 @@ public class GlobalCtrl : MonoBehaviour
                     Molecule newMol = at1.transform.parent.GetComponent<Molecule>();
                     tempBondDict.Add(b, newMol);
                 }
-                    
+
             }
         }
 
-        foreach(KeyValuePair<Bond, Molecule> pair in tempBondDict)
+        foreach (KeyValuePair<Bond, Molecule> pair in tempBondDict)
         {
             pair.Key.transform.parent = pair.Value.transform;
             pair.Key.m_molecule = pair.Value;
@@ -558,6 +559,38 @@ public class GlobalCtrl : MonoBehaviour
     }
 
     #endregion
+
+    #region move functions
+
+    public void moveAtom(ushort id, Vector3 pos)
+    {
+        var atom = List_curAtoms.ElementAtOrDefault(id);
+        if (atom != null)
+        {
+            atom.transform.position = pos;
+        }
+        else
+        {
+            Debug.LogError($"[GlobalCtrl] Trying to move Atom {id}, but it does not exist.");
+        }
+    }
+
+    public void moveMolecule(ushort id, Vector3 pos, Quaternion quat)
+    {
+        var molecule = List_curMolecules.ElementAtOrDefault(id);
+        if (molecule != null)
+        {
+            molecule.transform.position = pos;
+            molecule.transform.rotation = quat;
+        }
+        else
+        {
+            Debug.LogError($"[GlobalCtrl] Trying to move Molecule {id}, but it does not exist.");
+        }
+    }
+
+    #endregion
+
 
     #region atom building functions
 
@@ -770,7 +803,7 @@ public class GlobalCtrl : MonoBehaviour
             {
                 list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
             }
-            cmlData tempData = new cmlData(molePos, list_atom, list_bond);
+            cmlData tempData = new cmlData(molePos, inputMole.transform.rotation, inputMole.m_id, list_atom, list_bond);
             saveData.Add(tempData);
         }
 
@@ -884,8 +917,6 @@ public class GlobalCtrl : MonoBehaviour
         {
             foreach (cmlData molecule in loadData)
             {
-
-
                 for (int i = 0; i < molecule.atomArray.Length; i++)
                 {
                     molecule.atomArray[i].id += maxID;
@@ -911,18 +942,64 @@ public class GlobalCtrl : MonoBehaviour
                 for (int i = 0; i < molecule.bondArray.Length; i++)
                 {
                     CreateBond(Atom.Instance.getAtomByID(molecule.bondArray[i].id1), Atom.Instance.getAtomByID(molecule.bondArray[i].id2), tempMolecule);
-
                 }
-
-
-
             }
             shrinkIDs();
             idInScene = (ushort)(getMaxID() + 1);
         }
-        
-
     }
+
+
+    public List<cmlData> saveAtomWorld()
+    {
+        // this method preserves the position of the molecules and atoms (and rotation)
+        List<cmlData> saveData = new List<cmlData>();
+        foreach (Molecule inputMole in List_curMolecules)
+        {
+            List<cmlAtom> list_atom = new List<cmlAtom>();
+            foreach (Atom a in inputMole.atomList)
+            {
+                list_atom.Add(new cmlAtom(a.m_idInScene, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
+            }
+            List<cmlBond> list_bond = new List<cmlBond>();
+            foreach (Bond b in inputMole.bondList)
+            {
+                list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
+            }
+            cmlData tempData = new cmlData(inputMole.transform.position, inputMole.transform.rotation, inputMole.m_id, list_atom, list_bond);
+            saveData.Add(tempData);
+        }
+
+        return saveData;
+    }
+
+
+    public void rebuildAtomWorld(List<cmlData> data)
+    {
+        // this method preserves the ids of all objects
+        if (data != null)
+        {
+            foreach (cmlData molecule in data)
+            {
+
+                Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos, Quaternion.identity).AddComponent<Molecule>();
+                tempMolecule.f_Init(molecule.moleID, atomWorld.transform);
+                List_curMolecules.Add(tempMolecule);
+
+                for (int i = 0; i < molecule.atomArray.Length; i++)
+                {
+                    Atom a = RebuildAtom(molecule.atomArray[i].id, molecule.atomArray[i].abbre, molecule.atomArray[i].hybrid, molecule.atomArray[i].pos, tempMolecule);
+                }
+                for (int i = 0; i < molecule.bondArray.Length; i++)
+                {
+                    CreateBond(Atom.Instance.getAtomByID(molecule.bondArray[i].id1), Atom.Instance.getAtomByID(molecule.bondArray[i].id2), tempMolecule);
+                }
+            }
+            shrinkIDs();
+            idInScene = (ushort)(getMaxID() + 1);
+        }
+    }
+
 
     public void LoadPreset(int number)
     {

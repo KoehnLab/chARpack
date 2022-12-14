@@ -34,11 +34,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     }
     public void OnPointerClicked(MixedRealityPointerEventData eventData)
     {
-        EventManager.Singleton.MoveMolecule(m_id,transform.position, transform.rotation);
+        // Intentionally empty
     }
     public void OnPointerDragged(MixedRealityPointerEventData eventData)
     {
-        // Intentionally empty
+        EventManager.Singleton.MoveMolecule(m_id, transform.position, transform.rotation);
     }
 
     // This function is triggered when a grabbed object is dropped

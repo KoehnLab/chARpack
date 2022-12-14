@@ -9,12 +9,12 @@ public class UserServer : MonoBehaviour
     public static Dictionary<ushort, UserServer> list = new Dictionary<ushort, UserServer>();
     public ushort ID;
     public string deviceName;
-    public DeviceType deviceType;
+    public myDeviceType deviceType;
     public GameObject head;
     public GameObject leftHand;
     public GameObject rightHand;
 
-    public static void spawn(ushort id_, string deviceName_, DeviceType deviceType_)
+    public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_)
     {
         foreach (UserServer otherUser in list.Values)
         {
@@ -22,7 +22,7 @@ public class UserServer : MonoBehaviour
         }
 
         UserServer user;
-        if (deviceType_ == DeviceType.HoloLens)
+        if (deviceType_ == myDeviceType.HoloLens)
         {
             var holoLensUserPrefab = (GameObject)Resources.Load("prefabs/HoloLensUser");
             user = Instantiate(holoLensUserPrefab).GetComponent<UserServer>();
@@ -59,7 +59,7 @@ public class UserServer : MonoBehaviour
     private static void getName(ushort fromClientId, Message message)
     {
         var name = message.GetString();
-        DeviceType type = (DeviceType)message.GetUShort();
+        myDeviceType type = (myDeviceType)message.GetUShort();
         spawn(fromClientId, name, type);
     }
 

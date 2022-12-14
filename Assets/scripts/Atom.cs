@@ -42,7 +42,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     }
     public void OnPointerDragged(MixedRealityPointerEventData eventData)
     {
-        // Intentionally empty
+        EventManager.Singleton.MoveAtom(m_idInScene, transform.position);
     }
 
     // This function is triggered when a grabbed object is dropped

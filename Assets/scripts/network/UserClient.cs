@@ -9,36 +9,31 @@ public class UserClient : MonoBehaviour
     public static Dictionary<ushort, UserClient> list = new Dictionary<ushort, UserClient>();
     public ushort ID { get; private set; }
     public string deviceName { get; private set; }
-    public DeviceType deviceType { get; private set; }
-    public static bool isLocal { get; private set; }
-    private static GameObject holoLensUserPrefab;
+    public myDeviceType deviceType { get; private set; }
+    public bool isLocal { get; private set; }
     public GameObject head;
     public GameObject leftHand;
     public GameObject rightHand;
-
-    public void Start()
-    {
-        holoLensUserPrefab = (GameObject)Resources.Load("prefabs/HoloLensUser");
-    }
 
     private void OnDestroy()
     {
         list.Remove(ID);
     }
 
-    public static void spawn(ushort id_, string deviceName_, DeviceType deviceType_, Vector3 pos)
+    public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_, Vector3 pos)
     {
         UserClient user;
         if (id_ == NetworkManagerClient.Singleton.Client.Id)
         {
             user = new GameObject().AddComponent<UserClient>();
 
-            isLocal = true;
+            user.isLocal = true;
         }
         else
         {
-            if (deviceType_ == DeviceType.HoloLens)
+            if (deviceType_ == myDeviceType.HoloLens)
             {
+                var holoLensUserPrefab = (GameObject)Resources.Load("prefabs/HoloLensUser");
                 user = Instantiate(holoLensUserPrefab).GetComponent<UserClient>();
             }
             else
@@ -47,7 +42,7 @@ public class UserClient : MonoBehaviour
                 cubeUser.transform.localScale = Vector3.one * 0.2f;
                 user = cubeUser.AddComponent<UserClient>();
             }
-            isLocal = false;
+            user.isLocal = false;
         }
 
         user.deviceName = string.IsNullOrEmpty(deviceName_) ? $"Unknown{id_}" : deviceName_;
@@ -64,7 +59,8 @@ public class UserClient : MonoBehaviour
 
     private void applyPositionAndRotation(Vector3 pos, Vector3 forward)
     {
-        // TODO
+        head.transform.position = pos;
+        head.GetComponent<Camera>().transform.forward = forward;
     }
 
 
@@ -75,7 +71,7 @@ public class UserClient : MonoBehaviour
     {
         var id = message.GetUShort();
         var name = message.GetString();
-        var type = (DeviceType)message.GetUShort();
+        var type = (myDeviceType)message.GetUShort();
         var pos = message.GetVector3();
 
         spawn(id,name,type,pos);

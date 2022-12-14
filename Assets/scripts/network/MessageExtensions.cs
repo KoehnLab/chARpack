@@ -1,5 +1,6 @@
 using RiptideNetworking;
 using UnityEngine;
+using StructClass;
 
 namespace RiptideNetworking.Utils
 {
@@ -74,6 +75,28 @@ namespace RiptideNetworking.Utils
         public static Quaternion GetQuaternion(this Message message)
         {
             return new Quaternion(message.GetFloat(), message.GetFloat(), message.GetFloat(), message.GetFloat());
+        }
+        #endregion
+
+        #region cmlData
+        /// <inheritdoc cref="Add(Message, cmlData)"/>
+        /// <remarks>Relying on the correct Add overload being chosen based on the parameter type can increase the odds of accidental type mismatches when retrieving data from a message. This method calls <see cref="Add(Message, cmlData)"/> and simply provides an alternative type-explicit way to add a <see cref="cmlData"/> to the message.</remarks>
+        public static Message AddCmlData (this Message message, cmlData value) => Add(message, value);
+
+        /// <summary>Adds a <see cref="cmlData"/> to the message.</summary>
+        /// <param name="value">The <see cref="cmlData"/> to add.</param>
+        /// <returns>The message that the <see cref="cmlData"/> was added to.</returns>
+        public static Message Add(this Message message, cmlData value)
+        {
+            message.AddBytes(Serializer.Serialize(value));
+            return message;
+        }
+
+        /// <summary>Retrieves a <see cref="cmlData"/> from the message.</summary>
+        /// <returns>The <see cref="cmlData"/> that was retrieved.</returns>
+        public static cmlData GetCmlData(this Message message)
+        {
+            return Serializer.Deserialize<cmlData>(message.GetBytes());
         }
         #endregion
     }

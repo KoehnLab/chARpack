@@ -51,7 +51,7 @@ public class NetworkManagerServer : MonoBehaviour
         Singleton.Server = new Server();
         Singleton.Server.Start(LoginData.port, LoginData.maxConnections);
         Singleton.Server.ClientDisconnected += Singleton.ClientDisconnected;
-        //Singleton.Server.ClientConnected += Singleton.ClientConnected; client invokes sendName
+        Singleton.Server.ClientConnected += Singleton.ClientConnected; // client invokes sendName
 
         Debug.Log("[NetworkManagerServer] Server started.");
 
@@ -85,19 +85,72 @@ public class NetworkManagerServer : MonoBehaviour
         Destroy(UserServer.list[e.Id].gameObject);
     }
 
+    private void ClientConnected(object sender, ServerClientConnectedEventArgs e)
+    {
+        // send current atom world
+        var atomWorld = GlobalCtrl.Singleton.saveAtomWorld();
+        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.sendAtomWorld);
+        message.AddUShort((ushort)atomWorld.Count);
+        foreach (var entry in atomWorld)
+        {
+            message.AddCmlData(entry);
+        }
+        NetworkManagerServer.Singleton.Server.Send(message, e.Client.Id);
+    }
+
     #region Messages
 
     [MessageHandler((ushort)ClientToServerID.atomCreated)]
     private static void getAtomCreated(ushort fromClientId, Message message)
     {
-        var id = message.GetUShort();
+        var atom_id = message.GetUShort();
         var abbre = message.GetString();
         var pos = message.GetVector3();
-        GlobalCtrl.Singleton.CreateAtom(id, abbre, pos);
+        // do the create on the server
+        GlobalCtrl.Singleton.CreateAtom(atom_id, abbre, pos);
 
-        //TODO Broadcast to other clients
+        // Broadcast to other clients
+        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastAtomCreated);
+        outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(atom_id);
+        outMessage.AddString(abbre);
+        outMessage.AddVector3(pos);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
-    
+
+    [MessageHandler((ushort)ClientToServerID.moleculeMoved)]
+    private static void getMoleculeMoved(ushort fromClientId, Message message)
+    {
+        var molecule_id = message.GetUShort();
+        var pos = message.GetVector3();
+        var quat = message.GetQuaternion();
+        // do the move on the server
+        GlobalCtrl.Singleton.moveMolecule(molecule_id, pos, quat);
+
+        // Broadcast to other clients
+        Message outMessage = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastMoleculeMoved);
+        outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(molecule_id);
+        outMessage.AddVector3(pos);
+        outMessage.AddQuaternion(quat);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
+
+    [MessageHandler((ushort)ClientToServerID.atomMoved)]
+    private static void getAtomMoved(ushort fromClientId, Message message)
+    {
+        var atom_id = message.GetUShort();
+        var pos = message.GetVector3();
+        // do the move on the server
+        GlobalCtrl.Singleton.moveAtom(atom_id, pos);
+
+        // Broadcast to other clients
+        Message outMessage = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastAtomMoved);
+        outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(atom_id);
+        outMessage.AddVector3(pos);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
 
     #endregion
 }
