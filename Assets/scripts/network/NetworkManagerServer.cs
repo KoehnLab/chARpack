@@ -1,5 +1,6 @@
 using RiptideNetworking;
 using RiptideNetworking.Utils;
+using System.Linq;
 using UnityEngine;
 
 public class NetworkManagerServer : MonoBehaviour
@@ -149,6 +150,29 @@ public class NetworkManagerServer : MonoBehaviour
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(atom_id);
         outMessage.AddVector3(pos);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
+
+    [MessageHandler((ushort)ClientToServerID.moleculeMerged)]
+    private static void getMoleculeMerged(ushort fromClientId, Message message)
+    {
+        var atom1ID = message.GetUShort();
+        var atom2ID = message.GetUShort();
+
+        // do the merge on the server
+        // fist check the existence of atoms with the correspoinding ids
+        if (GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atom1ID) == null || GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atom2ID) == null)
+        {
+            Debug.LogError($"[NetworkManagerServer] Merging operation cannot be executed. Atom IDs do not exist (Atom1: {atom1ID}, Atom2 {atom2ID})");
+            return;
+        }
+        GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.List_curAtoms[atom1ID], GlobalCtrl.Singleton.List_curAtoms[atom2ID]);
+
+        // Broadcast to other clients
+        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastMoleculeMerged);
+        outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(atom1ID);
+        outMessage.AddUShort(atom2ID);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
 

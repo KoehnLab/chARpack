@@ -53,6 +53,13 @@ public class EventManager : MonoBehaviour
         OnMoveAtom?.Invoke(id, pos);
     }
 
+    public delegate void MergeMoleculeAction(ushort atom1ID, ushort atom2ID);
+    public event MergeMoleculeAction OnMergeMolecule;
+    public void MergeMolecule(ushort atom1ID, ushort atom2ID)
+    {
+        OnMergeMolecule?.Invoke(atom1ID, atom2ID);
+    }
+
     #endregion
 
 

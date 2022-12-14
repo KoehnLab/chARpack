@@ -4,6 +4,7 @@ using RiptideNetworking.Utils;
 using StructClass;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -60,6 +61,7 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnCreateAtom += sendAtomCreated;
         EventManager.Singleton.OnMoveMolecule += sendMoleculeMoved;
         EventManager.Singleton.OnMoveAtom += sendAtomMoved;
+        EventManager.Singleton.OnMergeMolecule += sendMoleculeMerged;
 
     }
 
@@ -155,7 +157,7 @@ public class NetworkManagerClient : MonoBehaviour
         return (ushort)currentDeviceType;
     }
 
-    #region Messages
+    #region Sends
     /// <summary>
     /// Sends a message with the device name and the device type to the server
     /// </summary>
@@ -192,6 +194,17 @@ public class NetworkManagerClient : MonoBehaviour
         message.AddVector3(pos);
         Client.Send(message);
     }
+
+    public void sendMoleculeMerged(ushort atom1ID, ushort atom2ID)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.moleculeMerged);
+        message.AddUShort(atom1ID);
+        message.AddUShort(atom2ID);
+        Client.Send(message);
+    }
+    #endregion
+
+    #region Listen
 
     [MessageHandler((ushort)ServerToClientID.sendAtomWorld)]
     private static void getAtomWorld(Message message)
@@ -253,6 +266,26 @@ public class NetworkManagerClient : MonoBehaviour
         {
             GlobalCtrl.Singleton.moveAtom(atom_id, pos);
         }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastMoleculeMerged)]
+    private static void getMoleculeMerged(Message message)
+    {
+        var client_id = message.GetUShort();
+        var atom1ID = message.GetUShort();
+        var atom2ID = message.GetUShort();
+
+        // do the merge
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            if (GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atom1ID) == null || GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atom2ID) == null)
+            {
+                Debug.LogError($"[NetworkManagerClient] Merging operation cannot be executed. Atom IDs do not exist (Atom1: {atom1ID}, Atom2 {atom2ID})");
+                return;
+            }
+            GlobalCtrl.Singleton.MergeMolecule(atom1ID, atom2ID);
+        }
+
     }
 
     #endregion

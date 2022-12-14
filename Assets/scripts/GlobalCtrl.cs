@@ -763,6 +763,12 @@ public class GlobalCtrl : MonoBehaviour
         CreateBond(atom1, atom2, moleInAir);
     }
 
+    // overload to habdle IDs
+    public void MergeMolecule(ushort dummyInHand, ushort dummyInAir)
+    {
+        MergeMolecule(GlobalCtrl.Singleton.List_curAtoms[dummyInHand], GlobalCtrl.Singleton.List_curAtoms[dummyInAir]);
+    }
+
     #endregion
 
     #region export import

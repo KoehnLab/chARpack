@@ -82,7 +82,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             Atom a2 = Atom.Instance.dummyFindMain(d2);
 
             if (!Atom.Instance.alreadyConnected(a1, a2))
+            {
                 GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+                EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_idInScene, GlobalCtrl.Singleton.collider2.m_idInScene);
+            }
 
         }
         //Debug.Log($"[Atom] OnPointerUp: {eventData}");
