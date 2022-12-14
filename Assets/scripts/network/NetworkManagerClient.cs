@@ -255,11 +255,5 @@ public class NetworkManagerClient : MonoBehaviour
         }
     }
 
-    [MessageHandler((ushort)ServerToClientID.sendAtomWorld)]
-    private static void getAtomWorld(Message message)
-    {
-        
-    }
-
     #endregion
 }
