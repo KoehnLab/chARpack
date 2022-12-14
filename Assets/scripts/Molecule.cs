@@ -68,7 +68,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             if (!Atom.Instance.alreadyConnected(a1, a2))
             {
                 GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
-                EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_idInScene, GlobalCtrl.Singleton.collider2.m_idInScene);
+                EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_id);
             }
 
         }
@@ -166,7 +166,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             newParent.bondList.Add(b);
         }
         GlobalCtrl.Singleton.List_curMolecules.Remove(oldParent);
-        //GlobalCtrl.Singleton.Dic_curMolecules.Remove(m_id);
         Destroy(this.gameObject);
     }
 

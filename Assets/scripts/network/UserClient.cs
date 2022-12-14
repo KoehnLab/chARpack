@@ -91,7 +91,7 @@ public class UserClient : MonoBehaviour
         var id = message.GetUShort();
         var pos = message.GetVector3();
         var forward = message.GetVector3();
-        if (list.TryGetValue(id, out UserClient user))
+        if (list.TryGetValue(id, out UserClient user) && !user.isLocal)
         {
             user.applyPositionAndRotation(pos, forward);
         }

@@ -47,6 +47,28 @@ public class UserServer : MonoBehaviour
         list.Remove(ID);
     }
 
+    public void Start()
+    {
+        if (deviceType == myDeviceType.HoloLens)
+        {
+            if (head == null)
+            {
+                head = gameObject.transform.Find("Head").gameObject;
+            }
+            if (leftHand == null)
+            {
+                leftHand = gameObject.transform.Find("LeftHand").gameObject;
+            }
+            if (rightHand == null)
+            {
+                rightHand = gameObject.transform.Find("RightHand").gameObject;
+            }
+        } else
+        {
+            head = gameObject;
+        }
+    }
+
     private void applyPositionAndRotation(Vector3 pos, Vector3 forward)
     {
         head.transform.position = pos;
@@ -88,7 +110,7 @@ public class UserServer : MonoBehaviour
     }
 
     [MessageHandler((ushort)ClientToServerID.positionAndRotation)]
-    private static void bcastPositionAndRotation(ushort fromClientId, Message message)
+    private static void getPsitionAndRotation(ushort fromClientId, Message message)
     {
         var pos = message.GetVector3();
         var forward = message.GetVector3();
@@ -96,13 +118,19 @@ public class UserServer : MonoBehaviour
         {
             user.applyPositionAndRotation(pos, forward);
         }
-        Message bcastMessage = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastPositionAndRotation);
-        bcastMessage.AddUShort(fromClientId);
-        bcastMessage.AddVector3(pos);
-        bcastMessage.AddVector3(forward);
-        NetworkManagerServer.Singleton.Server.SendToAll(bcastMessage);
+        // only send message to other users
+        foreach (var otherUser in list.Values)
+        {
+            if (otherUser.ID != fromClientId)
+            {
+                Message bcastMessage = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastPositionAndRotation);
+                bcastMessage.AddUShort(fromClientId);
+                bcastMessage.AddVector3(pos);
+                bcastMessage.AddVector3(forward);
+                NetworkManagerServer.Singleton.Server.Send(bcastMessage, otherUser.ID);
+            }
+        }
     }
-
 
     #endregion
 }

@@ -42,7 +42,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     }
     public void OnPointerDragged(MixedRealityPointerEventData eventData)
     {
-        EventManager.Singleton.MoveAtom(m_idInScene, transform.position);
+        EventManager.Singleton.MoveAtom(m_id, transform.position);
     }
 
     // This function is triggered when a grabbed object is dropped
@@ -84,20 +84,20 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             if (!Atom.Instance.alreadyConnected(a1, a2))
             {
                 GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
-                EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_idInScene, GlobalCtrl.Singleton.collider2.m_idInScene);
+                EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_id);
             }
 
         }
         //Debug.Log($"[Atom] OnPointerUp: {eventData}");
     }
 
-    [HideInInspector] public ushort m_idInScene;
+    [HideInInspector] public ushort m_id;
     [HideInInspector] public Molecule m_molecule;
     [HideInInspector] public ElementData m_data { get; private set; }
     // we have to clarify the role of m_data: Is this just basic (and constant) data?
     // 0: none; 1: sp1; 2: sp2;  3: sp3;  4: hypervalent trig. bipy; 5: unused;  6: hypervalent octahedral
     [HideInInspector] public Material m_mat;
-    //public int m_nBondP;
+
     [HideInInspector] public Rigidbody m_rigid;
     [HideInInspector] public bool isGrabbed = false;
     [HideInInspector] public List<Vector3> m_posForDummies;
@@ -116,7 +116,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="idInScene"></param>
     public void f_Init(ElementData inputData, Molecule inputMole, Vector3 pos, ushort idInScene)
     {
-        m_idInScene = idInScene;
+        m_id = idInScene;
         m_molecule = inputMole;
         m_molecule.atomList.Add(this);
         m_data = inputData;
@@ -262,12 +262,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         {
             case (0):
                 position = this.transform.localPosition + new Vector3(0,0,0.05f);
-                GlobalCtrl.Singleton.CreateDummy(GlobalCtrl.Singleton.idInScene, this.m_molecule, this, position);
+                GlobalCtrl.Singleton.CreateDummy(GlobalCtrl.Singleton.getFreshAtomID(), this.m_molecule, this, position);
                 break;
             case (1):
                 firstVec = this.transform.localPosition - conAtoms[0].transform.localPosition;
                 position = this.transform.localPosition + firstVec;
-                GlobalCtrl.Singleton.CreateDummy(GlobalCtrl.Singleton.idInScene, this.m_molecule, this, position);
+                GlobalCtrl.Singleton.CreateDummy(GlobalCtrl.Singleton.getFreshAtomID(), this.m_molecule, this, position);
                 break;
             case (2):
                 firstVec = this.transform.localPosition - conAtoms[0].transform.localPosition;
@@ -275,7 +275,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
                 position = this.transform.localPosition + ((firstVec + secondVec) / 2.0f);
                 if (position == this.transform.localPosition)
                     position = Vector3.Cross(firstVec, secondVec);
-                GlobalCtrl.Singleton.CreateDummy(GlobalCtrl.Singleton.idInScene, this.m_molecule, this, position);
+                GlobalCtrl.Singleton.CreateDummy(GlobalCtrl.Singleton.getFreshAtomID(), this.m_molecule, this, position);
                 break;
             case (3):
                 firstVec = conAtoms[1].transform.localPosition - conAtoms[0].transform.localPosition;
@@ -289,7 +289,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
                 if ((sideCheck1 >= 0 && sideCheck2 >= 0) || (sideCheck1 <= 0 && sideCheck2 <= 0))
                     position = this.transform.localPosition - normalVec;
 
-                GlobalCtrl.Singleton.CreateDummy(GlobalCtrl.Singleton.idInScene, this.m_molecule, this, position);
+                GlobalCtrl.Singleton.CreateDummy(GlobalCtrl.Singleton.getFreshAtomID(), this.m_molecule, this, position);
                 break;
             default:
                 break;
@@ -353,9 +353,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         foreach(Bond b in a.m_molecule.bondList)
         {
             
-            if (b.atomID1 == a.m_idInScene || b.atomID2 == a.m_idInScene)
+            if (b.atomID1 == a.m_id || b.atomID2 == a.m_id)
             {
-                Atom otherAtom = getAtomByID(b.findTheOther(a).m_idInScene);
+                Atom otherAtom = getAtomByID(b.findTheOther(a).m_id);
                 if (!conAtomList.Contains(otherAtom))
                     conAtomList.Add(otherAtom);
             }
@@ -385,7 +385,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         List<Bond> conBondList = new List<Bond>();
         foreach (Bond b in this.m_molecule.bondList)
         {
-            if (b.atomID1 == this.m_idInScene || b.atomID2 == this.m_idInScene)
+            if (b.atomID1 == this.m_id || b.atomID2 == this.m_id)
             {
                 conBondList.Add(b);
             }
@@ -404,7 +404,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         foreach (Atom atom in GlobalCtrl.Singleton.List_curAtoms)
         //foreach (KeyValuePair<int, Atom> atom in GlobalCtrl.Singleton.Dic_curAtoms)
         {
-            if (atom.m_idInScene == (int)id)
+            if (atom.m_id == (int)id)
                 return atom;
         }
 
@@ -420,7 +420,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     {
         if (dummy.m_data.m_name == "Dummy")
         {
-            Bond b = dummy.m_molecule.bondList.Find(p => p.atomID1 == dummy.m_idInScene || p.atomID2 == dummy.m_idInScene);      
+            Bond b = dummy.m_molecule.bondList.Find(p => p.atomID1 == dummy.m_id || p.atomID2 == dummy.m_id);      
             Atom atom1 = GlobalCtrl.Singleton.List_curAtoms.Find((x) => x.GetComponent<Atom>() == b.findTheOther(dummy));
             return atom1;
         }

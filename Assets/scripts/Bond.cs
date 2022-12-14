@@ -75,8 +75,8 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="inputMole">the molecule to which the bond belongs</param>
     public void f_Init(Atom _atom1, Atom _atom2, Molecule inputMole)
     {
-        atomID1 = _atom1.m_idInScene;
-        atomID2 = _atom2.m_idInScene;
+        atomID1 = _atom1.m_id;
+        atomID2 = _atom2.m_id;
         m_molecule = inputMole;
         m_bondOrder = 1.0f;   // standard
         m_bondDistance = 1.0f;
@@ -109,9 +109,9 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
     /// <returns></returns>
     public Atom findTheOther(Atom at)
     {
-        if (at.m_idInScene == atomID1)
+        if (at.m_id == atomID1)
             return Atom.Instance.getAtomByID(atomID2);
-        else if (at.m_idInScene == atomID2)
+        else if (at.m_id == atomID2)
             return Atom.Instance.getAtomByID(atomID1);
         else
             return null;
@@ -170,9 +170,9 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
     {
         foreach(Bond b in a1.m_molecule.bondList)
         {
-            if (b.atomID1 == a1.m_idInScene && b.atomID2 == a2.m_idInScene)
+            if (b.atomID1 == a1.m_id && b.atomID2 == a2.m_id)
                 return b;
-            else if (b.atomID2 == a1.m_idInScene && b.atomID1 == a2.m_idInScene)
+            else if (b.atomID2 == a1.m_id && b.atomID1 == a2.m_id)
                 return b;
         }
         return null;

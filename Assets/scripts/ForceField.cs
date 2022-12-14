@@ -265,7 +265,7 @@ public class ForceField : MonoBehaviour
             if (At != null)
             {
                 nAtoms++;
-                atomList.Add(At.m_idInScene);
+                atomList.Add(At.m_id);
 
                 if (At.isGrabbed)
                 {
@@ -367,7 +367,7 @@ public class ForceField : MonoBehaviour
                         int jAtom = -1;
                         for (int kAtom = 0; kAtom < nAtoms; kAtom++)
                         {
-                            if (atomList[kAtom] == conAtom.m_idInScene)
+                            if (atomList[kAtom] == conAtom.m_id)
                             {
                                 jAtom = kAtom;
                                 break;

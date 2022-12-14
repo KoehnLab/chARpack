@@ -1017,7 +1017,6 @@ MonoBehaviour:
   myBoundingBoxPrefab: {fileID: 7362249118518364358, guid: 48b9becbc0966d742a6c4463366a1a58, type: 3}
   myAtomPrefab: {fileID: 7377244445179915796, guid: bf048a9970cb97f44a46f7c758da93a0, type: 3}
   atomMatPrefab: {fileID: 2100000, guid: a5e028070ace428d8971079be1d965a6, type: 2}
-  idInScene: 0
   scale: 0.5
   u2pm: 1000
   u2aa: 10
@@ -1079,7 +1078,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 690894127}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.5983868, y: -1.0767684, z: 2.1146715}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -19509,7 +19508,7 @@ GameObject:
   - component: {fileID: 2272170570506199540}
   - component: {fileID: 8839117086282966842}
   m_Layer: 0
-  m_Name: NearMenu3x2
+  m_Name: NearMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

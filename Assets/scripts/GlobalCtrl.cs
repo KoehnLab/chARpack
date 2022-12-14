@@ -46,7 +46,6 @@ public class GlobalCtrl : MonoBehaviour
     public List<Atom> List_curAtoms { get; private set; }
     //public Dictionary<int, Atom> Dic_curAtoms{get;private set;}
 
-    public ushort idInScene = 0;
     /// <summary>
     /// all data of element
     /// </summary>
@@ -302,7 +301,7 @@ public class GlobalCtrl : MonoBehaviour
                 int count = 0;
                 while (a.m_data.m_bondNum > a.connectedAtoms(a).Count)
                 {
-                    CreateDummy(idInScene, m, a, calcDummyPos(a, positionsRestore, count));
+                    CreateDummy(getFreshAtomID(), m, a, calcDummyPos(a, positionsRestore, count));
                     count++;
 
                 }
@@ -382,7 +381,7 @@ public class GlobalCtrl : MonoBehaviour
                 int count = 0;
                 while (a.m_data.m_bondNum > a.connectedAtoms(a).Count)
                 {
-                    CreateDummy(idInScene, m, a, calcDummyPos(a, positionsRestore, count));
+                    CreateDummy(getFreshAtomID(), m, a, calcDummyPos(a, positionsRestore, count));
                     count++;
 
                 }
@@ -414,7 +413,7 @@ public class GlobalCtrl : MonoBehaviour
                 foreach (Atom at in pair.Value)
                 {
                     // if the atom is in the group
-                    if (at.m_idInScene == a.m_idInScene)
+                    if (at.m_id == a.m_id)
                     {
                         search = false;
                         break;
@@ -510,9 +509,8 @@ public class GlobalCtrl : MonoBehaviour
         {
             Molecule tempMolecule = new GameObject().AddComponent<Molecule>();
             tempMolecule.transform.position = m.transform.position;
-            tempMolecule.f_Init(idInScene, atomWorld.transform);
+            tempMolecule.f_Init(getFreshMoleculeID(), atomWorld.transform);
             addMoleculeList.Add(tempMolecule);
-            idInScene++;
             foreach (Atom a in pair.Value)
             {
                 a.transform.parent = tempMolecule.transform;
@@ -600,7 +598,7 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     /// <param name="ChemicalID">chemical ID of the atom which should be created</param>
     /// <param name="pos">position, where the atom should be created</param>
-    public void CreateAtom(ushort idAtom, string ChemicalAbbre, Vector3 pos)
+    public void CreateAtom(ushort moleculeID, string ChemicalAbbre, Vector3 pos)
     {
         // create atom from atom prefab
         GameObject tempMoleculeGO = Instantiate(myBoundingBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity);
@@ -608,7 +606,7 @@ public class GlobalCtrl : MonoBehaviour
 
         //Molecule tempMolecule = new GameObject().AddComponent<Molecule>();
         tempMolecule.transform.position = pos;
-        tempMolecule.f_Init(idAtom, atomWorld.transform);
+        tempMolecule.f_Init(moleculeID, atomWorld.transform);
 
         // 0: none; 1: sp1; 2: sp2;  3: sp3;  4: hypervalent trig. bipy; 5: unused;  6: hypervalent octahedral
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
@@ -616,13 +614,12 @@ public class GlobalCtrl : MonoBehaviour
         tempData.m_bondNum = (ushort)Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization)); // a preliminary solution
 
         Atom tempAtom = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<Atom>();
-        tempAtom.f_Init(tempData, tempMolecule, Vector3.zero ,idAtom);
+        tempAtom.f_Init(tempData, tempMolecule, Vector3.zero , getFreshAtomID());
         List_curAtoms.Add(tempAtom);
-        //Dic_curAtoms.Add(idInScene, tempAtom);
-        idInScene++;
+        // add dummies
         foreach (Vector3 posForDummy in tempAtom.m_posForDummies)
         {
-            CreateDummy(idInScene, tempMolecule, tempAtom, posForDummy);
+            CreateDummy(getFreshAtomID(), tempMolecule, tempAtom, posForDummy);
         }
 
         List_curMolecules.Add(tempMolecule);
@@ -672,7 +669,7 @@ public class GlobalCtrl : MonoBehaviour
             {
                 if (a.m_data.m_abbre=="Dummy")
                 {
-                    ChangeAtom(a.m_idInScene, "H");
+                    ChangeAtom(a.m_id, "H");
                 }
             }
         }
@@ -692,7 +689,6 @@ public class GlobalCtrl : MonoBehaviour
         Atom tempAtom = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<Atom>();
         tempAtom.f_Init(tempData, mol, pos, idAtom);
         List_curAtoms.Add(tempAtom);
-        idInScene++;
         return tempAtom;
     }
 
@@ -709,7 +705,6 @@ public class GlobalCtrl : MonoBehaviour
         dummy.f_Init(Dic_ElementData["Dummy"], inputMole, pos, idDummy);//0 for dummy
         List_curAtoms.Add(dummy);
         CreateBond(mainAtom, dummy, inputMole);
-        idInScene++;
     }
 
     /// <summary>
@@ -738,8 +733,8 @@ public class GlobalCtrl : MonoBehaviour
 
         Molecule moleInhand = dummyInHand.m_molecule;
         Molecule moleInAir = dummyInAir.m_molecule;
-        Bond bondInHand = moleInhand.bondList.Find(p=>p.atomID1==dummyInHand.m_idInScene|| p.atomID2 == dummyInHand.m_idInScene);
-        Bond bondInAir = moleInAir.bondList.Find(p => p.atomID1 == dummyInAir.m_idInScene || p.atomID2 == dummyInAir.m_idInScene);
+        Bond bondInHand = moleInhand.bondList.Find(p=>p.atomID1==dummyInHand.m_id || p.atomID2 == dummyInHand.m_id);
+        Bond bondInAir = moleInAir.bondList.Find(p => p.atomID1 == dummyInAir.m_id || p.atomID2 == dummyInAir.m_id);
         if(moleInhand!=moleInAir)
         {
             moleInhand.givingOrphans(moleInAir, moleInhand);
@@ -761,6 +756,10 @@ public class GlobalCtrl : MonoBehaviour
         Destroy(bondInHand.gameObject);
 
         CreateBond(atom1, atom2, moleInAir);
+
+        shrinkAtomIDs();
+        shrinkMoleculeIDs();
+
     }
 
     // overload to habdle IDs
@@ -802,7 +801,7 @@ public class GlobalCtrl : MonoBehaviour
             foreach (Atom a in inputMole.atomList)
             {
 
-                list_atom.Add(new cmlAtom(a.m_idInScene, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
+                list_atom.Add(new cmlAtom(a.m_id, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
             }
             List<cmlBond> list_bond = new List<cmlBond>();
             foreach (Bond b in inputMole.bondList)
@@ -879,7 +878,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="name">name of the saved molecule</param>
     public void LoadMolecule(string name, int param = 0)
     {
-        ushort maxID = (ushort)(getMaxID() + 1);
+        ushort maxID = (ushort)(getMaxAtomID() + 1);
 
         List<cmlData> loadData;
 
@@ -935,7 +934,7 @@ public class GlobalCtrl : MonoBehaviour
                 }
 
                 Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos + meanPos, Quaternion.identity).AddComponent<Molecule>();
-                tempMolecule.f_Init(idInScene, atomWorld.transform);
+                tempMolecule.f_Init(getFreshMoleculeID(), atomWorld.transform);
                 List_curMolecules.Add(tempMolecule);
 
 
@@ -950,14 +949,17 @@ public class GlobalCtrl : MonoBehaviour
                     CreateBond(Atom.Instance.getAtomByID(molecule.bondArray[i].id1), Atom.Instance.getAtomByID(molecule.bondArray[i].id2), tempMolecule);
                 }
             }
-            shrinkIDs();
-            idInScene = (ushort)(getMaxID() + 1);
+            shrinkAtomIDs();
+            shrinkMoleculeIDs();
         }
     }
 
 
     public List<cmlData> saveAtomWorld()
     {
+        // flatten IDs first
+        shrinkAtomIDs();
+        shrinkMoleculeIDs();
         // this method preserves the position of the molecules and atoms (and rotation)
         List<cmlData> saveData = new List<cmlData>();
         foreach (Molecule inputMole in List_curMolecules)
@@ -965,7 +967,7 @@ public class GlobalCtrl : MonoBehaviour
             List<cmlAtom> list_atom = new List<cmlAtom>();
             foreach (Atom a in inputMole.atomList)
             {
-                list_atom.Add(new cmlAtom(a.m_idInScene, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
+                list_atom.Add(new cmlAtom(a.m_id, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
             }
             List<cmlBond> list_bond = new List<cmlBond>();
             foreach (Bond b in inputMole.bondList)
@@ -1001,8 +1003,6 @@ public class GlobalCtrl : MonoBehaviour
                     CreateBond(Atom.Instance.getAtomByID(molecule.bondArray[i].id1), Atom.Instance.getAtomByID(molecule.bondArray[i].id2), tempMolecule);
                 }
             }
-            shrinkIDs();
-            idInScene = (ushort)(getMaxID() + 1);
         }
     }
 
@@ -1040,62 +1040,105 @@ public class GlobalCtrl : MonoBehaviour
     /// this method gets the maximum atomID currently in the scene
     /// </summary>
     /// <returns>id</returns>
-    public ushort getMaxID()
+    public ushort getMaxAtomID()
     {
         ushort id = 0;
-        foreach(Atom a in List_curAtoms)
+        if (List_curAtoms.Count > 0)
         {
-            if (a.m_idInScene >= id)
-                id = a.m_idInScene;
+            foreach (Atom a in List_curAtoms)
+            {
+                id = Math.Max(id, a.m_id);
+            }
         }
-
         return id;
     }
 
     /// <summary>
     /// this method shrinks the IDs of the atoms to prevent an overflow
     /// </summary>
-    public void shrinkIDs()
+    public void shrinkAtomIDs()
     {
-        uint numAtoms = (uint)List_curAtoms.Count;
-
-        for(ushort i = 0; i <= numAtoms; i++)
+        for (ushort i = 0; i < List_curAtoms.Count; i++)
         {
-            if(Atom.Instance.getAtomByID(i) == null)
+            // also change ids in bond
+            if (List_curAtoms[i].m_id != i)
             {
-                swapID(i);
+                foreach (var bond in List_curAtoms[i].connectedBonds())
+                {
+                    // check wich id to switch
+                    if (bond.atomID1 == List_curAtoms[i].m_id)
+                    {
+                        bond.atomID1 = i;
+                    }
+                    else
+                    {
+                        bond.atomID2 = i;
+                    }
+                }
             }
+            List_curAtoms[i].m_id = i;
         }
     }
 
     /// <summary>
-    /// this method swaps the ID of an atom with a new ID
+    /// gets a fresh available atom id
     /// </summary>
     /// <param name="idNew">new ID</param>
-    public void swapID(ushort idNew)
+    public ushort getFreshAtomID()
     {
-        foreach(Atom a in List_curAtoms)
+        if (List_curAtoms.Count == 0)
         {
-            if(a.m_idInScene > idNew)
-            {
-                foreach (Bond b in a.m_molecule.bondList)
-                {
-                    if (b.atomID1 == a.m_idInScene)
-                        b.atomID1 = idNew;
-                    else if (b.atomID2 == a.m_idInScene)
-                        b.atomID2 = idNew;
-                }
-
-                if (a.m_idInScene == a.m_molecule.m_id)
-                    a.m_molecule.m_id = idNew;
-
-                a.m_idInScene = idNew;
-
-
-                break;
-            }
+            return 0;
+        }
+        else
+        {
+            shrinkAtomIDs();
+            return (ushort)(getMaxAtomID() + 1);
         }
     }
+
+    /// <summary>
+    /// this method gets the maximum atomID currently in the scene
+    /// </summary>
+    /// <returns>id</returns>
+    public ushort getMaxMoleculeID()
+    {
+        ushort id = 0;
+        foreach (Molecule m in List_curMolecules)
+        {
+            id = Math.Max(id, m.m_id);
+        }
+        return id;
+    }
+
+    /// <summary>
+    /// this method shrinks the IDs of the molecules to prevent an overflow
+    /// </summary>
+    public void shrinkMoleculeIDs()
+    {
+        for (ushort i = 0; i < List_curMolecules.Count; i++)
+        {
+            List_curMolecules[i].m_id = i;
+        }
+    }
+
+    /// <summary>
+    /// gets a fresh available atom id
+    /// </summary>
+    /// <param name="idNew">new ID</param>
+    public ushort getFreshMoleculeID()
+    {
+        if (List_curMolecules.Count == 0)
+        {
+            return 0;
+        }
+        else
+        {
+            shrinkMoleculeIDs();
+            return (ushort)(getMaxMoleculeID() + 1);
+        }
+    }
+
 
     #endregion
 
@@ -1105,10 +1148,11 @@ public class GlobalCtrl : MonoBehaviour
     {
         lastAtom = ChemicalID; // remember this for later
         Vector3 create_position = Camera.main.transform.position + 0.5f * Camera.main.transform.forward;
-        CreateAtom(idInScene, ChemicalID, create_position);
+        var newID = getFreshMoleculeID();
+        CreateAtom(newID, ChemicalID, create_position);
 
         // Let the networkManager know about the user action
-        EventManager.Singleton.CreateAtom(idInScene, ChemicalID, create_position);
+        EventManager.Singleton.CreateAtom(newID, ChemicalID, create_position);
     }
 
     public void getRepulsionScale(float value)
@@ -1153,11 +1197,10 @@ public class GlobalCtrl : MonoBehaviour
     public void createFavoriteElement(int pos)
     {
         lastAtom = favorites[pos - 1]; // remember this for later
-                                       //CreateAtom(idInScene, favorites[pos - 1], controllerRight.transform.position + new Vector3(0.01f, 0, 0.01f));
         Vector3 current_pos = Camera.main.transform.position;
         Vector3 current_lookat = Camera.main.transform.forward;
         Vector3 create_position = current_pos + 0.5f * current_lookat;
-        CreateAtom(idInScene, favorites[pos - 1], create_position);
+        CreateAtom(getFreshMoleculeID(), favorites[pos - 1], create_position);
     }
 
 

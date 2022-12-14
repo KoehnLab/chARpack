@@ -89,7 +89,7 @@ public class ContextMenu : MonoBehaviour
 
     public void ChangeAtomType(int i)
     {
-        GlobalCtrl.Singleton.ChangeAtom(selectedAtom.m_idInScene, GlobalCtrl.Singleton.favorites[i - 1]);
+        GlobalCtrl.Singleton.ChangeAtom(selectedAtom.m_id, GlobalCtrl.Singleton.favorites[i - 1]);
         selectedAtom.markAtom(true);
         titleName.text = selectedAtom.m_data.m_name;
     }
@@ -122,7 +122,7 @@ public class ContextMenu : MonoBehaviour
         {
             if (a.m_data.m_abbre == "Dummy")
             {
-                GlobalCtrl.Singleton.ChangeAtom(a.m_idInScene, "H");
+                GlobalCtrl.Singleton.ChangeAtom(a.m_id, "H");
                 a.markAtom(true);
             }
         }
