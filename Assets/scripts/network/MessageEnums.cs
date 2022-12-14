@@ -9,7 +9,8 @@ public enum ClientToServerID : ushort
     atomCreated = 3,
     moleculeMoved = 4,
     atomMoved = 5,
-    moleculeMerged = 6
+    moleculeMerged = 6,
+    sendAtomWorld = 7
 }
 
 public enum ServerToClientID : ushort

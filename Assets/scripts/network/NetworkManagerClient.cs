@@ -31,6 +31,8 @@ public class NetworkManagerClient : MonoBehaviour
     }
 
     [HideInInspector] public GameObject showErrorPrefab;
+    private static byte[] cmlTotalBytes;
+    private static List<cmlData> cmlWorld;
     public Client Client { get; private set; }
 
     private void Awake()
@@ -70,9 +72,12 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Tick();
     }
 
-    private void OnApplicationQuit()
+    private void OnDestroy()
     {
-        Client.Disconnect();
+        if (Client.IsConnected)
+        {
+            Client.Disconnect();
+        }
     }
 
     /// <summary>
@@ -207,18 +212,36 @@ public class NetworkManagerClient : MonoBehaviour
     #region Listen
 
     [MessageHandler((ushort)ServerToClientID.sendAtomWorld)]
-    private static void getAtomWorld(Message message)
+    private static void listenForAtomWorld(Message message)
     {
-        var count = message.GetUShort();
-        List<cmlData> atomWorld = new List<cmlData>(); 
-        for (ushort i = 0; i < count; i++)
+        Debug.Log("[NetworkManagerClient] Receiving atom world");
+        var state = message.GetString();
+        if (state == "start")
         {
-            atomWorld.Add(message.GetCmlData());
+            cmlWorld.Clear();
         }
-        // do the recreation
-        if (atomWorld.Count > 0)
+        else if (state == "end")
         {
-            GlobalCtrl.Singleton.rebuildAtomWorld(atomWorld);
+            GlobalCtrl.Singleton.DeleteAll();
+            GlobalCtrl.Singleton.rebuildAtomWorld(cmlWorld);
+        }
+        else
+        {
+            // get rest of message
+            var totalLength = message.GetUInt();
+            var numPieces = message.GetUShort();
+            var currentPieceID = message.GetUShort();
+            var currentPiece = message.GetBytes();
+
+            if (currentPieceID == 0)
+            {
+                cmlTotalBytes = new byte[totalLength];
+            }
+            else if (currentPieceID == numPieces - 1)
+            {
+                cmlWorld.Add(Serializer.Deserialize<cmlData>(cmlTotalBytes));
+            }
+            currentPiece.CopyTo(cmlTotalBytes, currentPieceID * 255);
         }
     }
 

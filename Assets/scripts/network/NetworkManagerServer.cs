@@ -1,5 +1,7 @@
 using RiptideNetworking;
 using RiptideNetworking.Utils;
+using StructClass;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -28,6 +30,9 @@ public class NetworkManagerServer : MonoBehaviour
     public Server Server { get; private set; }
 
     private bool ServerStarted = false;
+
+    private static byte[] cmlTotalBytes;
+    private static List<cmlData> cmlWorld;
 
     private void Awake()
     {
@@ -82,6 +87,7 @@ public class NetworkManagerServer : MonoBehaviour
     /// <param name="e"></param>
     private void ClientDisconnected(object sender, ClientDisconnectedEventArgs e)
     {
+        Debug.Log($"[NetworkManagerServer] Client {e.Id} disconnected. Cleaning up.");
         // destroy user gameObject
         Destroy(UserServer.list[e.Id].gameObject);
     }
@@ -89,14 +95,9 @@ public class NetworkManagerServer : MonoBehaviour
     private void ClientConnected(object sender, ServerClientConnectedEventArgs e)
     {
         // send current atom world
+        Debug.Log($"[NetworkManagerServer] Client {e.Client.Id} connected. Sending current world.");
         var atomWorld = GlobalCtrl.Singleton.saveAtomWorld();
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.sendAtomWorld);
-        message.AddUShort((ushort)atomWorld.Count);
-        foreach (var entry in atomWorld)
-        {
-            message.AddCmlData(entry);
-        }
-        NetworkManagerServer.Singleton.Server.Send(message, e.Client.Id);
+        sendAtomWorld(atomWorld, e.Client.Id);
     }
 
     #region Messages
@@ -174,6 +175,83 @@ public class NetworkManagerServer : MonoBehaviour
         outMessage.AddUShort(atom1ID);
         outMessage.AddUShort(atom2ID);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
+
+
+    public void sendAtomWorld(List<cmlData> world, ushort toClientID)
+    {
+        if (world.Count < 1) return;
+        // prepare clients for the messages'
+        Message startMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.sendAtomWorld);
+        startMessage.AddString("start");
+        NetworkManagerServer.Singleton.Server.Send(startMessage, toClientID);
+
+        // we need all meta data so we do the splitting of the world first
+        for (ushort i = 0; i < world.Count; i++)
+        {
+            var currentCml = world[i];
+            var totalBytes = Serializer.Serialize(currentCml);
+            uint totalLength = (uint)totalBytes.Length; // first
+            ushort numPieces = (ushort)(totalBytes.Length / 255); // second
+            //
+            List<ushort> bytesPerPiece = new List<ushort>();
+            for (ushort j = 0; j < (numPieces - 1); j++)
+            {
+                bytesPerPiece.Add(255);
+            }
+            bytesPerPiece.Add((ushort)(totalBytes.Length % 255));
+
+            // create pieces and messages
+            for (ushort j = 0; j < numPieces; j++)
+            {
+                var currentPieceID = j; // third
+                var piece = totalBytes[..bytesPerPiece[j]]; // forth
+                totalBytes = totalBytes[bytesPerPiece[j]..];
+                Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.sendAtomWorld);
+                message.AddString("data");
+                message.AddUInt(totalLength);
+                message.AddUShort(numPieces);
+                message.AddUShort(currentPieceID);
+                message.AddBytes(piece);
+                NetworkManagerServer.Singleton.Server.Send(message, toClientID);
+            }
+        }
+        Message endMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.sendAtomWorld);
+        endMessage.AddString("end");
+        NetworkManagerServer.Singleton.Server.Send(endMessage, toClientID);
+    }
+
+
+    [MessageHandler((ushort)ClientToServerID.sendAtomWorld)]
+    private static void listenForAtomWorld(ushort fromClientId, Message message)
+    {
+        var state = message.GetString();
+        if (state == "start")
+        {
+            cmlWorld.Clear();
+        }
+        else if (state == "end")
+        {
+            GlobalCtrl.Singleton.DeleteAll();
+            GlobalCtrl.Singleton.rebuildAtomWorld(cmlWorld);
+        }
+        else
+        {
+            // get rest of message
+            var totalLength = message.GetUInt();
+            var numPieces = message.GetUShort();
+            var currentPieceID = message.GetUShort();
+            var currentPiece = message.GetBytes();
+
+            if (currentPieceID == 0)
+            {
+                cmlTotalBytes = new byte[totalLength];
+            } else if (currentPieceID == numPieces -1)
+            {
+                cmlWorld.Add(Serializer.Deserialize<cmlData>(cmlTotalBytes));
+            }
+            currentPiece.CopyTo(cmlTotalBytes, currentPieceID * 255);
+        }
     }
 
     #endregion

@@ -954,6 +954,15 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    public void testSerialization()
+    {
+        var atomWorld = saveAtomWorld();
+        foreach (var entry in atomWorld)
+        {
+            var bytes = Serializer.Serialize(entry);
+            Debug.Log($"[GlobalCtrl] testSerialization numBytes: {bytes.Length}");
+        }
+    }
 
     public List<cmlData> saveAtomWorld()
     {
