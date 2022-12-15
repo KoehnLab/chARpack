@@ -60,6 +60,20 @@ public class EventManager : MonoBehaviour
         OnMergeMolecule?.Invoke(atom1ID, atom2ID);
     }
 
+    public delegate void LoadMoleculeAction(string name);
+    public event LoadMoleculeAction OnLoadMolecule;
+    public void LoadMolecule(string name)
+    {
+        OnLoadMolecule?.Invoke(name);
+    }
+
+    public delegate void CmlReceiveCompletedAction();
+    public event CmlReceiveCompletedAction OnCmlReceiveCompleted;
+    public void CmlReceiveCompleted()
+    {
+        OnCmlReceiveCompleted?.Invoke();
+    }
+
     #endregion
 
 

@@ -10,7 +10,8 @@ public enum ClientToServerID : ushort
     moleculeMoved = 4,
     atomMoved = 5,
     moleculeMerged = 6,
-    sendAtomWorld = 7
+    sendAtomWorld = 7,
+    moleculeLoaded = 8
 }
 
 public enum ServerToClientID : ushort
@@ -21,7 +22,8 @@ public enum ServerToClientID : ushort
     bcastMoleculeMoved = 4,
     bcastAtomMoved = 5,
     sendAtomWorld = 6,
-    bcastMoleculeMerged = 7
+    bcastMoleculeMerged = 7,
+    bcastMoleculeLoad = 8
 }
 
 public enum myDeviceType : ushort

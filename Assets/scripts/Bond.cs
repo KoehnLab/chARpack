@@ -42,8 +42,8 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
     // This function is triggered when a grabbed object is dropped
     public void OnPointerUp(MixedRealityPointerEventData eventData)
     {
-        stopwatch.Stop();
-        if (stopwatch.ElapsedMilliseconds < 200)
+        stopwatch?.Stop();
+        if (stopwatch?.ElapsedMilliseconds < 200)
         {
             if (isMarked)
             {

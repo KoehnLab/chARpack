@@ -34,6 +34,7 @@ public class NetworkManagerServer : MonoBehaviour
     private static byte[] cmlTotalBytes;
     private static List<cmlData> cmlWorld;
     private static ushort chunkSize = 255;
+    private static bool receiveComplete = false;
 
     private void Awake()
     {
@@ -47,6 +48,8 @@ public class NetworkManagerServer : MonoBehaviour
         RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
 
         StartServer();
+
+        EventManager.Singleton.OnCmlReceiveCompleted += flagReceiveComplete;
     }
 
 
@@ -63,6 +66,12 @@ public class NetworkManagerServer : MonoBehaviour
         Debug.Log("[NetworkManagerServer] Server started.");
 
         Singleton.ServerStarted = true;
+
+    }
+
+    private void flagReceiveComplete()
+    {
+        receiveComplete = true;
     }
 
     private void FixedUpdate()
@@ -182,87 +191,32 @@ public class NetworkManagerServer : MonoBehaviour
     public void sendAtomWorld(List<cmlData> world, ushort toClientID)
     {
         if (world.Count < 1) return;
-        // prepare clients for the messages'
-        Message startMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.sendAtomWorld);
-        startMessage.AddString("start");
-        NetworkManagerServer.Singleton.Server.Send(startMessage, toClientID);
-
-        // we need all meta data so we do the splitting of the world first
-        for (ushort i = 0; i < world.Count; i++)
-        {
-            var currentCml = world[i];
-            var totalBytes = Serializer.Serialize(currentCml);
-            uint totalLength = (uint)totalBytes.Length; // first
-            ushort rest = (ushort)(totalBytes.Length % chunkSize);
-            ushort numPieces = rest == 0 ? (ushort)(totalBytes.Length / chunkSize) : (ushort)((totalBytes.Length / chunkSize) + 1); // second
-            //
-            List<ushort> bytesPerPiece = new List<ushort>();
-            for (ushort j = 0; j < (numPieces - 1); j++)
-            {
-                bytesPerPiece.Add(chunkSize);
-            }
-            if (rest != 0)
-            {
-                bytesPerPiece.Add(rest);
-            } else
-            {
-                bytesPerPiece.Add(chunkSize);
-            }
-            
-            // create pieces and messages
-            for (ushort j = 0; j < numPieces; j++)
-            {
-                var currentPieceID = j; // third
-                var piece = totalBytes[..bytesPerPiece[j]]; // forth
-                totalBytes = totalBytes[bytesPerPiece[j]..];
-                Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.sendAtomWorld);
-                message.AddString("data");
-                message.AddUInt(totalLength);
-                message.AddUShort(numPieces);
-                message.AddUShort(currentPieceID);
-                message.AddBytes(piece);
-                NetworkManagerServer.Singleton.Server.Send(message, toClientID);
-            }
-        }
-        Message endMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.sendAtomWorld);
-        endMessage.AddString("end");
-        NetworkManagerServer.Singleton.Server.Send(endMessage, toClientID);
+        NetworkUtils.serializeCmlData((ushort)ServerToClientID.sendAtomWorld, world, chunkSize, false, toClientID);
     }
 
 
     [MessageHandler((ushort)ClientToServerID.sendAtomWorld)]
     private static void listenForAtomWorld(ushort fromClientId, Message message)
     {
-        var state = message.GetString();
-        if (state == "start")
-        {
-            Debug.Log("[NetworkManagerServer] Receiving atom world");
-            cmlWorld = new List<cmlData>();
-        }
-        else if (state == "end")
-        {
-            GlobalCtrl.Singleton.DeleteAll();
-            GlobalCtrl.Singleton.rebuildAtomWorld(cmlWorld);
-        }
-        else
-        {
-            // get rest of message
-            var totalLength = message.GetUInt();
-            var numPieces = message.GetUShort();
-            var currentPieceID = message.GetUShort();
-            var currentPiece = message.GetBytes();
+        NetworkUtils.deserializeCmlData(message, ref cmlTotalBytes, ref cmlWorld, chunkSize);
 
-            if (currentPieceID == 0)
+        // do bcast?
+    }
+
+    [MessageHandler((ushort)ClientToServerID.moleculeLoaded)]
+    private static void bcastMoleculeLoad(ushort fromClientId, Message message)
+    {
+        receiveComplete = false;
+        NetworkUtils.deserializeCmlData(message, ref cmlTotalBytes, ref cmlWorld, chunkSize);
+
+        if (receiveComplete)
+        {
+            foreach (var client in UserServer.list.Values)
             {
-                cmlTotalBytes = new byte[totalLength];
-                currentPiece.CopyTo(cmlTotalBytes, 0);
-            } else if (currentPieceID == numPieces -1)
-            {
-                currentPiece.CopyTo(cmlTotalBytes, currentPieceID * chunkSize);
-                cmlWorld.Add(Serializer.Deserialize<cmlData>(cmlTotalBytes));
-            } else
-            {
-                currentPiece.CopyTo(cmlTotalBytes, currentPieceID * chunkSize);
+                if (client.ID != fromClientId)
+                {
+                    NetworkUtils.serializeCmlData((ushort)ServerToClientID.bcastMoleculeLoad, cmlWorld, chunkSize, false, client.ID);
+                }
             }
         }
     }

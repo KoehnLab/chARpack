@@ -15,8 +15,29 @@ public class loadSaveWindow : MonoBehaviour
 
     private enum Color { red, green, blue, black, white, yellow, orange };
 
+    private static loadSaveWindow _singleton;
+
+    public static loadSaveWindow Singleton
+    {
+        get => _singleton;
+        private set
+        {
+            if (_singleton == null)
+            {
+                _singleton = value;
+            }
+            else if (_singleton != value)
+            {
+                Debug.Log($"[{nameof(loadSaveWindow)}] Instance already exists, destroying duplicate!");
+                Destroy(value);
+            }
+
+        }
+    }
+
     void Awake()
     {
+        Singleton = this;
         gameObject.SetActive(false);
     }
 

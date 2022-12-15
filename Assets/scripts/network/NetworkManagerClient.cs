@@ -34,6 +34,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static byte[] cmlTotalBytes;
     private static List<cmlData> cmlWorld;
     private static ushort chunkSize = 255;
+    private static bool receiveComplete = false;
     public Client Client { get; private set; }
 
     private void Awake()
@@ -65,7 +66,14 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnMoveMolecule += sendMoleculeMoved;
         EventManager.Singleton.OnMoveAtom += sendAtomMoved;
         EventManager.Singleton.OnMergeMolecule += sendMoleculeMerged;
+        EventManager.Singleton.OnLoadMolecule += sendMoleculeLoaded;
+        EventManager.Singleton.OnCmlReceiveCompleted += flagReceiveComplete;
 
+    }
+
+    private void flagReceiveComplete()
+    {
+        receiveComplete = true;
     }
 
     private void FixedUpdate()
@@ -75,9 +83,12 @@ public class NetworkManagerClient : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (Client.IsConnected)
+        if (Client != null)
         {
-            Client.Disconnect();
+            if (Client.IsConnected)
+            {
+                Client.Disconnect();
+            }
         }
     }
 
@@ -208,6 +219,13 @@ public class NetworkManagerClient : MonoBehaviour
         message.AddUShort(atom2ID);
         Client.Send(message);
     }
+
+    public void sendMoleculeLoaded(string name)
+    {
+        var molData = GlobalCtrl.Singleton.getMoleculeData(name);
+        NetworkUtils.serializeCmlData((ushort)ClientToServerID.moleculeLoaded, molData, chunkSize, true);
+    }
+    
     #endregion
 
     #region Listen
@@ -215,39 +233,7 @@ public class NetworkManagerClient : MonoBehaviour
     [MessageHandler((ushort)ServerToClientID.sendAtomWorld)]
     private static void listenForAtomWorld(Message message)
     {
-        var state = message.GetString();
-        if (state == "start")
-        {
-            Debug.Log("[NetworkManagerClient] Receiving atom world");
-            cmlWorld = new List<cmlData>();
-        }
-        else if (state == "end")
-        {
-            GlobalCtrl.Singleton.DeleteAll();
-            GlobalCtrl.Singleton.rebuildAtomWorld(cmlWorld);
-        }
-        else
-        {
-            // get rest of message
-            var totalLength = message.GetUInt();
-            var numPieces = message.GetUShort();
-            var currentPieceID = message.GetUShort();
-            var currentPiece = message.GetBytes();
-            if (currentPieceID == 0)
-            {
-                cmlTotalBytes = new byte[totalLength];
-                currentPiece.CopyTo(cmlTotalBytes, 0);
-            }
-            else if (currentPieceID == numPieces - 1)
-            {
-                currentPiece.CopyTo(cmlTotalBytes, currentPieceID * chunkSize);
-                cmlWorld.Add(Serializer.Deserialize<cmlData>(cmlTotalBytes));
-            }
-            else
-            {
-                currentPiece.CopyTo(cmlTotalBytes, currentPieceID * chunkSize);
-            }
-        }
+        NetworkUtils.deserializeCmlData(message, ref cmlTotalBytes, ref cmlWorld, chunkSize);
     }
 
     [MessageHandler((ushort)ServerToClientID.bcastAtomCreated)]
@@ -316,5 +302,12 @@ public class NetworkManagerClient : MonoBehaviour
 
     }
 
+    [MessageHandler((ushort)ServerToClientID.bcastMoleculeLoad)]
+    private static void getMoleculeLoaded(Message message)
+    {
+        NetworkUtils.deserializeCmlData(message, ref cmlTotalBytes, ref cmlWorld, chunkSize, false);
+    }
+
     #endregion
+
 }

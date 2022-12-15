@@ -20,6 +20,7 @@ public class showLoadConfirm : MonoBehaviour
 
     public void triggered()
     {
+        loadSaveWindow.Singleton.gameObject.SetActive(false);
         var myDialog = Dialog.Open(loadConfirmPrefab, DialogButtonType.Yes | DialogButtonType.No, "Confirm File Load ", $"Are you sure you want to load: \n{m_mol_name}", true);
         if (myDialog != null)
         {
@@ -32,7 +33,9 @@ public class showLoadConfirm : MonoBehaviour
         if (obj.Result == DialogButtonType.Yes)
         {
             GlobalCtrl.Singleton.LoadMolecule(m_mol_name);
+            EventManager.Singleton.LoadMolecule(m_mol_name);
         }
+        loadSaveWindow.Singleton.gameObject.SetActive(true);
     }
 
 }

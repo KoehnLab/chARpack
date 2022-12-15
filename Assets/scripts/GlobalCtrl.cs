@@ -179,7 +179,7 @@ public class GlobalCtrl : MonoBehaviour
     {
         if (numAtoms != List_curAtoms.Count)
         {
-            SaveMolecule(1);
+            SaveMolecule(true);
             numAtoms = List_curAtoms.Count;
         }
     }
@@ -645,7 +645,7 @@ public class GlobalCtrl : MonoBehaviour
 
     public void modifyHybrid(Atom atom, ushort hybrid)
     {
-        SaveMolecule(1);
+        SaveMolecule(true);
         print("hybrid:   " + hybrid);
         ElementData tempData = Dic_ElementData[atom.m_data.m_abbre];
         tempData.m_hybridization = hybrid;
@@ -684,6 +684,12 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="mol">molecule, to which the atom belongs</param>
     public Atom RebuildAtom(ushort idAtom, string ChemicalAbbre, ushort hybrid, Vector3 pos, Molecule mol)
     {
+        //var currentMax = getMaxAtomID();
+        //if (idAtom < currentMax)
+        //{
+        //    Debug.LogError($"[GlobalCtrl] RebuildAtom: requested id {idAtom} lies in current AtomID range {currentMax}");
+        //}
+
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
         tempData.m_hybridization = hybrid;
         Atom tempAtom = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<Atom>();
@@ -691,7 +697,6 @@ public class GlobalCtrl : MonoBehaviour
         List_curAtoms.Add(tempAtom);
         return tempAtom;
     }
-
 
     /// <summary>
     /// Creates a dummy atom to fill empty binding positions
@@ -778,12 +783,12 @@ public class GlobalCtrl : MonoBehaviour
     /// this method converts the selected input molecule to lists which then are saved in an XML format
     /// </summary>
     /// <param name="inputMole">the molecule which will be saved</param>
-    public void SaveMolecule(int param, string name = "")
+    public void SaveMolecule(bool onStack, string name = "")
     {
         Vector3 meanPos = new Vector3(0.0f, 0.0f, 0.0f); // average position if several molecule blocks are saved
         int nMol = 0;   // number of molecule blocks
         List<cmlData> saveData = new List<cmlData>();
-        if(param == 0)
+        if(!onStack)
         {
             foreach (Molecule inputMole in List_curMolecules)
             {
@@ -812,7 +817,7 @@ public class GlobalCtrl : MonoBehaviour
             saveData.Add(tempData);
         }
 
-        if(param == 0)
+        if(!onStack)
         {
             CFileHelper.SaveData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", saveData);
             Debug.Log($"[GlobalCtrl] Saved Molecule as: {name}.xml");
@@ -878,8 +883,6 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="name">name of the saved molecule</param>
     public void LoadMolecule(string name, int param = 0)
     {
-        ushort maxID = (ushort)(getMaxAtomID() + 1);
-
         List<cmlData> loadData;
 
         Vector3 meanPos = new Vector3(0.0f, 0.0f, 0.0f);
@@ -888,11 +891,11 @@ public class GlobalCtrl : MonoBehaviour
         {
             loadData = (List<cmlData>)CFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
             int nMol = 0;
-            Debug.Log($"[GlobalCtrl] LoadMolecule: {loadData}");
             foreach (cmlData molecule in loadData)
             {
                 nMol++;
                 meanPos += molecule.molePos;
+                Debug.Log($"[GlobalCtrl] LoadMolecule: {molecule.ToString()}");
             }
             if (nMol > 0) meanPos /= (float)nMol;
 
@@ -902,7 +905,8 @@ public class GlobalCtrl : MonoBehaviour
             Vector3 current_lookat = Camera.main.transform.forward;
             Vector3 create_position = current_pos + 0.5f * current_lookat;
             meanPos = create_position - meanPos;  // add molecules relative to this position
-        } else
+        }
+        else
         {
             loadData = null;
             for(int i = 0; i < 2; i++)
@@ -922,19 +926,21 @@ public class GlobalCtrl : MonoBehaviour
         {
             foreach (cmlData molecule in loadData)
             {
+                var freshAtomID = getFreshAtomID();
+                var freshMoleculeID = getFreshMoleculeID();
                 for (int i = 0; i < molecule.atomArray.Length; i++)
                 {
-                    molecule.atomArray[i].id += maxID;
+                    molecule.atomArray[i].id += freshAtomID;
                 }
 
                 for (int i = 0; i < molecule.bondArray.Length; i++)
                 {
-                    molecule.bondArray[i].id1 += maxID;
-                    molecule.bondArray[i].id2 += maxID;
+                    molecule.bondArray[i].id1 += freshAtomID;
+                    molecule.bondArray[i].id2 += freshAtomID;
                 }
 
                 Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos + meanPos, Quaternion.identity).AddComponent<Molecule>();
-                tempMolecule.f_Init(getFreshMoleculeID(), atomWorld.transform);
+                tempMolecule.f_Init(freshMoleculeID, atomWorld.transform);
                 List_curMolecules.Add(tempMolecule);
 
 
@@ -949,19 +955,12 @@ public class GlobalCtrl : MonoBehaviour
                     CreateBond(Atom.Instance.getAtomByID(molecule.bondArray[i].id1), Atom.Instance.getAtomByID(molecule.bondArray[i].id2), tempMolecule);
                 }
             }
-            shrinkAtomIDs();
-            shrinkMoleculeIDs();
         }
     }
 
-    public void testSerialization()
+    public List<cmlData> getMoleculeData(string name)
     {
-        var atomWorld = saveAtomWorld();
-        foreach (var entry in atomWorld)
-        {
-            var bytes = Serializer.Serialize(entry);
-            Debug.Log($"[GlobalCtrl] testSerialization numBytes: {bytes.Length}");
-        }
+        return (List<cmlData>)CFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
     }
 
     public List<cmlData> saveAtomWorld()
@@ -991,16 +990,33 @@ public class GlobalCtrl : MonoBehaviour
     }
 
 
-    public void rebuildAtomWorld(List<cmlData> data)
+    public void rebuildAtomWorld(List<cmlData> data, bool add = false)
     {
         // this method preserves the ids of all objects
         if (data != null)
         {
+            SaveMolecule(true);
+            ushort freshMoleculeID = 0;
             foreach (cmlData molecule in data)
             {
+                if (add)
+                {
+                    var freshAtomID = getFreshAtomID();
+                    freshMoleculeID = getFreshMoleculeID();
+                    for (int i = 0; i < molecule.atomArray.Length; i++)
+                    {
+                        molecule.atomArray[i].id += freshAtomID;
+                    }
+
+                    for (int i = 0; i < molecule.bondArray.Length; i++)
+                    {
+                        molecule.bondArray[i].id1 += freshAtomID;
+                        molecule.bondArray[i].id2 += freshAtomID;
+                    }
+                }
 
                 Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos, Quaternion.identity).AddComponent<Molecule>();
-                tempMolecule.f_Init(molecule.moleID, atomWorld.transform);
+                tempMolecule.f_Init(add == true ? freshMoleculeID : molecule.moleID, atomWorld.transform);
                 List_curMolecules.Add(tempMolecule);
 
                 for (int i = 0; i < molecule.atomArray.Length; i++)
@@ -1067,25 +1083,37 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     public void shrinkAtomIDs()
     {
+        var from = new List<ushort>();
+        var to = new List<ushort>();
+        var bondList = new List<Bond>();
         for (ushort i = 0; i < List_curAtoms.Count; i++)
         {
             // also change ids in bond
             if (List_curAtoms[i].m_id != i)
             {
+                from.Add(List_curAtoms[i].m_id);
+                to.Add(i);
                 foreach (var bond in List_curAtoms[i].connectedBonds())
                 {
-                    // check wich id to switch
-                    if (bond.atomID1 == List_curAtoms[i].m_id)
+                    if (!bondList.Contains(bond))
                     {
-                        bond.atomID1 = i;
-                    }
-                    else
-                    {
-                        bond.atomID2 = i;
+                        bondList.Add(bond);
                     }
                 }
+
             }
             List_curAtoms[i].m_id = i;
+        }
+        foreach (var bond in bondList)
+        {
+            if (from.Contains(bond.atomID1))
+            {
+                bond.atomID1 = to[from.FindIndex(a => a == bond.atomID1)];
+            }
+            if (from.Contains(bond.atomID2))
+            {
+                bond.atomID2 = to[from.FindIndex(a => a == bond.atomID2)];
+            }
         }
     }
 

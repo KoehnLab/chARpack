@@ -51,9 +51,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         // remove glow
         (GetComponent("Halo") as Behaviour).enabled = false;
 
-        stopwatch.Stop();
+        stopwatch?.Stop();
         //UnityEngine.Debug.Log($"[Atom] Interaction stopwatch: {stopwatch.ElapsedMilliseconds} [ms]");
-        if (stopwatch.ElapsedMilliseconds < 200)
+        if (stopwatch?.ElapsedMilliseconds < 200)
         {
             if (m_molecule.isMarked)
             {
