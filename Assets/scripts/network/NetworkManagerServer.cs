@@ -33,6 +33,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     private static byte[] cmlTotalBytes;
     private static List<cmlData> cmlWorld;
+    private static ushort chunkSize = 255;
 
     private void Awake()
     {
@@ -192,15 +193,22 @@ public class NetworkManagerServer : MonoBehaviour
             var currentCml = world[i];
             var totalBytes = Serializer.Serialize(currentCml);
             uint totalLength = (uint)totalBytes.Length; // first
-            ushort numPieces = (ushort)(totalBytes.Length / 255); // second
+            ushort rest = (ushort)(totalBytes.Length % chunkSize);
+            ushort numPieces = rest == 0 ? (ushort)(totalBytes.Length / chunkSize) : (ushort)((totalBytes.Length / chunkSize) + 1); // second
             //
             List<ushort> bytesPerPiece = new List<ushort>();
             for (ushort j = 0; j < (numPieces - 1); j++)
             {
-                bytesPerPiece.Add(255);
+                bytesPerPiece.Add(chunkSize);
             }
-            bytesPerPiece.Add((ushort)(totalBytes.Length % 255));
-
+            if (rest != 0)
+            {
+                bytesPerPiece.Add(rest);
+            } else
+            {
+                bytesPerPiece.Add(chunkSize);
+            }
+            
             // create pieces and messages
             for (ushort j = 0; j < numPieces; j++)
             {
@@ -228,7 +236,8 @@ public class NetworkManagerServer : MonoBehaviour
         var state = message.GetString();
         if (state == "start")
         {
-            cmlWorld.Clear();
+            Debug.Log("[NetworkManagerServer] Receiving atom world");
+            cmlWorld = new List<cmlData>();
         }
         else if (state == "end")
         {
@@ -246,11 +255,15 @@ public class NetworkManagerServer : MonoBehaviour
             if (currentPieceID == 0)
             {
                 cmlTotalBytes = new byte[totalLength];
+                currentPiece.CopyTo(cmlTotalBytes, 0);
             } else if (currentPieceID == numPieces -1)
             {
+                currentPiece.CopyTo(cmlTotalBytes, currentPieceID * chunkSize);
                 cmlWorld.Add(Serializer.Deserialize<cmlData>(cmlTotalBytes));
+            } else
+            {
+                currentPiece.CopyTo(cmlTotalBytes, currentPieceID * chunkSize);
             }
-            currentPiece.CopyTo(cmlTotalBytes, currentPieceID * 255);
         }
     }
 

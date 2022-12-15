@@ -33,6 +33,7 @@ public class NetworkManagerClient : MonoBehaviour
     [HideInInspector] public GameObject showErrorPrefab;
     private static byte[] cmlTotalBytes;
     private static List<cmlData> cmlWorld;
+    private static ushort chunkSize = 255;
     public Client Client { get; private set; }
 
     private void Awake()
@@ -214,11 +215,11 @@ public class NetworkManagerClient : MonoBehaviour
     [MessageHandler((ushort)ServerToClientID.sendAtomWorld)]
     private static void listenForAtomWorld(Message message)
     {
-        Debug.Log("[NetworkManagerClient] Receiving atom world");
         var state = message.GetString();
         if (state == "start")
         {
-            cmlWorld.Clear();
+            Debug.Log("[NetworkManagerClient] Receiving atom world");
+            cmlWorld = new List<cmlData>();
         }
         else if (state == "end")
         {
@@ -232,16 +233,20 @@ public class NetworkManagerClient : MonoBehaviour
             var numPieces = message.GetUShort();
             var currentPieceID = message.GetUShort();
             var currentPiece = message.GetBytes();
-
             if (currentPieceID == 0)
             {
                 cmlTotalBytes = new byte[totalLength];
+                currentPiece.CopyTo(cmlTotalBytes, 0);
             }
             else if (currentPieceID == numPieces - 1)
             {
+                currentPiece.CopyTo(cmlTotalBytes, currentPieceID * chunkSize);
                 cmlWorld.Add(Serializer.Deserialize<cmlData>(cmlTotalBytes));
             }
-            currentPiece.CopyTo(cmlTotalBytes, currentPieceID * 255);
+            else
+            {
+                currentPiece.CopyTo(cmlTotalBytes, currentPieceID * chunkSize);
+            }
         }
     }
 
