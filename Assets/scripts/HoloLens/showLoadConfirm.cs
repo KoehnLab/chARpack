@@ -32,8 +32,8 @@ public class showLoadConfirm : MonoBehaviour
     {
         if (obj.Result == DialogButtonType.Yes)
         {
-            GlobalCtrl.Singleton.LoadMolecule(m_mol_name);
             EventManager.Singleton.LoadMolecule(m_mol_name);
+            GlobalCtrl.Singleton.LoadMolecule(m_mol_name);
         }
         loadSaveWindow.Singleton.gameObject.SetActive(true);
     }

@@ -207,7 +207,7 @@ public class NetworkManagerServer : MonoBehaviour
     private static void bcastMoleculeLoad(ushort fromClientId, Message message)
     {
         receiveComplete = false;
-        NetworkUtils.deserializeCmlData(message, ref cmlTotalBytes, ref cmlWorld, chunkSize);
+        NetworkUtils.deserializeCmlData(message, ref cmlTotalBytes, ref cmlWorld, chunkSize, false);
 
         if (receiveComplete)
         {

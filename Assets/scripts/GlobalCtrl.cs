@@ -939,7 +939,7 @@ public class GlobalCtrl : MonoBehaviour
                     molecule.bondArray[i].id2 += freshAtomID;
                 }
 
-                Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos + meanPos, Quaternion.identity).AddComponent<Molecule>();
+                Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos, Quaternion.identity).AddComponent<Molecule>();
                 tempMolecule.f_Init(freshMoleculeID, atomWorld.transform);
                 List_curMolecules.Add(tempMolecule);
 
@@ -954,6 +954,8 @@ public class GlobalCtrl : MonoBehaviour
                 {
                     CreateBond(Atom.Instance.getAtomByID(molecule.bondArray[i].id1), Atom.Instance.getAtomByID(molecule.bondArray[i].id2), tempMolecule);
                 }
+                moveMolecule(freshMoleculeID, molecule.molePos + meanPos, molecule.moleQuat);
+                EventManager.Singleton.MoveMolecule(freshMoleculeID, molecule.molePos + meanPos, molecule.moleQuat);
             }
         }
     }

@@ -34,7 +34,6 @@ public class NetworkManagerClient : MonoBehaviour
     private static byte[] cmlTotalBytes;
     private static List<cmlData> cmlWorld;
     private static ushort chunkSize = 255;
-    private static bool receiveComplete = false;
     public Client Client { get; private set; }
 
     private void Awake()
@@ -67,13 +66,7 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnMoveAtom += sendAtomMoved;
         EventManager.Singleton.OnMergeMolecule += sendMoleculeMerged;
         EventManager.Singleton.OnLoadMolecule += sendMoleculeLoaded;
-        EventManager.Singleton.OnCmlReceiveCompleted += flagReceiveComplete;
 
-    }
-
-    private void flagReceiveComplete()
-    {
-        receiveComplete = true;
     }
 
     private void FixedUpdate()
