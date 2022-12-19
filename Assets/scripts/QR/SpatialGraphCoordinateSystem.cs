@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Microsoft.MixedReality.OpenXR;
+using Microsoft.MixedReality.Toolkit.Utilities;
 #if WINDOWS_UWP
 using Windows.Perception.Spatial;
+using Windows.Perception.Spatial.Preview;
 #endif
-using Microsoft.MixedReality.Toolkit.Utilities;
 
 namespace QRTracking
 {
@@ -25,7 +27,7 @@ namespace QRTracking
             {
                 id = value;
 #if WINDOWS_UWP
-                CoordinateSystem = Windows.Perception.Spatial.Preview.SpatialGraphInteropPreview.CreateCoordinateSystemForNode(id);
+                CoordinateSystem = SpatialGraphInteropPreview.CreateCoordinateSystemForNode(id);
                 if (CoordinateSystem == null)
                 {
                     Debug.Log("Id= " + id + " Failed to acquire coordinate system");
@@ -44,7 +46,7 @@ namespace QRTracking
 #if WINDOWS_UWP
             if (CoordinateSystem == null)
             {
-                CoordinateSystem = Windows.Perception.Spatial.Preview.SpatialGraphInteropPreview.CreateCoordinateSystemForNode(id);
+                CoordinateSystem = SpatialGraphInteropPreview.CreateCoordinateSystemForNode(id);
                 if (CoordinateSystem == null)
                 {
                     Debug.Log("Id= " + id + " Failed to acquire coordinate system");
@@ -59,7 +61,7 @@ namespace QRTracking
 #if WINDOWS_UWP
                 if (CoordinateSystem == null)
                 {
-                    CoordinateSystem = Windows.Perception.Spatial.Preview.SpatialGraphInteropPreview.CreateCoordinateSystemForNode(id);
+                    CoordinateSystem = SpatialGraphInteropPreview.CreateCoordinateSystemForNode(id);
 
                     if (CoordinateSystem == null)
                     {
@@ -70,13 +72,17 @@ namespace QRTracking
                 if (CoordinateSystem != null)
                 {
                     Quaternion rotation = Quaternion.identity;
-                    Vector3 translation = new Vector3(0.0f, 0.0f, 0.0f);
-                    
-                    System.IntPtr rootCoordnateSystemPtr = UnityEngine.XR.WindowsMR.WindowsMREnvironment.OriginSpatialCoordinateSystem;
-                    SpatialCoordinateSystem rootSpatialCoordinateSystem = (SpatialCoordinateSystem)System.Runtime.InteropServices.Marshal.GetObjectForIUnknown(rootCoordnateSystemPtr);
+                    Vector3 translation = Vector3.zero;
+
+                    // old code Unity 2020
+                    //System.IntPtr rootCoordnateSystemPtr = UnityEngine.XR.WindowsMR.WindowsMREnvironment.OriginSpatialCoordinateSystem;
+                    //SpatialCoordinateSystem rootSpatialCoordinateSystem = (SpatialCoordinateSystem)System.Runtime.InteropServices.Marshal.GetObjectForIUnknown(rootCoordnateSystemPtr);
+                    //System.Numerics.Matrix4x4? relativePose = CoordinateSystem.TryGetTransformTo(rootSpatialCoordinateSystem);
+
+                    SpatialCoordinateSystem origin = PerceptionInterop.GetSceneCoordinateSystem(UnityEngine.Pose.identity) as SpatialCoordinateSystem;
 
                     // Get the relative transform from the unity origin
-                    System.Numerics.Matrix4x4? relativePose = CoordinateSystem.TryGetTransformTo(rootSpatialCoordinateSystem);
+                    System.Numerics.Matrix4x4? relativePose = CoordinateSystem.TryGetTransformTo(origin);
 
                     if (relativePose != null)
                     {
