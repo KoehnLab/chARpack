@@ -105,6 +105,7 @@ namespace QRTracking
             capabilityTask = QRCodeWatcher.RequestAccessAsync();
             accessStatus = await capabilityTask;
             capabilityInitialized = true;
+            Debug.Log($"[QRCodesManager] capabilityInitialized {capabilityInitialized}; IsSupported {IsSupported}");
         }
 
         private void SetupQRTracking()
@@ -117,6 +118,7 @@ namespace QRTracking
                 qrTracker.Updated += QRCodeWatcher_Updated;
                 qrTracker.Removed += QRCodeWatcher_Removed;
                 qrTracker.EnumerationCompleted += QRCodeWatcher_EnumerationCompleted;
+                Debug.Log("[QRCodesManager] Setup complete.");
             }
             catch (Exception ex)
             {
@@ -125,6 +127,7 @@ namespace QRTracking
 
             if (AutoStartQRTracking)
             {
+                Debug.Log("[QRCodesManager] Auto starting.");
                 StartQRTracking();
             }
         }

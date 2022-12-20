@@ -81,6 +81,10 @@ namespace QRTracking
 
                     SpatialCoordinateSystem origin = PerceptionInterop.GetSceneCoordinateSystem(UnityEngine.Pose.identity) as SpatialCoordinateSystem;
 
+                    // another possible solution
+                    //SpatialCoordinateSystem rootSpatialCoordinateSystem = (SpatialCoordinateSystem)System.Runtime.
+                    //InteropServices.Marshal.GetObjectForIUnknown(UnityEngine.XR.WSA.WorldManager.GetNativeISpatialCoordinateSystemPtr());
+
                     // Get the relative transform from the unity origin
                     System.Numerics.Matrix4x4? relativePose = CoordinateSystem.TryGetTransformTo(origin);
 

@@ -6,6 +6,27 @@ using UnityEngine;
 
 public class DebugWindow : MonoBehaviour
 {
+
+    private static DebugWindow _singleton;
+
+    public static DebugWindow Singleton
+    {
+        get => _singleton;
+        private set
+        {
+            if (_singleton == null)
+            {
+                _singleton = value;
+            }
+            else if (_singleton != value)
+            {
+                Debug.Log($"[{nameof(DebugWindow)}] Instance already exists, destroying duplicate!");
+                Destroy(value);
+            }
+
+        }
+    }
+
     public GameObject gridObjCollectionGO;
     public GameObject debugWindow;
     public GameObject logEntryPrefab;
@@ -19,12 +40,15 @@ public class DebugWindow : MonoBehaviour
 
     void Awake()
     {
+        Singleton = this;
         debugWindow.SetActive(false);
         if (!isEnabled)
         {
             Application.logMessageReceived += LogMessage;
             isEnabled = true;
         }
+        // we will keep the debug alive
+        DontDestroyOnLoad(gameObject);
     }
 
     void OnDestroy()

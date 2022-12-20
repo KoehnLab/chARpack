@@ -1274,6 +1274,14 @@ public class GlobalCtrl : MonoBehaviour
         return null;
     }
 
+    public void toggleDebugWindow()
+    {
+        if (DebugWindow.Singleton)
+        {
+            DebugWindow.Singleton.toggleVisible();
+        }
+    }
+
     #endregion
 
     public void backToMain()

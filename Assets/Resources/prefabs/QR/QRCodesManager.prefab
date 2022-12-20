@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0501cb24b6ac561479b38ac6770a8faa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AutoStartQRTracking: 0
+  AutoStartQRTracking: 1
 --- !u!114 &5731539863259288648
 MonoBehaviour:
   m_ObjectHideFlags: 0
