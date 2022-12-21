@@ -23,6 +23,7 @@ public static class NetworkUtils
         }
         else if (state == "end")
         {
+            // do the load
             if (clearScene)
             {
                 GlobalCtrl.Singleton.DeleteAll();

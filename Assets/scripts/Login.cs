@@ -92,18 +92,24 @@ public class Login : MonoBehaviour
         Destroy(stopScanButtonInstance);
         gameObject.SetActive(true);
         // get the code list
+        var codesList = qrManagerInstance.GetComponent<QRTracking.QRCodesManager>().qrCodesList;
         var objectList = qrManagerInstance.GetComponent<QRTracking.QRCodesVisualizer>().qrCodesObjectsList;
         if (objectList.Count > 0)
         {
-            // we are expecting only one qr code
-            foreach (var qrCodeObject in objectList.Values)
+            // lets check for the last updated QR code
+            var lastTime = System.DateTimeOffset.MinValue;
+            var lastID = System.Guid.Empty;
+            foreach (var code in codesList)
             {
-                // position and rotation of QR code object is automatically updated
-                LoginData.offsetPos = qrCodeObject.transform.position;
-                LoginData.offsetRot = qrCodeObject.transform.rotation;
-                // get first object
-                break;
+                if (lastTime < code.Value.LastDetectedTime)
+                {
+                    lastTime = code.Value.LastDetectedTime;
+                    lastID = code.Key;
+                }
             }
+            // position and rotation of QR code object
+            LoginData.offsetPos = objectList[lastID].transform.position;
+            LoginData.offsetRot = objectList[lastID].transform.rotation;
         }
 
         // destroy qr code manager

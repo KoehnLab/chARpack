@@ -110,7 +110,7 @@ public class NetworkManagerServer : MonoBehaviour
         sendAtomWorld(atomWorld, e.Client.Id);
     }
 
-    #region Messages
+    #region MessageHandler
 
     [MessageHandler((ushort)ClientToServerID.atomCreated)]
     private static void getAtomCreated(ushort fromClientId, Message message)
@@ -119,7 +119,7 @@ public class NetworkManagerServer : MonoBehaviour
         var abbre = message.GetString();
         var pos = message.GetVector3();
         // do the create on the server
-        GlobalCtrl.Singleton.CreateAtom(atom_id, abbre, pos);
+        GlobalCtrl.Singleton.CreateAtom(atom_id, abbre, pos, true);
 
         // Broadcast to other clients
         Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastAtomCreated);
@@ -209,6 +209,7 @@ public class NetworkManagerServer : MonoBehaviour
         receiveComplete = false;
         NetworkUtils.deserializeCmlData(message, ref cmlTotalBytes, ref cmlWorld, chunkSize, false);
 
+        // do the bcast
         if (receiveComplete)
         {
             foreach (var client in UserServer.list.Values)
@@ -221,5 +222,14 @@ public class NetworkManagerServer : MonoBehaviour
         }
     }
 
-    #endregion
-}
+    [MessageHandler((ushort)ClientToServerID.deleteEverything)]
+    private static void bcastDeleteEverything(ushort fromClientId, Message message)
+    {
+        GlobalCtrl.Singleton.DeleteAll();
+        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastDeleteEverything);
+        outMessage.AddUShort(fromClientId);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
+
+        #endregion
+    }

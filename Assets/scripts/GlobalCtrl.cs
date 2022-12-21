@@ -196,11 +196,21 @@ public class GlobalCtrl : MonoBehaviour
     }
 
     /// <summary>
-    /// this method deletes everything in the scene, it is called on clicking the delete button in the UI
+    /// this method deletes everything in the scene
     /// </summary>
     public void DeleteAll()
     {
         markToDeleteCore(true);
+    }
+
+    /// <summary>
+    /// This method deletes everything in the scene, and invokes a delete all event.
+    /// Should be used for UI buttons
+    /// </summary>
+    public void DeleteAllUI()
+    {
+        markToDeleteCore(true);
+        EventManager.Singleton.DeleteEverything();
     }
 
     /// <summary>
@@ -565,7 +575,7 @@ public class GlobalCtrl : MonoBehaviour
         var atom = List_curAtoms.ElementAtOrDefault(id);
         if (atom != null)
         {
-            atom.transform.position = pos;
+            atom.transform.localPosition = pos;
         }
         else
         {
@@ -578,8 +588,8 @@ public class GlobalCtrl : MonoBehaviour
         var molecule = List_curMolecules.ElementAtOrDefault(id);
         if (molecule != null)
         {
-            molecule.transform.position = pos;
-            molecule.transform.rotation = quat;
+            molecule.transform.localPosition = pos;
+            molecule.transform.localRotation = quat;
         }
         else
         {
@@ -598,15 +608,23 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     /// <param name="ChemicalID">chemical ID of the atom which should be created</param>
     /// <param name="pos">position, where the atom should be created</param>
-    public void CreateAtom(ushort moleculeID, string ChemicalAbbre, Vector3 pos)
+    public void CreateAtom(ushort moleculeID, string ChemicalAbbre, Vector3 pos, bool createLocal = false)
     {
         // create atom from atom prefab
         GameObject tempMoleculeGO = Instantiate(myBoundingBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         Molecule tempMolecule = tempMoleculeGO.AddComponent<Molecule>();
 
         //Molecule tempMolecule = new GameObject().AddComponent<Molecule>();
-        tempMolecule.transform.position = pos;
-        tempMolecule.f_Init(moleculeID, atomWorld.transform);
+        if (!createLocal)
+        {
+            tempMolecule.transform.position = pos;
+            tempMolecule.f_Init(moleculeID, atomWorld.transform);
+        }
+        else
+        {
+            tempMolecule.f_Init(moleculeID, atomWorld.transform);
+            tempMolecule.transform.localPosition = pos;
+        }
 
         // 0: none; 1: sp1; 2: sp2;  3: sp3;  4: hypervalent trig. bipy; 5: unused;  6: hypervalent octahedral
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
@@ -901,7 +919,7 @@ public class GlobalCtrl : MonoBehaviour
 
 
             // new mean position should be in front of camera
-            Vector3 current_pos = Camera.main.transform.position;
+            Vector3 current_pos = Camera.main.transform.position - atomWorld.transform.position; // transform this here onto atom world coordinates
             Vector3 current_lookat = Camera.main.transform.forward;
             Vector3 create_position = current_pos + 0.5f * current_lookat;
             meanPos = create_position - meanPos;  // add molecules relative to this position
@@ -984,7 +1002,7 @@ public class GlobalCtrl : MonoBehaviour
             {
                 list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
             }
-            cmlData tempData = new cmlData(inputMole.transform.position, inputMole.transform.rotation, inputMole.m_id, list_atom, list_bond);
+            cmlData tempData = new cmlData(inputMole.transform.localPosition, inputMole.transform.localRotation, inputMole.m_id, list_atom, list_bond);
             saveData.Add(tempData);
         }
 
@@ -1017,8 +1035,10 @@ public class GlobalCtrl : MonoBehaviour
                     }
                 }
 
-                Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos, Quaternion.identity).AddComponent<Molecule>();
+                Molecule tempMolecule = Instantiate(myBoundingBoxPrefab).AddComponent<Molecule>();
                 tempMolecule.f_Init(add == true ? freshMoleculeID : molecule.moleID, atomWorld.transform);
+                tempMolecule.transform.localPosition = molecule.molePos;
+                tempMolecule.transform.localRotation = molecule.moleQuat;
                 List_curMolecules.Add(tempMolecule);
 
                 for (int i = 0; i < molecule.atomArray.Length; i++)
@@ -1191,7 +1211,8 @@ public class GlobalCtrl : MonoBehaviour
         CreateAtom(newID, ChemicalID, create_position);
 
         // Let the networkManager know about the user action
-        EventManager.Singleton.CreateAtom(newID, ChemicalID, create_position);
+        // Important: insert localPosition here
+        EventManager.Singleton.CreateAtom(newID, ChemicalID, List_curMolecules[newID].transform.localPosition);
     }
 
     public void getRepulsionScale(float value)

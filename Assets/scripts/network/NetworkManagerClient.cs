@@ -66,6 +66,7 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnMoveAtom += sendAtomMoved;
         EventManager.Singleton.OnMergeMolecule += sendMoleculeMerged;
         EventManager.Singleton.OnLoadMolecule += sendMoleculeLoaded;
+        EventManager.Singleton.OnDeleteEverything += sendDeleteEverything;
 
     }
 
@@ -218,7 +219,14 @@ public class NetworkManagerClient : MonoBehaviour
         var molData = GlobalCtrl.Singleton.getMoleculeData(name);
         NetworkUtils.serializeCmlData((ushort)ClientToServerID.moleculeLoaded, molData, chunkSize, true);
     }
+
+    public void sendDeleteEverything()
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.deleteEverything);
+        Client.Send(message);
+    }
     
+
     #endregion
 
     #region Listen
@@ -240,7 +248,7 @@ public class NetworkManagerClient : MonoBehaviour
         // do the create
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            GlobalCtrl.Singleton.CreateAtom(atom_id, abbre, pos);
+            GlobalCtrl.Singleton.CreateAtom(atom_id, abbre, pos, true);
         }
 
     }
@@ -301,6 +309,17 @@ public class NetworkManagerClient : MonoBehaviour
         NetworkUtils.deserializeCmlData(message, ref cmlTotalBytes, ref cmlWorld, chunkSize, false);
     }
 
-    #endregion
+    [MessageHandler((ushort)ServerToClientID.bcastMoleculeLoad)]
+    private static void getDeleteEverything(Message message)
+    {
+        var client_id = message.GetUShort();
+        // do the delete
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            GlobalCtrl.Singleton.DeleteAll();
+        }
+    }
 
-}
+     #endregion
+
+    }

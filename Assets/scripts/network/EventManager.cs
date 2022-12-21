@@ -74,6 +74,14 @@ public class EventManager : MonoBehaviour
         OnCmlReceiveCompleted?.Invoke();
     }
 
+
+    public delegate void DeleteEverythingAction();
+    public event DeleteEverythingAction OnDeleteEverything;
+    public void DeleteEverything()
+    {
+        OnDeleteEverything?.Invoke();
+    }
+
     #endregion
 
 
