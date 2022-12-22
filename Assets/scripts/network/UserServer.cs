@@ -71,8 +71,9 @@ public class UserServer : MonoBehaviour
 
     private void applyPositionAndRotation(Vector3 pos, Vector3 forward)
     {
-        head.transform.position = pos;
+        head.transform.position = GlobalCtrl.Singleton.atomWorld.transform.position + pos;
         head.GetComponent<Camera>().transform.forward = forward;
+        Debug.DrawRay(pos, forward);
     }
 
     #region Messages
@@ -110,7 +111,7 @@ public class UserServer : MonoBehaviour
     }
 
     [MessageHandler((ushort)ClientToServerID.positionAndRotation)]
-    private static void getPsitionAndRotation(ushort fromClientId, Message message)
+    private static void getPositionAndRotation(ushort fromClientId, Message message)
     {
         var pos = message.GetVector3();
         var forward = message.GetVector3();

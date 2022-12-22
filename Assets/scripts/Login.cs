@@ -1,6 +1,7 @@
 using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Linq;
 
 public class Login : MonoBehaviour
 {
@@ -77,7 +78,12 @@ public class Login : MonoBehaviour
     public void startScanQR()
     {
         // initializes singleton
+        Debug.Log("[Login:QR] Starting scan.");
         qrManagerInstance = Instantiate(qrManagerPrefab);
+        if (qrManagerInstance == null)
+        {
+            qrManagerInstance = QRTracking.QRCodesManager.Singleton.gameObject;
+        }
         qrManagerInstance.GetComponent<QRTracking.QRCodesManager>().StartQRTracking();
         gameObject.SetActive(false);
         stopScanButtonInstance = Instantiate(stopScanButtonPrefab);
@@ -92,24 +98,55 @@ public class Login : MonoBehaviour
         Destroy(stopScanButtonInstance);
         gameObject.SetActive(true);
         // get the code list
-        var codesList = qrManagerInstance.GetComponent<QRTracking.QRCodesManager>().qrCodesList;
+        //var codesList = qrManagerInstance.GetComponent<QRTracking.QRCodesManager>().qrCodesList;
         var objectList = qrManagerInstance.GetComponent<QRTracking.QRCodesVisualizer>().qrCodesObjectsList;
         if (objectList.Count > 0)
         {
-            // lets check for the last updated QR code
-            var lastTime = System.DateTimeOffset.MinValue;
-            var lastID = System.Guid.Empty;
-            foreach (var code in codesList)
+            // make it simple if code list is just 1
+            if (objectList.Count == 1)
             {
-                if (lastTime < code.Value.LastDetectedTime)
+                var e = objectList.FirstOrDefault().Value;
+                LoginData.offsetPos = e.transform.position;
+                LoginData.offsetRot = e.transform.rotation;
+                Debug.Log("[Login:QR] Only one QR Code in list.");
+            }
+            else
+            {
+                Debug.Log("[Login:QR] Checking for last updated QR code.");
+                // lets check for the last updated QR code
+                var now = System.DateTimeOffset.Now;
+                GameObject lastObj = null;
+                var minDiff = System.TimeSpan.MaxValue;
+                foreach (var obj in objectList.Values)
                 {
-                    lastTime = code.Value.LastDetectedTime;
-                    lastID = code.Key;
+                    var code = obj.GetComponent<QRTracking.QRCode>().qrCode;
+                    // calc offset
+                    var diff = now.Subtract(code.LastDetectedTime);
+                    if (diff < minDiff)
+                    {
+                        minDiff = diff;
+                        lastObj = obj;
+                    }
+                }
+                // position and rotation of QR code object
+                if (lastObj != null)
+                {
+                    LoginData.offsetPos = lastObj.transform.position;
+                    LoginData.offsetRot = lastObj.transform.rotation;
+                    Debug.Log("[Login:QR] Taking last updated QR code.");
+                }
+                else
+                {
+                    var e = objectList.LastOrDefault().Value;
+                    LoginData.offsetPos = e.transform.position;
+                    LoginData.offsetRot = e.transform.rotation;
+                    Debug.Log("[Login:QR] Last updated QR code not available. Taking last in list.");
                 }
             }
-            // position and rotation of QR code object
-            LoginData.offsetPos = objectList[lastID].transform.position;
-            LoginData.offsetRot = objectList[lastID].transform.rotation;
+        }
+        else
+        {
+            Debug.LogError("[Login:QR] Scan unsuccessful. Please try again.");
         }
 
         // destroy qr code manager

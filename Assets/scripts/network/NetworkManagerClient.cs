@@ -309,7 +309,7 @@ public class NetworkManagerClient : MonoBehaviour
         NetworkUtils.deserializeCmlData(message, ref cmlTotalBytes, ref cmlWorld, chunkSize, false);
     }
 
-    [MessageHandler((ushort)ServerToClientID.bcastMoleculeLoad)]
+    [MessageHandler((ushort)ServerToClientID.bcastDeleteEverything)]
     private static void getDeleteEverything(Message message)
     {
         var client_id = message.GetUShort();

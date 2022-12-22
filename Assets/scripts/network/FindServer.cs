@@ -49,7 +49,8 @@ public class FindServer : MonoBehaviour
         {
             Debug.Log("[FindServer:Client] Started looking for server via repeated broadcast.");
             InvokeRepeating("HelloThere", 2.0f, 5.0f);
-        } 
+            // can be stopped with: CancelInvoke("HelloThere");
+        }
         else
         {
             Debug.Log("[FindServer:Server] Started listening for client brodcasts.");
@@ -67,7 +68,6 @@ public class FindServer : MonoBehaviour
         }
         serverList.Clear();
         lanDiscovery.SendBroadcast();
-        Debug.Log("[FindServer:Client] Broadcast sent.");
     }
 
     //Server

@@ -59,8 +59,9 @@ public class UserClient : MonoBehaviour
 
     private void applyPositionAndRotation(Vector3 pos, Vector3 forward)
     {
-        head.transform.position = pos;
+        head.transform.position = GlobalCtrl.Singleton.atomWorld.transform.position + pos;
         head.GetComponent<Camera>().transform.forward = forward;
+        Debug.DrawRay(pos, forward);
     }
 
 
@@ -80,7 +81,7 @@ public class UserClient : MonoBehaviour
     private void sendPositionAndRotation()
     {
         Message message = Message.Create(MessageSendMode.unreliable, ClientToServerID.positionAndRotation);
-        message.AddVector3(Camera.main.transform.position);
+        message.AddVector3(GlobalCtrl.Singleton.atomWorld.transform.position - Camera.main.transform.position);
         message.AddVector3(Camera.main.transform.forward);
         NetworkManagerClient.Singleton.Client.Send(message);
     }
