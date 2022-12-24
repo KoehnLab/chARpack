@@ -21,19 +21,11 @@ public class UserServer : MonoBehaviour
             otherUser.sendSpawned(id_);
         }
 
-        UserServer user;
-        if (deviceType_ == myDeviceType.HoloLens)
-        {
-            var holoLensUserPrefab = (GameObject)Resources.Load("prefabs/HoloLensUser");
-            user = Instantiate(holoLensUserPrefab).GetComponent<UserServer>();
-        } 
-        else
-        {
-            var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cubeUser.AddComponent<Camera>();
-            cubeUser.transform.localScale = Vector3.one * 0.2f;
-            user = cubeUser.AddComponent<UserServer>();
-        }
+        var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cubeUser.AddComponent<Camera>();
+        cubeUser.transform.localScale = Vector3.one * 0.2f;
+        UserServer user = cubeUser.AddComponent<UserServer>();
+
         user.deviceName = string.IsNullOrEmpty(deviceName_) ? $"Unknown{id_}" : deviceName_;
         user.ID = id_;
         user.deviceType = deviceType_;
@@ -83,6 +75,7 @@ public class UserServer : MonoBehaviour
     {
         var name = message.GetString();
         myDeviceType type = (myDeviceType)message.GetUShort();
+        Debug.Log($"[UserServer] Got name {name}, and device type {type} from client {fromClientId}");
         spawn(fromClientId, name, type);
     }
 

@@ -7,10 +7,10 @@ using UnityEngine;
 public class UserClient : MonoBehaviour
 {
     public static Dictionary<ushort, UserClient> list = new Dictionary<ushort, UserClient>();
-    public ushort ID { get; private set; }
+    public ushort ID;
     public string deviceName { get; private set; }
     public myDeviceType deviceType { get; private set; }
-    public bool isLocal { get; private set; }
+    public bool isLocal;
     public GameObject head;
     public GameObject leftHand;
     public GameObject rightHand;
@@ -22,6 +22,7 @@ public class UserClient : MonoBehaviour
 
     public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_, Vector3 pos)
     {
+        Debug.Log($"[UserClient:spawn] Id from function call {id_}, id from NetworkManager {NetworkManagerClient.Singleton.Client.Id}");
         UserClient user;
         if (id_ == NetworkManagerClient.Singleton.Client.Id)
         {
@@ -31,17 +32,12 @@ public class UserClient : MonoBehaviour
         }
         else
         {
-            if (deviceType_ == myDeviceType.HoloLens)
-            {
-                var holoLensUserPrefab = (GameObject)Resources.Load("prefabs/HoloLensUser");
-                user = Instantiate(holoLensUserPrefab).GetComponent<UserClient>();
-            }
-            else
-            {
-                var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                cubeUser.transform.localScale = Vector3.one * 0.2f;
-                user = cubeUser.AddComponent<UserClient>();
-            }
+
+            var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cubeUser.transform.localScale = Vector3.one * 0.2f;
+            user = cubeUser.AddComponent<UserClient>();
+            user.head = cubeUser;
+
             user.isLocal = false;
         }
 
@@ -60,7 +56,7 @@ public class UserClient : MonoBehaviour
     private void applyPositionAndRotation(Vector3 pos, Vector3 forward)
     {
         head.transform.position = GlobalCtrl.Singleton.atomWorld.transform.position + pos;
-        head.GetComponent<Camera>().transform.forward = forward;
+        head.transform.forward = forward;
         Debug.DrawRay(pos, forward);
     }
 
@@ -92,7 +88,8 @@ public class UserClient : MonoBehaviour
         var id = message.GetUShort();
         var pos = message.GetVector3();
         var forward = message.GetVector3();
-        if (list.TryGetValue(id, out UserClient user) && !user.isLocal)
+        // if (list.TryGetValue(id, out UserClient user) && !user.isLocal)
+        if (list.TryGetValue(id, out UserClient user))
         {
             user.applyPositionAndRotation(pos, forward);
         }
