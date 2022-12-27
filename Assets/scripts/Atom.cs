@@ -11,8 +11,11 @@ using UnityEngine;
 [Serializable]
 public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 {
-    public GameObject myAtomToolTipPrefab;
-    public GameObject deleteMeButtonPrefab;
+    // prefabs initialized in GlobalCtrl
+    [HideInInspector] public static GameObject myAtomToolTipPrefab;
+    [HideInInspector] public static GameObject deleteMeButtonPrefab;
+    [HideInInspector] public static GameObject closeMeButtonPrefab;
+
     private Stopwatch stopwatch;
     private GameObject toolTipInstance = null;
     private float toolTipDistanceWeight = 2.5f;
@@ -507,6 +510,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.markToDelete(); });
             toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
         }
+        var closeButtonInstance = Instantiate(closeMeButtonPrefab);
+        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markAtom(false); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
     }
 
 

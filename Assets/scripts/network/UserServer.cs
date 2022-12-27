@@ -10,11 +10,9 @@ public class UserServer : MonoBehaviour
     public ushort ID;
     public string deviceName;
     public myDeviceType deviceType;
-    public GameObject head;
-    public GameObject leftHand;
-    public GameObject rightHand;
+    public Vector3 offsetPos = Vector3.one;
 
-    public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_)
+    public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_, Vector3 offset_pos)
     {
         foreach (UserServer otherUser in list.Values)
         {
@@ -29,6 +27,7 @@ public class UserServer : MonoBehaviour
         user.deviceName = string.IsNullOrEmpty(deviceName_) ? $"Unknown{id_}" : deviceName_;
         user.ID = id_;
         user.deviceType = deviceType_;
+        user.offsetPos = offset_pos;
 
         user.sendSpawned();
         list.Add(id_, user);
@@ -39,32 +38,11 @@ public class UserServer : MonoBehaviour
         list.Remove(ID);
     }
 
-    public void Start()
-    {
-        if (deviceType == myDeviceType.HoloLens)
-        {
-            if (head == null)
-            {
-                head = gameObject.transform.Find("Head").gameObject;
-            }
-            if (leftHand == null)
-            {
-                leftHand = gameObject.transform.Find("LeftHand").gameObject;
-            }
-            if (rightHand == null)
-            {
-                rightHand = gameObject.transform.Find("RightHand").gameObject;
-            }
-        } else
-        {
-            head = gameObject;
-        }
-    }
-
     private void applyPositionAndRotation(Vector3 pos, Vector3 forward)
     {
-        head.transform.position = GlobalCtrl.Singleton.atomWorld.transform.position + pos;
-        head.GetComponent<Camera>().transform.forward = forward;
+        // TODO: Check if we have to apply offsetPos
+        gameObject.transform.position = GlobalCtrl.Singleton.atomWorld.transform.position + pos;
+        GetComponent<Camera>().transform.forward = forward;
         Debug.DrawRay(pos, forward);
     }
 
@@ -75,8 +53,9 @@ public class UserServer : MonoBehaviour
     {
         var name = message.GetString();
         myDeviceType type = (myDeviceType)message.GetUShort();
+        var offset_pos = message.GetVector3();
         Debug.Log($"[UserServer] Got name {name}, and device type {type} from client {fromClientId}");
-        spawn(fromClientId, name, type);
+        spawn(fromClientId, name, type, offset_pos);
     }
 
     private void sendSpawned()

@@ -177,6 +177,7 @@ public class NetworkManagerClient : MonoBehaviour
         Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.deviceNameAndType);
         message.AddString(SystemInfo.deviceName);
         message.AddUShort(getDeviceType());
+        message.AddVector3(LoginData.offsetPos);
         Client.Send(message);
     }
 

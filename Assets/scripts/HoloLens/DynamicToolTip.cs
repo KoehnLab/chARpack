@@ -15,6 +15,10 @@ namespace Microsoft.MixedReality.Toolkit.UI
     /// </summary>
     public class DynamicToolTip : MonoBehaviour
     {
+
+        // store childs of content
+        List<GameObject> contentList = new List<GameObject>();
+
         [SerializeField]
         [Tooltip("Show the opaque background of tooltip.")]
         private bool showBackground = true;
@@ -259,9 +263,6 @@ namespace Microsoft.MixedReality.Toolkit.UI
         private List<IToolTipBackground> backgrounds = new List<IToolTipBackground>();
         private List<IToolTipHighlight> highlights = new List<IToolTipHighlight>();
         private TextMeshPro cachedLabelText;
-        private int prevTextLength = -1;
-        private int prevTextHash = -1;
-        private int prevFontSize = -1;
 
         /// <summary>
         /// point about which ToolTip pivots to face camera
@@ -452,17 +453,17 @@ namespace Microsoft.MixedReality.Toolkit.UI
             // Set the content using a text mesh by default
             // This function can be overridden for tooltips that use Unity UI
 
-            // Has content or fontSize changed?
-            int currentTextLength = toolTipText.Length;
-            int currentTextHash = toolTipText.GetHashCode();
-            int currentFontSize = fontSize;
+            List<GameObject> currentContentList = new List<GameObject>();
+            foreach(Transform child in content.transform)
+            {
+                currentContentList.Add(child.gameObject);
+            }
 
             // If it has, update the content
-            if (currentTextLength != prevTextLength || currentTextHash != prevTextHash || currentFontSize != prevFontSize)
-            {
-                prevTextHash = currentTextHash;
-                prevTextLength = currentTextLength;
-                prevFontSize = currentFontSize;
+            if (currentContentList != contentList) {
+                contentList = currentContentList;
+
+           
 
                 if (cachedLabelText == null)
                     cachedLabelText = label.GetComponent<TextMeshPro>();
@@ -475,10 +476,20 @@ namespace Microsoft.MixedReality.Toolkit.UI
                     cachedLabelText.ForceMeshUpdate();
                     // Get the world scale of the text
                     // Convert that to local scale using the content parent
-                    Vector3 localScale = Vector3.Scale(cachedLabelText.transform.lossyScale / contentScale, cachedLabelText.textBounds.size);
-                    localContentSize.x = localScale.x + backgroundPadding.x;
-                    localContentSize.y = localScale.y + backgroundPadding.y;
                 }
+                
+                // get the text scale
+                Vector3 localScale = Vector3.Scale(cachedLabelText.transform.lossyScale / contentScale, cachedLabelText.textBounds.size);
+                localContentSize.x = localScale.x;
+                localContentSize.y = localScale.y;
+                // widen the text depending of the number of buttons attached
+                for (ushort i = 0; i < contentList.Count -1; i++)
+                {
+                    localContentSize.x += 0.032f;
+                }
+                // add padding
+                localContentSize.x += backgroundPadding.x;
+                localContentSize.y += backgroundPadding.y;
 
                 // Now that we have the size of our content, get our pivots
                 ToolTipUtility.GetAttachPointPositions(ref localAttachPointPositions, localContentSize);

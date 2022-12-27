@@ -11,9 +11,6 @@ public class UserClient : MonoBehaviour
     public string deviceName { get; private set; }
     public myDeviceType deviceType { get; private set; }
     public bool isLocal;
-    public GameObject head;
-    public GameObject leftHand;
-    public GameObject rightHand;
 
     private void OnDestroy()
     {
@@ -36,7 +33,6 @@ public class UserClient : MonoBehaviour
             var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cubeUser.transform.localScale = Vector3.one * 0.2f;
             user = cubeUser.AddComponent<UserClient>();
-            user.head = cubeUser;
 
             user.isLocal = false;
         }
@@ -55,9 +51,9 @@ public class UserClient : MonoBehaviour
 
     private void applyPositionAndRotation(Vector3 pos, Vector3 forward)
     {
-        head.transform.position = GlobalCtrl.Singleton.atomWorld.transform.position + pos;
-        head.transform.forward = forward;
-        Debug.DrawRay(pos, forward);
+        gameObject.transform.position = GlobalCtrl.Singleton.atomWorld.transform.position + pos;
+        gameObject.transform.forward = forward;
+        Debug.DrawRay(GlobalCtrl.Singleton.atomWorld.transform.position + pos, forward);
     }
 
 
@@ -77,7 +73,7 @@ public class UserClient : MonoBehaviour
     private void sendPositionAndRotation()
     {
         Message message = Message.Create(MessageSendMode.unreliable, ClientToServerID.positionAndRotation);
-        message.AddVector3(GlobalCtrl.Singleton.atomWorld.transform.position - Camera.main.transform.position);
+        message.AddVector3(Camera.main.transform.position - GlobalCtrl.Singleton.atomWorld.transform.position);
         message.AddVector3(Camera.main.transform.forward);
         NetworkManagerClient.Singleton.Client.Send(message);
     }

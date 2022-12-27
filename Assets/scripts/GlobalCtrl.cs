@@ -168,6 +168,10 @@ public class GlobalCtrl : MonoBehaviour
         //favoritesGO.Add(fav4);
         //favoritesGO.Add(fav5);
 
+        // Init some prefabs
+        Atom.myAtomToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKAtomToolTip");
+        Atom.deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
+        Atom.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
 
 
         Debug.Log("[GlobalCtrl] Initialization complete.");
