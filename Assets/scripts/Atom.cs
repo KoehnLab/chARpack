@@ -479,7 +479,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             colorSwapSelect(0);
         }
         // destroy tooltip of marked without flag
-        if (!toolTip)
+        if (!toolTip && toolTipInstance != null)
         {
             Destroy(toolTipInstance);
         }
@@ -507,7 +507,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         if (m_data.m_abbre != "Dummy")
         {
             var delButtonInstance = Instantiate(deleteMeButtonPrefab);
-            delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.markToDelete(); });
+            //delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.markToDelete(); });
+            delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteAtomUI(this); });
             toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
         }
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);

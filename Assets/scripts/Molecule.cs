@@ -30,12 +30,13 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             bbox.myLR.material = bbox.myLineGrabbedMaterial;
         }
-
     }
+
     public void OnPointerClicked(MixedRealityPointerEventData eventData)
     {
         // Intentionally empty
     }
+
     public void OnPointerDragged(MixedRealityPointerEventData eventData)
     {
         // keep everything relative to atom world
@@ -95,13 +96,15 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private GameObject myToolTipPrefab;
     private GameObject deleteMeButtonPrefab;
+    private GameObject closeMeButtonPrefab;
     private GameObject toolTipInstance;
     private float toolTipDistanceWeight = 0.01f;
 
     /// <summary>
     /// molecule id
     /// </summary>
-    public ushort m_id;
+    private ushort _id;
+    public ushort m_id { get { return _id; } set { _id = value; name = "molecule_" + value; } }
 
 
     public bool isMarked;
@@ -123,7 +126,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         m_id = idInScene;
         isMarked = false;
-        this.name = "molecule_" + m_id;
         this.transform.parent = inputParent;
         atomList = new List<Atom>();
         bondList = new List<Bond>();
@@ -145,6 +147,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             throw new FileNotFoundException("[Molecule] DeleteMeButton prefab not found - please check the configuration");
         }
+        closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
+        if (closeMeButtonPrefab == null)
+        {
+            throw new FileNotFoundException("[Molecule] CloseMeButton prefab not found - please check the configuration");
+        }
+        
 
     }
 
@@ -262,8 +270,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string toolTipText = $"NumAtoms: {atomList.Count}\nNumBonds: {bondList.Count}\nTotMass: {tot_mass.ToString("0.00")}\nMaxRadius: {max_dist.ToString("0.00")}";
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
         var delButtonInstance = Instantiate(deleteMeButtonPrefab);
-        delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.markToDelete(); });
+        delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteMoleculeUI(this); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
+        var closeButtonInstance = Instantiate(closeMeButtonPrefab);
+        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markMolecule(false); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
+
     }
 
     public void OnDestroy()

@@ -82,6 +82,41 @@ public class EventManager : MonoBehaviour
         OnDeleteEverything?.Invoke();
     }
 
+    public delegate void SelectAtomAction(bool select_deselect);
+    public event SelectAtomAction OnSelectAtom;
+    public void SelectAtom(bool select_deselect)
+    {
+        OnSelectAtom?.Invoke(select_deselect);
+    }
+
+    public delegate void SelectMoleculeAction(bool select_deselect);
+    public event SelectMoleculeAction OnSelectMolecule;
+    public void SelectMolecule(bool select_deselect)
+    {
+        OnSelectMolecule?.Invoke(select_deselect);
+    }
+
+    public delegate void DeleteAtomAction(ushort id);
+    public event DeleteAtomAction OnDeleteAtom;
+    public void DeleteAtom(ushort id)
+    {
+        OnDeleteAtom?.Invoke(id);
+    }
+
+    public delegate void DeleteMoleculeAction(ushort id);
+    public event DeleteMoleculeAction OnDeleteMolecule;
+    public void DeleteMolecule(ushort id)
+    {
+        OnDeleteMolecule?.Invoke(id);
+    }
+
+    public delegate void DeleteBondAction(ushort bond_id, ushort mol_id);
+    public event DeleteBondAction OnDeleteBond;
+    public void DeleteBond(ushort bond_id, ushort mol_id)
+    {
+        OnDeleteBond?.Invoke(bond_id, mol_id);
+    }
+
     #endregion
 
 

@@ -305,6 +305,7 @@ public class GlobalCtrl : MonoBehaviour
         {
             List_curMolecules.Add(m);
         }
+        shrinkMoleculeIDs();
 
         foreach (Molecule m in List_curMolecules)
         {
@@ -323,39 +324,141 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
-    // This method toggles everything in a background layer and 
-    // toggles the bonds in the front layer 
-    public void toggleBondLayer()
+    public void deleteBondUI(Bond to_delete)
     {
-        bondsInForeground = !bondsInForeground;
-        int bondLayer = 7;
-        int atomLayer = 0;
-        if (bondsInForeground)
+        var bond_id = to_delete.m_molecule.bondList.IndexOf(to_delete);
+        if (bond_id == -1)
         {
-            bondLayer = 0;
-            atomLayer = 6;
+            Debug.LogError("[GlobalCtrl:deleteBondUI] Did not fond bond ID in molecule's bond list.");
+            return;
         }
-        foreach (var molecule in List_curMolecules)
+        deleteBond(to_delete);
+        EventManager.Singleton.DeleteBond((ushort)bond_id, to_delete.m_molecule.m_id);
+    }
+
+    public void deleteBond(Bond b)
+    {
+
+        if (b.isMarked)
         {
-            molecule.gameObject.layer = atomLayer;
-            foreach (Transform child in molecule.transform)
+            b.markBond(false);
+        }
+
+        // add to delete List
+        List<Bond> delBondList = new List<Bond>();
+        Dictionary<Atom, List<Vector3>> positionsRestore = new Dictionary<Atom, List<Vector3>>();
+        List<Molecule> addMoleculeList = new List<Molecule>();
+        List<Molecule> delMoleculeList = new List<Molecule>();
+
+        foreach (Atom a in b.m_molecule.atomList)
+        {
+            positionsRestore.Add(a, new List<Vector3>());
+        }
+
+        if (Atom.Instance.getAtomByID(b.atomID1).m_data.m_abbre != "Dummy" && Atom.Instance.getAtomByID(b.atomID2).m_data.m_abbre != "Dummy")
+        {
+            delBondList.Add(b);
+
+            //Atom1
+            positionsRestore.TryGetValue(Atom.Instance.getAtomByID(b.atomID1), out List<Vector3> temp1);
+            positionsRestore.Remove(Atom.Instance.getAtomByID(b.atomID1));
+            temp1.Add(Atom.Instance.getAtomByID(b.atomID2).transform.localPosition);
+            positionsRestore.Add(Atom.Instance.getAtomByID(b.atomID1), temp1);
+
+            //Atom2
+            positionsRestore.TryGetValue(Atom.Instance.getAtomByID(b.atomID2), out List<Vector3> temp2);
+            positionsRestore.Remove(Atom.Instance.getAtomByID(b.atomID2));
+            temp2.Add(Atom.Instance.getAtomByID(b.atomID1).transform.localPosition);
+            positionsRestore.Add(Atom.Instance.getAtomByID(b.atomID2), temp2);
+        }
+
+        createTopoMap(b.m_molecule, new List<Atom>(), delBondList, addMoleculeList);
+        delMoleculeList.Add(b.m_molecule);
+
+        foreach (Molecule m in delMoleculeList)
+        {
+            List_curMolecules.Remove(m);
+            foreach (var atom in m.atomList)
             {
-                child.gameObject.layer = atomLayer;
-                if (child.name == "box")
-                {
-                    foreach (Transform box_collider in child)
-                    {
-                        box_collider.gameObject.layer = atomLayer;
-                    }
-                }
+                atom.markAtom(false);
             }
-            foreach (var bond in molecule.bondList)
+            foreach (var bond in m.bondList)
             {
-                bond.gameObject.layer = bondLayer;
+                bond.markBond(false);
+            }
+            m.markMolecule(false);
+            Destroy(m.gameObject);
+        }
+
+        foreach (Molecule m in addMoleculeList)
+        {
+            List_curMolecules.Add(m);
+        }
+        shrinkMoleculeIDs();
+
+        foreach (Molecule m in List_curMolecules)
+        {
+            int size = m.atomList.Count;
+            for (int i = 0; i < size; i++)
+            {
+                Atom a = m.atomList[i];
+                int count = 0;
+                while (a.m_data.m_bondNum > a.connectedAtoms(a).Count)
+                {
+                    CreateDummy(getFreshAtomID(), m, a, calcDummyPos(a, positionsRestore, count));
+                    count++;
+
+                }
             }
         }
     }
 
+    public void deleteMoleculeUI(Molecule to_delete)
+    {
+        deleteMolecule(to_delete);
+        EventManager.Singleton.DeleteMolecule(to_delete.m_id);
+    }
+
+    public void deleteMolecule(Molecule m)
+    {
+        if (m.isMarked)
+        {
+            m.markMolecule(false);
+        }
+
+        List_curMolecules.Remove(m);
+        foreach (var atom in m.atomList)
+        {
+            atom.markAtom(false);
+        }
+        foreach (var bond in m.bondList)
+        {
+            bond.markBond(false);
+        }
+        m.markMolecule(false);
+        Destroy(m.gameObject);
+
+    }
+
+
+    public void deleteAtomUI(Atom to_delete)
+    {
+        deleteAtom(to_delete);
+        EventManager.Singleton.DeleteAtom(to_delete.m_id);
+    }
+
+    public void deleteAtom(ushort id)
+    {
+        var atom = List_curAtoms.ElementAtOrDefault(id);
+        if (atom != default)
+        {
+            deleteAtom(atom);
+        }
+        else
+        {
+            Debug.LogError($"[GlobalCtrl:deleteAtom] Atom with ID {id} does not exist. Cannot delete.");
+        }
+    }
 
     // TODO make this work
     public void deleteAtom(Atom to_delete)
@@ -367,7 +470,25 @@ public class GlobalCtrl : MonoBehaviour
         List<Molecule> addMoleculeList = new List<Molecule>();
 
 
-        delAtomList.Add(to_delete);
+        // add to delete list
+        foreach (Atom a in to_delete.m_molecule.atomList)
+        {
+            List<Vector3> conPos = new List<Vector3>();
+            foreach (Atom at in a.connectedAtoms(a))
+            {
+                if (at == to_delete)
+                {
+                    if (!delAtomList.Contains(at))
+                        delAtomList.Add(at);
+
+                    if (a.m_data.m_abbre == "H" && !delAtomList.Contains(a))
+                        delAtomList.Add(a);
+
+                    conPos.Add(at.transform.localPosition);
+                }
+            }
+            positionsRestore.Add(a, conPos);
+        }
 
         createTopoMap(to_delete.m_molecule, delAtomList, delBondList, addMoleculeList);
         delAtomList.Clear();
@@ -378,13 +499,13 @@ public class GlobalCtrl : MonoBehaviour
         {
             List_curMolecules.Remove(m);
             Destroy(m.gameObject);
-
         }
 
         foreach (Molecule m in addMoleculeList)
         {
             List_curMolecules.Add(m);
         }
+        shrinkMoleculeIDs();
 
         foreach (Molecule m in List_curMolecules)
         {
@@ -397,7 +518,6 @@ public class GlobalCtrl : MonoBehaviour
                 {
                     CreateDummy(getFreshAtomID(), m, a, calcDummyPos(a, positionsRestore, count));
                     count++;
-
                 }
             }
         }
@@ -492,7 +612,6 @@ public class GlobalCtrl : MonoBehaviour
                 {
                     deleteList.Add(d);
                 }
-
             }
         }
 
@@ -501,13 +620,7 @@ public class GlobalCtrl : MonoBehaviour
         {
             List_curAtoms.Remove(a);
         }
-
-        // delete Atoms from List
-        foreach (Atom a in deleteList)
-        {
-            List_curAtoms.Remove(a);
-        }
-
+        shrinkAtomIDs();
     }
 
     /// <summary>
@@ -519,11 +632,12 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="addMoleculeList">list of new molecules</param>
     public void cleanup(Molecule m, List<Atom> delAtomList, List<Bond> delBondList, List<Molecule> addMoleculeList)
     {
+        var fresh_id = getFreshMoleculeID();
         foreach (KeyValuePair<Atom, List<Atom>> pair in groupedAtoms)
         {
-            Molecule tempMolecule = new GameObject().AddComponent<Molecule>();
+            Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity).AddComponent<Molecule>();
             tempMolecule.transform.position = m.transform.position;
-            tempMolecule.f_Init(getFreshMoleculeID(), atomWorld.transform);
+            tempMolecule.f_Init(fresh_id++, atomWorld.transform);
             addMoleculeList.Add(tempMolecule);
             foreach (Atom a in pair.Value)
             {
@@ -557,9 +671,6 @@ public class GlobalCtrl : MonoBehaviour
             pair.Value.bondList.Add(pair.Key);
         }
 
-        //if (addMoleculeList.Count == 0)
-        //    contextMenu.SetActive(false);
-
         finalDelete(m, delAtomList);
     }
 
@@ -570,6 +681,41 @@ public class GlobalCtrl : MonoBehaviour
         return newPos;
     }
 
+    #endregion
+
+    #region layer management
+    // This method toggles everything in a background layer and 
+    // toggles the bonds in the front layer 
+    public void toggleBondLayer()
+    {
+        bondsInForeground = !bondsInForeground;
+        int bondLayer = 7;
+        int atomLayer = 0;
+        if (bondsInForeground)
+        {
+            bondLayer = 0;
+            atomLayer = 6;
+        }
+        foreach (var molecule in List_curMolecules)
+        {
+            molecule.gameObject.layer = atomLayer;
+            foreach (Transform child in molecule.transform)
+            {
+                child.gameObject.layer = atomLayer;
+                if (child.name == "box")
+                {
+                    foreach (Transform box_collider in child)
+                    {
+                        box_collider.gameObject.layer = atomLayer;
+                    }
+                }
+            }
+            foreach (var bond in molecule.bondList)
+            {
+                bond.gameObject.layer = bondLayer;
+            }
+        }
+    }
     #endregion
 
     #region move functions
@@ -602,7 +748,6 @@ public class GlobalCtrl : MonoBehaviour
     }
 
     #endregion
-
 
     #region atom building functions
 

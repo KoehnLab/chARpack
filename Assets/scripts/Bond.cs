@@ -58,6 +58,7 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
 
     private GameObject myToolTipPrefab;
     private GameObject deleteMeButtonPrefab;
+    private GameObject closeMeButtonPrefab;
     private GameObject toolTipInstance;
     private float toolTipDistanceWeight = 2.5f;
     [HideInInspector] public ushort atomID1;
@@ -99,6 +100,11 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
         if (deleteMeButtonPrefab == null)
         {
             throw new FileNotFoundException("[Molecule] DeleteMeButton prefab not found - please check the configuration");
+        }
+        closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
+        if (closeMeButtonPrefab == null)
+        {
+            throw new FileNotFoundException("[Molecule] CloseMeButton prefab not found - please check the configuration");
         }
     }
 
@@ -142,7 +148,7 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
             }
         }
         // destroy tooltip of marked without flag
-        if (!toolTip)
+        if (!toolTip && toolTipInstance != null)
         {
             Destroy(toolTipInstance);
         }
@@ -203,9 +209,12 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
         if (atom1.m_data.m_abbre != "Dummy" && atom2.m_data.m_abbre != "Dummy")
         {
             var delButtonInstance = Instantiate(deleteMeButtonPrefab);
-            delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.markToDelete(); });
+            delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteBondUI(this); });
             toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
         }
+        var closeButtonInstance = Instantiate(closeMeButtonPrefab);
+        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markBond(false); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
     }
 
     public void OnDestroy()
