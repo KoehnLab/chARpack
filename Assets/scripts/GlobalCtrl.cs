@@ -274,8 +274,6 @@ public class GlobalCtrl : MonoBehaviour
                     {
                         b.markBond(false);
                     }
-
-
                 }
             }
 
@@ -322,6 +320,7 @@ public class GlobalCtrl : MonoBehaviour
                 }
             }
         }
+        shrinkAtomIDs();
     }
 
     public void deleteBondUI(Bond to_delete)
@@ -411,6 +410,7 @@ public class GlobalCtrl : MonoBehaviour
                 }
             }
         }
+        shrinkAtomIDs();
     }
 
     public void deleteMoleculeUI(Molecule to_delete)
@@ -437,7 +437,8 @@ public class GlobalCtrl : MonoBehaviour
         }
         m.markMolecule(false);
         Destroy(m.gameObject);
-
+        shrinkMoleculeIDs();
+        shrinkAtomIDs();
     }
 
 
@@ -521,6 +522,7 @@ public class GlobalCtrl : MonoBehaviour
                 }
             }
         }
+        shrinkAtomIDs();
     }
 
     /// <summary>
@@ -912,8 +914,8 @@ public class GlobalCtrl : MonoBehaviour
             moleInhand.givingOrphans(moleInAir, moleInhand);
         }
 
-        Atom atom1 = List_curAtoms.Find((x) => x.GetComponent<Atom>() == bondInHand.findTheOther(dummyInHand));
-        Atom atom2 = List_curAtoms.Find((x) => x.GetComponent<Atom>() == bondInAir.findTheOther(dummyInAir));
+        Atom atom1 = List_curAtoms.Find((x) => x == bondInHand.findTheOther(dummyInHand));
+        Atom atom2 = List_curAtoms.Find((x) => x == bondInAir.findTheOther(dummyInAir));
 
         //remove dummy and dummy bond of molecule in air
         moleInAir.atomList.Remove(dummyInAir);

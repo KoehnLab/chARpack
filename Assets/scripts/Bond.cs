@@ -45,14 +45,9 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
         stopwatch?.Stop();
         if (stopwatch?.ElapsedMilliseconds < 200)
         {
-            if (isMarked)
-            {
-                markBond(false, true);
-            }
-            else
-            {
-                markBond(true, true);
-            }
+            var bond_id = (ushort)m_molecule.bondList.IndexOf(this);
+            EventManager.Singleton.SelectBond(bond_id, m_molecule.m_id, !isMarked);
+            markBond(!isMarked, true);
         }
     }
 

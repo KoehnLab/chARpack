@@ -67,6 +67,13 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnMergeMolecule += sendMoleculeMerged;
         EventManager.Singleton.OnLoadMolecule += sendMoleculeLoaded;
         EventManager.Singleton.OnDeleteEverything += sendDeleteEverything;
+        EventManager.Singleton.OnDeleteAtom += sendDeleteAtom;
+        EventManager.Singleton.OnDeleteBond += sendDeleteBond;
+        EventManager.Singleton.OnDeleteMolecule += sendDeleteMolecule;
+        EventManager.Singleton.OnSelectAtom += sendSelectAtom;
+        EventManager.Singleton.OnSelectMolecule += sendSelectMolecule;
+        EventManager.Singleton.OnSelectBond += sendSelectBond;
+
 
     }
 
@@ -227,6 +234,52 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
     
+    public void sendSelectAtom(ushort id, bool selected)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.selectAtom);
+        message.AddUShort(id);
+        message.AddBool(selected);
+        Client.Send(message);
+    }
+
+    public void sendSelectMolecule(ushort id, bool selected)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.selectMolecule);
+        message.AddUShort(id);
+        message.AddBool(selected);
+        Client.Send(message);
+    }
+
+    public void sendSelectBond(ushort bond_id, ushort mol_id, bool selected)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.selectBond);
+        message.AddUShort(bond_id);
+        message.AddUShort(mol_id);
+        message.AddBool(selected);
+        Client.Send(message);
+    }
+
+    public void sendDeleteAtom(ushort id)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.deleteAtom);
+        message.AddUShort(id);
+        Client.Send(message);
+    }
+
+    public void sendDeleteMolecule(ushort id)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.deleteMolecule);
+        message.AddUShort(id);
+        Client.Send(message);
+    }
+
+    public void sendDeleteBond(ushort bond_id, ushort mol_id)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.deleteBond);
+        message.AddUShort(bond_id);
+        message.AddUShort(mol_id);
+        Client.Send(message);
+    }
 
     #endregion
 
@@ -321,6 +374,125 @@ public class NetworkManagerClient : MonoBehaviour
         }
     }
 
-     #endregion
-
+    [MessageHandler((ushort)ServerToClientID.bcastSelectAtom)]
+    private static void getAtomSelected(Message message)
+    {
+        var client_id = message.GetUShort();
+        var atom_id = message.GetUShort();
+        var selected = message.GetBool();
+        // do the select
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            var atom = GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atom_id);
+            if (atom == default)
+            {
+                Debug.LogError($"[NetworkManagerClient:getAtomSelected] Atom with id {atom_id} does not exist.");
+                return;
+            }
+            if (atom.m_molecule.isMarked)
+            {
+                atom.m_molecule.markMolecule(false);
+            }
+            atom.markAtom(selected, true);
+        }
     }
+
+    [MessageHandler((ushort)ServerToClientID.bcastSelectMolecule)]
+    private static void getMoleculeSelected(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
+        var selected = message.GetBool();
+        // do the select
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+            if (mol == default)
+            {
+                Debug.LogError($"[NetworkManagerClient:getMoleculeSelected] Molecule with id {mol_id} does not exist.");
+                return;
+            }
+            mol.markMolecule(selected, true);
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastSelectBond)]
+    private static void getBondSelected(Message message)
+    {
+        var client_id = message.GetUShort();
+        var bond_id = message.GetUShort();
+        var mol_id = message.GetUShort();
+        var selected = message.GetBool();
+        // do the select
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+            var bond = mol.bondList.ElementAtOrDefault(bond_id);
+            if (mol == default || bond == default)
+            {
+                Debug.LogError($"[NetworkManagerClient:getBondSelected] Bond with id {bond_id} or molecule with id {mol_id} does not exist.");
+                return;
+            }
+            bond.markBond(selected, true);
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastDeleteAtom)]
+    private static void getAtomDeleted(Message message)
+    {
+        var client_id = message.GetUShort();
+        var atom_id = message.GetUShort();
+        // do the delete
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            var atom = GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atom_id);
+            if (atom == default)
+            {
+                Debug.LogError($"[NetworkManagerClient:getAtomDeleted] Atom with id {atom_id} does not exist.");
+                return;
+            }
+            GlobalCtrl.Singleton.deleteAtom(atom);
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastDeleteMolecule)]
+    private static void getMoleculeDeleted(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
+        // do the delete
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+            if (mol == default)
+            {
+                Debug.LogError($"[NetworkManagerClient:getMoleculeSelected] Molecule with id {mol_id} does not exist.");
+                return;
+            }
+            GlobalCtrl.Singleton.deleteMolecule(mol);
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastDeleteBond)]
+    private static void getBondDeleted(Message message)
+    {
+        var client_id = message.GetUShort();
+        var bond_id = message.GetUShort();
+        var mol_id = message.GetUShort();
+        // do the delete
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+            var bond = mol.bondList.ElementAtOrDefault(bond_id);
+            if (mol == default || bond == default)
+            {
+                Debug.LogError($"[NetworkManagerClient:getBondSelected] Bond with id {bond_id} or molecule with id {mol_id} does not exist.");
+                return;
+            }
+            GlobalCtrl.Singleton.deleteBond(bond);
+        }
+    }
+
+    #endregion
+
+}

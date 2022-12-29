@@ -49,15 +49,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         stopwatch?.Stop();
         if (stopwatch?.ElapsedMilliseconds < 200)
         {
-            if (isMarked)
-            {
-                markMolecule(false);
-            }
-            else
-            {
-                markMolecule(true);
-
-            }
+            EventManager.Singleton.SelectMolecule(m_id, !isMarked);
+            markMolecule(!isMarked, true);
         }
         if (GlobalCtrl.Singleton.collision)
         {
@@ -179,7 +172,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     }
 
 
-    public void markMolecule(bool mark)
+    public void markMolecule(bool mark, bool showToolTip = false)
     {
 
         foreach (Atom a in this.atomList)
@@ -201,7 +194,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         } 
         else
         {
-            if (toolTipInstance == null)
+            if (toolTipInstance == null && showToolTip)
             {
                 createToolTip();
             }

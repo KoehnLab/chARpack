@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -65,14 +66,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             }
             else
             {
-                if (isMarked)
-                {
-                    markAtom(false, true);
-                }
-                else
-                {
-                    markAtom(true, true);
-                }
+                EventManager.Singleton.SelectAtom(m_id, !isMarked);
+                markAtom(!isMarked, true);
             }
         }
 
@@ -424,13 +419,27 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     {
         if (dummy.m_data.m_name == "Dummy")
         {
-            Bond b = dummy.m_molecule.bondList.Find(p => p.atomID1 == dummy.m_id || p.atomID2 == dummy.m_id);      
-            Atom atom1 = GlobalCtrl.Singleton.List_curAtoms.Find((x) => x.GetComponent<Atom>() == b.findTheOther(dummy));
-            return atom1;
+            Bond b = dummy.m_molecule.bondList.Find(p => p.atomID1 == dummy.m_id || p.atomID2 == dummy.m_id);
+            //Atom atom1 = GlobalCtrl.Singleton.List_curAtoms.Find((x) => x.GetComponent<Atom>() == b.findTheOther(dummy));
+            Atom a;
+            if (dummy.m_id == b.atomID1)
+            {
+                a = GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(b.atomID2);
+            }
+            else
+            {
+                a = GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(b.atomID1);
+            }
+            if (a == default)
+            {
+                throw new Exception("[Atom:dummyFindMain] Could not find Atom on the other side of the bond.");
+            }
+            return a;
         }
         else
+        {
             return null;
-       
+        }
     }
 
     /// <summary>
