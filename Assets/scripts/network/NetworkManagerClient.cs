@@ -150,7 +150,11 @@ public class NetworkManagerClient : MonoBehaviour
     /// <param name="e"></param>
     private void DidDisconnect(object sender, EventArgs e)
     {
-
+        var myDialog = Dialog.Open(showErrorPrefab, DialogButtonType.OK, "Connection Failed", $"Connection to {LoginData.ip}:{LoginData.port} failed\nGoing back to Login Screen.", true);
+        if (myDialog != null)
+        {
+            myDialog.OnClosed += OnClosedDialogEvent;
+        }
     }
 
     /// <summary>
@@ -185,6 +189,7 @@ public class NetworkManagerClient : MonoBehaviour
         message.AddString(SystemInfo.deviceName);
         message.AddUShort(getDeviceType());
         message.AddVector3(LoginData.offsetPos);
+        message.AddQuaternion(LoginData.offsetRot);
         Client.Send(message);
     }
 

@@ -10,9 +10,10 @@ public class UserServer : MonoBehaviour
     public ushort ID;
     public string deviceName;
     public myDeviceType deviceType;
-    public Vector3 offsetPos = Vector3.one;
+    private GameObject head;
 
-    public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_, Vector3 offset_pos)
+
+    public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_, Vector3 offset_pos, Quaternion offset_rot)
     {
         foreach (UserServer otherUser in list.Values)
         {
@@ -22,15 +23,34 @@ public class UserServer : MonoBehaviour
         var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cubeUser.AddComponent<Camera>();
         cubeUser.transform.localScale = Vector3.one * 0.2f;
-        UserServer user = cubeUser.AddComponent<UserServer>();
+
+        var anchorPrefab = (GameObject)Resources.Load("prefabs/QR/QRAnchorNoScript");
+        var anchor = Instantiate(anchorPrefab);
+        anchor.transform.position = offset_pos;
+        anchor.transform.rotation = offset_rot;
+        UserServer user = anchor.AddComponent<UserServer>();
 
         user.deviceName = string.IsNullOrEmpty(deviceName_) ? $"Unknown{id_}" : deviceName_;
         user.ID = id_;
         user.deviceType = deviceType_;
-        user.offsetPos = offset_pos;
+
+
+        cubeUser.transform.parent = anchor.transform;
+        user.head = cubeUser;
 
         user.sendSpawned();
         list.Add(id_, user);
+        if (list.Count == 1)
+        {
+            LoginData.offsetPos = offset_pos;
+            LoginData.offsetRot = offset_rot;
+            var aw = GameObject.Find("AtomWorld");
+            if (aw != null)
+            {
+                aw.transform.position = LoginData.offsetPos;
+                aw.transform.rotation = LoginData.offsetRot;
+            }
+        }
     }
 
     private void OnDestroy()
@@ -41,9 +61,8 @@ public class UserServer : MonoBehaviour
     private void applyPositionAndRotation(Vector3 pos, Vector3 forward)
     {
         // TODO: Check if we have to apply offsetPos
-        gameObject.transform.position = GlobalCtrl.Singleton.atomWorld.transform.position + pos;
-        GetComponent<Camera>().transform.forward = forward;
-        Debug.DrawRay(pos, forward);
+        head.transform.localPosition = pos;
+        head.GetComponent<Camera>().transform.forward = forward;
     }
 
     #region Messages
@@ -54,8 +73,9 @@ public class UserServer : MonoBehaviour
         var name = message.GetString();
         myDeviceType type = (myDeviceType)message.GetUShort();
         var offset_pos = message.GetVector3();
+        var offset_rot = message.GetQuaternion();
         Debug.Log($"[UserServer] Got name {name}, and device type {type} from client {fromClientId}");
-        spawn(fromClientId, name, type, offset_pos);
+        spawn(fromClientId, name, type, offset_pos, offset_rot);
     }
 
     private void sendSpawned()

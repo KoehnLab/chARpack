@@ -17,7 +17,7 @@ public class ManualAddServer : MonoBehaviour
         var data = new FindServer.ServerData();
         data.ip = IPAddress.Parse(ip);
         data.port = LoginData.port;
-        FindServer.Singleton.manualServerList.Add(data);
+        FindServer.manualServerList.Add(data);
 
         serverListInstance.GetComponent<ServerList>().generateServerEntries();
         Destroy(gameObject);

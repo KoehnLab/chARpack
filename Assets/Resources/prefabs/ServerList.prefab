@@ -1464,7 +1464,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8609912643170677557}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.0534, y: -0.0041, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2513,7 +2513,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8609912644250216698}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.0704, y: -0.0191, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2538,12 +2538,22 @@ MonoBehaviour:
     Radius: 0
     Transform: {fileID: 0}
     Colliders: []
+  - Name: ServerEntry
+    Offset: {x: 0, y: 0}
+    Radius: 0
+    Transform: {fileID: 0}
+    Colliders: []
+  - Name: ServerEntry (1)
+    Offset: {x: 0, y: 0}
+    Radius: 0
+    Transform: {fileID: 0}
+    Colliders: []
   ignoreInactiveTransforms: 1
   sortType: 1
   surfaceType: 1
   orientType: 0
   layout: 3
-  anchor: 4
+  anchor: 0
   anchorAlongAxis: 0
   columnAlignment: 0
   rowAlignment: 0
@@ -2553,7 +2563,7 @@ MonoBehaviour:
   rows: 6
   columns: 4
   cellWidth: 0.034
-  cellHeight: 0.32
+  cellHeight: 0.032
   assetVersion: 1
 --- !u!1 &8609912644264496672
 GameObject:
@@ -2581,8 +2591,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8609912644264496672}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.07, y: -0.051000003, z: -0.0033}
-  m_LocalScale: {x: 0.14, y: 0.102000006, z: 0.04}
+  m_LocalPosition: {x: 0.07, y: -0.052500002, z: 0}
+  m_LocalScale: {x: 0.14, y: 0.105000004, z: 0.024}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8609912644981234065}
@@ -2600,7 +2610,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75fa637a68e599040bdd08afc22b3bfa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderers: []
+  renderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   clippingSide: -1
   useOnPreRender: 1
   applyToSharedMaterial: 0
@@ -7267,7 +7284,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 0.14, y: 0.102000006, z: 0.001}
-  m_Center: {x: 0.07, y: -0.051000003, z: 0.013}
+  m_Center: {x: 0.07, y: -0.052500002, z: 0.013}
 --- !u!114 &8609912644981234071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7284,8 +7301,8 @@ MonoBehaviour:
   debounceThreshold: 0.01
   localForward: {x: -0, y: -0, z: -1}
   localUp: {x: 0, y: 1, z: 0}
-  localCenter: {x: 0.07, y: -0.051000003, z: -0.012}
-  bounds: {x: 0.14, y: 0.102000006}
+  localCenter: {x: 0.07, y: -0.052500002, z: -0.012}
+  bounds: {x: 0.14, y: 0.105000004}
   touchableCollider: {fileID: 8609912644981234064}
 --- !u!1 &8609912644990699328
 GameObject:

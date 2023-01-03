@@ -35,12 +35,15 @@ public class Login : MonoBehaviour
     [HideInInspector] public GameObject stopScanButtonPrefab;
     [HideInInspector] public GameObject stopScanButtonInstance;
 
+    [HideInInspector] public GameObject anchorPrefab;
+
     private void Awake()
     {
         Singleton = this;
         serverListPrefab = (GameObject)Resources.Load("prefabs/ServerList");
         qrManagerPrefab = (GameObject)Resources.Load("prefabs/QR/QRCodesManager");
         stopScanButtonPrefab = (GameObject)Resources.Load("prefabs/QR/StopScanButton");
+        anchorPrefab = (GameObject)Resources.Load("prefabs/QR/QRAnchor");
 
     }
 
@@ -143,6 +146,12 @@ public class Login : MonoBehaviour
                     Debug.Log("[Login:QR] Last updated QR code not available. Taking last in list.");
                 }
             }
+            if (QRAnchor.Singleton == null)
+            {
+                Instantiate(anchorPrefab);
+            }
+            QRAnchor.Singleton.transform.position = LoginData.offsetPos;
+            QRAnchor.Singleton.transform.rotation = LoginData.offsetRot;
         }
         else
         {

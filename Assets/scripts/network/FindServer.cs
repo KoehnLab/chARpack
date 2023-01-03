@@ -11,8 +11,8 @@ public class FindServer : MonoBehaviour
         public IPAddress ip;
         public ushort port;
     }
-    [HideInInspector] public List<ServerData> serverList = new List<ServerData>();
-    [HideInInspector] public List<ServerData> manualServerList = new List<ServerData>();
+    [HideInInspector] public static List<ServerData> serverList = new List<ServerData>();
+    [HideInInspector] public static List<ServerData> manualServerList = new List<ServerData>();
     public bool isServer = false;
     public GameObject connectButtonText;
 

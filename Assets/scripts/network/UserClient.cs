@@ -53,7 +53,6 @@ public class UserClient : MonoBehaviour
     {
         gameObject.transform.position = GlobalCtrl.Singleton.atomWorld.transform.position + pos;
         gameObject.transform.forward = forward;
-        Debug.DrawRay(GlobalCtrl.Singleton.atomWorld.transform.position + pos, forward);
     }
 
 
@@ -73,7 +72,8 @@ public class UserClient : MonoBehaviour
     private void sendPositionAndRotation()
     {
         Message message = Message.Create(MessageSendMode.unreliable, ClientToServerID.positionAndRotation);
-        message.AddVector3(Camera.main.transform.position - GlobalCtrl.Singleton.atomWorld.transform.position);
+        // message.AddVector3(Camera.main.transform.position - GlobalCtrl.Singleton.atomWorld.transform.position);
+        message.AddVector3(Camera.main.transform.position - LoginData.offsetPos);
         message.AddVector3(Camera.main.transform.forward);
         NetworkManagerClient.Singleton.Client.Send(message);
     }
