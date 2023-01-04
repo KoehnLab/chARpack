@@ -26,7 +26,6 @@ public class NetworkManagerClient : MonoBehaviour
                 Debug.Log($"[{nameof(NetworkManagerClient)}] Instance already exists, destroying duplicate!");
                 Destroy(value);
             }
-
         }
     }
 
@@ -35,6 +34,9 @@ public class NetworkManagerClient : MonoBehaviour
     private static List<cmlData> cmlWorld;
     private static ushort chunkSize = 255;
     public Client Client { get; private set; }
+    [HideInInspector] public GameObject userWorld;
+    //public GameObject playspace;
+    //public GameObject sceneContent;
 
     private void Awake()
     {
@@ -45,6 +47,17 @@ public class NetworkManagerClient : MonoBehaviour
             return;
         }
         Singleton = this;
+        // create user world
+        userWorld = new GameObject("UserWorld");
+        userWorld.transform.position = LoginData.offsetPos;
+        userWorld.transform.rotation = LoginData.offsetRot;
+        //// put MRPlayspace in userWorld coordinates
+        //playspace.transform.position = LoginData.offsetPos;
+        //playspace.transform.rotation = LoginData.offsetRot;
+        //// put MRSceneContent in userWorld coordinates
+        //sceneContent.transform.position = LoginData.offsetPos;
+        //sceneContent.transform.rotation = LoginData.offsetRot;
+
     }
 
     private void Start()

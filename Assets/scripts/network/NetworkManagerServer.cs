@@ -36,9 +36,13 @@ public class NetworkManagerServer : MonoBehaviour
     private static ushort chunkSize = 255;
     private static bool receiveComplete = false;
 
+    public GameObject userWorld;
+
     private void Awake()
     {
         Singleton = this;
+        // create user world
+        userWorld = new GameObject("UserWorld");
     }
 
     private void Start()

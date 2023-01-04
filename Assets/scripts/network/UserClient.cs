@@ -17,7 +17,7 @@ public class UserClient : MonoBehaviour
         list.Remove(ID);
     }
 
-    public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_, Vector3 pos)
+    public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_)
     {
         Debug.Log($"[UserClient:spawn] Id from function call {id_}, id from NetworkManager {NetworkManagerClient.Singleton.Client.Id}");
         UserClient user;
@@ -38,8 +38,10 @@ public class UserClient : MonoBehaviour
         }
 
         user.deviceName = string.IsNullOrEmpty(deviceName_) ? $"Unknown{id_}" : deviceName_;
+        user.name = user.isLocal ? "Me" : user.deviceName;
         user.ID = id_;
         user.deviceType = deviceType_;
+        user.transform.parent = NetworkManagerClient.Singleton.userWorld.transform;
 
         list.Add(id_, user);
     }
@@ -49,10 +51,12 @@ public class UserClient : MonoBehaviour
         sendPositionAndRotation();
     }
 
-    private void applyPositionAndRotation(Vector3 pos, Vector3 forward)
+    private void applyPositionAndRotation(Vector3 pos, Quaternion quat)
     {
-        gameObject.transform.position = GlobalCtrl.Singleton.atomWorld.transform.position + pos;
-        gameObject.transform.forward = forward;
+        var new_pos = GlobalCtrl.Singleton.atomWorld.transform.TransformPoint(pos);
+        gameObject.transform.position = new_pos;
+        var new_quat = GlobalCtrl.Singleton.atomWorld.transform.rotation * quat;
+        gameObject.transform.rotation = new_quat;
     }
 
 
@@ -64,17 +68,16 @@ public class UserClient : MonoBehaviour
         var id = message.GetUShort();
         var name = message.GetString();
         var type = (myDeviceType)message.GetUShort();
-        var pos = message.GetVector3();
 
-        spawn(id,name,type,pos);
+        spawn(id,name,type);
     }
 
     private void sendPositionAndRotation()
     {
         Message message = Message.Create(MessageSendMode.unreliable, ClientToServerID.positionAndRotation);
-        // message.AddVector3(Camera.main.transform.position - GlobalCtrl.Singleton.atomWorld.transform.position);
-        message.AddVector3(Camera.main.transform.position - LoginData.offsetPos);
-        message.AddVector3(Camera.main.transform.forward);
+
+        message.AddVector3(GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(Camera.main.transform.position));
+        message.AddQuaternion(Quaternion.Inverse(GlobalCtrl.Singleton.atomWorld.transform.rotation) * Camera.main.transform.rotation);
         NetworkManagerClient.Singleton.Client.Send(message);
     }
 
@@ -83,11 +86,12 @@ public class UserClient : MonoBehaviour
     {
         var id = message.GetUShort();
         var pos = message.GetVector3();
-        var forward = message.GetVector3();
+        //var forward = message.GetVector3();
+        var quat = message.GetQuaternion();
         // if (list.TryGetValue(id, out UserClient user) && !user.isLocal)
         if (list.TryGetValue(id, out UserClient user))
         {
-            user.applyPositionAndRotation(pos, forward);
+            user.applyPositionAndRotation(pos, quat);
         }
     }
 

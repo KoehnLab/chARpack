@@ -11,6 +11,8 @@ public class UserServer : MonoBehaviour
     public string deviceName;
     public myDeviceType deviceType;
     private GameObject head;
+    private Vector3 offsetPos;
+    private Quaternion offsetRot;
 
 
     public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_, Vector3 offset_pos, Quaternion offset_rot)
@@ -26,13 +28,21 @@ public class UserServer : MonoBehaviour
 
         var anchorPrefab = (GameObject)Resources.Load("prefabs/QR/QRAnchorNoScript");
         var anchor = Instantiate(anchorPrefab);
-        anchor.transform.position = offset_pos;
-        anchor.transform.rotation = offset_rot;
+        //anchor.transform.position = offset_pos;
+        //anchor.transform.rotation = offset_rot;
+        anchor.transform.parent = NetworkManagerServer.Singleton.userWorld.transform;
+        anchor.transform.localPosition = Vector3.zero;
+        anchor.transform.localRotation = Quaternion.identity;
+
         UserServer user = anchor.AddComponent<UserServer>();
 
         user.deviceName = string.IsNullOrEmpty(deviceName_) ? $"Unknown{id_}" : deviceName_;
         user.ID = id_;
         user.deviceType = deviceType_;
+        user.offsetPos = offset_pos;
+        user.offsetRot = offset_rot;
+
+        anchor.name = user.deviceName;
 
 
         cubeUser.transform.parent = anchor.transform;
@@ -40,16 +50,14 @@ public class UserServer : MonoBehaviour
 
         user.sendSpawned();
         list.Add(id_, user);
+
+        // TODO: Probably not necessary
         if (list.Count == 1)
         {
-            LoginData.offsetPos = offset_pos;
-            LoginData.offsetRot = offset_rot;
-            var aw = GameObject.Find("AtomWorld");
-            if (aw != null)
-            {
-                aw.transform.position = LoginData.offsetPos;
-                aw.transform.rotation = LoginData.offsetRot;
-            }
+            GlobalCtrl.Singleton.atomWorld.transform.position = offset_pos;
+            GlobalCtrl.Singleton.atomWorld.transform.rotation = offset_rot;
+            NetworkManagerServer.Singleton.userWorld.transform.position = offset_pos;
+            NetworkManagerServer.Singleton.userWorld.transform.rotation = offset_rot;
         }
     }
 
@@ -58,11 +66,12 @@ public class UserServer : MonoBehaviour
         list.Remove(ID);
     }
 
-    private void applyPositionAndRotation(Vector3 pos, Vector3 forward)
+    private void applyPositionAndRotation(Vector3 pos, Quaternion quat)
     {
-        // TODO: Check if we have to apply offsetPos
-        head.transform.localPosition = pos;
-        head.GetComponent<Camera>().transform.forward = forward;
+        var new_pos = GlobalCtrl.Singleton.atomWorld.transform.TransformPoint(pos);
+        head.transform.position = new_pos;
+        var new_quat = GlobalCtrl.Singleton.atomWorld.transform.rotation * quat;
+        head.transform.rotation = new_quat;
     }
 
     #region Messages
@@ -97,7 +106,6 @@ public class UserServer : MonoBehaviour
         message.AddUShort(ID);
         message.AddString(deviceName);
         message.AddUShort((ushort)deviceType);
-        message.AddVector3(transform.position);
 
         return message;
     }
@@ -106,10 +114,10 @@ public class UserServer : MonoBehaviour
     private static void getPositionAndRotation(ushort fromClientId, Message message)
     {
         var pos = message.GetVector3();
-        var forward = message.GetVector3();
+        var quat = message.GetQuaternion();
         if (list.TryGetValue(fromClientId, out UserServer user))
         {
-            user.applyPositionAndRotation(pos, forward);
+            user.applyPositionAndRotation(pos, quat);
         }
         // only send message to other users
         foreach (var otherUser in list.Values)
@@ -119,7 +127,7 @@ public class UserServer : MonoBehaviour
                 Message bcastMessage = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastPositionAndRotation);
                 bcastMessage.AddUShort(fromClientId);
                 bcastMessage.AddVector3(pos);
-                bcastMessage.AddVector3(forward);
+                bcastMessage.AddQuaternion(quat);
                 NetworkManagerServer.Singleton.Server.Send(bcastMessage, otherUser.ID);
             }
         }
