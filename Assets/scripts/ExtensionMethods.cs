@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -35,5 +36,12 @@ public static class ExtensionMethods
     public static T AddComponent<T>(this GameObject go, T toAdd) where T : Component
     {
         return go.AddComponent<T>().GetCopyOf(toAdd) as T;
+    }
+
+    public static string RemoveWhitespace(this string input)
+    {
+        return new string(input.ToCharArray()
+            .Where(c => !Char.IsWhiteSpace(c))
+            .ToArray());
     }
 }

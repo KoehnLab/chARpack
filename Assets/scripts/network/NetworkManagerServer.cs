@@ -114,6 +114,13 @@ public class NetworkManagerServer : MonoBehaviour
         sendAtomWorld(atomWorld, e.Client.Id);
     }
 
+    #region Messages
+    public void pushLoadMolecule(List<cmlData> molecule)
+    {
+        NetworkUtils.serializeCmlData((ushort)ServerToClientID.bcastMoleculeLoad, molecule, chunkSize, false);
+    }
+    #endregion
+
     #region MessageHandler
 
     [MessageHandler((ushort)ClientToServerID.atomCreated)]

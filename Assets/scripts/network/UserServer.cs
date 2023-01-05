@@ -14,7 +14,6 @@ public class UserServer : MonoBehaviour
     private Vector3 offsetPos;
     private Quaternion offsetRot;
 
-
     public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_, Vector3 offset_pos, Quaternion offset_rot)
     {
         foreach (UserServer otherUser in list.Values)
@@ -22,9 +21,7 @@ public class UserServer : MonoBehaviour
             otherUser.sendSpawned(id_);
         }
 
-        var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cubeUser.AddComponent<Camera>();
-        cubeUser.transform.localScale = Vector3.one * 0.2f;
+
 
         var anchorPrefab = (GameObject)Resources.Load("prefabs/QR/QRAnchorNoScript");
         var anchor = Instantiate(anchorPrefab);
@@ -44,6 +41,9 @@ public class UserServer : MonoBehaviour
 
         anchor.name = user.deviceName;
 
+        var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        CameraSwitcher.Singleton.addCamera(id_ , cubeUser.AddComponent<Camera>());
+        cubeUser.transform.localScale = Vector3.one * 0.2f;
 
         cubeUser.transform.parent = anchor.transform;
         user.head = cubeUser;
@@ -63,6 +63,7 @@ public class UserServer : MonoBehaviour
 
     private void OnDestroy()
     {
+        CameraSwitcher.Singleton.removeCamera(ID);
         list.Remove(ID);
     }
 
