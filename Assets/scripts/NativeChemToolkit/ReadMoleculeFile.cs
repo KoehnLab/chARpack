@@ -12,13 +12,60 @@ using StructClass;
 
 public class ReadMoleculeFile : MonoBehaviour
 {
+    private string[] supportedFormats = null;
+
+    private void Awake()
+    {
+        IntPtr formatsUnmanagedStringArray = IntPtr.Zero;
+
+        var num_formats = getSupportedFormats(out formatsUnmanagedStringArray);
+
+        string[] formatsManagedStringArray = null;
+        supportedFormats = new string[num_formats];
+
+        ConvertHelpers.MarshalUnmananagedStrArray2ManagedStrArray(formatsUnmanagedStringArray, num_formats, out formatsManagedStringArray);
+        int i = 0;
+        foreach (var format in formatsManagedStringArray) 
+        {
+            UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported Format: {format}.");
+            supportedFormats[i] = format.Split(" ")[0];
+            UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported Format short: {supportedFormats[i]}.");
+            i++;
+        }
+    }
 
     public void openFileDialog()
     {
 #if !WINDOWS_UWP
-        var path = EditorUtility.OpenFilePanel("Open Molecule File", "", "xyz");
+        var path = EditorUtility.OpenFilePanel("Open Molecule File", "", "");
         if (path.Length != 0)
         {
+            // do checks on file
+            FileInfo fi = new FileInfo(path);
+            if (!fi.Exists)
+            {
+                foreach (var sformat in supportedFormats)
+                {
+                    if (fi.Extension.Contains("." + sformat)) {
+                        var split = path.Split("." + sformat);
+                        if (split[1].Length > 1)
+                        {
+                            UnityEngine.Debug.LogError("[ReadMoleculeFile] Something went wrong during path conversion. Abort.");
+                            return;
+                        } else
+                        {
+                            path = split[0] + "." + sformat;
+                            fi = new FileInfo(path);
+                        }
+                    }
+                }
+                if (!fi.Exists)
+                {
+                    UnityEngine.Debug.LogError("[ReadMoleculeFile] Something went wrong during path conversion. Abort.");
+                    return;
+                }
+
+            }
             loadMolecule(path);
         }
 #endif
@@ -163,6 +210,8 @@ public class ReadMoleculeFile : MonoBehaviour
     private static extern int getAtomicNumbers(int[] out_array);
     [DllImport("NativeChemToolkit", CallingConvention = CallingConvention.Cdecl)]
     private static extern int getSymbol(int atomic_number, byte[] out_array);
+    [DllImport("NativeChemToolkit", CallingConvention = CallingConvention.StdCall)]
+    private static extern int getSupportedFormats(out IntPtr out_array);
 
 
 }

@@ -35,12 +35,21 @@ public class UserClient : MonoBehaviour
             user = cubeUser.AddComponent<UserClient>();
 
             user.isLocal = false;
+
+            // view ray
+            var lineRenderer = cubeUser.AddComponent<LineRenderer>();
+            lineRenderer.positionCount = 2;
+            lineRenderer.startWidth = 0.005f;
+            lineRenderer.endWidth = 0.005f;
+            var line_material = (Material)Resources.Load("prefabs/QR/yellow");
+            lineRenderer.material = line_material;
         }
 
         user.deviceName = string.IsNullOrEmpty(deviceName_) ? $"Unknown{id_}" : deviceName_;
         user.name = user.isLocal ? "Me" : user.deviceName;
         user.ID = id_;
         user.deviceType = deviceType_;
+
         user.transform.parent = NetworkManagerClient.Singleton.userWorld.transform;
 
         list.Add(id_, user);
@@ -57,6 +66,8 @@ public class UserClient : MonoBehaviour
         gameObject.transform.position = new_pos;
         var new_quat = GlobalCtrl.Singleton.atomWorld.transform.rotation * quat;
         gameObject.transform.rotation = new_quat;
+        GetComponent<LineRenderer>().SetPosition(0, transform.position);
+        GetComponent<LineRenderer>().SetPosition(1, transform.forward * 0.8f + transform.position);
     }
 
 

@@ -41,9 +41,18 @@ public class UserServer : MonoBehaviour
 
         anchor.name = user.deviceName;
 
+        // head
         var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
         CameraSwitcher.Singleton.addCamera(id_ , cubeUser.AddComponent<Camera>());
         cubeUser.transform.localScale = Vector3.one * 0.2f;
+
+        // view ray
+        var lineRenderer = cubeUser.AddComponent<LineRenderer>();
+        lineRenderer.positionCount = 2;
+        lineRenderer.startWidth = 0.005f;
+        lineRenderer.endWidth = 0.005f;
+        var line_material = (Material)Resources.Load("prefabs/QR/yellow");
+        lineRenderer.material = line_material;
 
         cubeUser.transform.parent = anchor.transform;
         user.head = cubeUser;
@@ -73,6 +82,8 @@ public class UserServer : MonoBehaviour
         head.transform.position = new_pos;
         var new_quat = GlobalCtrl.Singleton.atomWorld.transform.rotation * quat;
         head.transform.rotation = new_quat;
+        head.GetComponent<LineRenderer>().SetPosition(0, head.transform.position);
+        head.GetComponent<LineRenderer>().SetPosition(1, head.transform.forward * 0.8f + head.transform.position);
     }
 
     #region Messages
