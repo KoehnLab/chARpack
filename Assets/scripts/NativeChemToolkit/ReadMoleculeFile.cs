@@ -8,7 +8,7 @@ using System.Text;
 using System;
 using UnityEditor;
 using StructClass;
-
+using System.Linq;
 
 public class ReadMoleculeFile : MonoBehaviour
 {
@@ -42,29 +42,11 @@ public class ReadMoleculeFile : MonoBehaviour
         {
             // do checks on file
             FileInfo fi = new FileInfo(path);
+            UnityEngine.Debug.Log($"[ReadMoleculeFile] Current extension: {fi.Extension}");
             if (!fi.Exists)
             {
-                foreach (var sformat in supportedFormats)
-                {
-                    if (fi.Extension.Contains("." + sformat)) {
-                        var split = path.Split("." + sformat);
-                        if (split[1].Length > 1)
-                        {
-                            UnityEngine.Debug.LogError("[ReadMoleculeFile] Something went wrong during path conversion. Abort.");
-                            return;
-                        } else
-                        {
-                            path = split[0] + "." + sformat;
-                            fi = new FileInfo(path);
-                        }
-                    }
-                }
-                if (!fi.Exists)
-                {
-                    UnityEngine.Debug.LogError("[ReadMoleculeFile] Something went wrong during path conversion. Abort.");
-                    return;
-                }
-
+                UnityEngine.Debug.LogError("[ReadMoleculeFile] Something went wrong during path conversion. Abort.");
+                return;
             }
             loadMolecule(path);
         }
