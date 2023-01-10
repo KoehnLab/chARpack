@@ -16,6 +16,16 @@ public class ReadMoleculeFile : MonoBehaviour
 
     private void Awake()
     {
+        // set babel data dir environment variable
+        System.Environment.SetEnvironmentVariable("BABEL_DATADIR", Application.dataPath + "/plugins");
+
+        // check for fragment files
+        if (!checkFragmentFiles())
+        {
+            UnityEngine.Debug.LogError("[ReadMoleculeFile] Unable to find fragment files. Cannot structure SMILES input.");
+        }
+
+        // get supported file formats
         IntPtr formatsUnmanagedStringArray = IntPtr.Zero;
 
         var num_formats = getSupportedFormats(out formatsUnmanagedStringArray);
@@ -27,9 +37,9 @@ public class ReadMoleculeFile : MonoBehaviour
         int i = 0;
         foreach (var format in formatsManagedStringArray) 
         {
-            UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported Format: {format}.");
+            //UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported Format: {format}.");
             supportedFormats[i] = format.Split(" ")[0];
-            UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported Format short: {supportedFormats[i]}.");
+            UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported Format: {supportedFormats[i]}.");
             i++;
         }
     }
@@ -53,20 +63,30 @@ public class ReadMoleculeFile : MonoBehaviour
 #endif
     }
 
+    private bool checkSupported(string path)
+    {
+        bool supported = false;
+        FileInfo fi = new FileInfo(path);
+        foreach (var format in supportedFormats)
+        {
+            if (fi.Extension.Contains(format))
+            {
+                supported = true;
+                break;
+            }
+        }
+        return supported;
+    }
+
     private void loadMolecule(string path)
     {
 
-
-        //DirectoryInfo dir = new DirectoryInfo(Application.streamingAssetsPath);
-        //FileInfo[] info = dir.GetFiles("*.*");
-        //foreach (FileInfo f in info)
-        //{
-        //    if (f.Extension == ".xyz")
-        //    {
-        //        UnityEngine.Debug.Log(f.FullName);
-        //        fname = Encoding.ASCII.GetBytes(f.FullName);
-        //    }
-        //}
+        if (!checkSupported(path))
+        {
+            FileInfo fi = new FileInfo(path);
+            UnityEngine.Debug.LogError($"[ReadMoleculeFile] File {path} with extension {fi.Extension} is not in list of supported formats.");
+            return;
+        }
 
         byte[] fname = Encoding.ASCII.GetBytes(path);
 
@@ -74,6 +94,7 @@ public class ReadMoleculeFile : MonoBehaviour
         if (exit_code == 1)
         {
             UnityEngine.Debug.LogError("[ReadMoleculeFile] Native plugin returned with an error.");
+            return;
         }
         int num_atoms = getNumAtoms();
         UnityEngine.Debug.Log("[ReadMoleculeFile] Native plugin returned " + num_atoms + " atoms.");
@@ -92,6 +113,7 @@ public class ReadMoleculeFile : MonoBehaviour
         if (exit_code == 1)
         {
             UnityEngine.Debug.LogError("[ReadMoleculeFile] Native plugin returned with an error.");
+            return;
         }
         for (int i = 0; i < num_atoms; i++)
         {
@@ -116,6 +138,7 @@ public class ReadMoleculeFile : MonoBehaviour
         if (exit_code == 1)
         {
             UnityEngine.Debug.LogError("[ReadMoleculeFile] Native plugin returned with an error.");
+            return;
         }
         for (int i = 0; i < num_single_bonds; i++)
         {
@@ -194,6 +217,9 @@ public class ReadMoleculeFile : MonoBehaviour
     private static extern int getSymbol(int atomic_number, byte[] out_array);
     [DllImport("NativeChemToolkit", CallingConvention = CallingConvention.StdCall)]
     private static extern int getSupportedFormats(out IntPtr out_array);
+    [DllImport("NativeChemToolkit", CallingConvention = CallingConvention.Cdecl)]
+    private static extern bool checkFragmentFiles();
+
 
 
 }
