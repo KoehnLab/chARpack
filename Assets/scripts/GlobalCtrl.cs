@@ -234,7 +234,7 @@ public class GlobalCtrl : MonoBehaviour
             foreach (Atom a in m.atomList)
             {
                 List<Vector3> conPos = new List<Vector3>();
-                foreach (Atom at in a.connectedAtoms(a))
+                foreach (Atom at in a.connectedAtoms())
                 {
                     if (at.isMarked || deleteAll)
                     {
@@ -312,7 +312,7 @@ public class GlobalCtrl : MonoBehaviour
             {
                 Atom a = m.atomList[i];
                 int count = 0;
-                while (a.m_data.m_bondNum > a.connectedAtoms(a).Count)
+                while (a.m_data.m_bondNum > a.connectedAtoms().Count)
                 {
                     CreateDummy(getFreshAtomID(), m, a, calcDummyPos(a, positionsRestore, count));
                     count++;
@@ -402,7 +402,7 @@ public class GlobalCtrl : MonoBehaviour
             {
                 Atom a = m.atomList[i];
                 int count = 0;
-                while (a.m_data.m_bondNum > a.connectedAtoms(a).Count)
+                while (a.m_data.m_bondNum > a.connectedAtoms().Count)
                 {
                     CreateDummy(getFreshAtomID(), m, a, calcDummyPos(a, positionsRestore, count));
                     count++;
@@ -475,7 +475,7 @@ public class GlobalCtrl : MonoBehaviour
         foreach (Atom a in to_delete.m_molecule.atomList)
         {
             List<Vector3> conPos = new List<Vector3>();
-            foreach (Atom at in a.connectedAtoms(a))
+            foreach (Atom at in a.connectedAtoms())
             {
                 if (at == to_delete)
                 {
@@ -515,7 +515,7 @@ public class GlobalCtrl : MonoBehaviour
             {
                 Atom a = m.atomList[i];
                 int count = 0;
-                while (a.m_data.m_bondNum > a.connectedAtoms(a).Count)
+                while (a.m_data.m_bondNum > a.connectedAtoms().Count)
                 {
                     CreateDummy(getFreshAtomID(), m, a, calcDummyPos(a, positionsRestore, count));
                     count++;
@@ -583,7 +583,7 @@ public class GlobalCtrl : MonoBehaviour
             groupingStash.Add(a);
 
         //for each connected atom
-        foreach (Atom ca in a.connectedAtoms(a))
+        foreach (Atom ca in a.connectedAtoms())
         {
             Bond b = Bond.Instance.getBond(a, ca);
             if (!delBondList.Contains(b) && !delAtomList.Contains(ca) && !groupingStash.Contains(ca))

@@ -170,9 +170,7 @@ public class ForceField : MonoBehaviour
             FFlog.WriteLine("LogLevel = " + LogLevel);
         }
 
-        //scalingfactor = GetComponent<GlobalCtrl>().scale / 154f;
         //conversion factor from atomic model to unity
-        //scalingfactor = GetComponent<GlobalCtrl>().scale / GetComponent<GlobalCtrl>().u2pm;
         scalingfactor = GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm;
         //timeFactor = (1.5f / (float)nTimeSteps);
         timeFactor = (4.0f / (float)nTimeSteps);
@@ -261,7 +259,7 @@ public class ForceField : MonoBehaviour
         foreach (Atom At in GlobalCtrl.Singleton.List_curAtoms)
         //foreach (KeyValuePair<int, Atom> At in GlobalCtrl.Instance.Dic_curAtoms)
         {
-            // NUllcheck
+            // Nullcheck
             if (At != null)
             {
                 nAtoms++;
@@ -282,8 +280,8 @@ public class ForceField : MonoBehaviour
                 //            position.Add((At.transform.localPosition * (1f / scalingfactor)));
                 // it has to be position, not localPosition, to get consistent interactions between different fragments
                 position.Add(At.transform.position * (1f / scalingfactor));
-                forces.Add(new Vector3(0.0f, 0.0f, 0.0f));
-                movement.Add(new Vector3(0.0f, 0.0f, 0.0f));
+                forces.Add(Vector3.zero);
+                movement.Add(Vector3.zero);
             }
         }
         // TODO: when FF is not generated in each frame, we have to check that the atomList matches!
@@ -355,24 +353,14 @@ public class ForceField : MonoBehaviour
         {
             int iAtom = 0;
             foreach (Atom At1 in GlobalCtrl.Singleton.List_curAtoms)
-            //foreach (KeyValuePair<int, Atom> At1 in GlobalCtrl.Instance.Dic_curAtoms)
             {
                 if (At1 != null)
-                { 
+                {
                     // cycle through connection points
                     // ConnectionStatus does not exist anymore, instead use Atom.connectedAtoms(); this returns a List of all directly connected Atoms
-                    foreach (Atom conAtom in At1.connectedAtoms(At1))
+                    foreach (Atom conAtom in At1.connectedAtoms())
                     {
-                        // get current atom index by comparison to entries in atomList
-                        int jAtom = -1;
-                        for (int kAtom = 0; kAtom < nAtoms; kAtom++)
-                        {
-                            if (atomList[kAtom] == conAtom.m_id)
-                            {
-                                jAtom = kAtom;
-                                break;
-                            }
-                        }
+                        int jAtom = atomList.IndexOf(conAtom.m_id);
                         if (jAtom >= 0)
                         {
                             topo[iAtom, jAtom] = true;
@@ -380,12 +368,12 @@ public class ForceField : MonoBehaviour
                         }
                     }
                     iAtom++;
-                    
                 }
             }
         }
 
         nBondP.Clear();
+        nBondP = new List<int>(nAtoms);
         for (int iAtom = 0; iAtom < nAtoms; iAtom++)
         {
             int nBondingPartner = 0;
@@ -395,13 +383,6 @@ public class ForceField : MonoBehaviour
             }
             nBondP.Add(nBondingPartner);    
         }
-        //String hallo = "";
-        //for (int iAtom = 0; iAtom < nAtoms; iAtom++)
-        //{
-        //    hallo += String.Format("{0} ",nBondP[iAtom] );
-        //}
-        //    Debug.Log(String.Format("nBondingPartner: {0} ", hallo));
-
 
         // now set all FF terms
         // pairwise terms, run over unique atom pairs
@@ -476,7 +457,6 @@ public class ForceField : MonoBehaviour
         }
 
 
-
         // angle terms
         // run over unique bond pairs
         foreach (BondTerm bond1 in bondList)
@@ -522,7 +502,7 @@ public class ForceField : MonoBehaviour
                         //ForceFieldConsole.Instance.statusOut(string.Format("Warning {0} : unknown atom or hybridization", key));
                     }
 
-                    if (phi0 != 180f)
+                    if (!Mathf.Approximately(phi0,180f))
                     {
                         newAngle.kAngle = ka / (Mathf.Sin(phi0 * (Mathf.PI / 180f))* Mathf.Sin(phi0 * (Mathf.PI / 180f)));
                     }
@@ -867,7 +847,7 @@ public class ForceField : MonoBehaviour
         */
         float mAlpha;
 
-        if (angle.Aeq != 180f)
+        if (!Mathf.Approximately(angle.Aeq, 180f))
         {
             mAlpha = angle.kAngle * (cosAlpha - Mathf.Cos(angle.Aeq * (Mathf.PI / 180.0f)));
         }
@@ -958,11 +938,6 @@ public class ForceField : MonoBehaviour
         forces[torsion.Atom3] += ftk;
         forces[torsion.Atom4] += ftl;
 
-        //if (torsion.Atom1 == 1) print("torsionforce 1:" + fti);
-        //if (torsion.Atom2 == 1) print("torsionforce 2:" + ftj);
-        //if (torsion.Atom3 == 1) print("torsionforce 3:" + ftk); 
-        //if (torsion.Atom4 == 1) print("torsionforce 4:" + ftl);
-
     }
 
     float RMSforce()
@@ -1012,7 +987,7 @@ public class ForceField : MonoBehaviour
             }
             else
             {
-                forces[iAtom] = new Vector3(0.0f, 0.0f, 0.0f);
+                forces[iAtom] = Vector3.zero;
             }
         }
 
@@ -1077,7 +1052,6 @@ public class ForceField : MonoBehaviour
         // Scale, transform position, LookAt
         
         foreach(Molecule mol in GlobalCtrl.Singleton.List_curMolecules)
-        //foreach(KeyValuePair<int, Molecule> mol in GlobalCtrl.Instance.Dic_curMolecules)
         {
             foreach(Bond bond in mol.bondList)
             {

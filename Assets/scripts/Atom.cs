@@ -207,7 +207,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="newData"></param>
     public void f_Modify(ElementData newData)
     {
-        int numConnected = this.connectedAtoms(this).Count;
+        int numConnected = connectedAtoms().Count;
         m_data = newData;
         uint dummyLimit = this.m_data.m_bondNum;
         this.gameObject.name = m_data.m_name;
@@ -251,7 +251,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 
     public void addDummy(int numConnected)
     {
-        List<Atom> conAtoms = this.connectedAtoms(this);
+        List<Atom> conAtoms = connectedAtoms();
 
         Vector3 position = new Vector3();
         Vector3 firstVec = new Vector3();
@@ -346,15 +346,15 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     /// this method calculates a list of all connected atoms for a given atom
     /// </summary>
     /// <returns>list of connected atoms</returns>
-    public List<Atom> connectedAtoms(Atom a)
+    public List<Atom> connectedAtoms()
     {
         List<Atom> conAtomList = new List<Atom>();
-        foreach(Bond b in a.m_molecule.bondList)
+        foreach(Bond b in m_molecule.bondList)
         {
             
-            if (b.atomID1 == a.m_id || b.atomID2 == a.m_id)
+            if (b.atomID1 == m_id || b.atomID2 == m_id)
             {
-                Atom otherAtom = getAtomByID(b.findTheOther(a).m_id);
+                Atom otherAtom = getAtomByID(b.findTheOther(this).m_id);
                 if (!conAtomList.Contains(otherAtom))
                     conAtomList.Add(otherAtom);
             }
@@ -364,7 +364,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 
     public List<Atom> connectedDummys(Atom a)
     {
-        List<Atom> allConnected = connectedAtoms(a);
+        List<Atom> allConnected = connectedAtoms();
         List<Atom> conDummys = new List<Atom>();
         foreach(Atom at in allConnected)
         {
