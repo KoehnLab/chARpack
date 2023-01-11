@@ -17,7 +17,9 @@ public class ReadMoleculeFile : MonoBehaviour
     private void Awake()
     {
         // set babel data dir environment variable
-        System.Environment.SetEnvironmentVariable("BABEL_DATADIR", Application.dataPath + "/plugins");
+        var path_to_plugins = Path.Combine(Application.dataPath, "plugins");
+        System.Environment.SetEnvironmentVariable("BABEL_DATADIR", path_to_plugins);
+        UnityEngine.Debug.Log($"[ReadMoleculeFile] Set env BABEL_DATADIR to {path_to_plugins}");
 
         // check for fragment files
         if (!checkFragmentFiles())
