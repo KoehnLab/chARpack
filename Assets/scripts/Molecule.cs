@@ -57,10 +57,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             Atom d1 = GlobalCtrl.Singleton.collider1;
             Atom d2 = GlobalCtrl.Singleton.collider2;
 
-            Atom a1 = Atom.Instance.dummyFindMain(d1);
-            Atom a2 = Atom.Instance.dummyFindMain(d2);
+            Atom a1 = d1.dummyFindMain();
+            Atom a2 = d2.dummyFindMain();
 
-            if (!Atom.Instance.alreadyConnected(a1, a2))
+            if (!a1.alreadyConnected(a2))
             {
                 GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
                 EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_id);
@@ -119,7 +119,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         m_id = idInScene;
         isMarked = false;
-        this.transform.parent = inputParent;
+        transform.parent = inputParent;
         atomList = new List<Atom>();
         bondList = new List<Bond>();
         // TODO put collider into a corner
@@ -168,19 +168,19 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             newParent.bondList.Add(b);
         }
         GlobalCtrl.Singleton.List_curMolecules.Remove(oldParent);
-        Destroy(this.gameObject);
+        Destroy(gameObject);
     }
 
 
     public void markMolecule(bool mark, bool showToolTip = false)
     {
 
-        foreach (Atom a in this.atomList)
+        foreach (Atom a in atomList)
         {
             a.markAtom(mark);
         }
 
-        foreach (Bond b in this.bondList)
+        foreach (Bond b in bondList)
         {
             b.markBond(mark);
         }

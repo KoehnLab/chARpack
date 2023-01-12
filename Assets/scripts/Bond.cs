@@ -4,26 +4,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 public class Bond : MonoBehaviour, IMixedRealityPointerHandler
 {
-    /// <summary>
-    /// instance of global control
-    /// </summary>
-    private static Bond instance;
-    public static Bond Instance
-    {
-        get
-        {
-            if (instance == null)
-            {
-                instance = FindObjectOfType<Bond>();
-            }
-            return instance;
-        }
-    }
-
 
     private Stopwatch stopwatch;
     public void OnPointerDown(MixedRealityPointerEventData eventData)
@@ -76,8 +61,8 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
         m_molecule = inputMole;
         m_bondOrder = 1.0f;   // standard
         m_bondDistance = 1.0f;
-        this.gameObject.tag = "Bond";
-        this.gameObject.layer = 7;
+        gameObject.tag = "Bond";
+        gameObject.layer = 7;
         m_molecule.bondList.Add(this);
         transform.position = (_atom1.transform.position + _atom2.transform.position) / 2;
         transform.LookAt(_atom1.transform);
@@ -111,9 +96,9 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
     public Atom findTheOther(Atom at)
     {
         if (at.m_id == atomID1)
-            return Atom.Instance.getAtomByID(atomID2);
+            return GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atomID2);
         else if (at.m_id == atomID2)
-            return Atom.Instance.getAtomByID(atomID1);
+            return GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atomID1);
         else
             return null;
     }
@@ -156,27 +141,9 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
     public void colorSwapSelect(int col)
     {
         if (col == 2)
-            this.GetComponentInChildren<Renderer>().material = GlobalCtrl.Singleton.markedMat;
+            GetComponentInChildren<Renderer>().material = GlobalCtrl.Singleton.markedMat;
         else
-            this.GetComponentInChildren<Renderer>().material = GlobalCtrl.Singleton.bondMat;
-    }
-
-    /// <summary>
-    /// this method returns a bond between two atoms
-    /// </summary>
-    /// <param name="a1">first atom of the bond</param>
-    /// <param name="a2">second atom of the bond</param>
-    /// <returns>the bond between the two atoms</returns>
-    public Bond getBond(Atom a1, Atom a2)
-    {
-        foreach(Bond b in a1.m_molecule.bondList)
-        {
-            if (b.atomID1 == a1.m_id && b.atomID2 == a2.m_id)
-                return b;
-            else if (b.atomID2 == a1.m_id && b.atomID1 == a2.m_id)
-                return b;
-        }
-        return null;
+            GetComponentInChildren<Renderer>().material = GlobalCtrl.Singleton.bondMat;
     }
 
     private void createToolTip()
@@ -197,8 +164,8 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
         // add bond as connector
         toolTipInstance.GetComponent<myToolTipConnector>().Target = gameObject;
         // show meta data
-        var atom1 = Atom.Instance.getAtomByID(atomID1);
-        var atom2 = Atom.Instance.getAtomByID(atomID2);
+        var atom1 = GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atomID1);
+        var atom2 = GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atomID2);
         string toolTipText = $"Distance: {m_bondDistance}\nOrder: {m_bondOrder}\nAtom1: {atom1.m_data.m_name}\nAtom2: {atom2.m_data.m_name}";
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
         if (atom1.m_data.m_abbre != "Dummy" && atom2.m_data.m_abbre != "Dummy")
