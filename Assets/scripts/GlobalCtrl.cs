@@ -70,10 +70,6 @@ public class GlobalCtrl : MonoBehaviour
     /// scale covalent radius to atom diameter
     /// </summary>
     public float atomScale = 0.4f;
-    /// <summary>
-    /// the folder used to restore molecular data
-    /// </summary>
-    public string dataFolder = "MoleculeFolder";
 
     /// <summary>
     /// the space for creating molecules
@@ -250,21 +246,21 @@ public class GlobalCtrl : MonoBehaviour
             {
                 if (b.isMarked || deleteAll)
                 {
-                    if (Atom.Instance.getAtomByID(b.atomID1).m_data.m_abbre != "Dummy" && Atom.Instance.getAtomByID(b.atomID2).m_data.m_abbre != "Dummy")
+                    if (List_curAtoms.ElementAtOrDefault(b.atomID1).m_data.m_abbre != "Dummy" && List_curAtoms.ElementAtOrDefault(b.atomID2).m_data.m_abbre != "Dummy")
                     {
                         delBondList.Add(b);
 
                         //Atom1
-                        positionsRestore.TryGetValue(Atom.Instance.getAtomByID(b.atomID1), out List<Vector3> temp1);
-                        positionsRestore.Remove(Atom.Instance.getAtomByID(b.atomID1));
-                        temp1.Add(Atom.Instance.getAtomByID(b.atomID2).transform.localPosition);
-                        positionsRestore.Add(Atom.Instance.getAtomByID(b.atomID1), temp1);
+                        positionsRestore.TryGetValue(List_curAtoms.ElementAtOrDefault(b.atomID1), out List<Vector3> temp1);
+                        positionsRestore.Remove(List_curAtoms.ElementAtOrDefault(b.atomID1));
+                        temp1.Add(List_curAtoms.ElementAtOrDefault(b.atomID2).transform.localPosition);
+                        positionsRestore.Add(List_curAtoms.ElementAtOrDefault(b.atomID1), temp1);
 
                         //Atom2
-                        positionsRestore.TryGetValue(Atom.Instance.getAtomByID(b.atomID2), out List<Vector3> temp2);
-                        positionsRestore.Remove(Atom.Instance.getAtomByID(b.atomID2));
-                        temp2.Add(Atom.Instance.getAtomByID(b.atomID1).transform.localPosition);
-                        positionsRestore.Add(Atom.Instance.getAtomByID(b.atomID2), temp2);
+                        positionsRestore.TryGetValue(List_curAtoms.ElementAtOrDefault(b.atomID2), out List<Vector3> temp2);
+                        positionsRestore.Remove(List_curAtoms.ElementAtOrDefault(b.atomID2));
+                        temp2.Add(List_curAtoms.ElementAtOrDefault(b.atomID1).transform.localPosition);
+                        positionsRestore.Add(List_curAtoms.ElementAtOrDefault(b.atomID2), temp2);
                     } else
                     {
                         b.markBond(false);
@@ -349,21 +345,21 @@ public class GlobalCtrl : MonoBehaviour
             positionsRestore.Add(a, new List<Vector3>());
         }
 
-        if (Atom.Instance.getAtomByID(b.atomID1).m_data.m_abbre != "Dummy" && Atom.Instance.getAtomByID(b.atomID2).m_data.m_abbre != "Dummy")
+        if (List_curAtoms.ElementAtOrDefault(b.atomID1).m_data.m_abbre != "Dummy" && List_curAtoms.ElementAtOrDefault(b.atomID2).m_data.m_abbre != "Dummy")
         {
             delBondList.Add(b);
 
             //Atom1
-            positionsRestore.TryGetValue(Atom.Instance.getAtomByID(b.atomID1), out List<Vector3> temp1);
-            positionsRestore.Remove(Atom.Instance.getAtomByID(b.atomID1));
-            temp1.Add(Atom.Instance.getAtomByID(b.atomID2).transform.localPosition);
-            positionsRestore.Add(Atom.Instance.getAtomByID(b.atomID1), temp1);
+            positionsRestore.TryGetValue(List_curAtoms.ElementAtOrDefault(b.atomID1), out List<Vector3> temp1);
+            positionsRestore.Remove(List_curAtoms.ElementAtOrDefault(b.atomID1));
+            temp1.Add(List_curAtoms.ElementAtOrDefault(b.atomID2).transform.localPosition);
+            positionsRestore.Add(List_curAtoms.ElementAtOrDefault(b.atomID1), temp1);
 
             //Atom2
-            positionsRestore.TryGetValue(Atom.Instance.getAtomByID(b.atomID2), out List<Vector3> temp2);
-            positionsRestore.Remove(Atom.Instance.getAtomByID(b.atomID2));
-            temp2.Add(Atom.Instance.getAtomByID(b.atomID1).transform.localPosition);
-            positionsRestore.Add(Atom.Instance.getAtomByID(b.atomID2), temp2);
+            positionsRestore.TryGetValue(List_curAtoms.ElementAtOrDefault(b.atomID2), out List<Vector3> temp2);
+            positionsRestore.Remove(List_curAtoms.ElementAtOrDefault(b.atomID2));
+            temp2.Add(List_curAtoms.ElementAtOrDefault(b.atomID1).transform.localPosition);
+            positionsRestore.Add(List_curAtoms.ElementAtOrDefault(b.atomID2), temp2);
         }
 
         createTopoMap(b.m_molecule, new List<Atom>(), delBondList, addMoleculeList);
@@ -552,7 +548,7 @@ public class GlobalCtrl : MonoBehaviour
                 }
             }
             // if atom isn't looked at yet or in the delete list
-            if (!delAtomList.Contains(a) && search && !(a.m_data.m_abbre == "Dummy" && delAtomList.Contains(Atom.Instance.dummyFindMain(a))))
+            if (!delAtomList.Contains(a) && search && !(a.m_data.m_abbre == "Dummy" && delAtomList.Contains(a.dummyFindMain())))
             {
                 checkNeighbours(a, delAtomList, delBondList, groupingStash);
                 groupedAtoms.Add(a, groupingStash);
@@ -580,14 +576,13 @@ public class GlobalCtrl : MonoBehaviour
         //for each connected atom
         foreach (Atom ca in a.connectedAtoms())
         {
-            Bond b = Bond.Instance.getBond(a, ca);
+            Bond b = a.getBond(ca);
             if (!delBondList.Contains(b) && !delAtomList.Contains(ca) && !groupingStash.Contains(ca))
             {
                 groupingStash.Add(ca);
                 checkNeighbours(ca, delAtomList, delBondList, groupingStash);
             }
         }
-
     }
 
     /// <summary>
@@ -601,7 +596,7 @@ public class GlobalCtrl : MonoBehaviour
         List<Atom> deleteList = new List<Atom>();
         foreach (Atom a in delAtomList)
         {
-            List<Atom> conDummys = a.connectedDummys(a);
+            List<Atom> conDummys = a.connectedDummys();
             i++;
             foreach (Atom d in conDummys)
             {
@@ -649,8 +644,8 @@ public class GlobalCtrl : MonoBehaviour
         {
             if (!delBondList.Contains(b))
             {
-                Atom at1 = Atom.Instance.getAtomByID(b.atomID1);
-                Atom at2 = Atom.Instance.getAtomByID(b.atomID2);
+                Atom at1 = List_curAtoms.ElementAtOrDefault(b.atomID1);
+                Atom at2 = List_curAtoms.ElementAtOrDefault(b.atomID2);
 
                 if (at1.transform.parent == at2.transform.parent)
                 {
@@ -797,7 +792,7 @@ public class GlobalCtrl : MonoBehaviour
     public void ChangeAtom(int idAtom, string ChemicalAbbre)
     {
         // TODO: do not overwrite runtime data
-        Atom chgAtom = Atom.Instance.getAtomByID(idAtom);
+        Atom chgAtom = List_curAtoms.ElementAtOrDefault(idAtom);
 
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
         tempData.m_hybridization = chgAtom.m_data.m_hybridization;
@@ -1108,7 +1103,7 @@ public class GlobalCtrl : MonoBehaviour
                 }
                 for (int i = 0; i < molecule.bondArray.Length; i++)
                 {
-                    CreateBond(Atom.Instance.getAtomByID(molecule.bondArray[i].id1), Atom.Instance.getAtomByID(molecule.bondArray[i].id2), tempMolecule);
+                    CreateBond(List_curAtoms.ElementAtOrDefault(molecule.bondArray[i].id1), List_curAtoms.ElementAtOrDefault(molecule.bondArray[i].id2), tempMolecule);
                 }
                 moveMolecule(freshMoleculeID, molecule.molePos + meanPos, molecule.moleQuat);
                 EventManager.Singleton.MoveMolecule(freshMoleculeID, molecule.molePos + meanPos, molecule.moleQuat);
@@ -1185,7 +1180,7 @@ public class GlobalCtrl : MonoBehaviour
                 }
                 for (int i = 0; i < molecule.bondArray.Length; i++)
                 {
-                    CreateBond(Atom.Instance.getAtomByID(molecule.bondArray[i].id1), Atom.Instance.getAtomByID(molecule.bondArray[i].id2), tempMolecule);
+                    CreateBond(List_curAtoms.ElementAtOrDefault(molecule.bondArray[i].id1), List_curAtoms.ElementAtOrDefault(molecule.bondArray[i].id2), tempMolecule);
                 }
             }
         }

@@ -58,10 +58,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             Atom d1 = GlobalCtrl.Singleton.collider1;
             Atom d2 = GlobalCtrl.Singleton.collider2;
 
-            Atom a1 = Atom.Instance.dummyFindMain(d1);
-            Atom a2 = Atom.Instance.dummyFindMain(d2);
+            Atom a1 = d1.dummyFindMain();
+            Atom a2 = d2.dummyFindMain();
 
-            if (!Atom.Instance.alreadyConnected(a1, a2))
+            if (!a1.alreadyConnected(a2))
             {
                 GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
                 EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_id);

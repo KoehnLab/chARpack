@@ -6,6 +6,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using StructClass;
+using System.Linq;
 
 public class ForceField : MonoBehaviour
 {
@@ -1039,7 +1040,7 @@ public class ForceField : MonoBehaviour
             // scale to Unity's unit system
             int atID = atomList[iAtom];
             //Atom.Instance.getAtomByID(atID).transform.localPosition += movement[iAtom] * scalingfactor;
-            Atom.Instance.getAtomByID(atID).transform.position += movement[iAtom] * scalingfactor;
+            GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atID).transform.position += movement[iAtom] * scalingfactor;
         }
     }
 
@@ -1055,8 +1056,8 @@ public class ForceField : MonoBehaviour
         {
             foreach(Bond bond in mol.bondList)
             {
-                Atom a1 = Atom.Instance.getAtomByID(bond.atomID1);
-                Atom a2 = Atom.Instance.getAtomByID(bond.atomID2);
+                Atom a1 = GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(bond.atomID1);
+                Atom a2 = GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(bond.atomID2);
                 float distance = Vector3.Distance(a1.transform.position, a2.transform.position);
                 bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
                 bond.transform.position = (a1.transform.position + a2.transform.position) / 2;

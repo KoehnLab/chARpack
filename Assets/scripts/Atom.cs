@@ -21,19 +21,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     private GameObject toolTipInstance = null;
     private float toolTipDistanceWeight = 2.5f;
 
-    private static Atom instance;
-    public static Atom Instance
-    {
-        get
-        {
-            if (instance == null)
-            {
-                instance = FindObjectOfType<Atom>();
-            }
-            return instance;
-        }
-    }
-
     public void OnPointerDown(MixedRealityPointerEventData eventData)
     {
         // give it a glow halo
@@ -80,7 +67,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             Atom a1 = d1.dummyFindMain();
             Atom a2 = d2.dummyFindMain();
 
-            if (!Atom.Instance.alreadyConnected(a1, a2))
+            if (!a1.alreadyConnected(a2))
             {
                 GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
                 EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_id);
@@ -223,16 +210,14 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm) * GlobalCtrl.Singleton.atomScale;
 
 
-        foreach(Atom a in connectedDummys(this))
+        foreach(Atom a in connectedDummys())
         {
             if(numConnected > dummyLimit)
             {
                 numConnected--;
                 Destroy(a.gameObject);
-                m_molecule.atomList.Remove(a);
                 Bond b = a.connectedBonds()[0];
                 Destroy(b.gameObject);
-                m_molecule.bondList.Remove(b);
             }
 
         }
@@ -353,7 +338,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             
             if (b.atomID1 == m_id || b.atomID2 == m_id)
             {
-                Atom otherAtom = getAtomByID(b.findTheOther(this).m_id);
+                Atom otherAtom = b.findTheOther(this);
                 if (!conAtomList.Contains(otherAtom))
                     conAtomList.Add(otherAtom);
             }
@@ -361,7 +346,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         return conAtomList;
     }
 
-    public List<Atom> connectedDummys(Atom a)
+    public List<Atom> connectedDummys()
     {
         List<Atom> allConnected = connectedAtoms();
         List<Atom> conDummys = new List<Atom>();
@@ -389,6 +374,24 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             }
         }
         return conBondList;
+    }
+
+    /// <summary>
+    /// this method returns a bond between two atoms
+    /// </summary>
+    /// <param name="a1">first atom of the bond</param>
+    /// <param name="a2">second atom of the bond</param>
+    /// <returns>the bond between the two atoms</returns>
+    public Bond getBond(Atom a2)
+    {
+        foreach (Bond b in m_molecule.bondList)
+        {
+            if (b.atomID1 == m_id && b.atomID2 == a2.m_id)
+                return b;
+            else if (b.atomID2 == m_id && b.atomID1 == a2.m_id)
+                return b;
+        }
+        return null;
     }
 
 
@@ -430,15 +433,15 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="a1">the first atom</param>
     /// <param name="a2">the second atom</param>
     /// <returns>true or false depending on if the atoms are connected</returns>
-    public bool alreadyConnected(Atom a1, Atom a2)
+    public bool alreadyConnected(Atom a2)
     {
-        foreach(Bond b in a1.m_molecule.bondList)
+        foreach(Bond b in m_molecule.bondList)
         {
-            if (b.findTheOther(a1) == a2)
+            if (b.findTheOther(this) == a2)
                 return true;
         }
 
-        if (a1 == a2)
+        if (this == a2)
             return true;
 
         return false;
