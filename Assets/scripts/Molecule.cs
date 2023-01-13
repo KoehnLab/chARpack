@@ -64,7 +64,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             if (!a1.alreadyConnected(a2))
             {
                 GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
-                EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_id);
+                EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
             }
 
         }
@@ -146,15 +146,15 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             throw new FileNotFoundException("[Molecule] CloseMeButton prefab not found - please check the configuration");
         }
-        
 
+        EventManager.Singleton.OnMolDataChanged += triggerGenerateFF;
     }
 
     /// <summary>
     /// if two molecules are merged, all atoms from the old molecule need to be transferred to the new molecule
     /// </summary>
     /// <param name="newParent"> the molecule which is the new parent to all atoms</param>
-    public void givingOrphans(Molecule newParent, Molecule oldParent)
+    public void givingOrphans(Molecule newParent)
     {
         ushort maxID = newParent.getFreshAtomID();
         foreach(Atom a in atomList)
@@ -172,6 +172,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             b.atomID2 += maxID;
             newParent.bondList.Add(b);
         }
+        GlobalCtrl.Singleton.List_curMolecules.Remove(this);
         Destroy(gameObject);
     }
 
@@ -300,7 +301,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         var from = new List<ushort>();
         var to = new List<ushort>();
-        var bondList = new List<Bond>();
+        var bonds = new List<Bond>();
         for (ushort i = 0; i < atomList.Count; i++)
         {
             // also change ids in bond
@@ -310,16 +311,16 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 to.Add(i);
                 foreach (var bond in atomList[i].connectedBonds())
                 {
-                    if (!bondList.Contains(bond))
+                    if (!bonds.Contains(bond))
                     {
-                        bondList.Add(bond);
+                        bonds.Add(bond);
                     }
                 }
 
             }
             atomList[i].m_id = i;
         }
-        foreach (var bond in bondList)
+        foreach (var bond in bonds)
         {
             if (from.Contains(bond.atomID1))
             {
@@ -330,6 +331,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 bond.atomID2 = to[from.FindIndex(a => a == bond.atomID2)];
             }
         }
+        // DEBUG
+        //for (ushort i = 0; i < atomList.Count; i++)
+        //{
+        //    UnityEngine.Debug.Log($"[Molecule:shrinkAtomIDs] list ID {i} atom ID {atomList[i].m_id}");
+        //}
     }
 
     /// <summary>
@@ -350,6 +356,390 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     }
     #endregion
 
+    #region ForceField
+
+    public List<Vector3> FFposition = new List<Vector3>();
+    public List<Vector3> FFforces = new List<Vector3>();
+    public List<Vector3> FFmovement = new List<Vector3>();
+
+    public List<ForceField.BondTerm> bondTerms = new List<ForceField.BondTerm>();
+    public List<ForceField.AngleTerm> angleTerms = new List<ForceField.AngleTerm>();
+    public List<ForceField.TorsionTerm> torsionTerms = new List<ForceField.TorsionTerm>();
+    public List<ForceField.HardSphereTerm> hsTerms = new List<ForceField.HardSphereTerm>();
+
+    private void triggerGenerateFF(Molecule mol)
+    {
+        if (mol == this)
+        {
+            generateFF();
+        }
+    }
+
+    public void generateFF()
+    {
+        //shrinkAtomIDs();
+        bondTerms.Clear();
+        angleTerms.Clear();
+        hsTerms.Clear();
+        torsionTerms.Clear();
+
+        var num_atoms = atomList.Count;
+
+        // set topology array       
+        bool[,] topo = new bool[num_atoms, num_atoms];
+        for (int iAtom = 0; iAtom < num_atoms; iAtom++)
+        {
+            for (int jAtom = 0; jAtom < num_atoms; jAtom++)
+            {
+                topo[iAtom, jAtom] = false;
+            }
+        }
+
+        {
+            int iAtom = 0;
+            foreach (Atom At1 in atomList)
+            {
+                if (At1 != null)
+                {
+                    // cycle through connection points
+                    // ConnectionStatus does not exist anymore, instead use Atom.connectedAtoms(); this returns a List of all directly connected Atoms
+                    foreach (Atom conAtom in At1.connectedAtoms())
+                    {
+                        int jAtom = conAtom.m_id;
+                        if (jAtom >= 0)
+                        {
+                            //UnityEngine.Debug.Log($"[Molecule:generateFF] num_atoms {num_atoms}; iAtom {iAtom}; jAtom {jAtom}");
+                            topo[iAtom, jAtom] = true;
+                            topo[jAtom, iAtom] = true;
+                        }
+                    }
+                    iAtom++;
+                }
+            }
+        }
+
+        var nBondP = new List<int>(num_atoms);
+        for (int iAtom = 0; iAtom < num_atoms; iAtom++)
+        {
+            int nBondingPartner = 0;
+            for (int jAtom = 0; jAtom < num_atoms; jAtom++)
+            {
+                if (topo[iAtom, jAtom]) nBondingPartner++;
+            }
+            nBondP.Add(nBondingPartner);
+        }
+
+        // now set all FF terms
+        // pairwise terms, run over unique atom pairs
+        for (int iAtom = 0; iAtom < num_atoms; iAtom++)
+        {
+            //print("At1.m_nBondP, bonding partner count:" + GlobalCtrl.Instance.List_curAtoms[iAtom].m_nBondP);
+            for (int jAtom = 0; jAtom < iAtom; jAtom++)
+            {
+                if (topo[iAtom, jAtom])
+                {
+                    ForceField.BondTerm newBond = new ForceField.BondTerm();
+                    newBond.Atom1 = jAtom;
+                    newBond.Atom2 = iAtom;
+
+                    string key1 = string.Format("{0}_{1}", atomList[jAtom].m_data.m_abbre, atomList[jAtom].m_data.m_hybridization);
+                    string key2 = string.Format("{0}_{1}", atomList[iAtom].m_data.m_abbre, atomList[iAtom].m_data.m_hybridization);
+                    //Debug.Log(string.Format("key1, key2: '{0}' '{1}'", key1, key2));
+                    float R01;
+                    float R02;
+                    float[] value;
+
+                    if (ForceField.DREIDINGConst.TryGetValue(key1, out value))
+                    {
+                        R01 = value[0];
+                    }
+                    else
+                    {
+                        R01 = 70f;
+                        //ForceFieldConsole.Instance.statusOut(string.Format("Warning {0} : unknown atom or hybridization", key1));
+                    }
+
+                    if (ForceField.DREIDINGConst.TryGetValue(key2, out value))
+                    {
+                        R02 = value[0];
+                    }
+                    else
+                    {
+                        R02 = 70f;
+                        //ForceFieldConsole.Instance.statusOut(string.Format("Warning {0} : unknown atom or hybridization", key2));
+                    }
+
+                    newBond.Req = R01 + R02 - 1f;
+                    newBond.kBond = ForceField.kb;
+                    bondTerms.Add(newBond);
+                }
+                else if (atomList[iAtom].m_data.m_abbre != "Dummy" && atomList[jAtom].m_data.m_abbre != "Dummy")  // avoid dummy terms right away
+                {
+                    bool avoid = false;
+                    // check for next-nearest neighborhood (1-3 interaction)
+                    for (int kAtom = 0; kAtom < num_atoms; kAtom++)
+                    {
+                        if (topo[iAtom, kAtom] && topo[jAtom, kAtom])
+                        {
+                            avoid = true; break;
+                        }
+                    }
+
+                    if (!avoid)
+                    {
+                        ForceField.HardSphereTerm newHS = new ForceField.HardSphereTerm();
+                        newHS.Atom1 = jAtom;
+                        newHS.Atom2 = iAtom;
+                        newHS.kH = 10f;
+                        newHS.Rcrit = ForceField.rhs[atomList[iAtom].m_data.m_abbre] + ForceField.rhs[atomList[jAtom].m_data.m_abbre];
+                        hsTerms.Add(newHS);
+                    }
+                }
+            }
+
+        }
+
+
+        // angle terms
+        // run over unique bond pairs
+        foreach (ForceField.BondTerm bond1 in bondTerms)
+        {
+            foreach (ForceField.BondTerm bond2 in bondTerms)
+            {
+                // if we reached the same atom pair, we can skip
+                if (bond1.Atom1 == bond2.Atom1 && bond1.Atom2 == bond2.Atom2) break;
+
+                int idx = -1, jdx = -1, kdx = -1;
+                if (bond1.Atom1 == bond2.Atom1)
+                {
+                    idx = bond1.Atom2; jdx = bond1.Atom1; kdx = bond2.Atom2;
+                }
+                else if (bond1.Atom1 == bond2.Atom2)
+                {
+                    idx = bond1.Atom2; jdx = bond1.Atom1; kdx = bond2.Atom1;
+                }
+                else if (bond1.Atom2 == bond2.Atom1)
+                {
+                    idx = bond1.Atom1; jdx = bond1.Atom2; kdx = bond2.Atom2;
+                }
+                else if (bond1.Atom2 == bond2.Atom2)
+                {
+                    idx = bond1.Atom1; jdx = bond1.Atom2; kdx = bond2.Atom1;
+                }
+                if (idx > -1) // if anything was found: set term
+                {
+                    ForceField.AngleTerm newAngle = new ForceField.AngleTerm();
+                    newAngle.Atom1 = kdx;  // I put kdx->Atom1 and idx->Atom3 just for aesthetical reasons ;)
+                    newAngle.Atom2 = jdx;
+                    newAngle.Atom3 = idx;
+                    float[] value;
+                    string key = string.Format("{0}_{1}", atomList[jdx].m_data.m_abbre, atomList[jdx].m_data.m_hybridization);
+                    float phi0;
+                    if (ForceField.DREIDINGConst.TryGetValue(key, out value))
+                    {
+                        phi0 = value[1];
+                    }
+                    else
+                    {
+                        phi0 = ForceField.alphaNull;
+                        //ForceFieldConsole.Instance.statusOut(string.Format("Warning {0} : unknown atom or hybridization", key));
+                    }
+
+                    if (!Mathf.Approximately(phi0, 180f))
+                    {
+                        newAngle.kAngle = ForceField.ka / (Mathf.Sin(phi0 * (Mathf.PI / 180f)) * Mathf.Sin(phi0 * (Mathf.PI / 180f)));
+                    }
+                    else
+                    {
+                        newAngle.kAngle = ForceField.ka;
+                    }
+
+                    newAngle.Aeq = phi0;
+                    angleTerms.Add(newAngle);
+                }
+            }
+        }
+
+        if (ForceField.torsionActive)
+        {
+            foreach (ForceField.AngleTerm threebond1 in angleTerms)
+            {
+                //if (threebond1.Aeq == 180f)break; ??
+                foreach (ForceField.BondTerm bond2 in bondTerms)
+                {
+                    // if the bond is in our threebond we can skip
+                    if (threebond1.Atom1 == bond2.Atom1 && threebond1.Atom2 == bond2.Atom2) continue; // break;
+                    if (threebond1.Atom1 == bond2.Atom2 && threebond1.Atom2 == bond2.Atom1) continue; // break;
+                    if (threebond1.Atom2 == bond2.Atom1 && threebond1.Atom3 == bond2.Atom2) continue; // break;
+                    if (threebond1.Atom2 == bond2.Atom2 && threebond1.Atom3 == bond2.Atom1) continue; // break;
+
+                    int idx = -1, jdx = -1, kdx = -1, ldx = -1;
+                    bool improper = false;
+
+                    if (threebond1.Atom3 == bond2.Atom1)
+                    {
+                        //new l atom connects to k
+                        idx = threebond1.Atom1; jdx = threebond1.Atom2; kdx = threebond1.Atom3; ldx = bond2.Atom2;
+                    }
+                    else if (threebond1.Atom3 == bond2.Atom2)
+                    {
+                        //new l atom connects to k, but the other way around 
+                        idx = threebond1.Atom1; jdx = threebond1.Atom2; kdx = threebond1.Atom3; ldx = bond2.Atom1;
+                    }
+                    else if (threebond1.Atom1 == bond2.Atom1)
+                    {
+                        // new l connects to i, new definition of i j k l, so that j and k are in the middle. i and j are the new j and k now
+                        idx = bond2.Atom2; jdx = threebond1.Atom1; kdx = threebond1.Atom2; ldx = threebond1.Atom3;
+                    }
+                    else if (threebond1.Atom1 == bond2.Atom2)
+                    {
+                        // new l connects to i, new definition of i j k l, so that j and k are in the middle. i and j are the new j and k now
+                        idx = bond2.Atom1; jdx = threebond1.Atom1; kdx = threebond1.Atom2; ldx = threebond1.Atom3;
+                    }
+                    // improper case, that means that all 3 atoms are connected to atom2
+                    else if (threebond1.Atom2 == bond2.Atom1)
+                    {
+                        // j is Atom which connects to i k l 
+                        idx = threebond1.Atom1; jdx = threebond1.Atom2; kdx = bond2.Atom2; ldx = threebond1.Atom3;
+                        improper = true;
+                    }
+                    else if (threebond1.Atom2 == bond2.Atom2)
+                    {
+                        // j is Atom which connects to i k l 
+                        idx = threebond1.Atom1; jdx = threebond1.Atom2; kdx = bond2.Atom1; ldx = threebond1.Atom3;
+                        improper = true;
+                    }
+                    //if (improper) break;
+                    if (ldx > -1) // if anything was found: set term
+                    {
+
+                        ForceField.TorsionTerm newTorsion = new ForceField.TorsionTerm();
+                        newTorsion.Atom1 = idx;
+                        newTorsion.Atom2 = jdx;
+                        newTorsion.Atom3 = kdx;
+                        newTorsion.Atom4 = ldx;
+                        if (!improper)
+                        {
+                            float nTorsTerm = Mathf.Max(1f, (nBondP[jdx] - 1) * (nBondP[kdx] - 1));
+                            //Debug.Log(string.Format(" nTorsTerm  {1} {2} {3} {4} : {0} {5} {6} ", nTorsTerm, idx, jdx, kdx, ldx, nBondP[jdx], nBondP[kdx]));
+
+                            if (atomList[jdx].m_data.m_hybridization == 3 && atomList[kdx].m_data.m_hybridization == 3) //two sp3 atoms
+                            {
+                                newTorsion.vk = 0.02f * ForceField.k0 / nTorsTerm;
+                                newTorsion.nn = 3;
+                                newTorsion.phieq = 180f; // Mathf.PI;
+                                //print("1. Case 2 sp3");
+                            }
+                            else if (atomList[jdx].m_data.m_hybridization == 2 && atomList[kdx].m_data.m_hybridization == 3 ||
+                                     atomList[jdx].m_data.m_hybridization == 3 && atomList[kdx].m_data.m_hybridization == 2)
+                            {
+                                newTorsion.vk = 0.01f * ForceField.k0 / nTorsTerm;
+                                newTorsion.nn = 6;
+                                newTorsion.phieq = 0;
+                                //print("2. Case sp3 und sp2");
+                            }
+                            else if (atomList[jdx].m_data.m_hybridization == 2 && atomList[kdx].m_data.m_hybridization == 2)
+                            {
+                                //Bond bondJK = Bond.Instance.getBond(Atom.Instance.getAtomByID(jdx), Atom.Instance.getAtomByID(kdx)); //??
+                                //print(bondJK.m_bondOrder);
+                                //if (false) //bondJK.m_bondOrder == 2.0f)
+                                //{
+                                //    newTorsion.vk = 0.45f * k0 / nTorsTerm;
+                                //    newTorsion.nn = 2;
+                                //    newTorsion.phieq = 180f; // Mathf.PI;
+                                //    //print("3. Case 2 sp2, Doppelbindung");
+                                //}
+                                //else //if(bondJK.m_bondOrder == 1.0f || bondJK.m_bondOrder == 1.5f)       
+                                //{
+                                //    newTorsion.vk = 0.05f * k0 / nTorsTerm;
+                                //    newTorsion.nn = 2;
+                                //    newTorsion.phieq = 180f; // Mathf.PI;
+                                //    //print("3. Case 2 sp2, singlebond or resonant atoms");
+                                //    /*if(exocyclic dihedral single bond involving two aromatic atoms)   //f) exception for exocyclic dihedral single bond involving two aromatic atoms ??
+                                //        {
+                                //             newTorsion.vk = 10f;
+                                //             newTorsion.nn = 2;
+                                //             newTorsion.phieq = 180f;
+                                //             print("exocyclic dihedral single bond involving two aromatic atoms");
+                                //        }
+                                //    */
+                                //}
+                                newTorsion.vk = 0.05f * ForceField.k0 / nTorsTerm;
+                                newTorsion.nn = 2;
+                                newTorsion.phieq = 180f; // Mathf.PI
+                            }
+                            else if (atomList[jdx].m_data.m_hybridization == 4 && atomList[kdx].m_data.m_hybridization == 4)
+                            {
+                                //print("resonance bond");
+                                newTorsion.vk = 0.25f * ForceField.k0 / nTorsTerm;
+                                newTorsion.nn = 2;
+                                newTorsion.phieq = 180f; // Mathf.PI;
+                            }
+                            else if (atomList[jdx].m_data.m_hybridization == 1 || atomList[kdx].m_data.m_hybridization == 1)
+                            {
+                                //print("4. Case 2 sp1");
+                                newTorsion.vk = 0f;
+                                newTorsion.nn = 0;
+                                newTorsion.phieq = 180f; //Mathf.PI;
+                            }
+                            else // take default values
+                            {
+                                //print("DEFAULT Case");
+                                newTorsion.vk = 0.1f * ForceField.k0 / nTorsTerm;
+                                newTorsion.nn = 3;
+                                newTorsion.phieq = 180f; //Mathf.PI;
+                            }
+                        }
+                        else //improper
+                        {
+                            /*
+                            Vector3 rij = position[idx] - position[jdx];
+                            Vector3 rkj = position[kdx] - position[jdx];
+                            Vector3 rkl = position[kdx] - position[ldx];                            
+                            Vector3 mNormalized = Vector3.Cross(rij, rkj).normalized;
+                            Vector3 nNormalized = Vector3.Cross(rkj, rkl).normalized;
+
+                            float cosAlpha = Mathf.Min(1.0f, Mathf.Max(-1.0f, (Vector3.Dot(nNormalized, mNormalized))));                      
+                            float phi = Mathf.Sign(Vector3.Dot(rij, nNormalized)) * Mathf.Acos(cosAlpha);
+                            */
+
+                            // TRY:
+                            float fImproper = 1f / 12f; // usual case for 4 bond partners
+                            if (nBondP[jdx] == 3) fImproper = 1f / 6f;
+                            newTorsion.vk = 2 * ForceField.kim * fImproper;
+
+                            //newTorsion.vk = 2 * kim;
+                            newTorsion.nn = 1;
+                            if (atomList[jdx].m_data.m_hybridization == 3)
+                            {
+                                newTorsion.nn = 3; // TRY:
+                                                   // if (phi > 0f)
+                                                   //{
+                                newTorsion.phieq = 120f;
+                                // }
+                                //else
+                                //{
+                                //    newTorsion.phieq = -120f;
+                                //}
+                            }
+                            else if (atomList[jdx].m_data.m_hybridization == 2)
+                            {
+                                newTorsion.phieq = 180f;
+                            }
+                            else
+                            {
+                                //ForceFieldConsole.Instance.statusOut(string.Format("Warning {0} : improper for unknown hybridization", jdx));
+                                newTorsion.phieq = 90f;
+                            }
+                        }
+                        torsionTerms.Add(newTorsion);
+                    }
+                }
+            }
+        }
+    }
+
+    #endregion
 
     public void OnDestroy()
     {
@@ -357,6 +747,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             Destroy(toolTipInstance);
         }
-        GlobalCtrl.Singleton.List_curMolecules.Remove(this);
+        EventManager.Singleton.OnMolDataChanged -= triggerGenerateFF;
     }
 }

@@ -165,19 +165,17 @@ public class ReadMoleculeFile : MonoBehaviour
 
         // construct cml data
         var mol_id = GlobalCtrl.Singleton.getFreshMoleculeID();
-        var atom_id = GlobalCtrl.Singleton.getFreshAtomID();
         List<ushort> new_ids = new List<ushort>();
 
         List<cmlData> saveData = new List<cmlData>();
         List<cmlAtom> list_atom = new List<cmlAtom>();
         // TODO: needs better way for hybridization
         var hybridization = GlobalCtrl.Singleton.curHybrid;
-        for (int i = 0; i < num_atoms; i++)
+        for (ushort i = 0; i < num_atoms; i++)
         {
             pos_vec[i] -= mean_pos;
-            list_atom.Add(new cmlAtom(atom_id, symbols[i], hybridization, pos_vec[i]));
-            new_ids.Add(atom_id);
-            atom_id++;
+            list_atom.Add(new cmlAtom(i, symbols[i], hybridization, pos_vec[i]));
+            new_ids.Add(i);
         }
         List<cmlBond> list_bond = new List<cmlBond>();
         // TODO: needs better way for bond order

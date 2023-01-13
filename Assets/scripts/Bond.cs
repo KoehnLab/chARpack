@@ -41,8 +41,8 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
     private GameObject closeMeButtonPrefab;
     private GameObject toolTipInstance;
     private float toolTipDistanceWeight = 2.5f;
-    [HideInInspector] public ushort atomID1;
-    [HideInInspector] public ushort atomID2;
+    public ushort atomID1;
+    public ushort atomID2;
     [HideInInspector] public float m_bondOrder;  // 1.0 for single bonds; 1.5 for resonant bonds; 2.0 for double bonds; idea is to scale the bond diameter by this value
     [HideInInspector] public float m_bondDistance;
     [HideInInspector] public Molecule m_molecule;
@@ -96,9 +96,9 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
     public Atom findTheOther(Atom at)
     {
         if (at.m_id == atomID1)
-            return GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atomID2);
+            return m_molecule.atomList.ElementAtOrDefault(atomID2);
         else if (at.m_id == atomID2)
-            return GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atomID1);
+            return m_molecule.atomList.ElementAtOrDefault(atomID1);
         else
             return null;
     }
@@ -163,9 +163,9 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.transform.position = ttpos;
         // add bond as connector
         toolTipInstance.GetComponent<myToolTipConnector>().Target = gameObject;
-        // show meta data
-        var atom1 = GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atomID1);
-        var atom2 = GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atomID2);
+        // show meta data 
+        var atom1 = m_molecule.atomList.ElementAtOrDefault(atomID1);
+        var atom2 = m_molecule.atomList.ElementAtOrDefault(atomID2);
         string toolTipText = $"Distance: {m_bondDistance}\nOrder: {m_bondOrder}\nAtom1: {atom1.m_data.m_name}\nAtom2: {atom2.m_data.m_name}";
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
         if (atom1.m_data.m_abbre != "Dummy" && atom2.m_data.m_abbre != "Dummy")
@@ -185,7 +185,6 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
         {
             Destroy(toolTipInstance);
         }
-        m_molecule.bondList.Remove(this);
     }
 
 }

@@ -26,6 +26,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         // give it a glow halo
         (GetComponent("Halo") as Behaviour).enabled = true;
         stopwatch = Stopwatch.StartNew();
+        isGrabbed = true;
     }
     public void OnPointerClicked(MixedRealityPointerEventData eventData) 
     {
@@ -34,12 +35,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     public void OnPointerDragged(MixedRealityPointerEventData eventData)
     {
         // position relative to molecule position
-        EventManager.Singleton.MoveAtom(m_id, transform.localPosition);
+        EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
     }
 
     // This function is triggered when a grabbed object is dropped
     public void OnPointerUp(MixedRealityPointerEventData eventData) 
     {
+        isGrabbed = false;
         // remove glow
         (GetComponent("Halo") as Behaviour).enabled = false;
 
@@ -53,7 +55,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             }
             else
             {
-                EventManager.Singleton.SelectAtom(m_id, !isMarked);
+                EventManager.Singleton.SelectAtom(m_molecule.m_id, m_id, !isMarked);
                 markAtom(!isMarked, true);
             }
         }
@@ -70,14 +72,15 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             if (!a1.alreadyConnected(a2))
             {
                 GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
-                EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_id);
+                EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
             }
 
         }
         //Debug.Log($"[Atom] OnPointerUp: {eventData}");
     }
 
-    [HideInInspector] public ushort m_id;
+    //[HideInInspector] public ushort m_id;
+    public ushort m_id;
     [HideInInspector] public Molecule m_molecule;
     [HideInInspector] public ElementData m_data { get; private set; }
     // we have to clarify the role of m_data: Is this just basic (and constant) data?
@@ -182,7 +185,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
                 m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
                 UnityEngine.Debug.Log("[Atom] InitDummies: Landed in Fallback!");
                 break;
-
         }
 
     }
@@ -215,8 +217,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             if(numConnected > dummyLimit)
             {
                 numConnected--;
+                a.m_molecule.atomList.Remove(a);
                 Destroy(a.gameObject);
                 Bond b = a.connectedBonds()[0];
+                b.m_molecule.bondList.Remove(b);
                 Destroy(b.gameObject);
             }
 
@@ -335,7 +339,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         List<Atom> conAtomList = new List<Atom>();
         foreach(Bond b in m_molecule.bondList)
         {
-            
             if (b.atomID1 == m_id || b.atomID2 == m_id)
             {
                 Atom otherAtom = b.findTheOther(this);
@@ -517,7 +520,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         {
             Destroy(toolTipInstance);
         }
-        m_molecule.atomList.Remove(this);
     }
 
 }

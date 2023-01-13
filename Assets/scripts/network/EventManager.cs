@@ -32,6 +32,13 @@ public class EventManager : MonoBehaviour
 
     #region Delegates
 
+    public delegate void MolDataChangedAction(Molecule mol);
+    public event MolDataChangedAction OnMolDataChanged;
+    public void ChangeMolData(Molecule mol)
+    {
+        OnMolDataChanged?.Invoke(mol);
+    }
+
     public delegate void CreateAtomAction(ushort id, string abbre, Vector3 pos);
     public event CreateAtomAction OnCreateAtom;
     public void CreateAtom(ushort id, string abbre, Vector3 pos)
@@ -46,18 +53,18 @@ public class EventManager : MonoBehaviour
         OnMoveMolecule?.Invoke(id, pos, quat);
     }
 
-    public delegate void MoveAtomAction(ushort id, Vector3 pos);
+    public delegate void MoveAtomAction(ushort mol_id, ushort atom_id, Vector3 pos);
     public event MoveAtomAction OnMoveAtom;
-    public void MoveAtom(ushort id, Vector3 pos)
+    public void MoveAtom(ushort mol_id, ushort atom_id, Vector3 pos)
     {
-        OnMoveAtom?.Invoke(id, pos);
+        OnMoveAtom?.Invoke(mol_id, atom_id, pos);
     }
 
-    public delegate void MergeMoleculeAction(ushort atom1ID, ushort atom2ID);
+    public delegate void MergeMoleculeAction(ushort molecule1ID, ushort atom1ID, ushort molecule2ID, ushort atom2ID);
     public event MergeMoleculeAction OnMergeMolecule;
-    public void MergeMolecule(ushort atom1ID, ushort atom2ID)
+    public void MergeMolecule(ushort molecule1ID, ushort atom1ID, ushort molecule2ID, ushort atom2ID)
     {
-        OnMergeMolecule?.Invoke(atom1ID, atom2ID);
+        OnMergeMolecule?.Invoke(molecule1ID, atom1ID, molecule2ID, atom2ID);
     }
 
     public delegate void LoadMoleculeAction(string name);
@@ -82,11 +89,11 @@ public class EventManager : MonoBehaviour
         OnDeleteEverything?.Invoke();
     }
 
-    public delegate void SelectAtomAction(ushort id, bool select_deselect);
+    public delegate void SelectAtomAction(ushort mol_id, ushort atom_id, bool select_deselect);
     public event SelectAtomAction OnSelectAtom;
-    public void SelectAtom(ushort id, bool select_deselect)
+    public void SelectAtom(ushort mol_id, ushort atom_id, bool select_deselect)
     {
-        OnSelectAtom?.Invoke(id, select_deselect);
+        OnSelectAtom?.Invoke(mol_id, atom_id, select_deselect);
     }
 
     public delegate void SelectMoleculeAction(ushort id, bool select_deselect);
@@ -103,11 +110,11 @@ public class EventManager : MonoBehaviour
         OnSelectBond?.Invoke(bond_id, mol_id, select_deselect);
     }
 
-    public delegate void DeleteAtomAction(ushort id);
+    public delegate void DeleteAtomAction(ushort mol_id, ushort atom_id);
     public event DeleteAtomAction OnDeleteAtom;
-    public void DeleteAtom(ushort id)
+    public void DeleteAtom(ushort mol_id, ushort atom_id)
     {
-        OnDeleteAtom?.Invoke(id);
+        OnDeleteAtom?.Invoke(mol_id, atom_id);
     }
 
     public delegate void DeleteMoleculeAction(ushort id);

@@ -224,18 +224,21 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
-    public void sendAtomMoved(ushort id, Vector3 pos)
+    public void sendAtomMoved(ushort mol_id, ushort atom_id, Vector3 pos)
     {
         Message message = Message.Create(MessageSendMode.unreliable, ClientToServerID.atomMoved);
-        message.AddUShort(id);
+        message.AddUShort(mol_id);
+        message.AddUShort(atom_id);
         message.AddVector3(pos);
         Client.Send(message);
     }
 
-    public void sendMoleculeMerged(ushort atom1ID, ushort atom2ID)
+    public void sendMoleculeMerged(ushort mol1ID, ushort atom1ID, ushort mol2ID, ushort atom2ID)
     {
         Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.moleculeMerged);
+        message.AddUShort(mol1ID);
         message.AddUShort(atom1ID);
+        message.AddUShort(mol2ID);
         message.AddUShort(atom2ID);
         Client.Send(message);
     }
@@ -252,10 +255,11 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
     
-    public void sendSelectAtom(ushort id, bool selected)
+    public void sendSelectAtom(ushort mol_id, ushort atom_id, bool selected)
     {
         Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.selectAtom);
-        message.AddUShort(id);
+        message.AddUShort(mol_id);
+        message.AddUShort(atom_id);
         message.AddBool(selected);
         Client.Send(message);
     }
@@ -277,10 +281,11 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
-    public void sendDeleteAtom(ushort id)
+    public void sendDeleteAtom(ushort mol_id, ushort atom_id)
     {
         Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.deleteAtom);
-        message.AddUShort(id);
+        message.AddUShort(mol_id);
+        message.AddUShort(atom_id);
         Client.Send(message);
     }
 
@@ -313,16 +318,19 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getAtomCreated(Message message)
     {
         var client_id = message.GetUShort();
-        var atom_id = message.GetUShort();
+        var mol_id = message.GetUShort();
         var abbre = message.GetString();
         var pos = message.GetVector3();
 
         // do the create
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            GlobalCtrl.Singleton.CreateAtom(atom_id, abbre, pos, true);
+            if (GlobalCtrl.Singleton.List_curMolecules.Find(x => mol_id == x.m_id) != null)
+            {
+                // TODO send message I'M OUT OF SYNC
+            }
+            GlobalCtrl.Singleton.CreateAtom(mol_id, abbre, pos, true);
         }
-
     }
 
     [MessageHandler((ushort)ServerToClientID.bcastMoleculeMoved)]
@@ -336,7 +344,10 @@ public class NetworkManagerClient : MonoBehaviour
         // do the move
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            GlobalCtrl.Singleton.moveMolecule(molecule_id, pos, quat);
+            if (!GlobalCtrl.Singleton.moveMolecule(molecule_id, pos, quat))
+            {
+                // TODO send message I'M OUT OF SYNC
+            }
         }
 
     }
@@ -345,13 +356,14 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getAtomMoved(Message message)
     {
         var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
         var atom_id = message.GetUShort();
         var pos = message.GetVector3();
 
         // do the move
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            GlobalCtrl.Singleton.moveAtom(atom_id, pos);
+            GlobalCtrl.Singleton.moveAtom(mol_id, atom_id, pos);
         }
     }
 
@@ -359,18 +371,22 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getMoleculeMerged(Message message)
     {
         var client_id = message.GetUShort();
+        var mol1ID = message.GetUShort();
         var atom1ID = message.GetUShort();
+        var mol2ID = message.GetUShort();
         var atom2ID = message.GetUShort();
 
         // do the merge
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            if (GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atom1ID) == null || GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atom2ID) == null)
+            if (GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol1ID).atomList.ElementAtOrDefault(atom1ID) == null ||
+                GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol2ID).atomList.ElementAtOrDefault(atom2ID) == null)
             {
                 Debug.LogError($"[NetworkManagerClient] Merging operation cannot be executed. Atom IDs do not exist (Atom1: {atom1ID}, Atom2 {atom2ID})");
+                // TODO send message I'M OUT OF SYNC
                 return;
             }
-            GlobalCtrl.Singleton.MergeMolecule(atom1ID, atom2ID);
+            GlobalCtrl.Singleton.MergeMolecule(mol1ID, atom1ID, mol2ID, atom2ID);
         }
 
     }
@@ -396,15 +412,17 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getAtomSelected(Message message)
     {
         var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
         var atom_id = message.GetUShort();
         var selected = message.GetBool();
         // do the select
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var atom = GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atom_id);
+            var atom = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
             if (atom == default)
             {
                 Debug.LogError($"[NetworkManagerClient:getAtomSelected] Atom with id {atom_id} does not exist.");
+                // TODO send message I'M OUT OF SYNC
                 return;
             }
             if (atom.m_molecule.isMarked)
@@ -428,6 +446,7 @@ public class NetworkManagerClient : MonoBehaviour
             if (mol == default)
             {
                 Debug.LogError($"[NetworkManagerClient:getMoleculeSelected] Molecule with id {mol_id} does not exist.");
+                // TODO send message I'M OUT OF SYNC
                 return;
             }
             mol.markMolecule(selected, true);
@@ -449,6 +468,7 @@ public class NetworkManagerClient : MonoBehaviour
             if (mol == default || bond == default)
             {
                 Debug.LogError($"[NetworkManagerClient:getBondSelected] Bond with id {bond_id} or molecule with id {mol_id} does not exist.");
+                // TODO send message I'M OUT OF SYNC
                 return;
             }
             bond.markBond(selected, true);
@@ -459,14 +479,16 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getAtomDeleted(Message message)
     {
         var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
         var atom_id = message.GetUShort();
         // do the delete
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var atom = GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atom_id);
+            var atom = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
             if (atom == default)
             {
                 Debug.LogError($"[NetworkManagerClient:getAtomDeleted] Atom with id {atom_id} does not exist.");
+                // TODO send message I'M OUT OF SYNC
                 return;
             }
             GlobalCtrl.Singleton.deleteAtom(atom);
@@ -485,6 +507,7 @@ public class NetworkManagerClient : MonoBehaviour
             if (mol == default)
             {
                 Debug.LogError($"[NetworkManagerClient:getMoleculeSelected] Molecule with id {mol_id} does not exist.");
+                // TODO send message I'M OUT OF SYNC
                 return;
             }
             GlobalCtrl.Singleton.deleteMolecule(mol);
@@ -505,6 +528,7 @@ public class NetworkManagerClient : MonoBehaviour
             if (mol == default || bond == default)
             {
                 Debug.LogError($"[NetworkManagerClient:getBondSelected] Bond with id {bond_id} or molecule with id {mol_id} does not exist.");
+                // TODO send message I'M OUT OF SYNC
                 return;
             }
             GlobalCtrl.Singleton.deleteBond(bond);

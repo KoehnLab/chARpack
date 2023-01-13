@@ -162,14 +162,16 @@ public class NetworkManagerServer : MonoBehaviour
     [MessageHandler((ushort)ClientToServerID.atomMoved)]
     private static void getAtomMoved(ushort fromClientId, Message message)
     {
+        var mol_id = message.GetUShort();
         var atom_id = message.GetUShort();
         var pos = message.GetVector3();
         // do the move on the server
-        GlobalCtrl.Singleton.moveAtom(atom_id, pos);
+        GlobalCtrl.Singleton.moveAtom(mol_id, atom_id, pos);
 
         // Broadcast to other clients
         Message outMessage = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastAtomMoved);
         outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(mol_id);
         outMessage.AddUShort(atom_id);
         outMessage.AddVector3(pos);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
@@ -178,22 +180,26 @@ public class NetworkManagerServer : MonoBehaviour
     [MessageHandler((ushort)ClientToServerID.moleculeMerged)]
     private static void getMoleculeMerged(ushort fromClientId, Message message)
     {
+        var mol1ID = message.GetUShort();
         var atom1ID = message.GetUShort();
+        var mol2ID = message.GetUShort();
         var atom2ID = message.GetUShort();
 
         // do the merge on the server
         // fist check the existence of atoms with the correspoinding ids
-        if (GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atom1ID) == null || GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atom2ID) == null)
+        if (GlobalCtrl.Singleton.List_curMolecules[mol1ID].atomList[atom1ID] == null || GlobalCtrl.Singleton.List_curMolecules[mol2ID].atomList[atom2ID] == null)
         {
             Debug.LogError($"[NetworkManagerServer] Merging operation cannot be executed. Atom IDs do not exist (Atom1: {atom1ID}, Atom2 {atom2ID})");
             return;
         }
-        GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.List_curAtoms[atom1ID], GlobalCtrl.Singleton.List_curAtoms[atom2ID]);
+        GlobalCtrl.Singleton.MergeMolecule(mol1ID, atom1ID, mol2ID, atom2ID);
 
         // Broadcast to other clients
         Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastMoleculeMerged);
         outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(mol1ID);
         outMessage.AddUShort(atom1ID);
+        outMessage.AddUShort(mol2ID);
         outMessage.AddUShort(atom2ID);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
@@ -245,11 +251,12 @@ public class NetworkManagerServer : MonoBehaviour
     [MessageHandler((ushort)ClientToServerID.selectAtom)]
     private static void getAtomSelected(ushort fromClientId, Message message)
     {
+        var mol_id = message.GetUShort();
         var atom_id = message.GetUShort();
         var selected = message.GetBool();
         // do the select on the server
         // don't show the tooltip - may change later
-        var atom = GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atom_id);
+        var atom = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
         if (atom == default)
         {
             Debug.LogError($"[NetworkManagerServer:getAtomSelected] Atom with id {atom_id} does not exist.");
@@ -264,6 +271,7 @@ public class NetworkManagerServer : MonoBehaviour
         // Broadcast to other clients
         Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastSelectAtom);
         outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(mol_id);
         outMessage.AddUShort(atom_id);
         outMessage.AddBool(selected);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
@@ -321,10 +329,11 @@ public class NetworkManagerServer : MonoBehaviour
     [MessageHandler((ushort)ClientToServerID.deleteAtom)]
     private static void getAtomDeleted(ushort fromClientId, Message message)
     {
+        var mol_id = message.GetUShort();
         var atom_id = message.GetUShort();
         // do the select on the server
         // don't show the tooltip - may change later
-        var atom = GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(atom_id);
+        var atom = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
         if (atom == default)
         {
             Debug.LogError($"[NetworkManagerServer:getAtomDeleted] Atom with id {atom_id} does not exist.");
@@ -335,6 +344,7 @@ public class NetworkManagerServer : MonoBehaviour
         // Broadcast to other clients
         Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastDeleteAtom);
         outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(mol_id);
         outMessage.AddUShort(atom_id);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
