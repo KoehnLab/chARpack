@@ -218,6 +218,7 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
         {
             Destroy(toolTipInstance);
         }
+        m_molecule.bondList.Remove(this);
     }
 
 }

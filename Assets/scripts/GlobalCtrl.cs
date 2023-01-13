@@ -40,11 +40,6 @@ public class GlobalCtrl : MonoBehaviour
     public GameObject myAtomPrefab;
 
     public Material atomMatPrefab;
-    /// <summary>
-    /// list with all currently existing atoms
-    /// </summary>
-    public List<Atom> List_curAtoms { get; private set; }
-    //public Dictionary<int, Atom> Dic_curAtoms{get;private set;}
 
     /// <summary>
     /// all data of element
@@ -783,12 +778,11 @@ public class GlobalCtrl : MonoBehaviour
         tempData.m_bondNum = (ushort)Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization)); // a preliminary solution
 
         Atom tempAtom = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<Atom>();
-        tempAtom.f_Init(tempData, tempMolecule, Vector3.zero , getFreshAtomID());
-        List_curAtoms.Add(tempAtom);
+        tempAtom.f_Init(tempData, tempMolecule, Vector3.zero , tempMolecule.getFreshAtomID());
         // add dummies
         foreach (Vector3 posForDummy in tempAtom.m_posForDummies)
         {
-            CreateDummy(getFreshAtomID(), tempMolecule, tempAtom, posForDummy);
+            CreateDummy(tempMolecule.getFreshAtomID(), tempMolecule, tempAtom, posForDummy);
         }
 
         List_curMolecules.Add(tempMolecule);
@@ -863,7 +857,6 @@ public class GlobalCtrl : MonoBehaviour
         tempData.m_hybridization = hybrid;
         Atom tempAtom = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<Atom>();
         tempAtom.f_Init(tempData, mol, pos, idAtom);
-        List_curAtoms.Add(tempAtom);
         return tempAtom;
     }
 
@@ -877,7 +870,6 @@ public class GlobalCtrl : MonoBehaviour
     {
         Atom dummy = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<Atom>();
         dummy.f_Init(Dic_ElementData["Dummy"], inputMole, pos, idDummy);//0 for dummy
-        List_curAtoms.Add(dummy);
         CreateBond(mainAtom, dummy, inputMole);
     }
 
@@ -905,48 +897,43 @@ public class GlobalCtrl : MonoBehaviour
     {
         collision = false;
 
-        Molecule moleInhand = dummyInHand.m_molecule;
-        Molecule moleInAir = dummyInAir.m_molecule;
-        Bond bondInHand = moleInhand.bondList.Find(p=>p.atomID1==dummyInHand.m_id || p.atomID2 == dummyInHand.m_id);
-        Bond bondInAir = moleInAir.bondList.Find(p => p.atomID1 == dummyInAir.m_id || p.atomID2 == dummyInAir.m_id);
-        if(moleInhand!=moleInAir)
+        Molecule molInHand = dummyInHand.m_molecule;
+        Molecule molInAir = dummyInAir.m_molecule;
+        Bond bondInHand = molInHand.bondList.Find(p=>p.atomID1==dummyInHand.m_id || p.atomID2 == dummyInHand.m_id);
+        Bond bondInAir = molInAir.bondList.Find(p => p.atomID1 == dummyInAir.m_id || p.atomID2 == dummyInAir.m_id);
+        if(molInHand != molInAir)
         {
-            moleInhand.givingOrphans(moleInAir, moleInhand);
+            molInHand.givingOrphans(molInAir, molInHand);
         }
 
-        Atom atom1 = List_curAtoms.Find((x) => x == bondInHand.findTheOther(dummyInHand));
-        Atom atom2 = List_curAtoms.Find((x) => x == bondInAir.findTheOther(dummyInAir));
+        //Atom atom1 = List_curAtoms.Find((x) => x == bondInHand.findTheOther(dummyInHand));
+        //Atom atom2 = List_curAtoms.Find((x) => x == bondInAir.findTheOther(dummyInAir));
+        var atom1 = dummyInHand.dummyFindMain();
+        var atom2 = dummyInAir.dummyFindMain();
+
 
         //remove dummy and dummy bond of molecule in air
-        moleInAir.atomList.Remove(dummyInAir);
-        List_curAtoms.Remove(dummyInAir);
         Destroy(dummyInAir.gameObject);
-        moleInAir.bondList.Remove(bondInAir);
         Destroy(bondInAir.gameObject);
-        moleInAir.atomList.Remove(dummyInHand);
-        List_curAtoms.Remove(dummyInHand);
         Destroy(dummyInHand.gameObject);
-        moleInAir.bondList.Remove(bondInHand);
         Destroy(bondInHand.gameObject);
 
-        CreateBond(atom1, atom2, moleInAir);
+        CreateBond(atom1, atom2, molInAir);
 
-        shrinkAtomIDs();
+        molInAir.shrinkAtomIDs();
         shrinkMoleculeIDs();
 
     }
 
-    // overload to habdle IDs
-    public void MergeMolecule(ushort dummyInHand, ushort dummyInAir)
+    // overload to handle IDs
+    public void MergeMolecule(ushort molInHand, ushort dummyInHand, ushort molInAir, ushort dummyInAir)
     {
-        MergeMolecule(GlobalCtrl.Singleton.List_curAtoms[dummyInHand], GlobalCtrl.Singleton.List_curAtoms[dummyInAir]);
+        MergeMolecule(List_curMolecules[molInHand].atomList[dummyInHand], List_curMolecules[molInAir].atomList[dummyInAir]);
     }
 
     #endregion
 
     #region export import
-
-
 
     /// <summary>
     /// this method converts the selected input molecule to lists which then are saved in an XML format
@@ -1234,78 +1221,6 @@ public class GlobalCtrl : MonoBehaviour
     #endregion
 
     #region id management
-    /// <summary>
-    /// this method gets the maximum atomID currently in the scene
-    /// </summary>
-    /// <returns>id</returns>
-    public ushort getMaxAtomID()
-    {
-        ushort id = 0;
-        if (List_curAtoms.Count > 0)
-        {
-            foreach (Atom a in List_curAtoms)
-            {
-                id = Math.Max(id, a.m_id);
-            }
-        }
-        return id;
-    }
-
-    /// <summary>
-    /// this method shrinks the IDs of the atoms to prevent an overflow
-    /// </summary>
-    public void shrinkAtomIDs()
-    {
-        var from = new List<ushort>();
-        var to = new List<ushort>();
-        var bondList = new List<Bond>();
-        for (ushort i = 0; i < List_curAtoms.Count; i++)
-        {
-            // also change ids in bond
-            if (List_curAtoms[i].m_id != i)
-            {
-                from.Add(List_curAtoms[i].m_id);
-                to.Add(i);
-                foreach (var bond in List_curAtoms[i].connectedBonds())
-                {
-                    if (!bondList.Contains(bond))
-                    {
-                        bondList.Add(bond);
-                    }
-                }
-
-            }
-            List_curAtoms[i].m_id = i;
-        }
-        foreach (var bond in bondList)
-        {
-            if (from.Contains(bond.atomID1))
-            {
-                bond.atomID1 = to[from.FindIndex(a => a == bond.atomID1)];
-            }
-            if (from.Contains(bond.atomID2))
-            {
-                bond.atomID2 = to[from.FindIndex(a => a == bond.atomID2)];
-            }
-        }
-    }
-
-    /// <summary>
-    /// gets a fresh available atom id
-    /// </summary>
-    /// <param name="idNew">new ID</param>
-    public ushort getFreshAtomID()
-    {
-        if (List_curAtoms.Count == 0)
-        {
-            return 0;
-        }
-        else
-        {
-            shrinkAtomIDs();
-            return (ushort)(getMaxAtomID() + 1);
-        }
-    }
 
     /// <summary>
     /// this method gets the maximum atomID currently in the scene

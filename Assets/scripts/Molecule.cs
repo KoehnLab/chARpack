@@ -1,5 +1,6 @@
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.UI;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -119,7 +120,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         m_id = idInScene;
         isMarked = false;
-        this.transform.parent = inputParent;
+        transform.parent = inputParent;
         atomList = new List<Atom>();
         bondList = new List<Bond>();
         // TODO put collider into a corner
@@ -155,32 +156,35 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="newParent"> the molecule which is the new parent to all atoms</param>
     public void givingOrphans(Molecule newParent, Molecule oldParent)
     {
+        ushort maxID = newParent.getFreshAtomID();
         foreach(Atom a in atomList)
         {
             a.transform.parent = newParent.transform;
             a.m_molecule = newParent;
+            a.m_id += maxID;
             newParent.atomList.Add(a);
         }
         foreach (Bond b in bondList)
         {
             b.transform.parent = newParent.transform;
             b.m_molecule = newParent;
+            b.atomID1 += maxID;
+            b.atomID2 += maxID;
             newParent.bondList.Add(b);
         }
-        GlobalCtrl.Singleton.List_curMolecules.Remove(oldParent);
-        Destroy(this.gameObject);
+        Destroy(gameObject);
     }
 
 
     public void markMolecule(bool mark, bool showToolTip = false)
     {
 
-        foreach (Atom a in this.atomList)
+        foreach (Atom a in atomList)
         {
             a.markAtom(mark);
         }
 
-        foreach (Bond b in this.bondList)
+        foreach (Bond b in bondList)
         {
             b.markBond(mark);
         }
@@ -271,11 +275,88 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     }
 
+    #region id_management
+    /// <summary>
+    /// this method gets the maximum atomID currently in the scene
+    /// </summary>
+    /// <returns>id</returns>
+    public ushort getMaxAtomID()
+    {
+        ushort id = 0;
+        if (atomList.Count > 0)
+        {
+            foreach (Atom a in atomList)
+            {
+                id = Math.Max(id, a.m_id);
+            }
+        }
+        return id;
+    }
+
+    /// <summary>
+    /// this method shrinks the IDs of the atoms to prevent an overflow
+    /// </summary>
+    public void shrinkAtomIDs()
+    {
+        var from = new List<ushort>();
+        var to = new List<ushort>();
+        var bondList = new List<Bond>();
+        for (ushort i = 0; i < atomList.Count; i++)
+        {
+            // also change ids in bond
+            if (atomList[i].m_id != i)
+            {
+                from.Add(atomList[i].m_id);
+                to.Add(i);
+                foreach (var bond in atomList[i].connectedBonds())
+                {
+                    if (!bondList.Contains(bond))
+                    {
+                        bondList.Add(bond);
+                    }
+                }
+
+            }
+            atomList[i].m_id = i;
+        }
+        foreach (var bond in bondList)
+        {
+            if (from.Contains(bond.atomID1))
+            {
+                bond.atomID1 = to[from.FindIndex(a => a == bond.atomID1)];
+            }
+            if (from.Contains(bond.atomID2))
+            {
+                bond.atomID2 = to[from.FindIndex(a => a == bond.atomID2)];
+            }
+        }
+    }
+
+    /// <summary>
+    /// gets a fresh available atom id
+    /// </summary>
+    /// <param name="idNew">new ID</param>
+    public ushort getFreshAtomID()
+    {
+        if (atomList.Count == 0)
+        {
+            return 0;
+        }
+        else
+        {
+            shrinkAtomIDs();
+            return (ushort)(getMaxAtomID() + 1);
+        }
+    }
+    #endregion
+
+
     public void OnDestroy()
     {
         if (toolTipInstance != null)
         {
             Destroy(toolTipInstance);
         }
+        GlobalCtrl.Singleton.List_curMolecules.Remove(this);
     }
 }

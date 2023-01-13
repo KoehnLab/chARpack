@@ -77,8 +77,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             Atom d1 = GlobalCtrl.Singleton.collider1;
             Atom d2 = GlobalCtrl.Singleton.collider2;
 
-            Atom a1 = Atom.Instance.dummyFindMain(d1);
-            Atom a2 = Atom.Instance.dummyFindMain(d2);
+            Atom a1 = d1.dummyFindMain();
+            Atom a2 = d2.dummyFindMain();
 
             if (!Atom.Instance.alreadyConnected(a1, a2))
             {
@@ -113,19 +113,19 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="inputMole"></param>
     /// <param name="pos"></param>
     /// <param name="idInScene"></param>
-    public void f_Init(ElementData inputData, Molecule inputMole, Vector3 pos, ushort idInScene)
+    public void f_Init(ElementData inputData, Molecule inputMole, Vector3 pos, ushort atom_id)
     {
-        m_id = idInScene;
+        m_id = atom_id;
         m_molecule = inputMole;
         m_molecule.atomList.Add(this);
         m_data = inputData;
 
 
-        this.gameObject.name = m_data.m_name;
-        this.gameObject.tag = "Atom";
-        //this.gameObject.layer = 6;
-        //this.GetComponent<SphereCollider>().isTrigger = true;
-        this.GetComponent<BoxCollider>().isTrigger = true;
+        gameObject.name = m_data.m_name;
+        gameObject.tag = "Atom";
+        //gameObject.layer = 6;
+        //GetComponent<SphereCollider>().isTrigger = true;
+        GetComponent<BoxCollider>().isTrigger = true;
 
         //I don't want to create the materials for all elements from the beginning,
         //so I only create a material for an element at the first time when I create this element,
@@ -141,9 +141,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         GetComponent<MeshRenderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
         m_mat = GetComponent<MeshRenderer>().material;
 
-        this.transform.parent = inputMole.transform;
-        this.transform.localPosition = pos;    
-        this.transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.Singleton.scale/GlobalCtrl.Singleton.u2pm) * GlobalCtrl.Singleton.atomScale;
+        transform.parent = inputMole.transform;
+        transform.localPosition = pos;    
+        transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.Singleton.scale/GlobalCtrl.Singleton.u2pm) * GlobalCtrl.Singleton.atomScale;
         // at this point we have the size of the atom, so we can adjust the size of the halo
         //
 
@@ -209,8 +209,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     {
         int numConnected = connectedAtoms().Count;
         m_data = newData;
-        uint dummyLimit = this.m_data.m_bondNum;
-        this.gameObject.name = m_data.m_name;
+        uint dummyLimit = m_data.m_bondNum;
+        gameObject.name = m_data.m_name;
         if (!GlobalCtrl.Singleton.Dic_AtomMat.ContainsKey(m_data.m_id))
         {
             Material tempMat = Instantiate(GlobalCtrl.Singleton.atomMatPrefab);
@@ -220,20 +220,19 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         GetComponent<MeshRenderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
         m_mat = GetComponent<MeshRenderer>().material;
 
-        this.transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm) * GlobalCtrl.Singleton.atomScale;
+        transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm) * GlobalCtrl.Singleton.atomScale;
 
 
-        foreach(Atom a in this.connectedDummys(this))
+        foreach(Atom a in connectedDummys(this))
         {
             if(numConnected > dummyLimit)
             {
                 numConnected--;
                 Destroy(a.gameObject);
-                this.m_molecule.atomList.Remove(a);
-                GlobalCtrl.Singleton.List_curAtoms.Remove(a);
+                m_molecule.atomList.Remove(a);
                 Bond b = a.connectedBonds()[0];
                 Destroy(b.gameObject);
-                this.m_molecule.bondList.Remove(b);
+                m_molecule.bondList.Remove(b);
             }
 
         }
@@ -260,35 +259,35 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         switch (numConnected)
         {
             case (0):
-                position = this.transform.localPosition + new Vector3(0,0,0.05f);
-                GlobalCtrl.Singleton.CreateDummy(GlobalCtrl.Singleton.getFreshAtomID(), this.m_molecule, this, position);
+                position = transform.localPosition + new Vector3(0,0,0.05f);
+                GlobalCtrl.Singleton.CreateDummy(m_molecule.getFreshAtomID(), m_molecule, this, position);
                 break;
             case (1):
-                firstVec = this.transform.localPosition - conAtoms[0].transform.localPosition;
-                position = this.transform.localPosition + firstVec;
-                GlobalCtrl.Singleton.CreateDummy(GlobalCtrl.Singleton.getFreshAtomID(), this.m_molecule, this, position);
+                firstVec = transform.localPosition - conAtoms[0].transform.localPosition;
+                position = transform.localPosition + firstVec;
+                GlobalCtrl.Singleton.CreateDummy(m_molecule.getFreshAtomID(), m_molecule, this, position);
                 break;
             case (2):
-                firstVec = this.transform.localPosition - conAtoms[0].transform.localPosition;
-                secondVec = this.transform.localPosition - conAtoms[1].transform.localPosition;
-                position = this.transform.localPosition + ((firstVec + secondVec) / 2.0f);
-                if (position == this.transform.localPosition)
+                firstVec = transform.localPosition - conAtoms[0].transform.localPosition;
+                secondVec = transform.localPosition - conAtoms[1].transform.localPosition;
+                position = transform.localPosition + ((firstVec + secondVec) / 2.0f);
+                if (position == transform.localPosition)
                     position = Vector3.Cross(firstVec, secondVec);
-                GlobalCtrl.Singleton.CreateDummy(GlobalCtrl.Singleton.getFreshAtomID(), this.m_molecule, this, position);
+                GlobalCtrl.Singleton.CreateDummy(m_molecule.getFreshAtomID(), m_molecule, this, position);
                 break;
             case (3):
                 firstVec = conAtoms[1].transform.localPosition - conAtoms[0].transform.localPosition;
                 secondVec = conAtoms[2].transform.localPosition - conAtoms[0].transform.localPosition;
                 normalVec = new Vector3(firstVec.y * secondVec.z - firstVec.z * secondVec.y, firstVec.z * secondVec.x - firstVec.x * secondVec.z, firstVec.x * secondVec.y - firstVec.y * secondVec.x);
-                position = this.transform.localPosition + normalVec;
+                position = transform.localPosition + normalVec;
 
-                float sideCheck1 = normalVec.x * this.transform.localPosition.x + normalVec.y * this.transform.localPosition.y + normalVec.z * this.transform.localPosition.z;
-                float sideCheck2 = position.x * this.transform.localPosition.x + position.y * this.transform.localPosition.y + position.z * this.transform.localPosition.z;
+                float sideCheck1 = normalVec.x * transform.localPosition.x + normalVec.y * transform.localPosition.y + normalVec.z * transform.localPosition.z;
+                float sideCheck2 = position.x * transform.localPosition.x + position.y * transform.localPosition.y + position.z * transform.localPosition.z;
 
                 if ((sideCheck1 >= 0 && sideCheck2 >= 0) || (sideCheck1 <= 0 && sideCheck2 <= 0))
-                    position = this.transform.localPosition - normalVec;
+                    position = transform.localPosition - normalVec;
 
-                GlobalCtrl.Singleton.CreateDummy(GlobalCtrl.Singleton.getFreshAtomID(), this.m_molecule, this, position);
+                GlobalCtrl.Singleton.CreateDummy(m_molecule.getFreshAtomID(), m_molecule, this, position);
                 break;
             default:
                 break;
@@ -302,23 +301,23 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     public void colorSwapSelect(int col)
     {
         if (col == 1)
-            this.GetComponent<Renderer>().material = GlobalCtrl.Singleton.selectedMat;
-        else if (col == 2 || this.isMarked)
-            //this.GetComponent<Renderer>().material.color = new Color(this.GetComponent<Renderer>().material.color.r, this.GetComponent<Renderer>().material.color.g, this.GetComponent<Renderer>().material.color.b, 0.5f);
-            this.GetComponent<Renderer>().material = GlobalCtrl.Singleton.markedMat;
+            GetComponent<Renderer>().material = GlobalCtrl.Singleton.selectedMat;
+        else if (col == 2 || isMarked)
+            //GetComponent<Renderer>().material.color = new Color(GetComponent<Renderer>().material.color.r, GetComponent<Renderer>().material.color.g, GetComponent<Renderer>().material.color.b, 0.5f);
+            GetComponent<Renderer>().material = GlobalCtrl.Singleton.markedMat;
         else
-            this.GetComponent<Renderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
+            GetComponent<Renderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
     }
 
     private void OnTriggerEnter(Collider collider)
     {
         // Debug.Log($"[Atom] Collision Detected: {collider.name}");
-        if (collider.name.StartsWith("Dummy") && this.name.StartsWith("Dummy") && GlobalCtrl.Singleton.collision == false)
+        if (collider.name.StartsWith("Dummy") && name.StartsWith("Dummy") && GlobalCtrl.Singleton.collision == false)
         {
 
             GlobalCtrl.Singleton.collision = true;
             GlobalCtrl.Singleton.collider1 = collider.GetComponent<Atom>();
-            GlobalCtrl.Singleton.collider2 = this.GetComponent<Atom>();
+            GlobalCtrl.Singleton.collider2 = GetComponent<Atom>();
             GlobalCtrl.Singleton.collider1.colorSwapSelect(1);
             GlobalCtrl.Singleton.collider2.colorSwapSelect(1);
         }
@@ -326,7 +325,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 
     private void OnTriggerExit(Collider collider)
     {
-        if (collider.name.StartsWith("Dummy") && this.name.StartsWith("Dummy"))
+        if (collider.name.StartsWith("Dummy") && name.StartsWith("Dummy"))
         {
             if (GlobalCtrl.Singleton.collider1 != null)
             {
@@ -382,9 +381,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     public List<Bond> connectedBonds()
     {
         List<Bond> conBondList = new List<Bond>();
-        foreach (Bond b in this.m_molecule.bondList)
+        foreach (Bond b in m_molecule.bondList)
         {
-            if (b.atomID1 == this.m_id || b.atomID2 == this.m_id)
+            if (b.atomID1 == m_id || b.atomID2 == m_id)
             {
                 conBondList.Add(b);
             }
@@ -394,41 +393,24 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 
 
     /// <summary>
-    /// this method returns the atom with the given ID
-    /// </summary>
-    /// <param name="id">ID of the atom</param>
-    /// <returns>the searched atom</returns>
-    public Atom getAtomByID(float id)
-    {
-        foreach (Atom atom in GlobalCtrl.Singleton.List_curAtoms)
-        //foreach (KeyValuePair<int, Atom> atom in GlobalCtrl.Singleton.Dic_curAtoms)
-        {
-            if (atom.m_id == (int)id)
-                return atom;
-        }
-
-        return null;
-    }
-
-    /// <summary>
     /// this method returns the main atom for a given dummy atom
     /// </summary>
     /// <param name="dummy">the dummy atom</param>
     /// <returns>the main atom of the dummy</returns>
-    public Atom dummyFindMain(Atom dummy)
+    public Atom dummyFindMain()
     {
-        if (dummy.m_data.m_name == "Dummy")
+        if (m_data.m_name == "Dummy")
         {
-            Bond b = dummy.m_molecule.bondList.Find(p => p.atomID1 == dummy.m_id || p.atomID2 == dummy.m_id);
+            Bond b = m_molecule.bondList.Find(p => p.atomID1 == m_id || p.atomID2 == m_id);
             //Atom atom1 = GlobalCtrl.Singleton.List_curAtoms.Find((x) => x.GetComponent<Atom>() == b.findTheOther(dummy));
             Atom a;
-            if (dummy.m_id == b.atomID1)
+            if (m_id == b.atomID1)
             {
-                a = GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(b.atomID2);
+                a = m_molecule.atomList.ElementAtOrDefault(b.atomID2);
             }
             else
             {
-                a = GlobalCtrl.Singleton.List_curAtoms.ElementAtOrDefault(b.atomID1);
+                a = m_molecule.atomList.ElementAtOrDefault(b.atomID1);
             }
             if (a == default)
             {
@@ -469,7 +451,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     public void markAtom(bool mark, bool toolTip = false)
     {
 
-        this.isMarked = mark;
+        isMarked = mark;
 
         if (isMarked)
         {
@@ -532,6 +514,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         {
             Destroy(toolTipInstance);
         }
+        m_molecule.atomList.Remove(this);
     }
 
 }
