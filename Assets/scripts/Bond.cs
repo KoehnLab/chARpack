@@ -30,15 +30,13 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
         stopwatch?.Stop();
         if (stopwatch?.ElapsedMilliseconds < 200)
         {
-            var bond_id = (ushort)m_molecule.bondList.IndexOf(this);
-            EventManager.Singleton.SelectBond(bond_id, m_molecule.m_id, !isMarked);
-            markBond(!isMarked, true);
+            markBondUI(!isMarked);
         }
     }
 
-    private GameObject myToolTipPrefab;
-    private GameObject deleteMeButtonPrefab;
-    private GameObject closeMeButtonPrefab;
+    [HideInInspector] public static GameObject myToolTipPrefab;
+    [HideInInspector] public static GameObject deleteMeButtonPrefab;
+    [HideInInspector] public static GameObject closeMeButtonPrefab;
     private GameObject toolTipInstance;
     private float toolTipDistanceWeight = 2.5f;
     public ushort atomID1;
@@ -70,22 +68,6 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
         float distance = Vector3.Distance(_atom1.transform.position, _atom2.transform.position);
         transform.localScale = new Vector3(m_bondOrder, m_bondOrder, distance);
 
-        // load prefabs
-        myToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKAtomToolTip");
-        if (myToolTipPrefab == null)
-        {
-            throw new FileNotFoundException("[Molecule] MRTKAtomToolTip prefab not found - please check the configuration");
-        }
-        deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
-        if (deleteMeButtonPrefab == null)
-        {
-            throw new FileNotFoundException("[Molecule] DeleteMeButton prefab not found - please check the configuration");
-        }
-        closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
-        if (closeMeButtonPrefab == null)
-        {
-            throw new FileNotFoundException("[Molecule] CloseMeButton prefab not found - please check the configuration");
-        }
     }
 
     /// <summary>
@@ -134,6 +116,13 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    public void markBondUI(bool mark, bool toolTip = true)
+    {
+        var bond_id = (ushort)m_molecule.bondList.IndexOf(this);
+        EventManager.Singleton.SelectBond(bond_id, m_molecule.m_id, !isMarked);
+        markBond(mark, toolTip);
+    }
+
     /// <summary>
     /// changes color of selected and deselected bonds
     /// </summary>
@@ -175,7 +164,7 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
             toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
         }
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
-        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markBond(false); });
+        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markBondUI(false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
     }
 

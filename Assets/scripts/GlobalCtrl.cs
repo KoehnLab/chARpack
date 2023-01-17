@@ -159,10 +159,21 @@ public class GlobalCtrl : MonoBehaviour
         //favoritesGO.Add(fav5);
 
         // Init some prefabs
+        // Atom
         Atom.myAtomToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKAtomToolTip");
         Atom.deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
         Atom.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
+        Atom.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
 
+        // Bond
+        Bond.myToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKAtomToolTip");
+        Bond.deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
+        Bond.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
+
+        // Molecule
+        Molecule.myToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKAtomToolTip");
+        Molecule.deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
+        Molecule.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
 
         Debug.Log("[GlobalCtrl] Initialization complete.");
 
@@ -834,17 +845,29 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     /// <param name="idAtom">ID of the selected atom</param>
     /// <param name="ChemicalAbbre">chemical abbrevation of the new atom type</param>
-    public void ChangeAtom(ushort idMol, ushort idAtom, string ChemicalAbbre)
+    public bool changeAtom(ushort idMol, ushort idAtom, string ChemicalAbbre)
     {
         // TODO: do not overwrite runtime data
         Atom chgAtom = List_curMolecules.ElementAtOrDefault(idMol).atomList.ElementAtOrDefault(idAtom);
+        if (chgAtom == default)
+        {
+            return false;
+        }
 
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
         tempData.m_hybridization = chgAtom.m_data.m_hybridization;
         tempData.m_bondNum = (ushort)Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization));
 
         chgAtom.f_Modify(tempData);
+        return true;
     }
+
+    public void changeAtomUI(ushort idMol, ushort idAtom, string ChemicalAbbre)
+    {
+        EventManager.Singleton.ChangeAtom(idMol, idAtom, ChemicalAbbre);
+        changeAtom(idMol, idAtom, ChemicalAbbre);
+    }
+
 
     public void modifyHybrid(Atom atom, ushort hybrid)
     {
@@ -872,7 +895,7 @@ public class GlobalCtrl : MonoBehaviour
             {
                 if (a.m_data.m_abbre=="Dummy")
                 {
-                    ChangeAtom(curMol.m_id ,a.m_id, "H");
+                    changeAtomUI(curMol.m_id ,a.m_id, "H");
                 }
             }
         }
@@ -1188,7 +1211,7 @@ public class GlobalCtrl : MonoBehaviour
     }
 
 
-    public void rebuildAtomWorld(List<cmlData> data, bool add = false)
+    public void rebuildAtomWorld(List<cmlData> data, bool add = false, bool keepConfig = false)
     {
         // this method preserves the ids of all objects
         if (data != null)
@@ -1199,6 +1222,7 @@ public class GlobalCtrl : MonoBehaviour
                 var freshMoleculeID = getFreshMoleculeID();
 
                 Molecule tempMolecule = Instantiate(myBoundingBoxPrefab).AddComponent<Molecule>();
+                tempMolecule.keepConfig = keepConfig;
                 tempMolecule.f_Init(add == true ? freshMoleculeID : molecule.moleID, atomWorld.transform);
                 tempMolecule.transform.localPosition = molecule.molePos;
                 tempMolecule.transform.localRotation = molecule.moleQuat;

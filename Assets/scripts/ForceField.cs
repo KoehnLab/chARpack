@@ -55,7 +55,7 @@ public class ForceField : MonoBehaviour
     //float scalingFactor = 154 / (154 / GetComponent<GlobalCtrl>().scale); // with this, 154 pm are equivalent to 0.35 m in the model
     // note that the forcefield works in the atomic scale (i.e. all distances measure in pm)
     // we scale back when applying the movements to the actual objects
-    float scalingfactor;
+    public static float scalingfactor;
     int nTimeSteps = 5;  // number of time steps per FixedUpdate() for numerical integration of ODE
     float timeFactor; // timeFactor = totalTimePerFrame/nTimeSteps ... set in Start()
     /*

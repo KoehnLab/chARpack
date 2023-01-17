@@ -86,6 +86,7 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnSelectAtom += sendSelectAtom;
         EventManager.Singleton.OnSelectMolecule += sendSelectMolecule;
         EventManager.Singleton.OnSelectBond += sendSelectBond;
+        EventManager.Singleton.OnChangeAtom += sendChangeAtom;
 
 
     }
@@ -206,6 +207,12 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
+    public void sendSyncRequest()
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.syncMe);
+        Client.Send(message);
+    }
+
     public void sendAtomCreated(ushort id, string abbre, Vector3 pos)
     {
         Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.atomCreated);
@@ -304,6 +311,15 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
+    public void sendChangeAtom(ushort mol_id, ushort atom_id, string chemAbbre)
+    {
+        Message message = Message.Create(MessageSendMode.unreliable, ClientToServerID.changeAtom);
+        message.AddUShort(mol_id);
+        message.AddUShort(atom_id);
+        message.AddString(chemAbbre);
+        Client.Send(message);
+    }
+
     #endregion
 
     #region Listen
@@ -327,7 +343,9 @@ public class NetworkManagerClient : MonoBehaviour
         {
             if (GlobalCtrl.Singleton.List_curMolecules.Find(x => mol_id == x.m_id) != null)
             {
-                // TODO send message I'M OUT OF SYNC
+                Debug.LogError($"[NetworkManagerServer:getAtomCreated] Molecule with new creation id {mol_id} already exists.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+                return;
             }
             GlobalCtrl.Singleton.CreateAtom(mol_id, abbre, pos, true);
         }
@@ -337,16 +355,17 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getMoleculeMoved(Message message)
     {
         var client_id = message.GetUShort();
-        var molecule_id = message.GetUShort();
+        var mol_id = message.GetUShort();
         var pos = message.GetVector3();
         var quat = message.GetQuaternion();
 
         // do the move
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            if (!GlobalCtrl.Singleton.moveMolecule(molecule_id, pos, quat))
+            if (!GlobalCtrl.Singleton.moveMolecule(mol_id, pos, quat))
             {
-                // TODO send message I'M OUT OF SYNC
+                Debug.LogError($"[NetworkManagerServer:getMoleculeMoved] Molecule with id {mol_id} does not exists.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
             }
         }
 
@@ -363,7 +382,11 @@ public class NetworkManagerClient : MonoBehaviour
         // do the move
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            GlobalCtrl.Singleton.moveAtom(mol_id, atom_id, pos);
+            if (!GlobalCtrl.Singleton.moveAtom(mol_id, atom_id, pos))
+            {
+                Debug.LogError($"[NetworkManagerServer:getAtomMoved] Atom with id {atom_id} of Molecule {mol_id} does not exists.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
         }
     }
 
@@ -382,8 +405,8 @@ public class NetworkManagerClient : MonoBehaviour
             if (GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol1ID).atomList.ElementAtOrDefault(atom1ID) == null ||
                 GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol2ID).atomList.ElementAtOrDefault(atom2ID) == null)
             {
-                Debug.LogError($"[NetworkManagerClient] Merging operation cannot be executed. Atom IDs do not exist (Atom1: {atom1ID}, Atom2 {atom2ID})");
-                // TODO send message I'M OUT OF SYNC
+                Debug.LogError($"[NetworkManagerClient] Merging operation cannot be executed. Atom IDs do not exist (Atom1: {atom1ID}, Atom2 {atom2ID}).\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
                 return;
             }
             GlobalCtrl.Singleton.MergeMolecule(mol1ID, atom1ID, mol2ID, atom2ID);
@@ -421,8 +444,8 @@ public class NetworkManagerClient : MonoBehaviour
             var atom = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
             if (atom == default)
             {
-                Debug.LogError($"[NetworkManagerClient:getAtomSelected] Atom with id {atom_id} does not exist.");
-                // TODO send message I'M OUT OF SYNC
+                Debug.LogError($"[NetworkManagerClient:getAtomSelected] Atom with id {atom_id} does not exist.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
                 return;
             }
             if (atom.m_molecule.isMarked)
@@ -445,8 +468,8 @@ public class NetworkManagerClient : MonoBehaviour
             var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
             if (mol == default)
             {
-                Debug.LogError($"[NetworkManagerClient:getMoleculeSelected] Molecule with id {mol_id} does not exist.");
-                // TODO send message I'M OUT OF SYNC
+                Debug.LogError($"[NetworkManagerClient:getMoleculeSelected] Molecule with id {mol_id} does not exist.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
                 return;
             }
             mol.markMolecule(selected, true);
@@ -467,8 +490,8 @@ public class NetworkManagerClient : MonoBehaviour
             var bond = mol.bondList.ElementAtOrDefault(bond_id);
             if (mol == default || bond == default)
             {
-                Debug.LogError($"[NetworkManagerClient:getBondSelected] Bond with id {bond_id} or molecule with id {mol_id} does not exist.");
-                // TODO send message I'M OUT OF SYNC
+                Debug.LogError($"[NetworkManagerClient:getBondSelected] Bond with id {bond_id} or molecule with id {mol_id} does not exist.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
                 return;
             }
             bond.markBond(selected, true);
@@ -487,8 +510,8 @@ public class NetworkManagerClient : MonoBehaviour
             var atom = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
             if (atom == default)
             {
-                Debug.LogError($"[NetworkManagerClient:getAtomDeleted] Atom with id {atom_id} does not exist.");
-                // TODO send message I'M OUT OF SYNC
+                Debug.LogError($"[NetworkManagerClient:getAtomDeleted] Atom with id {atom_id} does not exist.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
                 return;
             }
             GlobalCtrl.Singleton.deleteAtom(atom);
@@ -506,8 +529,8 @@ public class NetworkManagerClient : MonoBehaviour
             var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
             if (mol == default)
             {
-                Debug.LogError($"[NetworkManagerClient:getMoleculeSelected] Molecule with id {mol_id} does not exist.");
-                // TODO send message I'M OUT OF SYNC
+                Debug.LogError($"[NetworkManagerClient:getMoleculeSelected] Molecule with id {mol_id} does not exist.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
                 return;
             }
             GlobalCtrl.Singleton.deleteMolecule(mol);
@@ -527,11 +550,30 @@ public class NetworkManagerClient : MonoBehaviour
             var bond = mol.bondList.ElementAtOrDefault(bond_id);
             if (mol == default || bond == default)
             {
-                Debug.LogError($"[NetworkManagerClient:getBondSelected] Bond with id {bond_id} or molecule with id {mol_id} does not exist.");
-                // TODO send message I'M OUT OF SYNC
+                Debug.LogError($"[NetworkManagerClient:getBondSelected] Bond with id {bond_id} or molecule with id {mol_id} does not exist.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
                 return;
             }
             GlobalCtrl.Singleton.deleteBond(bond);
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastChangeAtom)]
+    private static void getAtomChanged(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
+        var atom_id = message.GetUShort();
+        var chemAbbre = message.GetString();
+
+        // do the move
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            if (!GlobalCtrl.Singleton.changeAtom(mol_id, atom_id, chemAbbre))
+            {
+                Debug.LogError($"[NetworkManagerServer:getAtomChanged] Atom with id {atom_id} of Molecule {mol_id} does not exists.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
         }
     }
 

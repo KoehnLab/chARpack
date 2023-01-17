@@ -18,7 +18,9 @@ public enum ClientToServerID : ushort
     deleteMolecule = 12,
     selectAtom = 13,
     selectMolecule = 14,
-    selectBond = 15
+    selectBond = 15,
+    changeAtom = 16,
+    syncMe = 17
 }
 
 public enum ServerToClientID : ushort
@@ -37,7 +39,8 @@ public enum ServerToClientID : ushort
     bcastDeleteMolecule = 12,
     bcastSelectAtom = 13,
     bcastSelectMolecule = 14,
-    bcastSelectBond = 15
+    bcastSelectBond = 15,
+    bcastChangeAtom = 16
 }
 
 public enum myDeviceType : ushort

@@ -50,8 +50,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         stopwatch?.Stop();
         if (stopwatch?.ElapsedMilliseconds < 200)
         {
-            EventManager.Singleton.SelectMolecule(m_id, !isMarked);
-            markMolecule(!isMarked, true);
+            markMoleculeUI(!isMarked, true);
         }
         if (GlobalCtrl.Singleton.collision)
         {
@@ -63,8 +62,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
             if (!a1.alreadyConnected(a2))
             {
-                GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
                 EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
+                GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
             }
 
         }
@@ -88,11 +87,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
-    private GameObject myToolTipPrefab;
-    private GameObject deleteMeButtonPrefab;
-    private GameObject closeMeButtonPrefab;
+    [HideInInspector] public static GameObject myToolTipPrefab;
+    [HideInInspector] public static GameObject deleteMeButtonPrefab;
+    [HideInInspector] public static GameObject closeMeButtonPrefab;
     private GameObject toolTipInstance;
     private float toolTipDistanceWeight = 0.01f;
+    public bool keepConfig = false;
 
     /// <summary>
     /// molecule id
@@ -129,23 +129,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         // these objects take input from corner colliders and manipulate the moluecule
         gameObject.AddComponent<ObjectManipulator>();
         gameObject.AddComponent<NearInteractionGrabbable>();
-
-        // load prefabs
-        myToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKAtomToolTip");
-        if (myToolTipPrefab == null)
-        {
-            throw new FileNotFoundException("[Molecule] MRTKAtomToolTip prefab not found - please check the configuration");
-        }
-        deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
-        if (deleteMeButtonPrefab == null)
-        {
-            throw new FileNotFoundException("[Molecule] DeleteMeButton prefab not found - please check the configuration");
-        }
-        closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
-        if (closeMeButtonPrefab == null)
-        {
-            throw new FileNotFoundException("[Molecule] CloseMeButton prefab not found - please check the configuration");
-        }
 
         EventManager.Singleton.OnMolDataChanged += triggerGenerateFF;
     }
@@ -204,6 +187,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 createToolTip();
             }
         }
+    }
+
+    public void markMoleculeUI(bool mark, bool showToolTip = true)
+    {
+        EventManager.Singleton.SelectMolecule(m_id, !isMarked);
+        markMolecule(mark, showToolTip);
     }
 
     public Vector3 getCenter()
@@ -271,7 +260,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteMoleculeUI(this); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
-        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markMolecule(false); });
+        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markMoleculeUI(false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
 
     }
@@ -377,6 +366,21 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void generateFF()
     {
+
+        // Clear lists beforehand
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        {
+            mol.FFposition.Clear();
+            mol.FFforces.Clear();
+            mol.FFmovement.Clear();
+            foreach (var a in mol.atomList)
+            {
+                mol.FFposition.Add(a.transform.position * (1f / ForceField.scalingfactor));
+                mol.FFforces.Add(Vector3.zero);
+                mol.FFmovement.Add(Vector3.zero);
+            }
+        }
+
         //shrinkAtomIDs();
         bondTerms.Clear();
         angleTerms.Clear();
@@ -442,34 +446,38 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                     newBond.Atom1 = jAtom;
                     newBond.Atom2 = iAtom;
 
-                    string key1 = string.Format("{0}_{1}", atomList[jAtom].m_data.m_abbre, atomList[jAtom].m_data.m_hybridization);
-                    string key2 = string.Format("{0}_{1}", atomList[iAtom].m_data.m_abbre, atomList[iAtom].m_data.m_hybridization);
-                    //Debug.Log(string.Format("key1, key2: '{0}' '{1}'", key1, key2));
-                    float R01;
-                    float R02;
-                    float[] value;
-
-                    if (ForceField.DREIDINGConst.TryGetValue(key1, out value))
+                    if (keepConfig)
                     {
-                        R01 = value[0];
+                        newBond.Req = (FFposition[iAtom] - FFposition[jAtom]).magnitude;
                     }
                     else
                     {
-                        R01 = 70f;
-                        //ForceFieldConsole.Instance.statusOut(string.Format("Warning {0} : unknown atom or hybridization", key1));
-                    }
+                        string key1 = string.Format("{0}_{1}", atomList[jAtom].m_data.m_abbre, atomList[jAtom].m_data.m_hybridization);
+                        string key2 = string.Format("{0}_{1}", atomList[iAtom].m_data.m_abbre, atomList[iAtom].m_data.m_hybridization);
+                        float R01;
+                        float R02;
+                        float[] value;
+                        if (ForceField.DREIDINGConst.TryGetValue(key1, out value))
+                        {
+                            R01 = value[0];
+                        }
+                        else
+                        {
+                            R01 = 70f;
+                            //ForceFieldConsole.Instance.statusOut(string.Format("Warning {0} : unknown atom or hybridization", key1));
+                        }
 
-                    if (ForceField.DREIDINGConst.TryGetValue(key2, out value))
-                    {
-                        R02 = value[0];
+                        if (ForceField.DREIDINGConst.TryGetValue(key2, out value))
+                        {
+                            R02 = value[0];
+                        }
+                        else
+                        {
+                            R02 = 70f;
+                            //ForceFieldConsole.Instance.statusOut(string.Format("Warning {0} : unknown atom or hybridization", key2));
+                        }
+                        newBond.Req = R01 + R02 - 1f;
                     }
-                    else
-                    {
-                        R02 = 70f;
-                        //ForceFieldConsole.Instance.statusOut(string.Format("Warning {0} : unknown atom or hybridization", key2));
-                    }
-
-                    newBond.Req = R01 + R02 - 1f;
                     newBond.kBond = ForceField.kb;
                     bondTerms.Add(newBond);
                 }
@@ -532,18 +540,30 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                     newAngle.Atom1 = kdx;  // I put kdx->Atom1 and idx->Atom3 just for aesthetical reasons ;)
                     newAngle.Atom2 = jdx;
                     newAngle.Atom3 = idx;
-                    float[] value;
-                    string key = string.Format("{0}_{1}", atomList[jdx].m_data.m_abbre, atomList[jdx].m_data.m_hybridization);
+
                     float phi0;
-                    if (ForceField.DREIDINGConst.TryGetValue(key, out value))
+                    if (keepConfig)
                     {
-                        phi0 = value[1];
+                        var vec1 = FFposition[newAngle.Atom2] - FFposition[newAngle.Atom3];
+                        var vec2 = FFposition[newAngle.Atom1] - FFposition[newAngle.Atom2];
+                        phi0 = Mathf.Acos(Vector3.Dot(vec1.normalized, vec2.normalized)) * Mathf.Rad2Deg;
                     }
                     else
                     {
-                        phi0 = ForceField.alphaNull;
-                        //ForceFieldConsole.Instance.statusOut(string.Format("Warning {0} : unknown atom or hybridization", key));
+                        float[] value;
+                        string key = string.Format("{0}_{1}", atomList[jdx].m_data.m_abbre, atomList[jdx].m_data.m_hybridization);
+
+                        if (ForceField.DREIDINGConst.TryGetValue(key, out value))
+                        {
+                            phi0 = value[1];
+                        }
+                        else
+                        {
+                            phi0 = ForceField.alphaNull;
+                            //ForceFieldConsole.Instance.statusOut(string.Format("Warning {0} : unknown atom or hybridization", key));
+                        }
                     }
+
 
                     if (!Mathf.Approximately(phi0, 180f))
                     {
@@ -640,54 +660,38 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                             }
                             else if (atomList[jdx].m_data.m_hybridization == 2 && atomList[kdx].m_data.m_hybridization == 2)
                             {
-                                //Bond bondJK = Bond.Instance.getBond(Atom.Instance.getAtomByID(jdx), Atom.Instance.getAtomByID(kdx)); //??
-                                //print(bondJK.m_bondOrder);
-                                //if (false) //bondJK.m_bondOrder == 2.0f)
-                                //{
-                                //    newTorsion.vk = 0.45f * k0 / nTorsTerm;
-                                //    newTorsion.nn = 2;
-                                //    newTorsion.phieq = 180f; // Mathf.PI;
-                                //    //print("3. Case 2 sp2, Doppelbindung");
-                                //}
-                                //else //if(bondJK.m_bondOrder == 1.0f || bondJK.m_bondOrder == 1.5f)       
-                                //{
-                                //    newTorsion.vk = 0.05f * k0 / nTorsTerm;
-                                //    newTorsion.nn = 2;
-                                //    newTorsion.phieq = 180f; // Mathf.PI;
-                                //    //print("3. Case 2 sp2, singlebond or resonant atoms");
-                                //    /*if(exocyclic dihedral single bond involving two aromatic atoms)   //f) exception for exocyclic dihedral single bond involving two aromatic atoms ??
-                                //        {
-                                //             newTorsion.vk = 10f;
-                                //             newTorsion.nn = 2;
-                                //             newTorsion.phieq = 180f;
-                                //             print("exocyclic dihedral single bond involving two aromatic atoms");
-                                //        }
-                                //    */
-                                //}
                                 newTorsion.vk = 0.05f * ForceField.k0 / nTorsTerm;
                                 newTorsion.nn = 2;
                                 newTorsion.phieq = 180f; // Mathf.PI
+                                //print("3. Case 2 sp2");
                             }
                             else if (atomList[jdx].m_data.m_hybridization == 4 && atomList[kdx].m_data.m_hybridization == 4)
                             {
-                                //print("resonance bond");
                                 newTorsion.vk = 0.25f * ForceField.k0 / nTorsTerm;
                                 newTorsion.nn = 2;
                                 newTorsion.phieq = 180f; // Mathf.PI;
+                                //print("resonance bond");
                             }
                             else if (atomList[jdx].m_data.m_hybridization == 1 || atomList[kdx].m_data.m_hybridization == 1)
                             {
-                                //print("4. Case 2 sp1");
                                 newTorsion.vk = 0f;
                                 newTorsion.nn = 0;
                                 newTorsion.phieq = 180f; //Mathf.PI;
+                                //print("4. Case 2 sp1");
                             }
                             else // take default values
                             {
-                                //print("DEFAULT Case");
+
                                 newTorsion.vk = 0.1f * ForceField.k0 / nTorsTerm;
                                 newTorsion.nn = 3;
                                 newTorsion.phieq = 180f; //Mathf.PI;
+                                //print("DEFAULT Case");
+                            }
+                            if (keepConfig)
+                            {
+                                var vec1 = FFposition[idx] - FFposition[jdx];
+                                var vec2 = FFposition[ldx] - FFposition[kdx];
+                                newTorsion.phieq = Mathf.Acos(Vector3.Dot(vec1.normalized, vec2.normalized)) * Mathf.Rad2Deg;
                             }
                         }
                         else //improper

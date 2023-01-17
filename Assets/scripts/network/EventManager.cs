@@ -131,6 +131,13 @@ public class EventManager : MonoBehaviour
         OnDeleteBond?.Invoke(bond_id, mol_id);
     }
 
+    public delegate void ChangeAtomAction(ushort mol_id, ushort atom_id, string chemAbbre);
+    public event ChangeAtomAction OnChangeAtom;
+    public void ChangeAtom(ushort mol_id, ushort atom_id, string chemAbbre)
+    {
+        OnChangeAtom?.Invoke(mol_id, atom_id, chemAbbre);
+    }
+
     #endregion
 
 

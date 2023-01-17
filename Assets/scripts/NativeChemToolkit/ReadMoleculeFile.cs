@@ -184,14 +184,13 @@ public class ReadMoleculeFile : MonoBehaviour
         {
             list_bond.Add(new cmlBond(new_ids[single_bonds[2 * j + 0]-1], new_ids[single_bonds[2 * j + 1]-1], bond_order));
         }
-        // init position is in front of current camera
-        Vector3 create_position = CameraSwitcher.Singleton.currentCam.transform.position + 0.5f * CameraSwitcher.Singleton.currentCam.transform.forward;
+        // init position is in front of current camera in atom world coordinates
+        Vector3 create_position = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(CameraSwitcher.Singleton.currentCam.transform.position + 0.5f * CameraSwitcher.Singleton.currentCam.transform.forward);
         cmlData tempData = new cmlData(create_position, Quaternion.identity, mol_id, list_atom, list_bond);
         saveData.Add(tempData);
 
-        GlobalCtrl.Singleton.rebuildAtomWorld(saveData, true);
+        GlobalCtrl.Singleton.rebuildAtomWorld(saveData, true, true);
         NetworkManagerServer.Singleton.pushLoadMolecule(saveData);
-
     }
 
     // import plugin interface functions

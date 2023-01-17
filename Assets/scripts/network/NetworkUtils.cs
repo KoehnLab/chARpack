@@ -7,11 +7,7 @@ using UnityEngine;
 
 public static class NetworkUtils
 {
-
     #region cmlData
-
-
-
 
     public static void deserializeCmlData(Message message, ref byte[] cmlBytes_, ref List<cmlData> cmlWorld_, ushort chunkSize_, bool clearScene = true)
     {
@@ -152,9 +148,5 @@ public static class NetworkUtils
         }
     }
 
-
-
     #endregion
-
-
 }

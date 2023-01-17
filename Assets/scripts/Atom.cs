@@ -16,6 +16,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject myAtomToolTipPrefab;
     [HideInInspector] public static GameObject deleteMeButtonPrefab;
     [HideInInspector] public static GameObject closeMeButtonPrefab;
+    [HideInInspector] public static GameObject modifyMeButtonPrefab;
 
     private Stopwatch stopwatch;
     private GameObject toolTipInstance = null;
@@ -55,8 +56,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             }
             else
             {
-                EventManager.Singleton.SelectAtom(m_molecule.m_id, m_id, !isMarked);
-                markAtom(!isMarked, true);
+                markAtomUI(!isMarked);
             }
         }
 
@@ -71,8 +71,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 
             if (!a1.alreadyConnected(a2))
             {
-                GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
                 EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
+                GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
             }
 
         }
@@ -482,6 +482,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    public void markAtomUI(bool mark, bool toolTip = true)
+    {
+        EventManager.Singleton.SelectAtom(m_molecule.m_id, m_id, !isMarked);
+        markAtom(mark, toolTip);
+    }
+
     private void createToolTip()
     {
         // create tool tip
@@ -503,14 +509,36 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
         if (m_data.m_abbre != "Dummy")
         {
+            
+            if (m_data.m_abbre == "H")
+            {
+                var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
+                modifyButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { toolTipHelperChangeAtom("Dummy"); });
+                modifyButtonInstance.GetComponent<ButtonConfigHelper>().MainLabelText = "To Dummy";
+                toolTipInstance.GetComponent<DynamicToolTip>().addContent(modifyButtonInstance);
+            }
+
             var delButtonInstance = Instantiate(deleteMeButtonPrefab);
-            //delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.markToDelete(); });
             delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteAtomUI(this); });
             toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
         }
+        else
+        {
+            var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
+            modifyButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { toolTipHelperChangeAtom("H"); });
+            modifyButtonInstance.GetComponent<ButtonConfigHelper>().MainLabelText = "To Hydrogen";
+            toolTipInstance.GetComponent<DynamicToolTip>().addContent(modifyButtonInstance);
+        }
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
-        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markAtom(false); });
+        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markAtomUI(false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
+    }
+
+
+    private void toolTipHelperChangeAtom(string chemAbbre)
+    {
+        GlobalCtrl.Singleton.changeAtomUI(m_molecule.m_id, m_id, chemAbbre);
+        markAtomUI(false);
     }
 
 
