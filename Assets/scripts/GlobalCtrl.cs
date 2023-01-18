@@ -859,6 +859,7 @@ public class GlobalCtrl : MonoBehaviour
         tempData.m_bondNum = (ushort)Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization));
 
         chgAtom.f_Modify(tempData);
+        EventManager.Singleton.ChangeMolData(List_curMolecules.ElementAtOrDefault(idMol));
         return true;
     }
 
