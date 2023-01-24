@@ -58,6 +58,7 @@ public class GlobalCtrl : MonoBehaviour
     /// scaling factor for visible models
     /// </summary>
     public float scale = 0.5f;
+    //public float scale = 1.0f;
     /// <summary>
     /// 1m in unity = 1000pm in atomic world
     /// </summary>

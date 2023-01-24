@@ -449,6 +449,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                     if (keepConfig)
                     {
                         newBond.Req = (FFposition[iAtom] - FFposition[jAtom]).magnitude;
+                        UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Single Req: {newBond.Req}");
                     }
                     else
                     {
@@ -479,6 +480,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                         newBond.Req = R01 + R02 - 1f;
                     }
                     newBond.kBond = ForceField.kb;
+                    UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Eq dist: {newBond.Req}");
                     bondTerms.Add(newBond);
                 }
                 else if (atomList[iAtom].m_data.m_abbre != "Dummy" && atomList[jAtom].m_data.m_abbre != "Dummy")  // avoid dummy terms right away
@@ -544,9 +546,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                     float phi0;
                     if (keepConfig)
                     {
-                        var vec1 = FFposition[newAngle.Atom2] - FFposition[newAngle.Atom3];
+                        var vec1 = FFposition[newAngle.Atom3] - FFposition[newAngle.Atom2];
                         var vec2 = FFposition[newAngle.Atom1] - FFposition[newAngle.Atom2];
                         phi0 = Mathf.Acos(Vector3.Dot(vec1.normalized, vec2.normalized)) * Mathf.Rad2Deg;
+                        UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Angle phi: {phi0}");
                     }
                     else
                     {
@@ -687,12 +690,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                                 newTorsion.phieq = 180f; //Mathf.PI;
                                 //print("DEFAULT Case");
                             }
-                            if (keepConfig)
-                            {
-                                var vec1 = FFposition[idx] - FFposition[jdx];
-                                var vec2 = FFposition[ldx] - FFposition[kdx];
-                                newTorsion.phieq = Mathf.Acos(Vector3.Dot(vec1.normalized, vec2.normalized)) * Mathf.Rad2Deg;
-                            }
                         }
                         else //improper
                         {
@@ -735,6 +732,29 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                                 //ForceFieldConsole.Instance.statusOut(string.Format("Warning {0} : improper for unknown hybridization", jdx));
                                 newTorsion.phieq = 90f;
                             }
+                        }
+                        if (keepConfig)
+                        {
+                            //var vec1 = FFposition[idx] - FFposition[jdx];
+                            //var vec2 = FFposition[ldx] - FFposition[kdx];
+                            //var inner_vec = FFposition[jdx] - FFposition[kdx];
+                            //var cross1 = Vector3.Cross(vec1, inner_vec).normalized;
+                            //var cross2 = Vector3.Cross(vec2, -inner_vec).normalized;
+                            //newTorsion.phieq = Mathf.Acos(Vector3.Dot(cross1, cross2)) * Mathf.Rad2Deg;
+
+                            Vector3 rij = FFposition[idx] - FFposition[jdx];
+                            Vector3 rkj = FFposition[kdx] - FFposition[jdx];
+                            Vector3 rkl = FFposition[kdx] - FFposition[ldx];
+                            Vector3 mNormal = Vector3.Cross(rij, rkj);
+                            Vector3 mNormalized = Vector3.Cross(rij, rkj).normalized;
+                            Vector3 nNormal = Vector3.Cross(rkj, rkl);
+                            Vector3 nNormalized = Vector3.Cross(rkj, rkl).normalized;
+
+                            float cosAlpha = Mathf.Min(1.0f, Mathf.Max(-1.0f, (Vector3.Dot(nNormalized, mNormalized))));
+                            newTorsion.phieq = Mathf.Sign(Vector3.Dot(rij, nNormal)) * Mathf.Acos(cosAlpha) * Mathf.Rad2Deg;
+
+                            UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Torsion phi: {newTorsion.phieq}");
+                            newTorsion.nn = 1;
                         }
                         torsionTerms.Add(newTorsion);
                     }

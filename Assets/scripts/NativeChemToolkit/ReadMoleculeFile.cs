@@ -121,18 +121,18 @@ public class ReadMoleculeFile : MonoBehaviour
         {
             UnityEngine.Debug.Log("[ReadMoleculeFile] Current atom position " + all_positions[3 * i + 0] + " " + all_positions[3 * i + 1] + " " + all_positions[3 * i + 2]);
             var current_pos = new Vector3((float)all_positions[3 * i + 0], (float)all_positions[3 * i + 1], (float)all_positions[3 * i + 2]);
-            current_pos /= GlobalCtrl.Singleton.u2aa;
+            current_pos *= GlobalCtrl.Singleton.scale/GlobalCtrl.Singleton.u2aa;
             pos_vec.Add(current_pos);
             mean_pos += current_pos;
         }
         mean_pos /= num_atoms;
 
         int num_single_bonds = getNumSingleBonds();
-        UnityEngine.Debug.Log("[ReadMoleculeFile] Num single bonds " + num_single_bonds);
+        //UnityEngine.Debug.Log("[ReadMoleculeFile] Num single bonds " + num_single_bonds);
         int num_angle_bonds = getNumAngleBonds();
-        UnityEngine.Debug.Log("[ReadMoleculeFile] Num angle bonds " + num_angle_bonds);
+        //UnityEngine.Debug.Log("[ReadMoleculeFile] Num angle bonds " + num_angle_bonds);
         int num_torsion_bonds = getNumTorsionBonds();
-        UnityEngine.Debug.Log("[ReadMoleculeFile] Num torsion bonds " + num_torsion_bonds);
+        //UnityEngine.Debug.Log("[ReadMoleculeFile] Num torsion bonds " + num_torsion_bonds);
 
 
         int[] single_bonds = new int[2 * num_single_bonds];
@@ -157,10 +157,10 @@ public class ReadMoleculeFile : MonoBehaviour
             var symbol_str = Encoding.ASCII.GetString(symbol);
             symbol_str = symbol_str.Trim('#');
             symbols.Add(symbol_str);
-            UnityEngine.Debug.Log($"[ReadMoleculeFile] Atomic number {number} is ({symbol_str.Length}) symbol {symbol_str}");
+            //UnityEngine.Debug.Log($"[ReadMoleculeFile] Atomic number {number} is ({symbol_str.Length}) symbol {symbol_str}");
         }
 
-        UnityEngine.Debug.Log($"[ReadMoleculeFile] Dic_ElementData: {GlobalCtrl.Singleton.Dic_ElementData}");
+        //UnityEngine.Debug.Log($"[ReadMoleculeFile] Dic_ElementData: {GlobalCtrl.Singleton.Dic_ElementData}");
 
 
         // construct cml data

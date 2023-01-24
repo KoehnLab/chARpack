@@ -86,11 +86,61 @@ namespace StructClass
         public ushort id1;
         public ushort id2;
         public float order;
-        public cmlBond(ushort a, ushort b, float c)
+        public float dist;
+        public float kb;
+
+        public cmlBond(ushort a, ushort b, float c, float di = -1.0f, float k = -1.0f)
         {
             id1 = a;
             id2 = b;
             order = c;
+            dist = di;
+            kb = k;
+        }
+    }
+
+    /// <summary>
+    /// structure of an angle bond in cml
+    /// </summary>
+    [Serializable]
+    public struct cmlAngle
+    {
+        public ushort id1;
+        public ushort id2;
+        public ushort id3;
+        public float angle;
+        public float ka;
+
+        public cmlAngle(ushort a, ushort b, ushort c, float ang, float k = -1.0f)
+        {
+            id1 = a;
+            id2 = b;
+            id3 = c;
+            angle = ang;
+            ka = k;
+        }
+    }
+
+    /// <summary>
+    /// structure of an torsion bond in cml
+    /// </summary>
+    [Serializable]
+    public struct cmlTorsion
+    {
+        public ushort id1;
+        public ushort id2;
+        public ushort id3;
+        public ushort id4;
+        public float angle;
+        public float k0;
+        public cmlTorsion(ushort a, ushort b, ushort c, ushort d, float ang, float k = -1.0f)
+        {
+            id1 = a;
+            id2 = b;
+            id3 = c;
+            id4 = d;
+            angle = ang;
+            k0 = k;
         }
     }
 
@@ -105,13 +155,18 @@ namespace StructClass
         public ushort moleID;
         public cmlAtom[] atomArray;
         public cmlBond[] bondArray;
-        public cmlData(SaveableVector3 pos, SaveableQuaternion quat, ushort id, List<cmlAtom> a, List<cmlBond> b)
+        public cmlAngle[] angleArray;
+        public cmlTorsion[] torsionArray;
+
+        public cmlData(SaveableVector3 pos, SaveableQuaternion quat, ushort id, List<cmlAtom> a, List<cmlBond> b, List<cmlAngle> ang = null, List<cmlTorsion> tor = null)
         {
             molePos = pos;
             moleQuat = quat;
             moleID = id;
             atomArray = a.ToArray();
             bondArray = b.ToArray();
+            angleArray = ang?.ToArray();
+            torsionArray = tor?.ToArray();
         }
     }
     /// <summary>
