@@ -20,7 +20,8 @@ public enum ClientToServerID : ushort
     selectMolecule = 14,
     selectBond = 15,
     changeAtom = 16,
-    syncMe = 17
+    syncMe = 17,
+    undo = 18
 }
 
 public enum ServerToClientID : ushort

@@ -182,10 +182,10 @@ public class GlobalCtrl : MonoBehaviour
 
 
     // on mol data changed (replacement for update loop checks)
-    void onMolDataChanged()
-    {
-        SaveMolecule(true);
-    }
+    //void onMolDataChanged()
+    //{
+    //    SaveMolecule(true);
+    //}
 
 
     #region atom_helper
@@ -246,7 +246,8 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     public void DeleteAllUI()
     {
-        markToDeleteCore(true);
+        DeleteAll();
+        SaveMolecule(true);
         EventManager.Singleton.DeleteEverything();
     }
 
@@ -451,6 +452,7 @@ public class GlobalCtrl : MonoBehaviour
             }
             m.shrinkAtomIDs();
         }
+        SaveMolecule(true);
         // invoke data change event for new molecules
         foreach (Molecule m in addMoleculeList)
         {
@@ -484,6 +486,7 @@ public class GlobalCtrl : MonoBehaviour
         List_curMolecules.Remove(m);
         Destroy(m.gameObject);
         shrinkMoleculeIDs();
+        SaveMolecule(true);
         // no need to invoke change event
     }
 
@@ -568,6 +571,7 @@ public class GlobalCtrl : MonoBehaviour
             }
             m.shrinkAtomIDs();
         }
+        SaveMolecule(true);
         // invoke data change event for new molecules
         foreach (Molecule m in addMoleculeList)
         {
@@ -838,6 +842,9 @@ public class GlobalCtrl : MonoBehaviour
         }
 
         List_curMolecules.Add(tempMolecule);
+
+        SaveMolecule(true);
+
         EventManager.Singleton.ChangeMolData(tempMolecule);
     }
 
@@ -860,6 +867,8 @@ public class GlobalCtrl : MonoBehaviour
         tempData.m_bondNum = (ushort)Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization));
 
         chgAtom.f_Modify(tempData);
+
+        SaveMolecule(true);
         EventManager.Singleton.ChangeMolData(List_curMolecules.ElementAtOrDefault(idMol));
         return true;
     }
@@ -873,7 +882,6 @@ public class GlobalCtrl : MonoBehaviour
 
     public void modifyHybrid(Atom atom, ushort hybrid)
     {
-        SaveMolecule(true);
         print("hybrid:   " + hybrid);
         ElementData tempData = Dic_ElementData[atom.m_data.m_abbre];
         tempData.m_hybridization = hybrid;
@@ -881,6 +889,7 @@ public class GlobalCtrl : MonoBehaviour
 
         atom.f_Modify(tempData);
         atom.markAtom(true);
+        SaveMolecule(true);
     }
 
 
@@ -995,6 +1004,8 @@ public class GlobalCtrl : MonoBehaviour
 
         molInAir.shrinkAtomIDs();
         shrinkMoleculeIDs();
+
+        SaveMolecule(true);
 
         EventManager.Singleton.ChangeMolData(molInAir);
 
@@ -1112,15 +1123,15 @@ public class GlobalCtrl : MonoBehaviour
     /// this method loads a saved molecule into the workspace
     /// </summary>
     /// <param name="name">name of the saved molecule</param>
-    public void LoadMolecule(string name, int param = 0)
+    public void LoadMolecule(string name)
     {
         List<cmlData> loadData;
 
         Vector3 meanPos = new Vector3(0.0f, 0.0f, 0.0f);
 
-        if(param == 0)
+        loadData = (List<cmlData>)CFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
+        if (loadData != null)
         {
-            loadData = (List<cmlData>)CFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
             int nMol = 0;
             foreach (cmlData molecule in loadData)
             {
@@ -1136,31 +1147,14 @@ public class GlobalCtrl : MonoBehaviour
             Vector3 current_lookat = Camera.main.transform.forward;
             Vector3 create_position = current_pos + 0.5f * current_lookat;
             meanPos = create_position - meanPos;  // add molecules relative to this position
-        }
-        else
-        {
-            loadData = null;
-            for(int i = 0; i < 2; i++)
-            {
-                if (systemState.Count > 0)
-                {
-                    loadData = systemState.Pop();
-                }
-                else
-                    loadData = null;
-            }
 
-            meanPos = new Vector3(0.0f, 0.0f, 0.0f);
-        }
 
-        if(loadData != null)
-        {
             foreach (cmlData molecule in loadData)
             {
                 var freshMoleculeID = getFreshMoleculeID();
 
                 Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos, Quaternion.identity).AddComponent<Molecule>();
-                tempMolecule.f_Init(freshMoleculeID, atomWorld.transform);
+                tempMolecule.f_Init(freshMoleculeID, atomWorld.transform, molecule);
                 List_curMolecules.Add(tempMolecule);
 
 
@@ -1200,12 +1194,38 @@ public class GlobalCtrl : MonoBehaviour
             {
                 list_atom.Add(new cmlAtom(a.m_id, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
             }
-            List<cmlBond> list_bond = new List<cmlBond>();
-            foreach (Bond b in inputMole.bondList)
+
+            cmlData tempData;
+            if (inputMole.keepConfig)
             {
-                list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
+                List<cmlBond> list_bond = new List<cmlBond>();
+                foreach (var b in inputMole.bondTerms)
+                {
+                    list_bond.Add(new cmlBond(b.Atom1, b.Atom2, b.order, b.eqDist, b.kBond));
+                }
+                List<cmlAngle> list_angle = new List<cmlAngle>();
+                foreach (var b in inputMole.angleTerms)
+                {
+                    list_angle.Add(new cmlAngle(b.Atom1, b.Atom2, b.Atom3, b.eqAngle, b.kAngle));
+                }
+                List<cmlTorsion> list_torsion = new List<cmlTorsion>();
+                foreach (var b in inputMole.torsionTerms)
+                {
+                    list_torsion.Add(new cmlTorsion(b.Atom1, b.Atom2, b.Atom3, b.Atom4, b.eqAngle, b.vk, b.nn));
+                }
+
+                tempData = new cmlData(inputMole.transform.localPosition, inputMole.transform.localRotation, inputMole.m_id, list_atom, list_bond, list_angle, list_torsion, true);
             }
-            cmlData tempData = new cmlData(inputMole.transform.localPosition, inputMole.transform.localRotation, inputMole.m_id, list_atom, list_bond);
+            else
+            {
+                List<cmlBond> list_bond = new List<cmlBond>();
+                foreach (Bond b in inputMole.bondList)
+                {
+                    list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
+                }
+                tempData = new cmlData(inputMole.transform.localPosition, inputMole.transform.localRotation, inputMole.m_id, list_atom, list_bond);
+            }
+
             saveData.Add(tempData);
         }
 
@@ -1213,19 +1233,17 @@ public class GlobalCtrl : MonoBehaviour
     }
 
 
-    public void rebuildAtomWorld(List<cmlData> data, bool add = false, bool keepConfig = false)
+    public void rebuildAtomWorld(List<cmlData> data, bool add = false)
     {
         // this method preserves the ids of all objects
         if (data != null)
         {
-            SaveMolecule(true);
             foreach (cmlData molecule in data)
             {
                 var freshMoleculeID = getFreshMoleculeID();
 
                 Molecule tempMolecule = Instantiate(myBoundingBoxPrefab).AddComponent<Molecule>();
-                tempMolecule.keepConfig = keepConfig;
-                tempMolecule.f_Init(add == true ? freshMoleculeID : molecule.moleID, atomWorld.transform);
+                tempMolecule.f_Init(add == true ? freshMoleculeID : molecule.moleID, atomWorld.transform, molecule);
                 tempMolecule.transform.localPosition = molecule.molePos;
                 tempMolecule.transform.localRotation = molecule.moleQuat;
                 List_curMolecules.Add(tempMolecule);
@@ -1241,6 +1259,42 @@ public class GlobalCtrl : MonoBehaviour
                 EventManager.Singleton.ChangeMolData(tempMolecule);
             }
         }
+        SaveMolecule(true);
+    }
+
+    public void undoUI()
+    {
+        if (LoginData.normal_mode)
+        {
+            undo();
+        }
+        else
+        {
+            EventManager.Singleton.Undo();
+        }
+    }
+
+    public void undo()
+    {
+        Debug.Log($"[GlobalCrtl:undo] Stack size: {systemState.Count}.");
+        List<cmlData> loadData = null;
+        for (int i = 0; i < 2; i++)
+        {
+            if (systemState.Count > 0)
+            {
+                loadData = systemState.Pop();
+            }
+            else
+            {
+                loadData = null;
+            }
+        }
+
+        if (loadData != null)
+        {
+            DeleteAll();
+            rebuildAtomWorld(loadData);
+        }
     }
 
 
@@ -1250,22 +1304,22 @@ public class GlobalCtrl : MonoBehaviour
         switch(number)
         {
             case 1:
-                LoadMolecule("Aminole", 0);
+                LoadMolecule("Aminole");
                 break;
             case 2:
-                LoadMolecule("AcrylicAcid", 0);
+                LoadMolecule("AcrylicAcid");
                 break;
             case 3:
-                LoadMolecule("Adamantane", 0);
+                LoadMolecule("Adamantane");
                 break;
             case 4:
-                LoadMolecule("Indole", 0);
+                LoadMolecule("Indole");
                 break;
             case 5:
-                LoadMolecule("MirrorTask", 0);
+                LoadMolecule("MirrorTask");
                 break;
             case 6:
-                LoadMolecule("PlanarChirality", 0);
+                LoadMolecule("PlanarChirality");
                 break;
         }
     }

@@ -87,8 +87,7 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnSelectMolecule += sendSelectMolecule;
         EventManager.Singleton.OnSelectBond += sendSelectBond;
         EventManager.Singleton.OnChangeAtom += sendChangeAtom;
-
-
+        EventManager.Singleton.OnUndo += sendUndo;
     }
 
     private void FixedUpdate()
@@ -313,10 +312,16 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendChangeAtom(ushort mol_id, ushort atom_id, string chemAbbre)
     {
-        Message message = Message.Create(MessageSendMode.unreliable, ClientToServerID.changeAtom);
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.changeAtom);
         message.AddUShort(mol_id);
         message.AddUShort(atom_id);
         message.AddString(chemAbbre);
+        Client.Send(message);
+    }
+
+    public void sendUndo()
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.undo);
         Client.Send(message);
     }
 

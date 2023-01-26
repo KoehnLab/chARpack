@@ -138,6 +138,13 @@ public class EventManager : MonoBehaviour
         OnChangeAtom?.Invoke(mol_id, atom_id, chemAbbre);
     }
 
+    public delegate void UndoAction();
+    public event UndoAction OnUndo;
+    public void Undo()
+    {
+        OnUndo?.Invoke();
+    }
+
     #endregion
 
 

@@ -218,7 +218,7 @@ public class NetworkManagerServer : MonoBehaviour
     }
 
 
-    public void sendAtomWorld(List<cmlData> world, ushort toClientID)
+    public void sendAtomWorld(List<cmlData> world, int toClientID = -1)
     {
         if (world.Count < 1) return;
         NetworkUtils.serializeCmlData((ushort)ServerToClientID.sendAtomWorld, world, chunkSize, false, toClientID);
@@ -256,6 +256,7 @@ public class NetworkManagerServer : MonoBehaviour
     private static void bcastDeleteEverything(ushort fromClientId, Message message)
     {
         GlobalCtrl.Singleton.DeleteAll();
+        GlobalCtrl.Singleton.SaveMolecule(true); // for working undo state
         Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastDeleteEverything);
         outMessage.AddUShort(fromClientId);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
@@ -442,5 +443,14 @@ public class NetworkManagerServer : MonoBehaviour
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
 
+    [MessageHandler((ushort)ClientToServerID.undo)]
+    private static void getUndo(ushort fromClientId, Message message)
+    {
+        // do the undo
+        GlobalCtrl.Singleton.undo();
+        // Broadcast undone world to other clients
+        NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld());
+    }
+
     #endregion
-}
+    }

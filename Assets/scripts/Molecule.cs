@@ -1,5 +1,6 @@
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.UI;
+using StructClass;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -116,7 +117,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// </summary>
     /// <param name="idInScene">the ID in the scene o the molecule</param>
     /// <param name="inputParent"> the parent of the molecule</param>
-    public void f_Init(ushort idInScene, Transform inputParent)
+    public void f_Init(ushort idInScene, Transform inputParent, cmlData mol_data = new cmlData())
     {
         m_id = idInScene;
         isMarked = false;
@@ -129,6 +130,51 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         // these objects take input from corner colliders and manipulate the moluecule
         gameObject.AddComponent<ObjectManipulator>();
         gameObject.AddComponent<NearInteractionGrabbable>();
+
+        if (mol_data.keepConfig)
+        {
+            keepConfig = true;
+            bondTerms.Clear();
+            angleTerms.Clear();
+            torsionTerms.Clear();
+            if (mol_data.bondArray != null)
+            {
+                foreach (var current_bond in mol_data.bondArray)
+                {
+                    var new_bond = new ForceField.BondTerm();
+                    new_bond.Atom1 = current_bond.id1;
+                    new_bond.Atom2 = current_bond.id2;
+                    new_bond.eqDist = current_bond.eqDist;
+                    new_bond.kBond = current_bond.kb > 0 ? current_bond.kb : ForceField.kb;
+                }
+            }
+            if (mol_data.angleArray != null)
+            {
+                foreach (var current_angle in mol_data.angleArray)
+                {
+                    var new_angle = new ForceField.AngleTerm();
+                    new_angle.Atom1 = current_angle.id1;
+                    new_angle.Atom2 = current_angle.id2;
+                    new_angle.Atom3 = current_angle.id3;
+                    new_angle.eqAngle = current_angle.angle;
+                    new_angle.kAngle = current_angle.ka > 0 ? current_angle.ka : ForceField.ka;
+                }
+            }
+            if (mol_data.torsionArray != null)
+            {
+                foreach (var current_torsion in mol_data.torsionArray)
+                {
+                    var new_torsion = new ForceField.TorsionTerm();
+                    new_torsion.Atom1 = current_torsion.id1;
+                    new_torsion.Atom2 = current_torsion.id2;
+                    new_torsion.Atom3 = current_torsion.id3;
+                    new_torsion.Atom4 = current_torsion.id4;
+                    new_torsion.eqAngle = current_torsion.angle;
+                    new_torsion.nn = 1;
+                    new_torsion.vk = current_torsion.k0 > 0 ? current_torsion.k0 : 0.01f * ForceField.k0;
+                }
+            }
+        }
 
         EventManager.Singleton.OnMolDataChanged += triggerGenerateFF;
     }
@@ -348,6 +394,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     #region ForceField
 
     public List<Vector3> FFposition = new List<Vector3>();
+    public List<Vector3> FFlastPosition = new List<Vector3>();
     public List<Vector3> FFforces = new List<Vector3>();
     public List<Vector3> FFmovement = new List<Vector3>();
 
@@ -371,6 +418,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
         {
             mol.FFposition.Clear();
+            mol.FFlastPosition.Clear();
             mol.FFforces.Clear();
             mol.FFmovement.Clear();
             foreach (var a in mol.atomList)
@@ -379,9 +427,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 mol.FFforces.Add(Vector3.zero);
                 mol.FFmovement.Add(Vector3.zero);
             }
+            mol.FFlastPosition = mol.FFposition;
         }
 
-        //shrinkAtomIDs();
         bondTerms.Clear();
         angleTerms.Clear();
         hsTerms.Clear();
@@ -435,10 +483,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         // now set all FF terms
         // pairwise terms, run over unique atom pairs
-        for (int iAtom = 0; iAtom < num_atoms; iAtom++)
+        for (ushort iAtom = 0; iAtom < num_atoms; iAtom++)
         {
             //print("At1.m_nBondP, bonding partner count:" + GlobalCtrl.Instance.List_curAtoms[iAtom].m_nBondP);
-            for (int jAtom = 0; jAtom < iAtom; jAtom++)
+            for (ushort jAtom = 0; jAtom < iAtom; jAtom++)
             {
                 if (topo[iAtom, jAtom])
                 {
@@ -448,8 +496,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
                     if (keepConfig)
                     {
-                        newBond.Req = (FFposition[iAtom] - FFposition[jAtom]).magnitude;
-                        UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Single Req: {newBond.Req}");
+                        newBond.eqDist = (FFposition[iAtom] - FFposition[jAtom]).magnitude;
+                        UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Single Req: {newBond.eqDist}");
                     }
                     else
                     {
@@ -477,10 +525,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                             R02 = 70f;
                             //ForceFieldConsole.Instance.statusOut(string.Format("Warning {0} : unknown atom or hybridization", key2));
                         }
-                        newBond.Req = R01 + R02 - 1f;
+                        newBond.eqDist = R01 + R02 - 1f;
                     }
                     newBond.kBond = ForceField.kb;
-                    UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Eq dist: {newBond.Req}");
+                    // TODO estimate bond order from equilibrium distance
+                    newBond.order = 1.0f;
+                    UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Eq dist: {newBond.eqDist}");
                     bondTerms.Add(newBond);
                 }
                 else if (atomList[iAtom].m_data.m_abbre != "Dummy" && atomList[jAtom].m_data.m_abbre != "Dummy")  // avoid dummy terms right away
@@ -539,9 +589,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 if (idx > -1) // if anything was found: set term
                 {
                     ForceField.AngleTerm newAngle = new ForceField.AngleTerm();
-                    newAngle.Atom1 = kdx;  // I put kdx->Atom1 and idx->Atom3 just for aesthetical reasons ;)
-                    newAngle.Atom2 = jdx;
-                    newAngle.Atom3 = idx;
+                    newAngle.Atom1 = (ushort)kdx;  // I put kdx->Atom1 and idx->Atom3 just for aesthetical reasons ;)
+                    newAngle.Atom2 = (ushort)jdx;
+                    newAngle.Atom3 = (ushort)idx;
 
                     float phi0;
                     if (keepConfig)
@@ -577,7 +627,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                         newAngle.kAngle = ForceField.ka;
                     }
 
-                    newAngle.Aeq = phi0;
+                    newAngle.eqAngle = phi0;
                     angleTerms.Add(newAngle);
                 }
             }
@@ -637,10 +687,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                     {
 
                         ForceField.TorsionTerm newTorsion = new ForceField.TorsionTerm();
-                        newTorsion.Atom1 = idx;
-                        newTorsion.Atom2 = jdx;
-                        newTorsion.Atom3 = kdx;
-                        newTorsion.Atom4 = ldx;
+                        newTorsion.Atom1 = (ushort)idx;
+                        newTorsion.Atom2 = (ushort)jdx;
+                        newTorsion.Atom3 = (ushort)kdx;
+                        newTorsion.Atom4 = (ushort)ldx;
                         if (!improper)
                         {
                             float nTorsTerm = Mathf.Max(1f, (nBondP[jdx] - 1) * (nBondP[kdx] - 1));
@@ -650,7 +700,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                             {
                                 newTorsion.vk = 0.02f * ForceField.k0 / nTorsTerm;
                                 newTorsion.nn = 3;
-                                newTorsion.phieq = 180f; // Mathf.PI;
+                                newTorsion.eqAngle = 180f; // Mathf.PI;
                                 //print("1. Case 2 sp3");
                             }
                             else if (atomList[jdx].m_data.m_hybridization == 2 && atomList[kdx].m_data.m_hybridization == 3 ||
@@ -658,28 +708,28 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                             {
                                 newTorsion.vk = 0.01f * ForceField.k0 / nTorsTerm;
                                 newTorsion.nn = 6;
-                                newTorsion.phieq = 0;
+                                newTorsion.eqAngle = 0;
                                 //print("2. Case sp3 und sp2");
                             }
                             else if (atomList[jdx].m_data.m_hybridization == 2 && atomList[kdx].m_data.m_hybridization == 2)
                             {
                                 newTorsion.vk = 0.05f * ForceField.k0 / nTorsTerm;
                                 newTorsion.nn = 2;
-                                newTorsion.phieq = 180f; // Mathf.PI
+                                newTorsion.eqAngle = 180f; // Mathf.PI
                                 //print("3. Case 2 sp2");
                             }
                             else if (atomList[jdx].m_data.m_hybridization == 4 && atomList[kdx].m_data.m_hybridization == 4)
                             {
                                 newTorsion.vk = 0.25f * ForceField.k0 / nTorsTerm;
                                 newTorsion.nn = 2;
-                                newTorsion.phieq = 180f; // Mathf.PI;
+                                newTorsion.eqAngle = 180f; // Mathf.PI;
                                 //print("resonance bond");
                             }
                             else if (atomList[jdx].m_data.m_hybridization == 1 || atomList[kdx].m_data.m_hybridization == 1)
                             {
                                 newTorsion.vk = 0f;
                                 newTorsion.nn = 0;
-                                newTorsion.phieq = 180f; //Mathf.PI;
+                                newTorsion.eqAngle = 180f; //Mathf.PI;
                                 //print("4. Case 2 sp1");
                             }
                             else // take default values
@@ -687,7 +737,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
                                 newTorsion.vk = 0.1f * ForceField.k0 / nTorsTerm;
                                 newTorsion.nn = 3;
-                                newTorsion.phieq = 180f; //Mathf.PI;
+                                newTorsion.eqAngle = 180f; //Mathf.PI;
                                 //print("DEFAULT Case");
                             }
                         }
@@ -716,7 +766,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                                 newTorsion.nn = 3; // TRY:
                                                    // if (phi > 0f)
                                                    //{
-                                newTorsion.phieq = 120f;
+                                newTorsion.eqAngle = 120f;
                                 // }
                                 //else
                                 //{
@@ -725,12 +775,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                             }
                             else if (atomList[jdx].m_data.m_hybridization == 2)
                             {
-                                newTorsion.phieq = 180f;
+                                newTorsion.eqAngle = 180f;
                             }
                             else
                             {
                                 //ForceFieldConsole.Instance.statusOut(string.Format("Warning {0} : improper for unknown hybridization", jdx));
-                                newTorsion.phieq = 90f;
+                                newTorsion.eqAngle = 90f;
                             }
                         }
                         if (keepConfig)
@@ -751,9 +801,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                             Vector3 nNormalized = Vector3.Cross(rkj, rkl).normalized;
 
                             float cosAlpha = Mathf.Min(1.0f, Mathf.Max(-1.0f, (Vector3.Dot(nNormalized, mNormalized))));
-                            newTorsion.phieq = Mathf.Sign(Vector3.Dot(rij, nNormal)) * Mathf.Acos(cosAlpha) * Mathf.Rad2Deg;
+                            newTorsion.eqAngle = Mathf.Sign(Vector3.Dot(rij, nNormal)) * Mathf.Acos(cosAlpha) * Mathf.Rad2Deg;
 
-                            UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Torsion phi: {newTorsion.phieq}");
+                            UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Torsion phi: {newTorsion.eqAngle}");
                             newTorsion.nn = 1;
                         }
                         torsionTerms.Add(newTorsion);

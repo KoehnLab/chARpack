@@ -86,15 +86,15 @@ namespace StructClass
         public ushort id1;
         public ushort id2;
         public float order;
-        public float dist;
+        public float eqDist;
         public float kb;
 
-        public cmlBond(ushort a, ushort b, float c, float di = -1.0f, float k = -1.0f)
+        public cmlBond(ushort atom1, ushort atom2, float order_, float eqDist_ = -1.0f, float k = -1.0f)
         {
-            id1 = a;
-            id2 = b;
-            order = c;
-            dist = di;
+            id1 = atom1;
+            id2 = atom2;
+            order = order_;
+            eqDist = eqDist_;
             kb = k;
         }
     }
@@ -133,7 +133,8 @@ namespace StructClass
         public ushort id4;
         public float angle;
         public float k0;
-        public cmlTorsion(ushort a, ushort b, ushort c, ushort d, float ang, float k = -1.0f)
+        public ushort nn;
+        public cmlTorsion(ushort a, ushort b, ushort c, ushort d, float ang, float k = -1.0f, ushort nn_ = 1)
         {
             id1 = a;
             id2 = b;
@@ -141,6 +142,7 @@ namespace StructClass
             id4 = d;
             angle = ang;
             k0 = k;
+            nn = nn_;
         }
     }
 
@@ -153,16 +155,18 @@ namespace StructClass
         public SaveableVector3 molePos;
         public SaveableQuaternion moleQuat;
         public ushort moleID;
+        public bool keepConfig;
         public cmlAtom[] atomArray;
         public cmlBond[] bondArray;
         public cmlAngle[] angleArray;
         public cmlTorsion[] torsionArray;
 
-        public cmlData(SaveableVector3 pos, SaveableQuaternion quat, ushort id, List<cmlAtom> a, List<cmlBond> b, List<cmlAngle> ang = null, List<cmlTorsion> tor = null)
+        public cmlData(SaveableVector3 pos, SaveableQuaternion quat, ushort id, List<cmlAtom> a, List<cmlBond> b, List<cmlAngle> ang = null, List<cmlTorsion> tor = null, bool keepConfig_ = false)
         {
             molePos = pos;
             moleQuat = quat;
             moleID = id;
+            keepConfig = keepConfig_;
             atomArray = a.ToArray();
             bondArray = b.ToArray();
             angleArray = ang?.ToArray();

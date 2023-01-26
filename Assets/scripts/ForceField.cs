@@ -34,19 +34,19 @@ public class ForceField : MonoBehaviour
 
     public struct BondTerm
     {
-        public int Atom1; public int Atom2; public float kBond; public float Req;
+        public ushort Atom1; public ushort Atom2; public float kBond; public float eqDist; public float order;
     }
     public struct AngleTerm
     {
-        public int Atom1; public int Atom2; public int Atom3; public float kAngle; public float Aeq;
+        public ushort Atom1; public ushort Atom2; public ushort Atom3; public float kAngle; public float eqAngle;
     }
     public struct TorsionTerm
     {
-        public int Atom1; public int Atom2; public int Atom3; public int Atom4; public float vk; public float phieq; public int nn;
+        public ushort Atom1; public ushort Atom2; public ushort Atom3; public ushort Atom4; public float vk; public float eqAngle; public ushort nn;
     }
     public struct HardSphereTerm
     {
-        public int Atom1; public int Atom2; public float kH; public float Rcrit;
+        public ushort Atom1; public ushort Atom2; public float kH; public float Rcrit;
     }
 
     int nAtoms = 0;
@@ -58,6 +58,8 @@ public class ForceField : MonoBehaviour
     public static float scalingfactor;
     int nTimeSteps = 5;  // number of time steps per FixedUpdate() for numerical integration of ODE
     float timeFactor; // timeFactor = totalTimePerFrame/nTimeSteps ... set in Start()
+    float SVtimeFactor;
+    float RKtimeFactor;
     /*
     const float k0 = 100f;         //between 100 - 5000
     const float kb = k0;           //bond force constant
@@ -157,6 +159,8 @@ public class ForceField : MonoBehaviour
         scalingfactor = GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm;
         //timeFactor = (1.5f / (float)nTimeSteps);
         timeFactor = (4.0f / (float)nTimeSteps);
+        SVtimeFactor = (1.0f / (float)nTimeSteps);
+        RKtimeFactor = (3.0f / (float)nTimeSteps);
 
         Dictionary<string, ElementData> element_dict = GlobalCtrl.Singleton.Dic_ElementData;
         if ( element_dict == null)
@@ -254,6 +258,7 @@ public class ForceField : MonoBehaviour
                 }
             }
             calcMovements();
+            //verletIntegration();
         }
         applyMovements();
 
@@ -290,9 +295,9 @@ public class ForceField : MonoBehaviour
         //bond vector
         Vector3 rb = mol.FFposition[bond.Atom1] - mol.FFposition[bond.Atom2];
         //force on this bond vector
-        float delta = rb.magnitude - bond.Req;
+        float delta = rb.magnitude - bond.eqDist;
         float fb = -bond.kBond * delta;
-        if (LogLevel >= 1000) FFlog.WriteLine("dist: {0,12:f3}  dist0: {1,12:f3}  --  force = {2,14:f5} ", rb.magnitude, bond.Req, fb);
+        if (LogLevel >= 1000) FFlog.WriteLine("dist: {0,12:f3}  dist0: {1,12:f3}  --  force = {2,14:f5} ", rb.magnitude, bond.eqDist, fb);
         //separate the forces on the two atoms
         //Vector3 fc1 = fb * (rb / Vector3.Magnitude(rb)); // could use rb.normalized
         //Vector3 fc2 = -fb * (rb / Vector3.Magnitude(rb));
@@ -328,9 +333,9 @@ public class ForceField : MonoBehaviour
         */
         float mAlpha;
 
-        if (!Mathf.Approximately(angle.Aeq, 180f))
+        if (!Mathf.Approximately(angle.eqAngle, 180f))
         {
-            mAlpha = angle.kAngle * (cosAlpha - Mathf.Cos(angle.Aeq * (Mathf.PI / 180.0f)));
+            mAlpha = angle.kAngle * (cosAlpha - Mathf.Cos(angle.eqAngle * (Mathf.PI / 180.0f)));
         }
         else
         {
@@ -343,7 +348,7 @@ public class ForceField : MonoBehaviour
 
         //if(debug) Debug.Log(string.Format("angle {0} - {1} - {2} : {3,12:f3}  angle0 {4,12:f3}  --  moment = {5,14:f5} ", angle.Atom1, angle.Atom2, angle.Atom3, Mathf.Acos(cosAlpha) * (180.0f / Mathf.PI), angle.Aeq, mAlpha)); //??!!
 
-        if (LogLevel >= 1000) FFlog.WriteLine("angle: {0,12:f3}  angle0: {1,12:f3}  --  moment = {2,14:f5} ", Mathf.Acos(cosAlpha) * (180.0f / Mathf.PI), angle.Aeq, mAlpha);
+        if (LogLevel >= 1000) FFlog.WriteLine("angle: {0,12:f3}  angle0: {1,12:f3}  --  moment = {2,14:f5} ", Mathf.Acos(cosAlpha) * (180.0f / Mathf.PI), angle.eqAngle, mAlpha);
 
         if (LogLevel >= 10000)
         {
@@ -375,7 +380,7 @@ public class ForceField : MonoBehaviour
         float cosAlpha = Mathf.Min(1.0f,Mathf.Max(-1.0f,(Vector3.Dot(nNormalized,mNormalized))));
 
         //phi0: position for minimum often with phi0=0
-        float phi0 = torsion.phieq * Mathf.PI / 180f;
+        float phi0 = torsion.eqAngle * Mathf.PI / 180f;
         //V0 not important, because we only need the forces d V / d phi
         //float V0 = 0;
         int nn = torsion.nn;
@@ -397,7 +402,7 @@ public class ForceField : MonoBehaviour
         Vector3 ftj = -fti + ((Vector3.Dot(rij,rkj))/Vector3.Dot(rkj,rkj))*fti - ((Vector3.Dot(rkl,rkj))/(Vector3.Dot(rkj,rkj)))*ftl;
         Vector3 ftk = -ftl - ((Vector3.Dot(rij,rkj))/Vector3.Dot(rkj,rkj))*fti + ((Vector3.Dot(rkl,rkj))/(Vector3.Dot(rkj,rkj)))*ftl;
             
-        if (LogLevel >= 1000) FFlog.WriteLine("torsion: {0,12:f3}  {1,12:f3}  {2,12:f3} ", torsion.phieq, cosAlpha, phi);
+        if (LogLevel >= 1000) FFlog.WriteLine("torsion: {0,12:f3}  {1,12:f3}  {2,12:f3} ", torsion.eqAngle, cosAlpha, phi);
 
         mol.FFforces[torsion.Atom1] += fti;
         mol.FFforces[torsion.Atom2] += ftj;
@@ -477,6 +482,51 @@ public class ForceField : MonoBehaviour
 
     }
 
+    void verletIntegration()
+    {
+        // force -> momentum change: divide by mass
+        // momentum change to position change: apply time factor
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        {
+
+            // check for too long steps:
+            //float MaxMove = 10f;
+            //float moveMaxNorm = 0f; // norm of movement vector
+            //for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            //{
+            //    float moveNorm = Vector3.Magnitude(mol.FFforces[iAtom]);
+            //    moveMaxNorm = Mathf.Max(moveMaxNorm, moveNorm);
+            //}
+            //if (moveMaxNorm > MaxMove)
+            //{
+            //    float scaleMove = MaxMove / moveMaxNorm;
+            //    if (LogLevel >= 100) FFlog.WriteLine("moveMaxNorm was {0:f3} - scaling by {1:f10}", moveMaxNorm, scaleMove);
+
+            //    for (int iAtom = 0; iAtom < nAtoms; iAtom++)
+            //    {
+            //        mol.FFforces[iAtom] *= scaleMove;
+            //    }
+            //}
+
+            // update position and total movement:
+            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            {
+                // negative masses flag a fixed atom
+                if (mol.atomList[iAtom].m_data.m_mass > 0.0f)
+                {
+                    var current_pos = mol.FFposition[iAtom];
+                    mol.FFposition[iAtom] = 2.0f * current_pos - mol.FFlastPosition[iAtom] + mol.FFforces[iAtom] * Mathf.Pow(SVtimeFactor, 2.0f) / mol.atomList[iAtom].m_data.m_mass;
+                    mol.FFmovement[iAtom] = mol.FFposition[iAtom] - current_pos;
+                    mol.FFlastPosition[iAtom] = current_pos;
+                }
+                else
+                {
+                    mol.FFmovement[iAtom] = Vector3.zero;
+                }
+            }
+        }
+    }
+
     void applyMovements()
     {
         // momentum change to position change: apply time factor
@@ -484,7 +534,6 @@ public class ForceField : MonoBehaviour
         {
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
             {
-                //Atom.Instance.getAtomByID(atID).transform.localPosition += movement[iAtom] * scalingfactor;
                 mol.atomList.ElementAtOrDefault(iAtom).transform.position += mol.FFmovement[iAtom] * scalingfactor;
             }
         }
