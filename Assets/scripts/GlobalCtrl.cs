@@ -53,7 +53,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <summary>
     /// the list to save/load element data via XML.
     /// </summary>
-    private List<ElementData> list_ElementData;
+    public List<ElementData> list_ElementData;
     /// <summary>
     /// scaling factor for visible models
     /// </summary>

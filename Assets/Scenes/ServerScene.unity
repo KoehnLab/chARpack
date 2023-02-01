@@ -191,7 +191,6 @@ MonoBehaviour:
   u2pm: 1000
   u2aa: 10
   atomScale: 0.4
-  dataFolder: MoleculeFolder
   atomWorld: {fileID: 62905562}
   bondPrefab: {fileID: 6023341437175460837, guid: a6ff830e30b8fae40abd9ac1c7189f08, type: 3}
   selectedMat: {fileID: 2100000, guid: 27a6136d64696da4eba1b89b3df8d3df, type: 2}
@@ -451,8 +450,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 562136220}
-  - component: {fileID: 562136219}
-  - component: {fileID: 562136218}
+  - component: {fileID: 562136221}
   m_Layer: 0
   m_Name: NativeChemToolkit
   m_TagString: Untagged
@@ -460,30 +458,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &562136218
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 562136217}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54cf8a7823f3cfe4ea6b1223b04821a3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &562136219
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 562136217}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a2bbf14fd7796c4a9c2fee525c89e00, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &562136220
 Transform:
   m_ObjectHideFlags: 0
@@ -499,6 +473,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &562136221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 562136217}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ecc50932a96c7e4ea002ff53013ade9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &605924871
 GameObject:
   m_ObjectHideFlags: 0
@@ -880,7 +866,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableForceField: 1
-  movement: []
   LogLevel: 0
 --- !u!4 &1491027289
 Transform:
@@ -981,8 +966,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 562136218}
-        m_TargetAssemblyTypeName: ReadMoleculeFile, Assembly-CSharp
+      - m_Target: {fileID: 562136221}
+        m_TargetAssemblyTypeName: dotnetReadMoleculeFile, Assembly-CSharp
         m_MethodName: openFileDialog
         m_Mode: 1
         m_Arguments:
