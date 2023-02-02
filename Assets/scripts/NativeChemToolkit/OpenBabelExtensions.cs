@@ -54,6 +54,78 @@ public static class OpenBabelExtensions
         return tempData;
     }
 
+    public static OBMol AsOBMol(this cmlData molecule)
+    {
+        var obmol = new OBMol();
+        var atomlist = new List<OBAtom>();
+        foreach (var atom in molecule.atomArray)
+        {
+            var obatom = new OBAtom();
+            var element = GlobalCtrl.Singleton.list_ElementData.Find(x => x.m_abbre == atom.abbre);
+            obatom.SetAtomicNum(GlobalCtrl.Singleton.list_ElementData.IndexOf(element));
+            obatom.SetId((uint)(atom.id + 1));
+            var pos = atom.pos.ToVector3() * GlobalCtrl.Singleton.u2aa / GlobalCtrl.Singleton.scale;
+            obatom.SetVector(pos.AsOBVector3());
+            obatom.SetHyb(atom.hybrid);
+            atomlist.Add(obatom);
+            obmol.AddAtom(obatom);
+        }
+
+        int i = 1;
+        foreach (var bond in molecule.bondArray)
+        {
+            var obbond = new OBBond();
+            obbond.Set(i, atomlist[bond.id1], atomlist[bond.id2], (int)bond.order, 0);
+            obmol.AddBond(obbond);
+            i++;
+        }
+
+        return obmol;
+    }
+    public static cmlData AsCML(this Molecule mol)
+    {
+        // this method preserves the position of the molecules and atoms (and rotation)
+        cmlData saveData;
+
+        mol.shrinkAtomIDs();
+        List<cmlAtom> list_atom = new List<cmlAtom>();
+        foreach (Atom a in mol.atomList)
+        {
+            list_atom.Add(new cmlAtom(a.m_id, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
+        }
+
+        if (mol.keepConfig)
+        {
+            List<cmlBond> list_bond = new List<cmlBond>();
+            foreach (var b in mol.bondTerms)
+            {
+                list_bond.Add(new cmlBond(b.Atom1, b.Atom2, b.order, b.eqDist, b.kBond));
+            }
+            List<cmlAngle> list_angle = new List<cmlAngle>();
+            foreach (var b in mol.angleTerms)
+            {
+                list_angle.Add(new cmlAngle(b.Atom1, b.Atom2, b.Atom3, b.eqAngle, b.kAngle));
+            }
+            List<cmlTorsion> list_torsion = new List<cmlTorsion>();
+            foreach (var b in mol.torsionTerms)
+            {
+                list_torsion.Add(new cmlTorsion(b.Atom1, b.Atom2, b.Atom3, b.Atom4, b.eqAngle, b.vk, b.nn));
+            }
+
+            saveData = new cmlData(mol.transform.localPosition, mol.transform.localRotation, mol.m_id, list_atom, list_bond, list_angle, list_torsion, true);
+        }
+        else
+        {
+            List<cmlBond> list_bond = new List<cmlBond>();
+            foreach (Bond b in mol.bondList)
+            {
+                list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
+            }
+            saveData = new cmlData(mol.transform.localPosition, mol.transform.localRotation, mol.m_id, list_atom, list_bond);
+        }
+
+        return saveData;
+    }
 
     /// <summary>
     /// Convert an OpenBabel <see cref="OBMol"/> to a SMILES string.

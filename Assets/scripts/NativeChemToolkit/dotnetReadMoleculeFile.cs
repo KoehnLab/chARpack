@@ -40,7 +40,7 @@ public class dotnetReadMoleculeFile : MonoBehaviour
         }
     }
 
-    public void openFileDialog()
+    public void openLoadFileDialog()
     {
 #if !WINDOWS_UWP
         var path = EditorUtility.OpenFilePanel("Open Molecule File", "", "");
@@ -55,6 +55,31 @@ public class dotnetReadMoleculeFile : MonoBehaviour
                 return;
             }
             loadMolecule(path);
+        }
+#endif
+    }
+
+    public void openSaveFileDialog()
+    {
+#if !WINDOWS_UWP
+        var path = EditorUtility.SaveFilePanel("Save Molecule to File", Application.streamingAssetsPath + "/SavedMolecules/", "mol01", "xyz,smi");
+        if (path.Length != 0)
+        {
+            // do checks on file
+            FileInfo fi = new FileInfo(path);
+            if (!checkSupported(path))
+            {
+                UnityEngine.Debug.LogError($"[SaveMolecule] Chosen output format {fi.Extension} is not supported.");
+                return;
+            }
+            // TODO How to select molecule to save?
+            if (GlobalCtrl.Singleton.List_curMolecules.Count < 1)
+            {
+                UnityEngine.Debug.LogError("[SaveMolecule] No Molecules in currently in scene.");
+                return;
+            }
+            var mol = GlobalCtrl.Singleton.List_curMolecules[0].AsCML().AsOBMol();
+            saveMolecule(mol, fi);
         }
 #endif
     }
@@ -77,12 +102,12 @@ public class dotnetReadMoleculeFile : MonoBehaviour
     private void loadMolecule(string path)
     {
 
-        //if (!checkSupported(path))
-        //{
-        //    FileInfo fi = new FileInfo(path);
-        //    UnityEngine.Debug.LogError($"[ReadMoleculeFile] File {path} with extension {fi.Extension} is not in list of supported formats.");
-        //    return;
-        //}
+        if (!checkSupported(path))
+        {
+            FileInfo fi = new FileInfo(path);
+            UnityEngine.Debug.LogError($"[ReadMoleculeFile] File {path} with extension {fi.Extension} is not in list of supported formats.");
+            return;
+        }
 
         // do the read
         var conv = new OBConversion(path);
@@ -110,7 +135,6 @@ public class dotnetReadMoleculeFile : MonoBehaviour
             //        return; // can't do anything more
             //    }
             //}
-
             //pFF.ConjugateGradients(250, 1.0e-4);
             //pFF.UpdateCoordinates(mol);
         }
@@ -121,6 +145,13 @@ public class dotnetReadMoleculeFile : MonoBehaviour
 
         GlobalCtrl.Singleton.rebuildAtomWorld(saveData, true);
         NetworkManagerServer.Singleton.pushLoadMolecule(saveData);
+    }
+
+    public void saveMolecule(OBMol obmol, FileInfo fi)
+    {
+        var conv = new OBConversion();
+        conv.SetOutFormat(fi.Extension);
+        conv.WriteFile(obmol, fi.FullName);
     }
 
 }
