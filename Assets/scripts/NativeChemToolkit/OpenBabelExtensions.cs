@@ -152,4 +152,35 @@ public static class OpenBabelExtensions
     {
         return new Vector3((float)vector.GetX(), (float)vector.GetY(), (float)vector.GetZ());
     }
+
+    public static string AsCommaSeparatedString(this string[] list)
+    {
+        var output = "";
+        for (int i = 0; i < list.Length; i++)
+        {
+            if (i == list.Length - 1)
+            {
+                output += list[i];
+            } else
+            {
+                output += list[i] + ",";
+            }
+        }
+        return output;
+    }
+
+    public static bool Contains(this ForceField.BondTerm term, ushort id)
+    {
+        return (term.Atom1 == id || term.Atom2 == id);
+    }
+
+    public static bool Contains(this ForceField.AngleTerm term, ushort id)
+    {
+        return (term.Atom1 == id || term.Atom2 == id || term.Atom3 == id);
+    }
+
+    public static bool Contains(this ForceField.TorsionTerm term, ushort id)
+    {
+        return (term.Atom1 == id || term.Atom2 == id || term.Atom3 == id || term.Atom4 == id);
+    }
 }

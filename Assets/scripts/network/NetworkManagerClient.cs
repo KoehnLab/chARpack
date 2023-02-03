@@ -499,7 +499,7 @@ public class NetworkManagerClient : MonoBehaviour
                 NetworkManagerClient.Singleton.sendSyncRequest();
                 return;
             }
-            bond.markBond(selected, true);
+            bond.markBond(selected);
         }
     }
 

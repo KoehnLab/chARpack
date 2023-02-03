@@ -166,11 +166,6 @@ public class GlobalCtrl : MonoBehaviour
         Atom.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
         Atom.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
 
-        // Bond
-        Bond.myToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKAtomToolTip");
-        Bond.deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
-        Bond.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
-
         // Molecule
         Molecule.myToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKAtomToolTip");
         Molecule.deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");

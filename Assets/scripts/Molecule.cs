@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
@@ -208,7 +209,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void markMolecule(bool mark, bool showToolTip = false)
     {
-
+        if (showToolTip && toolTipInstance)
+        {
+            Destroy(toolTipInstance);
+            toolTipInstance = null;
+        }
         foreach (Atom a in atomList)
         {
             a.markAtom(mark);
@@ -221,14 +226,15 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         isMarked = mark;
         if (!mark)
         {
-            if (toolTipInstance != null)
+            if (toolTipInstance)
             {
                 Destroy(toolTipInstance);
+                toolTipInstance = null;
             }
         } 
         else
         {
-            if (toolTipInstance == null && showToolTip)
+            if (!toolTipInstance && showToolTip)
             {
                 createToolTip();
             }
@@ -286,6 +292,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     }
 
+    #region ToolTips
+
     private void createToolTip()
     {
         // create tool tip
@@ -310,6 +318,131 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
 
     }
+
+
+    public void createBondToolTip(ForceField.BondTerm term)
+    {
+        markBondTerm(term, true);
+        var bond = atomList[term.Atom1].getBond(atomList[term.Atom2]);
+        // create tool tip
+        toolTipInstance = Instantiate(myToolTipPrefab);
+        // calc position for tool tip
+        // first: get position in the bounding box and decide if the tool tip spawns left, right, top or bottom of the box
+        Vector3 mol_center = getCenter();
+        // project to camera coordnates
+        Vector2 mol_center_in_cam = new Vector2(Vector3.Dot(mol_center, Camera.main.transform.right), Vector3.Dot(mol_center, Camera.main.transform.up));
+        Vector2 atom_pos_in_cam = new Vector2(Vector3.Dot(transform.position, Camera.main.transform.right), Vector3.Dot(transform.position, Camera.main.transform.up));
+        // calc diff
+        Vector2 diff_mol_atom = atom_pos_in_cam - mol_center_in_cam;
+        // enhance diff for final tool tip pos
+        Vector3 ttpos = transform.position + toolTipDistanceWeight * diff_mol_atom[0] * Camera.main.transform.right + toolTipDistanceWeight * diff_mol_atom[1] * Camera.main.transform.up;
+        toolTipInstance.transform.position = ttpos;
+        // add bond as connector
+        toolTipInstance.GetComponent<myToolTipConnector>().Target = bond.gameObject;
+        // show meta data 
+        var atom1 = atomList.ElementAtOrDefault(term.Atom1);
+        var atom2 = atomList.ElementAtOrDefault(term.Atom2);
+        string toolTipText = $"Single Bond\nEqi. dist: {term.eqDist}\nk: {term.kBond}\nOrder: {term.order}";
+        toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        if (atom1.m_data.m_abbre != "Dummy" && atom2.m_data.m_abbre != "Dummy")
+        {
+            var delButtonInstance = Instantiate(deleteMeButtonPrefab);
+            delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteBondUI(bond); });
+            toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
+        }
+        var closeButtonInstance = Instantiate(closeMeButtonPrefab);
+        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markBondTerm(term, false); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
+    }
+
+    private void markBondTerm(ForceField.BondTerm term, bool mark)
+    {
+        atomList[term.Atom1].markAtom(mark);
+        atomList[term.Atom2].markAtom(mark);
+        atomList[term.Atom1].getBond(atomList[term.Atom2])?.markBond(mark);
+
+        if (toolTipInstance)
+        {
+            Destroy(toolTipInstance);
+            toolTipInstance = null;
+        }
+    }
+
+
+
+    public void createAngleToolTip(ForceField.AngleTerm term)
+    {
+        markAngleTerm(term,true);
+        var middleAtom = atomList[term.Atom2];
+        // create tool tip
+        toolTipInstance = Instantiate(myToolTipPrefab);
+        // put tool top to the right 
+        Vector3 ttpos = middleAtom.transform.position + toolTipDistanceWeight * Camera.main.transform.right + toolTipDistanceWeight * Camera.main.transform.up;
+        toolTipInstance.transform.position = ttpos;
+        // add atom as connector
+        toolTipInstance.GetComponent<myToolTipConnector>().Target = middleAtom.gameObject;
+        // show angle term data
+        string toolTipText = $"Angle Bond\nEqui. Angle: {term.eqAngle}\nkAngle: {term.kAngle}";
+        toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        var closeButtonInstance = Instantiate(closeMeButtonPrefab);
+        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markAngleTerm(term, false); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
+    }
+
+    private void markAngleTerm(ForceField.AngleTerm term, bool mark)
+    {
+        atomList[term.Atom1].markAtom(mark);
+        atomList[term.Atom2].markAtom(mark);
+        atomList[term.Atom3].markAtom(mark);
+        atomList[term.Atom1].getBond(atomList[term.Atom2])?.markBond(mark);
+        atomList[term.Atom2].getBond(atomList[term.Atom3])?.markBond(mark);
+
+        if (toolTipInstance)
+        {
+            Destroy(toolTipInstance);
+            toolTipInstance = null;
+        }
+    }
+
+
+    public void createTorsionToolTip(ForceField.TorsionTerm term)
+    {
+        markTorsionTerm(term, true);
+        var middlebond = atomList[term.Atom2].getBond(atomList[term.Atom3]);
+        // create tool tip
+        toolTipInstance = Instantiate(myToolTipPrefab);
+        // put tool top to the right 
+        Vector3 ttpos = middlebond.transform.position + toolTipDistanceWeight * Camera.main.transform.right + toolTipDistanceWeight * Camera.main.transform.up;
+        toolTipInstance.transform.position = ttpos;
+        // add atom as connector
+        toolTipInstance.GetComponent<myToolTipConnector>().Target = middlebond.gameObject;
+        // show angle term data
+        string toolTipText = $"Torsion Bond\nEqui. Angle: {term.eqAngle}\nvk: {term.vk}\nnn: {term.nn}";
+        toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        var closeButtonInstance = Instantiate(closeMeButtonPrefab);
+        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markTorsionTerm(term, false); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
+
+    }
+
+    private void markTorsionTerm(ForceField.TorsionTerm term, bool mark)
+    {
+        atomList[term.Atom1].markAtom(mark);
+        atomList[term.Atom2].markAtom(mark);
+        atomList[term.Atom3].markAtom(mark);
+        atomList[term.Atom4].markAtom(mark);
+        atomList[term.Atom1].getBond(atomList[term.Atom2])?.markBond(mark);
+        atomList[term.Atom2].getBond(atomList[term.Atom3])?.markBond(mark);
+        atomList[term.Atom3].getBond(atomList[term.Atom4])?.markBond(mark);
+
+        if (toolTipInstance)
+        {
+            Destroy(toolTipInstance);
+            toolTipInstance = null;
+        }
+    }
+
+    #endregion
 
     #region id_management
     /// <summary>
@@ -817,9 +950,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void OnDestroy()
     {
-        if (toolTipInstance != null)
+        if (toolTipInstance)
         {
             Destroy(toolTipInstance);
+            toolTipInstance = null;
         }
         EventManager.Singleton.OnMolDataChanged -= triggerGenerateFF;
     }

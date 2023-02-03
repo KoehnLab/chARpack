@@ -34,9 +34,6 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
-    [HideInInspector] public static GameObject myToolTipPrefab;
-    [HideInInspector] public static GameObject deleteMeButtonPrefab;
-    [HideInInspector] public static GameObject closeMeButtonPrefab;
     private GameObject toolTipInstance;
     private float toolTipDistanceWeight = 2.5f;
     public ushort atomID1;
@@ -89,30 +86,17 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
     /// this method marks a bond in a different color if it is selected
     /// </summary>
     /// <param name="mark">true or false if selected</param>
-    public void markBond(bool mark, bool toolTip = false)
+    public void markBond(bool mark)
     {
         isMarked = mark;
 
         if (isMarked)
         {
             colorSwapSelect(2);
-            if (toolTipInstance == null && toolTip)
-            {
-                createToolTip();
-            }
         }
         else
         {
             colorSwapSelect(0);
-            if (toolTipInstance != null)
-            {
-                Destroy(toolTipInstance);
-            }
-        }
-        // destroy tooltip of marked without flag
-        if (!toolTip && toolTipInstance != null)
-        {
-            Destroy(toolTipInstance);
         }
     }
 
@@ -120,7 +104,7 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
     {
         var bond_id = (ushort)m_molecule.bondList.IndexOf(this);
         EventManager.Singleton.SelectBond(bond_id, m_molecule.m_id, !isMarked);
-        markBond(mark, toolTip);
+        markBond(mark);
     }
 
     /// <summary>
@@ -133,39 +117,6 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
             GetComponentInChildren<Renderer>().material = GlobalCtrl.Singleton.markedMat;
         else
             GetComponentInChildren<Renderer>().material = GlobalCtrl.Singleton.bondMat;
-    }
-
-    private void createToolTip()
-    {
-        // create tool tip
-        toolTipInstance = Instantiate(myToolTipPrefab);
-        // calc position for tool tip
-        // first: get position in the bounding box and decide if the tool tip spawns left, right, top or bottom of the box
-        Vector3 mol_center = m_molecule.getCenter();
-        // project to camera coordnates
-        Vector2 mol_center_in_cam = new Vector2(Vector3.Dot(mol_center, Camera.main.transform.right), Vector3.Dot(mol_center, Camera.main.transform.up));
-        Vector2 atom_pos_in_cam = new Vector2(Vector3.Dot(transform.position, Camera.main.transform.right), Vector3.Dot(transform.position, Camera.main.transform.up));
-        // calc diff
-        Vector2 diff_mol_atom = atom_pos_in_cam - mol_center_in_cam;
-        // enhance diff for final tool tip pos
-        Vector3 ttpos = transform.position + toolTipDistanceWeight * diff_mol_atom[0] * Camera.main.transform.right + toolTipDistanceWeight * diff_mol_atom[1] * Camera.main.transform.up;
-        toolTipInstance.transform.position = ttpos;
-        // add bond as connector
-        toolTipInstance.GetComponent<myToolTipConnector>().Target = gameObject;
-        // show meta data 
-        var atom1 = m_molecule.atomList.ElementAtOrDefault(atomID1);
-        var atom2 = m_molecule.atomList.ElementAtOrDefault(atomID2);
-        string toolTipText = $"Distance: {m_bondDistance}\nOrder: {m_bondOrder}\nAtom1: {atom1.m_data.m_name}\nAtom2: {atom2.m_data.m_name}";
-        toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
-        if (atom1.m_data.m_abbre != "Dummy" && atom2.m_data.m_abbre != "Dummy")
-        {
-            var delButtonInstance = Instantiate(deleteMeButtonPrefab);
-            delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteBondUI(this); });
-            toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
-        }
-        var closeButtonInstance = Instantiate(closeMeButtonPrefab);
-        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markBondUI(false); });
-        toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
     }
 
     public void OnDestroy()

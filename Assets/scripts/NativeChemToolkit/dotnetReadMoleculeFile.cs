@@ -8,7 +8,8 @@ using OpenBabel;
 
 public class dotnetReadMoleculeFile : MonoBehaviour
 {
-    private string[] supportedFormats = null;
+    private string[] supportedInputFormats = null;
+    private string[] supportedOutputFormats = null;
 
     private void Awake()
     {
@@ -26,17 +27,31 @@ public class dotnetReadMoleculeFile : MonoBehaviour
 
         // get supported file formats
         var conv = new OBConversion();
-        var formats = conv.GetSupportedInputFormat();
+        var inFormats = conv.GetSupportedInputFormat();
+        var outFormats = conv.GetSupportedOutputFormat();
 
-        supportedFormats = new string[formats.Count];
+        UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported input Formats {inFormats.Count}.");
+        UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported output Formats {outFormats.Count}.");
+
+        supportedInputFormats = new string[inFormats.Count];
+        supportedOutputFormats = new string[outFormats.Count];
 
         int i = 0;
-        foreach (var format in formats) 
+        foreach (var format in inFormats) 
         {
             //UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported Format: {format}.");
-            supportedFormats[i] = format.Split(" ")[0];
-            UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported Format: {supportedFormats[i]}.");
+            supportedInputFormats[i] = format.Split(" ")[0];
+            //UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported input Format: {supportedInputFormats[i]}.");
             i++;
+        }
+
+        int j = 0;
+        foreach (var format in outFormats)
+        {
+            //UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported Format: {format}.");
+            supportedOutputFormats[j] = format.Split(" ")[0];
+            //UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported output Format: {supportedInputFormats[i]}.");
+            j++;
         }
     }
 
@@ -62,12 +77,12 @@ public class dotnetReadMoleculeFile : MonoBehaviour
     public void openSaveFileDialog()
     {
 #if !WINDOWS_UWP
-        var path = EditorUtility.SaveFilePanel("Save Molecule to File", Application.streamingAssetsPath + "/SavedMolecules/", "mol01", "xyz,smi");
+        var path = EditorUtility.SaveFilePanel("Save Molecule to File", Application.streamingAssetsPath + "/SavedMolecules/", "mol01", supportedOutputFormats.AsCommaSeparatedString());
         if (path.Length != 0)
         {
             // do checks on file
             FileInfo fi = new FileInfo(path);
-            if (!checkSupported(path))
+            if (!checkOutputSupported(path))
             {
                 UnityEngine.Debug.LogError($"[SaveMolecule] Chosen output format {fi.Extension} is not supported.");
                 return;
@@ -78,17 +93,43 @@ public class dotnetReadMoleculeFile : MonoBehaviour
                 UnityEngine.Debug.LogError("[SaveMolecule] No Molecules in currently in scene.");
                 return;
             }
-            var mol = GlobalCtrl.Singleton.List_curMolecules[0].AsCML().AsOBMol();
+            OBMol mol;
+            var selectedObject = Selection.activeGameObject;
+            var objMol = selectedObject.GetComponent<Molecule>();
+            if (objMol == null)
+            {
+                mol = GlobalCtrl.Singleton.List_curMolecules[0].AsCML().AsOBMol();
+            }
+            else
+            {
+                mol = objMol.AsCML().AsOBMol();
+            }
+            
             saveMolecule(mol, fi);
         }
 #endif
     }
 
-    private bool checkSupported(string path)
+    private bool checkInputSupported(string path)
     {
         bool supported = false;
         FileInfo fi = new FileInfo(path);
-        foreach (var format in supportedFormats)
+        foreach (var format in supportedInputFormats)
+        {
+            if (fi.Extension.Contains(format))
+            {
+                supported = true;
+                break;
+            }
+        }
+        return supported;
+    }
+
+    private bool checkOutputSupported(string path)
+    {
+        bool supported = false;
+        FileInfo fi = new FileInfo(path);
+        foreach (var format in supportedOutputFormats)
         {
             if (fi.Extension.Contains(format))
             {
@@ -102,7 +143,7 @@ public class dotnetReadMoleculeFile : MonoBehaviour
     private void loadMolecule(string path)
     {
 
-        if (!checkSupported(path))
+        if (!checkInputSupported(path))
         {
             FileInfo fi = new FileInfo(path);
             UnityEngine.Debug.LogError($"[ReadMoleculeFile] File {path} with extension {fi.Extension} is not in list of supported formats.");
