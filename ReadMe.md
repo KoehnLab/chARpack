@@ -18,3 +18,5 @@ Please run [MixedRealityFeatureTool](https://www.microsoft.com/en-us/download/de
     Mixed Reality OpenXR Plugin (v1.6.0)
 
 All these features should also appear with the tag "Version x.x.x currently installed".
+
+For server support of OpenBabel please install the [latest](https://github.com/openbabel/openbabel/releases/latest) version.
