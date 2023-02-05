@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
@@ -92,6 +93,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject myToolTipPrefab;
     [HideInInspector] public static GameObject deleteMeButtonPrefab;
     [HideInInspector] public static GameObject closeMeButtonPrefab;
+    [HideInInspector] public static GameObject modifyMeButtonPrefab;
+    [HideInInspector] public static GameObject changeBondWindowPrefab;
     private GameObject toolTipInstance;
     private float toolTipDistanceWeight = 0.01f;
     public bool keepConfig = false;
@@ -344,15 +347,42 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var atom2 = atomList.ElementAtOrDefault(term.Atom2);
         string toolTipText = $"Single Bond\nEqi. dist: {term.eqDist}\nk: {term.kBond}\nOrder: {term.order}";
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
-        if (atom1.m_data.m_abbre != "Dummy" && atom2.m_data.m_abbre != "Dummy")
-        {
-            var delButtonInstance = Instantiate(deleteMeButtonPrefab);
-            delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteBondUI(bond); });
-            toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
-        }
+
+        var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
+        modifyButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { createChangeBondWindow(term); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(modifyButtonInstance);
+
+        var delButtonInstance = Instantiate(deleteMeButtonPrefab);
+        delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteBondUI(bond); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
+
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
         closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markBondTerm(term, false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
+    }
+
+    private void createChangeBondWindow(ForceField.BondTerm bond)
+    {
+        var changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
+        var cb = changeBondWindowInstance.GetComponent<ChangeBond>();
+        cb.bt = bond;
+        cb.initTextFields();
+        var id = bondTerms.IndexOf(bond);
+        cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeBondParameters(changeBondWindowInstance, id); });
+    }
+
+    private void changeBondParameters(GameObject windowInstance, int id)
+    {
+        var cb = windowInstance.GetComponent<ChangeBond>();
+        cb.changeBondParameters();
+        var bt = cb.bt;
+        // Update tool tip
+        string toolTipText = $"Single Bond\nEqi. dist: {bt.eqDist}\nk: {bt.kBond}\nOrder: {bt.order}";
+        toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        // Update real term
+        bondTerms[id] = bt;
+
+        Destroy(windowInstance);
     }
 
     private void markBondTerm(ForceField.BondTerm term, bool mark)
