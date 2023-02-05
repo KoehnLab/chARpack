@@ -33,17 +33,18 @@ public class dotnetReadMoleculeFile : MonoBehaviour
         UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported input Formats {inFormats.Count}.");
         UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported output Formats {outFormats.Count}.");
 
-        supportedInputFormats = new string[inFormats.Count];
-        supportedOutputFormats = new string[outFormats.Count];
+        supportedInputFormats = new string[inFormats.Count + 1];
+        supportedOutputFormats = new string[outFormats.Count + 1];
 
         int i = 0;
-        foreach (var format in inFormats) 
+        foreach (var format in inFormats)
         {
             //UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported Format: {format}.");
             supportedInputFormats[i] = format.Split(" ")[0];
             //UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported input Format: {supportedInputFormats[i]}.");
             i++;
         }
+        supportedInputFormats[inFormats.Count] = "xml";
 
         int j = 0;
         foreach (var format in outFormats)
@@ -53,6 +54,7 @@ public class dotnetReadMoleculeFile : MonoBehaviour
             //UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported output Format: {supportedInputFormats[i]}.");
             j++;
         }
+        supportedOutputFormats[outFormats.Count] = "xml";
     }
 
     public void openLoadFileDialog()
@@ -69,7 +71,7 @@ public class dotnetReadMoleculeFile : MonoBehaviour
                 UnityEngine.Debug.LogError("[ReadMoleculeFile] Something went wrong during path conversion. Abort.");
                 return;
             }
-            loadMolecule(path);
+            loadMolecule(fi);
         }
 #endif
     }
@@ -93,18 +95,11 @@ public class dotnetReadMoleculeFile : MonoBehaviour
                 UnityEngine.Debug.LogError("[SaveMolecule] No Molecules in currently in scene.");
                 return;
             }
-            OBMol mol;
+            Molecule mol;
             var selectedObject = Selection.activeGameObject;
-            var objMol = selectedObject.GetComponent<Molecule>();
-            if (objMol == null)
-            {
-                mol = GlobalCtrl.Singleton.List_curMolecules[0].AsCML().AsOBMol();
-            }
-            else
-            {
-                mol = objMol.AsCML().AsOBMol();
-            }
-            
+            var objMol = selectedObject?.GetComponent<Molecule>();
+            mol = objMol ? objMol : GlobalCtrl.Singleton.List_curMolecules[0];
+
             saveMolecule(mol, fi);
         }
 #endif
@@ -116,7 +111,7 @@ public class dotnetReadMoleculeFile : MonoBehaviour
         FileInfo fi = new FileInfo(path);
         foreach (var format in supportedInputFormats)
         {
-            if (fi.Extension.Contains(format))
+            if (fi.Extension.ToLower().Contains(format))
             {
                 supported = true;
                 break;
@@ -131,7 +126,7 @@ public class dotnetReadMoleculeFile : MonoBehaviour
         FileInfo fi = new FileInfo(path);
         foreach (var format in supportedOutputFormats)
         {
-            if (fi.Extension.Contains(format))
+            if (fi.Extension.ToLower().Contains(format))
             {
                 supported = true;
                 break;
@@ -140,59 +135,80 @@ public class dotnetReadMoleculeFile : MonoBehaviour
         return supported;
     }
 
-    private void loadMolecule(string path)
+    private void loadMolecule(FileInfo fi)
     {
 
-        if (!checkInputSupported(path))
+        if (!checkInputSupported(fi.Name))
         {
-            FileInfo fi = new FileInfo(path);
-            UnityEngine.Debug.LogError($"[ReadMoleculeFile] File {path} with extension {fi.Extension} is not in list of supported formats.");
+
+            UnityEngine.Debug.LogError($"[ReadMoleculeFile] File {fi.Name} with extension {fi.Extension} is not in list of supported formats.");
             return;
         }
 
-        // do the read
-        var conv = new OBConversion(path);
-        var mol = new OBMol();
-        conv.ReadFile(mol, path);
-
-        // check if loaded molecule has 3D structure data
-        if (mol.GetDimension() != 3)
+        UnityEngine.Debug.Log($"[ReadMoleculeFile] Loading Molecule {fi.FullName}");
+        List<cmlData> saveData = new List<cmlData>();
+        if (fi.Extension.ToLower() == ".xml")
         {
-            // this code is from avogadro to build/guess the structure
-            var builder = new OBBuilder();
-            builder.Build(mol);
-            mol.AddHydrogens(); // Add some hydrogens before running force field
+            saveData = (List<cmlData>)CFileHelper.LoadData(fi.FullName, typeof(List<cmlData>));
+        }
+        else
+        {
+
+            // do the read
+            var conv = new OBConversion(fi.Name);
+            var obmol = new OBMol();
+            conv.ReadFile(obmol, fi.FullName);
+
+            // check if loaded molecule has 3D structure data
+            if (obmol.GetDimension() != 3)
+            {
+                // this code is from avogadro to build/guess the structure
+                var builder = new OBBuilder();
+                builder.Build(obmol);
+                obmol.AddHydrogens(); // Add some hydrogens before running force field
 
 
-            OpenBabelForceField.MinimiseStructure(mol, 250);
-            //// do some FF iterations
-            //var pFF = OpenBabelForceField.GetForceField("mmff94s", mol);
-            //if (pFF == null)
-            //{
-            //    pFF = OpenBabelForceField.GetForceField("UFF", mol);
-            //    if (pFF == null)
-            //    {
-            //        UnityEngine.Debug.LogError("[OBReaderInterface] Could not setup Force Field for generating molecule structure.");
-            //        return; // can't do anything more
-            //    }
-            //}
-            //pFF.ConjugateGradients(250, 1.0e-4);
-            //pFF.UpdateCoordinates(mol);
+                OpenBabelForceField.MinimiseStructure(obmol, 250);
+                //// do some FF iterations
+                //var pFF = OpenBabelForceField.GetForceField("mmff94s", obmol);
+                //if (pFF == null)
+                //{
+                //    pFF = OpenBabelForceField.GetForceField("UFF", obmol);
+                //    if (pFF == null)
+                //    {
+                //        UnityEngine.Debug.LogError("[OBReaderInterface] Could not setup Force Field for generating molecule structure.");
+                //        return; // can't do anything more
+                //    }
+                //}
+                //pFF.ConjugateGradients(250, 1.0e-4);
+                //pFF.UpdateCoordinates(obmol);
+            }
+            saveData.Add(obmol.AsCML());
         }
 
-
-        List<cmlData> saveData = new List<cmlData>();
-        saveData.Add(mol.AsCML());
+        if (saveData == null || saveData.Count == 0)
+        {
+            UnityEngine.Debug.LogError($"[ReadMoleculeFile] File {fi.FullName} could not be read. Abort.");
+            return;
+        }
 
         GlobalCtrl.Singleton.rebuildAtomWorld(saveData, true);
         NetworkManagerServer.Singleton.pushLoadMolecule(saveData);
     }
 
-    public void saveMolecule(OBMol obmol, FileInfo fi)
+    public void saveMolecule(Molecule mol, FileInfo fi)
     {
-        var conv = new OBConversion();
-        conv.SetOutFormat(fi.Extension);
-        conv.WriteFile(obmol, fi.FullName);
+        UnityEngine.Debug.Log($"[ReadMoleculeFile] Saving Molecule {fi.FullName}");
+        if (fi.Extension.ToLower() == ".xml")
+        {
+            CFileHelper.SaveData(fi.FullName, mol.AsCML());
+        }
+        else
+        {
+            var conv = new OBConversion();
+            conv.SetOutFormat(fi.Extension);
+            conv.WriteFile(mol.AsCML().AsOBMol(), fi.FullName);
+        }
     }
 
 }

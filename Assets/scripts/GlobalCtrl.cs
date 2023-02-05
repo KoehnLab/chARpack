@@ -1066,55 +1066,6 @@ public class GlobalCtrl : MonoBehaviour
     }
 
     /// <summary>
-    /// this method converts the selected input molecule to the XYZ file format
-    /// </summary>
-    public void ExportMolecule()
-    {
-        List<Vector3> coords = new List<Vector3>();
-        List<string> names = new List<string>();
-
-        // collect data and determine center of mass
-        Vector3 COM = new Vector3(0.0f, 0.0f, 0.0f);
-        int nAtoms = 0;
-        float tMass = 0.0f;
-        foreach (Molecule inputMole in List_curMolecules)
-        {
-            foreach (Atom at in inputMole.atomList)
-            {
-                nAtoms++;
-                Vector3 pos = at.transform.position;
-                string name = at.m_data.m_abbre;
-                if (name == "Dummy") name = "X";  // rename dummies
-                coords.Add(pos);
-                names.Add(name);
-                float mass = at.m_data.m_mass;
-                tMass += mass;
-                COM += mass * pos;
-            }
-        }
-        COM /= tMass;
-        Debug.Log(string.Format("COM: {0,12:f6} {1,12:f6} {2,12:f6}",COM.x,COM.y,COM.z));
-
-        // shift coordinates such that COM is at origin (and convert to Aangstroem units)
-        for (int iAtom = 0; iAtom < nAtoms; iAtom++)
-        {
-            coords[iAtom] = (coords[iAtom] - COM) * this.u2aa / this.scale ;
-        }
-
-        // Write to file
-        //StreamWriter XYZexport;
-        //XYZexport = File.CreateText(UISave.inputfield+".xyz");
-        //XYZexport.WriteLine(nAtoms);
-        //XYZexport.WriteLine("exported from VRmck");
-        //for (int iAtom = 0; iAtom<nAtoms; iAtom++)
-        //{
-        //    XYZexport.WriteLine(string.Format("{0,2} {1,12:f6} {2,12:f6} {3,12:f6}",names[iAtom],coords[iAtom].x,coords[iAtom].y,coords[iAtom].z));
-        //}
-        //XYZexport.Close();
-        //ForceFieldConsole.Instance.statusOut("Exported molecule as : " + UISave.inputfield + ".xyz");
-    }
-
-    /// <summary>
     /// this method loads a saved molecule into the workspace
     /// </summary>
     /// <param name="name">name of the saved molecule</param>

@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-
+using System.Xml.Serialization;
+using System.ComponentModel;
 
 namespace StructClass
 {
@@ -158,7 +159,9 @@ namespace StructClass
         public bool keepConfig;
         public cmlAtom[] atomArray;
         public cmlBond[] bondArray;
+        [XmlArray, DefaultValue(null)]
         public cmlAngle[] angleArray;
+        [XmlArray, DefaultValue(null)]
         public cmlTorsion[] torsionArray;
 
         public cmlData(SaveableVector3 pos, SaveableQuaternion quat, ushort id, List<cmlAtom> a, List<cmlBond> b, List<cmlAngle> ang = null, List<cmlTorsion> tor = null, bool keepConfig_ = false)

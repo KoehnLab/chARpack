@@ -71,27 +71,36 @@ public class CFileHelper
     /// It reads from a XML file into the specified type class.
     /// </summary>
     public static object LoadData(string fileName, Type type)
-    { 
-       
-        try
+    {
+
+        //Stream stream = File.OpenRead(fileName);
+
+        //XmlRootAttribute xRoot = new XmlRootAttribute();
+        ////xRoot.ElementName = "message";
+        //xRoot.IsNullable = true;
+        //XmlSerializer serializer = new XmlSerializer(type, xRoot);
+
+        //object obj = serializer.Deserialize(stream);
+
+        //stream.Close();
+        //return obj;
+
+
+        try 
         {
-            string path = fileName;
-            Stream stream = File.OpenRead(path);
+            Stream stream = File.OpenRead(fileName);
             XmlSerializer serializer = new XmlSerializer(type);
-  
+
             object obj = serializer.Deserialize(stream);
-  
+
             stream.Close();
             return obj;
         }
         catch (Exception ex)
         {
-            Debug.Log("2:" + ex.Message);
+            Debug.Log("2:" + ex.GetBaseException());
         }
         return null;
 
-       
-       
-        
     }
 }
