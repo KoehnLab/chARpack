@@ -419,6 +419,30 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
     }
 
+    private void createChangeAngleWindow(ForceField.AngleTerm bond)
+    {
+        var changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
+        var cb = changeBondWindowInstance.GetComponent<ChangeBond>();
+        cb.bt = bond;
+        cb.initTextFields();
+        var id = bondTerms.IndexOf(bond);
+        cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeBondParameters(changeBondWindowInstance, id); });
+    }
+
+    private void changeAngleParameters(GameObject windowInstance, int id)
+    {
+        var cb = windowInstance.GetComponent<ChangeBond>();
+        cb.changeBondParameters();
+        var bt = cb.bt;
+        // Update tool tip
+        string toolTipText = $"Single Bond\nEqi. dist: {bt.eqDist}\nk: {bt.kBond}\nOrder: {bt.order}";
+        toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        // Update real term
+        bondTerms[id] = bt;
+
+        Destroy(windowInstance);
+    }
+
     private void markAngleTerm(ForceField.AngleTerm term, bool mark)
     {
         atomList[term.Atom1].markAtom(mark);
