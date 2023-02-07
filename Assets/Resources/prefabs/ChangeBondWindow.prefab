@@ -5515,6 +5515,8 @@ MonoBehaviour:
   distInputField: {fileID: 6053885373884993670}
   kInputField: {fileID: 5781864280121768509}
   okButton: {fileID: 952259364396497141}
+  angleOrDistLabel: {fileID: 2417084301854209181}
+  kLabel: {fileID: 4188618308625365806}
 --- !u!1 &6325399774342466925
 GameObject:
   m_ObjectHideFlags: 0

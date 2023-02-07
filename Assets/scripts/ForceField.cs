@@ -56,7 +56,7 @@ public class ForceField : MonoBehaviour
     // note that the forcefield works in the atomic scale (i.e. all distances measure in pm)
     // we scale back when applying the movements to the actual objects
     public static float scalingfactor;
-    int nTimeSteps = 5;  // number of time steps per FixedUpdate() for numerical integration of ODE
+    int nTimeSteps = 4;  // number of time steps per FixedUpdate() for numerical integration of ODE
     float timeFactor; // timeFactor = totalTimePerFrame/nTimeSteps ... set in Start()
     float SVtimeFactor;
     float RKtimeFactor;
@@ -67,7 +67,7 @@ public class ForceField : MonoBehaviour
     const float kim = kb*70f;      //improper torsion force constant
     */
 
-    public static float k0 = 1000f;               //between 100 - 5000
+    public static float k0 = 1500f;               //between 100 - 5000
     public static float ka = k0;                  //angle force constant
     public static float kb = 7f * k0 / 10000f;    //bond force constant, "/ 10000f" because of caculating A^2 to pm^2
     public static float kim = 0.02f * k0;         //improper torsion force constant 0.45 ; 0.045
@@ -257,7 +257,7 @@ public class ForceField : MonoBehaviour
                     calcRepForces(hsTerm, mol);
                 }
             }
-            calcMovements();
+            eulerIntegration();
             //verletIntegration();
         }
         applyMovements();
@@ -432,7 +432,7 @@ public class ForceField : MonoBehaviour
     }
 
     // turn forces into movements and apply sanity checks 
-    void calcMovements()
+    void eulerIntegration()
     {
 
         // force -> momentum change: divide by mass

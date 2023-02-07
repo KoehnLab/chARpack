@@ -366,7 +366,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
         var cb = changeBondWindowInstance.GetComponent<ChangeBond>();
         cb.bt = bond;
-        cb.initTextFields();
         var id = bondTerms.IndexOf(bond);
         cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeBondParameters(changeBondWindowInstance, id); });
     }
@@ -374,15 +373,16 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private void changeBondParameters(GameObject windowInstance, int id)
     {
         var cb = windowInstance.GetComponent<ChangeBond>();
-        cb.changeBondParameters();
+        cb.changeBondParametersBT();
         var bt = cb.bt;
         // Update tool tip
-        string toolTipText = $"Single Bond\nEqi. dist: {bt.eqDist}\nk: {bt.kBond}\nOrder: {bt.order}";
+        string toolTipText = $"Single Bond\nEqui. dist: {bt.eqDist}\nk: {bt.kBond}\nOrder: {bt.order}";
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
         // Update real term
         bondTerms[id] = bt;
 
         Destroy(windowInstance);
+        markBondTerm(bt, false);
     }
 
     private void markBondTerm(ForceField.BondTerm term, bool mark)
@@ -414,6 +414,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         // show angle term data
         string toolTipText = $"Angle Bond\nEqui. Angle: {term.eqAngle}\nkAngle: {term.kAngle}";
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+
+        var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
+        modifyButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { createChangeAngleWindow(term); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(modifyButtonInstance);
+
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
         closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markAngleTerm(term, false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
@@ -423,24 +428,24 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         var changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
         var cb = changeBondWindowInstance.GetComponent<ChangeBond>();
-        cb.bt = bond;
-        cb.initTextFields();
-        var id = bondTerms.IndexOf(bond);
-        cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeBondParameters(changeBondWindowInstance, id); });
+        cb.at = bond;
+        var id = angleTerms.IndexOf(bond);
+        cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeAngleParameters(changeBondWindowInstance, id); });
     }
 
     private void changeAngleParameters(GameObject windowInstance, int id)
     {
         var cb = windowInstance.GetComponent<ChangeBond>();
-        cb.changeBondParameters();
-        var bt = cb.bt;
+        cb.changeBondParametersAT();
+        var at = cb.at;
         // Update tool tip
-        string toolTipText = $"Single Bond\nEqi. dist: {bt.eqDist}\nk: {bt.kBond}\nOrder: {bt.order}";
+        string toolTipText = $"Angle Bond\nEqui. angle: {at.eqAngle}\nk: {at.kAngle}";
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
         // Update real term
-        bondTerms[id] = bt;
+        angleTerms[id] = at;
 
         Destroy(windowInstance);
+        markAngleTerm(at, false);
     }
 
     private void markAngleTerm(ForceField.AngleTerm term, bool mark)
@@ -473,10 +478,39 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         // show angle term data
         string toolTipText = $"Torsion Bond\nEqui. Angle: {term.eqAngle}\nvk: {term.vk}\nnn: {term.nn}";
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+
+        var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
+        modifyButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { createChangeTorsionWindow(term); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(modifyButtonInstance);
+
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
         closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markTorsionTerm(term, false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
 
+    }
+
+    private void createChangeTorsionWindow(ForceField.TorsionTerm bond)
+    {
+        var changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
+        var cb = changeBondWindowInstance.GetComponent<ChangeBond>();
+        cb.tt = bond;
+        var id = torsionTerms.IndexOf(bond);
+        cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeTorsionParameters(changeBondWindowInstance, id); });
+    }
+
+    private void changeTorsionParameters(GameObject windowInstance, int id)
+    {
+        var cb = windowInstance.GetComponent<ChangeBond>();
+        cb.changeBondParametersTT();
+        var tt = cb.tt;
+        // Update tool tip
+        string toolTipText = $"Torsion Bond\nEqui. angle: {tt.eqAngle}\nvk: {tt.vk}\nnn: {tt.nn}";
+        toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        // Update real term
+        torsionTerms[id] = tt;
+
+        Destroy(windowInstance);
+        markTorsionTerm(tt, false);
     }
 
     private void markTorsionTerm(ForceField.TorsionTerm term, bool mark)
@@ -824,9 +858,17 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             foreach (ForceField.AngleTerm threebond1 in angleTerms)
             {
+                if (atomList[threebond1.Atom1].m_data.m_abbre == "Dummy" || atomList[threebond1.Atom2].m_data.m_abbre == "Dummy" || atomList[threebond1.Atom3].m_data.m_abbre == "Dummy")
+                {
+                    continue;
+                }
                 //if (threebond1.Aeq == 180f)break; ??
                 foreach (ForceField.BondTerm bond2 in bondTerms)
                 {
+                    if (atomList[bond2.Atom1].m_data.m_abbre == "Dummy" || atomList[bond2.Atom2].m_data.m_abbre == "Dummy")
+                    {
+                        continue;
+                    }
                     // if the bond is in our threebond we can skip
                     if (threebond1.Atom1 == bond2.Atom1 && threebond1.Atom2 == bond2.Atom2) continue; // break;
                     if (threebond1.Atom1 == bond2.Atom2 && threebond1.Atom2 == bond2.Atom1) continue; // break;
