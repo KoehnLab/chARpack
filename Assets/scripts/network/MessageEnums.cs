@@ -21,7 +21,11 @@ public enum ClientToServerID : ushort
     selectBond = 15,
     changeAtom = 16,
     syncMe = 17,
-    undo = 18
+    undo = 18,
+    enableForceField = 20,
+    changeBondTerm = 21,
+    changeAngleTerm = 22,
+    changeTorsionTerm = 23
 }
 
 public enum ServerToClientID : ushort
@@ -41,7 +45,11 @@ public enum ServerToClientID : ushort
     bcastSelectAtom = 13,
     bcastSelectMolecule = 14,
     bcastSelectBond = 15,
-    bcastChangeAtom = 16
+    bcastChangeAtom = 16,
+    bcastEnableForceField = 17,
+    bcastChangeBondTerm = 18,
+    bcastChangeAngleTerm = 19,
+    bcastChangeTorsionTerm = 20
 }
 
 public enum myDeviceType : ushort

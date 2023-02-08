@@ -1014,6 +1014,38 @@ public class GlobalCtrl : MonoBehaviour
         MergeMolecule(List_curMolecules[molInHand].atomList[dummyInHand], List_curMolecules[molInAir].atomList[dummyInAir]);
     }
 
+    public bool changeBondTerm(ushort mol_id, ushort term_id, ForceField.BondTerm new_term)
+    {
+        if (term_id >= List_curMolecules.ElementAtOrDefault(mol_id).bondTerms.Count)
+        {
+            return false;
+        }
+        List_curMolecules[mol_id].changeBondParameters(new_term, term_id);
+
+        return true;
+    }
+
+    public bool changeAngleTerm(ushort mol_id, ushort term_id, ForceField.AngleTerm new_term)
+    {
+        if (term_id >= List_curMolecules.ElementAtOrDefault(mol_id).angleTerms.Count)
+        {
+            return false;
+        }
+        List_curMolecules[mol_id].changeAngleParameters(new_term, term_id);
+
+        return true;
+    }
+
+    public bool changeTorsionTerm(ushort mol_id, ushort term_id, ForceField.TorsionTerm new_term)
+    {
+        if (term_id >= List_curMolecules.ElementAtOrDefault(mol_id).torsionTerms.Count)
+        {
+            return false;
+        }
+        List_curMolecules[mol_id].changeTorsionParameters(new_term, term_id);
+
+        return true;
+    }
     #endregion
 
     #region export import

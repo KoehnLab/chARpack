@@ -17,7 +17,7 @@ public class ChangeBond : MonoBehaviour
     private ForceField.AngleTerm at_;
     private ForceField.TorsionTerm tt_;
 
-    public ForceField.BondTerm bt { get => bt_; set { bt = value; initTextFieldsBT(); } }
+    public ForceField.BondTerm bt { get => bt_; set { bt_ = value; initTextFieldsBT(); } }
     public ForceField.AngleTerm at { get => at_; set { at_ = value; initTextFieldsAT(); } }
     public ForceField.TorsionTerm tt { get => tt_; set { tt_ = value; initTextFieldsTT(); } }
 

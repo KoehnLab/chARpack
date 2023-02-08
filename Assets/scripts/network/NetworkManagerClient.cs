@@ -88,6 +88,10 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnSelectBond += sendSelectBond;
         EventManager.Singleton.OnChangeAtom += sendChangeAtom;
         EventManager.Singleton.OnUndo += sendUndo;
+        EventManager.Singleton.OnEnableForceField += sendEnableForceField;
+        EventManager.Singleton.OnChangeBondTerm += sendChangeBondTerm;
+        EventManager.Singleton.OnChangeAngleTerm += sendChangeAngleTerm;
+        EventManager.Singleton.OnChangeTorsionTerm += sendChangeTorsionTerm;
     }
 
     private void FixedUpdate()
@@ -325,6 +329,41 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
+    public void sendEnableForceField(bool enableForceField)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.enableForceField);
+        message.AddBool(enableForceField);
+        Client.Send(message);
+    }
+
+
+    public void sendChangeBondTerm(ForceField.BondTerm term, ushort mol_id, ushort term_id)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.changeBondTerm);
+        message.AddUShort(mol_id);
+        message.AddUShort(term_id);
+        message.AddBondTerm(term);
+        Client.Send(message);
+    }
+
+    public void sendChangeAngleTerm(ForceField.AngleTerm term, ushort mol_id, ushort term_id)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.changeAngleTerm);
+        message.AddUShort(mol_id);
+        message.AddUShort(term_id);
+        message.AddAngleTerm(term);
+        Client.Send(message);
+    }
+
+    public void sendChangeTorsionTerm(ForceField.TorsionTerm term, ushort mol_id, ushort term_id)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.changeTorsionTerm);
+        message.AddUShort(mol_id);
+        message.AddUShort(term_id);
+        message.AddTorsionTerm(term);
+        Client.Send(message);
+    }
+
     #endregion
 
     #region Listen
@@ -457,7 +496,7 @@ public class NetworkManagerClient : MonoBehaviour
             {
                 atom.m_molecule.markMolecule(false);
             }
-            atom.markAtom(selected, true);
+            atom.advancedMarkAtom(selected, true);
         }
     }
 
@@ -571,12 +610,82 @@ public class NetworkManagerClient : MonoBehaviour
         var atom_id = message.GetUShort();
         var chemAbbre = message.GetString();
 
-        // do the move
+        // do the change
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
             if (!GlobalCtrl.Singleton.changeAtom(mol_id, atom_id, chemAbbre))
             {
                 Debug.LogError($"[NetworkManagerServer:getAtomChanged] Atom with id {atom_id} of Molecule {mol_id} does not exists.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastEnableForceField)]
+    private static void getEnabelForceField(Message message)
+    {
+        var client_id = message.GetUShort();
+        var enabled = message.GetBool();
+
+        // do the enable/disable
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            ForceField.Singleton.enableForceFieldMethod(enabled);
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastChangeBondTerm)]
+    private static void getBondTermChanged(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
+        var term_id = message.GetUShort();
+        var term = message.GetBondTerm();
+
+        // do the change
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            if (!GlobalCtrl.Singleton.changeBondTerm(mol_id, term_id, term))
+            {
+                Debug.LogError($"[NetworkManagerServer:getAtomChanged] Bond term with id {term_id} of Molecule {mol_id} does not exists.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastChangeAngleTerm)]
+    private static void getAngleTermChanged(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
+        var term_id = message.GetUShort();
+        var term = message.GetAngleTerm();
+
+        // do the change
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            if (!GlobalCtrl.Singleton.changeAngleTerm(mol_id, term_id, term))
+            {
+                Debug.LogError($"[NetworkManagerServer:getAtomChanged] Angle term with id {term_id} of Molecule {mol_id} does not exists.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastChangeTorsionTerm)]
+    private static void getTorsionTermChanged(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
+        var term_id = message.GetUShort();
+        var term = message.GetTorsionTerm();
+
+        // do the change
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            if (!GlobalCtrl.Singleton.changeTorsionTerm(mol_id, term_id, term))
+            {
+                Debug.LogError($"[NetworkManagerServer:getAtomChanged] Angle term with id {term_id} of Molecule {mol_id} does not exists.\nRequesing world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
         }

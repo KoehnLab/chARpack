@@ -27,10 +27,7 @@ public class ForceField : MonoBehaviour
         }
     }
 
-
-    public bool enableForceField = true;
-
-
+    bool enableForceField = true;
 
     public struct BondTerm
     {
@@ -135,12 +132,23 @@ public class ForceField : MonoBehaviour
         Singleton = this;
     }
 
+    public void toggleForceFieldUI()
+    {
+        toggleForceField();
+        EventManager.Singleton.EnableForceField(enableForceField);
+    }
+
     /// <summary>
     /// Toggles the force field during runtime
     /// </summary>
     public void toggleForceField()
     {
         enableForceField = !enableForceField;
+    }
+
+    public void enableForceFieldMethod(bool enable)
+    {
+        enableForceField = enable;
     }
 
     // Start is called before the first frame update

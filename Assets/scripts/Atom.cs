@@ -58,57 +58,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             {
                 markAtomUI(!isMarked);
             }
-            // check for connected atom
-            var markedList = new List<Atom>();
-            foreach (var atom in m_molecule.atomList)
-            {
-                if (atom.isMarked)
-                {
-                    markedList.Add(atom);
-                }
-            }
-            if (markedList.Count == 2)
-            {
-                foreach (var bond in m_molecule.bondTerms)
-                {
-                    if (bond.Contains(markedList[0].m_id) && bond.Contains(markedList[1].m_id))
-                    {
-                        m_molecule.createBondToolTip(bond);
-                    }
-                }
-            }
-            else if (markedList.Count == 3)
-            {
-                markedList.Remove(this);
-                var atom1 = markedList[0];
-                var atom2 = markedList[1];
-                foreach (var angle in m_molecule.angleTerms)
-                {
-                    if (angle.Contains(m_id) && angle.Contains(atom1.m_id) && angle.Contains(atom2.m_id))
-                    {
-                        m_molecule.createAngleToolTip(angle);
-                    }
-                }
-
-            }
-            else if (markedList.Count == 4)
-            {
-                markedList.Remove(this);
-                var atom1 = markedList[0];
-                var atom2 = markedList[1];
-                var atom3 = markedList[2];
-                foreach (var torsion in m_molecule.torsionTerms)
-                {
-                    if (torsion.Contains(m_id) && torsion.Contains(atom1.m_id) && torsion.Contains(atom2.m_id) && torsion.Contains(atom3.m_id))
-                    {
-                        m_molecule.createTorsionToolTip(torsion);
-                    }
-                }
-            }
-            else
-            {
-
-            }
+ 
         }
 
         // check for potential merge
@@ -535,10 +485,92 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    private void markConnections(bool toolTip = false)
+    {
+        // check for connected atom
+        var markedList = new List<Atom>();
+        foreach (var atom in m_molecule.atomList)
+        {
+            if (atom.isMarked)
+            {
+                markedList.Add(atom);
+            }
+        }
+        if (markedList.Count == 2)
+        {
+            foreach (var bond in m_molecule.bondTerms)
+            {
+                if (bond.Contains(markedList[0].m_id) && bond.Contains(markedList[1].m_id))
+                {
+                    if (toolTip)
+                    {
+                        m_molecule.createBondToolTip(bond);
+                    }
+                    else
+                    {
+                        m_molecule.markBondTerm(bond, true);
+                    }
+                }
+            }
+        }
+        else if (markedList.Count == 3)
+        {
+            markedList.Remove(this);
+            var atom1 = markedList[0];
+            var atom2 = markedList[1];
+            foreach (var angle in m_molecule.angleTerms)
+            {
+                if (angle.Contains(m_id) && angle.Contains(atom1.m_id) && angle.Contains(atom2.m_id))
+                {
+                    if (toolTip)
+                    {
+                        m_molecule.createAngleToolTip(angle);
+                    }
+                    else
+                    {
+                        m_molecule.markAngleTerm(angle, true);
+                    }
+                }
+            }
+
+        }
+        else if (markedList.Count == 4)
+        {
+            markedList.Remove(this);
+            var atom1 = markedList[0];
+            var atom2 = markedList[1];
+            var atom3 = markedList[2];
+            foreach (var torsion in m_molecule.torsionTerms)
+            {
+                if (torsion.Contains(m_id) && torsion.Contains(atom1.m_id) && torsion.Contains(atom2.m_id) && torsion.Contains(atom3.m_id))
+                {
+                    if (toolTip)
+                    {
+                        m_molecule.createTorsionToolTip(torsion);
+                    }
+                    else
+                    {
+                        m_molecule.markTorsionTerm(torsion, true);
+                    }
+                }
+            }
+        }
+        else
+        {
+
+        }
+    }
+
     public void markAtomUI(bool mark, bool toolTip = true)
     {
         EventManager.Singleton.SelectAtom(m_molecule.m_id, m_id, !isMarked);
+        advancedMarkAtom(mark, toolTip);
+    }
+
+    public void advancedMarkAtom(bool mark, bool toolTip = false)
+    {
         markAtom(mark, toolTip);
+        markConnections(toolTip);
     }
 
     private void createToolTip()

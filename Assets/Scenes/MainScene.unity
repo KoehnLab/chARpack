@@ -1561,6 +1561,7 @@ MonoBehaviour:
   myBoundingBoxPrefab: {fileID: 7362249118518364358, guid: 48b9becbc0966d742a6c4463366a1a58, type: 3}
   myAtomPrefab: {fileID: 7377244445179915796, guid: bf048a9970cb97f44a46f7c758da93a0, type: 3}
   atomMatPrefab: {fileID: 2100000, guid: a5e028070ace428d8971079be1d965a6, type: 2}
+  list_ElementData: []
   scale: 0.5
   u2pm: 1000
   u2aa: 10
@@ -3349,7 +3350,7 @@ PrefabInstance:
       objectReference: {fileID: 1641376200}
     - target: {fileID: 4238929520169732924, guid: 64790b91b91094d49942373c4e83c237, type: 3}
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: toggleForceField
+      value: toggleForceFieldUI
       objectReference: {fileID: 0}
     - target: {fileID: 4238929520169732924, guid: 64790b91b91094d49942373c4e83c237, type: 3}
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName

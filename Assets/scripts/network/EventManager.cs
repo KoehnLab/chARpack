@@ -145,6 +145,34 @@ public class EventManager : MonoBehaviour
         OnUndo?.Invoke();
     }
 
+    public delegate void enableForceFieldAction(bool enable);
+    public event enableForceFieldAction OnEnableForceField;
+    public void EnableForceField(bool enable)
+    {
+        OnEnableForceField?.Invoke(enable);
+    }
+
+    public delegate void ChangeBondTermAction(ForceField.BondTerm term, ushort mol_id, ushort term_id);
+    public event ChangeBondTermAction OnChangeBondTerm;
+    public void ChangeBondTerm(ForceField.BondTerm term, ushort mol_id, ushort term_id)
+    {
+        OnChangeBondTerm?.Invoke(term, mol_id, term_id);
+    }
+
+    public delegate void ChangeAngleTermAction(ForceField.AngleTerm term, ushort mol_id, ushort term_id);
+    public event ChangeAngleTermAction OnChangeAngleTerm;
+    public void ChangeAngleTerm(ForceField.AngleTerm term, ushort mol_id, ushort term_id)
+    {
+        OnChangeAngleTerm?.Invoke(term, mol_id, term_id);
+    }
+
+    public delegate void ChangeTorsionTermAction(ForceField.TorsionTerm term, ushort mol_id, ushort term_id);
+    public event ChangeTorsionTermAction OnChangeTorsionTerm;
+    public void ChangeTorsionTerm(ForceField.TorsionTerm term, ushort mol_id, ushort term_id)
+    {
+        OnChangeTorsionTerm?.Invoke(term, mol_id, term_id);
+    }
+
     #endregion
 
 

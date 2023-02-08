@@ -367,10 +367,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var cb = changeBondWindowInstance.GetComponent<ChangeBond>();
         cb.bt = bond;
         var id = bondTerms.IndexOf(bond);
-        cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeBondParameters(changeBondWindowInstance, id); });
+        cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeBondParametersUI(changeBondWindowInstance, id); });
     }
 
-    private void changeBondParameters(GameObject windowInstance, int id)
+    private void changeBondParametersUI(GameObject windowInstance, int id)
     {
         var cb = windowInstance.GetComponent<ChangeBond>();
         cb.changeBondParametersBT();
@@ -378,14 +378,23 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         // Update tool tip
         string toolTipText = $"Single Bond\nEqui. dist: {bt.eqDist}\nk: {bt.kBond}\nOrder: {bt.order}";
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
-        // Update real term
-        bondTerms[id] = bt;
+
+        changeBondParameters(bt, id);
+        EventManager.Singleton.ChangeBondTerm(bt, m_id, (ushort)id);
 
         Destroy(windowInstance);
-        markBondTerm(bt, false);
+
     }
 
-    private void markBondTerm(ForceField.BondTerm term, bool mark)
+    public void changeBondParameters(ForceField.BondTerm bond, int id)
+    {        
+        // Update real term
+        bondTerms[id] = bond;
+        // unmark bond
+        markBondTerm(bond, false);
+    }
+
+    public void markBondTerm(ForceField.BondTerm term, bool mark)
     {
         atomList[term.Atom1].markAtom(mark);
         atomList[term.Atom2].markAtom(mark);
@@ -430,10 +439,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var cb = changeBondWindowInstance.GetComponent<ChangeBond>();
         cb.at = bond;
         var id = angleTerms.IndexOf(bond);
-        cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeAngleParameters(changeBondWindowInstance, id); });
+        cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeAngleParametersUI(changeBondWindowInstance, id); });
     }
 
-    private void changeAngleParameters(GameObject windowInstance, int id)
+    private void changeAngleParametersUI(GameObject windowInstance, int id)
     {
         var cb = windowInstance.GetComponent<ChangeBond>();
         cb.changeBondParametersAT();
@@ -441,14 +450,23 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         // Update tool tip
         string toolTipText = $"Angle Bond\nEqui. angle: {at.eqAngle}\nk: {at.kAngle}";
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
-        // Update real term
-        angleTerms[id] = at;
+
+        changeAngleParameters(at, id);
+        EventManager.Singleton.ChangeAngleTerm(at, m_id, (ushort)id);
 
         Destroy(windowInstance);
-        markAngleTerm(at, false);
+
     }
 
-    private void markAngleTerm(ForceField.AngleTerm term, bool mark)
+    public void changeAngleParameters(ForceField.AngleTerm angle, int id)
+    {
+        // Update real term
+        angleTerms[id] = angle;
+        // unmark term
+        markAngleTerm(angle, false);
+    }
+
+    public void markAngleTerm(ForceField.AngleTerm term, bool mark)
     {
         atomList[term.Atom1].markAtom(mark);
         atomList[term.Atom2].markAtom(mark);
@@ -495,10 +513,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var cb = changeBondWindowInstance.GetComponent<ChangeBond>();
         cb.tt = bond;
         var id = torsionTerms.IndexOf(bond);
-        cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeTorsionParameters(changeBondWindowInstance, id); });
+        cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeTorsionParametersUI(changeBondWindowInstance, id); });
     }
 
-    private void changeTorsionParameters(GameObject windowInstance, int id)
+    private void changeTorsionParametersUI(GameObject windowInstance, int id)
     {
         var cb = windowInstance.GetComponent<ChangeBond>();
         cb.changeBondParametersTT();
@@ -506,14 +524,22 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         // Update tool tip
         string toolTipText = $"Torsion Bond\nEqui. angle: {tt.eqAngle}\nvk: {tt.vk}\nnn: {tt.nn}";
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
-        // Update real term
-        torsionTerms[id] = tt;
+
+        changeTorsionParameters(tt, id);
+        EventManager.Singleton.ChangeTorsionTerm(tt, m_id, (ushort)id);
 
         Destroy(windowInstance);
-        markTorsionTerm(tt, false);
     }
 
-    private void markTorsionTerm(ForceField.TorsionTerm term, bool mark)
+    public void changeTorsionParameters(ForceField.TorsionTerm torsion, int id)
+    {
+        // Update real term
+        torsionTerms[id] = torsion;
+        // unmark torsion
+        markTorsionTerm(torsion, false);
+    }
+
+    public void markTorsionTerm(ForceField.TorsionTerm term, bool mark)
     {
         atomList[term.Atom1].markAtom(mark);
         atomList[term.Atom2].markAtom(mark);
