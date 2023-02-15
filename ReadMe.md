@@ -2,9 +2,9 @@
 
 This project is developed with Unity version [2021.3.12f1](unityhub://2021.3.12f1/8af3c3e441b1).
 
-Important:
 
-MRTK tarballs not checked into git.
+## MRTK
+MRTK tarballs are not checked into git repository. Therefore, the used packages have to be installed by hand.
 Please run [MixedRealityFeatureTool](https://www.microsoft.com/en-us/download/details.aspx?id=102778) over the project and install:
 
     Mixed Reality Toolkit >
@@ -19,4 +19,11 @@ Please run [MixedRealityFeatureTool](https://www.microsoft.com/en-us/download/de
 
 All these features should also appear with the tag "Version x.x.x currently installed".
 
-For server support of OpenBabel please install the [latest](https://github.com/openbabel/openbabel/releases/latest) version.
+## NuGet
+Download and install [Nuget for Unity](https://github.com/GlitchEnzo/NuGetForUnity/releases/latest). To do this, Download the `.unitypackage` file and drag-and-drop it into Unity. Open the Nuget manager inside Unity and install the packages
+
+    Microsoft.MixedReality.QR
+    Microsoft.VCRTForwarders.140
+
+## OpenBabel
+For server support of OpenBabel please install the [latest](https://github.com/openbabel/openbabel/releases/latest) version (x64 exe).
