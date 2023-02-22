@@ -28,6 +28,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         (GetComponent("Halo") as Behaviour).enabled = true;
         stopwatch = Stopwatch.StartNew();
         isGrabbed = true;
+        tmp_mass = m_data.m_mass;
+        m_data.m_mass = -1.0f;
     }
     public void OnPointerClicked(MixedRealityPointerEventData eventData) 
     {
@@ -43,6 +45,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     public void OnPointerUp(MixedRealityPointerEventData eventData) 
     {
         isGrabbed = false;
+        m_data.m_mass = tmp_mass;
         // remove glow
         (GetComponent("Halo") as Behaviour).enabled = false;
 
@@ -83,7 +86,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     //[HideInInspector] public ushort m_id;
     public ushort m_id;
     [HideInInspector] public Molecule m_molecule;
-    [HideInInspector] public ElementData m_data { get; private set; }
+    [HideInInspector] public ElementData m_data; // { get; private set; }
     // we have to clarify the role of m_data: Is this just basic (and constant) data?
     // 0: none; 1: sp1; 2: sp2;  3: sp3;  4: hypervalent trig. bipy; 5: unused;  6: hypervalent octahedral
     [HideInInspector] public Material m_mat;
@@ -95,6 +98,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public bool isMarked = false;
 
     [HideInInspector] public GameObject m_ActiveHand = null;
+
+    private float tmp_mass = -1.0f;
 
 
     /// <summary>
@@ -291,12 +296,42 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     public void colorSwapSelect(int col)
     {
         if (col == 1)
+        {
+            // merging
             GetComponent<Renderer>().material = GlobalCtrl.Singleton.selectedMat;
-        else if (col == 2 || isMarked)
-            //GetComponent<Renderer>().material.color = new Color(GetComponent<Renderer>().material.color.r, GetComponent<Renderer>().material.color.g, GetComponent<Renderer>().material.color.b, 0.5f);
-            GetComponent<Renderer>().material = GlobalCtrl.Singleton.markedMat;
+        }
+        else if (col == 2)
+        {
+            // single component
+            //GetComponent<Renderer>().material = GlobalCtrl.Singleton.markedMat;
+            GetComponent<Outline>().enabled = true;
+            GetComponent<Outline>().OutlineColor = Color.yellow;
+        }
+        else if (col == 3)
+        {
+            // as part of single bond
+            GetComponent<Outline>().enabled = true;
+            GetComponent<Outline>().OutlineColor = new Color(1.0f,0.5f,0.0f); //orange
+        }
+        else if (col == 4)
+        {
+            // as part of angle bond
+            GetComponent<Outline>().enabled = true;
+            GetComponent<Outline>().OutlineColor = Color.red;
+        }
+        else if (col == 5)
+        {
+            // as part of angle bond
+            GetComponent<Outline>().enabled = true;
+            GetComponent<Outline>().OutlineColor = Color.green;
+        }
         else
-            GetComponent<Renderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
+        {
+            // reset or nothing
+            GetComponent<Outline>().enabled = false;
+            //GetComponent<Renderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
+        }
+
     }
 
     private void OnTriggerEnter(Collider collider)
@@ -455,14 +490,14 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     /// this method marks the atom in a different color if selected
     /// </summary>
     /// <param name="mark">true or false if the atom should be marked</param>
-    public void markAtom(bool mark, bool toolTip = false)
+    public void markAtom(bool mark, ushort mark_case = 2, bool toolTip = false)
     {
 
         isMarked = mark;
 
         if (isMarked)
         {
-            colorSwapSelect(2);
+            colorSwapSelect(mark_case);
             if (!toolTipInstance && toolTip)
             {
                 createToolTip();
@@ -569,7 +604,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 
     public void advancedMarkAtom(bool mark, bool toolTip = false)
     {
-        markAtom(mark, toolTip);
+        markAtom(mark, 2, toolTip);
         markConnections(toolTip);
     }
 

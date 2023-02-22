@@ -85,13 +85,13 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
     /// this method marks a bond in a different color if it is selected
     /// </summary>
     /// <param name="mark">true or false if selected</param>
-    public void markBond(bool mark)
+    public void markBond(bool mark, ushort mark_case = 2)
     {
         isMarked = mark;
 
         if (isMarked)
         {
-            colorSwapSelect(2);
+            colorSwapSelect(mark_case);
         }
         else
         {
@@ -113,9 +113,36 @@ public class Bond : MonoBehaviour, IMixedRealityPointerHandler
     public void colorSwapSelect(int col)
     {
         if (col == 2)
-            GetComponentInChildren<Renderer>().material = GlobalCtrl.Singleton.markedMat;
+        {
+            // single component
+            //GetComponent<Renderer>().material = GlobalCtrl.Singleton.markedMat;
+            GetComponent<Outline>().enabled = true;
+            GetComponent<Outline>().OutlineColor = Color.yellow;
+        }
+        else if (col == 3)
+        {
+            // as part of single bond
+            GetComponent<Outline>().enabled = true;
+            GetComponent<Outline>().OutlineColor = new Color(1.0f, 0.5f, 0.0f); //orange
+        }
+        else if (col == 4)
+        {
+            // as part of angle bond
+            GetComponent<Outline>().enabled = true;
+            GetComponent<Outline>().OutlineColor = Color.red;
+        }
+        else if (col == 5)
+        {
+            // as part of angle bond
+            GetComponent<Outline>().enabled = true;
+            GetComponent<Outline>().OutlineColor = Color.green;
+        }
         else
+        {
+            // reset or nothing
+            GetComponent<Outline>().enabled = false;
             GetComponentInChildren<Renderer>().material = GlobalCtrl.Singleton.bondMat;
+        }
     }
 
     public void OnDestroy()

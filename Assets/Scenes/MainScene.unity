@@ -1569,7 +1569,7 @@ MonoBehaviour:
   atomWorld: {fileID: 690894127}
   bondPrefab: {fileID: 6023341437175460837, guid: a6ff830e30b8fae40abd9ac1c7189f08, type: 3}
   selectedMat: {fileID: 2100000, guid: 27a6136d64696da4eba1b89b3df8d3df, type: 2}
-  markedMat: {fileID: 2100000, guid: a50237e3265fe9149a16e889fd8d8b4c, type: 2}
+  markedMat: {fileID: 2100000, guid: 2467a06e1251a464ab52adeecd0a62de, type: 2}
   bondMat: {fileID: 2100000, guid: d5334c45caee46be937b095a1e977dc6, type: 2}
   collision: 0
   collider1: {fileID: 0}
@@ -4180,7 +4180,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4a2e314eeaf58e4c9c967eec413cdda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableForceField: 1
   LogLevel: 0
 --- !u!1 &1743424121
 GameObject:
