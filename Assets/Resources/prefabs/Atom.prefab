@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 4994947135205735893}
   - component: {fileID: -7045672895053097098}
   - component: {fileID: -5052192153474105092}
+  - component: {fileID: 7732512597380005716}
   m_Layer: 0
   m_Name: Atom
   m_TagString: Untagged
@@ -214,13 +215,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad25123af20a58d45b73d5668055c686, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myAtomToolTipPrefab: {fileID: 4014241828956980662, guid: 4889530c41eeb854390e3906bf1c0bf6, type: 3}
-  deleteMeButtonPrefab: {fileID: 2204069621426241315, guid: a9698462f12cd424fbcf902c91f94d7e, type: 3}
-  m_idInScene: 0
+  m_id: 0
   m_molecule: {fileID: 0}
+  m_data:
+    m_id: 0
+    m_name: 
+    m_abbre: 
+    m_type: 0
+    m_mass: 0
+    m_radius: 0
+    m_bondNum: 0
+    m_hybridization: 0
+    m_color: {r: 0, g: 0, b: 0, a: 0}
   m_mat: {fileID: 0}
   m_rigid: {fileID: 0}
   isGrabbed: 0
   m_posForDummies: []
   isMarked: 0
   m_ActiveHand: {fileID: 0}
+--- !u!114 &7732512597380005716
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7377244445179915796}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 3
+  outlineColor: {r: 1, g: 0.5287268, b: 0, a: 1}
+  outlineWidth: 6
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []

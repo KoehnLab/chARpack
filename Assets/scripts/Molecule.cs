@@ -396,9 +396,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void markBondTerm(ForceField.BondTerm term, bool mark)
     {
-        atomList[term.Atom1].markAtom(mark);
-        atomList[term.Atom2].markAtom(mark);
-        atomList[term.Atom1].getBond(atomList[term.Atom2])?.markBond(mark);
+        atomList[term.Atom1].markAtom(mark,3);
+        atomList[term.Atom2].markAtom(mark,3);
+        atomList[term.Atom1].getBond(atomList[term.Atom2])?.markBond(mark,3);
 
         if (toolTipInstance)
         {
@@ -468,11 +468,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void markAngleTerm(ForceField.AngleTerm term, bool mark)
     {
-        atomList[term.Atom1].markAtom(mark);
-        atomList[term.Atom2].markAtom(mark);
-        atomList[term.Atom3].markAtom(mark);
-        atomList[term.Atom1].getBond(atomList[term.Atom2])?.markBond(mark);
-        atomList[term.Atom2].getBond(atomList[term.Atom3])?.markBond(mark);
+        atomList[term.Atom1].markAtom(mark,4);
+        atomList[term.Atom2].markAtom(mark,4);
+        atomList[term.Atom3].markAtom(mark,4);
+        atomList[term.Atom1].getBond(atomList[term.Atom2])?.markBond(mark,4);
+        atomList[term.Atom2].getBond(atomList[term.Atom3])?.markBond(mark,4);
 
         if (toolTipInstance)
         {
@@ -541,13 +541,13 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void markTorsionTerm(ForceField.TorsionTerm term, bool mark)
     {
-        atomList[term.Atom1].markAtom(mark);
-        atomList[term.Atom2].markAtom(mark);
-        atomList[term.Atom3].markAtom(mark);
-        atomList[term.Atom4].markAtom(mark);
-        atomList[term.Atom1].getBond(atomList[term.Atom2])?.markBond(mark);
-        atomList[term.Atom2].getBond(atomList[term.Atom3])?.markBond(mark);
-        atomList[term.Atom3].getBond(atomList[term.Atom4])?.markBond(mark);
+        atomList[term.Atom1].markAtom(mark,5);
+        atomList[term.Atom2].markAtom(mark,5);
+        atomList[term.Atom3].markAtom(mark,5);
+        atomList[term.Atom4].markAtom(mark,5);
+        atomList[term.Atom1].getBond(atomList[term.Atom2])?.markBond(mark,5);
+        atomList[term.Atom2].getBond(atomList[term.Atom3])?.markBond(mark,5);
+        atomList[term.Atom3].getBond(atomList[term.Atom4])?.markBond(mark,5);
 
         if (toolTipInstance)
         {
