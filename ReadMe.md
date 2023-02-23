@@ -27,3 +27,7 @@ Download and install [Nuget for Unity](https://github.com/GlitchEnzo/NuGetForUni
 
 ## OpenBabel
 For server support of OpenBabel please install the [latest](https://github.com/openbabel/openbabel/releases/latest) version (x64 exe).
+Take the `OBDotNet.dll` from the OpenBabel install directory and copy it into `Assets/plugins`.
+If your system if having trouble to detect all necessary DLLs, check if the OpenBabel install path is added to your `PATH`.
+Under Windows go to "Edit the system environment variables" under "Environment Variables..." add the OpenBabel install path to your "Path" variable in the system variables.
+Under Linux add the OpenBabel install path to your `PATH` variable. 
