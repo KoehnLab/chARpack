@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: ITheoC
-  productName: MolecularBuilderHoloLens2
+  productName: chARpMolecularBuilder
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -39,7 +39,9 @@ PlayerSettings:
     y: 0
     width: 1
     height: 1
-  m_SplashScreenLogos: []
+  m_SplashScreenLogos:
+  - logo: {fileID: 21300000, guid: 8eb3e1db498f8d74c953604144bcff6d, type: 3}
+    duration: 3
   m_VirtualRealitySplashScreen: {fileID: 0}
   m_HolographicTrackingLossScreen: {fileID: 0}
   defaultScreenWidth: 1920
@@ -191,8 +193,9 @@ PlayerSettings:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: -6537968979333704884, guid: c3fe4c36bae045a499a08a7172f72f51, type: 2}
+  - {fileID: 0}
   - {fileID: 1413913175106088384, guid: 7602b06e7b6958c4b889ed9beaad348d, type: 2}
+  - {fileID: -6537968979333704884, guid: c3fe4c36bae045a499a08a7172f72f51, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -325,7 +328,14 @@ PlayerSettings:
   AndroidMinifyDebug: 0
   AndroidValidateAppBundleSize: 1
   AndroidAppBundleSizeToValidate: 150
-  m_BuildTargetIcons: []
+  m_BuildTargetIcons:
+  - m_BuildTarget: 
+    m_Icons:
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: ecccf4b836c244a4db25f2d608cb0bc2, type: 3}
+      m_Width: 128
+      m_Height: 128
+      m_Kind: 0
   m_BuildTargetPlatformIcons: []
   m_BuildTargetBatching:
   - m_BuildTarget: Standalone
@@ -689,16 +699,21 @@ PlayerSettings:
   apiCompatibilityLevelPerPlatform: {}
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: Template3D
+  metroPackageName: chARpMolecularBuilder
   metroPackageVersion: 1.0.0.0
   metroCertificatePath: Assets\WSATestCertificate.pfx
   metroCertificatePassword: 
   metroCertificateSubject: DefaultCompany
   metroCertificateIssuer: DefaultCompany
   metroCertificateNotAfter: 006403a4911dda01
-  metroApplicationDescription: Template_3D
-  wsaImages: {}
-  metroTileShortName: fresh_hololens
+  metroApplicationDescription: Chemisty AR Package - Molecular Builder
+  wsaImages:
+    65636: Assets/Logo/charp_icon_50.png
+    65661: Assets/Logo/charp_icon_63.png
+    65686: Assets/Logo/charp_icon_75.png
+    65736: Assets/Logo/charp_icon_100.png
+    65936: Assets/Logo/charp_icon_200.png
+  metroTileShortName: chARp
   metroTileShowName: 0
   metroMediumTileShowName: 0
   metroLargeTileShowName: 0
