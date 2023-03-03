@@ -95,7 +95,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject closeMeButtonPrefab;
     [HideInInspector] public static GameObject modifyMeButtonPrefab;
     [HideInInspector] public static GameObject changeBondWindowPrefab;
-    private GameObject toolTipInstance;
+    public GameObject toolTipInstance;
     private float toolTipDistanceWeight = 0.01f;
     public bool keepConfig = false;
 
@@ -321,7 +321,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
 
     }
-
 
     public void createBondToolTip(ForceField.BondTerm term)
     {

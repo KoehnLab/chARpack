@@ -329,7 +329,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         {
             // reset or nothing
             GetComponent<Outline>().enabled = false;
-            //GetComponent<Renderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
+            GetComponent<Renderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
         }
 
     }
@@ -486,6 +486,14 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         return false;
     }
 
+    private void markConnectedBonds(bool mark)
+    {
+        foreach (var bond in connectedBonds())
+        {
+            bond.markBond(mark);
+        }
+    }
+
     /// <summary>
     /// this method marks the atom in a different color if selected
     /// </summary>
@@ -511,6 +519,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
                 toolTipInstance = null;
             }
             colorSwapSelect(0);
+            markConnectedBonds(false);
         }
         // destroy tooltip of marked without flag
         if (!toolTip && toolTipInstance)
@@ -531,7 +540,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
                 markedList.Add(atom);
             }
         }
-        if (markedList.Count == 2)
+        if (markedList.Count == 1)
+        {
+            Destroy(m_molecule.toolTipInstance);
+            markedList[0].markAtom(true, 2, true);
+        }
+        else if (markedList.Count == 2)
         {
             foreach (var bond in m_molecule.bondTerms)
             {
@@ -550,12 +564,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         }
         else if (markedList.Count == 3)
         {
-            markedList.Remove(this);
             var atom1 = markedList[0];
             var atom2 = markedList[1];
+            var atom3 = markedList[1];
             foreach (var angle in m_molecule.angleTerms)
             {
-                if (angle.Contains(m_id) && angle.Contains(atom1.m_id) && angle.Contains(atom2.m_id))
+                if (angle.Contains(atom1.m_id) && angle.Contains(atom2.m_id) && angle.Contains(atom3.m_id))
                 {
                     if (toolTip)
                     {
@@ -571,13 +585,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         }
         else if (markedList.Count == 4)
         {
-            markedList.Remove(this);
             var atom1 = markedList[0];
             var atom2 = markedList[1];
             var atom3 = markedList[2];
+            var atom4 = markedList[3];
             foreach (var torsion in m_molecule.torsionTerms)
             {
-                if (torsion.Contains(m_id) && torsion.Contains(atom1.m_id) && torsion.Contains(atom2.m_id) && torsion.Contains(atom3.m_id))
+                if (torsion.Contains(atom1.m_id) && torsion.Contains(atom2.m_id) && torsion.Contains(atom3.m_id) && torsion.Contains(atom4.m_id))
                 {
                     if (toolTip)
                     {
