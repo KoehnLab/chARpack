@@ -571,7 +571,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             {
                 if (angle.Contains(atom1.m_id) && angle.Contains(atom2.m_id) && angle.Contains(atom3.m_id))
                 {
-                    UnityEngine.Debug.LogError("AT");
                     if (toolTip)
                     {
                         m_molecule.createAngleToolTip(angle);
