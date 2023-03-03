@@ -566,11 +566,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         {
             var atom1 = markedList[0];
             var atom2 = markedList[1];
-            var atom3 = markedList[1];
+            var atom3 = markedList[2];
             foreach (var angle in m_molecule.angleTerms)
             {
                 if (angle.Contains(atom1.m_id) && angle.Contains(atom2.m_id) && angle.Contains(atom3.m_id))
                 {
+                    UnityEngine.Debug.LogError("AT");
                     if (toolTip)
                     {
                         m_molecule.createAngleToolTip(angle);

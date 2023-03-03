@@ -410,7 +410,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void createAngleToolTip(ForceField.AngleTerm term)
     {
-        markAngleTerm(term,true);
+        markAngleTerm(term, true);
         var middleAtom = atomList[term.Atom2];
         // create tool tip
         toolTipInstance = Instantiate(myToolTipPrefab);
