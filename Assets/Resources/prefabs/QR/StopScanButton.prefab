@@ -155,6 +155,10 @@ PrefabInstance:
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: Increment
       objectReference: {fileID: 0}
+    - target: {fileID: 9173740976984213209, guid: 3f1f46cbecbe08e46a303ccfdb5b498a, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
     m_RemovedComponents:
     - {fileID: 6241848921227587195, guid: 3f1f46cbecbe08e46a303ccfdb5b498a, type: 3}
     - {fileID: 2204069621878992594, guid: 3f1f46cbecbe08e46a303ccfdb5b498a, type: 3}

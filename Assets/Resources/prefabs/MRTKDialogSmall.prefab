@@ -67,6 +67,10 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 3269078599317209199, guid: 478732197b53dee4694480aac1a7c98c, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
     - target: {fileID: 3677022320170089600, guid: 478732197b53dee4694480aac1a7c98c, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -299,6 +303,10 @@ PrefabInstance:
       propertyPath: m_firstOverflowCharacterIndex
       value: -1
       objectReference: {fileID: 0}
+    - target: {fileID: 5971396133697541364, guid: 478732197b53dee4694480aac1a7c98c, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
     - target: {fileID: 6149322787555490021, guid: 478732197b53dee4694480aac1a7c98c, type: 3}
       propertyPath: m_LocalPosition.y
       value: -0.0403
@@ -335,6 +343,10 @@ PrefabInstance:
       propertyPath: m_textInfo.characterCount
       value: 18
       objectReference: {fileID: 0}
+    - target: {fileID: 7452214686622314784, guid: 478732197b53dee4694480aac1a7c98c, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
     - target: {fileID: 7917488250107063852, guid: 478732197b53dee4694480aac1a7c98c, type: 3}
       propertyPath: m_Mesh
       value: 
