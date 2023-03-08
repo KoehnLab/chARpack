@@ -173,6 +173,14 @@ public class EventManager : MonoBehaviour
         OnChangeTorsionTerm?.Invoke(term, mol_id, term_id);
     }
 
+
+    public delegate void MarkTermAction(ushort term_type, ushort mol_id, ushort term_id, bool marked);
+    public event MarkTermAction OnMarkTerm;
+    public void MarkTerm(ushort term_type, ushort mol_id, ushort term_id, bool marked)
+    {
+        OnMarkTerm?.Invoke(term_type, mol_id, term_id, marked);
+    }
+
     #endregion
 
 

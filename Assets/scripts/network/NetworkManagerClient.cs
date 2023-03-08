@@ -92,6 +92,7 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnChangeBondTerm += sendChangeBondTerm;
         EventManager.Singleton.OnChangeAngleTerm += sendChangeAngleTerm;
         EventManager.Singleton.OnChangeTorsionTerm += sendChangeTorsionTerm;
+        EventManager.Singleton.OnMarkTerm += sendMarkTerm;
     }
 
     private void FixedUpdate()
@@ -361,6 +362,16 @@ public class NetworkManagerClient : MonoBehaviour
         message.AddUShort(mol_id);
         message.AddUShort(term_id);
         message.AddTorsionTerm(term);
+        Client.Send(message);
+    }
+
+    public void sendMarkTerm(ushort term_type, ushort mol_id, ushort term_id, bool marked)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.markTerm);
+        message.AddUShort(term_type);
+        message.AddUShort(mol_id);
+        message.AddUShort(term_id);
+        message.AddBool(marked);
         Client.Send(message);
     }
 
@@ -687,6 +698,46 @@ public class NetworkManagerClient : MonoBehaviour
             {
                 Debug.LogError($"[NetworkManagerServer:getAtomChanged] Angle term with id {term_id} of Molecule {mol_id} does not exists.\nRequesing world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
+            }
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastMarkTerm)]
+    private static void getMarkTerm(Message message)
+    {
+        var client_id = message.GetUShort();
+        // process message
+        var term_type = message.GetUShort();
+        var mol_id = message.GetUShort();
+        var term_id = message.GetUShort();
+        var marked = message.GetBool();
+
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+
+            // do the change
+            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+            if (mol == default)
+            {
+                Debug.LogError($"[NetworkManagerServer:getMarkTerm] Molecule with id {mol_id} does not exists.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+                return;
+            }
+
+            if (term_type == 0)
+            {
+                var term = mol.bondTerms.ElementAtOrDefault(term_id);
+                mol.markBondTerm(term, marked);
+            }
+            else if (term_type == 1)
+            {
+                var term = mol.angleTerms.ElementAtOrDefault(term_id);
+                mol.markAngleTerm(term, marked);
+            }
+            else if (term_type == 2)
+            {
+                var term = mol.torsionTerms.ElementAtOrDefault(term_id);
+                mol.markTorsionTerm(term, marked);
             }
         }
     }

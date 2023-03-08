@@ -217,7 +217,6 @@ public class GlobalCtrl : MonoBehaviour
 
     #endregion
 
-
     #region delete
 
     /// <summary>
@@ -1366,6 +1365,7 @@ public class GlobalCtrl : MonoBehaviour
         EventManager.Singleton.CreateAtom(newID, ChemicalID, List_curMolecules[newID].transform.localPosition);
     }
 
+    // TODO: Implement
     public void getRepulsionScale(float value)
     {
         // set value from slider
@@ -1373,6 +1373,7 @@ public class GlobalCtrl : MonoBehaviour
         Debug.Log(string.Format("repulsionScale, new val: {0, 6:f3}", repulsionScale));
     }
 
+   // TODO: Implement
     public void setHybridization(float value)
     {
         // set value from slider
@@ -1464,11 +1465,11 @@ public class GlobalCtrl : MonoBehaviour
         var myDialog = Dialog.Open(exitConfirmPrefab, DialogButtonType.Yes | DialogButtonType.No, "Confirm Exit", $"Are you sure you want quit?", true);
         if (myDialog != null)
         {
-            myDialog.OnClosed += OnClosedDialogEvent;
+            myDialog.OnClosed += OnBackToMainDialogEvent;
         }
     }
 
-    private void OnClosedDialogEvent(DialogResult obj)
+    private void OnBackToMainDialogEvent(DialogResult obj)
     {
         if (obj.Result == DialogButtonType.Yes)
         {

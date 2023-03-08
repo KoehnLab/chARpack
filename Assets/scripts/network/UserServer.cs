@@ -41,6 +41,12 @@ public class UserServer : MonoBehaviour
 
         anchor.name = user.deviceName;
 
+        // add user to pannel
+        var userPannelEntryPrefab = (GameObject)Resources.Load("prefabs/UserPannelEntryPrefab");
+        var userPannelEntryInstace = Instantiate(userPannelEntryPrefab, UserPannel.Singleton.transform);
+        userPannelEntryInstace.GetComponentInChildren<TextMeshProUGUI>().text = user.deviceName;
+        pannel.Add(id_, userPannelEntryInstace);
+
         // head
         var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
         CameraSwitcher.Singleton.addCamera(id_ , cubeUser.AddComponent<Camera>());
@@ -59,12 +65,6 @@ public class UserServer : MonoBehaviour
 
         user.sendSpawned();
         list.Add(id_, user);
-
-        // add user to pannel
-        var userPannelEntryPrefab = (GameObject)Resources.Load("prefabs/UserPannelEntryPrefab");
-        var userPannelEntryInstace = Instantiate(userPannelEntryPrefab, UserPannel.Singleton.transform);
-        userPannelEntryInstace.GetComponentInChildren<TextMeshProUGUI>().text = user.name;
-        pannel.Add(id_, userPannelEntryInstace);
 
         // TODO: Probably not necessary
         if (list.Count == 1)

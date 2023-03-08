@@ -68,6 +68,11 @@ public class CameraSwitcher : MonoBehaviour
         if (!cameras.ContainsKey(id))
         {
             cameras[id] = cam;
+            current_id = id;
+            if (currentCam == cam)
+            {
+                UserServer.pannel[id].transform.Find("Background").gameObject.SetActive(true);
+            }
         }
     }
 
@@ -75,17 +80,22 @@ public class CameraSwitcher : MonoBehaviour
     {
         if (cameras.ContainsKey(id))
         {
-            if (cameras.Count == 1)
+            cameras.Remove(id);
+            if (cameras.Count == 0)
             {
-                cameras[id].enabled = false;
                 currentCam = mainCam;
                 currentCam.enabled = true;
             }
             else
             {
-                nextCam();
+                foreach (var cam in cameras)
+                {
+                    currentCam = cam.Value;
+                    currentCam.enabled = true;
+                    UserServer.pannel[cam.Key].transform.Find("Background").gameObject.SetActive(true);
+                    break;
+                }
             }
-            cameras.Remove(id);
         }
         else
         {
@@ -96,9 +106,11 @@ public class CameraSwitcher : MonoBehaviour
     public void nextCam()
     {
         currentCam.enabled = false;
+        UserServer.pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(false);
 
         current_id = (current_id + 1) % cameras.Count;
-        int count = 0;
+        if (current_id == 0) current_id = cameras.Count;
+        int count = 1;
         foreach (var cam in cameras.Values) {
             if (current_id == count)
             {
@@ -108,14 +120,17 @@ public class CameraSwitcher : MonoBehaviour
         }
 
         currentCam.enabled = true;
+        UserServer.pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(true);
     }
 
     public void previousCam()
     {
         currentCam.enabled = false;
+        UserServer.pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(false);
 
-        current_id = (cameras.Count+ current_id - 1)%cameras.Count;
-        int count = 0;
+        current_id = (current_id - 1)%cameras.Count;
+        if (current_id == 0) current_id = cameras.Count;
+        int count = 1;
         foreach (var cam in cameras.Values)
         {
             if (current_id == count)
@@ -126,5 +141,6 @@ public class CameraSwitcher : MonoBehaviour
         }
 
         currentCam.enabled = true;
+        UserServer.pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(true);
     }
 }

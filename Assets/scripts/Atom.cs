@@ -560,7 +560,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         if (markedList.Count == 1)
         {
             Destroy(m_molecule.toolTipInstance);
-            markedList[0].markAtom(true, 2, true);
+            markedList[0].markAtom(true, 2, toolTip);
         }
         else if (markedList.Count == 2)
         {

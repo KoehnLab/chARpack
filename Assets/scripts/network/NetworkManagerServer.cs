@@ -546,5 +546,49 @@ public class NetworkManagerServer : MonoBehaviour
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
 
+    [MessageHandler((ushort)ClientToServerID.markTerm)]
+    private static void getMarkTerm(ushort fromClientId, Message message)
+    {
+        // process message
+        var term_type = message.GetUShort();
+        var mol_id = message.GetUShort();
+        var term_id = message.GetUShort();
+        var marked = message.GetBool();
+
+        // do the change
+        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+        if (mol == default)
+        {
+            Debug.LogError($"[NetworkManagerServer:getMarkTerm] Molecule with id {mol_id} does not exist.\nSynchronizing world with client {fromClientId}.");
+            NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
+            return;
+        }
+
+        if (term_type == 0)
+        {
+            var term = mol.bondTerms.ElementAtOrDefault(term_id);
+            mol.markBondTerm(term, marked);
+        }
+        else if (term_type == 1)
+        {
+            var term = mol.angleTerms.ElementAtOrDefault(term_id);
+            mol.markAngleTerm(term, marked);
+        }
+        else if (term_type == 2)
+        {
+            var term = mol.torsionTerms.ElementAtOrDefault(term_id);
+            mol.markTorsionTerm(term, marked);
+        }
+
+        // Broadcast
+        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastMarkTerm);
+        outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(term_type);
+        outMessage.AddUShort(mol_id);
+        outMessage.AddUShort(term_id);
+        outMessage.AddBool(marked);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
+
     #endregion
 }

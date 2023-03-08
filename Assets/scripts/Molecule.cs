@@ -356,7 +356,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
 
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
-        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markBondTerm(term, false); });
+        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markBondTermUI(term, false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
     }
 
@@ -391,6 +391,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         bondTerms[id] = bond;
         // unmark bond
         markBondTerm(bond, false);
+    }
+
+    public void markBondTermUI(ForceField.BondTerm term, bool mark)
+    {
+        markBondTerm(term, mark);
+        EventManager.Singleton.MarkTerm(0, m_id, (ushort)bondTerms.FindIndex(t => t.Equals(term)), mark);
     }
 
     public void markBondTerm(ForceField.BondTerm term, bool mark)
@@ -428,7 +434,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(modifyButtonInstance);
 
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
-        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markAngleTerm(term, false); });
+        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markAngleTermUI(term, false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
     }
 
@@ -463,6 +469,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         angleTerms[id] = angle;
         // unmark term
         markAngleTerm(angle, false);
+    }
+
+    public void markAngleTermUI(ForceField.AngleTerm term, bool mark)
+    {
+        markAngleTerm(term, mark);
+        EventManager.Singleton.MarkTerm(1, m_id, (ushort)angleTerms.FindIndex(t => t.Equals(term)), mark);
     }
 
     public void markAngleTerm(ForceField.AngleTerm term, bool mark)
@@ -501,7 +513,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(modifyButtonInstance);
 
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
-        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markTorsionTerm(term, false); });
+        closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markTorsionTermUI(term, false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
 
     }
@@ -536,6 +548,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         torsionTerms[id] = torsion;
         // unmark torsion
         markTorsionTerm(torsion, false);
+    }
+
+    public void markTorsionTermUI(ForceField.TorsionTerm term, bool mark)
+    {
+        markTorsionTerm(term, mark);
+        EventManager.Singleton.MarkTerm(2, m_id, (ushort)torsionTerms.FindIndex(t => t.Equals(term)), mark);
     }
 
     public void markTorsionTerm(ForceField.TorsionTerm term, bool mark)

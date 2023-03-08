@@ -25,7 +25,8 @@ public enum ClientToServerID : ushort
     enableForceField = 20,
     changeBondTerm = 21,
     changeAngleTerm = 22,
-    changeTorsionTerm = 23
+    changeTorsionTerm = 23,
+    markTerm = 24
 }
 
 public enum ServerToClientID : ushort
@@ -49,7 +50,8 @@ public enum ServerToClientID : ushort
     bcastEnableForceField = 17,
     bcastChangeBondTerm = 18,
     bcastChangeAngleTerm = 19,
-    bcastChangeTorsionTerm = 20
+    bcastChangeTorsionTerm = 20,
+    bcastMarkTerm = 21
 }
 
 public enum myDeviceType : ushort
