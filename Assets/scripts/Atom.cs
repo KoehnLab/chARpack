@@ -21,11 +21,23 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     private Stopwatch stopwatch;
     private GameObject toolTipInstance = null;
     private float toolTipDistanceWeight = 2.5f;
+    private Color currentOutlineColor = Color.black;
+
 
     public void OnPointerDown(MixedRealityPointerEventData eventData)
     {
-        // give it a glow halo
-        (GetComponent("Halo") as Behaviour).enabled = true;
+        // give it a outline
+        if (GetComponent<Outline>().enabled)
+        {
+            currentOutlineColor = GetComponent<Outline>().OutlineColor;
+        }
+        else
+        {
+            GetComponent<Outline>().enabled = true;
+            currentOutlineColor = Color.black;
+        }
+        GetComponent<Outline>().OutlineColor = Color.blue;
+
         stopwatch = Stopwatch.StartNew();
         isGrabbed = true;
         tmp_mass = m_data.m_mass;
@@ -46,8 +58,16 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     {
         isGrabbed = false;
         m_data.m_mass = tmp_mass;
-        // remove glow
-        (GetComponent("Halo") as Behaviour).enabled = false;
+        // reset outline
+        if (currentOutlineColor == Color.black)
+        {
+            GetComponent<Outline>().enabled = false;
+        }
+        else
+        {
+            GetComponent<Outline>().OutlineColor = currentOutlineColor;
+
+        }
 
         stopwatch?.Stop();
         //UnityEngine.Debug.Log($"[Atom] Interaction stopwatch: {stopwatch.ElapsedMilliseconds} [ms]");
@@ -140,9 +160,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         transform.parent = inputMole.transform;
         transform.localPosition = pos;    
         transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.Singleton.scale/GlobalCtrl.Singleton.u2pm) * GlobalCtrl.Singleton.atomScale;
-        // at this point we have the size of the atom, so we can adjust the size of the halo
-        //
-
 
         //Debug.Log(string.Format("Added latest {0}:  rad={1}  scale={2}  hyb={3}  nBonds={4}", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale, m_data.m_hybridization, m_data.m_bondNum));
 
