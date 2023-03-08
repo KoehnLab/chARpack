@@ -2,11 +2,13 @@ using RiptideNetworking;
 using RiptideNetworking.Utils;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class UserServer : MonoBehaviour
 {
     public static Dictionary<ushort, UserServer> list = new Dictionary<ushort, UserServer>();
+    public static Dictionary<ushort, GameObject> pannel = new Dictionary<ushort, GameObject>();
     public ushort ID;
     public string deviceName;
     public myDeviceType deviceType;
@@ -21,13 +23,11 @@ public class UserServer : MonoBehaviour
             otherUser.sendSpawned(id_);
         }
 
-
-
         var anchorPrefab = (GameObject)Resources.Load("prefabs/QR/QRAnchorNoScript");
         var anchor = Instantiate(anchorPrefab);
         //anchor.transform.position = offset_pos;
         //anchor.transform.rotation = offset_rot;
-        anchor.transform.parent = NetworkManagerServer.Singleton.userWorld.transform;
+        anchor.transform.parent = NetworkManagerServer.Singleton.UserWorld.transform;
         anchor.transform.localPosition = Vector3.zero;
         anchor.transform.localRotation = Quaternion.identity;
 
@@ -60,13 +60,19 @@ public class UserServer : MonoBehaviour
         user.sendSpawned();
         list.Add(id_, user);
 
+        // add user to pannel
+        var userPannelEntryPrefab = (GameObject)Resources.Load("prefabs/UserPannelEntryPrefab");
+        var userPannelEntryInstace = Instantiate(userPannelEntryPrefab, UserPannel.Singleton.transform);
+        userPannelEntryInstace.GetComponentInChildren<TextMeshProUGUI>().text = user.name;
+        pannel.Add(id_, userPannelEntryInstace);
+
         // TODO: Probably not necessary
         if (list.Count == 1)
         {
             GlobalCtrl.Singleton.atomWorld.transform.position = offset_pos;
             GlobalCtrl.Singleton.atomWorld.transform.rotation = offset_rot;
-            NetworkManagerServer.Singleton.userWorld.transform.position = offset_pos;
-            NetworkManagerServer.Singleton.userWorld.transform.rotation = offset_rot;
+            NetworkManagerServer.Singleton.UserWorld.transform.position = offset_pos;
+            NetworkManagerServer.Singleton.UserWorld.transform.rotation = offset_rot;
         }
     }
 
@@ -74,6 +80,7 @@ public class UserServer : MonoBehaviour
     {
         CameraSwitcher.Singleton.removeCamera(ID);
         list.Remove(ID);
+        pannel.Remove(ID);
     }
 
     private void applyPositionAndRotation(Vector3 pos, Quaternion quat)

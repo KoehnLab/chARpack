@@ -28,6 +28,7 @@ public class NetworkManagerServer : MonoBehaviour
     }
 
     public Server Server { get; private set; }
+ 
 
     private bool ServerStarted = false;
 
@@ -36,13 +37,14 @@ public class NetworkManagerServer : MonoBehaviour
     private static ushort chunkSize = 255;
     private static bool receiveComplete = false;
 
-    public GameObject userWorld;
+    private GameObject _userWorld;
+    public GameObject UserWorld { get => _userWorld; private set => _userWorld = value; }
 
     private void Awake()
     {
         Singleton = this;
         // create user world
-        userWorld = new GameObject("UserWorld");
+        UserWorld = new GameObject("UserWorld");
     }
 
     private void Start()
@@ -102,8 +104,9 @@ public class NetworkManagerServer : MonoBehaviour
     private void ClientDisconnected(object sender, ClientDisconnectedEventArgs e)
     {
         Debug.Log($"[NetworkManagerServer] Client {e.Id} disconnected. Cleaning up.");
-        // destroy user gameObject
+        // destroy user gameObject and pannel entry
         Destroy(UserServer.list[e.Id].gameObject);
+        Destroy(UserServer.pannel[e.Id]);
     }
 
     private void ClientConnected(object sender, ServerClientConnectedEventArgs e)

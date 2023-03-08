@@ -14,7 +14,7 @@ public class FindServer : MonoBehaviour
     [HideInInspector] public static List<ServerData> serverList = new List<ServerData>();
     [HideInInspector] public static List<ServerData> manualServerList = new List<ServerData>();
     public bool isServer = false;
-    public GameObject connectButtonText;
+    [HideInInspector] public GameObject connectButtonText;
 
     private static FindServer _singleton;
     public static FindServer Singleton
