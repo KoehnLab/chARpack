@@ -805,7 +805,7 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     /// <param name="ChemicalID">chemical ID of the atom which should be created</param>
     /// <param name="pos">position, where the atom should be created</param>
-    public void CreateAtom(ushort moleculeID, string ChemicalAbbre, Vector3 pos, bool createLocal = false)
+    public void CreateAtom(ushort moleculeID, string ChemicalAbbre, Vector3 pos, ushort hyb, bool createLocal = false)
     {
         // create atom from atom prefab
         GameObject tempMoleculeGO = Instantiate(myBoundingBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity);
@@ -825,7 +825,7 @@ public class GlobalCtrl : MonoBehaviour
 
         // 0: none; 1: sp1; 2: sp2;  3: sp3;  4: hypervalent trig. bipy; 5: unused;  6: hypervalent octahedral
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
-        tempData.m_hybridization = curHybrid;
+        tempData.m_hybridization = hyb;
         Debug.Log($"[GlobalCtrl:CreateAtom] tempData.hyb {tempData.m_hybridization}");
         tempData.m_bondNum = (ushort)Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization)); // a preliminary solution
         Debug.Log($"[GlobalCtrl:CreateAtom] tempData.m_bondNum {tempData.m_bondNum}");
@@ -1362,11 +1362,11 @@ public class GlobalCtrl : MonoBehaviour
         lastAtom = ChemicalID; // remember this for later
         Vector3 create_position = Camera.main.transform.position + 0.5f * Camera.main.transform.forward;
         var newID = getFreshMoleculeID();
-        CreateAtom(newID, ChemicalID, create_position);
+        CreateAtom(newID, ChemicalID, create_position, curHybrid);
 
         // Let the networkManager know about the user action
         // Important: insert localPosition here
-        EventManager.Singleton.CreateAtom(newID, ChemicalID, List_curMolecules[newID].transform.localPosition);
+        EventManager.Singleton.CreateAtom(newID, ChemicalID, List_curMolecules[newID].transform.localPosition, curHybrid);
     }
 
     // TODO: Implement
@@ -1408,7 +1408,7 @@ public class GlobalCtrl : MonoBehaviour
         Vector3 current_pos = Camera.main.transform.position;
         Vector3 current_lookat = Camera.main.transform.forward;
         Vector3 create_position = current_pos + 0.5f * current_lookat;
-        CreateAtom(getFreshMoleculeID(), favorites[pos - 1], create_position);
+        CreateAtom(getFreshMoleculeID(), favorites[pos - 1], create_position, curHybrid);
     }
 
 

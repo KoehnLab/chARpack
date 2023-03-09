@@ -217,12 +217,13 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
-    public void sendAtomCreated(ushort id, string abbre, Vector3 pos)
+    public void sendAtomCreated(ushort id, string abbre, Vector3 pos, ushort hyb)
     {
         Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.atomCreated);
         message.AddUShort(id);
         message.AddString(abbre);
         message.AddVector3(pos);
+        message.AddUShort(hyb);
         Client.Send(message);
     }
 
@@ -392,6 +393,7 @@ public class NetworkManagerClient : MonoBehaviour
         var mol_id = message.GetUShort();
         var abbre = message.GetString();
         var pos = message.GetVector3();
+        var hyb = message.GetUShort();
 
         // do the create
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
@@ -402,7 +404,7 @@ public class NetworkManagerClient : MonoBehaviour
                 NetworkManagerClient.Singleton.sendSyncRequest();
                 return;
             }
-            GlobalCtrl.Singleton.CreateAtom(mol_id, abbre, pos, true);
+            GlobalCtrl.Singleton.CreateAtom(mol_id, abbre, pos, hyb, true);
         }
     }
 

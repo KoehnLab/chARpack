@@ -132,8 +132,9 @@ public class NetworkManagerServer : MonoBehaviour
         var atom_id = message.GetUShort();
         var abbre = message.GetString();
         var pos = message.GetVector3();
+        var hyb = message.GetUShort();
         // do the create on the server
-        GlobalCtrl.Singleton.CreateAtom(atom_id, abbre, pos, true);
+        GlobalCtrl.Singleton.CreateAtom(atom_id, abbre, pos, hyb, true);
 
         // Broadcast to other clients
         Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastAtomCreated);
@@ -141,6 +142,7 @@ public class NetworkManagerServer : MonoBehaviour
         outMessage.AddUShort(atom_id);
         outMessage.AddString(abbre);
         outMessage.AddVector3(pos);
+        outMessage.AddUShort(hyb);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
 

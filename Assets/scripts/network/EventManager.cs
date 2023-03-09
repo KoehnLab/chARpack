@@ -39,11 +39,11 @@ public class EventManager : MonoBehaviour
         OnMolDataChanged?.Invoke(mol);
     }
 
-    public delegate void CreateAtomAction(ushort id, string abbre, Vector3 pos);
+    public delegate void CreateAtomAction(ushort id, string abbre, Vector3 pos, ushort hyb);
     public event CreateAtomAction OnCreateAtom;
-    public void CreateAtom(ushort id, string abbre, Vector3 pos)
+    public void CreateAtom(ushort id, string abbre, Vector3 pos, ushort hyb)
     {
-        OnCreateAtom?.Invoke(id, abbre, pos);
+        OnCreateAtom?.Invoke(id, abbre, pos, hyb);
     }
 
     public delegate void MoveMoleculeAction(ushort id, Vector3 pos, Quaternion quat);
