@@ -168,7 +168,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         Vector3 offset = new Vector3(0, 100, 0);
         // TODO: make this dependent on m_nBond and m_hybridization:
 
-        //Debug.Log("Hybrid: " + m_data.m_hybridization.ToString());
+        //UnityEngine.Debug.Log($"[Atom:f_init] Hybridization {m_data.m_hybridization}");
 
         switch (m_data.m_hybridization)
         {
@@ -461,7 +461,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         if (m_data.m_name == "Dummy")
         {
             Bond b = m_molecule.bondList.Find(p => p.atomID1 == m_id || p.atomID2 == m_id);
-            //Atom atom1 = GlobalCtrl.Singleton.List_curAtoms.Find((x) => x.GetComponent<Atom>() == b.findTheOther(dummy));
             Atom a;
             if (m_id == b.atomID1)
             {

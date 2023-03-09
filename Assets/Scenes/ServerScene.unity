@@ -1106,6 +1106,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvas: {fileID: 605924874}
+  mainCamGO: {fileID: 445067727}
 --- !u!4 &1049399385
 Transform:
   m_ObjectHideFlags: 0

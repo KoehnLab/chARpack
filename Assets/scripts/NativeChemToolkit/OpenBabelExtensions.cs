@@ -183,4 +183,14 @@ public static class OpenBabelExtensions
     {
         return (term.Atom1 == id || term.Atom2 == id || term.Atom3 == id || term.Atom4 == id);
     }
+
+    public static bool approx(this float f1, float f2, float precision)
+    {
+        return (Mathf.Abs(f1 - f2) <= precision);
+    }
+
+    public static bool approx(this double d1, double d2, float precision)
+    {
+        return (System.Math.Abs(d1 - d2) <= precision);
+    }
 }

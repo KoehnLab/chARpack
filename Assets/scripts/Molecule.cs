@@ -758,38 +758,33 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                     newBond.Atom1 = jAtom;
                     newBond.Atom2 = iAtom;
 
+                    string key1 = string.Format("{0}_{1}", atomList[jAtom].m_data.m_abbre, atomList[jAtom].m_data.m_hybridization);
+                    string key2 = string.Format("{0}_{1}", atomList[iAtom].m_data.m_abbre, atomList[iAtom].m_data.m_hybridization);
+
+                    float[] value1;
+                    float[] value2;
+
+                    float R01 = ForceField.DREIDINGConst.TryGetValue(key1, out value1) ? value1[0] : 70f;
+                    float R02 = ForceField.DREIDINGConst.TryGetValue(key2, out value2) ? value2[0] : 70f;
+
+                    var dreiding_eqDist = R01 + R02 - 1f;
+
                     if (keepConfig)
                     {
-                        newBond.eqDist = (FFposition[iAtom] - FFposition[jAtom]).magnitude;
+                        var currentDist = (FFposition[iAtom] - FFposition[jAtom]).magnitude;
+                        if (currentDist.approx(0.0f, 0.00001f))
+                        {
+                            newBond.eqDist = dreiding_eqDist;
+                        }
+                        else
+                        {
+                            newBond.eqDist = currentDist;
+                        }
                         UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Single Req: {newBond.eqDist}");
                     }
                     else
                     {
-                        string key1 = string.Format("{0}_{1}", atomList[jAtom].m_data.m_abbre, atomList[jAtom].m_data.m_hybridization);
-                        string key2 = string.Format("{0}_{1}", atomList[iAtom].m_data.m_abbre, atomList[iAtom].m_data.m_hybridization);
-                        float R01;
-                        float R02;
-                        float[] value;
-                        if (ForceField.DREIDINGConst.TryGetValue(key1, out value))
-                        {
-                            R01 = value[0];
-                        }
-                        else
-                        {
-                            R01 = 70f;
-                            //ForceFieldConsole.Instance.statusOut(string.Format("Warning {0} : unknown atom or hybridization", key1));
-                        }
-
-                        if (ForceField.DREIDINGConst.TryGetValue(key2, out value))
-                        {
-                            R02 = value[0];
-                        }
-                        else
-                        {
-                            R02 = 70f;
-                            //ForceFieldConsole.Instance.statusOut(string.Format("Warning {0} : unknown atom or hybridization", key2));
-                        }
-                        newBond.eqDist = R01 + R02 - 1f;
+                        newBond.eqDist = dreiding_eqDist;
                     }
                     newBond.kBond = ForceField.kb;
                     // TODO estimate bond order from equilibrium distance

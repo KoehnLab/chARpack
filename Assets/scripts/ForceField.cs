@@ -498,23 +498,23 @@ public class ForceField : MonoBehaviour
         {
 
             // check for too long steps:
-            //float MaxMove = 10f;
-            //float moveMaxNorm = 0f; // norm of movement vector
-            //for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
-            //{
-            //    float moveNorm = Vector3.Magnitude(mol.FFforces[iAtom]);
-            //    moveMaxNorm = Mathf.Max(moveMaxNorm, moveNorm);
-            //}
-            //if (moveMaxNorm > MaxMove)
-            //{
-            //    float scaleMove = MaxMove / moveMaxNorm;
-            //    if (LogLevel >= 100) FFlog.WriteLine("moveMaxNorm was {0:f3} - scaling by {1:f10}", moveMaxNorm, scaleMove);
+            float MaxMove = 10f;
+            float moveMaxNorm = 0f; // norm of movement vector
+            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            {
+                float moveNorm = Vector3.Magnitude(mol.FFforces[iAtom]);
+                moveMaxNorm = Mathf.Max(moveMaxNorm, moveNorm);
+            }
+            if (moveMaxNorm > MaxMove)
+            {
+                float scaleMove = MaxMove / moveMaxNorm;
+                if (LogLevel >= 100) FFlog.WriteLine("moveMaxNorm was {0:f3} - scaling by {1:f10}", moveMaxNorm, scaleMove);
 
-            //    for (int iAtom = 0; iAtom < nAtoms; iAtom++)
-            //    {
-            //        mol.FFforces[iAtom] *= scaleMove;
-            //    }
-            //}
+                for (int iAtom = 0; iAtom < nAtoms; iAtom++)
+                {
+                    mol.FFforces[iAtom] *= scaleMove;
+                }
+            }
 
             // update position and total movement:
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)

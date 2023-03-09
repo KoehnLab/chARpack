@@ -40,7 +40,7 @@ PlayerSettings:
     width: 1
     height: 1
   m_SplashScreenLogos: []
-  m_VirtualRealitySplashScreen: {fileID: 0}
+  m_VirtualRealitySplashScreen: {fileID: 2800000, guid: 1f5e7591f60c98f4cb4685b3cade4add, type: 3}
   m_HolographicTrackingLossScreen: {fileID: 0}
   defaultScreenWidth: 1920
   defaultScreenHeight: 1080
@@ -211,6 +211,8 @@ PlayerSettings:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: -6537968979333704884, guid: c3fe4c36bae045a499a08a7172f72f51, type: 2}
+  - {fileID: 1413913175106088384, guid: 7602b06e7b6958c4b889ed9beaad348d, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -347,7 +349,7 @@ PlayerSettings:
   - m_BuildTarget: 
     m_Icons:
     - serializedVersion: 2
-      m_Icon: {fileID: 0}
+      m_Icon: {fileID: 2800000, guid: 93608df7b61ba5f43afc414d1ef12767, type: 3}
       m_Width: 128
       m_Height: 128
       m_Kind: 0
@@ -723,15 +725,29 @@ PlayerSettings:
   metroCertificateNotAfter: 006403a4911dda01
   metroApplicationDescription: Chemisty AR Package - Molecular Builder
   wsaImages:
-    65636: 
-    65661: 
-    65686: 
-    65736: 
-    65936: 
+    65636: Assets/Logo/charp_icon_50.png
+    65661: Assets/Logo/charp_icon_63.png
+    65686: Assets/Logo/charp_icon_75.png
+    65736: Assets/Logo/charp_icon_100.png
+    65936: Assets/Logo/charp_icon_200.png
+    131172: Assets/Logo/charp_icon_wide_620x300.png
+    131197: Assets/Logo/charp_icon_wide_775x375.png
+    131222: Assets/Logo/charp_icon_wide_930x450.png
+    131272: Assets/Logo/charp_icon_wide_1240x600.png
+    2031640: Assets/Logo/charp_icon_24.png
+    2031716: Assets/Logo/charp_icon_44.png
+    2031816: Assets/Logo/charp_icon_88.png
+    2097252: Assets/Logo/charp_icon_71.png
+    2097352: Assets/Logo/charp_icon_142.png
+    2162788: Assets/Logo/charp_icon_150.png
+    2162888: Assets/Logo/charp_icon_300.png
+    2228324: Assets/Logo/charp_icon_310.png
+    2293860: Assets/Logo/charp_icon_wide_310x150.png
+    2293960: Assets/Logo/charp_icon_wide_620x300.png
   metroTileShortName: chARp
   metroTileShowName: 0
-  metroMediumTileShowName: 0
-  metroLargeTileShowName: 0
+  metroMediumTileShowName: 1
+  metroLargeTileShowName: 1
   metroWideTileShowName: 0
   metroSupportStreamingInstall: 0
   metroLastRequiredScene: 0

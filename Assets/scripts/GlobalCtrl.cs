@@ -90,6 +90,7 @@ public class GlobalCtrl : MonoBehaviour
 
     public float repulsionScale = 0.1f;
 
+    [HideInInspector]
     public ushort curHybrid = 3;
 
     Dictionary<Atom, List<Atom>> groupedAtoms = new Dictionary<Atom, List<Atom>>();
@@ -558,6 +559,7 @@ public class GlobalCtrl : MonoBehaviour
             {
                 Atom a = m.atomList[i];
                 int count = 0;
+                Debug.Log($"[GlobalCtrl:deleteAtom] should bonds: {a.m_data.m_bondNum}, actual bonds: {a.connectedAtoms().Count}");
                 while (a.m_data.m_bondNum > a.connectedAtoms().Count)
                 {
                     CreateDummy(m.getFreshAtomID(), m, a, calcDummyPos(a, positionsRestore, count));
@@ -824,7 +826,9 @@ public class GlobalCtrl : MonoBehaviour
         // 0: none; 1: sp1; 2: sp2;  3: sp3;  4: hypervalent trig. bipy; 5: unused;  6: hypervalent octahedral
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
         tempData.m_hybridization = curHybrid;
+        Debug.Log($"[GlobalCtrl:CreateAtom] tempData.hyb {tempData.m_hybridization}");
         tempData.m_bondNum = (ushort)Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization)); // a preliminary solution
+        Debug.Log($"[GlobalCtrl:CreateAtom] tempData.m_bondNum {tempData.m_bondNum}");
 
         ushort atom_id = 0;
         Atom tempAtom = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<Atom>();
@@ -1371,14 +1375,6 @@ public class GlobalCtrl : MonoBehaviour
         // set value from slider
         repulsionScale = 0.1f + value*0.9f;
         Debug.Log(string.Format("repulsionScale, new val: {0, 6:f3}", repulsionScale));
-    }
-
-   // TODO: Implement
-    public void setHybridization(float value)
-    {
-        // set value from slider
-        curHybrid = (ushort)value;
-        Debug.Log(string.Format("curHybrid, new val: {0, 6}", curHybrid));
     }
 
     public ElementData GetElementbyAbbre(string abbre)

@@ -49,6 +49,7 @@ public class UserServer : MonoBehaviour
 
         // head
         var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cubeUser.GetComponent<Renderer>().material = (Material)Resources.Load("materials/UserMaterial");
         CameraSwitcher.Singleton.addCamera(id_ , cubeUser.AddComponent<Camera>());
         cubeUser.transform.localScale = Vector3.one * 0.2f;
 

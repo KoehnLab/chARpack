@@ -27,7 +27,8 @@ public class CameraSwitcher : MonoBehaviour
     public Canvas canvas;
     private Dictionary<ushort, Camera> cameras = new Dictionary<ushort, Camera>();
     private int current_id;
-    private Camera mainCam;
+
+    public GameObject mainCamGO;
 
     private Camera currentCam_;
 
@@ -43,12 +44,11 @@ public class CameraSwitcher : MonoBehaviour
     private void Awake()
     {
         Singleton = this;
-        mainCam = Camera.main;
     }
 
     private void Start()
     {
-        currentCam = mainCam;
+        currentCam = mainCamGO.GetComponent<Camera>();
     }
 
     
@@ -83,7 +83,7 @@ public class CameraSwitcher : MonoBehaviour
             cameras.Remove(id);
             if (cameras.Count == 0)
             {
-                currentCam = mainCam;
+                currentCam = mainCamGO.GetComponent<Camera>();
                 currentCam.enabled = true;
             }
             else
