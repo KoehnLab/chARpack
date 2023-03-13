@@ -303,7 +303,7 @@ public class ForceField : MonoBehaviour
         //bond vector
         Vector3 rb = mol.FFposition[bond.Atom1] - mol.FFposition[bond.Atom2];
         //force on this bond vector
-        float delta = rb.magnitude - bond.eqDist;
+        float delta = rb.magnitude - (bond.eqDist * mol.transform.localScale.x);
         float fb = -bond.kBond * delta;
         if (LogLevel >= 1000) FFlog.WriteLine("dist: {0,12:f3}  dist0: {1,12:f3}  --  force = {2,14:f5} ", rb.magnitude, bond.eqDist, fb);
         //separate the forces on the two atoms
@@ -498,23 +498,23 @@ public class ForceField : MonoBehaviour
         {
 
             // check for too long steps:
-            float MaxMove = 10f;
-            float moveMaxNorm = 0f; // norm of movement vector
-            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
-            {
-                float moveNorm = Vector3.Magnitude(mol.FFforces[iAtom]);
-                moveMaxNorm = Mathf.Max(moveMaxNorm, moveNorm);
-            }
-            if (moveMaxNorm > MaxMove)
-            {
-                float scaleMove = MaxMove / moveMaxNorm;
-                if (LogLevel >= 100) FFlog.WriteLine("moveMaxNorm was {0:f3} - scaling by {1:f10}", moveMaxNorm, scaleMove);
+            //float MaxMove = 10f;
+            //float moveMaxNorm = 0f; // norm of movement vector
+            //for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            //{
+            //    float moveNorm = Vector3.Magnitude(mol.FFforces[iAtom]);
+            //    moveMaxNorm = Mathf.Max(moveMaxNorm, moveNorm);
+            //}
+            //if (moveMaxNorm > MaxMove)
+            //{
+            //    float scaleMove = MaxMove / moveMaxNorm;
+            //    if (LogLevel >= 100) FFlog.WriteLine("moveMaxNorm was {0:f3} - scaling by {1:f10}", moveMaxNorm, scaleMove);
 
-                for (int iAtom = 0; iAtom < nAtoms; iAtom++)
-                {
-                    mol.FFforces[iAtom] *= scaleMove;
-                }
-            }
+            //    for (int iAtom = 0; iAtom < nAtoms; iAtom++)
+            //    {
+            //        mol.FFforces[iAtom] *= scaleMove;
+            //    }
+            //}
 
             // update position and total movement:
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
@@ -542,7 +542,14 @@ public class ForceField : MonoBehaviour
         {
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
             {
-                mol.atomList.ElementAtOrDefault(iAtom).transform.position += mol.FFmovement[iAtom] * scalingfactor;
+                if (float.IsFinite(mol.FFmovement[iAtom].x)) {
+                    mol.atomList.ElementAtOrDefault(iAtom).transform.position += mol.FFmovement[iAtom] * scalingfactor;
+                }
+                else
+                {
+                    //do small random moves
+                    mol.atomList.ElementAtOrDefault(iAtom).transform.position += new Vector3(UnityEngine.Random.Range(-0.01f, 0.01f), UnityEngine.Random.Range(-0.01f, 0.01f), UnityEngine.Random.Range(-0.01f, 0.01f));
+                }
             }
         }
     }
@@ -561,7 +568,7 @@ public class ForceField : MonoBehaviour
             {
                 Atom a1 = mol.atomList.ElementAtOrDefault(bond.atomID1);
                 Atom a2 = mol.atomList.ElementAtOrDefault(bond.atomID2);
-                float distance = Vector3.Distance(a1.transform.position, a2.transform.position);
+                float distance = Vector3.Distance(a1.transform.position, a2.transform.position) / mol.transform.localScale.x;
                 bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
                 bond.transform.position = (a1.transform.position + a2.transform.position) / 2;
                 bond.transform.LookAt(a2.transform.position);

@@ -17,6 +17,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject deleteMeButtonPrefab;
     [HideInInspector] public static GameObject closeMeButtonPrefab;
     [HideInInspector] public static GameObject modifyMeButtonPrefab;
+    [HideInInspector] public static GameObject modifyHybridizationPrefab;
 
     private Stopwatch stopwatch;
     private GameObject toolTipInstance = null;
@@ -241,9 +242,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             {
                 numConnected--;
                 a.m_molecule.atomList.Remove(a);
-                Destroy(a.gameObject);
                 Bond b = a.connectedBonds()[0];
                 b.m_molecule.bondList.Remove(b);
+                Destroy(a.gameObject);
                 Destroy(b.gameObject);
             }
 
@@ -251,10 +252,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 
         while (dummyLimit > numConnected)
         {
-            print("before Dummy Limit, numConnected:   " + dummyLimit + "   " + numConnected);
+            UnityEngine.Debug.Log($"[Atom:f_modify] Adding dummies. Limit: {dummyLimit}, current connected: {numConnected}");
             addDummy(numConnected);
             numConnected++;
         }
+
+        m_molecule.shrinkAtomIDs();
 
         // Debug.Log(string.Format("Modified latest {0}:  rad={1}   scale={2} ", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale));
     }
@@ -297,7 +300,14 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
                 float sideCheck2 = position.x * transform.localPosition.x + position.y * transform.localPosition.y + position.z * transform.localPosition.z;
 
                 if ((sideCheck1 >= 0 && sideCheck2 >= 0) || (sideCheck1 <= 0 && sideCheck2 <= 0))
+                {
                     position = transform.localPosition - normalVec;
+                }
+
+                GlobalCtrl.Singleton.CreateDummy(m_molecule.getFreshAtomID(), m_molecule, this, position);
+                break;
+            case (4):
+                position = (conAtoms[1].transform.localPosition - conAtoms[0].transform.localPosition)/2.0f;
 
                 GlobalCtrl.Singleton.CreateDummy(m_molecule.getFreshAtomID(), m_molecule, this, position);
                 break;
@@ -655,8 +665,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.transform.position = ttpos;
         // add atom as connector
         toolTipInstance.GetComponent<myToolTipConnector>().Target = gameObject;
-        string toolTipText = $"Name: {m_data.m_name}\nHybrid.: {m_data.m_hybridization}\nMass: {m_data.m_mass}\nRadius: {m_data.m_radius}\nNumBonds: {m_data.m_bondNum}";
+        string toolTipText = $"Name: {m_data.m_name}\nMass: {m_data.m_mass}\nRadius: {m_data.m_radius}\nNumBonds: {m_data.m_bondNum}";
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        GameObject modifyHybridizationInstance = null;
         if (m_data.m_abbre != "Dummy")
         {
             
@@ -671,6 +682,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             var delButtonInstance = Instantiate(deleteMeButtonPrefab);
             delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteAtomUI(this); });
             toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
+
+            modifyHybridizationInstance = Instantiate(modifyHybridizationPrefab);
+            modifyHybridizationInstance.GetComponent<modifyHybridization>().currentAtom = this;
         }
         else
         {
@@ -682,6 +696,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
         closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markAtomUI(false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
+
+        // add last
+        if (modifyHybridizationInstance != null)
+        {
+            toolTipInstance.GetComponent<DynamicToolTip>().addContent(modifyHybridizationInstance);
+        }
+
     }
 
 

@@ -181,6 +181,13 @@ public class EventManager : MonoBehaviour
         OnMarkTerm?.Invoke(term_type, mol_id, term_id, marked);
     }
 
+    public delegate void ModifyHybAction(ushort mol_id, ushort atom_id, ushort hyb);
+    public event ModifyHybAction OnModifyHyb;
+    public void ModifyHyb(ushort mol_id, ushort atom_id, ushort hyb)
+    {
+        OnModifyHyb?.Invoke(mol_id, atom_id, hyb);
+    }
+
     #endregion
 
 

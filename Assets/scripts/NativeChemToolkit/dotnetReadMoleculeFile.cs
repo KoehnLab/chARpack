@@ -243,6 +243,7 @@ public class dotnetReadMoleculeFile : MonoBehaviour
                     }
                 }
             }
+
             saveData.Add(obmol.AsCML());
         }
 

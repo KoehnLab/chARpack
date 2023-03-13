@@ -51,16 +51,11 @@ MonoBehaviour:
     Radius: 0
     Transform: {fileID: 1852070319555733980}
     Colliders: []
-  - Name: DeleteMeButton
-    Offset: {x: 0, y: 0}
-    Radius: 0
-    Transform: {fileID: 0}
-    Colliders: []
   ignoreInactiveTransforms: 1
-  sortType: 0
+  sortType: 1
   surfaceType: 1
   orientType: 0
-  layout: 2
+  layout: 0
   anchor: 4
   anchorAlongAxis: 0
   columnAlignment: 0
@@ -71,7 +66,7 @@ MonoBehaviour:
   rows: 1
   columns: 3
   cellWidth: 10
-  cellHeight: 1
+  cellHeight: 12
   assetVersion: 1
 --- !u!1 &2958709749687893181
 GameObject:
@@ -132,7 +127,7 @@ GameObject:
   - component: {fileID: 9195818092123317607}
   - component: {fileID: 6844347122289580335}
   - component: {fileID: 3901251569477059131}
-  - component: {fileID: 6455198749551223731}
+  - component: {fileID: 1538331113977202183}
   - component: {fileID: 2979908611130026421}
   - component: {fileID: 4944131762636153612}
   - component: {fileID: 7068097177861879001}
@@ -180,6 +175,7 @@ MonoBehaviour:
   groupTipState: 0
   masterTipState: 0
   anchor: {fileID: 8996481166125108106}
+  bg: {fileID: 0}
   pivot: {fileID: 4038965943055891440}
   label: {fileID: 8943795953604800610}
   content: {fileID: 2195563851858444460}
@@ -213,7 +209,7 @@ MonoBehaviour:
   manualPivotDirection: {x: 0, y: 1, z: 0}
   manualPivotLocalPosition: {x: 0, y: 1, z: 0}
   pivotDistance: 0.25
---- !u!114 &6455198749551223731
+--- !u!114 &1538331113977202183
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -222,7 +218,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4014241828956980662}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a86b28bfea793ef4ea0e3956e5ba03a9, type: 3}
+  m_Script: {fileID: 11500000, guid: ee9f21b0b5219ba49b70122ad12b1d40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   backgroundTransform: {fileID: 2678580519635420171}
@@ -587,7 +583,7 @@ Transform:
   m_GameObject: {fileID: 4340384569547089721}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0.001}
-  m_LocalScale: {x: 0.1497193, y: 0.031757813, z: 1}
+  m_LocalScale: {x: 0.1497193, y: 0.031757813, z: 0.0106}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6843851639004457439}
@@ -764,14 +760,14 @@ LineRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Positions:
-  - {x: -0.14953244, y: 0.2817551, z: 0.002}
-  - {x: 0, y: 0.2817551, z: 0.002}
-  - {x: 0.14953244, y: 0.2817551, z: 0.002}
-  - {x: 0.14953244, y: 0.25, z: 0.002}
-  - {x: 0.14953244, y: 0.21824491, z: 0.002}
-  - {x: 0, y: 0.21824491, z: 0.002}
-  - {x: -0.14953244, y: 0.21824491, z: 0.002}
-  - {x: -0.14953244, y: 0.25, z: 0.002}
+  - {x: -0.1497193, y: 0.2817578, z: 0.002}
+  - {x: 0, y: 0.2817578, z: 0.002}
+  - {x: 0.1497193, y: 0.2817578, z: 0.002}
+  - {x: 0.1497193, y: 0.25, z: 0.002}
+  - {x: 0.1497193, y: 0.21824218, z: 0.002}
+  - {x: 0, y: 0.21824218, z: 0.002}
+  - {x: -0.1497193, y: 0.21824218, z: 0.002}
+  - {x: -0.1497193, y: 0.25, z: 0.002}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.01
@@ -882,17 +878,17 @@ MonoBehaviour:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 0
-      value: 1
+      time: 0.7235146
+      value: 0.5030802
       inSlope: 0
       outSlope: 0
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0
+      outWeight: 0.40963143
     - serializedVersion: 3
-      time: 1
-      value: 1
+      time: 1.4543211
+      value: 0.50298864
       inSlope: 0
       outSlope: 0
       tangentMode: 0

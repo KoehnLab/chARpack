@@ -20,13 +20,11 @@ public static class OpenBabelExtensions
             var current_pos = atom.GetVector().AsVector3() * GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2aa;
             pos_vec.Add(current_pos);
             mean_pos += current_pos;
-            Debug.Log($"[OpenBabelExtensions] Atom has type: {GlobalCtrl.Singleton.list_ElementData[(int)atom.GetAtomicNum()].m_abbre} and atomic number: {atom.GetAtomicNum()}");
             symbols.Add(GlobalCtrl.Singleton.list_ElementData[(int)atom.GetAtomicNum()].m_abbre);
             hybridizatons.Add((ushort)atom.GetHyb());
+            Debug.Log($"[OpenBabelExtensions] Atom has type: {GlobalCtrl.Singleton.list_ElementData[(int)atom.GetAtomicNum()].m_abbre}, atomic number: {atom.GetAtomicNum()}, hyb: {atom.GetHyb()}");
         }
         mean_pos /= num_atoms;
-
-        
 
         List<cmlBond> list_bond = new List<cmlBond>();
         foreach (var bond in molecule.Bonds())

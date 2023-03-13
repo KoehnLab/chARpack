@@ -114,6 +114,19 @@ namespace Microsoft.MixedReality.Toolkit.UI
             set { anchor = value; }
         }
 
+
+        [SerializeField]
+        [Tooltip("GameObject for the Background")]
+        private GameObject bg;
+        /// <summary>
+        /// getter/setter for GameObject of Background
+        /// </summary>
+        public GameObject BG
+        {
+            get { return bg; }
+            set { bg = value; }
+        }
+
         [Tooltip("Pivot point that text will rotate around as well as the point where the Line will be rendered to.")]
         [SerializeField]
         private GameObject pivot;
@@ -248,12 +261,12 @@ namespace Microsoft.MixedReality.Toolkit.UI
         [Tooltip("The line connecting the anchor to the pivot. If present, this component will be updated automatically.\n\nRecommended: SimpleLine, Spline, and ParabolaConstrainted")]
         private BaseMixedRealityLineDataProvider toolTipLine;
 
-        private Vector2 localContentSize;
+        private Vector3 localContentSize;
 
         /// <summary>
         /// getter/setter for size of tooltip.
         /// </summary>
-        public Vector2 LocalContentSize => localContentSize;
+        public Vector3 LocalContentSize => localContentSize;
 
         private Vector3 pivotPosition;
         private Vector3 attachPointPosition;
@@ -367,7 +380,6 @@ namespace Microsoft.MixedReality.Toolkit.UI
             content.GetComponent<GridObjectCollection>().UpdateCollection();
             //RefreshLocalContent();
         }
-
 
         /// <summary>
         /// virtual functions
@@ -483,10 +495,11 @@ namespace Microsoft.MixedReality.Toolkit.UI
                 localContentSize.x = localScale.x;
                 localContentSize.y = localScale.y;
                 // widen the text depending of the number of buttons attached
-                for (ushort i = 0; i < contentList.Count -1; i++)
-                {
-                    localContentSize.x += 0.032f;
-                }
+                localContentSize.x += 0.020f * (contentList.Count - 1);
+                // add height for more than 3 items
+                int div = (int)(contentList.Count / 4.0f);
+                localContentSize.y += div * 0.062f;
+
                 // add padding
                 localContentSize.x += backgroundPadding.x;
                 localContentSize.y += backgroundPadding.y;

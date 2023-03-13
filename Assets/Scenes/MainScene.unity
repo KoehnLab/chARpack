@@ -469,7 +469,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Creation Hybridization
+  m_text: Current Hybridization
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6a84f857bec7e7345843ae29404c57ce, type: 2}
   m_sharedMaterial: {fileID: 21202819797275496, guid: 6a84f857bec7e7345843ae29404c57ce, type: 2}
@@ -632,7 +632,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63ec96d009545db428326883eefbd23f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  value: {fileID: 488821780}
+  valueGO: {fileID: 488821780}
 --- !u!1 &250173011
 GameObject:
   m_ObjectHideFlags: 0
@@ -2075,7 +2075,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 238955597}
-        m_TargetAssemblyTypeName: hybridization, Assembly-CSharp
+        m_TargetAssemblyTypeName: createHybridization, Assembly-CSharp
         m_MethodName: increase
         m_Mode: 1
         m_Arguments:
@@ -2235,7 +2235,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 3
+  m_text: 1
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6a84f857bec7e7345843ae29404c57ce, type: 2}
   m_sharedMaterial: {fileID: 21202819797275496, guid: 6a84f857bec7e7345843ae29404c57ce, type: 2}
@@ -7324,7 +7324,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 238955597}
-        m_TargetAssemblyTypeName: hybridization, Assembly-CSharp
+        m_TargetAssemblyTypeName: createHybridization, Assembly-CSharp
         m_MethodName: decrease
         m_Mode: 1
         m_Arguments:

@@ -1,14 +1,14 @@
 using TMPro;
 using UnityEngine;
 
-public class hybridization : MonoBehaviour
+public class createHybridization : MonoBehaviour
 {
 
-    public GameObject value;
+    public GameObject valueGO;
 
     private void Start()
     {
-        value.GetComponent<TextMeshPro>().text = GlobalCtrl.Singleton.curHybrid.ToString();
+        valueGO.GetComponent<TextMeshPro>().text = GlobalCtrl.Singleton.curHybrid.ToString();
     }
 
     public void increase()
@@ -16,7 +16,7 @@ public class hybridization : MonoBehaviour
         if (GlobalCtrl.Singleton.curHybrid < 6)
         {
             GlobalCtrl.Singleton.curHybrid += 1;
-            value.GetComponent<TextMeshPro>().text = GlobalCtrl.Singleton.curHybrid.ToString();
+            valueGO.GetComponent<TextMeshPro>().text = GlobalCtrl.Singleton.curHybrid.ToString();
         }
     }
 
@@ -25,7 +25,7 @@ public class hybridization : MonoBehaviour
         if (GlobalCtrl.Singleton.curHybrid > 0)
         {
             GlobalCtrl.Singleton.curHybrid -= 1;
-            value.GetComponent<TextMeshPro>().text = GlobalCtrl.Singleton.curHybrid.ToString();
+            valueGO.GetComponent<TextMeshPro>().text = GlobalCtrl.Singleton.curHybrid.ToString();
         }
     }
 

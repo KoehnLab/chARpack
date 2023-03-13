@@ -165,6 +165,7 @@ public class GlobalCtrl : MonoBehaviour
         Atom.deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
         Atom.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
         Atom.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
+        Atom.modifyHybridizationPrefab = (GameObject)Resources.Load("prefabs/modifyHybridization");
 
         // Molecule
         Molecule.myToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKAtomToolTip");
@@ -811,7 +812,6 @@ public class GlobalCtrl : MonoBehaviour
         GameObject tempMoleculeGO = Instantiate(myBoundingBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         Molecule tempMolecule = tempMoleculeGO.AddComponent<Molecule>();
 
-        //Molecule tempMolecule = new GameObject().AddComponent<Molecule>();
         if (!createLocal)
         {
             tempMolecule.transform.position = pos;
@@ -826,13 +826,12 @@ public class GlobalCtrl : MonoBehaviour
         // 0: none; 1: sp1; 2: sp2;  3: sp3;  4: hypervalent trig. bipy; 5: unused;  6: hypervalent octahedral
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
         tempData.m_hybridization = hyb;
-        Debug.Log($"[GlobalCtrl:CreateAtom] tempData.hyb {tempData.m_hybridization}");
-        tempData.m_bondNum = (ushort)Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization)); // a preliminary solution
-        Debug.Log($"[GlobalCtrl:CreateAtom] tempData.m_bondNum {tempData.m_bondNum}");
+        tempData.m_bondNum = calcNumBonds(tempData.m_hybridization, tempData.m_bondNum);
 
         ushort atom_id = 0;
         Atom tempAtom = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<Atom>();
         tempAtom.f_Init(tempData, tempMolecule, Vector3.zero , atom_id);
+
         // add dummies
         foreach (Vector3 posForDummy in tempAtom.m_posForDummies)
         {
@@ -846,6 +845,12 @@ public class GlobalCtrl : MonoBehaviour
 
         EventManager.Singleton.ChangeMolData(tempMolecule);
     }
+
+    public ushort calcNumBonds(ushort hyb, ushort element_bondNum)
+    {
+        return (ushort)Mathf.Max(0, element_bondNum - (3 - hyb)); // a preliminary solution
+    }
+
 
     /// <summary>
     /// this method changes the type of an atom
@@ -863,7 +868,7 @@ public class GlobalCtrl : MonoBehaviour
 
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
         tempData.m_hybridization = chgAtom.m_data.m_hybridization;
-        tempData.m_bondNum = (ushort)Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization));
+        tempData.m_bondNum = calcNumBonds(tempData.m_hybridization, tempData.m_bondNum);
 
         chgAtom.f_Modify(tempData);
 
@@ -878,17 +883,35 @@ public class GlobalCtrl : MonoBehaviour
         changeAtom(idMol, idAtom, ChemicalAbbre);
     }
 
+    public void modifyHybridUI(Atom atom, ushort hybrid)
+    {
+        EventManager.Singleton.ModifyHyb(atom.m_molecule.m_id, atom.m_id, hybrid);
+        modifyHybrid(atom, hybrid);
+    }
 
     public void modifyHybrid(Atom atom, ushort hybrid)
     {
-        print("hybrid:   " + hybrid);
         ElementData tempData = Dic_ElementData[atom.m_data.m_abbre];
         tempData.m_hybridization = hybrid;
-        tempData.m_bondNum = (ushort)Mathf.Max(0, tempData.m_bondNum - (3 - tempData.m_hybridization));
+        tempData.m_bondNum = calcNumBonds(tempData.m_hybridization, tempData.m_bondNum);
 
         atom.f_Modify(tempData);
-        atom.markAtom(true);
         SaveMolecule(true);
+        EventManager.Singleton.ChangeMolData(atom.m_molecule);
+    }
+
+    public bool modifyHybrid(ushort mol_id, ushort atom_id, ushort hybrid)
+    {
+
+        Atom chgAtom = List_curMolecules.ElementAtOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
+        if (chgAtom == default)
+        {
+            return false;
+        }
+
+        modifyHybrid(chgAtom, hybrid);
+
+        return true;
     }
 
 
@@ -972,6 +995,8 @@ public class GlobalCtrl : MonoBehaviour
 
         Molecule molInHand = dummyInHand.m_molecule;
         Molecule molInAir = dummyInAir.m_molecule;
+        // scale before merge
+        molInAir.transform.localScale = molInHand.transform.localScale;
         Bond bondInHand = molInHand.bondList.Find(p=>p.atomID1 == dummyInHand.m_id || p.atomID2 == dummyInHand.m_id);
         Bond bondInAir = molInAir.bondList.Find(p => p.atomID1 == dummyInAir.m_id || p.atomID2 == dummyInAir.m_id);
         if(molInHand != molInAir)

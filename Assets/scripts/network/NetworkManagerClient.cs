@@ -93,6 +93,7 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnChangeAngleTerm += sendChangeAngleTerm;
         EventManager.Singleton.OnChangeTorsionTerm += sendChangeTorsionTerm;
         EventManager.Singleton.OnMarkTerm += sendMarkTerm;
+        EventManager.Singleton.OnModifyHyb += sendModifyHyb;
     }
 
     private void FixedUpdate()
@@ -376,6 +377,14 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
+    public void sendModifyHyb(ushort mol_id, ushort atom_id, ushort hyb)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.modifyHyb);
+        message.AddUShort(mol_id);
+        message.AddUShort(atom_id);
+        message.AddUShort(hyb);
+        Client.Send(message);
+    }
     #endregion
 
     #region Listen
@@ -740,6 +749,25 @@ public class NetworkManagerClient : MonoBehaviour
             {
                 var term = mol.torsionTerms.ElementAtOrDefault(term_id);
                 mol.markTorsionTerm(term, marked);
+            }
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastModifyHyb)]
+    private static void getModifyHyb(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
+        var atom_id = message.GetUShort();
+        var hyb = message.GetUShort();
+
+        // do the change
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            if (!GlobalCtrl.Singleton.modifyHybrid(mol_id, atom_id, hyb))
+            {
+                Debug.LogError($"[NetworkManagerServer:getModifyHyb] Atom with id {atom_id} of Molecule {mol_id} does not exists.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
             }
         }
     }

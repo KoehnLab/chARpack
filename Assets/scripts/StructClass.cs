@@ -27,10 +27,10 @@ namespace StructClass
         public ElementType m_type;
         public float m_mass;
         public float m_radius;
-        public uint m_bondNum;
+        public ushort m_bondNum;
         public ushort m_hybridization;
         public Color m_color;
-        public ElementData(ushort id,string name, string abbre, ElementType type, float mass, float radius, uint count, ushort hyb, float red, float green, float blue)                  
+        public ElementData(ushort id,string name, string abbre, ElementType type, float mass, float radius, ushort b_count, ushort hyb, float red, float green, float blue)                  
         {
             m_id = id;
             m_name = name;
@@ -38,12 +38,12 @@ namespace StructClass
             m_type = type;
             m_mass = mass;
             m_radius = radius;
-            m_bondNum = count;
+            m_bondNum = b_count;
             m_hybridization = hyb;
             m_color = new Color(red,green,blue);
         }
 
-        public ElementData(ushort id, string name, string abbre, ElementType type, float mass, float radius, uint count, ushort hyb, Color color)
+        public ElementData(ushort id, string name, string abbre, ElementType type, float mass, float radius, ushort b_count, ushort hyb, Color color)
         {
             m_id = id;
             m_name = name;
@@ -51,7 +51,7 @@ namespace StructClass
             m_type = type;
             m_mass = mass;
             m_radius = radius;
-            m_bondNum = count;
+            m_bondNum = b_count;
             m_hybridization = hyb;
             m_color = color;
         }

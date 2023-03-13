@@ -700,7 +700,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         torsionTerms.Clear();
 
         var num_atoms = atomList.Count;
-
+        //UnityEngine.Debug.LogError($"[Molecule:generateFF] num num_atoms {num_atoms}");
         // set topology array       
         bool[,] topo = new bool[num_atoms, num_atoms];
         for (int iAtom = 0; iAtom < num_atoms; iAtom++)
@@ -719,12 +719,13 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 {
                     // cycle through connection points
                     // ConnectionStatus does not exist anymore, instead use Atom.connectedAtoms(); this returns a List of all directly connected Atoms
+                    //UnityEngine.Debug.LogError($"[Molecule:generateFF] num connections {At1.connectedAtoms().Count}"); 
                     foreach (Atom conAtom in At1.connectedAtoms())
                     {
                         int jAtom = conAtom.m_id;
                         if (jAtom >= 0)
                         {
-                            //UnityEngine.Debug.Log($"[Molecule:generateFF] num_atoms {num_atoms}; iAtom {iAtom}; jAtom {jAtom}");
+                            //UnityEngine.Debug.LogError($"[Molecule:generateFF] num_atoms {num_atoms}; iAtom {iAtom}; jAtom {jAtom}");
                             topo[iAtom, jAtom] = true;
                             topo[jAtom, iAtom] = true;
                         }
@@ -896,17 +897,17 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             foreach (ForceField.AngleTerm threebond1 in angleTerms)
             {
-                if (atomList[threebond1.Atom1].m_data.m_abbre == "Dummy" || atomList[threebond1.Atom2].m_data.m_abbre == "Dummy" || atomList[threebond1.Atom3].m_data.m_abbre == "Dummy")
-                {
-                    continue;
-                }
+                //if (atomList[threebond1.Atom1].m_data.m_abbre == "Dummy" || atomList[threebond1.Atom2].m_data.m_abbre == "Dummy" || atomList[threebond1.Atom3].m_data.m_abbre == "Dummy")
+                //{
+                //    continue;
+                //}
                 //if (threebond1.Aeq == 180f)break; ??
                 foreach (ForceField.BondTerm bond2 in bondTerms)
                 {
-                    if (atomList[bond2.Atom1].m_data.m_abbre == "Dummy" || atomList[bond2.Atom2].m_data.m_abbre == "Dummy")
-                    {
-                        continue;
-                    }
+                    //if (atomList[bond2.Atom1].m_data.m_abbre == "Dummy" || atomList[bond2.Atom2].m_data.m_abbre == "Dummy")
+                    //{
+                    //    continue;
+                    //}
                     // if the bond is in our threebond we can skip
                     if (threebond1.Atom1 == bond2.Atom1 && threebond1.Atom2 == bond2.Atom2) continue; // break;
                     if (threebond1.Atom1 == bond2.Atom2 && threebond1.Atom2 == bond2.Atom1) continue; // break;
