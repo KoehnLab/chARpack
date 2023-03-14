@@ -191,4 +191,40 @@ public static class OpenBabelExtensions
     {
         return (System.Math.Abs(d1 - d2) <= precision);
     }
+
+    public static Vector3 multiply(this Vector3 lhs, Vector3 rhs)
+    {
+        return new Vector3(lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z);
+    }
+
+    public static Vector3 abs(this Vector3 lhs)
+    {
+        return new Vector3(Mathf.Abs(lhs.x), Mathf.Abs(lhs.y), Mathf.Abs(lhs.z));
+    }
+
+    public static Vector3 sqrt(this Vector3 lhs)
+    {
+        return new Vector3(Mathf.Sqrt(lhs.x), Mathf.Sqrt(lhs.y), Mathf.Sqrt(lhs.z));
+    }
+
+    public static Vector3 pow(this Vector3 lhs, float exponent)
+    {
+        return new Vector3(Mathf.Pow(lhs.x, exponent), Mathf.Pow(lhs.y, exponent), Mathf.Pow(lhs.z, exponent));
+    }
+
+    public static Vector3 max(this Vector3 lhs, float other)
+    {
+        return new Vector3(Mathf.Max(lhs.x, other), Mathf.Max(lhs.y, other), Mathf.Max(lhs.z, other));
+    }
+
+    public static Vector3 min(this Vector3 lhs, float other)
+    {
+        return new Vector3(Mathf.Min(lhs.x, other), Mathf.Min(lhs.y, other), Mathf.Min(lhs.z, other));
+    }
+
+    public static Vector3 limit(this Vector3 lhs, float other)
+    {
+        return new Vector3((lhs.x)*Mathf.Min(lhs.x, other), Mathf.Min(lhs.y, other), Mathf.Min(lhs.z, other));
+    }
+
 }

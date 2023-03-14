@@ -659,11 +659,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public List<Vector3> FFposition = new List<Vector3>();
     public List<Vector3> FFlastPosition = new List<Vector3>();
+    public List<Vector3> FFlastlastPosition = new List<Vector3>();
     public List<Vector3> FFvelocity = new List<Vector3>();
     public List<Vector3> FFforces = new List<Vector3>();
     public List<Vector3> FFforces_pass2 = new List<Vector3>();
     public List<Vector3> FFmovement = new List<Vector3>();
-    public List<float> FFtimeStep = new List<float>();
+    public List<Vector3> FFtimeStep = new List<Vector3>();
 
     public List<ForceField.BondTerm> bondTerms = new List<ForceField.BondTerm>();
     public List<ForceField.AngleTerm> angleTerms = new List<ForceField.AngleTerm>();
@@ -686,6 +687,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             mol.FFposition.Clear();
             mol.FFlastPosition.Clear();
+            mol.FFlastlastPosition.Clear();
             mol.FFvelocity.Clear();
             mol.FFforces.Clear();
             mol.FFforces_pass2.Clear();
@@ -698,9 +700,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 mol.FFforces.Add(Vector3.zero);
                 mol.FFforces_pass2.Add(Vector3.zero);
                 mol.FFmovement.Add(Vector3.zero);
-                mol.FFtimeStep.Add(ForceField.Singleton.RKtimeFactor);
+                mol.FFtimeStep.Add(Vector3.one * ForceField.RKtimeFactor);
             }
             mol.FFlastPosition = mol.FFposition;
+            mol.FFlastlastPosition = mol.FFposition;
         }
 
         bondTerms.Clear();
@@ -759,7 +762,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         // pairwise terms, run over unique atom pairs
         for (ushort iAtom = 0; iAtom < num_atoms; iAtom++)
         {
-            //print("At1.m_nBondP, bonding partner count:" + GlobalCtrl.Instance.List_curAtoms[iAtom].m_nBondP);
             for (ushort jAtom = 0; jAtom < iAtom; jAtom++)
             {
                 if (topo[iAtom, jAtom])
@@ -795,11 +797,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                     else
                     {
                         newBond.eqDist = dreiding_eqDist;
+                        UnityEngine.Debug.Log($"[Molecule:generateFF] Eq dist: {newBond.eqDist}");
                     }
                     newBond.kBond = ForceField.kb;
                     // TODO estimate bond order from equilibrium distance
                     newBond.order = 1.0f;
-                    UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Eq dist: {newBond.eqDist}");
+
                     bondTerms.Add(newBond);
                 }
                 else if (atomList[iAtom].m_data.m_abbre != "Dummy" && atomList[jAtom].m_data.m_abbre != "Dummy")  // avoid dummy terms right away
