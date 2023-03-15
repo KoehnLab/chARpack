@@ -57,20 +57,20 @@ public class GlobalCtrl : MonoBehaviour
     /// <summary>
     /// scaling factor for visible models
     /// </summary>
-    public float scale = 0.5f;
+    public static float scale = 0.5f;
     //public float scale = 1.0f;
     /// <summary>
     /// 1m in unity = 1000pm in atomic world
     /// </summary>
-    public float u2pm = 1000f;
+    public static float u2pm = 1000f;
     /// <summary>
     /// 1m in unity = 10 Aangstroem in atomic world
     /// </summary>
-    public float u2aa = 10f;
+    public static float u2aa = 10f;
     /// <summary>
     /// scale covalent radius to atom diameter
     /// </summary>
-    public float atomScale = 0.4f;
+    public static float atomScale = 0.4f;
 
     /// <summary>
     /// the space for creating molecules
@@ -107,6 +107,7 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     private string lastAtom = "C";
 
+    [HideInInspector]
     public int numAtoms = 0;
 
     public Stack<List<cmlData>> systemState = new Stack<List<cmlData>>();

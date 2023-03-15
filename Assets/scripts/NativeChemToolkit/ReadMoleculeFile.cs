@@ -121,7 +121,7 @@ public class ReadMoleculeFile : MonoBehaviour
         {
             UnityEngine.Debug.Log("[ReadMoleculeFile] Current atom position " + all_positions[3 * i + 0] + " " + all_positions[3 * i + 1] + " " + all_positions[3 * i + 2]);
             var current_pos = new Vector3((float)all_positions[3 * i + 0], (float)all_positions[3 * i + 1], (float)all_positions[3 * i + 2]);
-            current_pos *= GlobalCtrl.Singleton.scale/GlobalCtrl.Singleton.u2aa;
+            current_pos *= GlobalCtrl.scale/GlobalCtrl.u2aa;
             pos_vec.Add(current_pos);
             mean_pos += current_pos;
         }

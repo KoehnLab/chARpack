@@ -59,6 +59,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     {
         isGrabbed = false;
         m_data.m_mass = tmp_mass;
+
+        // measure convergence
+        ForceField.Singleton.resetMeasurment();
+
         // reset outline
         if (currentOutlineColor == Color.black)
         {
@@ -160,7 +164,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 
         transform.parent = inputMole.transform;
         transform.localPosition = pos;    
-        transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.Singleton.scale/GlobalCtrl.Singleton.u2pm) * GlobalCtrl.Singleton.atomScale;
+        transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.scale/GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
 
         //Debug.Log(string.Format("Added latest {0}:  rad={1}  scale={2}  hyb={3}  nBonds={4}", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale, m_data.m_hybridization, m_data.m_bondNum));
 
@@ -176,37 +180,37 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             case (0):
                 break;
             case (1): // linear, max 2 bonds
-                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
-                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 120) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
+                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 120) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
                 break;
             case (2): // trigonal, max 3 bonds
-                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
-                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 120) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
-                if (m_data.m_bondNum > 2) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 240) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
+                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 120) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
+                if (m_data.m_bondNum > 2) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 240) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
                 break;
             case (3): // tetrahedral
-                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
-                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(70.53f, 60, 180) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
-                if (m_data.m_bondNum > 2) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(-70.53f, 0, 180) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
-                if (m_data.m_bondNum > 3) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(-70.53f, 120, 180) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
+                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(70.53f, 60, 180) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
+                if (m_data.m_bondNum > 2) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(-70.53f, 0, 180) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
+                if (m_data.m_bondNum > 3) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(-70.53f, 120, 180) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
                 break;
             case (4): // trigonal bipyramidal
-                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
-                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 180) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
-                if (m_data.m_bondNum > 2) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 90) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
-                if (m_data.m_bondNum > 3) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(120, 0, 180) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
-                if (m_data.m_bondNum > 4) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(240, 0, 180) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
+                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 180) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
+                if (m_data.m_bondNum > 2) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 90) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
+                if (m_data.m_bondNum > 3) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(120, 0, 180) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
+                if (m_data.m_bondNum > 4) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(240, 0, 180) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
                 break;
             case (6): // octahedral  (with 4 bonds: quadratic planar)
-                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
-                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 180) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
-                if (m_data.m_bondNum > 2) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 90) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
-                if (m_data.m_bondNum > 3) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(180, 0, 90) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
-                if (m_data.m_bondNum > 4) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(90, 0, 90) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
-                if (m_data.m_bondNum > 5) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(270, 0, 90) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
+                if (m_data.m_bondNum > 1) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 180) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
+                if (m_data.m_bondNum > 2) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 90) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
+                if (m_data.m_bondNum > 3) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(180, 0, 90) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
+                if (m_data.m_bondNum > 4) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(90, 0, 90) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
+                if (m_data.m_bondNum > 5) m_posForDummies.Add(transform.localPosition + Quaternion.Euler(270, 0, 90) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
                 break;
             default:  // fall-back ... we have to see how to do error handling here
-                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm));
+                m_posForDummies.Add(transform.localPosition + Quaternion.Euler(0, 0, 0) * offset * (GlobalCtrl.scale / GlobalCtrl.u2pm));
                 UnityEngine.Debug.Log("[Atom] InitDummies: Landed in Fallback!");
                 break;
         }
@@ -233,7 +237,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         GetComponent<MeshRenderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
         m_mat = GetComponent<MeshRenderer>().material;
 
-        transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2pm) * GlobalCtrl.Singleton.atomScale;
+        transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.scale / GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
 
 
         foreach(Atom a in connectedDummys())

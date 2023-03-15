@@ -700,7 +700,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 mol.FFforces.Add(Vector3.zero);
                 mol.FFforces_pass2.Add(Vector3.zero);
                 mol.FFmovement.Add(Vector3.zero);
-                mol.FFtimeStep.Add(Vector3.one * ForceField.RKtimeFactor);
+                mol.FFtimeStep.Add(Vector3.one * ForceField.Singleton.RKtimeFactor);
             }
             mol.FFlastPosition = mol.FFposition;
             mol.FFlastlastPosition = mol.FFposition;

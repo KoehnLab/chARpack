@@ -17,7 +17,7 @@ public static class OpenBabelExtensions
         List<ushort> hybridizatons = new List<ushort>();
         foreach (var atom in molecule.Atoms())
         {
-            var current_pos = atom.GetVector().AsVector3() * GlobalCtrl.Singleton.scale / GlobalCtrl.Singleton.u2aa;
+            var current_pos = atom.GetVector().AsVector3() * GlobalCtrl.scale / GlobalCtrl.u2aa;
             pos_vec.Add(current_pos);
             mean_pos += current_pos;
             symbols.Add(GlobalCtrl.Singleton.list_ElementData[(int)atom.GetAtomicNum()].m_abbre);
@@ -62,7 +62,7 @@ public static class OpenBabelExtensions
             var element = GlobalCtrl.Singleton.list_ElementData.Find(x => x.m_abbre == atom.abbre);
             obatom.SetAtomicNum(GlobalCtrl.Singleton.list_ElementData.IndexOf(element));
             obatom.SetId((uint)(atom.id + 1));
-            var pos = atom.pos.ToVector3() * GlobalCtrl.Singleton.u2aa / GlobalCtrl.Singleton.scale;
+            var pos = atom.pos.ToVector3() * GlobalCtrl.u2aa / GlobalCtrl.scale;
             obatom.SetVector(pos.AsOBVector3());
             obatom.SetHyb(atom.hybrid);
             atomlist.Add(obatom);
