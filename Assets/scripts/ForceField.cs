@@ -57,8 +57,8 @@ public class ForceField : MonoBehaviour
     static int nTimeSteps = 1;  // number of time steps per FixedUpdate() for numerical integration of ODE
     public float timeFactor = (0.5f / (float)nTimeSteps); // timeFactor = totalTimePerFrame/nTimeSteps ... set in Start()
     public float SVtimeFactor = (0.75f / (float)nTimeSteps);
-    public float RKtimeFactor = 0.25f;
-    public float MPtimeFactor = 0.09f;
+    public float RKtimeFactor = 0.35f;
+    public float MPtimeFactor = 0.35f;
     float RKmass = 0.4f;
     float RKstepMin = 0.05f;
     float RKstepMax = 0.25f;
@@ -403,7 +403,7 @@ public class ForceField : MonoBehaviour
         Vector3 rij;
         if (second_pass)
         {
-            rij = (mol.FFposition[hsTerm.Atom1] + alpha * mol.FFforces[hsTerm.Atom1] * RKtimeFactor) - (mol.FFposition[hsTerm.Atom2] + alpha * mol.FFforces[hsTerm.Atom2] * RKtimeFactor);
+            rij = (mol.FFposition[hsTerm.Atom1] + alpha * mol.FFforces[hsTerm.Atom1] * RKtimeFactor / mol.atomList[hsTerm.Atom1].m_data.m_mass) - (mol.FFposition[hsTerm.Atom2] + alpha * mol.FFforces[hsTerm.Atom2] * RKtimeFactor / mol.atomList[hsTerm.Atom2].m_data.m_mass);
         }
         else
         {
@@ -429,7 +429,7 @@ public class ForceField : MonoBehaviour
         Vector3 rb;
         if (second_pass)
         {
-            rb = (mol.FFposition[bond.Atom1] + alpha * mol.FFforces[bond.Atom1] * RKtimeFactor) - (mol.FFposition[bond.Atom2] + alpha * mol.FFforces[bond.Atom1] * RKtimeFactor);
+            rb = (mol.FFposition[bond.Atom1] + alpha * mol.FFforces[bond.Atom1] * RKtimeFactor / mol.atomList[bond.Atom1].m_data.m_mass) - (mol.FFposition[bond.Atom2] + alpha * mol.FFforces[bond.Atom2] * RKtimeFactor / mol.atomList[bond.Atom2].m_data.m_mass);
         }
         else
         {
@@ -474,8 +474,8 @@ public class ForceField : MonoBehaviour
         Vector3 rb2;
         if (second_pass)
         {
-            rb1 = (mol.FFposition[angle.Atom1] + alpha * mol.FFforces[angle.Atom1] * RKtimeFactor) - (mol.FFposition[angle.Atom2] + alpha * mol.FFforces[angle.Atom2] * RKtimeFactor);
-            rb2 = (mol.FFposition[angle.Atom3] + alpha * mol.FFforces[angle.Atom3] * RKtimeFactor) - (mol.FFposition[angle.Atom2] + alpha * mol.FFforces[angle.Atom2] * RKtimeFactor);
+            rb1 = (mol.FFposition[angle.Atom1] + alpha * mol.FFforces[angle.Atom1] * RKtimeFactor / mol.atomList[angle.Atom1].m_data.m_mass) - (mol.FFposition[angle.Atom2] + alpha * mol.FFforces[angle.Atom2] * RKtimeFactor / mol.atomList[angle.Atom2].m_data.m_mass);
+            rb2 = (mol.FFposition[angle.Atom3] + alpha * mol.FFforces[angle.Atom3] * RKtimeFactor / mol.atomList[angle.Atom3].m_data.m_mass) - (mol.FFposition[angle.Atom2] + alpha * mol.FFforces[angle.Atom2] * RKtimeFactor / mol.atomList[angle.Atom2].m_data.m_mass);
         }
         else
         {
@@ -544,9 +544,9 @@ public class ForceField : MonoBehaviour
         Vector3 rkl; 
         if (second_pass)
         {
-            rij = (mol.FFposition[torsion.Atom1] + alpha * mol.FFforces[torsion.Atom1] * RKtimeFactor) - (mol.FFposition[torsion.Atom2] + alpha * mol.FFforces[torsion.Atom2] * RKtimeFactor);
-            rkj = (mol.FFposition[torsion.Atom3] + alpha * mol.FFforces[torsion.Atom3] * RKtimeFactor) - (mol.FFposition[torsion.Atom2] + alpha * mol.FFforces[torsion.Atom2] * RKtimeFactor);
-            rkl = (mol.FFposition[torsion.Atom3] + alpha * mol.FFforces[torsion.Atom3] * RKtimeFactor) - (mol.FFposition[torsion.Atom4] + alpha * mol.FFforces[torsion.Atom4] * RKtimeFactor);
+            rij = (mol.FFposition[torsion.Atom1] + alpha * mol.FFforces[torsion.Atom1] * RKtimeFactor / mol.atomList[torsion.Atom1].m_data.m_mass) - (mol.FFposition[torsion.Atom2] + alpha * mol.FFforces[torsion.Atom2] * RKtimeFactor / mol.atomList[torsion.Atom2].m_data.m_mass);
+            rkj = (mol.FFposition[torsion.Atom3] + alpha * mol.FFforces[torsion.Atom3] * RKtimeFactor / mol.atomList[torsion.Atom3].m_data.m_mass) - (mol.FFposition[torsion.Atom2] + alpha * mol.FFforces[torsion.Atom2] * RKtimeFactor / mol.atomList[torsion.Atom2].m_data.m_mass);
+            rkl = (mol.FFposition[torsion.Atom3] + alpha * mol.FFforces[torsion.Atom3] * RKtimeFactor / mol.atomList[torsion.Atom3].m_data.m_mass) - (mol.FFposition[torsion.Atom4] + alpha * mol.FFforces[torsion.Atom4] * RKtimeFactor / mol.atomList[torsion.Atom4].m_data.m_mass);
         }
         else
         {
@@ -709,7 +709,7 @@ public class ForceField : MonoBehaviour
                 if (mol.atomList[iAtom].m_data.m_mass > 0.0f)
                 {
                     var current_pos = mol.FFposition[iAtom];
-                    mol.FFposition[iAtom] = current_pos + (1f - 1f/(2f*alpha)) * mol.FFforces[iAtom] * RKtimeFactor + (mol.FFforces_pass2[iAtom] * RKtimeFactor)/ (2f*alpha);
+                    mol.FFposition[iAtom] = current_pos + ((1f - 1f/(2f*alpha)) * mol.FFforces[iAtom] * RKtimeFactor)/ mol.atomList[iAtom].m_data.m_mass + (mol.FFforces_pass2[iAtom] * RKtimeFactor)/ (2f*alpha*mol.atomList[iAtom].m_data.m_mass);
 
                     mol.FFmovement[iAtom] += mol.FFposition[iAtom] - current_pos;
                     mol.FFlastPosition[iAtom] = current_pos;
@@ -735,7 +735,7 @@ public class ForceField : MonoBehaviour
                 {
                     var current_pos = mol.FFposition[iAtom];
 
-                    mol.FFposition[iAtom] = mol.FFforces[iAtom] * 2f * MPtimeFactor + mol.FFlastPosition[iAtom];
+                    mol.FFposition[iAtom] = (mol.FFforces[iAtom] * 2f * MPtimeFactor) / mol.atomList[iAtom].m_data.m_mass + mol.FFlastPosition[iAtom];
 
                     mol.FFmovement[iAtom] += mol.FFposition[iAtom] - current_pos;
                     mol.FFlastlastPosition[iAtom] = mol.FFlastPosition[iAtom];
