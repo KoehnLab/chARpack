@@ -54,16 +54,21 @@ public class ForceField : MonoBehaviour
     // note that the forcefield works in the atomic scale (i.e. all distances measure in pm)
     // we scale back when applying the movements to the actual objects
     public static float scalingfactor = GlobalCtrl.scale / GlobalCtrl.u2pm;
-    static int nTimeSteps = 1;  // number of time steps per FixedUpdate() for numerical integration of ODE
-    public float timeFactor = (0.5f / (float)nTimeSteps); // timeFactor = totalTimePerFrame/nTimeSteps ... set in Start()
-    public float SVtimeFactor = (0.75f / (float)nTimeSteps);
+
+    // Parameters of the integration methods
+    public float EulerTimeFactor = 0.7f;
+    public float SVtimeFactor = 0.85f;
     public float RKtimeFactor = 0.35f;
     public float MPtimeFactor = 0.35f;
-    float RKmass = 0.4f;
     float RKstepMin = 0.05f;
     float RKstepMax = 0.25f;
     float RKc = 0.1f;
     private float alpha = 0.5f;
+
+    // Stiffness of molecules/bonds
+    ushort _stiffness;
+    public ushort stiffness { get => _stiffness; set { _stiffness = value; if (_stiffness == 0) { integrationCycles = 1; } else { integrationCycles = (ushort)(5 * _stiffness); } } }
+    ushort integrationCycles = 1;
 
     // convergence measurment threshold
     float threshold = 0.025f;
@@ -205,8 +210,9 @@ public class ForceField : MonoBehaviour
             FFlog.WriteLine("Log starts at " + Time.time.ToString("f6"));
             FFlog.WriteLine("LogLevel = " + LogLevel);
         }
-
-        currentMethod = Method.Heun;
+        // init integration variables
+        stiffness = 2;
+        currentMethod = Method.MidPoint;
 
         Dictionary<string, ElementData> element_dict = GlobalCtrl.Singleton.Dic_ElementData;
         if ( element_dict == null)
@@ -219,7 +225,6 @@ public class ForceField : MonoBehaviour
         {
             rhs.Add(pair.Key, pair.Value.m_radius * fac);
         }
-
     }
 
     void OnApplicationQuit()
@@ -245,6 +250,7 @@ public class ForceField : MonoBehaviour
         {
             clearLists();
             applyFF();
+            //applyFF_onConvergence();
             scaleConnections();
         }
         else
@@ -283,6 +289,19 @@ public class ForceField : MonoBehaviour
         }
     }
 
+    bool isConverged()
+    {
+        bool converged = true;
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        {
+            for (int i = 0; i < mol.atomList.Count; i++)
+            {
+                converged = converged && (mol.FFmovement[i].magnitude < threshold);
+            }
+        }
+        return converged;
+    }
+
 
     void clearLists()
     {
@@ -307,9 +326,7 @@ public class ForceField : MonoBehaviour
     // in applyMovements, finally the actual objects are updated
     void applyFF()
     {
-        int steps = 1;
-        if (currentMethod == Method.Euler) steps = nTimeSteps;
-        for (int istep = 0; istep < steps; istep++)
+        for (int istep = 0; istep < integrationCycles; istep++)
         {
             // Forces Pass 1
             foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
@@ -386,12 +403,52 @@ public class ForceField : MonoBehaviour
                     midpointIntegration();
                     break;
             }
+            applyMovements();
+            if (do_measurment)
+            {
+                measureConvergence();
+            }
         }
-        applyMovements();
-        if (do_measurment)
+    }
+
+    void applyFF_onConvergence()
+    {
+        bool notConverged = true;
+        while (notConverged)
         {
-            measureConvergence();
+            // Forces Pass 1
+            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+            {
+                //Loop Bond List
+                foreach (BondTerm bond in mol.bondTerms)
+                {
+                    calcBondForces(bond, mol);
+                }
+
+                //Loop Angle List
+                foreach (AngleTerm angle in mol.angleTerms)
+                {
+                    calcAngleForces(angle, mol);
+                }
+
+                //Loop Torsion List
+                foreach (TorsionTerm torsion in mol.torsionTerms)
+                {
+                    calcTorsionForces(torsion, mol);
+                }
+
+                //Loop Bond List
+                foreach (HardSphereTerm hsTerm in mol.hsTerms)
+                {
+                    calcRepForces(hsTerm, mol);
+                }
+            }
+            //eulerIntegration();
+            verletIntegration();
+            notConverged = !isConverged();
+            applyMovements();
         }
+        //UnityEngine.Debug.Log("[FF] Jump");
     }
 
 
@@ -633,12 +690,18 @@ public class ForceField : MonoBehaviour
         // momentum change to position change: apply time factor
         foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
         {
+
+            // check for too long steps:
+            float MaxMove = 10f;
+            float moveMaxNorm = 0f; // norm of movement vector
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
             {
                 // negative masses flag a fixed atom
                 if (mol.atomList[iAtom].m_data.m_mass > 0.0f)
                 {
-                    mol.FFforces[iAtom] *= timeFactor / mol.atomList[iAtom].m_data.m_mass;
+                    mol.FFforces[iAtom] *= EulerTimeFactor / mol.atomList[iAtom].m_data.m_mass;
+                    float moveNorm = Vector3.Magnitude(mol.FFforces[iAtom]);
+                    moveMaxNorm = Mathf.Max(moveMaxNorm, moveNorm);
                     //Debug.Log($"[ForceField] Current Force {mol.FFforces[iAtom].x} {mol.FFforces[iAtom].y} {mol.FFforces[iAtom].z}");
                 }
                 else
@@ -647,30 +710,18 @@ public class ForceField : MonoBehaviour
                 }
             }
 
-            // check for too long steps:
-            float MaxMove = 10f;
-            float moveMaxNorm = 0f; // norm of movement vector
-            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
-            {
-                float moveNorm = Vector3.Magnitude(mol.FFforces[iAtom]);
-                moveMaxNorm = Mathf.Max(moveMaxNorm, moveNorm);
-            }
+            float scaleMove = 1f;
             if (moveMaxNorm > MaxMove)
             {
-                float scaleMove = MaxMove / moveMaxNorm;
+                scaleMove = MaxMove / moveMaxNorm;
                 if (LogLevel >= 100) FFlog.WriteLine("moveMaxNorm was {0:f3} - scaling by {1:f10}", moveMaxNorm, scaleMove);
-
-                for (int iAtom = 0; iAtom < nAtoms; iAtom++)
-                {
-                    mol.FFforces[iAtom] *= scaleMove;
-                }
             }
 
             // update position and total movement:
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
             {
-                mol.FFmovement[iAtom] += mol.FFforces[iAtom];
-                mol.FFposition[iAtom] += mol.FFforces[iAtom];
+                mol.FFmovement[iAtom] += mol.FFforces[iAtom] * scaleMove;
+                mol.FFposition[iAtom] += mol.FFforces[iAtom] * scaleMove;
             }
         }
     }
@@ -735,7 +786,7 @@ public class ForceField : MonoBehaviour
                 {
                     var current_pos = mol.FFposition[iAtom];
 
-                    mol.FFposition[iAtom] = (mol.FFforces[iAtom] * 2f * MPtimeFactor) / mol.atomList[iAtom].m_data.m_mass + mol.FFlastPosition[iAtom];
+                    mol.FFposition[iAtom] = (mol.FFforces[iAtom] * 2f * MPtimeFactor) / mol.atomList[iAtom].m_data.m_mass + mol.FFlastlastPosition[iAtom];
 
                     mol.FFmovement[iAtom] += mol.FFposition[iAtom] - current_pos;
                     mol.FFlastlastPosition[iAtom] = mol.FFlastPosition[iAtom];
@@ -796,28 +847,14 @@ public class ForceField : MonoBehaviour
                 {
                     var current_pos = mol.FFposition[iAtom];
 
-                    if(true)
-                    {
-                        var rk_result = current_pos + (mol.FFforces[iAtom].multiply(mol.FFtimeStep[iAtom].pow(2.0f))) / (2.0f * RKmass);
-                        var euler_result = current_pos + (mol.FFforces[iAtom].multiply(mol.FFtimeStep[iAtom])) / RKmass;
-                        var error = RKc * (euler_result - rk_result).abs().sqrt(); // constant c for adjustments
+                    var rk_result = current_pos + (mol.FFforces[iAtom].multiply(mol.FFtimeStep[iAtom].pow(2.0f))) / (2.0f * mol.atomList[iAtom].m_data.m_mass);
+                    var euler_result = current_pos + (mol.FFforces[iAtom].multiply(mol.FFtimeStep[iAtom])) / mol.atomList[iAtom].m_data.m_mass;
+                    var error = RKc * (euler_result - rk_result).abs().sqrt(); // constant c for adjustments
 
-                        if (iAtom == 0) UnityEngine.Debug.Log($"[Error estimate 3D] {error}");
+                    if (iAtom == 0) UnityEngine.Debug.Log($"[Error estimate 3D] {error}");
 
-                        mol.FFtimeStep[iAtom] = error.max(RKstepMin).min(RKstepMax);
-                        mol.FFposition[iAtom] = current_pos + (mol.FFforces[iAtom].multiply(mol.FFtimeStep[iAtom].pow(2.0f))) / (2.0f * RKmass);
-                    }
-                    else
-                    {
-                        var rk_result = current_pos + (mol.FFforces[iAtom].multiply(mol.FFtimeStep[iAtom].pow(2.0f))) / (2.0f * mol.atomList[iAtom].m_data.m_mass);
-                        var euler_result = current_pos + (mol.FFforces[iAtom].multiply(mol.FFtimeStep[iAtom])) / mol.atomList[iAtom].m_data.m_mass;
-                        var error = RKc * (euler_result - rk_result).abs().sqrt(); // constant c for adjustments
-
-                        if (iAtom == 0) UnityEngine.Debug.Log($"[Error estimate 3D] {error}");
-
-                        mol.FFtimeStep[iAtom] = error.max(RKstepMin).min(RKstepMax);
-                        mol.FFposition[iAtom] = current_pos + (mol.FFforces[iAtom].multiply(mol.FFtimeStep[iAtom].pow(2.0f))) / (2.0f * mol.atomList[iAtom].m_data.m_mass);
-                    }
+                    mol.FFtimeStep[iAtom] = error.max(RKstepMin).min(RKstepMax);
+                    mol.FFposition[iAtom] = current_pos + (mol.FFforces[iAtom].multiply(mol.FFtimeStep[iAtom].pow(2.0f))) / (2.0f * mol.atomList[iAtom].m_data.m_mass);
 
                     mol.FFmovement[iAtom] = mol.FFposition[iAtom] - current_pos;
                     mol.FFlastPosition[iAtom] = current_pos;
@@ -845,6 +882,10 @@ public class ForceField : MonoBehaviour
                     //do small random moves
                     mol.atomList.ElementAtOrDefault(iAtom).transform.position += new Vector3(UnityEngine.Random.Range(-0.01f, 0.01f), UnityEngine.Random.Range(-0.01f, 0.01f), UnityEngine.Random.Range(-0.01f, 0.01f));
                 }
+                mol.FFposition[iAtom] = mol.atomList.ElementAtOrDefault(iAtom).transform.position * (1f / scalingfactor);
+                mol.FFmovement[iAtom] = Vector3.zero;
+                mol.FFforces[iAtom] = Vector3.zero;
+                mol.FFforces_pass2[iAtom] = Vector3.zero;
             }
         }
     }

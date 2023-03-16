@@ -1480,6 +1480,12 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    public void openSettingsWindow()
+    {
+        var settingsPrefab = (GameObject)Resources.Load("prefabs/Settings");
+        Instantiate(settingsPrefab);
+    }
+
     #endregion
 
     public void backToMain()
