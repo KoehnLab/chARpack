@@ -55,7 +55,10 @@ ExportedObj/
 *.7zip
 
 # Unity3D generated meta files
-*.meta
+Assets/Samples/**/*.meta
+Assets/plugins/**/*.meta
+Assets/MRTK/**/*.meta
+Assets/StreamingAssets/**/*.meta
 
 # Unity3D backup files
 *.backup
