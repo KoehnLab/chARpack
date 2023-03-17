@@ -14,6 +14,27 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ServerScene.unity
     guid: 95dedc81217d6fc46b535e9b914523ec
+  - enabled: 1
+    path: Assets/Samples/Mixed Reality Toolkit Examples/2.8.2/Experimental - ExamplesHub/Scenes/MRTKExamplesHubMainMenu.unity
+    guid: 63a00118e809c754f9c7911bb85d635f
+  - enabled: 1
+    path: Assets/Samples/Mixed Reality Toolkit Examples/2.8.2/Demos - UX/Tooltips/Scenes/TooltipExamples.unity
+    guid: de90a43947eced441b4c426e11f35f28
+  - enabled: 1
+    path: Assets/Samples/Mixed Reality Toolkit Examples/2.8.2/Demos - UX/BoundingBox/Scenes/BoundingBoxExamples.unity
+    guid: 9da574c0affd04d42a6b1e5db09e82b4
+  - enabled: 1
+    path: Assets/Samples/Mixed Reality Toolkit Examples/2.8.2/Demos - UX/PressableButton/Scenes/PressableButtonExample.unity
+    guid: b2d06bb8d7f107d4783a56c796c5c120
+  - enabled: 1
+    path: Assets/Samples/Mixed Reality Toolkit Examples/2.8.2/Demos - UX/Slate/SlateExample.unity
+    guid: 86e8b0c6246dbb74aa04ecd40a57d89c
+  - enabled: 1
+    path: Assets/Samples/Mixed Reality Toolkit Examples/2.8.2/Demos - UX/Slider/Scenes/SliderExample.unity
+    guid: 086aad2912678d04e968264b2398004b
+  - enabled: 1
+    path: Assets/MRTK/Demo/ScrollingObjectCollection/Scenes/ScrollingObjectCollection.unity
+    guid: 79a0bb4c0426b7a4099c35eeced52ee4
   m_configObjects:
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: c3fe4c36bae045a499a08a7172f72f51, type: 2}
     com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 7602b06e7b6958c4b889ed9beaad348d, type: 2}
