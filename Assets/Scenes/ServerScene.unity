@@ -322,10 +322,6 @@ MonoBehaviour:
   myAtomPrefab: {fileID: 7377244445179915796, guid: bf048a9970cb97f44a46f7c758da93a0, type: 3}
   atomMatPrefab: {fileID: 2100000, guid: dd67eb41edbb382408bf29f1931d50ac, type: 2}
   list_ElementData: []
-  scale: 0.5
-  u2pm: 1000
-  u2aa: 10
-  atomScale: 0.4
   atomWorld: {fileID: 62905562}
   bondPrefab: {fileID: 6023341437175460837, guid: a6ff830e30b8fae40abd9ac1c7189f08, type: 3}
   selectedMat: {fileID: 2100000, guid: 22299e81a17f66f4494224c5053b6bc2, type: 2}
@@ -1287,6 +1283,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4a2e314eeaf58e4c9c967eec413cdda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  EulerTimeFactor: 0.7
+  SVtimeFactor: 0.85
+  RKtimeFactor: 0.35
+  MPtimeFactor: 0.35
+  _currentMethod: 0
   LogLevel: 0
 --- !u!4 &1491027289
 Transform:
