@@ -105,6 +105,11 @@ public class CameraSwitcher : MonoBehaviour
 
     public void nextCam()
     {
+        if (cameras.Count < 1)
+        {
+            // Do nothing if no client camera is registered
+            return;
+        }
         currentCam.enabled = false;
         UserServer.pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(false);
 
@@ -125,6 +130,11 @@ public class CameraSwitcher : MonoBehaviour
 
     public void previousCam()
     {
+        if (cameras.Count < 1)
+        {
+            // Do nothing if no client camera is registered
+            return;
+        }
         currentCam.enabled = false;
         UserServer.pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(false);
 

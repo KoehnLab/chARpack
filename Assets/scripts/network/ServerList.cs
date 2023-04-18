@@ -45,7 +45,18 @@ public class ServerList : MonoBehaviour
         serverEntryPrefab = (GameObject)Resources.Load("prefabs/ServerEntry");
         manualAddServerPrefab = (GameObject)Resources.Load("prefabs/ManualAddServer");
 
-        // my servers
+        // add default servers for easy development
+        // and quick connects even if LAN find fails
+        //addDefaultServers()
+
+        // Check for open servers
+        // get servers and generate entries
+        generateServerEntries();
+
+    }
+
+    private void addDefaultServers()
+    {
         var myServer1 = new FindServer.ServerData();
         myServer1.ip = IPAddress.Parse("192.168.188.22");
         myServer1.port = LoginData.port;
@@ -62,12 +73,6 @@ public class ServerList : MonoBehaviour
         {
             FindServer.manualServerList.Add(myServer2);
         }
-
-
-        // Check for open servers
-        // get servers and generate entries
-        generateServerEntries();
-
     }
 
     public void refresh()

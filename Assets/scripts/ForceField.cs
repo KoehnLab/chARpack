@@ -59,7 +59,7 @@ public class ForceField : MonoBehaviour
     public float EulerTimeFactor = 0.7f;
     public float SVtimeFactor = 0.85f;
     public float RKtimeFactor = 0.35f;
-    public float MPtimeFactor = 0.35f;
+    public float MPtimeFactor = 0.30f;
     float RKstepMin = 0.05f;
     float RKstepMax = 0.25f;
     float RKc = 0.1f;
