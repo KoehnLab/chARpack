@@ -35,7 +35,7 @@ public class atomMenu : MonoBehaviour
     private void Awake()
     {
         Singleton = this;
-        atomMenuPrefab = (GameObject)Resources.Load("prefabs/atomMenu");
+        atomMenuPrefab = (GameObject)Resources.Load("prefabs/AtomMenu");
 
         for (int i=0; i<buttonCollection.transform.childCount; i++)
         {
