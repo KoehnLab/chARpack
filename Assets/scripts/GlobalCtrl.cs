@@ -1490,7 +1490,6 @@ public class GlobalCtrl : MonoBehaviour
     {
         var atomMenuPrefab = (GameObject)Resources.Load("prefabs/AtomMenu");
         Instantiate(atomMenuPrefab);
-        Debug.Log("Opening Atom Menu.");
     }
 
         #endregion
