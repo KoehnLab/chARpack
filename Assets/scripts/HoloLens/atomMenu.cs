@@ -41,7 +41,8 @@ public class atomMenu : MonoBehaviour
         {
             PressableButtonHoloLens2 button = buttonCollection.transform.GetChild(i).gameObject.GetComponent<PressableButtonHoloLens2>();
             var current_name = atomNames[i];
-            button.GetComponent<ButtonConfigHelper>().MainLabelText = $"Create {current_name} Atom";
+            button.GetComponent<ButtonConfigHelper>().MainLabelText = $"{current_name}";
+            button.GetComponent<ButtonConfigHelper>().IconStyle = ButtonIconStyle.None;
             button.ButtonPressed.AddListener(delegate { GlobalCtrl.Singleton.createAtomUI(current_name); });
             
         }
