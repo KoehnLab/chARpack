@@ -46,8 +46,8 @@ GameObject:
   - component: {fileID: 5371906901954694236}
   - component: {fileID: 5371906901954694235}
   - component: {fileID: 6715322417058290685}
-  - component: {fileID: 6715322417058290686}
   - component: {fileID: 6715322417058290680}
+  - component: {fileID: 8383253984936972597}
   m_Layer: 0
   m_Name: HandMenu
   m_TagString: Untagged
@@ -193,7 +193,7 @@ MonoBehaviour:
     response:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 6715322417058290686}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: 
           m_MethodName: ChangeTrackedTargetTypeHead
           m_Mode: 1
@@ -257,7 +257,7 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
-        - m_Target: {fileID: 6715322417058290686}
+        - m_Target: {fileID: 0}
           m_TargetAssemblyTypeName: 
           m_MethodName: ChangeTrackedTargetTypeHandJoint
           m_Mode: 1
@@ -295,20 +295,6 @@ MonoBehaviour:
           m_CallState: 2
   persistentKeywords: 0
   speechConfirmationTooltipPrefab: {fileID: 8046114618238072051, guid: 271778f6c957b524981067a81d238394, type: 3}
---- !u!114 &6715322417058290686
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5371906901954694233}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8918b56de41b822468e47810933279b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  handMenuPrefab: {fileID: 0}
-  buttonCollection: {fileID: 5371978316989142166}
 --- !u!114 &6715322417058290680
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -348,6 +334,20 @@ MonoBehaviour:
   angularClampMode: 0
   tetherAngleSteps: 6
   boundsScaler: 1
+--- !u!114 &8383253984936972597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5371906901954694233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8918b56de41b822468e47810933279b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handMenuPrefab: {fileID: 0}
+  buttonCollection: {fileID: 5371978316989142166}
 --- !u!1 &5371906902987610715
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,12 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.Utilities;
-using TMPro;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class handMenu : MonoBehaviour
 {
+
     [HideInInspector] public GameObject handMenuPrefab;
     public GameObject buttonCollection;
     private string[] atomNames = new string[] { "C", "O", "F", "N", "Cl" };
@@ -47,11 +48,6 @@ public class handMenu : MonoBehaviour
         }
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     void Update()
