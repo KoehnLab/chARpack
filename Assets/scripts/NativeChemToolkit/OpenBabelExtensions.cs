@@ -227,4 +227,9 @@ public static class OpenBabelExtensions
         return new Vector3((lhs.x)*Mathf.Min(lhs.x, other), Mathf.Min(lhs.y, other), Mathf.Min(lhs.z, other));
     }
 
+    public static float maxDimValue(this Vector3 lhs)
+    {
+        return Mathf.Max(lhs.x, Mathf.Max(lhs.y, lhs.z));
+    }
+
 }

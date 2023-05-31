@@ -94,6 +94,7 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnChangeTorsionTerm += sendChangeTorsionTerm;
         EventManager.Singleton.OnMarkTerm += sendMarkTerm;
         EventManager.Singleton.OnModifyHyb += sendModifyHyb;
+        EventManager.Singleton.OnSetKeepConfig += sendKeepConfig;
     }
 
     private void FixedUpdate()
@@ -385,6 +386,15 @@ public class NetworkManagerClient : MonoBehaviour
         message.AddUShort(hyb);
         Client.Send(message);
     }
+
+    public void sendKeepConfig(ushort mol_id, bool keep_config)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.keepConfig);
+        message.AddUShort(mol_id);
+        message.AddBool(keep_config);
+        Client.Send(message);
+    }
+
     #endregion
 
     #region Listen
@@ -767,6 +777,24 @@ public class NetworkManagerClient : MonoBehaviour
             if (!GlobalCtrl.Singleton.modifyHybrid(mol_id, atom_id, hyb))
             {
                 Debug.LogError($"[NetworkManagerServer:getModifyHyb] Atom with id {atom_id} of Molecule {mol_id} does not exists.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastKeepConfig)]
+    private static void getKeepConfig(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
+        var keep_config = message.GetBool();
+
+        // do the change
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            if (!GlobalCtrl.Singleton.setKeepConfig(mol_id, keep_config))
+            {
+                Debug.LogError($"[NetworkManagerServer:getModifyHyb] Molecule {mol_id} does not exists.\nRequesing world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
         }

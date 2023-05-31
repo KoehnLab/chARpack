@@ -8,9 +8,11 @@ using UnityEngine;
 public class myBoundingBox : MonoBehaviour
 {
 
-    public Material myLineMaterial;
+    public Material myLineMaterialWithFade;
+    public Material myLineMaterialWithoutFade;
     public Material myLineGrabbedMaterial;
-    public Material myHandleMaterial;
+    public Material myHandleMaterialWithFade;
+    public Material myHandleMaterialWithoutFade;
     public Material myHandleGrabbedMaterial;
     public GameObject cornerHandle;
 
@@ -21,7 +23,7 @@ public class myBoundingBox : MonoBehaviour
     private Bounds localBounds;
     private GameObject boxGO;
 
-
+    public bool fade = true;
 
     private void getBounds()
     {
@@ -43,6 +45,11 @@ public class myBoundingBox : MonoBehaviour
                 }
             }
         }
+    }
+
+    public Vector3 getSize()
+    {
+        return localBounds.size;
     }
 
     private void renderCube()
@@ -82,13 +89,13 @@ public class myBoundingBox : MonoBehaviour
     //    Destroy(myLR);
     //}
 
-    public void Start()
+    private void Awake()
     {
         boxGO = new GameObject("box");
         boxGO.transform.parent = transform;
 
         myLR = boxGO.AddComponent<LineRenderer>();
-        myLR.sharedMaterial = myLineMaterial;
+        myLR.sharedMaterial = myLineMaterialWithFade;
         //myLR.useWorldSpace = false;
         myLR.startWidth = 0.001f;
         myLR.endWidth = 0.001f;
@@ -135,13 +142,13 @@ public class myBoundingBox : MonoBehaviour
             cornerHandles[i].AddComponent<BoxCollider>();
             cornerHandles[i].AddComponent<NearInteractionGrabbable>();
 
-            if (myHandleMaterial != null)
+            if (myHandleMaterialWithFade != null)
             {
                 Renderer[] renderers = cornerHandles[i].GetComponentsInChildren<Renderer>();
 
                 for (int j = 0; j < renderers.Length; ++j)
                 {
-                    renderers[j].material = myHandleMaterial;
+                    renderers[j].material = myHandleMaterialWithFade;
                 }
             }
 
@@ -167,6 +174,61 @@ public class myBoundingBox : MonoBehaviour
             cornerHandles[i].transform.position = corners[i];
             cornerHandles[i].transform.rotation = cornerOrientation[i];
         }
+    }
+
+    public void scaleCorners(float scale)
+    {
+        var vec_scale = Vector3.one * scale;
+        foreach (var corner in cornerHandles)
+        {
+            corner.transform.localScale = vec_scale;
+        }
+    }
+
+    public void setNormalMaterial(bool fade_)
+    {
+        fade = fade_;
+        Material line;
+        Material handles;
+        if (fade)
+        {
+            line = myLineMaterialWithFade;
+            handles = myHandleMaterialWithFade;
+        }
+        else
+        {
+            line = myLineMaterialWithoutFade;
+            handles = myHandleMaterialWithoutFade;
+        }
+
+        boxGO.GetComponent<LineRenderer>().material = line;
+        foreach (var corner in cornerHandles)
+        {
+            corner.GetComponentInChildren<MeshRenderer>().material = handles;
+        }
+    }
+
+    public void setGrabbed(bool grabbed)
+    {
+        if (grabbed)
+        {
+            if (myHandleGrabbedMaterial != null)
+            {
+                foreach (var handle in cornerHandles)
+                {
+                    handle.GetComponentInChildren<MeshRenderer>().material = myHandleGrabbedMaterial;
+                }
+            }
+            if (myLineGrabbedMaterial != null)
+            {
+                myLR.material = myLineGrabbedMaterial;
+            }
+        }
+        else
+        {
+            setNormalMaterial(fade);
+        }
+
     }
 
     public void Update()
