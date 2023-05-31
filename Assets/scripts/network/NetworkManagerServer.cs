@@ -351,10 +351,10 @@ public class NetworkManagerServer : MonoBehaviour
     [MessageHandler((ushort)ClientToServerID.deleteAtom)]
     private static void getAtomDeleted(ushort fromClientId, Message message)
     {
+        Debug.Log("[NetworkManagerServer] Received delete atom");
         var mol_id = message.GetUShort();
         var atom_id = message.GetUShort();
-        // do the select on the server
-        // don't show the tooltip - may change later
+        // do the delete on the server
         var atom = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
         if (atom == default)
         {
@@ -375,9 +375,9 @@ public class NetworkManagerServer : MonoBehaviour
     [MessageHandler((ushort)ClientToServerID.deleteMolecule)]
     private static void getMoleculeDeleted(ushort fromClientId, Message message)
     {
+        Debug.Log("[NetworkManagerServer] Received delete molecule");
         var mol_id = message.GetUShort();
-        // do the select on the server
-        // don't show the tooltip - may change later
+        // do the delete on the server
         var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
         if (mol == default)
         {
@@ -397,10 +397,10 @@ public class NetworkManagerServer : MonoBehaviour
     [MessageHandler((ushort)ClientToServerID.deleteBond)]
     private static void getBondDeleted(ushort fromClientId, Message message)
     {
+        Debug.Log("[NetworkManagerServer] Received delete bond");
         var bond_id = message.GetUShort();
         var mol_id = message.GetUShort();
-        // do the select on the server
-        // don't show the tooltip - may change later
+        // do the delete on the server
         var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
         var bond = mol.bondList.ElementAtOrDefault(bond_id);
         if (mol == default || bond == default)
@@ -431,7 +431,7 @@ public class NetworkManagerServer : MonoBehaviour
         var mol_id = message.GetUShort();
         var atom_id = message.GetUShort();
         var chemAbbre = message.GetString();
-        // do the move on the server
+        // do the change on the server
         if (!GlobalCtrl.Singleton.changeAtom(mol_id, atom_id, chemAbbre))
         {
             Debug.LogError($"[NetworkManagerServer:getAtomChanged] Atom with id {atom_id} of Molecule {mol_id} does not exist.\nSynchronizing world with client {fromClientId}.");

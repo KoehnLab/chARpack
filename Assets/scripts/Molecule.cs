@@ -169,7 +169,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         yield return new WaitForSeconds(0.1f);
         var current_size = getLongestBBoxEdge();
-        UnityEngine.Debug.Log($"Current Size {current_size}");
         GetComponent<myBoundingBox>().scaleCorners(0.02f + 0.02f * current_size);
         if (current_size > 0.25f)
         {
@@ -879,7 +878,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                         var vec1 = FFposition[newAngle.Atom3] - FFposition[newAngle.Atom2];
                         var vec2 = FFposition[newAngle.Atom1] - FFposition[newAngle.Atom2];
                         phi0 = Mathf.Acos(Vector3.Dot(vec1.normalized, vec2.normalized)) * Mathf.Rad2Deg;
-                        UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Angle phi: {phi0}");
+                        //UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Angle phi: {phi0}");
                     }
                     else
                     {
@@ -1091,7 +1090,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                             float cosAlpha = Mathf.Min(1.0f, Mathf.Max(-1.0f, (Vector3.Dot(nNormalized, mNormalized))));
                             newTorsion.eqAngle = Mathf.Sign(Vector3.Dot(rij, nNormal)) * Mathf.Acos(cosAlpha) * Mathf.Rad2Deg;
 
-                            UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Torsion phi: {newTorsion.eqAngle}");
+                            //UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Torsion phi: {newTorsion.eqAngle}");
                             newTorsion.nn = 1;
                         }
                         torsionTerms.Add(newTorsion);
@@ -1111,5 +1110,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             toolTipInstance = null;
         }
         EventManager.Singleton.OnMolDataChanged -= triggerGenerateFF;
+        EventManager.Singleton.OnMolDataChanged -= adjustBBox;
     }
 }

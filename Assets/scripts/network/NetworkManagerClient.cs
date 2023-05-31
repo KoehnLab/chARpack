@@ -301,6 +301,7 @@ public class NetworkManagerClient : MonoBehaviour
         message.AddUShort(mol_id);
         message.AddUShort(atom_id);
         Client.Send(message);
+        UnityEngine.Debug.Log("[NetworkManagerClient] Sent delete atom");
     }
 
     public void sendDeleteMolecule(ushort id)
@@ -308,6 +309,7 @@ public class NetworkManagerClient : MonoBehaviour
         Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.deleteMolecule);
         message.AddUShort(id);
         Client.Send(message);
+        UnityEngine.Debug.Log("[NetworkManagerClient] Sent delete molecule");
     }
 
     public void sendDeleteBond(ushort bond_id, ushort mol_id)
@@ -316,6 +318,7 @@ public class NetworkManagerClient : MonoBehaviour
         message.AddUShort(bond_id);
         message.AddUShort(mol_id);
         Client.Send(message);
+        UnityEngine.Debug.Log("[NetworkManagerClient] Sent delete bond");
     }
 
     public void sendChangeAtom(ushort mol_id, ushort atom_id, string chemAbbre)
@@ -325,6 +328,7 @@ public class NetworkManagerClient : MonoBehaviour
         message.AddUShort(atom_id);
         message.AddString(chemAbbre);
         Client.Send(message);
+        UnityEngine.Debug.Log("[NetworkManagerClient] Sent change atom");
     }
 
     public void sendUndo()

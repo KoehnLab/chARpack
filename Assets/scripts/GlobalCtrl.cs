@@ -361,14 +361,26 @@ public class GlobalCtrl : MonoBehaviour
 
     public void deleteBondUI(Bond to_delete)
     {
+        var mol_id = to_delete.m_molecule.m_id;
         var bond_id = to_delete.m_molecule.bondList.IndexOf(to_delete);
         if (bond_id == -1)
         {
             Debug.LogError("[GlobalCtrl:deleteBondUI] Did not fond bond ID in molecule's bond list.");
             return;
         }
-        deleteBond(to_delete);
-        EventManager.Singleton.DeleteBond((ushort)bond_id, to_delete.m_molecule.m_id);
+
+        try
+        {
+            deleteBond(to_delete);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[GlobalCrtl:deleteBondUI] Exception: {e.Message}");
+        }
+        finally
+        {
+            EventManager.Singleton.DeleteBond((ushort)bond_id, mol_id);
+        }
     }
 
     public void deleteBond(Bond b)
@@ -439,11 +451,11 @@ public class GlobalCtrl : MonoBehaviour
             {
                 Atom a = m.atomList[i];
                 int count = 0;
+                Debug.Log($"[GlobalCrtl:deleteBond] a.connected {a.connectedAtoms().Count} a.numbond {a.m_data.m_bondNum}");
                 while (a.m_data.m_bondNum > a.connectedAtoms().Count)
                 {
                     CreateDummy(m.getFreshAtomID(), m, a, calcDummyPos(a, positionsRestore, count));
                     count++;
-
                 }
             }
             m.shrinkAtomIDs();
@@ -489,8 +501,19 @@ public class GlobalCtrl : MonoBehaviour
 
     public void deleteMoleculeUI(Molecule to_delete)
     {
-        deleteMolecule(to_delete);
-        EventManager.Singleton.DeleteMolecule(to_delete.m_id);
+        var mol_id = to_delete.m_id;
+        try
+        {
+            deleteMolecule(to_delete);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[GlobalCrtl:deleteMoleculeUI] Exception: {e.Message}");
+        }
+        finally
+        {
+            EventManager.Singleton.DeleteMolecule(mol_id);
+        }
     }
 
     public void deleteMolecule(Molecule m)
@@ -520,8 +543,20 @@ public class GlobalCtrl : MonoBehaviour
 
     public void deleteAtomUI(Atom to_delete)
     {
-        deleteAtom(to_delete);
-        EventManager.Singleton.DeleteAtom(to_delete.m_molecule.m_id, to_delete.m_id);
+        var mol_id = to_delete.m_molecule.m_id;
+        var id = to_delete.m_id;
+        try
+        {
+            deleteAtom(to_delete);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[GlobalCrtl:deleteAtomUI] Exception: {e.Message}");
+        }
+        finally
+        {
+            EventManager.Singleton.DeleteAtom(mol_id, id);
+        }
     }
 
     public void deleteAtom(ushort mol_id, ushort atom_id)
@@ -752,7 +787,11 @@ public class GlobalCtrl : MonoBehaviour
     public Vector3 calcDummyPos(Atom a, Dictionary<Atom, List<Vector3>> positionsRestore, int count)
     {
         positionsRestore.TryGetValue(a, out List<Vector3> values);
-        Vector3 newPos = values[count];
+        Vector3 newPos = values.ElementAtOrDefault(count);
+        if (newPos == default)
+        {
+            newPos = a.transform.position;
+        }
         return newPos;
     }
 
