@@ -188,6 +188,13 @@ public class EventManager : MonoBehaviour
         OnModifyHyb?.Invoke(mol_id, atom_id, hyb);
     }
 
+    public delegate void SetKeepConfigAction(ushort mol_id, bool keep_config);
+    public event SetKeepConfigAction OnSetKeepConfig;
+    public void SetKeepConfig(ushort mol_id, bool keep_config)
+    {
+        OnSetKeepConfig?.Invoke(mol_id, keep_config);
+    }
+
     #endregion
 
 

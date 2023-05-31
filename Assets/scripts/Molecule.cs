@@ -17,23 +17,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         stopwatch = Stopwatch.StartNew();
         // change material of grabbed object
-        var bbox = gameObject.GetComponent<myBoundingBox>();
-        if (bbox.myHandleGrabbedMaterial != null)
-        {
-            foreach (var handle in bbox.cornerHandles)
-            {
-                Renderer[] renderers = handle.GetComponentsInChildren<Renderer>();
+        GetComponent<myBoundingBox>().setGrabbed(true);
 
-                for (int j = 0; j < renderers.Length; ++j)
-                {
-                    renderers[j].material = bbox.myHandleGrabbedMaterial;
-                }
-            }
-        }
-        if (bbox.myLineGrabbedMaterial != null)
-        {
-            bbox.myLR.material = bbox.myLineGrabbedMaterial;
-        }
     }
 
     public void OnPointerClicked(MixedRealityPointerEventData eventData)
@@ -71,23 +56,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         }
         // change material back to normal
-        var bbox = gameObject.GetComponent<myBoundingBox>();
-        if (bbox.myHandleMaterial != null)
-        {
-            foreach (var handle in bbox.cornerHandles)
-            {
-                Renderer[] renderers = handle.GetComponentsInChildren<Renderer>();
-
-                for (int j = 0; j < renderers.Length; ++j)
-                {
-                    renderers[j].material = bbox.myHandleMaterial;
-                }
-            }
-        }
-        if (bbox.myLineMaterial != null)
-        {
-            bbox.myLR.material = bbox.myLineMaterial;
-        }
+        GetComponent<myBoundingBox>().setGrabbed(false);
     }
 
     [HideInInspector] public static GameObject myToolTipPrefab;
@@ -181,6 +150,36 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
 
         EventManager.Singleton.OnMolDataChanged += triggerGenerateFF;
+        EventManager.Singleton.OnMolDataChanged += adjustBBox;
+    }
+
+    private void adjustBBox(Molecule mol)
+    {
+        if (mol == this)
+        {
+            if (GlobalCtrl.Singleton.List_curMolecules.Contains(mol))
+            {
+                StartCoroutine(adjustBBoxCoroutine());
+            }
+        }
+    }
+
+    // Need coroutine to use sleep
+    private IEnumerator adjustBBoxCoroutine()
+    {
+        yield return new WaitForSeconds(0.1f);
+        var current_size = getLongestBBoxEdge();
+        UnityEngine.Debug.Log($"Current Size {current_size}");
+        GetComponent<myBoundingBox>().scaleCorners(0.02f + 0.02f * current_size);
+        if (current_size > 0.25f)
+        {
+            GetComponent<myBoundingBox>().setNormalMaterial(false);
+        }
+        else
+        {
+            GetComponent<myBoundingBox>().setNormalMaterial(true);
+        }
+
     }
 
     /// <summary>
@@ -190,7 +189,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     public void givingOrphans(Molecule newParent)
     {
         ushort maxID = newParent.getFreshAtomID();
-        foreach(Atom a in atomList)
+        foreach (Atom a in atomList)
         {
             a.transform.parent = newParent.transform;
             a.m_molecule = newParent;
@@ -283,6 +282,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         return max_dist;
     }
 
+    public float getLongestBBoxEdge()
+    {
+        return GetComponent<myBoundingBox>().getSize().maxDimValue();
+    }
+
     private void calcMetaData(ref float mass)
     {
         // calc total mass
@@ -313,6 +317,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var max_dist = getMaxDistFromCenter(mol_center);
         string toolTipText = $"NumAtoms: {atomList.Count}\nNumBonds: {bondList.Count}\nTotMass: {tot_mass.ToString("0.00")}\nMaxRadius: {max_dist.ToString("0.00")}";
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        var keepConfigSwitchButtonInstance = Instantiate(modifyMeButtonPrefab);
+        keepConfigSwitchButtonInstance.GetComponent<ButtonConfigHelper>().MainLabelText = "keepConfig";
+        keepConfigSwitchButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.toggleKeepConfigUI(this); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(keepConfigSwitchButtonInstance);
         var delButtonInstance = Instantiate(deleteMeButtonPrefab);
         delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteMoleculeUI(this); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
@@ -792,12 +800,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                         {
                             newBond.eqDist = currentDist;
                         }
-                        UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Single Req: {newBond.eqDist}");
+                        //UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Single Req: {newBond.eqDist}");
                     }
                     else
                     {
                         newBond.eqDist = dreiding_eqDist;
-                        UnityEngine.Debug.Log($"[Molecule:generateFF] Eq dist: {newBond.eqDist}");
+                        //UnityEngine.Debug.Log($"[Molecule:generateFF] Eq dist: {newBond.eqDist}");
                     }
                     newBond.kBond = ForceField.kb;
                     // TODO estimate bond order from equilibrium distance

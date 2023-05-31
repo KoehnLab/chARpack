@@ -614,5 +614,27 @@ public class NetworkManagerServer : MonoBehaviour
         outMessage.AddUShort(hyb);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
+
+    [MessageHandler((ushort)ClientToServerID.keepConfig)]
+    private static void getKeepConfig(ushort fromClientId, Message message)
+    {
+        var mol_id = message.GetUShort();
+        var keep_config = message.GetBool();
+
+        // do the move on the server
+        if (!GlobalCtrl.Singleton.setKeepConfig(mol_id, keep_config))
+        {
+            Debug.LogError($"[NetworkManagerServer:getModifyHyb] Molecule {mol_id} does not exist.\nSynchronizing world with client {fromClientId}.");
+            NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
+            return;
+        }
+
+        // Broadcast to other clients
+        Message outMessage = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastKeepConfig);
+        outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(mol_id);
+        outMessage.AddBool(keep_config);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
     #endregion
 }

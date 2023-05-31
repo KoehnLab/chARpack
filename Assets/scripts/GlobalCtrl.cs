@@ -88,8 +88,6 @@ public class GlobalCtrl : MonoBehaviour
     [HideInInspector] public Atom collider1;
     [HideInInspector] public Atom collider2;
 
-    public float repulsionScale = 0.1f;
-
     [HideInInspector]
     public ushort curHybrid = 3;
 
@@ -457,6 +455,37 @@ public class GlobalCtrl : MonoBehaviour
             EventManager.Singleton.ChangeMolData(m);
         }
     }
+
+    public void toggleKeepConfigUI(Molecule to_switch)
+    {
+        setKeepConfig(to_switch, !to_switch.keepConfig);
+        EventManager.Singleton.SetKeepConfig(to_switch.m_id, to_switch.keepConfig);
+    }
+
+    public void setKeepConfig(Molecule to_switch, bool keep_config)
+    {
+        if (to_switch.keepConfig != keep_config)
+        {
+            to_switch.keepConfig = keep_config;
+            to_switch.generateFF();
+        }
+    }
+
+    public bool setKeepConfig(ushort mol_id, bool keep_config)
+    {
+        var to_switch = List_curMolecules.ElementAtOrDefault(mol_id);
+        if (to_switch == default)
+        {
+            return false;
+        }
+        if (to_switch.keepConfig != keep_config)
+        {
+            to_switch.keepConfig = keep_config;
+            to_switch.generateFF();
+        }
+        return true;
+    }
+
 
     public void deleteMoleculeUI(Molecule to_delete)
     {
@@ -1393,14 +1422,6 @@ public class GlobalCtrl : MonoBehaviour
         // Let the networkManager know about the user action
         // Important: insert localPosition here
         EventManager.Singleton.CreateAtom(newID, ChemicalID, List_curMolecules[newID].transform.localPosition, curHybrid);
-    }
-
-    // TODO: Implement
-    public void getRepulsionScale(float value)
-    {
-        // set value from slider
-        repulsionScale = 0.1f + value*0.9f;
-        Debug.Log(string.Format("repulsionScale, new val: {0, 6:f3}", repulsionScale));
     }
 
     public ElementData GetElementbyAbbre(string abbre)

@@ -54,6 +54,7 @@ public class ForceField : MonoBehaviour
     // note that the forcefield works in the atomic scale (i.e. all distances measure in pm)
     // we scale back when applying the movements to the actual objects
     public static float scalingfactor = GlobalCtrl.scale / GlobalCtrl.u2pm;
+    public float repulsionScale = 0.1f;
 
     // Parameters of the integration methods
     public float EulerTimeFactor = 0.7f;
@@ -313,7 +314,7 @@ public class ForceField : MonoBehaviour
             mol.FFmovement.Clear();
             foreach(var a in mol.atomList)
             {
-                mol.FFposition.Add(a.transform.position * (1f / scalingfactor));
+                mol.FFposition.Add(a.transform.localPosition * (1f / scalingfactor));
                 mol.FFforces.Add(Vector3.zero);
                 mol.FFforces_pass2.Add(Vector3.zero);
                 mol.FFmovement.Add(Vector3.zero);
@@ -466,7 +467,8 @@ public class ForceField : MonoBehaviour
         {
             rij = mol.FFposition[hsTerm.Atom1] - mol.FFposition[hsTerm.Atom2];
         }
-        float delta = rij.magnitude - hsTerm.Rcrit * GlobalCtrl.Singleton.repulsionScale;
+        var rij_mag = rij.magnitude; //rij.magnitude / mol.transform.localScale.x;
+        float delta = rij_mag - hsTerm.Rcrit * repulsionScale;
         //Debug.Log(string.Format("D nb term {0,4} {1,4}: rij = {2,14:f2}", hsTerm.Atom1, hsTerm.Atom2, rij.magnitude));
         if (delta < 0.0f)
         {
@@ -493,13 +495,12 @@ public class ForceField : MonoBehaviour
             rb = mol.FFposition[bond.Atom1] - mol.FFposition[bond.Atom2];
         }
 
+        var rb_mag = rb.magnitude; //(rb.magnitude / mol.transform.localScale.x);
         //force on this bond vector
-        float delta = rb.magnitude - (bond.eqDist * mol.transform.localScale.x);
+        float delta = rb_mag - bond.eqDist;
         float fb = -bond.kBond * delta;
         if (LogLevel >= 1000) FFlog.WriteLine("dist: {0,12:f3}  dist0: {1,12:f3}  --  force = {2,14:f5} ", rb.magnitude, bond.eqDist, fb);
         //separate the forces on the two atoms
-        //Vector3 fc1 = fb * (rb / Vector3.Magnitude(rb)); // could use rb.normalized
-        //Vector3 fc2 = -fb * (rb / Vector3.Magnitude(rb));
         Vector3 fc1 = fb * rb.normalized;
         Vector3 fc2 = -fb * rb.normalized;
 
@@ -539,7 +540,6 @@ public class ForceField : MonoBehaviour
             rb1 = mol.FFposition[angle.Atom1] - mol.FFposition[angle.Atom2];
             rb2 = mol.FFposition[angle.Atom3] - mol.FFposition[angle.Atom2];
         }
-
 
         float cosAlpha = (Vector3.Dot(rb1, rb2)) / (Vector3.Magnitude(rb1) * Vector3.Magnitude(rb2));
         /*  Alpha- dependency
@@ -875,14 +875,14 @@ public class ForceField : MonoBehaviour
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
             {
                 if (float.IsFinite(mol.FFmovement[iAtom].x)) {
-                    mol.atomList.ElementAtOrDefault(iAtom).transform.position += mol.FFmovement[iAtom] * scalingfactor;
+                    mol.atomList.ElementAtOrDefault(iAtom).transform.localPosition += mol.FFmovement[iAtom] * scalingfactor;
                 }
                 else
                 {
                     //do small random moves
-                    mol.atomList.ElementAtOrDefault(iAtom).transform.position += new Vector3(UnityEngine.Random.Range(-0.01f, 0.01f), UnityEngine.Random.Range(-0.01f, 0.01f), UnityEngine.Random.Range(-0.01f, 0.01f));
+                    mol.atomList.ElementAtOrDefault(iAtom).transform.localPosition += new Vector3(UnityEngine.Random.Range(-0.01f, 0.01f), UnityEngine.Random.Range(-0.01f, 0.01f), UnityEngine.Random.Range(-0.01f, 0.01f));
                 }
-                mol.FFposition[iAtom] = mol.atomList.ElementAtOrDefault(iAtom).transform.position * (1f / scalingfactor);
+                mol.FFposition[iAtom] = mol.atomList.ElementAtOrDefault(iAtom).transform.localPosition * (1f / scalingfactor);
                 mol.FFmovement[iAtom] = Vector3.zero;
                 mol.FFforces[iAtom] = Vector3.zero;
                 mol.FFforces_pass2[iAtom] = Vector3.zero;
