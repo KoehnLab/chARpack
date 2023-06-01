@@ -6,7 +6,7 @@
     <m_abbre>Dummy</m_abbre>
     <m_type>s</m_type>
     <m_mass>1.008</m_mass>
-    <m_radius>110</m_radius>
+    <m_radius>90</m_radius>
 	<m_bondNum>1</m_bondNum>
     <m_color>
       <r>0.8</r>

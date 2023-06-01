@@ -41,8 +41,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 
         stopwatch = Stopwatch.StartNew();
         isGrabbed = true;
-        tmp_mass = m_data.m_mass;
-        m_data.m_mass = -1.0f;
     }
     public void OnPointerClicked(MixedRealityPointerEventData eventData) 
     {
@@ -58,7 +56,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     public void OnPointerUp(MixedRealityPointerEventData eventData) 
     {
         isGrabbed = false;
-        m_data.m_mass = tmp_mass;
 
         // measure convergence
         ForceField.Singleton.resetMeasurment();
@@ -123,9 +120,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public bool isMarked = false;
 
     [HideInInspector] public GameObject m_ActiveHand = null;
-
-    private float tmp_mass = -1.0f;
-
 
     /// <summary>
     /// initialises the atom with all it's attributes
@@ -414,6 +408,87 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             }
         }
         return conAtomList;
+    }
+
+    public List<Atom> otherConnectedAtoms(Atom exclude)
+    {
+        List<Atom> conAtomList = new List<Atom>();
+        foreach (Bond b in m_molecule.bondList)
+        {
+            if (b.atomID1 == m_id || b.atomID2 == m_id)
+            {
+                Atom otherAtom = b.findTheOther(this);
+                if (!conAtomList.Contains(otherAtom))
+                    conAtomList.Add(otherAtom);
+            }
+        }
+        if (conAtomList.Contains(exclude))
+        {
+            conAtomList.Remove(exclude);
+        }
+        return conAtomList;
+    }
+
+    public HashSet<Atom> otherConnectedAtoms(HashSet<Atom> exclude)
+    {
+        HashSet<Atom> conAtomList = new HashSet<Atom>();
+        foreach (Bond b in m_molecule.bondList)
+        {
+            if (b.atomID1 == m_id || b.atomID2 == m_id)
+            {
+                Atom otherAtom = b.findTheOther(this);
+                if (!conAtomList.Contains(otherAtom))
+                    conAtomList.Add(otherAtom);
+            }
+        }
+        foreach (var atom in exclude)
+        if (conAtomList.Contains(atom))
+        {
+            conAtomList.Remove(atom);
+        }
+        return conAtomList;
+    }
+
+
+    public List<Atom> connectedChain(Atom exceptAtom)
+    {
+        // get start set
+        var chainAtomList = otherConnectedAtoms(exceptAtom);
+
+        HashSet<Atom> prevLayer = new HashSet<Atom>();
+        prevLayer.Add(exceptAtom);
+
+        bool not_reached_end = true;
+        HashSet<Atom> currentLayer = new HashSet<Atom>();
+        foreach (var atom in chainAtomList)
+        {
+            currentLayer.Add(atom);
+        }
+        while (not_reached_end)
+        {
+            HashSet<Atom> nextLayer = new HashSet<Atom>();
+            foreach (var atom in currentLayer)
+            {
+                var conAtoms = atom.otherConnectedAtoms(prevLayer);
+                foreach (var conAtom in conAtoms)
+                {
+                    nextLayer.Add(conAtom);
+                }
+            }
+            foreach (var to_add in nextLayer)
+            {
+                chainAtomList.Add(to_add);
+            }
+
+            if (nextLayer.Count == 0)
+            {
+                not_reached_end = false;
+            }
+            prevLayer = currentLayer;
+            currentLayer = nextLayer;
+        }
+
+        return chainAtomList;
     }
 
     public List<Atom> connectedDummys()

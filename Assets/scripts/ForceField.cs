@@ -125,7 +125,7 @@ public class ForceField : MonoBehaviour
 
     public static Dictionary<string, float> rhs = new Dictionary<string, float>();
     public static Dictionary<string, float[]> DREIDINGConst = new Dictionary<string, float[]> {
-        { "Dummy_0", new[] {33f,180f} },
+        { "Dummy_0", new[] {16f,180f} },
         { "H_0", new[] {33f,180f} },
         { "B_3", new[] {88f,109.471f} },
         { "B_2", new[] {79f,120f} },
@@ -521,6 +521,41 @@ public class ForceField : MonoBehaviour
             mol.FFforces[bond.Atom2] += fc2;
         }
 
+
+        // Check if one of the atoms is currently grabbed
+        Vector3 dir = Vector3.zero;
+        ushort which = 0;
+        if (mol.atomList[bond.Atom1].isGrabbed)
+        {
+            which = 1;
+        }
+        else if (mol.atomList[bond.Atom2].isGrabbed)
+        {
+            which = 2;
+        }
+
+        // go through the chain of connected atoms and add the force there too
+        if (which > 0)
+        {
+            if (which == 1)
+            {
+                var grabbedAtom = mol.atomList[bond.Atom1];
+                var chain_atoms = mol.atomList[bond.Atom2].connectedChain(grabbedAtom);
+                foreach (var atom in chain_atoms)
+                {
+                    mol.FFforces[atom.m_id] += fc2;
+                }
+            }
+            else if (which == 2)
+            {
+                var grabbedAtom = mol.atomList[bond.Atom2];
+                var chain_atoms = mol.atomList[bond.Atom1].connectedChain(grabbedAtom);
+                foreach (var atom in chain_atoms)
+                {
+                    mol.FFforces[atom.m_id] += fc1;
+                }
+            }
+        }
     }
 
 
@@ -697,7 +732,7 @@ public class ForceField : MonoBehaviour
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
             {
                 // negative masses flag a fixed atom
-                if (mol.atomList[iAtom].m_data.m_mass > 0.0f)
+                if (!mol.atomList[iAtom].isGrabbed)
                 {
                     mol.FFforces[iAtom] *= EulerTimeFactor / mol.atomList[iAtom].m_data.m_mass;
                     float moveNorm = Vector3.Magnitude(mol.FFforces[iAtom]);
@@ -734,7 +769,7 @@ public class ForceField : MonoBehaviour
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
             {
                 // negative masses flag a fixed atom
-                if (mol.atomList[iAtom].m_data.m_mass > 0.0f)
+                if (!mol.atomList[iAtom].isGrabbed)
                 {
                     var current_pos = mol.FFposition[iAtom];
                     mol.FFposition[iAtom] = 2.0f * current_pos - mol.FFlastPosition[iAtom] + mol.FFforces[iAtom] * Mathf.Pow(SVtimeFactor, 2.0f) / mol.atomList[iAtom].m_data.m_mass;
@@ -757,7 +792,7 @@ public class ForceField : MonoBehaviour
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
             {
                 // negative masses flag a fixed atom
-                if (mol.atomList[iAtom].m_data.m_mass > 0.0f)
+                if (!mol.atomList[iAtom].isGrabbed)
                 {
                     var current_pos = mol.FFposition[iAtom];
                     mol.FFposition[iAtom] = current_pos + ((1f - 1f/(2f*alpha)) * mol.FFforces[iAtom] * RKtimeFactor)/ mol.atomList[iAtom].m_data.m_mass + (mol.FFforces_pass2[iAtom] * RKtimeFactor)/ (2f*alpha*mol.atomList[iAtom].m_data.m_mass);
@@ -782,7 +817,7 @@ public class ForceField : MonoBehaviour
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
             {
                 // negative masses flag a fixed atom
-                if (mol.atomList[iAtom].m_data.m_mass > 0.0f)
+                if (!mol.atomList[iAtom].isGrabbed)
                 {
                     var current_pos = mol.FFposition[iAtom];
 
@@ -810,7 +845,7 @@ public class ForceField : MonoBehaviour
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
             {
                 // negative masses flag a fixed atom
-                if (mol.atomList[iAtom].m_data.m_mass > 0.0f)
+                if (!mol.atomList[iAtom].isGrabbed)
                 {
                     var current_pos = mol.FFposition[iAtom];
 
@@ -843,7 +878,7 @@ public class ForceField : MonoBehaviour
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
             {
                 // negative masses flag a fixed atom
-                if (mol.atomList[iAtom].m_data.m_mass > 0.0f)
+                if (!mol.atomList[iAtom].isGrabbed)
                 {
                     var current_pos = mol.FFposition[iAtom];
 
