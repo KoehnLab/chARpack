@@ -1551,7 +1551,15 @@ public class GlobalCtrl : MonoBehaviour
         var atomMenuPrefab = (GameObject)Resources.Load("prefabs/AtomMenu");
         GameObject atomMenu = Instantiate(atomMenuPrefab) as GameObject;
         atomMenu.transform.parent = GameObject.Find("NearMenu").transform;
-        atomMenu.transform.localPosition = new Vector3(-0.25f, 0f,0.05f);
+        atomMenu.transform.localPosition = new Vector3(-0.45f, 0f, -0.22f);
+    }
+
+    public void openAtomMenuScrollable()
+    {
+        var atomMenuScrollablePrefab = (GameObject)Resources.Load("prefabs/AtomMenuScrollable");
+        GameObject AtomMenuScrollable = Instantiate(atomMenuScrollablePrefab) as GameObject;
+        AtomMenuScrollable.transform.parent = GameObject.Find("NearMenu").transform;
+        AtomMenuScrollable.transform.localPosition = new Vector3(-0.95f, 0f, -0.25f);
     }
 
         #endregion

@@ -48,6 +48,11 @@ public class atomMenu : MonoBehaviour
         }
     }
 
+    public void close()
+    {
+        Destroy(gameObject);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
