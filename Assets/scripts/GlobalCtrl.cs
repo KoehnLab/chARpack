@@ -1546,9 +1546,17 @@ public class GlobalCtrl : MonoBehaviour
         Instantiate(settingsPrefab);
     }
 
-    #endregion
+    public void openAtomMenu()
+    {
+        var atomMenuPrefab = (GameObject)Resources.Load("prefabs/AtomMenu");
+        GameObject atomMenu = Instantiate(atomMenuPrefab) as GameObject;
+        atomMenu.transform.parent = GameObject.Find("NearMenu").transform;
+        atomMenu.transform.localPosition = new Vector3(-0.25f, 0f,0.05f);
+    }
 
-    public void backToMain()
+        #endregion
+
+        public void backToMain()
     {
         var myDialog = Dialog.Open(exitConfirmPrefab, DialogButtonType.Yes | DialogButtonType.No, "Confirm Exit", $"Are you sure you want quit?", true);
         if (myDialog != null)
