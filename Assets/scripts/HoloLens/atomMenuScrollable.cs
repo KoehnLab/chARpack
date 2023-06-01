@@ -1,5 +1,6 @@
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.Utilities;
+using Microsoft.MixedReality.Toolkit.Utilities.Solvers;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,7 +14,14 @@ public class atomMenuScrollable : MonoBehaviour
     public GameObject clippingBox;
     public GameObject gridObjectCollection;
     public GameObject scrollingObjectCollection;
-    private string[] atomNames = new string[] { "C", "O", "F", "N", "Cl" };
+    public GameObject scrollParent;
+    private string[] atomNames = new string[] {
+        "C", "O", "F",
+        "N", "Cl", "S",
+        "Na", "Fe", "Zn",
+        "Ag", "Au", "Mg",
+        "Ti"
+    };
 
     private static atomMenuScrollable _singleton;
 
@@ -38,10 +46,21 @@ public class atomMenuScrollable : MonoBehaviour
     private void Awake()
     {
         Singleton = this;
+        // change positioning parameters
+        var radView = scrollParent.GetComponent<RadialView>();
+        radView.MaxDistance = 0.6f;
+        radView.MaxViewDegrees = 20f;
+        // add atom buttons
         atomMenuScrollablePrefab = (GameObject)Resources.Load("prefabs/AtomMenuScrollable");
         atomEntryPrefab = (GameObject)Resources.Load("prefabs/AtomButton");
         generateAtomEntries();
 
+    }
+
+    private void Start()
+    {
+        // also set starting position
+        transform.position = Camera.main.transform.position + 0.35f * Camera.main.transform.forward;
     }
 
     public void close()
@@ -51,6 +70,17 @@ public class atomMenuScrollable : MonoBehaviour
     public void refresh()
     {
         generateAtomEntries();
+    }
+
+    public void scrollUpdate()
+    {
+        StartCoroutine(waitAndUpdate());
+    }
+
+    private IEnumerator waitAndUpdate()
+    {
+        yield return new WaitForSeconds(0.25f);
+        scrollingObjectCollection.GetComponent<ScrollingObjectCollection>().UpdateContent();
     }
 
     public void updateClipping()
@@ -93,8 +123,7 @@ public class atomMenuScrollable : MonoBehaviour
             button.ButtonPressed.AddListener(delegate { GlobalCtrl.Singleton.createAtomUI(atom); });
             button.transform.parent = gridObjectCollection.transform;
 
-       }
-
+        }
         // update on collection places all items in order
         gridObjectCollection.GetComponent<GridObjectCollection>().UpdateCollection();
         // update on scoll content makes the list scrollable
