@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using OpenBabel;
 using StructClass;
+using System.Linq;
 
 public static class OpenBabelExtensions
 {
@@ -230,6 +231,16 @@ public static class OpenBabelExtensions
     public static float maxDimValue(this Vector3 lhs)
     {
         return Mathf.Max(lhs.x, Mathf.Max(lhs.y, lhs.z));
+    }
+
+    public static int maxElementIndex(this List<float> lhs)
+    {
+        return lhs.IndexOf(lhs.Max());
+    }
+
+    public static int minElementIndex(this List<float> lhs)
+    {
+        return lhs.IndexOf(lhs.Min());
     }
 
 }

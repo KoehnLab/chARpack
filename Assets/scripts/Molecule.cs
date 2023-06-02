@@ -831,6 +831,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                         newHS.Atom2 = iAtom;
                         newHS.kH = 10f;
                         newHS.Rcrit = ForceField.rhs[atomList[iAtom].m_data.m_abbre] + ForceField.rhs[atomList[jAtom].m_data.m_abbre];
+                        UnityEngine.Debug.Log($"[generateFF] Rcrit {newHS.Rcrit}; Atom1-{atomList[iAtom].m_data.m_abbre}: {ForceField.rhs[atomList[iAtom].m_data.m_abbre]}; Atom2-{atomList[jAtom].m_data.m_abbre}: {ForceField.rhs[atomList[jAtom].m_data.m_abbre]}");
                         hsTerms.Add(newHS);
                     }
                 }

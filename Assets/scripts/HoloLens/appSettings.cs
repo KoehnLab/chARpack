@@ -34,9 +34,11 @@ public class appSettings : MonoBehaviour
     }
 
     public GameObject bondStiffnessValueGO;
+    public GameObject repuslionScaleValueGO;
     private void Start()
     {
         bondStiffnessValueGO.GetComponent<TextMeshPro>().text = ForceField.Singleton.stiffness.ToString();
+        repuslionScaleValueGO.GetComponent<TextMeshPro>().text = ForceField.Singleton.repulsionScale.ToString();
     }
 
 
@@ -85,6 +87,24 @@ public class appSettings : MonoBehaviour
         {
             ForceField.Singleton.stiffness -= 1;
             bondStiffnessValueGO.GetComponent<TextMeshPro>().text = ForceField.Singleton.stiffness.ToString();
+        }
+    }
+
+    public void increaseRepusionScale()
+    {
+        if (ForceField.Singleton.repulsionScale < 0.9f)
+        {
+            ForceField.Singleton.repulsionScale += 0.1f;
+            repuslionScaleValueGO.GetComponent<TextMeshPro>().text = ForceField.Singleton.repulsionScale.ToString();
+        }
+    }
+
+    public void decreaseRepusionScale()
+    {
+        if (ForceField.Singleton.repulsionScale > 0.1f)
+        {
+            ForceField.Singleton.repulsionScale -= 0.1f;
+            repuslionScaleValueGO.GetComponent<TextMeshPro>().text = ForceField.Singleton.repulsionScale.ToString();
         }
     }
 

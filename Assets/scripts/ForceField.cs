@@ -54,7 +54,8 @@ public class ForceField : MonoBehaviour
     // note that the forcefield works in the atomic scale (i.e. all distances measure in pm)
     // we scale back when applying the movements to the actual objects
     public static float scalingfactor = GlobalCtrl.scale / GlobalCtrl.u2pm;
-    public float repulsionScale = 0.1f;
+    private float _repulsionScale = 0.5f;
+    public float repulsionScale { get => _repulsionScale; set => _repulsionScale = value; }
 
     // Parameters of the integration methods
     public float EulerTimeFactor = 0.7f;
@@ -104,7 +105,6 @@ public class ForceField : MonoBehaviour
             }
         }
     }
-
 
 
     /*
@@ -225,6 +225,7 @@ public class ForceField : MonoBehaviour
         foreach (KeyValuePair<string, ElementData> pair in element_dict)
         {
             rhs.Add(pair.Key, pair.Value.m_radius * fac);
+            UnityEngine.Debug.Log($"[FF] RHS terms {pair.Key}: {pair.Value.m_radius * fac}");
         }
     }
 
@@ -314,7 +315,17 @@ public class ForceField : MonoBehaviour
             mol.FFmovement.Clear();
             foreach(var a in mol.atomList)
             {
-                mol.FFposition.Add(a.transform.localPosition * (1f / scalingfactor));
+                // if chain atoms are grabbed they are in a different local coordiante systen
+                // need to transform them back to local molecule coordnates
+                //if (a.isGrabbed)
+                //{
+                    mol.FFposition.Add(mol.transform.InverseTransformPoint(a.transform.position) * (1f / scalingfactor));
+                //}
+                //else
+                //{
+                //    mol.FFposition.Add(a.transform.localPosition * (1f / scalingfactor));
+                //}
+
                 mol.FFforces.Add(Vector3.zero);
                 mol.FFforces_pass2.Add(Vector3.zero);
                 mol.FFmovement.Add(Vector3.zero);
@@ -452,7 +463,6 @@ public class ForceField : MonoBehaviour
         //UnityEngine.Debug.Log("[FF] Jump");
     }
 
-
     // calculate non-bonding repulsion forces
     void calcRepForces(HardSphereTerm hsTerm, Molecule mol, bool second_pass = false)
     {
@@ -470,10 +480,11 @@ public class ForceField : MonoBehaviour
         var rij_mag = rij.magnitude; //rij.magnitude / mol.transform.localScale.x;
         float delta = rij_mag - hsTerm.Rcrit * repulsionScale;
         //Debug.Log(string.Format("D nb term {0,4} {1,4}: rij = {2,14:f2}", hsTerm.Atom1, hsTerm.Atom2, rij.magnitude));
+        //UnityEngine.Debug.Log($"[FF] HS delta {delta}; rj_mag {rij_mag}; Rcrit {hsTerm.Rcrit * repulsionScale}");
         if (delta < 0.0f)
         {
             float frep = -hsTerm.kH * delta;
-            //Debug.Log(string.Format("nb term {0,4} {1,4}: rij = {2,14:f2} crit = {3,14:f3}", hsTerm.Atom1, hsTerm.Atom2, rij.magnitude, hsTerm.Rcrit));
+            //UnityEngine.Debug.Log($"[FF] HS nb term {hsTerm.Atom1} {hsTerm.Atom2}: rij = {rij.magnitude} crit = {hsTerm.Rcrit}");
             mol.FFforces[hsTerm.Atom1] += frep * rij.normalized;
             mol.FFforces[hsTerm.Atom2] -= frep * rij.normalized;
         }
@@ -519,42 +530,6 @@ public class ForceField : MonoBehaviour
         {
             mol.FFforces[bond.Atom1] += fc1;
             mol.FFforces[bond.Atom2] += fc2;
-        }
-
-
-        // Check if one of the atoms is currently grabbed
-        Vector3 dir = Vector3.zero;
-        ushort which = 0;
-        if (mol.atomList[bond.Atom1].isGrabbed)
-        {
-            which = 1;
-        }
-        else if (mol.atomList[bond.Atom2].isGrabbed)
-        {
-            which = 2;
-        }
-
-        // go through the chain of connected atoms and add the force there too
-        if (which > 0)
-        {
-            if (which == 1)
-            {
-                var grabbedAtom = mol.atomList[bond.Atom1];
-                var chain_atoms = mol.atomList[bond.Atom2].connectedChain(grabbedAtom);
-                foreach (var atom in chain_atoms)
-                {
-                    mol.FFforces[atom.m_id] += fc2;
-                }
-            }
-            else if (which == 2)
-            {
-                var grabbedAtom = mol.atomList[bond.Atom2];
-                var chain_atoms = mol.atomList[bond.Atom1].connectedChain(grabbedAtom);
-                foreach (var atom in chain_atoms)
-                {
-                    mol.FFforces[atom.m_id] += fc1;
-                }
-            }
         }
     }
 
@@ -827,7 +802,7 @@ public class ForceField : MonoBehaviour
                     mol.FFlastlastPosition[iAtom] = mol.FFlastPosition[iAtom];
                     mol.FFlastPosition[iAtom] = current_pos;
                 }
-                else
+                    else
                 {
                     mol.FFmovement[iAtom] = Vector3.zero;
                 }
@@ -910,14 +885,22 @@ public class ForceField : MonoBehaviour
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
             {
                 if (float.IsFinite(mol.FFmovement[iAtom].x)) {
-                    mol.atomList.ElementAtOrDefault(iAtom).transform.localPosition += mol.FFmovement[iAtom] * scalingfactor;
+                    var atom = mol.atomList.ElementAtOrDefault(iAtom);
+                    if (atom.isGrabbed)
+                    {
+                        atom.transform.localPosition += (mol.FFmovement[iAtom] * scalingfactor) * atom.transform.localScale.x;
+                    }
+                    else
+                    {
+                        atom.transform.localPosition += mol.FFmovement[iAtom] * scalingfactor;
+                    }
                 }
                 else
                 {
                     //do small random moves
                     mol.atomList.ElementAtOrDefault(iAtom).transform.localPosition += new Vector3(UnityEngine.Random.Range(-0.01f, 0.01f), UnityEngine.Random.Range(-0.01f, 0.01f), UnityEngine.Random.Range(-0.01f, 0.01f));
                 }
-                mol.FFposition[iAtom] = mol.atomList.ElementAtOrDefault(iAtom).transform.localPosition * (1f / scalingfactor);
+                mol.FFposition[iAtom] = mol.transform.InverseTransformPoint(mol.atomList.ElementAtOrDefault(iAtom).transform.position) * (1f / scalingfactor);
                 mol.FFmovement[iAtom] = Vector3.zero;
                 mol.FFforces[iAtom] = Vector3.zero;
                 mol.FFforces_pass2[iAtom] = Vector3.zero;

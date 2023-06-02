@@ -38,36 +38,46 @@ public class HandTracking : MonoBehaviour
 
     private Vector3 _indexForward = Vector3.zero;
     public Vector3 indexForward { get => _indexForward; private set => _indexForward = value; }
+    private MixedRealityPose indexMiddlePose = MixedRealityPose.ZeroIdentity;
+    private MixedRealityPose indexTipPose = MixedRealityPose.ZeroIdentity;
 
     // check hand pose to pick which end of chain to move
-    public void OnSourceDetected(SourceStateEventData eventData)
+    //public void OnSourceDetected(SourceStateEventData eventData)
+    //{
+    //    var hand = eventData.Controller as IMixedRealityHand;
+    //    if (hand != null)
+    //    {
+    //        Debug.Log("[HandTracking] Controller found");
+    //        if (hand.TryGetJoint(TrackedHandJoint.IndexTip, out MixedRealityPose jointPose))
+    //        {
+    //            indexForward = jointPose.Forward;
+    //        }
+    //    } else {
+    //        var handVisualizer = eventData.Controller.Visualizer as IMixedRealityHandVisualizer;
+    //        if (handVisualizer != null)
+    //        {
+    //            Debug.Log("[HandTracking] Visualizer found");
+    //            if (HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexTip, Handedness.Both, out MixedRealityPose jointPose))
+    //            {
+    //                indexForward = jointPose.Forward;
+    //            }
+    //            //if (handVisualizer.TryGetJointTransform(TrackedHandJoint.IndexTip, out Transform jointTransform))
+    //            //{
+    //            //    indexForward = jointTransform.forward;
+    //            //}
+    //        }
+    //    }
+    //}
+
+    private void Update()
     {
-        var hand = eventData.Controller as IMixedRealityHand;
-        if (hand != null)
-        {
-            Debug.Log("[HandTracking] Controller found");
-            if (hand.TryGetJoint(TrackedHandJoint.IndexTip, out MixedRealityPose jointPose))
-            {
-                indexForward = jointPose.Forward;
-            }
-        } else {
-            var handVisualizer = eventData.Controller.Visualizer as IMixedRealityHandVisualizer;
-            if (handVisualizer != null)
-            {
-                Debug.Log("[HandTracking] Visualizer found");
-                if (HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexTip, Handedness.Both, out MixedRealityPose jointPose))
-                {
-                    indexForward = jointPose.Forward;
-                }
-                //if (handVisualizer.TryGetJointTransform(TrackedHandJoint.IndexTip, out Transform jointTransform))
-                //{
-                //    indexForward = jointTransform.forward;
-                //}
-            }
-        }
+        getPose();
+        transform.forward = indexForward;
+        transform.position = indexMiddlePose.Position;
     }
 
-    public Vector3 getForward()
+
+    private void getPose()
     {
         foreach (var source in CoreServices.InputSystem.DetectedInputSources)
         {
@@ -79,39 +89,39 @@ public class HandTracking : MonoBehaviour
                     var hand = p.Controller as IMixedRealityHand;
                     if (hand != null)
                     {
-                        Vector3 indexTipPos = Vector3.zero;
-                        Vector3 indexMiddlePos = Vector3.zero;
                         if (hand.TryGetJoint(TrackedHandJoint.IndexTip, out MixedRealityPose tipPose))
                         {
-                            indexTipPos = tipPose.Position;
+                            indexTipPose = tipPose;
                         }
                         if (hand.TryGetJoint(TrackedHandJoint.IndexMiddleJoint, out MixedRealityPose middlePose))
                         {
-                            indexMiddlePos = middlePose.Position;
+                            indexMiddlePose = middlePose;
                         }
-                        indexForward = Vector3.Normalize(indexTipPos - indexMiddlePos);
+                        indexForward = Vector3.Normalize(indexTipPose.Position - indexMiddlePose.Position);
                     }
                     else
                     {
                         var handVisualizer = p.Controller as IMixedRealityHandVisualizer;
                         if (handVisualizer != null)
                         {
-                            Vector3 indexTipPos = Vector3.zero;
-                            Vector3 indexMiddlePos = Vector3.zero;
                             if (HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexTip, Handedness.Both, out MixedRealityPose tipPose))
                             {
-                                indexTipPos = tipPose.Position;
+                                indexTipPose = tipPose;
                             }
                             if (HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexMiddleJoint, Handedness.Both, out MixedRealityPose middlePose))
                             {
-                                indexMiddlePos = middlePose.Position;
+                                indexMiddlePose = middlePose;
                             }
-                            indexForward = Vector3.Normalize(indexTipPos - indexMiddlePos);
+                            indexForward = Vector3.Normalize(indexTipPose.Position - indexMiddlePose.Position);
                         }
                     }
                 }
             }
         }
+    }
+
+    public Vector3 getForward()
+    {
         return indexForward;
     }
 }

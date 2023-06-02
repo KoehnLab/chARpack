@@ -24,23 +24,67 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     private float toolTipDistanceWeight = 2.5f;
     private Color currentOutlineColor = Color.black;
 
+    private List<Atom> currentChain = new List<Atom>();
+
+
+    public void grabHighlight(bool active)
+    {
+        if (active)
+        {
+            if (GetComponent<Outline>().enabled)
+            {
+                currentOutlineColor = GetComponent<Outline>().OutlineColor;
+            }
+            else
+            {
+                GetComponent<Outline>().enabled = true;
+                currentOutlineColor = Color.black;
+            }
+            GetComponent<Outline>().OutlineColor = Color.blue;
+        }
+        else
+        {
+            if (currentOutlineColor == Color.black)
+            {
+                GetComponent<Outline>().enabled = false;
+            }
+            else
+            {
+                GetComponent<Outline>().OutlineColor = currentOutlineColor;
+
+            }
+        }
+    }
 
     public void OnPointerDown(MixedRealityPointerEventData eventData)
     {
         // give it a outline
-        if (GetComponent<Outline>().enabled)
-        {
-            currentOutlineColor = GetComponent<Outline>().OutlineColor;
-        }
-        else
-        {
-            GetComponent<Outline>().enabled = true;
-            currentOutlineColor = Color.black;
-        }
-        GetComponent<Outline>().OutlineColor = Color.blue;
+        grabHighlight(true);
 
         stopwatch = Stopwatch.StartNew();
         isGrabbed = true;
+
+        // Get the bond that is closest to grab direction
+        var fwd = HandTracking.Singleton.getForward();
+        var con_atoms = connectedAtoms();
+        var dot_products = new List<float>();
+        foreach (var atom in con_atoms)
+        {
+            var dir = atom.transform.position - transform.position;
+            dot_products.Add(Vector3.Dot(fwd, dir));
+        }
+        var start_atom = con_atoms[dot_products.maxElementIndex()];       
+
+        // go through the chain of connected atoms and add the force there too
+        currentChain = start_atom.connectedChain(this);
+        foreach (var atom in currentChain)
+        {
+            atom.grabHighlight(true);
+            atom.isGrabbed = true;
+            //atom.transform.SetParent(transform, true);
+            atom.transform.parent = transform;
+            //atom.transform.localScale = new Vector3(atom.transform.localScale.x / transform.localScale.x, atom.transform.localScale.y / transform.localScale.y, atom.transform.localScale.z / transform.localScale.z);
+        }
     }
     public void OnPointerClicked(MixedRealityPointerEventData eventData) 
     {
@@ -50,6 +94,17 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     {
         // position relative to molecule position
         EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
+
+        // if chain interaction send positions of all connected atoms
+        if (currentChain.Any())
+        {
+            foreach (var atom in currentChain)
+            {
+                var mol_rel_pos = m_molecule.transform.InverseTransformPoint(atom.transform.position);
+                EventManager.Singleton.MoveAtom(m_molecule.m_id, atom.m_id, mol_rel_pos);
+            }
+
+        }
     }
 
     // This function is triggered when a grabbed object is dropped
@@ -61,15 +116,15 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         ForceField.Singleton.resetMeasurment();
 
         // reset outline
-        if (currentOutlineColor == Color.black)
+        grabHighlight(false);
+        foreach (var atom in currentChain)
         {
-            GetComponent<Outline>().enabled = false;
+            atom.grabHighlight(false);
+            atom.isGrabbed = false;
+            //atom.transform.SetParent(m_molecule.transform, true);
+            atom.transform.parent = m_molecule.transform;
         }
-        else
-        {
-            GetComponent<Outline>().OutlineColor = currentOutlineColor;
-
-        }
+        currentChain.Clear();
 
         stopwatch?.Stop();
         //UnityEngine.Debug.Log($"[Atom] Interaction stopwatch: {stopwatch.ElapsedMilliseconds} [ms]");
@@ -412,40 +467,34 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 
     public List<Atom> otherConnectedAtoms(Atom exclude)
     {
-        List<Atom> conAtomList = new List<Atom>();
-        foreach (Bond b in m_molecule.bondList)
+        var conList = connectedAtoms();
+        if (conList.Contains(exclude))
         {
-            if (b.atomID1 == m_id || b.atomID2 == m_id)
-            {
-                Atom otherAtom = b.findTheOther(this);
-                if (!conAtomList.Contains(otherAtom))
-                    conAtomList.Add(otherAtom);
-            }
+            conList.Remove(exclude);
         }
-        if (conAtomList.Contains(exclude))
-        {
-            conAtomList.Remove(exclude);
-        }
-        return conAtomList;
+        return conList;
     }
 
     public HashSet<Atom> otherConnectedAtoms(HashSet<Atom> exclude)
     {
         HashSet<Atom> conAtomList = new HashSet<Atom>();
-        foreach (Bond b in m_molecule.bondList)
+
+        // Convert to HashSet
+        var conList = connectedAtoms();
+        foreach (var atom in conList)
         {
-            if (b.atomID1 == m_id || b.atomID2 == m_id)
+            conAtomList.Add(atom);
+        }
+
+        // Do exclude
+        foreach (var atom in exclude)
+        {
+            if (conAtomList.Contains(atom))
             {
-                Atom otherAtom = b.findTheOther(this);
-                if (!conAtomList.Contains(otherAtom))
-                    conAtomList.Add(otherAtom);
+                conAtomList.Remove(atom);
             }
         }
-        foreach (var atom in exclude)
-        if (conAtomList.Contains(atom))
-        {
-            conAtomList.Remove(atom);
-        }
+
         return conAtomList;
     }
 
@@ -484,7 +533,11 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             {
                 not_reached_end = false;
             }
-            prevLayer = currentLayer;
+            // Update layers
+            foreach( var a in currentLayer)
+            {
+                prevLayer.Add(a);
+            }
             currentLayer = nextLayer;
         }
 

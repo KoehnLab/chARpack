@@ -18,6 +18,8 @@ public class atomMenuScrollable : MonoBehaviour
     private string[] atomNames = new string[] {
         "C", "O", "F",
         "N", "Cl", "S",
+        "Si", "P", "I",
+        "Br", "Ca", "B",
         "Na", "Fe", "Zn",
         "Ag", "Au", "Mg",
         "Ti"
