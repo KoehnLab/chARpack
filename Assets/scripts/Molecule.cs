@@ -59,6 +59,16 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         GetComponent<myBoundingBox>().setGrabbed(false);
     }
 
+    //private void HandleOnManipulationStarted(ManipulationEventData eventData)
+    //{
+    //    var pointer = eventData.Pointer;
+
+
+    //    UnityEngine.Debug.Log("[Molecule] Manipulation started");
+
+    //    // whatever shall happen when manipulation started
+    //}
+
     [HideInInspector] public static GameObject myToolTipPrefab;
     [HideInInspector] public static GameObject deleteMeButtonPrefab;
     [HideInInspector] public static GameObject closeMeButtonPrefab;
@@ -101,7 +111,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var collider = gameObject.AddComponent<BoxCollider>();
         collider.size = new Vector3(0.001f, 0.001f, 0.001f);
         // these objects take input from corner colliders and manipulate the moluecule
-        gameObject.AddComponent<ObjectManipulator>();
+        var om = gameObject.AddComponent<ObjectManipulator>();
+        //om.OnManipulationStarted.AddListener(HandleOnManipulationStarted);
+
         gameObject.AddComponent<NearInteractionGrabbable>();
 
         if (mol_data.keepConfig)

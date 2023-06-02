@@ -7,32 +7,8 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
-public class Bond : MonoBehaviour, IMixedRealityPointerHandler
+public class Bond : MonoBehaviour
 {
-
-    private Stopwatch stopwatch;
-    public void OnPointerDown(MixedRealityPointerEventData eventData)
-    {
-        stopwatch = Stopwatch.StartNew();
-    }
-    public void OnPointerClicked(MixedRealityPointerEventData eventData)
-    {
-        // Intentionally empty
-    }
-    public void OnPointerDragged(MixedRealityPointerEventData eventData)
-    {
-        // Intentionally empty
-    }
-
-    // This function is triggered when a grabbed object is dropped
-    public void OnPointerUp(MixedRealityPointerEventData eventData)
-    {
-        stopwatch?.Stop();
-        if (stopwatch?.ElapsedMilliseconds < 200)
-        {
-            markBondUI(!isMarked);
-        }
-    }
 
     private GameObject toolTipInstance;
     public ushort atomID1;
