@@ -182,6 +182,7 @@ public class GlobalCtrl : MonoBehaviour
     private void Start()
     {
         mainCamera = Camera.main;
+        // for use in mouse events
         currentCamera = mainCamera;
     }
 

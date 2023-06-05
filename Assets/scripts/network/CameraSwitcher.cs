@@ -94,6 +94,7 @@ public class CameraSwitcher : MonoBehaviour
                 pannel[id].transform.Find("Background").gameObject.SetActive(true);
             }
         }
+        GlobalCtrl.Singleton.currentCamera = currentCam;
     }
 
     public void removeCamera(ushort id)
@@ -125,6 +126,7 @@ public class CameraSwitcher : MonoBehaviour
         {
             Debug.LogError("[CameraSwitcher] Cannot remove unregistered camera.");
         }
+        GlobalCtrl.Singleton.currentCamera = currentCam;
     }
 
     public void nextCam()
@@ -150,6 +152,7 @@ public class CameraSwitcher : MonoBehaviour
 
         currentCam.enabled = true;
         pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(true);
+        GlobalCtrl.Singleton.currentCamera = currentCam;
     }
 
     public void previousCam()
@@ -176,6 +179,7 @@ public class CameraSwitcher : MonoBehaviour
 
         currentCam.enabled = true;
         pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(true);
+        GlobalCtrl.Singleton.currentCamera = currentCam;
     }
 
 }
