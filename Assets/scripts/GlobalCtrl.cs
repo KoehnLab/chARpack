@@ -177,6 +177,14 @@ public class GlobalCtrl : MonoBehaviour
 
     }
 
+    public Camera mainCamera;
+    public Camera currentCamera;
+    private void Start()
+    {
+        mainCamera = Camera.main;
+        currentCamera = mainCamera;
+    }
+
 
     // on mol data changed (replacement for update loop checks)
     //void onMolDataChanged()

@@ -8,7 +8,6 @@ using UnityEngine;
 public class UserServer : MonoBehaviour
 {
     public static Dictionary<ushort, UserServer> list = new Dictionary<ushort, UserServer>();
-    public static Dictionary<ushort, GameObject> pannel = new Dictionary<ushort, GameObject>();
     public ushort ID;
     public string deviceName;
     public myDeviceType deviceType;
@@ -41,17 +40,13 @@ public class UserServer : MonoBehaviour
 
         anchor.name = user.deviceName;
 
-        // add user to pannel
-        var userPannelEntryPrefab = (GameObject)Resources.Load("prefabs/UserPannelEntryPrefab");
-        var userPannelEntryInstace = Instantiate(userPannelEntryPrefab, UserPannel.Singleton.transform);
-        userPannelEntryInstace.GetComponentInChildren<TextMeshProUGUI>().text = user.deviceName;
-        pannel.Add(id_, userPannelEntryInstace);
-
         // head
         var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cubeUser.GetComponent<Renderer>().material = (Material)Resources.Load("materials/UserMaterial");
-        CameraSwitcher.Singleton.addCamera(id_ , cubeUser.AddComponent<Camera>());
         cubeUser.transform.localScale = Vector3.one * 0.2f;
+
+        // add user to pannel
+        CameraSwitcher.Singleton.addCamera(id_, cubeUser.AddComponent<Camera>());
 
         // view ray
         var lineRenderer = cubeUser.AddComponent<LineRenderer>();
@@ -81,7 +76,6 @@ public class UserServer : MonoBehaviour
     {
         CameraSwitcher.Singleton.removeCamera(ID);
         list.Remove(ID);
-        pannel.Remove(ID);
     }
 
     private void applyPositionAndRotation(Vector3 pos, Quaternion quat)

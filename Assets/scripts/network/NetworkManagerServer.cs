@@ -56,6 +56,7 @@ public class NetworkManagerServer : MonoBehaviour
         StartServer();
 
         EventManager.Singleton.OnCmlReceiveCompleted += flagReceiveComplete;
+        EventManager.Singleton.OnMoveAtom += bcastMoveAtom;
     }
 
 
@@ -106,7 +107,6 @@ public class NetworkManagerServer : MonoBehaviour
         Debug.Log($"[NetworkManagerServer] Client {e.Id} disconnected. Cleaning up.");
         // destroy user gameObject and pannel entry
         Destroy(UserServer.list[e.Id].gameObject);
-        Destroy(UserServer.pannel[e.Id]);
     }
 
     private void ClientConnected(object sender, ServerClientConnectedEventArgs e)
@@ -121,6 +121,16 @@ public class NetworkManagerServer : MonoBehaviour
     public void pushLoadMolecule(List<cmlData> molecule)
     {
         NetworkUtils.serializeCmlData((ushort)ServerToClientID.bcastMoleculeLoad, molecule, chunkSize, false);
+    }
+    public void bcastMoveAtom(ushort mol_id, ushort atom_id, Vector3 pos)
+    {
+        // Broadcast to other clients
+        Message outMessage = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastAtomMoved);
+        outMessage.AddUShort(0);
+        outMessage.AddUShort(mol_id);
+        outMessage.AddUShort(atom_id);
+        outMessage.AddVector3(pos);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
     #endregion
 
@@ -636,5 +646,6 @@ public class NetworkManagerServer : MonoBehaviour
         outMessage.AddBool(keep_config);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
+
     #endregion
 }

@@ -53,50 +53,55 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
-    //void OnMouseDown()
-    //{
-    //    UnityEngine.Debug.Log("MouseDown");
-    //    grabHighlight(true);
+    Vector3 offset = Vector3.zero;
 
-    //    stopwatch = Stopwatch.StartNew();
-    //    //isGrabbed = true;
-    //}
+    void OnMouseDown()
+    {
 
-    //void OnMouseDrag()
-    //{
-    //    UnityEngine.Debug.Log("MouseDrag");
-    //    Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0f);
-    //    UnityEngine.Debug.Log($"MouseDrag: pos {newPosition}");
-    //    //m_molecule.FFmovement[m_id] += Camera.main.ScreenToWorldPoint(newPosition) - transform.position;
-    //    transform.position += Camera.main.ScreenToWorldPoint(newPosition) - transform.position;
+        offset = gameObject.transform.position -
+        GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x,
+                                                    Input.mousePosition.y, 0.5f));
+        //
+        stopwatch = Stopwatch.StartNew();
+        grabHighlight(true);
+        isGrabbed = true;
 
-    //}
+    }
 
-    //private void OnMouseUp()
-    //{
-    //    //isGrabbed = false;
+    void OnMouseDrag()
+    {
+        Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f);
+        transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + offset;
+        // position relative to molecule position
+        EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
+    }
 
-    //    // measure convergence
-    //    ForceField.Singleton.resetMeasurment();
 
-    //    // reset outline
-    //    grabHighlight(false);
 
-    //    stopwatch?.Stop();
-    //    //UnityEngine.Debug.Log($"[Atom] Interaction stopwatch: {stopwatch.ElapsedMilliseconds} [ms]");
-    //    if (stopwatch?.ElapsedMilliseconds < 200)
-    //    {
-    //        if (m_molecule.isMarked)
-    //        {
-    //            m_molecule.markMolecule(false);
-    //        }
-    //        else
-    //        {
-    //            markAtomUI(!isMarked);
-    //        }
+    private void OnMouseUp()
+    {
+        isGrabbed = false;
 
-    //    }
-    //}
+        // measure convergence
+        ForceField.Singleton.resetMeasurment();
+
+        // reset outline
+        grabHighlight(false);
+
+        stopwatch?.Stop();
+        if (stopwatch?.ElapsedMilliseconds < 200)
+        {
+            if (m_molecule.isMarked)
+            {
+                m_molecule.markMolecule(false);
+            }
+            else
+            {
+                markAtomUI(!isMarked);
+            }
+
+        }
+    }
 
     public void OnPointerDown(MixedRealityPointerEventData eventData)
     {

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class CameraSwitcher : MonoBehaviour
@@ -24,6 +25,7 @@ public class CameraSwitcher : MonoBehaviour
         }
     }
 
+    public Dictionary<ushort, GameObject> pannel = new Dictionary<ushort, GameObject>();
     public Canvas canvas;
     private Dictionary<ushort, Camera> cameras = new Dictionary<ushort, Camera>();
     private int current_id;
@@ -49,11 +51,12 @@ public class CameraSwitcher : MonoBehaviour
     private void Start()
     {
         currentCam = mainCamGO.GetComponent<Camera>();
+        addCamera(0, currentCam);
     }
 
-    
     public void addCamera(ushort id, Camera cam)
     {
+
         if (cam.enabled)
         {
             cam.enabled = false;
@@ -67,11 +70,28 @@ public class CameraSwitcher : MonoBehaviour
         }
         if (!cameras.ContainsKey(id))
         {
+            // create UI entry
+            if (id == 0)
+            {
+                var userPannelEntryPrefab = (GameObject)Resources.Load("prefabs/UserPannelEntryPrefab");
+                var userPannelEntryInstace = Instantiate(userPannelEntryPrefab, UserPannel.Singleton.transform);
+                userPannelEntryInstace.GetComponentInChildren<TextMeshProUGUI>().text = "ServerCamera";
+                pannel.Add(id, userPannelEntryInstace);
+            }
+            else
+            {
+                var userPannelEntryPrefab = (GameObject)Resources.Load("prefabs/UserPannelEntryPrefab");
+                var userPannelEntryInstace = Instantiate(userPannelEntryPrefab, UserPannel.Singleton.transform);
+                userPannelEntryInstace.GetComponentInChildren<TextMeshProUGUI>().text = UserServer.list[id].deviceName;
+                pannel.Add(id, userPannelEntryInstace);
+            }
+
+
             cameras[id] = cam;
             current_id = id;
             if (currentCam == cam)
             {
-                UserServer.pannel[id].transform.Find("Background").gameObject.SetActive(true);
+                pannel[id].transform.Find("Background").gameObject.SetActive(true);
             }
         }
     }
@@ -80,6 +100,10 @@ public class CameraSwitcher : MonoBehaviour
     {
         if (cameras.ContainsKey(id))
         {
+            var to_destroy = pannel[id];
+            pannel.Remove(id);
+            Destroy(to_destroy);
+
             cameras.Remove(id);
             if (cameras.Count == 0)
             {
@@ -92,7 +116,7 @@ public class CameraSwitcher : MonoBehaviour
                 {
                     currentCam = cam.Value;
                     currentCam.enabled = true;
-                    UserServer.pannel[cam.Key].transform.Find("Background").gameObject.SetActive(true);
+                    pannel[cam.Key].transform.Find("Background").gameObject.SetActive(true);
                     break;
                 }
             }
@@ -111,7 +135,7 @@ public class CameraSwitcher : MonoBehaviour
             return;
         }
         currentCam.enabled = false;
-        UserServer.pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(false);
+        pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(false);
 
         current_id = (current_id + 1) % cameras.Count;
         if (current_id == 0) current_id = cameras.Count;
@@ -125,7 +149,7 @@ public class CameraSwitcher : MonoBehaviour
         }
 
         currentCam.enabled = true;
-        UserServer.pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(true);
+        pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(true);
     }
 
     public void previousCam()
@@ -136,7 +160,7 @@ public class CameraSwitcher : MonoBehaviour
             return;
         }
         currentCam.enabled = false;
-        UserServer.pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(false);
+        pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(false);
 
         current_id = (current_id - 1)%cameras.Count;
         if (current_id == 0) current_id = cameras.Count;
@@ -151,6 +175,7 @@ public class CameraSwitcher : MonoBehaviour
         }
 
         currentCam.enabled = true;
-        UserServer.pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(true);
+        pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(true);
     }
+
 }
