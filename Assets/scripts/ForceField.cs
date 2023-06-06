@@ -225,7 +225,6 @@ public class ForceField : MonoBehaviour
         foreach (KeyValuePair<string, ElementData> pair in element_dict)
         {
             rhs.Add(pair.Key, pair.Value.m_radius * fac);
-            UnityEngine.Debug.Log($"[FF] RHS terms {pair.Key}: {pair.Value.m_radius * fac}");
         }
     }
 

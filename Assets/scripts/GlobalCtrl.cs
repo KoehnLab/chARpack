@@ -50,6 +50,7 @@ public class GlobalCtrl : MonoBehaviour
     //public Dictionary<int, Molecule> Dic_curMolecules { get; private set; }
 
     public Dictionary<int, Material> Dic_AtomMat { get; private set; }
+
     /// <summary>
     /// the list to save/load element data via XML.
     /// </summary>
@@ -109,6 +110,28 @@ public class GlobalCtrl : MonoBehaviour
     public int numAtoms = 0;
 
     public Stack<List<cmlData>> systemState = new Stack<List<cmlData>>();
+
+    #region Interaction
+    // Interaction modes
+    public enum InteractionModes {NORMAL, CHAIN};
+    private InteractionModes _currentInteractionMode = InteractionModes.NORMAL;
+    public InteractionModes currentInteractionMode { get => _currentInteractionMode; private set => _currentInteractionMode = value; }
+
+    public void toggleInteractionMode()
+    {
+        if (currentInteractionMode == InteractionModes.NORMAL)
+        {
+            currentInteractionMode = InteractionModes.CHAIN;
+            HandTracking.Singleton.enabled = true;
+        }
+        else
+        {
+            currentInteractionMode = InteractionModes.NORMAL;
+            HandTracking.Singleton.enabled = false;
+        }
+    }
+
+    #endregion
 
     // Start is called before the first frame update
     void Awake()

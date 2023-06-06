@@ -53,19 +53,18 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
-    Vector3 offset = Vector3.zero;
+    // offset for mouse interaction
+    private Vector3 offset = Vector3.zero;
 
     void OnMouseDown()
     {
-
         offset = gameObject.transform.position -
-        GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x,
-                                                    Input.mousePosition.y, 0.5f));
+        GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
+            new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f));
         //
         stopwatch = Stopwatch.StartNew();
         grabHighlight(true);
         isGrabbed = true;
-
     }
 
     void OnMouseDrag()
@@ -75,8 +74,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         // position relative to molecule position
         EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
     }
-
-
 
     private void OnMouseUp()
     {
@@ -107,8 +104,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     {
         if (eventData.Pointer is SpherePointer)
         {
-
-
             // give it a outline
             grabHighlight(true);
 
@@ -127,17 +122,19 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             var start_atom = con_atoms[dot_products.maxElementIndex()];
 
             // go through the chain of connected atoms and add the force there too
-            currentChain = start_atom.connectedChain(this);
-            foreach (var atom in currentChain)
+            if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
             {
-                atom.grabHighlight(true);
-                atom.isGrabbed = true;
-                //atom.transform.SetParent(transform, true);
-                atom.transform.parent = transform;
-                //atom.transform.localScale = new Vector3(atom.transform.localScale.x / transform.localScale.x, atom.transform.localScale.y / transform.localScale.y, atom.transform.localScale.z / transform.localScale.z);
+                currentChain = start_atom.connectedChain(this);
+                foreach (var atom in currentChain)
+                {
+                    atom.grabHighlight(true);
+                    atom.isGrabbed = true;
+                    atom.transform.parent = transform;
+                }
             }
         }
     }
+
     public void OnPointerClicked(MixedRealityPointerEventData eventData) 
     {
         // Intentionally empty
@@ -155,7 +152,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
                 var mol_rel_pos = m_molecule.transform.InverseTransformPoint(atom.transform.position);
                 EventManager.Singleton.MoveAtom(m_molecule.m_id, atom.m_id, mol_rel_pos);
             }
-
         }
     }
 
@@ -359,7 +355,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
                 Destroy(a.gameObject);
                 Destroy(b.gameObject);
             }
-
         }
 
         while (dummyLimit > numConnected)
