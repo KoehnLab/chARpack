@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using System.Linq;
 
 public class CameraSwitcher : MonoBehaviour
 {
@@ -28,7 +29,6 @@ public class CameraSwitcher : MonoBehaviour
     public Dictionary<ushort, GameObject> pannel = new Dictionary<ushort, GameObject>();
     public Canvas canvas;
     private Dictionary<ushort, Camera> cameras = new Dictionary<ushort, Camera>();
-    private int current_id;
 
     public GameObject mainCamGO;
 
@@ -88,7 +88,6 @@ public class CameraSwitcher : MonoBehaviour
 
 
             cameras[id] = cam;
-            current_id = id;
             if (currentCam == cam)
             {
                 pannel[id].transform.Find("Background").gameObject.SetActive(true);
@@ -137,21 +136,16 @@ public class CameraSwitcher : MonoBehaviour
             return;
         }
         currentCam.enabled = false;
-        pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(false);
+        var user_id = cameras.FirstOrDefault(x => x.Value == currentCam).Key;
+        pannel[user_id].transform.Find("Background").gameObject.SetActive(false);
 
-        current_id = (current_id + 1) % cameras.Count;
-        if (current_id == 0) current_id = cameras.Count;
-        int count = 1;
-        foreach (var cam in cameras.Values) {
-            if (current_id == count)
-            {
-                currentCam = cam;
-            }
-            count++;
-        }
+        var cams_as_list = cameras.Values.ToList();
+        var id_in_list = cams_as_list.IndexOf(currentCam);
+        currentCam = cameras.Values.ToList().getWrapElement(id_in_list+1);
 
+        var new_user_id = cameras.FirstOrDefault(x => x.Value == currentCam).Key;
         currentCam.enabled = true;
-        pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(true);
+        pannel[new_user_id].transform.Find("Background").gameObject.SetActive(true);
         GlobalCtrl.Singleton.currentCamera = currentCam;
     }
 
@@ -163,22 +157,16 @@ public class CameraSwitcher : MonoBehaviour
             return;
         }
         currentCam.enabled = false;
-        pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(false);
+        var user_id = cameras.FirstOrDefault(x => x.Value == currentCam).Key;
+        pannel[user_id].transform.Find("Background").gameObject.SetActive(false);
 
-        current_id = (current_id - 1)%cameras.Count;
-        if (current_id == 0) current_id = cameras.Count;
-        int count = 1;
-        foreach (var cam in cameras.Values)
-        {
-            if (current_id == count)
-            {
-                currentCam = cam;
-            }
-            count++;
-        }
+        var cams_as_list = cameras.Values.ToList();
+        var id_in_list = cams_as_list.IndexOf(currentCam);
+        currentCam = cameras.Values.ToList().getWrapElement(id_in_list - 1);
 
+        var new_user_id = cameras.FirstOrDefault(x => x.Value == currentCam).Key;
         currentCam.enabled = true;
-        pannel[(ushort)current_id].transform.Find("Background").gameObject.SetActive(true);
+        pannel[new_user_id].transform.Find("Background").gameObject.SetActive(true);
         GlobalCtrl.Singleton.currentCamera = currentCam;
     }
 

@@ -44,9 +44,7 @@ public class UserServer : MonoBehaviour
         var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cubeUser.GetComponent<Renderer>().material = (Material)Resources.Load("materials/UserMaterial");
         cubeUser.transform.localScale = Vector3.one * 0.2f;
-
-        // add user to pannel
-        CameraSwitcher.Singleton.addCamera(id_, cubeUser.AddComponent<Camera>());
+        cubeUser.AddComponent<Camera>();
 
         // view ray
         var lineRenderer = cubeUser.AddComponent<LineRenderer>();
@@ -61,6 +59,9 @@ public class UserServer : MonoBehaviour
 
         user.sendSpawned();
         list.Add(id_, user);
+
+        // add user to pannel
+        CameraSwitcher.Singleton.addCamera(id_, cubeUser.GetComponent<Camera>());
 
         // TODO: Probably not necessary
         if (list.Count == 1)

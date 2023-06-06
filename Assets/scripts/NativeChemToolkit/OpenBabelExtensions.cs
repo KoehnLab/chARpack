@@ -243,4 +243,14 @@ public static class OpenBabelExtensions
         return lhs.IndexOf(lhs.Min());
     }
 
+    public static Camera getWrapElement(this List<Camera> lhs, int index)
+    {
+        if (index < 0)
+        {
+            return lhs.Last();
+        }
+        var n = lhs.Count;
+        return lhs[((index % n) + n) % n];
+    }
+
 }
