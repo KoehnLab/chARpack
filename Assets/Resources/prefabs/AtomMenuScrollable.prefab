@@ -1743,8 +1743,9 @@ MonoBehaviour:
   OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
+      - m_Target: {fileID: 3821911360268012720}
+        m_TargetAssemblyTypeName: Microsoft.MixedReality.Toolkit.Examples.Demos.ScrollablePagination,
+          Assembly-CSharp
         m_MethodName: ScrollByTier
         m_Mode: 3
         m_Arguments:
@@ -5256,8 +5257,9 @@ MonoBehaviour:
   OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
+      - m_Target: {fileID: 3821911360268012720}
+        m_TargetAssemblyTypeName: Microsoft.MixedReality.Toolkit.Examples.Demos.ScrollablePagination,
+          Assembly-CSharp
         m_MethodName: ScrollByTier
         m_Mode: 3
         m_Arguments:
