@@ -1,17 +1,16 @@
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using System;
+using System.Collections;
 using System.IO;
 using TMPro;
 using UnityEngine;
 
-public class loadSaveWindow : MonoBehaviour
+public class loadSaveWindow : myScrollObject
 {
-    public GameObject gridObjCollection;
-    public GameObject loadEntryPrefab;
-    public GameObject scrollingObjectCollection;
-    public GameObject clippingBox;
+
     public GameObject saveDialogPrefab;
+    public GameObject loadEntryPrefab;
 
     private enum Color { red, green, blue, black, white, yellow, orange };
 
@@ -57,7 +56,7 @@ public class loadSaveWindow : MonoBehaviour
                 string name = file.Name.Substring(0, file.Name.Length - 4);
 
                 bool skip = false;
-                var currentLogEntries = gridObjCollection.GetComponentsInChildren<showLoadConfirm>();
+                var currentLogEntries = gridObjectCollection.GetComponentsInChildren<showLoadConfirm>();
                 foreach (var entry in currentLogEntries)
                 {
                     if (name == entry.mol_name)
@@ -70,10 +69,10 @@ public class loadSaveWindow : MonoBehaviour
                 {
                     GameObject newLoadEntry = Instantiate(loadEntryPrefab, Vector3.zero, Quaternion.identity);
                     newLoadEntry.GetComponent<showLoadConfirm>().mol_name = name;
-                    newLoadEntry.transform.SetParent(gridObjCollection.transform, false);
+                    newLoadEntry.transform.SetParent(gridObjectCollection.transform, false);
 
                     // update on collection places all items in order
-                    gridObjCollection.GetComponent<GridObjectCollection>().UpdateCollection();
+                    gridObjectCollection.GetComponent<GridObjectCollection>().UpdateCollection();
                     // update on scoll content makes the list scrollable
                     scrollingObjectCollection.GetComponent<ScrollingObjectCollection>().UpdateContent();
                     // add all renderers of a log entry to the clipping box renderer list to make the buttons disappear when out of bounds
@@ -97,22 +96,6 @@ public class loadSaveWindow : MonoBehaviour
 
         // somehow the renderer list for clipping gets emptied after disable
         ////updateClipping();
-    }
-
-    public void updateClipping()
-    {
-        if (gameObject.activeSelf)
-        {
-            var cb = clippingBox.GetComponent<ClippingBox>();
-            foreach (Transform child in gridObjCollection.transform)
-            {
-                var renderers = child.GetComponentsInChildren<Renderer>();
-                foreach (var renderer in renderers)
-                {
-                    cb.AddRenderer(renderer);
-                }
-            }
-        }
     }
 
     public void openSaveDialog()

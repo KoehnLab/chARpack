@@ -6,15 +6,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class atomMenuScrollable : MonoBehaviour
+public class atomMenuScrollable : myScrollObject
 {
 
     [HideInInspector] public GameObject atomMenuScrollablePrefab;
     [HideInInspector] public GameObject atomEntryPrefab;
-    public GameObject clippingBox;
-    public GameObject gridObjectCollection;
-    public GameObject scrollingObjectCollection;
-    public GameObject scrollParent;
+
     private string[] atomNames = new string[] {
         "C", "O", "F",
         "N", "Cl", "S",
@@ -74,43 +71,9 @@ public class atomMenuScrollable : MonoBehaviour
         generateAtomEntries();
     }
 
-    public void scrollUpdate()
-    {
-        StartCoroutine(waitAndUpdate());
-    }
-
-    private IEnumerator waitAndUpdate()
-    {
-        yield return new WaitForSeconds(0.25f);
-        scrollingObjectCollection.GetComponent<ScrollingObjectCollection>().UpdateContent();
-    }
-
-    public void updateClipping()
-    {
-        if (gameObject.activeSelf)
-        {
-            var cb = clippingBox.GetComponent<ClippingBox>();
-            cb.ClearRenderers();
-            foreach (Transform child in gridObjectCollection.transform)
-            {
-                var renderers = child.GetComponentsInChildren<Renderer>();
-                foreach (var renderer in renderers)
-                {
-                    cb.AddRenderer(renderer);
-                }
-            }
-        }
-    }
-
-    private void resetRotation()
-    {
-        foreach (Transform child in gridObjectCollection.transform)
-        {
-            child.localRotation = Quaternion.identity;
-        }
-    }
     public void generateAtomEntries()
     {
+        clearEntries();
         // get old scale
         var oldScale = scrollingObjectCollection.transform.parent.localScale;
         //reset scale 
@@ -137,4 +100,5 @@ public class atomMenuScrollable : MonoBehaviour
         // reset rotation
         resetRotation();
     }
+
 }
