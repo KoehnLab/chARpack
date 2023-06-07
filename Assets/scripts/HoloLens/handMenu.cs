@@ -53,6 +53,18 @@ public class handMenu : MonoBehaviour
         atomEntryPrefab = (GameObject)Resources.Load("prefabs/AtomButton");
         generateAtomEntries();
     }
+
+    public void scrollUpdate()
+    {
+        StartCoroutine(waitAndUpdate());
+    }
+
+    private IEnumerator waitAndUpdate()
+    {
+        yield return new WaitForSeconds(0.25f);
+        scrollingObjectCollection.GetComponent<ScrollingObjectCollection>().UpdateContent();
+    }
+
     private void resetRotation()
     {
         foreach (Transform child in gridObjectCollection.transform)
@@ -88,9 +100,9 @@ public class handMenu : MonoBehaviour
         foreach (var atom in atomNames)
         {
             var entry = Instantiate(atomEntryPrefab);
+            //entry.GetComponent<BoxCollider>().enabled=true;
             var button = entry.GetComponent<PressableButtonHoloLens2>();
             button.GetComponent<ButtonConfigHelper>().MainLabelText = $"{atom}";
-            button.GetComponent<ButtonConfigHelper>().IconStyle = ButtonIconStyle.None;
             //button.ButtonPressed.AddListener(delegate { GlobalCtrl.Singleton.createAtomUI(atom); });
             button.transform.parent = gridObjectCollection.transform;
             button.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.createAtomUI(atom); });
