@@ -5,15 +5,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class handMenu : MonoBehaviour
+public class handMenu : myScrollObject
 {
 
     [HideInInspector] public GameObject handMenuPrefab;
     [HideInInspector] public GameObject atomEntryPrefab;
-    public GameObject clippingBox;
-    public GameObject gridObjectCollection;
-    public GameObject scrollingObjectCollection;
-    public GameObject scrollParent;
     private string[] atomNames = new string[] {
         "C", "O", "F",
         "N", "Cl", "S",
@@ -52,42 +48,6 @@ public class handMenu : MonoBehaviour
         // add atom buttons
         atomEntryPrefab = (GameObject)Resources.Load("prefabs/AtomButton");
         generateAtomEntries();
-    }
-
-    public void scrollUpdate()
-    {
-        StartCoroutine(waitAndUpdate());
-    }
-
-    private IEnumerator waitAndUpdate()
-    {
-        yield return new WaitForSeconds(0.25f);
-        scrollingObjectCollection.GetComponent<ScrollingObjectCollection>().UpdateContent();
-    }
-
-    private void resetRotation()
-    {
-        foreach (Transform child in gridObjectCollection.transform)
-        {
-            child.localRotation = Quaternion.identity;
-        }
-    }
-
-    public void updateClipping()
-    {
-        if (gameObject.activeSelf)
-        {
-            var cb = clippingBox.GetComponent<ClippingBox>();
-            cb.ClearRenderers();
-            foreach (Transform child in gridObjectCollection.transform)
-            {
-                var renderers = child.GetComponentsInChildren<Renderer>();
-                foreach (var renderer in renderers)
-                {
-                    cb.AddRenderer(renderer);
-                }
-            }
-        }
     }
 
     public void generateAtomEntries()
