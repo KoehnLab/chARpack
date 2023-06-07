@@ -12722,11 +12722,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 974faed453b6f3041b793b5a0345f18e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridObjCollection: {fileID: 5282062968430120859}
-  loadEntryPrefab: {fileID: 4051095202787358939, guid: f24fc62056cb4344a9e5684000f0604d, type: 3}
+  gridObjectCollection: {fileID: 5282062968430120859}
+  scrollParent: {fileID: 6061069208709675503}
   scrollingObjectCollection: {fileID: 5282062967622071558}
   clippingBox: {fileID: 5282062969343010073}
   saveDialogPrefab: {fileID: 6325399774208577938, guid: e55edcb953dd36340964fc44dbb4d285, type: 3}
+  loadEntryPrefab: {fileID: 4051095202787358939, guid: f24fc62056cb4344a9e5684000f0604d, type: 3}
 --- !u!4 &1656786051393545039
 Transform:
   m_ObjectHideFlags: 0
@@ -17650,18 +17651,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &5282062967807987752
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5282062967807987754}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2be9efbe3616d5140ab50246321b3031, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &5282062967807987754
 GameObject:
   m_ObjectHideFlags: 0
@@ -17671,7 +17660,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5282062967807987755}
-  - component: {fileID: 5282062967807987752}
   m_Layer: 0
   m_Name: ScrollPaginationButtons
   m_TagString: Untagged
@@ -18249,8 +18237,8 @@ MonoBehaviour:
   OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5282062967807987752}
-        m_TargetAssemblyTypeName: 
+      - m_Target: {fileID: 1646804590303771923}
+        m_TargetAssemblyTypeName: myScrollObject, Assembly-CSharp
         m_MethodName: ScrollByTier
         m_Mode: 3
         m_Arguments:
@@ -21967,8 +21955,8 @@ MonoBehaviour:
   OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5282062967807987752}
-        m_TargetAssemblyTypeName: 
+      - m_Target: {fileID: 1646804590303771923}
+        m_TargetAssemblyTypeName: myScrollObject, Assembly-CSharp
         m_MethodName: ScrollByTier
         m_Mode: 3
         m_Arguments:

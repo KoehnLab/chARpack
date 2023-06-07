@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Net;
 
-public class ServerList : MonoBehaviour
+public class ServerList : myScrollObject
 {
     private static ServerList _singleton;
     public static ServerList Singleton
@@ -31,9 +31,6 @@ public class ServerList : MonoBehaviour
 
     [HideInInspector] public GameObject serverEntryPrefab;
     [HideInInspector] public GameObject manualAddServerPrefab;
-    public GameObject clippingBox;
-    public GameObject gridObjectCollection;
-    public GameObject scrollingObjectCollection;
 
     private void Awake()
     {
@@ -95,7 +92,7 @@ public class ServerList : MonoBehaviour
 
     public void generateServerEntries()
     {
-        clearServerList();
+        clearEntries();
 
         // get old scale
         var oldScale = scrollingObjectCollection.transform.parent.localScale;
@@ -147,23 +144,6 @@ public class ServerList : MonoBehaviour
         serverEntry.transform.parent = gridObjectCollection.transform;
     }
 
-    public void updateClipping()
-    {
-        if (gameObject.activeSelf)
-        {
-            var cb = clippingBox.GetComponent<ClippingBox>();
-            cb.ClearRenderers();
-            foreach (Transform child in gridObjectCollection.transform)
-            {
-                var renderers = child.GetComponentsInChildren<Renderer>();
-                foreach (var renderer in renderers)
-                {
-                    cb.AddRenderer(renderer);
-                }
-            }
-        }
-    }
-
     public void manualAddServer()
     {
         var manualAddInstance = Instantiate(manualAddServerPrefab);
@@ -172,20 +152,6 @@ public class ServerList : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void resetRotation()
-    {
-        foreach (Transform child in gridObjectCollection.transform)
-        {
-            child.localRotation = Quaternion.identity;
-        }
-    }
 
-    private void clearServerList()
-    {
-        foreach (Transform child in gridObjectCollection.transform)
-        {
-            Destroy(child.gameObject);
-        }
-    }
 
 }
