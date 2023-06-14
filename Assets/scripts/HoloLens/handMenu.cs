@@ -79,4 +79,11 @@ public class handMenu : myScrollObject
         // reset rotation
         resetRotation();
     }
+
+    public void toggleVisible()
+    {
+        gameObject.SetActive(!gameObject.activeSelf);
+        // somehow the renderer list for clipping gets emptied after disable
+        updateClipping();
+    }
 }
