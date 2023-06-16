@@ -52,6 +52,7 @@ public class handMenu : myScrollObject
 
     public void generateAtomEntries()
     {
+        clearEntries();
         // get old scale
         var oldScale = scrollingObjectCollection.transform.parent.localScale;
         //reset scale 
@@ -60,12 +61,10 @@ public class handMenu : myScrollObject
         foreach (var atom in atomNames)
         {
             var entry = Instantiate(atomEntryPrefab);
-            //entry.GetComponent<BoxCollider>().enabled=true;
             var button = entry.GetComponent<PressableButtonHoloLens2>();
             button.GetComponent<ButtonConfigHelper>().MainLabelText = $"{atom}";
-            //button.ButtonPressed.AddListener(delegate { GlobalCtrl.Singleton.createAtomUI(atom); });
+            button.ButtonPressed.AddListener(delegate { GlobalCtrl.Singleton.createAtomUI(atom); });
             button.transform.parent = gridObjectCollection.transform;
-            button.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.createAtomUI(atom); });
 
         }
         // update on collection places all items in order
