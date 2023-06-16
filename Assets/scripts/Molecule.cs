@@ -74,6 +74,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject closeMeButtonPrefab;
     [HideInInspector] public static GameObject modifyMeButtonPrefab;
     [HideInInspector] public static GameObject replaceDummiesButtonPrefab;
+    [HideInInspector] public static GameObject undoButtonPrefab;
     [HideInInspector] public static GameObject changeBondWindowPrefab;
     public GameObject toolTipInstance;
     private float toolTipDistanceWeight = 0.01f;
@@ -266,16 +267,16 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// </summary>
     public void replaceDummies()
     {
-        // cancel any collision
-        //collision = false;
         foreach (Atom a in atomList)
         {
             if (a.m_data.m_abbre == "Dummy")
             {
-                GlobalCtrl.Singleton.changeAtomUI(m_id, a.m_id, "H");
+                GlobalCtrl.Singleton.changeDummyAtom(m_id, a.m_id);
             }
         }
-  
+        GlobalCtrl.Singleton.SaveMolecule(true);
+        EventManager.Singleton.ChangeMolData(this);
+        EventManager.Singleton.ReplaceDummies(m_id);
     }
 
     public Vector3 getCenter()
