@@ -196,6 +196,7 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
         Molecule.changeBondWindowPrefab = (GameObject)Resources.Load("prefabs/ChangeBondWindow");
         Molecule.replaceDummiesButtonPrefab = (GameObject)Resources.Load("prefabs/ReplaceDummiesButton");
+        Molecule.undoButtonPrefab = (GameObject)Resources.Load("prefabs/UndoButton");
 
         Debug.Log("[GlobalCtrl] Initialization complete.");
 
@@ -1018,6 +1019,28 @@ public class GlobalCtrl : MonoBehaviour
 
 
     /// <summary>
+    /// change atom method without saving; this ensures that replace dummies will be saved as a single action
+    /// that can be reversed with undo
+    /// </summary>
+    /// <param name="idAtom">ID of the selected atom</param>
+    public bool changeDummyAtom(ushort idMol, ushort idAtom)
+    {
+        // TODO: do not overwrite runtime data
+        Atom chgAtom = List_curMolecules.ElementAtOrDefault(idMol).atomList.ElementAtOrDefault(idAtom);
+        if (chgAtom == default)
+        {
+            return false;
+        }
+
+        ElementData tempData = Dic_ElementData["H"];
+        tempData.m_hybridization = chgAtom.m_data.m_hybridization;
+        tempData.m_bondNum = calcNumBonds(tempData.m_hybridization, tempData.m_bondNum);
+
+        chgAtom.f_Modify(tempData);
+        return true;
+    }
+
+    /// <summary>
     /// all dummys are replaced by hydrogens
     /// </summary>
     public void replaceDummies()
@@ -1026,13 +1049,7 @@ public class GlobalCtrl : MonoBehaviour
         collision = false;
         foreach (Molecule curMol in List_curMolecules)
         {
-            foreach (Atom a in curMol.atomList)
-            {
-                if (a.m_data.m_abbre=="Dummy")
-                {
-                    changeAtomUI(curMol.m_id ,a.m_id, "H");
-                }
-            }
+            curMol.replaceDummies();
         }
     }
 
