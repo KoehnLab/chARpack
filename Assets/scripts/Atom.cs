@@ -263,8 +263,16 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             tempMat.color = m_data.m_color;
             GlobalCtrl.Singleton.Dic_AtomMat.Add(m_data.m_id, tempMat);
         }
-        GetComponent<MeshRenderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
-        m_mat = GetComponent<MeshRenderer>().material;
+        if (m_data.m_abbre == "Dummy")
+        {
+            GetComponent<MeshRenderer>().material = GlobalCtrl.Singleton.dummyMatPrefab;
+            m_mat = GetComponent<MeshRenderer>().material;
+        }
+        else
+        {
+            GetComponent<MeshRenderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
+            m_mat = GetComponent<MeshRenderer>().material;
+        }
 
         transform.parent = inputMole.transform;
         transform.localPosition = pos;    

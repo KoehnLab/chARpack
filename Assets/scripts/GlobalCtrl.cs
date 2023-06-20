@@ -40,21 +40,22 @@ public class GlobalCtrl : MonoBehaviour
     public GameObject myAtomPrefab;
 
     public Material atomMatPrefab;
+    public Material dummyMatPrefab;
 
     /// <summary>
     /// all data of element
     /// </summary>
-    public Dictionary<string, ElementData> Dic_ElementData { get; private set; }
+    [HideInInspector] public Dictionary<string, ElementData> Dic_ElementData { get; private set; }
 
-    public List<Molecule> List_curMolecules { get; private set; }
+    [HideInInspector] public List<Molecule> List_curMolecules { get; private set; }
     //public Dictionary<int, Molecule> Dic_curMolecules { get; private set; }
 
-    public Dictionary<int, Material> Dic_AtomMat { get; private set; }
+    [HideInInspector] public Dictionary<int, Material> Dic_AtomMat { get; private set; }
 
     /// <summary>
     /// the list to save/load element data via XML.
     /// </summary>
-    public List<ElementData> list_ElementData;
+    [HideInInspector] public List<ElementData> list_ElementData;
     /// <summary>
     /// scaling factor for visible models
     /// </summary>
@@ -89,11 +90,10 @@ public class GlobalCtrl : MonoBehaviour
     [HideInInspector] public Atom collider1;
     [HideInInspector] public Atom collider2;
 
-    [HideInInspector]
-    public ushort curHybrid = 3;
+    [HideInInspector] public ushort curHybrid = 3;
 
     Dictionary<Atom, List<Atom>> groupedAtoms = new Dictionary<Atom, List<Atom>>();
-    public List<string> favorites = new List<string>(new string[5]);
+    //public List<string> favorites = new List<string>(new string[5]);
     //public GameObject fav1;
     //public GameObject fav2;
     //public GameObject fav3;
@@ -106,8 +106,7 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     private string lastAtom = "C";
 
-    [HideInInspector]
-    public int numAtoms = 0;
+    [HideInInspector] public int numAtoms = 0;
 
     public Stack<List<cmlData>> systemState = new Stack<List<cmlData>>();
 
@@ -170,11 +169,11 @@ public class GlobalCtrl : MonoBehaviour
 
         exitConfirmPrefab = (GameObject)Resources.Load("prefabs/confirmDialog");
 
-        favorites.Add("C");
-        favorites.Add("N");
-        favorites.Add("O");
-        favorites.Add("Cl");
-        favorites.Add("F");
+        //favorites.Add("C");
+        //favorites.Add("N");
+        //favorites.Add("O");
+        //favorites.Add("Cl");
+        //favorites.Add("F");
         //favoritesGO.Add(fav1);
         //favoritesGO.Add(fav2);
         //favoritesGO.Add(fav3);
@@ -200,8 +199,8 @@ public class GlobalCtrl : MonoBehaviour
 
     }
 
-    public Camera mainCamera;
-    public Camera currentCamera;
+    [HideInInspector] public Camera mainCamera;
+    [HideInInspector] public Camera currentCamera;
     private void Start()
     {
         mainCamera = Camera.main;
@@ -1506,28 +1505,28 @@ public class GlobalCtrl : MonoBehaviour
         return none;
     }
 
-    public void setFavorite(int pos, string abbre, List<GameObject> favMenu)
-    {
-        favorites[pos - 1] = abbre;
-        //Transform temp = null;
-        //for (int i = 0; i < periodictable.transform.childCount; i++)
-        //{
-        //    if (periodictable.transform.GetChild(i).transform.Find("Btn_" + GetElementbyAbbre(abbre).m_name) != null)
-        //        temp = periodictable.transform.GetChild(i).transform.Find("Btn_" + GetElementbyAbbre(abbre).m_name);
-        //}
+    //public void setFavorite(int pos, string abbre, List<GameObject> favMenu)
+    //{
+    //    favorites[pos - 1] = abbre;
+    //    //Transform temp = null;
+    //    //for (int i = 0; i < periodictable.transform.childCount; i++)
+    //    //{
+    //    //    if (periodictable.transform.GetChild(i).transform.Find("Btn_" + GetElementbyAbbre(abbre).m_name) != null)
+    //    //        temp = periodictable.transform.GetChild(i).transform.Find("Btn_" + GetElementbyAbbre(abbre).m_name);
+    //    //}
 
-        //favMenu[pos - 1].transform.GetComponent<Image>().sprite = temp.GetComponent<Image>().sprite;
-        //favoritesGO[pos - 1].transform.GetComponent<Image>().sprite = temp.GetComponent<Image>().sprite;
-    }
+    //    //favMenu[pos - 1].transform.GetComponent<Image>().sprite = temp.GetComponent<Image>().sprite;
+    //    //favoritesGO[pos - 1].transform.GetComponent<Image>().sprite = temp.GetComponent<Image>().sprite;
+    //}
 
-    public void createFavoriteElement(int pos)
-    {
-        lastAtom = favorites[pos - 1]; // remember this for later
-        Vector3 current_pos = Camera.main.transform.position;
-        Vector3 current_lookat = Camera.main.transform.forward;
-        Vector3 create_position = current_pos + 0.5f * current_lookat;
-        CreateAtom(getFreshMoleculeID(), favorites[pos - 1], create_position, curHybrid);
-    }
+    //public void createFavoriteElement(int pos)
+    //{
+    //    lastAtom = favorites[pos - 1]; // remember this for later
+    //    Vector3 current_pos = Camera.main.transform.position;
+    //    Vector3 current_lookat = Camera.main.transform.forward;
+    //    Vector3 create_position = current_pos + 0.5f * current_lookat;
+    //    CreateAtom(getFreshMoleculeID(), favorites[pos - 1], create_position, curHybrid);
+    //}
 
 
     public object getNextMarked(int type)
