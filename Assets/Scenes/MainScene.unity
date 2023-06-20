@@ -3861,6 +3861,7 @@ MonoBehaviour:
   myBoundingBoxPrefab: {fileID: 7362249118518364358, guid: 48b9becbc0966d742a6c4463366a1a58, type: 3}
   myAtomPrefab: {fileID: 7377244445179915796, guid: bf048a9970cb97f44a46f7c758da93a0, type: 3}
   atomMatPrefab: {fileID: 2100000, guid: dd67eb41edbb382408bf29f1931d50ac, type: 2}
+  dummyMatPrefab: {fileID: 2100000, guid: 7a003db23242c1f4d8f446c31444ccd2, type: 2}
   list_ElementData: []
   atomWorld: {fileID: 690894127}
   bondPrefab: {fileID: 6023341437175460837, guid: a6ff830e30b8fae40abd9ac1c7189f08, type: 3}
@@ -3870,12 +3871,6 @@ MonoBehaviour:
   collider1: {fileID: 0}
   collider2: {fileID: 0}
   curHybrid: 3
-  favorites:
-  - 
-  - 
-  - 
-  - 
-  - 
   numAtoms: 0
   mainCamera: {fileID: 0}
   currentCamera: {fileID: 0}
@@ -8941,7 +8936,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1583930218
 Transform:
   m_ObjectHideFlags: 0
