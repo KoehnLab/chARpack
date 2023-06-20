@@ -138,6 +138,13 @@ public class EventManager : MonoBehaviour
         OnChangeAtom?.Invoke(mol_id, atom_id, chemAbbre);
     }
 
+    public delegate void ReplaceDummiesAction(ushort mol_id);
+    public event ReplaceDummiesAction OnReplaceDummies;
+    public void ReplaceDummies(ushort mol_id)
+    {
+        OnReplaceDummies?.Invoke(mol_id);
+    }
+
     public delegate void UndoAction();
     public event UndoAction OnUndo;
     public void Undo()

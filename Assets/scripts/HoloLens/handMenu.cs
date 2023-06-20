@@ -5,15 +5,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class handMenu : MonoBehaviour
+public class handMenu : myScrollObject
 {
 
     [HideInInspector] public GameObject handMenuPrefab;
     [HideInInspector] public GameObject atomEntryPrefab;
-    public GameObject clippingBox;
-    public GameObject gridObjectCollection;
-    public GameObject scrollingObjectCollection;
-    public GameObject scrollParent;
     private string[] atomNames = new string[] {
         "C", "O", "F",
         "N", "Cl", "S",
@@ -54,44 +50,9 @@ public class handMenu : MonoBehaviour
         generateAtomEntries();
     }
 
-    public void scrollUpdate()
-    {
-        StartCoroutine(waitAndUpdate());
-    }
-
-    private IEnumerator waitAndUpdate()
-    {
-        yield return new WaitForSeconds(0.25f);
-        scrollingObjectCollection.GetComponent<ScrollingObjectCollection>().UpdateContent();
-    }
-
-    private void resetRotation()
-    {
-        foreach (Transform child in gridObjectCollection.transform)
-        {
-            child.localRotation = Quaternion.identity;
-        }
-    }
-
-    public void updateClipping()
-    {
-        if (gameObject.activeSelf)
-        {
-            var cb = clippingBox.GetComponent<ClippingBox>();
-            cb.ClearRenderers();
-            foreach (Transform child in gridObjectCollection.transform)
-            {
-                var renderers = child.GetComponentsInChildren<Renderer>();
-                foreach (var renderer in renderers)
-                {
-                    cb.AddRenderer(renderer);
-                }
-            }
-        }
-    }
-
     public void generateAtomEntries()
     {
+        clearEntries();
         // get old scale
         var oldScale = scrollingObjectCollection.transform.parent.localScale;
         //reset scale 
@@ -100,12 +61,10 @@ public class handMenu : MonoBehaviour
         foreach (var atom in atomNames)
         {
             var entry = Instantiate(atomEntryPrefab);
-            //entry.GetComponent<BoxCollider>().enabled=true;
             var button = entry.GetComponent<PressableButtonHoloLens2>();
             button.GetComponent<ButtonConfigHelper>().MainLabelText = $"{atom}";
-            //button.ButtonPressed.AddListener(delegate { GlobalCtrl.Singleton.createAtomUI(atom); });
+            button.ButtonPressed.AddListener(delegate { GlobalCtrl.Singleton.createAtomUI(atom); });
             button.transform.parent = gridObjectCollection.transform;
-            button.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.createAtomUI(atom); });
 
         }
         // update on collection places all items in order
@@ -118,5 +77,12 @@ public class handMenu : MonoBehaviour
         scrollingObjectCollection.transform.parent.localScale = oldScale;
         // reset rotation
         resetRotation();
+    }
+
+    public void toggleVisible()
+    {
+        gameObject.SetActive(!gameObject.activeSelf);
+        // somehow the renderer list for clipping gets emptied after disable
+        updateClipping();
     }
 }

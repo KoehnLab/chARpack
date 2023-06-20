@@ -174,4 +174,9 @@ public class appSettings : MonoBehaviour
     {
         TogglePointerEnabled<ShellHandRayPointer>(InputSourceType.Hand);
     }
+
+    public void toggleHandMenu()
+    {
+        GlobalCtrl.Singleton.toggleHandMenu();
+    }
 }

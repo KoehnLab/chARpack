@@ -73,6 +73,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject deleteMeButtonPrefab;
     [HideInInspector] public static GameObject closeMeButtonPrefab;
     [HideInInspector] public static GameObject modifyMeButtonPrefab;
+    [HideInInspector] public static GameObject replaceDummiesButtonPrefab;
+    [HideInInspector] public static GameObject undoButtonPrefab;
     [HideInInspector] public static GameObject changeBondWindowPrefab;
     public GameObject toolTipInstance;
     private float toolTipDistanceWeight = 0.01f;
@@ -260,6 +262,23 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         markMolecule(mark, showToolTip);
     }
 
+    /// <summary>
+    /// all dummys are replaced by hydrogens
+    /// </summary>
+    public void replaceDummies()
+    {
+        foreach (Atom a in atomList)
+        {
+            if (a.m_data.m_abbre == "Dummy")
+            {
+                GlobalCtrl.Singleton.changeDummyAtom(m_id, a.m_id);
+            }
+        }
+        GlobalCtrl.Singleton.SaveMolecule(true);
+        EventManager.Singleton.ChangeMolData(this);
+        EventManager.Singleton.ReplaceDummies(m_id);
+    }
+
     public Vector3 getCenter()
     {
         Vector3 center = new Vector3(0.0f, 0.0f, 0.0f);
@@ -332,12 +351,19 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         keepConfigSwitchButtonInstance.GetComponent<ButtonConfigHelper>().MainLabelText = "keepConfig";
         keepConfigSwitchButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.toggleKeepConfigUI(this); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(keepConfigSwitchButtonInstance);
-        var delButtonInstance = Instantiate(deleteMeButtonPrefab);
-        delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteMoleculeUI(this); });
-        toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
+        var replaceDummiesButtonInstance = Instantiate(replaceDummiesButtonPrefab);
+        replaceDummiesButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { replaceDummies(); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(replaceDummiesButtonInstance);
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
         closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markMoleculeUI(false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
+
+        // making sure the delete and close buttons are not too close together; has to be improved
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(new GameObject());
+
+        var delButtonInstance = Instantiate(deleteMeButtonPrefab);
+        delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteMoleculeUI(this); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
 
     }
 
