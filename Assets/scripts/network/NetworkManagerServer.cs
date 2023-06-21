@@ -57,6 +57,9 @@ public class NetworkManagerServer : MonoBehaviour
 
         EventManager.Singleton.OnCmlReceiveCompleted += flagReceiveComplete;
         EventManager.Singleton.OnMoveAtom += bcastMoveAtom;
+        EventManager.Singleton.OnMergeMolecule += bcastMergeMolecule;
+        EventManager.Singleton.OnSelectAtom += bcastSelectAtom;
+        EventManager.Singleton.OnCreateAtom += bcastCreateAtom;
     }
 
 
@@ -125,13 +128,46 @@ public class NetworkManagerServer : MonoBehaviour
     public void bcastMoveAtom(ushort mol_id, ushort atom_id, Vector3 pos)
     {
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastAtomMoved);
-        outMessage.AddUShort(0);
-        outMessage.AddUShort(mol_id);
-        outMessage.AddUShort(atom_id);
-        outMessage.AddVector3(pos);
-        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+        Message message = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastAtomMoved);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        message.AddUShort(atom_id);
+        message.AddVector3(pos);
+        Server.SendToAll(message);
     }
+
+    public void bcastMergeMolecule(ushort mol1ID, ushort atom1ID, ushort mol2ID, ushort atom2ID)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastMoleculeMerged);
+        message.AddUShort(0);
+        message.AddUShort(mol1ID);
+        message.AddUShort(atom1ID);
+        message.AddUShort(mol2ID);
+        message.AddUShort(atom2ID);
+        Server.SendToAll(message);
+    }
+
+    public void bcastSelectAtom(ushort mol_id, ushort atom_id, bool selected)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastSelectAtom);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        message.AddUShort(atom_id);
+        message.AddBool(selected);
+        Server.SendToAll(message);
+    }
+
+    public void bcastCreateAtom(ushort id, string abbre, Vector3 pos, ushort hyb)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastAtomCreated);
+        message.AddUShort(0);
+        message.AddUShort(id);
+        message.AddString(abbre);
+        message.AddVector3(pos);
+        message.AddUShort(hyb);
+        Server.SendToAll(message);
+    }
+
     #endregion
 
     #region MessageHandler
