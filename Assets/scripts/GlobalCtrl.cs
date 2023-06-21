@@ -121,12 +121,12 @@ public class GlobalCtrl : MonoBehaviour
         if (currentInteractionMode == InteractionModes.NORMAL)
         {
             currentInteractionMode = InteractionModes.CHAIN;
-            HandTracking.Singleton.enabled = true;
+            HandTracking.Singleton.gameObject.SetActive(true);
         }
         else
         {
             currentInteractionMode = InteractionModes.NORMAL;
-            HandTracking.Singleton.enabled = false;
+            HandTracking.Singleton.gameObject.SetActive(false);
         }
     }
 

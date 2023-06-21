@@ -23,22 +23,21 @@ public class HandTracking : MonoBehaviour
                 Debug.Log($"[{nameof(HandTracking)}] Instance already exists, destroying duplicate!");
                 Destroy(value);
             }
-
         }
     }
-
 
 
     private void Awake()
     {
         Singleton = this;
+        gameObject.SetActive(false);
     }
 
     //private MixedRealityPose indexTip = MixedRealityPose.ZeroIdentity;
 
     private Vector3 _indexForward = Vector3.zero;
     public Vector3 indexForward { get => _indexForward; private set => _indexForward = value; }
-    private MixedRealityPose indexMiddlePose = MixedRealityPose.ZeroIdentity;
+    private MixedRealityPose indexKnucklePose = MixedRealityPose.ZeroIdentity;
     private MixedRealityPose indexTipPose = MixedRealityPose.ZeroIdentity;
 
     // check hand pose to pick which end of chain to move
@@ -73,7 +72,7 @@ public class HandTracking : MonoBehaviour
     {
         getPose();
         transform.forward = indexForward;
-        transform.position = indexMiddlePose.Position;
+        transform.position = indexKnucklePose.Position;
     }
 
 
@@ -93,11 +92,11 @@ public class HandTracking : MonoBehaviour
                         {
                             indexTipPose = tipPose;
                         }
-                        if (hand.TryGetJoint(TrackedHandJoint.IndexMiddleJoint, out MixedRealityPose middlePose))
+                        if (hand.TryGetJoint(TrackedHandJoint.IndexKnuckle, out MixedRealityPose middlePose))
                         {
-                            indexMiddlePose = middlePose;
+                            indexKnucklePose = middlePose;
                         }
-                        indexForward = Vector3.Normalize(indexTipPose.Position - indexMiddlePose.Position);
+                        indexForward = Vector3.Normalize(indexTipPose.Position - indexKnucklePose.Position);
                     }
                     else
                     {
@@ -108,11 +107,11 @@ public class HandTracking : MonoBehaviour
                             {
                                 indexTipPose = tipPose;
                             }
-                            if (HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexMiddleJoint, Handedness.Both, out MixedRealityPose middlePose))
+                            if (HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexKnuckle, Handedness.Both, out MixedRealityPose middlePose))
                             {
-                                indexMiddlePose = middlePose;
+                                indexKnucklePose = middlePose;
                             }
-                            indexForward = Vector3.Normalize(indexTipPose.Position - indexMiddlePose.Position);
+                            indexForward = Vector3.Normalize(indexTipPose.Position - indexKnucklePose.Position);
                         }
                     }
                 }
