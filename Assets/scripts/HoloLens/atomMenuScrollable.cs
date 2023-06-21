@@ -59,7 +59,7 @@ public class atomMenuScrollable : myScrollObject
     private void Start()
     {
         // also set starting position
-        transform.position = Camera.main.transform.position + 0.35f * Camera.main.transform.forward;
+        transform.position = GlobalCtrl.Singleton.mainCamera.transform.position + 0.35f * Camera.main.transform.forward;
     }
 
     public void close()

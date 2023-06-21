@@ -865,12 +865,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         // first: get position in the bounding box and decide if the tool tip spawns left, right, top or bottom of the box
         Vector3 mol_center = m_molecule.getCenter();
         // project to camera coordnates
-        Vector2 mol_center_in_cam = new Vector2(Vector3.Dot(mol_center, Camera.main.transform.right), Vector3.Dot(mol_center, Camera.main.transform.up));
-        Vector2 atom_pos_in_cam = new Vector2(Vector3.Dot(transform.position, Camera.main.transform.right), Vector3.Dot(transform.position, Camera.main.transform.up));
+        Vector2 mol_center_in_cam = new Vector2(Vector3.Dot(mol_center, GlobalCtrl.Singleton.mainCamera.transform.right), Vector3.Dot(mol_center, GlobalCtrl.Singleton.mainCamera.transform.up));
+        Vector2 atom_pos_in_cam = new Vector2(Vector3.Dot(transform.position, GlobalCtrl.Singleton.mainCamera.transform.right), Vector3.Dot(transform.position, GlobalCtrl.Singleton.mainCamera.transform.up));
         // calc diff
         Vector2 diff_mol_atom = atom_pos_in_cam - mol_center_in_cam;
         // enhance diff for final tool tip pos
-        Vector3 ttpos = transform.position + toolTipDistanceWeight * diff_mol_atom[0] * Camera.main.transform.right + toolTipDistanceWeight * diff_mol_atom[1] * Camera.main.transform.up;
+        Vector3 ttpos = transform.position + toolTipDistanceWeight * diff_mol_atom[0] * GlobalCtrl.Singleton.mainCamera.transform.right + toolTipDistanceWeight * diff_mol_atom[1] * GlobalCtrl.Singleton.mainCamera.transform.up;
         toolTipInstance.transform.position = ttpos;
         // add atom as connector
         toolTipInstance.GetComponent<myToolTipConnector>().Target = gameObject;

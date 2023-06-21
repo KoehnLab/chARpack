@@ -1268,8 +1268,8 @@ public class GlobalCtrl : MonoBehaviour
 
 
             // new mean position should be in front of camera
-            Vector3 current_pos = Camera.main.transform.position - atomWorld.transform.position; // transform this here onto atom world coordinates
-            Vector3 current_lookat = Camera.main.transform.forward;
+            Vector3 current_pos = currentCamera.transform.position - atomWorld.transform.position; // transform this here onto atom world coordinates
+            Vector3 current_lookat = currentCamera.transform.forward;
             Vector3 create_position = current_pos + 0.5f * current_lookat;
             meanPos = create_position - meanPos;  // add molecules relative to this position
 
@@ -1503,7 +1503,7 @@ public class GlobalCtrl : MonoBehaviour
     public void createAtomUI(string ChemicalID)
     {
         lastAtom = ChemicalID; // remember this for later
-        Vector3 create_position = Camera.main.transform.position + 0.5f * Camera.main.transform.forward;
+        Vector3 create_position = currentCamera.transform.position + 0.5f * Camera.main.transform.forward;
         var newID = getFreshMoleculeID();
         CreateAtom(newID, ChemicalID, create_position, curHybrid);
 
@@ -1540,8 +1540,8 @@ public class GlobalCtrl : MonoBehaviour
     //public void createFavoriteElement(int pos)
     //{
     //    lastAtom = favorites[pos - 1]; // remember this for later
-    //    Vector3 current_pos = Camera.main.transform.position;
-    //    Vector3 current_lookat = Camera.main.transform.forward;
+    //    Vector3 current_pos = currentCamera.transform.position;
+    //    Vector3 current_lookat = currentCamera.transform.forward;
     //    Vector3 create_position = current_pos + 0.5f * current_lookat;
     //    CreateAtom(getFreshMoleculeID(), favorites[pos - 1], create_position, curHybrid);
     //}

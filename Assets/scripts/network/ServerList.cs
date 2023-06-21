@@ -147,7 +147,7 @@ public class ServerList : myScrollObject
     public void manualAddServer()
     {
         var manualAddInstance = Instantiate(manualAddServerPrefab);
-        manualAddInstance.transform.position += 0.5f * Camera.main.transform.forward;
+        manualAddInstance.transform.position += 0.5f * GlobalCtrl.Singleton.mainCamera.transform.forward;
         manualAddInstance.GetComponent<ManualAddServer>().serverListInstance = gameObject;
         gameObject.SetActive(false);
     }

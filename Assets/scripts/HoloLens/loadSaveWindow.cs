@@ -91,7 +91,7 @@ public class loadSaveWindow : myScrollObject
         initSavedFiles();
         gameObject.SetActive(true);
         // put window in vision
-        //Vector3 in_vision_position = Camera.main.transform.position + 0.5f * Camera.main.transform.forward;
+        //Vector3 in_vision_position = GlobalCtrl.Singleton.mainCamera.transform.position + 0.5f * GlobalCtrl.Singleton.mainCamera.transform.forward;
         //gameObject.transform.position = in_vision_position;
 
         // somehow the renderer list for clipping gets emptied after disable
@@ -102,7 +102,7 @@ public class loadSaveWindow : myScrollObject
     {
         var saveDialogInstance = Instantiate(saveDialogPrefab);
         // put the dialog a bit further away
-        saveDialogInstance.transform.position += 0.5f * Camera.main.transform.forward;
+        saveDialogInstance.transform.position += 0.5f * GlobalCtrl.Singleton.mainCamera.transform.forward;
         gameObject.SetActive(false);
     }
 

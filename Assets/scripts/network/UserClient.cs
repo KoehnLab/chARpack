@@ -89,8 +89,8 @@ public class UserClient : MonoBehaviour
     {
         Message message = Message.Create(MessageSendMode.unreliable, ClientToServerID.positionAndRotation);
 
-        message.AddVector3(GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(Camera.main.transform.position));
-        message.AddQuaternion(Quaternion.Inverse(GlobalCtrl.Singleton.atomWorld.transform.rotation) * Camera.main.transform.rotation);
+        message.AddVector3(GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(GlobalCtrl.Singleton.mainCamera.transform.position));
+        message.AddQuaternion(Quaternion.Inverse(GlobalCtrl.Singleton.atomWorld.transform.rotation) * GlobalCtrl.Singleton.mainCamera.transform.rotation);
         NetworkManagerClient.Singleton.Client.Send(message);
     }
 

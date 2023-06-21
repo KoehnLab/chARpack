@@ -25,19 +25,27 @@ public class ServerInputSystem : MonoBehaviour
         {
             transform.position += moveSpeed * transform.forward;
         }
-        else if (Input.GetKey(KeyCode.S))
+        if (Input.GetKey(KeyCode.S))
         {
             transform.position -= moveSpeed * transform.forward;
         }
-        else if (Input.GetKey(KeyCode.D))
+        if (Input.GetKey(KeyCode.D))
         {
             Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
             transform.position += moveSpeed * rotated;
         }
-        else if (Input.GetKey(KeyCode.A))
+        if (Input.GetKey(KeyCode.A))
         {
             Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
             transform.position -= moveSpeed * rotated;
+        }
+        if (Input.GetKey(KeyCode.Space))
+        {
+            transform.position += moveSpeed * transform.up;
+        }
+        if (Input.GetKey(KeyCode.C))
+        {
+            transform.position -= moveSpeed * transform.up;
         }
         if (Input.GetMouseButton(1))
         {
