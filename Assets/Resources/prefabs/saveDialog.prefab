@@ -678,6 +678,7 @@ GameObject:
   - component: {fileID: 6798208038677003133}
   - component: {fileID: 3470627489049769168}
   - component: {fileID: 2420225500085066992}
+  - component: {fileID: 7655519271934801}
   m_Layer: 0
   m_Name: SaveButton
   m_TagString: Untagged
@@ -1109,6 +1110,18 @@ MonoBehaviour:
   inputField: {fileID: 6053885373884993670}
   errorDialogPrefab: {fileID: 2680377478557818543, guid: 25faf283732369f44889ff6ddd124580, type: 3}
   saveDialog: {fileID: 6325399774208577938}
+--- !u!114 &7655519271934801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 952259364396497141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7298cd01ff92080479c0f00649fc06ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1560458786252532364
 GameObject:
   m_ObjectHideFlags: 0
@@ -3534,6 +3547,7 @@ GameObject:
   - component: {fileID: 6325399773576889754}
   - component: {fileID: 5473544715416182067}
   - component: {fileID: 4466130019475632034}
+  - component: {fileID: 856844901056980244}
   m_Layer: 0
   m_Name: Close
   m_TagString: Untagged
@@ -4042,6 +4056,18 @@ MonoBehaviour:
   defaultButtonQuadMaterial: {fileID: 2100000, guid: fa419ab56051229449e3b813df8f295f, type: 2}
   iconSet: {fileID: 11400000, guid: 8b386ef895f7c924f8c4b03d1d3ed683, type: 2}
   defaultIconSet: {fileID: 11400000, guid: 8b386ef895f7c924f8c4b03d1d3ed683, type: 2}
+--- !u!114 &856844901056980244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6325399773576889755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7298cd01ff92080479c0f00649fc06ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6325399773745416312
 GameObject:
   m_ObjectHideFlags: 0
@@ -5103,6 +5129,7 @@ GameObject:
   - component: {fileID: 6325399774433624429}
   - component: {fileID: 5473544716203710916}
   - component: {fileID: 4466130020969835349}
+  - component: {fileID: 1911213241473114100}
   m_Layer: 0
   m_Name: FollowMe
   m_TagString: Untagged
@@ -5611,6 +5638,18 @@ MonoBehaviour:
   defaultButtonQuadMaterial: {fileID: 2100000, guid: fa419ab56051229449e3b813df8f295f, type: 2}
   iconSet: {fileID: 11400000, guid: 8b386ef895f7c924f8c4b03d1d3ed683, type: 2}
   defaultIconSet: {fileID: 11400000, guid: 8b386ef895f7c924f8c4b03d1d3ed683, type: 2}
+--- !u!114 &1911213241473114100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6325399774433624428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7298cd01ff92080479c0f00649fc06ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6325399774584889734
 GameObject:
   m_ObjectHideFlags: 0

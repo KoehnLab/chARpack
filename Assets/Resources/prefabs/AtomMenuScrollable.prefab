@@ -1535,6 +1535,7 @@ GameObject:
   - component: {fileID: 8609912644494881864}
   - component: {fileID: 8609912644494881871}
   - component: {fileID: 8609912644494881870}
+  - component: {fileID: 6593489839449048595}
   m_Layer: 0
   m_Name: ButtonDown
   m_TagString: Untagged
@@ -2039,6 +2040,18 @@ MonoBehaviour:
   defaultButtonQuadMaterial: {fileID: 0}
   iconSet: {fileID: 11400000, guid: 8b386ef895f7c924f8c4b03d1d3ed683, type: 2}
   defaultIconSet: {fileID: 0}
+--- !u!114 &6593489839449048595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8609912644494881868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7298cd01ff92080479c0f00649fc06ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8609912644567345863
 GameObject:
   m_ObjectHideFlags: 0
@@ -2417,6 +2430,7 @@ GameObject:
   - component: {fileID: 8609912644600912492}
   - component: {fileID: 8609912644600912499}
   - component: {fileID: 8609912644600912498}
+  - component: {fileID: 1304415953982486095}
   m_Layer: 0
   m_Name: FollowMe
   m_TagString: Untagged
@@ -2921,6 +2935,18 @@ MonoBehaviour:
   defaultButtonQuadMaterial: {fileID: 0}
   iconSet: {fileID: 11400000, guid: 8b386ef895f7c924f8c4b03d1d3ed683, type: 2}
   defaultIconSet: {fileID: 0}
+--- !u!114 &1304415953982486095
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8609912644600912496}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7298cd01ff92080479c0f00649fc06ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8609912644601750773
 GameObject:
   m_ObjectHideFlags: 0
@@ -3480,6 +3506,7 @@ GameObject:
   - component: {fileID: 8609912644711510784}
   - component: {fileID: 8609912644711510791}
   - component: {fileID: 8609912644711510790}
+  - component: {fileID: 2607791276970559571}
   m_Layer: 0
   m_Name: Close
   m_TagString: Untagged
@@ -3984,6 +4011,18 @@ MonoBehaviour:
   defaultButtonQuadMaterial: {fileID: 0}
   iconSet: {fileID: 11400000, guid: 8b386ef895f7c924f8c4b03d1d3ed683, type: 2}
   defaultIconSet: {fileID: 0}
+--- !u!114 &2607791276970559571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8609912644711510788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7298cd01ff92080479c0f00649fc06ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8609912644726372793
 GameObject:
   m_ObjectHideFlags: 0
@@ -5036,6 +5075,7 @@ GameObject:
   - component: {fileID: 8609912644992375561}
   - component: {fileID: 8609912644992375560}
   - component: {fileID: 8609912644992375567}
+  - component: {fileID: 6345687808794738324}
   m_Layer: 0
   m_Name: ButtonUp
   m_TagString: Untagged
@@ -5540,6 +5580,18 @@ MonoBehaviour:
   defaultButtonQuadMaterial: {fileID: 0}
   iconSet: {fileID: 11400000, guid: 8b386ef895f7c924f8c4b03d1d3ed683, type: 2}
   defaultIconSet: {fileID: 0}
+--- !u!114 &6345687808794738324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8609912644992375565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7298cd01ff92080479c0f00649fc06ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8609912645003114069
 GameObject:
   m_ObjectHideFlags: 0

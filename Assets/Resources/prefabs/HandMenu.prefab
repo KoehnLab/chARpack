@@ -304,6 +304,7 @@ GameObject:
   - component: {fileID: 8516467067787456561}
   - component: {fileID: 5551310055034007258}
   - component: {fileID: 5662270499880965598}
+  - component: {fileID: 4077052352721536263}
   m_Layer: 0
   m_Name: ButtonUp
   m_TagString: Untagged
@@ -808,6 +809,18 @@ MonoBehaviour:
   defaultButtonQuadMaterial: {fileID: 0}
   iconSet: {fileID: 11400000, guid: 8b386ef895f7c924f8c4b03d1d3ed683, type: 2}
   defaultIconSet: {fileID: 0}
+--- !u!114 &4077052352721536263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2214014665206028379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7298cd01ff92080479c0f00649fc06ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2833197934688239235
 GameObject:
   m_ObjectHideFlags: 0
@@ -1940,6 +1953,7 @@ GameObject:
   - component: {fileID: 4303385094399880533}
   - component: {fileID: 1049797456345690375}
   - component: {fileID: 711271036303586710}
+  - component: {fileID: 8193011131701823666}
   m_Layer: 0
   m_Name: ButtonDown
   m_TagString: Untagged
@@ -2444,6 +2458,18 @@ MonoBehaviour:
   defaultButtonQuadMaterial: {fileID: 0}
   iconSet: {fileID: 11400000, guid: 8b386ef895f7c924f8c4b03d1d3ed683, type: 2}
   defaultIconSet: {fileID: 0}
+--- !u!114 &8193011131701823666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5549660057095110657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7298cd01ff92080479c0f00649fc06ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5655273905294925553
 GameObject:
   m_ObjectHideFlags: 0
@@ -2990,6 +3016,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 64790b91b91094d49942373c4e83c237, type: 3}
+--- !u!1 &1665666299799922925 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6742094791252829599, guid: 64790b91b91094d49942373c4e83c237, type: 3}
+  m_PrefabInstance: {fileID: 5371978317627592050}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8931499808019207946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665666299799922925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7298cd01ff92080479c0f00649fc06ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1665666300319493644 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6742094790733259646, guid: 64790b91b91094d49942373c4e83c237, type: 3}
