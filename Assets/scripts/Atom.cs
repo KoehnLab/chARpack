@@ -65,6 +65,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         stopwatch = Stopwatch.StartNew();
         grabHighlight(true);
         isGrabbed = true;
+
+
     }
 
     void OnMouseDrag()
@@ -96,7 +98,22 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             {
                 markAtomUI(!isMarked);
             }
+        }
 
+        // check for potential merge
+        if (GlobalCtrl.Singleton.collision)
+        {
+            Atom d1 = GlobalCtrl.Singleton.collider1;
+            Atom d2 = GlobalCtrl.Singleton.collider2;
+
+            Atom a1 = d1.dummyFindMain();
+            Atom a2 = d2.dummyFindMain();
+
+            if (!a1.alreadyConnected(a2))
+            {
+                EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
+                GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+            }
         }
     }
 
@@ -192,7 +209,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
                 {
                     markAtomUI(!isMarked);
                 }
-
             }
 
             // check for potential merge
@@ -209,7 +225,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
                     EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
                     GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
                 }
-
             }
             //Debug.Log($"[Atom] OnPointerUp: {eventData}");
         }

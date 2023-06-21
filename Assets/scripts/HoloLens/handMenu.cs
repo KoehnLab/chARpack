@@ -82,7 +82,11 @@ public class handMenu : myScrollObject
     public void toggleVisible()
     {
         gameObject.SetActive(!gameObject.activeSelf);
-        // somehow the renderer list for clipping gets emptied after disable
-        updateClipping();
     }
+
+    public void OnEnable()
+    {
+        scrollUpdate();
+    }
+
 }
