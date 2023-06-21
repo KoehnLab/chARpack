@@ -49,6 +49,7 @@ GameObject:
   - component: {fileID: 2595722515898163315}
   - component: {fileID: 5911772327481397986}
   - component: {fileID: -626307215058727521}
+  - component: {fileID: 8496883480359721773}
   m_Layer: 0
   m_Name: LoadEntry
   m_TagString: Untagged
@@ -567,6 +568,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   loadConfirmPrefab: {fileID: 2680377478557818543, guid: b3d7fee8e2762874dac868f2293a2163, type: 3}
+--- !u!114 &8496883480359721773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4051095202787358939}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7298cd01ff92080479c0f00649fc06ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4051095203374262569
 GameObject:
   m_ObjectHideFlags: 0

@@ -35,7 +35,7 @@ public class atomMenuScrollable : myScrollObject
             }
             else if (_singleton != value)
             {
-                Debug.Log($"[{nameof(atomMenu)}] Instance already exists, destroying duplicate!");
+                Debug.Log($"[{nameof(atomMenuScrollable)}] Instance already exists, destroying duplicate!");
                 Destroy(value.gameObject);
             }
 

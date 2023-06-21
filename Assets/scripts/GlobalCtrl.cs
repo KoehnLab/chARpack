@@ -194,7 +194,7 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
         Molecule.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
         Molecule.changeBondWindowPrefab = (GameObject)Resources.Load("prefabs/ChangeBondWindow");
-        Molecule.replaceDummiesButtonPrefab = (GameObject)Resources.Load("prefabs/ReplaceDummiesButton");
+        Molecule.toggleDummiesButtonPrefab = (GameObject)Resources.Load("prefabs/ToggleDummiesButton");
         Molecule.undoButtonPrefab = (GameObject)Resources.Load("prefabs/UndoButton");
 
         Debug.Log("[GlobalCtrl] Initialization complete.");
@@ -1022,7 +1022,7 @@ public class GlobalCtrl : MonoBehaviour
     /// that can be reversed with undo
     /// </summary>
     /// <param name="idAtom">ID of the selected atom</param>
-    public bool changeDummyAtom(ushort idMol, ushort idAtom)
+    public bool switchDummyHydrogen(ushort idMol, ushort idAtom, bool isDummy=true)
     {
         // TODO: do not overwrite runtime data
         Atom chgAtom = List_curMolecules.ElementAtOrDefault(idMol).atomList.ElementAtOrDefault(idAtom);
@@ -1031,25 +1031,14 @@ public class GlobalCtrl : MonoBehaviour
             return false;
         }
 
-        ElementData tempData = Dic_ElementData["H"];
+        String type = isDummy ? "H" : "Dummy";
+
+        ElementData tempData = Dic_ElementData[type];
         tempData.m_hybridization = chgAtom.m_data.m_hybridization;
         tempData.m_bondNum = calcNumBonds(tempData.m_hybridization, tempData.m_bondNum);
 
         chgAtom.f_Modify(tempData);
         return true;
-    }
-
-    /// <summary>
-    /// all dummys are replaced by hydrogens
-    /// </summary>
-    public void replaceDummies()
-    {
-        // cancel any collision
-        collision = false;
-        foreach (Molecule curMol in List_curMolecules)
-        {
-            curMol.replaceDummies();
-        }
     }
 
     /// <summary>

@@ -80,6 +80,7 @@ GameObject:
   - component: {fileID: 8459248369832585075}
   - component: {fileID: 3329000827506505746}
   - component: {fileID: 24511568196911374}
+  - component: {fileID: 7246876903992960651}
   m_Layer: 0
   m_Name: AtomButton
   m_TagString: Untagged
@@ -576,6 +577,19 @@ MonoBehaviour:
   defaultButtonQuadMaterial: {fileID: 2100000, guid: fa419ab56051229449e3b813df8f295f, type: 2}
   iconSet: {fileID: 11400000, guid: c8d98d7c7e5e773439c23c5ff2225e2e, type: 2}
   defaultIconSet: {fileID: 11400000, guid: 8b386ef895f7c924f8c4b03d1d3ed683, type: 2}
+--- !u!114 &7246876903992960651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2179138020550336974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7298cd01ff92080479c0f00649fc06ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  button: {fileID: 2179138020550336974}
 --- !u!1 &2196468374160556832
 GameObject:
   m_ObjectHideFlags: 0

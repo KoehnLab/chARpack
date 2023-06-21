@@ -745,6 +745,7 @@ GameObject:
   - component: {fileID: 54423068304988772}
   - component: {fileID: 8560875608835582197}
   - component: {fileID: 9120925994399669822}
+  - component: {fileID: 8411238599256925915}
   m_Layer: 0
   m_Name: ButtonTwoB
   m_TagString: Untagged
@@ -1264,6 +1265,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buttonText: {fileID: 2088793923548435260}
   ButtonTypeEnum: 0
+--- !u!114 &8411238599256925915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2088793922961523404}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7298cd01ff92080479c0f00649fc06ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2088793923399281073
 GameObject:
   m_ObjectHideFlags: 0
@@ -2794,6 +2807,7 @@ GameObject:
   - component: {fileID: 5401176127632304939}
   - component: {fileID: 4394347128865118650}
   - component: {fileID: 5835748157014921679}
+  - component: {fileID: 241867055399485596}
   m_Layer: 0
   m_Name: ButtonOne
   m_TagString: Untagged
@@ -3313,6 +3327,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buttonText: {fileID: 6253652075333902963}
   ButtonTypeEnum: 0
+--- !u!114 &241867055399485596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6253652074847662979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7298cd01ff92080479c0f00649fc06ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6253652075333902961
 GameObject:
   m_ObjectHideFlags: 0
@@ -4172,6 +4198,7 @@ GameObject:
   - component: {fileID: 9169867538554375935}
   - component: {fileID: 670727987368295534}
   - component: {fileID: 7349722834458539200}
+  - component: {fileID: 1656873971250796729}
   m_Layer: 0
   m_Name: ButtonTwoA
   m_TagString: Untagged
@@ -4691,6 +4718,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buttonText: {fileID: 7168696578685126567}
   ButtonTypeEnum: 0
+--- !u!114 &1656873971250796729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7168696579272037975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7298cd01ff92080479c0f00649fc06ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7168696579791387387
 GameObject:
   m_ObjectHideFlags: 0
