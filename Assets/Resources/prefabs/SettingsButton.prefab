@@ -39,6 +39,22 @@ PrefabInstance:
       propertyPath: movingButtonVisuals
       value: 
       objectReference: {fileID: 2204069621797983326}
+    - target: {fileID: 316800722, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
+      propertyPath: m_Size.x
+      value: 0.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 316800722, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
+      propertyPath: m_Size.y
+      value: 0.026
+      objectReference: {fileID: 0}
+    - target: {fileID: 937783101, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -0.007
+      objectReference: {fileID: 0}
+    - target: {fileID: 937783102, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
+      propertyPath: m_fontSize
+      value: 0.045
+      objectReference: {fileID: 0}
     - target: {fileID: 937783102, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: m_renderer
       value: 
@@ -47,6 +63,10 @@ PrefabInstance:
       propertyPath: m_fontAsset
       value: 
       objectReference: {fileID: 11400000, guid: 6a84f857bec7e7345843ae29404c57ce, type: 2}
+    - target: {fileID: 937783102, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 0.045
+      objectReference: {fileID: 0}
     - target: {fileID: 937783102, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: m_textAlignment
       value: 65535
@@ -87,17 +107,21 @@ PrefabInstance:
       propertyPath: m_renderer
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 1911902819, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.003
+      objectReference: {fileID: 0}
     - target: {fileID: 1944713263, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1944713263, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.4
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1944713263, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.9
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1944713263, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: m_LocalPosition.x
@@ -117,15 +141,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1944713263, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1944713263, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1944713263, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1944713263, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -138,6 +162,14 @@ PrefabInstance:
     - target: {fileID: 1944713263, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2096017743, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 2096017743, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.026
       objectReference: {fileID: 0}
     - target: {fileID: 2096017744, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: buttonCollider
@@ -159,6 +191,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: LabelPlate
       objectReference: {fileID: 0}
+    - target: {fileID: 2034987663884019302, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
+      propertyPath: bounds.x
+      value: 0.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 2034987663884019302, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
+      propertyPath: bounds.y
+      value: 0.026
+      objectReference: {fileID: 0}
     - target: {fileID: 2403385908099678459, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -174,6 +214,14 @@ PrefabInstance:
     - target: {fileID: 2816231285305654104, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: m_RootOrder
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2816231285305654104, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2816231285305654104, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.0036
       objectReference: {fileID: 0}
     - target: {fileID: 7440800412470431853, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
       propertyPath: Events.Array.size
@@ -495,6 +543,14 @@ PrefabInstance:
     - target: {fileID: 586303850521236049, guid: 9215a7c858170d74fb2257375d5feaf1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3958481853798167113, guid: 9215a7c858170d74fb2257375d5feaf1, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 3958481853798167113, guid: 9215a7c858170d74fb2257375d5feaf1, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.026
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9215a7c858170d74fb2257375d5feaf1, type: 3}
