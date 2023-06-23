@@ -3014,7 +3014,8 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6742094791873819758, guid: 64790b91b91094d49942373c4e83c237, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 64790b91b91094d49942373c4e83c237, type: 3}
 --- !u!1 &1665666299799922925 stripped
 GameObject:
