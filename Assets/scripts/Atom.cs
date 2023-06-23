@@ -455,7 +455,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         if (col == 1)
         {
             // merging
-            GetComponent<Renderer>().material = GlobalCtrl.Singleton.selectedMat;
+            GetComponent<Renderer>().material = GlobalCtrl.Singleton.overlapMat;
         }
         else if (col == 2)
         {
@@ -486,7 +486,14 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         {
             // reset or nothing
             GetComponent<Outline>().enabled = false;
-            GetComponent<Renderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
+            if (m_data.m_abbre.ToLower() == "dummy")
+            {
+                GetComponent<Renderer>().material = GlobalCtrl.Singleton.dummyMatPrefab;
+            }
+            else
+            {
+                GetComponent<Renderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
+            }
         }
 
     }

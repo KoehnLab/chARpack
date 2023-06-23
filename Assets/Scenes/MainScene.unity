@@ -303,7 +303,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 91139664}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bf98dd1206224111a38765365e98e207, type: 3}
   m_Name: 
@@ -3633,7 +3633,7 @@ MonoBehaviour:
   list_ElementData: []
   atomWorld: {fileID: 690894127}
   bondPrefab: {fileID: 6023341437175460837, guid: a6ff830e30b8fae40abd9ac1c7189f08, type: 3}
-  selectedMat: {fileID: 2100000, guid: 22299e81a17f66f4494224c5053b6bc2, type: 2}
+  overlapMat: {fileID: 2100000, guid: 22299e81a17f66f4494224c5053b6bc2, type: 2}
   bondMat: {fileID: 2100000, guid: 5dbece213c60f094aa99b7953821e9ed, type: 2}
   collision: 0
   collider1: {fileID: 0}

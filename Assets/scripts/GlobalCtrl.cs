@@ -81,7 +81,7 @@ public class GlobalCtrl : MonoBehaviour
 
     public Bond bondPrefab;
     private bool isAnyAtomChanged;
-    public Material selectedMat;
+    public Material overlapMat;
     public Material bondMat;
 
     private bool bondsInForeground = false;
