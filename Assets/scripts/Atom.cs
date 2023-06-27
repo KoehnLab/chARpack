@@ -53,9 +53,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+#if !WINDOWS_UWP
     // offset for mouse interaction
     private Vector3 offset = Vector3.zero;
-
     void OnMouseDown()
     {
         offset = gameObject.transform.position -
@@ -116,6 +116,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             }
         }
     }
+#endif
 
     public void OnPointerDown(MixedRealityPointerEventData eventData)
     {

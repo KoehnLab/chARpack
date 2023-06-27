@@ -85,7 +85,7 @@ public class atomMenuScrollable : myScrollObject
             var button = entry.GetComponent<PressableButtonHoloLens2>();
             button.GetComponent<ButtonConfigHelper>().MainLabelText = $"{atom}";
             button.GetComponent<ButtonConfigHelper>().IconStyle = ButtonIconStyle.None;
-            button.ButtonPressed.AddListener(delegate { GlobalCtrl.Singleton.createAtomUI(atom); });
+            button.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.createAtomUI(atom); });
             button.transform.parent = gridObjectCollection.transform;
 
         }
