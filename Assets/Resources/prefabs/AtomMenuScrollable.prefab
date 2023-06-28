@@ -2061,14 +2061,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8609912644567345856}
-  - component: {fileID: 8609912644567345857}
   - component: {fileID: 8609912644567345919}
-  - component: {fileID: 8609912644567345918}
+  - component: {fileID: 6522773557122181435}
   - component: {fileID: 8609912644567345917}
   - component: {fileID: 8609912644567345916}
   - component: {fileID: 8609912644567345859}
   - component: {fileID: 8609912644567345858}
   - component: {fileID: 938614632099924480}
+  - component: {fileID: 5240225876116898355}
   m_Layer: 0
   m_Name: ScrollParent
   m_TagString: Untagged
@@ -2095,27 +2095,6 @@ Transform:
   m_Father: {fileID: 8609912644970626541}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8609912644567345857
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8609912644567345863}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d1fea68463e4e84b86c395b654f950d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  visualizationObject: {fileID: 0}
-  interactableObject: {fileID: 0}
-  buttonBehavior: 0
-  autoFollowAtDistance: 0
-  autoFollowDistance: 2
-  autoFollowTransformTarget: {fileID: 0}
-  autoFollowTriggered:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!114 &8609912644567345919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2132,19 +2111,19 @@ MonoBehaviour:
   trackedHandedness: 3
   trackedHandJoint: 2
   transformOverride: {fileID: 0}
-  additionalOffset: {x: 0, y: 0, z: 0}
-  additionalRotation: {x: 0, y: 0, z: 0}
+  additionalOffset: {x: -0.25, y: 0, z: 0}
+  additionalRotation: {x: 0, y: -10, z: 0}
   updateSolvers: 1
---- !u!114 &8609912644567345918
+--- !u!114 &6522773557122181435
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8609912644567345863}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4684083f6dff4a1d8a790bccc354fcf4, type: 3}
+  m_Script: {fileID: 11500000, guid: 4479a0bd44d822241a4c5f4890c481c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   updateLinkedTransform: 0
@@ -2154,17 +2133,26 @@ MonoBehaviour:
   maintainScaleOnInitialization: 1
   smoothing: 1
   lifetime: 0
-  referenceDirection: 1
-  minDistance: 0.4
-  maxDistance: 1
-  minViewDegrees: 0
-  maxViewDegrees: 25
-  aspectV: 1
+  orientationType: 1
+  faceTrackedObjectWhileClamped: 1
+  faceUserDefinedTargetTransform: 0
+  targetToFace: {fileID: 0}
+  pivotAxis: 7
+  minDistance: 0.3
+  maxDistance: 0.9
+  defaultDistance: 0.5
+  maxViewHorizontalDegrees: 30
+  maxViewVerticalDegrees: 20
+  reorientWhenOutsideParameters: 1
+  orientToControllerDeadzoneDegrees: 60
   ignoreAngleClamp: 0
   ignoreDistanceClamp: 0
-  useFixedVerticalPosition: 1
-  fixedVerticalPosition: -0.2
-  orientToReferenceDirection: 0
+  ignoreReferencePitchAndRoll: 0
+  pitchOffset: 0
+  verticalMaxDistance: 0
+  angularClampMode: 0
+  tetherAngleSteps: 6
+  boundsScaler: 1
 --- !u!65 &8609912644567345917
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2409,11 +2397,32 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8609912644567345863}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3707e2660a8ec644f80037c0c08c72a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &5240225876116898355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8609912644567345863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b8d54d282982b7479d73308a5741b7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualizationObject: {fileID: 0}
+  interactableObject: {fileID: 0}
+  buttonBehavior: 0
+  autoFollowAtDistance: 0
+  autoFollowDistance: 2
+  autoFollowTransformTarget: {fileID: 0}
+  autoFollowTriggered:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &8609912644600912496
 GameObject:
   m_ObjectHideFlags: 0
@@ -2625,8 +2634,9 @@ MonoBehaviour:
   OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 8609912644567345857}
-        m_TargetAssemblyTypeName: 
+      - m_Target: {fileID: 5240225876116898355}
+        m_TargetAssemblyTypeName: Microsoft.MixedReality.Toolkit.UI.myFollowToggle,
+          Assembly-CSharp
         m_MethodName: ToggleFollowMeBehavior
         m_Mode: 1
         m_Arguments:

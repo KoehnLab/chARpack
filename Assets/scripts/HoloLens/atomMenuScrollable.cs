@@ -46,9 +46,9 @@ public class atomMenuScrollable : myScrollObject
     {
         Singleton = this;
         // change positioning parameters
-        var radView = scrollParent.GetComponent<RadialView>();
-        radView.MaxDistance = 0.6f;
-        radView.MaxViewDegrees = 20f;
+        //var radView = scrollParent.GetComponent<RadialView>();
+        //radView.MaxDistance = 0.6f;
+        //radView.MaxViewDegrees = 20f;
         // add atom buttons
         atomMenuScrollablePrefab = (GameObject)Resources.Load("prefabs/AtomMenuScrollable");
         atomEntryPrefab = (GameObject)Resources.Load("prefabs/AtomButton");
