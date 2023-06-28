@@ -2472,7 +2472,6 @@ GameObject:
   - component: {fileID: 1354634433838784135}
   - component: {fileID: 1690158959609209844}
   - component: {fileID: 2259205814895634667}
-  - component: {fileID: 1354634433838784129}
   - component: {fileID: 8469389139670857806}
   - component: {fileID: 124748820260027915}
   m_Layer: 0
@@ -2518,8 +2517,8 @@ MonoBehaviour:
   visualizationObject: {fileID: 0}
   interactableObject: {fileID: 0}
   buttonBehavior: 0
-  autoFollowAtDistance: 0
-  autoFollowDistance: 2
+  autoFollowAtDistance: 1
+  autoFollowDistance: 1.5
   autoFollowTransformTarget: {fileID: 0}
   autoFollowTriggered:
     m_PersistentCalls:
@@ -2731,18 +2730,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTetherWhenManipulating: 0
   IsBoundsHandles: 0
---- !u!114 &1354634433838784129
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1136666759422499952}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3707e2660a8ec644f80037c0c08c72a8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &8469389139670857806
 MonoBehaviour:
   m_ObjectHideFlags: 0

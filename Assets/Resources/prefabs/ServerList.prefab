@@ -4582,7 +4582,6 @@ GameObject:
   - component: {fileID: 8609912644567345916}
   - component: {fileID: 8609912644567345859}
   - component: {fileID: 8609912644567345858}
-  - component: {fileID: 938614632099924480}
   m_Layer: 0
   m_Name: ScrollParent
   m_TagString: Untagged
@@ -4624,7 +4623,7 @@ MonoBehaviour:
   visualizationObject: {fileID: 0}
   interactableObject: {fileID: 0}
   buttonBehavior: 0
-  autoFollowAtDistance: 0
+  autoFollowAtDistance: 1
   autoFollowDistance: 2
   autoFollowTransformTarget: {fileID: 0}
   autoFollowTriggered:
@@ -4916,18 +4915,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &938614632099924480
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8609912644567345863}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3707e2660a8ec644f80037c0c08c72a8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &8609912644600912496
 GameObject:
   m_ObjectHideFlags: 0
