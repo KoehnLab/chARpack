@@ -17017,6 +17017,10 @@ PrefabInstance:
       propertyPath: useGazeActivation
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5371906901954694236, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
+      propertyPath: trackedHandedness
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6853844256853982043, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
       propertyPath: cameraMethods
       value: 
