@@ -17640,7 +17640,6 @@ GameObject:
   - component: {fileID: 6061069208709675474}
   - component: {fileID: 6061069208709675500}
   - component: {fileID: 6061069208709675496}
-  - component: {fileID: 7706624166724706490}
   m_Layer: 0
   m_Name: ScrollParent
   m_TagString: Untagged
@@ -20591,18 +20590,6 @@ MonoBehaviour:
   useFixedVerticalPosition: 1
   fixedVerticalPosition: -0.2
   orientToReferenceDirection: 0
---- !u!114 &7706624166724706490
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6061069208709675503}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3707e2660a8ec644f80037c0c08c72a8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &7739601862496065307
 GameObject:
   m_ObjectHideFlags: 0
