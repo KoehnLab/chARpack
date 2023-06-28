@@ -267,7 +267,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1665666299313617182}
   - component: {fileID: 1665666299313617250}
-  - component: {fileID: 1665666299313617251}
   - component: {fileID: 1665666299313617181}
   m_Layer: 0
   m_Name: TextMeshPro
@@ -338,14 +337,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &1665666299313617251
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1665666299313617183}
-  m_Mesh: {fileID: 0}
 --- !u!114 &1665666299313617181
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2367,7 +2358,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trackedTargetType: 6
-  trackedHandedness: 3
+  trackedHandedness: 1
   trackedHandJoint: 2
   transformOverride: {fileID: 0}
   additionalOffset: {x: 0, y: 0, z: 0.03}
