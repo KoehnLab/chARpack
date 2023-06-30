@@ -1,0 +1,189 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: My Strings Shared Data
+  m_EditorClassIdentifier: 
+  m_TableCollectionName: My Strings
+  m_TableCollectionNameGuidString: 2803bb8940043bb409c4ccb29a5926e2
+  m_Entries:
+  - m_Id: 217105022976
+    m_Key: CREATE_ATOM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 367525347328
+    m_Key: CLEAR_ALL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 458592075776
+    m_Key: SAVE/LOAD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 527512879104
+    m_Key: SETTINGS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 578213625856
+    m_Key: UNDO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3901570400256
+    m_Key: MainScene/NearMenu/ButtonCollection/CreateAtom/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3929072451584
+    m_Key: MainScene/NearMenu/ButtonCollection/ClearMolecules/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3965957160960
+    m_Key: MainScene/NearMenu/ButtonCollection/Save/Load/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3999708725248
+    m_Key: MainScene/NearMenu/ButtonCollection/Settings/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4030889181184
+    m_Key: MainScene/NearMenu/ButtonCollection/Undo/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4088984485888
+    m_Key: MainScene/NearMenu/Hybridization/label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4259612966912
+    m_Key: AtomMenuScrollable/AtomMenuScrollable/ScrollParent/TitleBar/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4632532729856
+    m_Key: Settings/Settings/ButtonCollection/ToggleMesh/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4739831414784
+    m_Key: Settings/Settings/ButtonCollection/ToggleDebug/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4763302739968
+    m_Key: Settings/Settings/ButtonCollection/ToggleForceField/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4797146578944
+    m_Key: Settings/Settings/ButtonCollection/ToggleHandMesh/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4837789384704
+    m_Key: Settings/Settings/ButtonCollection/ToggleHandJoint/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4927312609280
+    m_Key: Settings/Settings/ButtonCollection/ToggleHandRay/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4954957266944
+    m_Key: Settings/Settings/ButtonCollection/ToggleHandMenu/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5021294379008
+    m_Key: Settings/Settings/RepulsionScale/label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5094665338880
+    m_Key: Settings/Settings/BondStiffness/label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5168279568384
+    m_Key: Settings/Settings/TitleBar/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5229776453632
+    m_Key: Settings/Settings/TitleBar/Buttons/FollowMe/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5275636973568
+    m_Key: Settings/Settings/TitleBar/Buttons/Close/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5358243790848
+    m_Key: MainScene/NearMenu/ButtonExit/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5496316084224
+    m_Key: MainScene/loadSaveWindow/ScrollParent/TitleBar/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5572186849280
+    m_Key: MainScene/loadSaveWindow/ScrollParent/SaveButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5799014809600
+    m_Key: ToggleDummiesButton/ToggleDummiesButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5940799062016
+    m_Key: RepairMeButton/RepairMeButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6046524882944
+    m_Key: saveDialog/saveDialog/TitleBar/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6111733727232
+    m_Key: saveDialog/saveDialog/PressableButtonsTestCanvas/Content/CompressableVisualsLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6182353223680
+    m_Key: saveDialog/saveDialog/PressableButtonsTestCanvas/Content/SaveButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6434724495360
+    m_Key: CloseMeButton/CloseMeButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7238218924032
+    m_Key: ManualAddServer/ManualAddServer/TitleBar/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7381420851200
+    m_Key: ManualAddServer/ManualAddServer/PressableButtonsTestCanvas/Content/ServerNameTextfield/Text
+      Area/Placeholder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7472147841024
+    m_Key: ManualAddServer/ManualAddServer/PressableButtonsTestCanvas/Content/AddButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7687953170432
+    m_Key: DeleteMeButton/DeleteMeButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7845721915392
+    m_Key: modifyHybridization/modifyHybridization/label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7903775277056
+    m_Key: ModifyMeButton/ModifyMeButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8301739229184
+    m_Key: ServerList/ServerList/ScrollParent/TitleBar/Title
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 3401264042199482392
+  references:
+    version: 2
+    RefIds:
+    - rid: 3401264042199482392
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1688116189193
