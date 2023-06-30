@@ -882,7 +882,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.transform.position = ttpos;
         // add atom as connector
         toolTipInstance.GetComponent<myToolTipConnector>().Target = gameObject;
-        string toolTipText = $"Name: {m_data.m_name}\nMass: {m_data.m_mass}\nRadius: {m_data.m_radius}\nNumBonds: {m_data.m_bondNum}";
+        string toolTipText = getToolTipText(m_data.m_name, m_data.m_mass, m_data.m_radius, m_data.m_bondNum);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
         GameObject modifyHybridizationInstance = null;
         if (m_data.m_abbre != "Dummy")
@@ -937,6 +937,22 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             Destroy(toolTipInstance);
             toolTipInstance = null;
         }
+    }
+
+    // Helper methods to generate localized tool tip text
+    private string getToolTipText(string name, double mass, double radius, double bondNum)
+    {
+        //$"Name: {m_data.m_name}\nMass: {m_data.m_mass}\nRadius: {m_data.m_radius}\nNumBonds: {m_data.m_bondNum}"
+        string rad = m_molecule.GetLocalizedString("RADIUS");
+        string numBonds = m_molecule.GetLocalizedString("NUM_BONDS"); 
+        string massStr = m_molecule.GetLocalizedString("MASS");
+        string nameStr = m_molecule.GetLocalizedString("NAME");
+        if(name == "Dummy")
+        {
+            name = m_molecule.GetLocalizedString("DUMMY");
+        }
+        string toolTipText = $"{nameStr}: {name}\n{massStr}: {mass}\n{rad}: {radius}\n{numBonds}: {bondNum}";
+        return toolTipText;
     }
 
 }

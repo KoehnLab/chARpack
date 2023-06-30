@@ -18,24 +18,16 @@ MonoBehaviour:
   m_Metadata:
     m_Items: []
   m_TableData:
-  - m_Id: 217105022976
-    m_Localized: Atom erstellen
+  - m_Id: 98988588040192
+    m_Localized: Tot.Masse
     m_Metadata:
       m_Items: []
-  - m_Id: 367525347328
-    m_Localized: "Alle Molek\xFCle l\xF6schen"
+  - m_Id: 98924700401664
+    m_Localized: Bindungen
     m_Metadata:
       m_Items: []
-  - m_Id: 458592075776
-    m_Localized: Speichern/Laden
-    m_Metadata:
-      m_Items: []
-  - m_Id: 527512879104
-    m_Localized: Einstellungen
-    m_Metadata:
-      m_Items: []
-  - m_Id: 578213625856
-    m_Localized: "R\xFCckg\xE4ngig"
+  - m_Id: 98848846413824
+    m_Localized: Atomanzahl
     m_Metadata:
       m_Items: []
   - m_Id: 3901570400256
@@ -180,6 +172,50 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 8301739229184
     m_Localized: Serverliste
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111727175827456
+    m_Localized: Einfachbindung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111910873759744
+    m_Localized: Winkelbindung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 112048224632832
+    m_Localized: Torsionsbindung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 112147172458496
+    m_Localized: Vielfachheit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 112923764621312
+    m_Localized: GG Abstand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 114869443526656
+    m_Localized: GG Winkel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115486283038720
+    m_Localized: k Winkel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119833477808128
+    m_Localized: Masse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119869385244672
+    m_Localized: Radius
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119924280295424
+    m_Localized: Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 120037694275584
+    m_Localized: Platzhalter
     m_Metadata:
       m_Items: []
   references:

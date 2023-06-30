@@ -18,24 +18,16 @@ MonoBehaviour:
   m_Metadata:
     m_Items: []
   m_TableData:
-  - m_Id: 217105022976
-    m_Localized: Create Atom
+  - m_Id: 98988588040192
+    m_Localized: TotMass
     m_Metadata:
       m_Items: []
-  - m_Id: 367525347328
-    m_Localized: Clear All Molecules
+  - m_Id: 98924700401664
+    m_Localized: NumBonds
     m_Metadata:
       m_Items: []
-  - m_Id: 458592075776
-    m_Localized: Save/Load
-    m_Metadata:
-      m_Items: []
-  - m_Id: 527512879104
-    m_Localized: Settings
-    m_Metadata:
-      m_Items: []
-  - m_Id: 578213625856
-    m_Localized: Undo
+  - m_Id: 98848846413824
+    m_Localized: NumAtoms
     m_Metadata:
       m_Items: []
   - m_Id: 3901570400256
@@ -180,6 +172,50 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 8301739229184
     m_Localized: Server List
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111727175827456
+    m_Localized: Single Bond
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111910873759744
+    m_Localized: Angle Bond
+    m_Metadata:
+      m_Items: []
+  - m_Id: 112048224632832
+    m_Localized: Torsion Bond
+    m_Metadata:
+      m_Items: []
+  - m_Id: 112147172458496
+    m_Localized: Order
+    m_Metadata:
+      m_Items: []
+  - m_Id: 112923764621312
+    m_Localized: Equi. dist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 114869443526656
+    m_Localized: Equi. Angle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115486283038720
+    m_Localized: kAngle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119833477808128
+    m_Localized: Mass
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119869385244672
+    m_Localized: Radius
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119924280295424
+    m_Localized: Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 120037694275584
+    m_Localized: Dummy
     m_Metadata:
       m_Items: []
   references:

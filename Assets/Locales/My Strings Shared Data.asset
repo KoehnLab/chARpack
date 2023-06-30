@@ -15,26 +15,6 @@ MonoBehaviour:
   m_TableCollectionName: My Strings
   m_TableCollectionNameGuidString: 2803bb8940043bb409c4ccb29a5926e2
   m_Entries:
-  - m_Id: 217105022976
-    m_Key: CREATE_ATOM
-    m_Metadata:
-      m_Items: []
-  - m_Id: 367525347328
-    m_Key: CLEAR_ALL
-    m_Metadata:
-      m_Items: []
-  - m_Id: 458592075776
-    m_Key: SAVE/LOAD
-    m_Metadata:
-      m_Items: []
-  - m_Id: 527512879104
-    m_Key: SETTINGS
-    m_Metadata:
-      m_Items: []
-  - m_Id: 578213625856
-    m_Key: UNDO
-    m_Metadata:
-      m_Items: []
   - m_Id: 3901570400256
     m_Key: MainScene/NearMenu/ButtonCollection/CreateAtom/IconAndText/TextMeshPro
     m_Metadata:
@@ -174,6 +154,62 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 8301739229184
     m_Key: ServerList/ServerList/ScrollParent/TitleBar/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 98848846413824
+    m_Key: NUM_ATOMS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 98924700401664
+    m_Key: NUM_BONDS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 98988588040192
+    m_Key: TOT_MASS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111727175827456
+    m_Key: SINGLE_BOND
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111910873759744
+    m_Key: ANGLE_BOND
+    m_Metadata:
+      m_Items: []
+  - m_Id: 112048224632832
+    m_Key: TORSION_BOND
+    m_Metadata:
+      m_Items: []
+  - m_Id: 112147172458496
+    m_Key: ORDER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 112923764621312
+    m_Key: EQ_DIST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 114869443526656
+    m_Key: EQUI_ANGLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115486283038720
+    m_Key: K_ANGLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119833477808128
+    m_Key: MASS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119869385244672
+    m_Key: RADIUS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119924280295424
+    m_Key: NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 120037694275584
+    m_Key: DUMMY
     m_Metadata:
       m_Items: []
   m_Metadata:
