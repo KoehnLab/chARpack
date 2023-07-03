@@ -1302,11 +1302,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4a2e314eeaf58e4c9c967eec413cdda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EulerTimeFactor: 0.7
-  SVtimeFactor: 0.85
-  RKtimeFactor: 0.35
-  MPtimeFactor: 0.35
-  _currentMethod: 0
+  EulerTimeFactor: 0.6
+  SVtimeFactor: 0.75
+  RKtimeFactor: 0.25
+  MPtimeFactor: 0.25
+  _currentMethod: 5
   LogLevel: 0
 --- !u!4 &1491027289
 Transform:

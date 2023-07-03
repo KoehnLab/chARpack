@@ -58,10 +58,10 @@ public class ForceField : MonoBehaviour
     public float repulsionScale { get => _repulsionScale; set => _repulsionScale = value; }
 
     // Parameters of the integration methods
-    public float EulerTimeFactor = 0.7f;
-    public float SVtimeFactor = 0.85f;
-    public float RKtimeFactor = 0.35f;
-    public float MPtimeFactor = 0.30f;
+    public float EulerTimeFactor = 0.6f;
+    public float SVtimeFactor = 0.75f;
+    public float RKtimeFactor = 0.25f;
+    public float MPtimeFactor = 0.2f;
     float RKstepMin = 0.05f;
     float RKstepMax = 0.25f;
     float RKc = 0.1f;
