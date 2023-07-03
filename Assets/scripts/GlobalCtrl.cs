@@ -1584,6 +1584,12 @@ public class GlobalCtrl : MonoBehaviour
         Instantiate(settingsPrefab);
     }
 
+    public void openLoadSaveWindow()
+    {
+        var load_save = (GameObject)Resources.Load("prefabs/LoadSaveList");
+        Instantiate(load_save);
+    }
+
     public void openAtomMenuScrollable()
     {
         var atomMenuScrollablePrefab = (GameObject)Resources.Load("prefabs/AtomMenuScrollable");

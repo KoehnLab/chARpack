@@ -1159,7 +1159,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   renderers: []
   clippingSide: -1
-  useOnPreRender: 1
+  useOnPreRender: 0
   applyToSharedMaterial: 0
   cacheSharedMaterialsFromRenderer: 0
 --- !u!65 &8609912644264496674
@@ -4723,7 +4723,7 @@ MonoBehaviour:
   releaseThresholdTopBottom: 0.2
   frontTouchDistance: 0.005
   scrollDirection: 0
-  useOnPreRender: 1
+  useOnPreRender: 0
   velocityMultiplier: 0.008
   velocityDampen: 0.9
   typeOfVelocity: 1

@@ -37,7 +37,17 @@ public class loadSaveWindow : myScrollObject
     void Awake()
     {
         Singleton = this;
-        gameObject.SetActive(false);
+    }
+
+    public void Start()
+    {
+        initSavedFiles();
+        // put window in vision
+        //Vector3 in_vision_position = GlobalCtrl.Singleton.mainCamera.transform.position + 0.5f * GlobalCtrl.Singleton.mainCamera.transform.forward;
+        //gameObject.transform.position = in_vision_position;
+
+        // somehow the renderer list for clipping gets emptied after disable
+        ////updateClipping();
     }
 
     /// <summary>
@@ -45,6 +55,12 @@ public class loadSaveWindow : myScrollObject
     /// </summary>
     public void initSavedFiles()
     {
+        clearEntries();
+        // get old scale
+        var oldScale = scrollingObjectCollection.transform.parent.localScale;
+        //reset scale 
+        scrollingObjectCollection.transform.parent.localScale = Vector3.one;
+
         string path = Application.streamingAssetsPath + "/SavedMolecules/";
         DirectoryInfo info = new DirectoryInfo(path);
         FileInfo[] fileInfo = info.GetFiles();
@@ -69,33 +85,21 @@ public class loadSaveWindow : myScrollObject
                 {
                     GameObject newLoadEntry = Instantiate(loadEntryPrefab, Vector3.zero, Quaternion.identity);
                     newLoadEntry.GetComponent<showLoadConfirm>().mol_name = name;
-                    newLoadEntry.transform.SetParent(gridObjectCollection.transform, false);
-
-                    // update on collection places all items in order
-                    gridObjectCollection.GetComponent<GridObjectCollection>().UpdateCollection();
-                    // update on scoll content makes the list scrollable
-                    scrollingObjectCollection.GetComponent<ScrollingObjectCollection>().UpdateContent();
-                    // add all renderers of a log entry to the clipping box renderer list to make the buttons disappear when out of bounds
-                    var cb = clippingBox.GetComponent<ClippingBox>();
-                    var renderers = newLoadEntry.GetComponentsInChildren<Renderer>();
-                    foreach (var renderer in renderers)
-                    {
-                        cb.AddRenderer(renderer);
-                    }
+                    newLoadEntry.AddComponent<buttonMouseClick>();
+                    newLoadEntry.transform.parent = gridObjectCollection.transform;
                 }
             }
         }
-    }
-    public void show()
-    {
-        initSavedFiles();
-        gameObject.SetActive(true);
-        // put window in vision
-        //Vector3 in_vision_position = GlobalCtrl.Singleton.mainCamera.transform.position + 0.5f * GlobalCtrl.Singleton.mainCamera.transform.forward;
-        //gameObject.transform.position = in_vision_position;
-
-        // somehow the renderer list for clipping gets emptied after disable
-        ////updateClipping();
+        // update on collection places all items in order
+        gridObjectCollection.GetComponent<GridObjectCollection>().UpdateCollection();
+        // update on scoll content makes the list scrollable
+        scrollingObjectCollection.GetComponent<ScrollingObjectCollection>().UpdateContent();
+        // update clipping for out of sight entries
+        updateClipping();
+        // scale after setting everything up
+        scrollingObjectCollection.transform.parent.localScale = oldScale;
+        // reset rotation
+        resetRotation();
     }
 
     public void openSaveDialog()
