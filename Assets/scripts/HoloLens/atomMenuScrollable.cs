@@ -46,9 +46,9 @@ public class atomMenuScrollable : myScrollObject
     {
         Singleton = this;
         // change positioning parameters
-        var radView = scrollParent.GetComponent<RadialView>();
-        radView.MaxDistance = 0.6f;
-        radView.MaxViewDegrees = 20f;
+        //var radView = scrollParent.GetComponent<RadialView>();
+        //radView.MaxDistance = 0.6f;
+        //radView.MaxViewDegrees = 20f;
         // add atom buttons
         atomMenuScrollablePrefab = (GameObject)Resources.Load("prefabs/AtomMenuScrollable");
         atomEntryPrefab = (GameObject)Resources.Load("prefabs/AtomButton");
@@ -85,7 +85,7 @@ public class atomMenuScrollable : myScrollObject
             var button = entry.GetComponent<PressableButtonHoloLens2>();
             button.GetComponent<ButtonConfigHelper>().MainLabelText = $"{atom}";
             button.GetComponent<ButtonConfigHelper>().IconStyle = ButtonIconStyle.None;
-            button.ButtonPressed.AddListener(delegate { GlobalCtrl.Singleton.createAtomUI(atom); });
+            button.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.createAtomUI(atom); });
             button.transform.parent = gridObjectCollection.transform;
 
         }

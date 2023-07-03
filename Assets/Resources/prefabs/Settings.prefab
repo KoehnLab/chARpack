@@ -13366,7 +13366,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2070291447063185073, guid: 6e2b4e7c021c4fc479bfb1bf1aec538e, type: 3}
       propertyPath: ButtonPressed.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
-      value: toggleHandMenu
+      value: toggleHandMesh
       objectReference: {fileID: 0}
     - target: {fileID: 2070291447063185073, guid: 6e2b4e7c021c4fc479bfb1bf1aec538e, type: 3}
       propertyPath: ButtonPressed.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName

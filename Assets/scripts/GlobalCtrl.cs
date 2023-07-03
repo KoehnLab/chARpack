@@ -81,7 +81,7 @@ public class GlobalCtrl : MonoBehaviour
 
     public Bond bondPrefab;
     private bool isAnyAtomChanged;
-    public Material selectedMat;
+    public Material overlapMat;
     public Material bondMat;
 
     private bool bondsInForeground = false;
@@ -1584,12 +1584,10 @@ public class GlobalCtrl : MonoBehaviour
         Instantiate(settingsPrefab);
     }
 
-    public void openAtomMenu()
+    public void openLoadSaveWindow()
     {
-        var atomMenuPrefab = (GameObject)Resources.Load("prefabs/AtomMenu");
-        GameObject atomMenu = Instantiate(atomMenuPrefab) as GameObject;
-        atomMenu.transform.parent = GameObject.Find("NearMenu").transform;
-        atomMenu.transform.localPosition = new Vector3(-0.45f, 0f, -0.22f);
+        var load_save = (GameObject)Resources.Load("prefabs/LoadSaveList");
+        Instantiate(load_save);
     }
 
     public void openAtomMenuScrollable()
