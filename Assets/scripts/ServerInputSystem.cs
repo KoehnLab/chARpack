@@ -43,7 +43,7 @@ public class ServerInputSystem : MonoBehaviour
         {
             transform.position += moveSpeed * transform.up;
         }
-        if (Input.GetKey(KeyCode.C))
+        if (!Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.C))
         {
             transform.position -= moveSpeed * transform.up;
         }
