@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 [Serializable]
 public class Atom : MonoBehaviour, IMixedRealityPointerHandler
@@ -947,12 +949,14 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         string numBonds = m_molecule.GetLocalizedString("NUM_BONDS"); 
         string massStr = m_molecule.GetLocalizedString("MASS");
         string nameStr = m_molecule.GetLocalizedString("NAME");
-        if(name == "Dummy")
-        {
-            name = m_molecule.GetLocalizedString("DUMMY");
-        }
+        name = GetLocalizedElementName(name);
         string toolTipText = $"{nameStr}: {name}\n{massStr}: {mass}\n{rad}: {radius}\n{numBonds}: {bondNum}";
         return toolTipText;
+    }
+
+    public string GetLocalizedElementName(string text)
+    {
+        return LocalizationSettings.StringDatabase.GetLocalizedString("Elements", text);
     }
 
 }
