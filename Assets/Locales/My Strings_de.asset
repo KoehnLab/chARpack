@@ -218,6 +218,14 @@ MonoBehaviour:
     m_Localized: Platzhalter
     m_Metadata:
       m_Items: []
+  - m_Id: 1891008693911552
+    m_Localized: Englische Version
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1893316106371072
+    m_Localized: Englische Version
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

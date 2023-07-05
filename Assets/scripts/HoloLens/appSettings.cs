@@ -6,6 +6,8 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 public class appSettings : MonoBehaviour
 {
@@ -179,4 +181,18 @@ public class appSettings : MonoBehaviour
     {
         GlobalCtrl.Singleton.toggleHandMenu();
     }
+
+    // Switch languages between German and English
+    public void switchLanguage()
+    {
+        LocaleIdentifier current = LocalizationSettings.SelectedLocale.Identifier;
+        if(current == "en")
+        {
+            LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("de");
+        }
+        else
+        {
+            LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("en");
+        }
+    } 
 }

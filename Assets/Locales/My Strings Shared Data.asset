@@ -212,6 +212,15 @@ MonoBehaviour:
     m_Key: DUMMY
     m_Metadata:
       m_Items: []
+  - m_Id: 1891008693911552
+    m_Key: Settings/Settings/ButtonCollection/SwitchLanguage/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1893316106371072
+    m_Key: Settings/Settings/ButtonCollection/SwitchLanguage/IconAndText/TextMeshPro
+      1
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
