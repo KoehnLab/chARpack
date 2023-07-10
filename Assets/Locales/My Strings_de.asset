@@ -1,0 +1,231 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: My Strings_de
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: de
+  m_SharedData: {fileID: 11400000, guid: 2803bb8940043bb409c4ccb29a5926e2, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 98988588040192
+    m_Localized: Tot.Masse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 98924700401664
+    m_Localized: Bindungen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 98848846413824
+    m_Localized: Atomanzahl
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3901570400256
+    m_Localized: Atom erstellen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3929072451584
+    m_Localized: "Alle Molek\xFCle l\xF6schen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3965957160960
+    m_Localized: 'Speichern/Laden
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3999708725248
+    m_Localized: Einstellunge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4030889181184
+    m_Localized: "R\xFCckg\xE4ngig"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4088984485888
+    m_Localized: Aktuelle Hybridisierung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4259612966912
+    m_Localized: "Atommen\xFC"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4632532729856
+    m_Localized: Gitter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4739831414784
+    m_Localized: 'Debug Log
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4763302739968
+    m_Localized: Kraftfeld
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4797146578944
+    m_Localized: 'Hand: Gitter'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4837789384704
+    m_Localized: 'Hand: Gelenk'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4927312609280
+    m_Localized: 'Hand: Strahl'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4954957266944
+    m_Localized: "Hand: Men\xFC"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5021294379008
+    m_Localized: "Absto\xDFung"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5094665338880
+    m_Localized: Bindungssteifigkeit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5168279568384
+    m_Localized: Einstellungen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5229776453632
+    m_Localized: Folgen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5275636973568
+    m_Localized: "Schlie\xDFen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5358243790848
+    m_Localized: Beenden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5496316084224
+    m_Localized: "Molek\xFCldaten laden/speichern"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5572186849280
+    m_Localized: Speichern
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5799014809600
+    m_Localized: Platzhalter ersetzen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5940799062016
+    m_Localized: Reparatur versuchen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6046524882944
+    m_Localized: "Aktuelle Molek\xFCle speicher"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6111733727232
+    m_Localized: Datei
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6182353223680
+    m_Localized: Speichern
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6434724495360
+    m_Localized: "Schlie\xDFen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7238218924032
+    m_Localized: "Server manuell hinzuf\xFCgen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7381420851200
+    m_Localized: IP-Adresse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7472147841024
+    m_Localized: "Hinzuf\xFCgen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7687953170432
+    m_Localized: "L\xF6schen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7845721915392
+    m_Localized: Aktuelle Hybridisierung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7903775277056
+    m_Localized: "\xC4ndern"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8301739229184
+    m_Localized: Serverliste
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111727175827456
+    m_Localized: Einfachbindung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111910873759744
+    m_Localized: Winkelbindung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 112048224632832
+    m_Localized: Torsionsbindung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 112147172458496
+    m_Localized: Vielfachheit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 112923764621312
+    m_Localized: GG Abstand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 114869443526656
+    m_Localized: GG Winkel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115486283038720
+    m_Localized: k Winkel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119833477808128
+    m_Localized: Masse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119869385244672
+    m_Localized: Radius
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119924280295424
+    m_Localized: Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 120037694275584
+    m_Localized: Platzhalter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1891008693911552
+    m_Localized: Englische Version
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1893316106371072
+    m_Localized: Englische Version
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

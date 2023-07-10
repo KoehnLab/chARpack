@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
@@ -373,7 +375,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         calcMetaData(ref tot_mass);
         var mol_center = getCenter();
         var max_dist = getMaxDistFromCenter(mol_center);
-        string toolTipText = $"NumAtoms: {atomList.Count}\nNumBonds: {bondList.Count}\nTotMass: {tot_mass.ToString("0.00")}\nMaxRadius: {max_dist.ToString("0.00")}";
+        string toolTipText = getAtomToolTipText(tot_mass,max_dist);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
         var keepConfigSwitchButtonInstance = Instantiate(modifyMeButtonPrefab);
         keepConfigSwitchButtonInstance.GetComponent<ButtonConfigHelper>().MainLabelText = "keepConfig";
@@ -417,7 +419,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         // show meta data 
         var atom1 = atomList.ElementAtOrDefault(term.Atom1);
         var atom2 = atomList.ElementAtOrDefault(term.Atom2);
-        string toolTipText = $"Single Bond\nEqi. dist: {term.eqDist}\nk: {term.kBond}\nOrder: {term.order}";
+        string toolTipText = getBondToolTipText(term.eqDist, term.kBond, term.order);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
 
         var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
@@ -448,7 +450,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         cb.changeBondParametersBT();
         var bt = cb.bt;
         // Update tool tip
-        string toolTipText = $"Single Bond\nEqui. dist: {bt.eqDist}\nk: {bt.kBond}\nOrder: {bt.order}";
+        string toolTipText = getBondToolTipText(bt.eqDist, bt.kBond, bt.order);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
 
         changeBondParameters(bt, id);
@@ -499,7 +501,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         // add atom as connector
         toolTipInstance.GetComponent<myToolTipConnector>().Target = middleAtom.gameObject;
         // show angle term data
-        string toolTipText = $"Angle Bond\nEqui. Angle: {term.eqAngle}\nkAngle: {term.kAngle}";
+        string toolTipText = getAngleToolTipText(term.eqAngle, term.kAngle);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
 
         var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
@@ -526,7 +528,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         cb.changeBondParametersAT();
         var at = cb.at;
         // Update tool tip
-        string toolTipText = $"Angle Bond\nEqui. angle: {at.eqAngle}\nk: {at.kAngle}";
+        string toolTipText = getAngleToolTipText(at.eqAngle, at.kAngle);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
 
         changeAngleParameters(at, id);
@@ -578,7 +580,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         // add atom as connector
         toolTipInstance.GetComponent<myToolTipConnector>().Target = middlebond.gameObject;
         // show angle term data
-        string toolTipText = $"Torsion Bond\nEqui. Angle: {term.eqAngle}\nvk: {term.vk}\nnn: {term.nn}";
+        string toolTipText = getTorsionToolTipText(term.eqAngle, term.vk, term.nn);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
 
         var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
@@ -606,7 +608,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         cb.changeBondParametersTT();
         var tt = cb.tt;
         // Update tool tip
-        string toolTipText = $"Torsion Bond\nEqui. angle: {tt.eqAngle}\nvk: {tt.vk}\nnn: {tt.nn}";
+        string toolTipText = getTorsionToolTipText(tt.eqAngle, tt.vk, tt.nn);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
 
         changeTorsionParameters(tt, id);
@@ -644,6 +646,48 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             Destroy(toolTipInstance);
             toolTipInstance = null;
         }
+    }
+
+    // Helper methods to generate localized tool tip text
+    private string getAtomToolTipText(double totMass, double maxDist)
+    {
+        string numAtoms = GetLocalizedString("NUM_ATOMS");
+        string numBonds = GetLocalizedString("NUM_BONDS");
+        string mass = GetLocalizedString("TOT_MASS");
+        string toolTipText = $"{numAtoms}: {atomList.Count}\n{numBonds}: {bondList.Count}\n{mass}: {totMass.ToString("0.00")}\nMaxRadius: {maxDist.ToString("0.00")}";
+        return toolTipText;
+    }
+
+    private string getBondToolTipText(double eqDist, double kBond, double order)
+    {
+        string dist = GetLocalizedString("EQ_DIST");
+        string singleBond = GetLocalizedString("SINGLE_BOND");
+        string ord = GetLocalizedString("ORDER");
+        string toolTipText = $"{singleBond}\n{dist}: {eqDist}\nk: {kBond}\n{ord}: {order}";
+        return toolTipText;
+    }
+
+    private string getAngleToolTipText(double eqAngle, double kAngle)
+    {
+        string angleBond = GetLocalizedString("ANGLE_BOND");
+        string eqAngleStr = GetLocalizedString("EQUI_ANGLE");
+        string kAngleStr = GetLocalizedString("K_ANGLE");
+        string toolTipText = $"{angleBond}\n{eqAngleStr}: {eqAngle}\n{kAngleStr}: {kAngle}";
+        return toolTipText;
+    }
+    
+    private string getTorsionToolTipText(double eqAngle, double vk, double nn)
+    {
+        //$"Torsion Bond\nEqui. Angle: {term.eqAngle}\nvk: {term.vk}\nnn: {term.nn}"
+        string torsionBond = GetLocalizedString("TORSION_BOND");
+        string eqAngleStr = GetLocalizedString("EQUI_ANGLE");
+        string toolTipText = $"{torsionBond}\n{eqAngleStr}: {eqAngle}\nvk: {vk}\nnn: {nn}";
+        return toolTipText;
+    }
+
+    public string GetLocalizedString(string text)
+    {
+        return LocalizationSettings.StringDatabase.GetLocalizedString("My Strings", text);
     }
 
     #endregion

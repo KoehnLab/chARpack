@@ -15,5 +15,7 @@ EditorBuildSettings:
     path: Assets/Scenes/ServerScene.unity
     guid: 95dedc81217d6fc46b535e9b914523ec
   m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: 85fefef988a4566418cb64f11a16850f, type: 2}
+    com.unity.localization.settings: {fileID: 11400000, guid: c89d1f67c70363a45b1feafdccb56e5f, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: c3fe4c36bae045a499a08a7172f72f51, type: 2}
     com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 7602b06e7b6958c4b889ed9beaad348d, type: 2}

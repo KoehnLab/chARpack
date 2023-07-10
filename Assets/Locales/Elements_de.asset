@@ -1,0 +1,387 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Elements_de
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: de
+  m_SharedData: {fileID: 11400000, guid: fd73660c347dd094586e55d4f07e87fd, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 8023162880
+    m_Localized: Wasserstoff
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103653294080
+    m_Localized: Helium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 192002113536
+    m_Localized: Lithium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 325951406080
+    m_Localized: Beryllium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 412521840640
+    m_Localized: Bor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 455672840192
+    m_Localized: Kohlenstoff
+    m_Metadata:
+      m_Items: []
+  - m_Id: 530398560256
+    m_Localized: Stickstoff
+    m_Metadata:
+      m_Items: []
+  - m_Id: 575160172544
+    m_Localized: Sauerstoff
+    m_Metadata:
+      m_Items: []
+  - m_Id: 651194515456
+    m_Localized: Fluor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 711156285440
+    m_Localized: Neon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 763434090496
+    m_Localized: Natrium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 999254638592
+    m_Localized: Magnesium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1073544151040
+    m_Localized: Aluminium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1119111069696
+    m_Localized: Silizium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1195782946816
+    m_Localized: Phosphor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1244269101056
+    m_Localized: Schwefel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1288359624704
+    m_Localized: Chlor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1361407623168
+    m_Localized: Argon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1421872709632
+    m_Localized: Kalium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1516764643328
+    m_Localized: Calcium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1560385404928
+    m_Localized: Scandium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1603603513344
+    m_Localized: Titan
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1648029581312
+    m_Localized: Vanadium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1683161071616
+    m_Localized: Chrom
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1721010470912
+    m_Localized: Mangan
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1768557101056
+    m_Localized: Eisen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1816036622336
+    m_Localized: Cobalt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1903982788608
+    m_Localized: Nickel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1942033514496
+    m_Localized: Kupfer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1996156813312
+    m_Localized: Zink
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2039408476160
+    m_Localized: Gallium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2069339029504
+    m_Localized: Germanium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2101316403200
+    m_Localized: Arsen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2193423319040
+    m_Localized: Selen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2314353491968
+    m_Localized: Brom
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2364349595648
+    m_Localized: Krypton
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2397467820032
+    m_Localized: Rubidium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2431492014080
+    m_Localized: Strontium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2462261428224
+    m_Localized: Yttrium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2502392528896
+    m_Localized: Zirconium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2531182231552
+    m_Localized: Niob
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2576581378048
+    m_Localized: "Molybd\xE4n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2626543927296
+    m_Localized: Technetium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2652884156416
+    m_Localized: Ruthenium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2680398790656
+    m_Localized: Rhodium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2711600218112
+    m_Localized: Palladium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2739186155520
+    m_Localized: Silber
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2784484638720
+    m_Localized: Cadmium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2813236592640
+    m_Localized: Indium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2842701578240
+    m_Localized: Zinn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2927090974720
+    m_Localized: Antomin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2972892774400
+    m_Localized: Tellur
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3055906439168
+    m_Localized: Iod
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3102073143296
+    m_Localized: Xenon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3135564660736
+    m_Localized: Caesium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3200291160064
+    m_Localized: Barium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3231928795136
+    m_Localized: Lanthan
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3275721523200
+    m_Localized: Hafnium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3307732451328
+    m_Localized: Tantal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3343031713792
+    m_Localized: Wolfram
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3384605655040
+    m_Localized: Rhenium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3418495631360
+    m_Localized: Osmium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3449634144256
+    m_Localized: Iridium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3474862882816
+    m_Localized: Platin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3510334111744
+    m_Localized: Gold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3543615913984
+    m_Localized: Quecksilber
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3588482383872
+    m_Localized: Thallium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3668744585216
+    m_Localized: Blei
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3708871491584
+    m_Localized: Bismut
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3811581607936
+    m_Localized: Polonium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3837825368064
+    m_Localized: Astat
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3872185106432
+    m_Localized: Radon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3903424282624
+    m_Localized: Francium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3934965448704
+    m_Localized: Radium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3968318554112
+    m_Localized: Actinium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3998282661888
+    m_Localized: Rutherfordium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4049889378304
+    m_Localized: Dubnium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4061394354176
+    m_Localized: Seaborgium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4088678301696
+    m_Localized: Bohrium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4182022537216
+    m_Localized: Hassium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4192260833280
+    m_Localized: Meitnerium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4219670609920
+    m_Localized: Darmstadtium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4248900714496
+    m_Localized: Roentgenium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4302281621504
+    m_Localized: Copernicium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4700774055936
+    m_Localized: Nihonium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4966458048512
+    m_Localized: Flerovium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4977430347776
+    m_Localized: Moscovium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5040613343232
+    m_Localized: Livermorium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5158557171712
+    m_Localized: Tenness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5179662909440
+    m_Localized: Oganesson
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7154613862400
+    m_Localized: Platzhalter
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []
