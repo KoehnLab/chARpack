@@ -1593,8 +1593,7 @@ public class GlobalCtrl : MonoBehaviour
     public void openAtomMenuScrollable()
     {
         var atomMenuScrollablePrefab = (GameObject)Resources.Load("prefabs/AtomMenuScrollable");
-        GameObject AtomMenuScrollable = Instantiate(atomMenuScrollablePrefab) as GameObject;
-        AtomMenuScrollable.transform.localPosition = new Vector3(-0.95f, 0f, -0.25f);
+        Instantiate(atomMenuScrollablePrefab);
     }
 
     public void toggleHandMenu()
