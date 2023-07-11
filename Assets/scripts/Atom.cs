@@ -884,7 +884,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.transform.position = ttpos;
         // add atom as connector
         toolTipInstance.GetComponent<myToolTipConnector>().Target = gameObject;
-        string toolTipText = getToolTipText(m_data.m_name, m_data.m_mass, m_data.m_radius, m_data.m_bondNum);
+        var con_atoms = connectedAtoms();
+        string toolTipText = getToolTipText(m_data.m_name, m_data.m_mass, m_data.m_radius, con_atoms.Count);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
         GameObject modifyHybridizationInstance = null;
         if (m_data.m_abbre != "Dummy")

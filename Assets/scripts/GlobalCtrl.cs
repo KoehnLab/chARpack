@@ -376,7 +376,8 @@ public class GlobalCtrl : MonoBehaviour
             {
                 Atom a = m.atomList[i];
                 int count = 0;
-                while (a.m_data.m_bondNum > a.connectedAtoms().Count)
+                var num_bonds = calcNumBonds(a.m_data.m_hybridization, a.m_data.m_bondNum);
+                while (num_bonds > a.connectedAtoms().Count)
                 {
                     CreateDummy(m.getFreshAtomID(), m, a, calcDummyPos(a, positionsRestore, count));
                     count++;
@@ -404,19 +405,19 @@ public class GlobalCtrl : MonoBehaviour
 
         try
         {
-            deleteBond(to_delete);
+            if (!deleteBond(to_delete))
+            {
+                return;
+            }
+            EventManager.Singleton.DeleteBond((ushort)bond_id, mol_id);
         }
         catch (Exception e)
         {
             Debug.LogError($"[GlobalCrtl:deleteBondUI] Exception: {e.Message}");
         }
-        finally
-        {
-            EventManager.Singleton.DeleteBond((ushort)bond_id, mol_id);
-        }
     }
 
-    public void deleteBond(Bond b)
+    public bool deleteBond(Bond b)
     {
 
         if (b.isMarked)
@@ -429,6 +430,23 @@ public class GlobalCtrl : MonoBehaviour
         Dictionary<Atom, List<Vector3>> positionsRestore = new Dictionary<Atom, List<Vector3>>();
         List<Molecule> addMoleculeList = new List<Molecule>();
         List<Molecule> delMoleculeList = new List<Molecule>();
+        Atom a1 = b.m_molecule.atomList.ElementAtOrDefault(b.atomID1);
+        Atom a2 = b.m_molecule.atomList.ElementAtOrDefault(b.atomID2);
+
+        if (a1 == default || a2 == default)
+        {
+            Debug.LogError("[GlobalCtrl:delteBond] Could not access connected atoms.");
+            return false;
+        }
+
+        var a1_con = a1.connectedAtoms();
+        var a2_con = a2.connectedAtoms();
+        int num_a1_connections = a1_con.Count;
+        int num_a2_connections = a2_con.Count;
+
+        Dictionary<Atom, int> numConnectedAtoms = new Dictionary<Atom, int>();
+        numConnectedAtoms[a1] = num_a1_connections;
+        numConnectedAtoms[a2] = num_a2_connections;
 
         foreach (Atom a in b.m_molecule.atomList)
         {
@@ -477,28 +495,26 @@ public class GlobalCtrl : MonoBehaviour
         }
         shrinkMoleculeIDs();
 
-        foreach (Molecule m in List_curMolecules) // only check addMoleculeList?
+        foreach (var entry in numConnectedAtoms)
         {
-            int size = m.atomList.Count;
-            for (int i = 0; i < size; i++)
+            var a = entry.Key;
+            int count = 0;
+            while (entry.Value > a.connectedAtoms().Count)
             {
-                Atom a = m.atomList[i];
-                int count = 0;
-                Debug.Log($"[GlobalCrtl:deleteBond] a.connected {a.connectedAtoms().Count} a.numbond {a.m_data.m_bondNum}");
-                while (a.m_data.m_bondNum > a.connectedAtoms().Count)
-                {
-                    CreateDummy(m.getFreshAtomID(), m, a, calcDummyPos(a, positionsRestore, count));
-                    count++;
-                }
+                CreateDummy(a.m_molecule.getFreshAtomID(), a.m_molecule, a, calcDummyPos(a, positionsRestore, count));
+                count++;
             }
-            m.shrinkAtomIDs();
+            a.m_molecule.shrinkAtomIDs();
         }
+
+
         SaveMolecule(true);
         // invoke data change event for new molecules
         foreach (Molecule m in addMoleculeList)
         {
             EventManager.Singleton.ChangeMolData(m);
         }
+        return true;
     }
 
     public void toggleKeepConfigUI(Molecule to_switch)
@@ -538,14 +554,11 @@ public class GlobalCtrl : MonoBehaviour
         try
         {
             deleteMolecule(to_delete);
+            EventManager.Singleton.DeleteMolecule(mol_id);
         }
         catch (Exception e)
         {
             Debug.LogError($"[GlobalCrtl:deleteMoleculeUI] Exception: {e.Message}");
-        }
-        finally
-        {
-            EventManager.Singleton.DeleteMolecule(mol_id);
         }
     }
 
@@ -581,14 +594,11 @@ public class GlobalCtrl : MonoBehaviour
         try
         {
             deleteAtom(to_delete);
+            EventManager.Singleton.DeleteAtom(mol_id, id);
         }
         catch (Exception e)
         {
             Debug.LogError($"[GlobalCrtl:deleteAtomUI] Exception: {e.Message}");
-        }
-        finally
-        {
-            EventManager.Singleton.DeleteAtom(mol_id, id);
         }
     }
 
@@ -612,6 +622,14 @@ public class GlobalCtrl : MonoBehaviour
         List<Bond> delBondList = new List<Bond>();
         List<Molecule> delMoleculeList = new List<Molecule>();
         List<Molecule> addMoleculeList = new List<Molecule>();
+
+        List<Atom> connectedAtomList = to_delete.connectedAtoms();
+        Dictionary<Atom, int> numConnectedAtoms = new Dictionary<Atom, int>();
+        foreach (var a in connectedAtomList)
+        {
+            var conAtoms = a.connectedAtoms();
+            numConnectedAtoms[a] = conAtoms.Count;
+        }
 
 
         // add to delete list
@@ -651,22 +669,18 @@ public class GlobalCtrl : MonoBehaviour
         }
         shrinkMoleculeIDs();
 
-        foreach (Molecule m in List_curMolecules)
+        foreach (var entry in numConnectedAtoms)
         {
-            int size = m.atomList.Count;
-            for (int i = 0; i < size; i++)
+            var a = entry.Key;
+            int count = 0;
+            while (entry.Value > a.connectedAtoms().Count)
             {
-                Atom a = m.atomList[i];
-                int count = 0;
-                Debug.Log($"[GlobalCtrl:deleteAtom] should bonds: {a.m_data.m_bondNum}, actual bonds: {a.connectedAtoms().Count}");
-                while (a.m_data.m_bondNum > a.connectedAtoms().Count)
-                {
-                    CreateDummy(m.getFreshAtomID(), m, a, calcDummyPos(a, positionsRestore, count));
-                    count++;
-                }
+                CreateDummy(a.m_molecule.getFreshAtomID(), a.m_molecule, a, calcDummyPos(a, positionsRestore, count));
+                count++;
             }
-            m.shrinkAtomIDs();
+            a.m_molecule.shrinkAtomIDs();
         }
+
         SaveMolecule(true);
         // invoke data change event for new molecules
         foreach (Molecule m in addMoleculeList)
