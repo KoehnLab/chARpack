@@ -212,7 +212,7 @@ public class ForceField : MonoBehaviour
             FFlog.WriteLine("LogLevel = " + LogLevel);
         }
         // init integration variables
-        stiffness = 2;
+        stiffness = 1;
         currentMethod = Method.MidPoint;
 
         Dictionary<string, ElementData> element_dict = GlobalCtrl.Singleton.Dic_ElementData;

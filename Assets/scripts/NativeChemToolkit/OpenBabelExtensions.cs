@@ -23,7 +23,7 @@ public static class OpenBabelExtensions
             mean_pos += current_pos;
             symbols.Add(GlobalCtrl.Singleton.list_ElementData[(int)atom.GetAtomicNum()].m_abbre);
             hybridizatons.Add((ushort)atom.GetHyb());
-            Debug.Log($"[OpenBabelExtensions] Atom has type: {GlobalCtrl.Singleton.list_ElementData[(int)atom.GetAtomicNum()].m_abbre}, atomic number: {atom.GetAtomicNum()}, hyb: {atom.GetHyb()}");
+            // Debug.Log($"[OpenBabelExtensions] Atom has type: {GlobalCtrl.Singleton.list_ElementData[(int)atom.GetAtomicNum()].m_abbre}, atomic number: {atom.GetAtomicNum()}, hyb: {atom.GetHyb()}");
         }
         mean_pos /= num_atoms;
 
