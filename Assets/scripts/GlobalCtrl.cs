@@ -627,7 +627,7 @@ public class GlobalCtrl : MonoBehaviour
         Dictionary<Atom, int> numConnectedAtoms = new Dictionary<Atom, int>();
         foreach (var a in connectedAtomList)
         {
-            if (a.m_data.m_abbre != "H" || a.m_data.m_abbre != "Dummy")
+            if (a.m_data.m_abbre != "H" && a.m_data.m_abbre != "Dummy")
             {
                 var conAtoms = a.connectedAtoms();
                 numConnectedAtoms[a] = conAtoms.Count;
