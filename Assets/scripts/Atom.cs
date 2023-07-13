@@ -23,6 +23,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     private GameObject toolTipInstance = null;
     private float toolTipDistanceWeight = 2.5f;
     private Color currentOutlineColor = Color.black;
+    public bool keepConfig = false;
 
     private List<Atom> currentChain = new List<Atom>();
 

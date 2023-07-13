@@ -80,7 +80,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject changeBondWindowPrefab;
     public GameObject toolTipInstance;
     private float toolTipDistanceWeight = 0.01f;
-    public bool keepConfig = false;
 
     /// <summary>
     /// molecule id
@@ -122,7 +121,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         if (mol_data.keepConfig)
         {
-            keepConfig = true;
             bondTerms.Clear();
             angleTerms.Clear();
             torsionTerms.Clear();
@@ -898,7 +896,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
                     var dreiding_eqDist = R01 + R02 - 1f;
 
-                    if (keepConfig)
+                    if (atomList[iAtom].keepConfig && atomList[jAtom].keepConfig)
                     {
                         var currentDist = (FFposition[iAtom] - FFposition[jAtom]).magnitude;
                         if (currentDist.approx(0.0f, 0.00001f))
@@ -983,7 +981,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                     newAngle.Atom3 = (ushort)idx;
 
                     float phi0;
-                    if (keepConfig)
+                    if (atomList[newAngle.Atom1].keepConfig && atomList[newAngle.Atom2].keepConfig && atomList[newAngle.Atom3].keepConfig)
                     {
                         var vec1 = FFposition[newAngle.Atom3] - FFposition[newAngle.Atom2];
                         var vec2 = FFposition[newAngle.Atom1] - FFposition[newAngle.Atom2];
@@ -1180,7 +1178,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                                 newTorsion.eqAngle = 90f;
                             }
                         }
-                        if (keepConfig)
+                        if (atomList[newTorsion.Atom1].keepConfig && atomList[newTorsion.Atom2].keepConfig && atomList[newTorsion.Atom3].keepConfig && atomList[newTorsion.Atom4].keepConfig)
                         {
                             //var vec1 = FFposition[idx] - FFposition[jdx];
                             //var vec2 = FFposition[ldx] - FFposition[kdx];
@@ -1201,7 +1199,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                             newTorsion.eqAngle = Mathf.Sign(Vector3.Dot(rij, nNormal)) * Mathf.Acos(cosAlpha) * Mathf.Rad2Deg;
 
                             //UnityEngine.Debug.Log($"[Molecule:generateFF] keepConfig - Torsion phi: {newTorsion.eqAngle}");
-                            newTorsion.nn = 1;
+                            newTorsion.nn = 1; //TODO check if we can use real nn
                         }
                         torsionTerms.Add(newTorsion);
                     }

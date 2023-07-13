@@ -521,31 +521,31 @@ public class GlobalCtrl : MonoBehaviour
 
     public void toggleKeepConfigUI(Molecule to_switch)
     {
-        setKeepConfig(to_switch, !to_switch.keepConfig);
-        EventManager.Singleton.SetKeepConfig(to_switch.m_id, to_switch.keepConfig);
+        //setKeepConfig(to_switch, !to_switch.keepConfig);
+        //EventManager.Singleton.SetKeepConfig(to_switch.m_id, to_switch.keepConfig);
     }
 
     public void setKeepConfig(Molecule to_switch, bool keep_config)
     {
-        if (to_switch.keepConfig != keep_config)
-        {
-            to_switch.keepConfig = keep_config;
-            to_switch.generateFF();
-        }
+        //if (to_switch.keepConfig != keep_config)
+        //{
+        //    to_switch.keepConfig = keep_config;
+        //    to_switch.generateFF();
+        //}
     }
 
     public bool setKeepConfig(ushort mol_id, bool keep_config)
     {
-        var to_switch = List_curMolecules.ElementAtOrDefault(mol_id);
-        if (to_switch == default)
-        {
-            return false;
-        }
-        if (to_switch.keepConfig != keep_config)
-        {
-            to_switch.keepConfig = keep_config;
-            to_switch.generateFF();
-        }
+        //var to_switch = List_curMolecules.ElementAtOrDefault(mol_id);
+        //if (to_switch == default)
+        //{
+        //    return false;
+        //}
+        //if (to_switch.keepConfig != keep_config)
+        //{
+        //    to_switch.keepConfig = keep_config;
+        //    to_switch.generateFF();
+        //}
         return true;
     }
 
@@ -1328,36 +1328,23 @@ public class GlobalCtrl : MonoBehaviour
             }
 
             cmlData tempData;
-            if (inputMole.keepConfig)
+            List<cmlBond> list_bond = new List<cmlBond>();
+            foreach (var b in inputMole.bondTerms)
             {
-                List<cmlBond> list_bond = new List<cmlBond>();
-                foreach (var b in inputMole.bondTerms)
-                {
-                    list_bond.Add(new cmlBond(b.Atom1, b.Atom2, b.order, b.eqDist, b.kBond));
-                }
-                List<cmlAngle> list_angle = new List<cmlAngle>();
-                foreach (var b in inputMole.angleTerms)
-                {
-                    list_angle.Add(new cmlAngle(b.Atom1, b.Atom2, b.Atom3, b.eqAngle, b.kAngle));
-                }
-                List<cmlTorsion> list_torsion = new List<cmlTorsion>();
-                foreach (var b in inputMole.torsionTerms)
-                {
-                    list_torsion.Add(new cmlTorsion(b.Atom1, b.Atom2, b.Atom3, b.Atom4, b.eqAngle, b.vk, b.nn));
-                }
-
-                tempData = new cmlData(inputMole.transform.localPosition, inputMole.transform.localRotation, inputMole.m_id, list_atom, list_bond, list_angle, list_torsion, true);
+                list_bond.Add(new cmlBond(b.Atom1, b.Atom2, b.order, b.eqDist, b.kBond));
             }
-            else
+            List<cmlAngle> list_angle = new List<cmlAngle>();
+            foreach (var b in inputMole.angleTerms)
             {
-                List<cmlBond> list_bond = new List<cmlBond>();
-                foreach (Bond b in inputMole.bondList)
-                {
-                    list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
-                }
-                tempData = new cmlData(inputMole.transform.localPosition, inputMole.transform.localRotation, inputMole.m_id, list_atom, list_bond);
+                list_angle.Add(new cmlAngle(b.Atom1, b.Atom2, b.Atom3, b.eqAngle, b.kAngle));
+            }
+            List<cmlTorsion> list_torsion = new List<cmlTorsion>();
+            foreach (var b in inputMole.torsionTerms)
+            {
+                list_torsion.Add(new cmlTorsion(b.Atom1, b.Atom2, b.Atom3, b.Atom4, b.eqAngle, b.vk, b.nn));
             }
 
+            tempData = new cmlData(inputMole.transform.localPosition, inputMole.transform.localRotation, inputMole.m_id, list_atom, list_bond, list_angle, list_torsion, true);
             saveData.Add(tempData);
         }
 
@@ -1387,6 +1374,13 @@ public class GlobalCtrl : MonoBehaviour
                 for (int i = 0; i < molecule.bondArray.Length; i++)
                 {
                     CreateBond(tempMolecule.atomList.ElementAtOrDefault(molecule.bondArray[i].id1), tempMolecule.atomList.ElementAtOrDefault(molecule.bondArray[i].id2), tempMolecule);
+                }
+                if (molecule.keepConfig)
+                {
+                    foreach (var atom in tempMolecule.atomList)
+                    {
+                        atom.keepConfig = true;
+                    }
                 }
                 EventManager.Singleton.ChangeMolData(tempMolecule);
             }
