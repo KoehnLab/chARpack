@@ -230,6 +230,10 @@ MonoBehaviour:
     m_Localized: Chain Mode
     m_Metadata:
       m_Items: []
+  - m_Id: 5165129048031232
+    m_Localized: Copy
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

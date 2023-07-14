@@ -76,6 +76,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject toggleDummiesButtonPrefab;
     [HideInInspector] public static GameObject undoButtonPrefab;
     [HideInInspector] public static GameObject changeBondWindowPrefab;
+    [HideInInspector] public static GameObject copyButtonPrefab;
     public GameObject toolTipInstance;
     private float toolTipDistanceWeight = 0.01f;
 
@@ -380,6 +381,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var toggleDummiesButtonInstance = Instantiate(toggleDummiesButtonPrefab);
         toggleDummiesButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { toggleDummies(); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(toggleDummiesButtonInstance);
+        var copyButtonInstance = Instantiate(copyButtonPrefab);
+        copyButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.copyMolecule(this); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(copyButtonInstance);
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
         closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markMoleculeUI(false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);

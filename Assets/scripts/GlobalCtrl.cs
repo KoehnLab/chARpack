@@ -198,6 +198,7 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.changeBondWindowPrefab = (GameObject)Resources.Load("prefabs/ChangeBondWindow");
         Molecule.toggleDummiesButtonPrefab = (GameObject)Resources.Load("prefabs/ToggleDummiesButton");
         Molecule.undoButtonPrefab = (GameObject)Resources.Load("prefabs/UndoButton");
+        Molecule.copyButtonPrefab = (GameObject)Resources.Load("prefabs/CopyMeButton");
 
         Debug.Log("[GlobalCtrl] Initialization complete.");
 
@@ -1199,6 +1200,48 @@ public class GlobalCtrl : MonoBehaviour
         List_curMolecules[mol_id].changeTorsionParameters(new_term, term_id);
 
         return true;
+    }
+
+
+
+    public void copyMolecule(Molecule molecule)
+    {
+        // save old molecule data
+        Vector3 molePos = molecule.transform.localPosition;
+        List<cmlAtom> list_atom = new List<cmlAtom>();
+        foreach (Atom a in molecule.atomList)
+        {
+
+            list_atom.Add(new cmlAtom(a.m_id, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
+        }
+        List<cmlBond> list_bond = new List<cmlBond>();
+        foreach (Bond b in molecule.bondList)
+        {
+            list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
+        }
+        cmlData moleData = new cmlData(molePos, molecule.transform.rotation, molecule.m_id, list_atom, list_bond);
+
+
+        // Create new molecule
+        var freshMoleculeID = getFreshMoleculeID();
+
+        Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, moleData.molePos, Quaternion.identity).AddComponent<Molecule>();
+        tempMolecule.f_Init(freshMoleculeID, atomWorld.transform, moleData);
+        List_curMolecules.Add(tempMolecule);
+
+        //LOAD STRUCTURE CHECK LIST / DICTIONNARY
+
+        for (int i = 0; i < moleData.atomArray.Length; i++)
+        {
+            RebuildAtom(moleData.atomArray[i].id, moleData.atomArray[i].abbre, moleData.atomArray[i].hybrid, moleData.atomArray[i].pos, tempMolecule);
+        }
+        for (int i = 0; i < moleData.bondArray.Length; i++)
+        {
+            CreateBond(tempMolecule.atomList.ElementAtOrDefault(moleData.bondArray[i].id1), tempMolecule.atomList.ElementAtOrDefault(moleData.bondArray[i].id2), tempMolecule);
+        }
+        moveMolecule(freshMoleculeID, moleData.molePos + Vector3.up*0.05f, moleData.moleQuat);
+        EventManager.Singleton.MoveMolecule(freshMoleculeID, moleData.molePos + Vector3.up * 0.05f, moleData.moleQuat);
+        EventManager.Singleton.ChangeMolData(tempMolecule);
     }
     #endregion
 
