@@ -226,6 +226,10 @@ MonoBehaviour:
     m_Localized: German Version
     m_Metadata:
       m_Items: []
+  - m_Id: 5142275573186560
+    m_Localized: Chain Mode
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
