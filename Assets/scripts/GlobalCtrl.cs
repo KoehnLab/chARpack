@@ -12,6 +12,8 @@ using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Reflection;
 using Microsoft.MixedReality.Toolkit.Input;
 using System.Linq;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 [Serializable]
 public class GlobalCtrl : MonoBehaviour
@@ -1639,6 +1641,11 @@ public class GlobalCtrl : MonoBehaviour
     {
         if (isAnyAtomChanged)
             CFileHelper.SaveData(Application.streamingAssetsPath + "/MoleculeFolder/ElementData.xml", list_ElementData);
+    }
+
+    public string GetLocalizedString(string text)
+    {
+        return LocalizationSettings.StringDatabase.GetLocalizedString("My Strings", text);
     }
 
 }

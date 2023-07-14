@@ -9,8 +9,6 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Localization;
-using UnityEngine.Localization.Settings;
 
 public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
@@ -649,27 +647,27 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     // Helper methods to generate localized tool tip text
     private string getAtomToolTipText(double totMass, double maxDist)
     {
-        string numAtoms = GetLocalizedString("NUM_ATOMS");
-        string numBonds = GetLocalizedString("NUM_BONDS");
-        string mass = GetLocalizedString("TOT_MASS");
+        string numAtoms = GlobalCtrl.Singleton.GetLocalizedString("NUM_ATOMS");
+        string numBonds = GlobalCtrl.Singleton.GetLocalizedString("NUM_BONDS");
+        string mass = GlobalCtrl.Singleton.GetLocalizedString("TOT_MASS");
         string toolTipText = $"{numAtoms}: {atomList.Count}\n{numBonds}: {bondList.Count}\n{mass}: {totMass.ToString("0.00")}\nMaxRadius: {maxDist.ToString("0.00")}";
         return toolTipText;
     }
 
     private string getBondToolTipText(double eqDist, double kBond, double order)
     {
-        string dist = GetLocalizedString("EQ_DIST");
-        string singleBond = GetLocalizedString("SINGLE_BOND");
-        string ord = GetLocalizedString("ORDER");
+        string dist = GlobalCtrl.Singleton.GetLocalizedString("EQ_DIST");
+        string singleBond = GlobalCtrl.Singleton.GetLocalizedString("SINGLE_BOND");
+        string ord = GlobalCtrl.Singleton.GetLocalizedString("ORDER");
         string toolTipText = $"{singleBond}\n{dist}: {eqDist}\nk: {kBond}\n{ord}: {order}";
         return toolTipText;
     }
 
     private string getAngleToolTipText(double eqAngle, double kAngle)
     {
-        string angleBond = GetLocalizedString("ANGLE_BOND");
-        string eqAngleStr = GetLocalizedString("EQUI_ANGLE");
-        string kAngleStr = GetLocalizedString("K_ANGLE");
+        string angleBond = GlobalCtrl.Singleton.GetLocalizedString("ANGLE_BOND");
+        string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
+        string kAngleStr = GlobalCtrl.Singleton.GetLocalizedString("K_ANGLE");
         string toolTipText = $"{angleBond}\n{eqAngleStr}: {eqAngle}\n{kAngleStr}: {kAngle}";
         return toolTipText;
     }
@@ -677,15 +675,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private string getTorsionToolTipText(double eqAngle, double vk, double nn)
     {
         //$"Torsion Bond\nEqui. Angle: {term.eqAngle}\nvk: {term.vk}\nnn: {term.nn}"
-        string torsionBond = GetLocalizedString("TORSION_BOND");
-        string eqAngleStr = GetLocalizedString("EQUI_ANGLE");
+        string torsionBond = GlobalCtrl.Singleton.GetLocalizedString("TORSION_BOND");
+        string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
         string toolTipText = $"{torsionBond}\n{eqAngleStr}: {eqAngle}\nvk: {vk}\nnn: {nn}";
         return toolTipText;
-    }
-
-    public string GetLocalizedString(string text)
-    {
-        return LocalizationSettings.StringDatabase.GetLocalizedString("My Strings", text);
     }
 
     #endregion

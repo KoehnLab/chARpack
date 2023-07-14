@@ -947,10 +947,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
     private string getToolTipText(string name, double mass, double radius, double bondNum)
     {
         //$"Name: {m_data.m_name}\nMass: {m_data.m_mass}\nRadius: {m_data.m_radius}\nNumBonds: {m_data.m_bondNum}"
-        string rad = m_molecule.GetLocalizedString("RADIUS");
-        string numBonds = m_molecule.GetLocalizedString("NUM_BONDS"); 
-        string massStr = m_molecule.GetLocalizedString("MASS");
-        string nameStr = m_molecule.GetLocalizedString("NAME");
+        string rad = GlobalCtrl.Singleton.GetLocalizedString("RADIUS");
+        string numBonds = GlobalCtrl.Singleton.GetLocalizedString("NUM_BONDS"); 
+        string massStr = GlobalCtrl.Singleton.GetLocalizedString("MASS");
+        string nameStr = GlobalCtrl.Singleton.GetLocalizedString("NAME");
         name = GetLocalizedElementName(name);
         string toolTipText = $"{nameStr}: {name}\n{massStr}: {mass}\n{rad}: {radius}\n{numBonds}: {bondNum}";
         return toolTipText;
