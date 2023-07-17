@@ -28,7 +28,8 @@ public enum ClientToServerID : ushort
     changeTorsionTerm = 23,
     markTerm = 24,
     modifyHyb = 25,
-    keepConfig = 26
+    keepConfig = 26,
+    replaceDummies = 27
 }
 
 public enum ServerToClientID : ushort
@@ -55,7 +56,8 @@ public enum ServerToClientID : ushort
     bcastChangeTorsionTerm = 20,
     bcastMarkTerm = 21,
     bcastModifyHyb = 22,
-    bcastKeepConfig = 23
+    bcastKeepConfig = 23,
+    bcastReplaceDummies = 24
 }
 
 public enum myDeviceType : ushort

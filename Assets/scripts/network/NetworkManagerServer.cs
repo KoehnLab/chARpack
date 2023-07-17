@@ -60,6 +60,14 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnMergeMolecule += bcastMergeMolecule;
         EventManager.Singleton.OnSelectAtom += bcastSelectAtom;
         EventManager.Singleton.OnCreateAtom += bcastCreateAtom;
+        EventManager.Singleton.OnDeleteAtom += bcastDeleteAtom;
+        EventManager.Singleton.OnDeleteMolecule += bcastDeleteMolecule;
+        EventManager.Singleton.OnReplaceDummies += bcastReplaceDummies;
+        EventManager.Singleton.OnSelectMolecule += bcastSelectMolecule;
+        EventManager.Singleton.OnSelectBond += bcastSelectBond;
+        EventManager.Singleton.OnMarkTerm += bcastMarkTerm;
+        EventManager.Singleton.OnMoveMolecule += bcastMoveMolecule;
+
     }
 
 
@@ -136,6 +144,17 @@ public class NetworkManagerServer : MonoBehaviour
         Server.SendToAll(message);
     }
 
+    public void bcastMoveMolecule(ushort mol_id, Vector3 pos, Quaternion quat)
+    {
+        // Broadcast to other clients
+        Message message = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastMoleculeMoved);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        message.AddVector3(pos);
+        message.AddQuaternion(quat);
+        Server.SendToAll(message);
+    }
+
     public void bcastMergeMolecule(ushort mol1ID, ushort atom1ID, ushort mol2ID, ushort atom2ID)
     {
         Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastMoleculeMerged);
@@ -157,6 +176,24 @@ public class NetworkManagerServer : MonoBehaviour
         Server.SendToAll(message);
     }
 
+    public void bcastSelectMolecule(ushort mol_id, bool selected)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastSelectMolecule);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        message.AddBool(selected);
+        Server.SendToAll(message);
+    }
+    public void bcastSelectBond(ushort bond_id, ushort mol_id, bool selected)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastSelectBond);
+        message.AddUShort(0);
+        message.AddUShort(bond_id);
+        message.AddUShort(mol_id);
+        message.AddBool(selected);
+        Server.SendToAll(message);
+    }
+
     public void bcastCreateAtom(ushort id, string abbre, Vector3 pos, ushort hyb)
     {
         Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastAtomCreated);
@@ -168,6 +205,42 @@ public class NetworkManagerServer : MonoBehaviour
         Server.SendToAll(message);
     }
 
+    public void bcastDeleteAtom(ushort mol_id, ushort atom_id)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastDeleteAtom);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        message.AddUShort(atom_id);
+        Server.SendToAll(message);
+    }
+
+    public void bcastDeleteMolecule(ushort mol_id)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastDeleteMolecule);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        Server.SendToAll(message);
+    }
+
+    public void bcastReplaceDummies(ushort mol_id)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastReplaceDummies);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        Server.SendToAll(message);
+    }
+
+    public void bcastMarkTerm(ushort term_type, ushort mol_id, ushort term_id, bool marked)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastMarkTerm);
+        message.AddUShort(0);
+        message.AddUShort(term_type);
+        message.AddUShort(mol_id);
+        message.AddUShort(term_id);
+        message.AddBool(marked);
+        Server.SendToAll(message);
+    }
+    
     #endregion
 
     #region MessageHandler
@@ -680,6 +753,28 @@ public class NetworkManagerServer : MonoBehaviour
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(mol_id);
         outMessage.AddBool(keep_config);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
+
+    [MessageHandler((ushort)ClientToServerID.replaceDummies)]
+    private static void getReplaceDummies(ushort fromClientId, Message message)
+    {
+        var mol_id = message.GetUShort();
+
+        // do the move on the server
+        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+        if (mol == default)
+        {
+            Debug.LogError($"[NetworkManagerServer:getReplaceDummies] Molecule with id {mol_id} does not exist.\nSynchronizing world with client {fromClientId}.");
+            NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
+            return;
+        }
+        mol.toggleDummies();
+
+        // Broadcast to other clients
+        Message outMessage = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastReplaceDummies);
+        outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(mol_id);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
 

@@ -169,6 +169,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void adjustBBox(Molecule mol)
     {
+#if !WINDOWS_UWP
+        GetComponent<myBoundingBox>().setNormalMaterial(false);
+#else
         if (mol == this)
         {
             if (GlobalCtrl.Singleton.List_curMolecules.Contains(mol))
@@ -176,6 +179,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 StartCoroutine(adjustBBoxCoroutine());
             }
         }
+#endif
     }
 
     // Need coroutine to use sleep
@@ -290,6 +294,14 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             }
         }
         GlobalCtrl.Singleton.SaveMolecule(true);
+    }
+
+    /// <summary>
+    /// all dummys are replaced by hydrogens
+    /// </summary>
+    public void toggleDummiesUI()
+    {
+        toggleDummies();
         EventManager.Singleton.ChangeMolData(this);
         EventManager.Singleton.ReplaceDummies(m_id);
     }
@@ -357,14 +369,14 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     }
 
-    #region ToolTips
+#region ToolTips
 
     private void createToolTip()
     {
         // create tool tip
         toolTipInstance = Instantiate(myToolTipPrefab);
         // put tool top to the right 
-        Vector3 ttpos = transform.position + toolTipDistanceWeight * GlobalCtrl.Singleton.currentCamera.transform.right + toolTipDistanceWeight * GlobalCtrl.Singleton.currentCamera.transform.up;
+        Vector3 ttpos = transform.position + toolTipDistanceWeight * GlobalCtrl.Singleton.mainCamera.transform.right + toolTipDistanceWeight * GlobalCtrl.Singleton.mainCamera.transform.up;
         toolTipInstance.transform.position = ttpos;
         // add atom as connector
         toolTipInstance.GetComponent<myToolTipConnector>().Target = gameObject;
@@ -375,12 +387,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var max_dist = getMaxDistFromCenter(mol_center);
         string toolTipText = getAtomToolTipText(tot_mass,max_dist);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
-        var keepConfigSwitchButtonInstance = Instantiate(modifyMeButtonPrefab);
-        keepConfigSwitchButtonInstance.GetComponent<ButtonConfigHelper>().MainLabelText = "keepConfig";
-        keepConfigSwitchButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.toggleKeepConfigUI(this); });
-        toolTipInstance.GetComponent<DynamicToolTip>().addContent(keepConfigSwitchButtonInstance);
+        //var keepConfigSwitchButtonInstance = Instantiate(modifyMeButtonPrefab);
+        //keepConfigSwitchButtonInstance.GetComponent<ButtonConfigHelper>().MainLabelText = "keepConfig";
+        //keepConfigSwitchButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.toggleKeepConfigUI(this); });
+        //toolTipInstance.GetComponent<DynamicToolTip>().addContent(keepConfigSwitchButtonInstance);
         var toggleDummiesButtonInstance = Instantiate(toggleDummiesButtonPrefab);
-        toggleDummiesButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { toggleDummies(); });
+        toggleDummiesButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { toggleDummiesUI(); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(toggleDummiesButtonInstance);
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
         closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markMoleculeUI(false); });
@@ -688,9 +700,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         return LocalizationSettings.StringDatabase.GetLocalizedString("My Strings", text);
     }
 
-    #endregion
+#endregion
 
-    #region id_management
+#region id_management
     /// <summary>
     /// this method gets the maximum atomID currently in the scene
     /// </summary>
@@ -768,9 +780,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             return (ushort)(getMaxAtomID() + 1);
         }
     }
-    #endregion
+#endregion
 
-    #region ForceField
+#region ForceField
 
     public List<Vector3> FFposition = new List<Vector3>();
     public List<Vector3> FFlastPosition = new List<Vector3>();
@@ -1208,7 +1220,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
-    #endregion
+#endregion
 
     public void OnDestroy()
     {

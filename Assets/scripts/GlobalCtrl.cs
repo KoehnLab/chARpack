@@ -1504,7 +1504,7 @@ public class GlobalCtrl : MonoBehaviour
     public void createAtomUI(string ChemicalID)
     {
         lastAtom = ChemicalID; // remember this for later
-        Vector3 create_position = currentCamera.transform.position + 0.5f * Camera.main.transform.forward;
+        Vector3 create_position = currentCamera.transform.position + 0.5f * currentCamera.transform.forward;
         var newID = getFreshMoleculeID();
         CreateAtom(newID, ChemicalID, create_position, curHybrid);
 

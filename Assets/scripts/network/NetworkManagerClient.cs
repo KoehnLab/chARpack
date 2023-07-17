@@ -95,6 +95,7 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnMarkTerm += sendMarkTerm;
         EventManager.Singleton.OnModifyHyb += sendModifyHyb;
         EventManager.Singleton.OnSetKeepConfig += sendKeepConfig;
+        EventManager.Singleton.OnReplaceDummies += sendReplaceDummies;
     }
 
     private void FixedUpdate()
@@ -398,6 +399,15 @@ public class NetworkManagerClient : MonoBehaviour
         message.AddBool(keep_config);
         Client.Send(message);
     }
+
+
+    public void sendReplaceDummies(ushort mol_id)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.replaceDummies);
+        message.AddUShort(mol_id);
+        Client.Send(message);
+    }
+    
 
     #endregion
 
@@ -798,12 +808,30 @@ public class NetworkManagerClient : MonoBehaviour
         {
             if (!GlobalCtrl.Singleton.setKeepConfig(mol_id, keep_config))
             {
-                Debug.LogError($"[NetworkManagerServer:getModifyHyb] Molecule {mol_id} does not exists.\nRequesing world sync.");
+                Debug.LogError($"[NetworkManagerServer:getKeepConfig] Could not set keep config.\nRequesing world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
         }
     }
 
+    [MessageHandler((ushort)ServerToClientID.bcastReplaceDummies)]
+    private static void getReplaceDummies(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
+
+        // do the change
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+            if (mol == default)
+            {
+                Debug.LogError($"[NetworkManagerServer:getReplaceDummies] Molecule {mol_id} does not exists.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
+            mol.toggleDummies();
+        }
+    }
     #endregion
 
 }

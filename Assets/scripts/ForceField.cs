@@ -125,7 +125,7 @@ public class ForceField : MonoBehaviour
 
     public static Dictionary<string, float> rhs = new Dictionary<string, float>();
     public static Dictionary<string, float[]> DREIDINGConst = new Dictionary<string, float[]> {
-        { "Dummy_0", new[] {16f,180f} },
+        { "Dummy_0", new[] {33f,180f} },
         { "H_0", new[] {33f,180f} },
         { "B_3", new[] {88f,109.471f} },
         { "B_2", new[] {79f,120f} },

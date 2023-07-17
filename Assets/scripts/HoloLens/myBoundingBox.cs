@@ -141,6 +141,7 @@ public class myBoundingBox : MonoBehaviour
             cornerHandles[i].transform.rotation = cornerOrientation[i];
             cornerHandles[i].AddComponent<BoxCollider>();
             cornerHandles[i].AddComponent<NearInteractionGrabbable>();
+            cornerHandles[i].AddComponent<cornerClickScript>();
 
             if (myHandleMaterialWithFade != null)
             {
