@@ -137,6 +137,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             var dot_products = new List<float>();
             foreach (var atom in con_atoms)
             {
+                if (atom.isGrabbed)
+                {
+                    GlobalCtrl.Singleton.SeparateMolecule(this, atom);
+                }
                 var dir = atom.transform.position - transform.position;
                 dot_products.Add(Vector3.Dot(fwd, dir));
             }

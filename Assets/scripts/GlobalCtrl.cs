@@ -251,7 +251,6 @@ public class GlobalCtrl : MonoBehaviour
         }
         return num_atoms;
     }
-
     #endregion
 
     #region delete
@@ -1167,6 +1166,22 @@ public class GlobalCtrl : MonoBehaviour
     public void MergeMolecule(ushort molInHand, ushort dummyInHand, ushort molInAir, ushort dummyInAir)
     {
         MergeMolecule(List_curMolecules[molInHand].atomList[dummyInHand], List_curMolecules[molInAir].atomList[dummyInAir]);
+    }
+
+    /// This method separates a molecule between two grabbed atoms
+    /// This method is called when a bond will be deleted and two atoms are separated
+    /// </summary>
+    /// <param name="atom1">the first of the grabbed atoms</param>
+    /// <param name="atom2">the second of the grabbed atoms</param>
+    public void SeparateMolecule(Atom atom1, Atom atom2)
+    {
+        Molecule mol = atom1.m_molecule;
+
+        Bond bond = mol.bondList.Find(p => (p.atomID1 == atom1.m_id && p.atomID2 == atom2.m_id)
+                                            || (p.atomID1 == atom2.m_id && p.atomID2 == atom1.m_id));
+
+        deleteBondUI(bond);
+
     }
 
     public bool changeBondTerm(ushort mol_id, ushort term_id, ForceField.BondTerm new_term)
