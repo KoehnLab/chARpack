@@ -67,6 +67,9 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnSelectBond += bcastSelectBond;
         EventManager.Singleton.OnMarkTerm += bcastMarkTerm;
         EventManager.Singleton.OnMoveMolecule += bcastMoveMolecule;
+        EventManager.Singleton.OnChangeBondTerm += bcastChangeBondTerm;
+        EventManager.Singleton.OnChangeAngleTerm += bcastChangeAngleTerm;
+        EventManager.Singleton.OnChangeTorsionTerm += bcastChangeTorsionTerm;
 
     }
 
@@ -240,7 +243,36 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddBool(marked);
         Server.SendToAll(message);
     }
-    
+
+    public void bcastChangeBondTerm(ForceField.BondTerm term, ushort mol_id, ushort term_id)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.changeBondTerm);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        message.AddUShort(term_id);
+        message.AddBondTerm(term);
+        Server.SendToAll(message);
+    }
+
+    public void bcastChangeAngleTerm(ForceField.AngleTerm term, ushort mol_id, ushort term_id)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.changeAngleTerm);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        message.AddUShort(term_id);
+        message.AddAngleTerm(term);
+        Server.SendToAll(message);
+    }
+
+    public void bcastChangeTorsionTerm(ForceField.TorsionTerm term, ushort mol_id, ushort term_id)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.changeTorsionTerm);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        message.AddUShort(term_id);
+        message.AddTorsionTerm(term);
+        Server.SendToAll(message);
+    }
     #endregion
 
     #region MessageHandler
@@ -405,7 +437,7 @@ public class NetworkManagerServer : MonoBehaviour
         {
             atom.m_molecule.markMolecule(false);
         }
-        atom.advancedMarkAtom(selected);
+        atom.advancedMarkAtom(selected, true);
 
         // Broadcast to other clients
         Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastSelectAtom);
@@ -430,7 +462,7 @@ public class NetworkManagerServer : MonoBehaviour
             NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
             return;
         }
-        mol.markMolecule(selected);
+        mol.markMolecule(selected, true);
 
         // Broadcast to other clients
         Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastSelectMolecule);
