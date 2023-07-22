@@ -70,6 +70,9 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnChangeBondTerm += bcastChangeBondTerm;
         EventManager.Singleton.OnChangeAngleTerm += bcastChangeAngleTerm;
         EventManager.Singleton.OnChangeTorsionTerm += bcastChangeTorsionTerm;
+        EventManager.Singleton.OnModifyHyb += bcastModifyHyb;
+        EventManager.Singleton.OnChangeAtom +=  bcastChangeAtom;
+        EventManager.Singleton.OnDeleteBond +=  sendDeleteBond;
 
     }
 
@@ -246,7 +249,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastChangeBondTerm(ForceField.BondTerm term, ushort mol_id, ushort term_id)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.changeBondTerm);
+        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastChangeBondTerm);
         message.AddUShort(0);
         message.AddUShort(mol_id);
         message.AddUShort(term_id);
@@ -256,7 +259,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastChangeAngleTerm(ForceField.AngleTerm term, ushort mol_id, ushort term_id)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.changeAngleTerm);
+        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastChangeAngleTerm);
         message.AddUShort(0);
         message.AddUShort(mol_id);
         message.AddUShort(term_id);
@@ -266,11 +269,40 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastChangeTorsionTerm(ForceField.TorsionTerm term, ushort mol_id, ushort term_id)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.changeTorsionTerm);
+        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastChangeTorsionTerm);
         message.AddUShort(0);
         message.AddUShort(mol_id);
         message.AddUShort(term_id);
         message.AddTorsionTerm(term);
+        Server.SendToAll(message);
+    }
+
+    public void bcastModifyHyb(ushort mol_id, ushort atom_id, ushort hyb)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastModifyHyb);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        message.AddUShort(atom_id);
+        message.AddUShort(hyb);
+        Server.SendToAll(message);
+    }
+
+    public void bcastChangeAtom(ushort mol_id, ushort atom_id, string chemAbbre)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastChangeAtom);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        message.AddUShort(atom_id);
+        message.AddString(chemAbbre);
+        Server.SendToAll(message);
+    }
+
+    public void sendDeleteBond(ushort bond_id, ushort mol_id)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastDeleteBond);
+        message.AddUShort(0);
+        message.AddUShort(bond_id);
+        message.AddUShort(mol_id);
         Server.SendToAll(message);
     }
     #endregion
