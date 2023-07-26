@@ -130,7 +130,7 @@ public static class OpenBabelExtensions
     /// </summary>
     public static OBVector3 AsOBVector3(this Vector3 vector)
     {
-        return new OBVector3(vector.x, vector.y, vector.z);
+        return new OBVector3(vector.x, vector.y, -vector.z);
     }
 
     /// <summary>
@@ -138,7 +138,7 @@ public static class OpenBabelExtensions
     /// </summary>
     public static Vector3 AsVector3(this OBVector3 vector)
     {
-        return new Vector3((float)vector.GetX(), (float)vector.GetY(), (float)vector.GetZ());
+        return new Vector3((float)vector.GetX(), (float)vector.GetY(), -(float)vector.GetZ());
     }
 
     public static string AsCommaSeparatedString(this string[] list)
