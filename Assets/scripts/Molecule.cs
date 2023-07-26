@@ -366,7 +366,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         Vector3 ttpos = transform.position + toolTipDistanceWeight * GlobalCtrl.Singleton.currentCamera.transform.right + toolTipDistanceWeight * GlobalCtrl.Singleton.currentCamera.transform.up;
         toolTipInstance.transform.position = ttpos;
         // add atom as connector
-        toolTipInstance.GetComponent<myToolTipConnector>().Target = gameObject;
+        toolTipInstance.GetComponent<myToolTipConnector>().Target = atomList[0].gameObject;
         // calc some meta data to show
         float tot_mass = 0.0f;
         calcMetaData(ref tot_mass);
