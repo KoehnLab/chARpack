@@ -402,7 +402,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         markBondTerm(term, true);
         var bond = atomList[term.Atom1].getBond(atomList[term.Atom2]);
         // create tool tip
-        toolTipInstance = Instantiate(myToolTipPrefab);
+        toolTipInstance = Instantiate(Atom.myAtomToolTipPrefab);
         // calc position for tool tip
         // first: get position in the bounding box and decide if the tool tip spawns left, right, top or bottom of the box
         Vector3 mol_center = getCenter();
@@ -494,7 +494,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         markAngleTerm(term, true);
         var middleAtom = atomList[term.Atom2];
         // create tool tip
-        toolTipInstance = Instantiate(myToolTipPrefab);
+        toolTipInstance = Instantiate(Atom.myAtomToolTipPrefab);
         // put tool top to the right 
         Vector3 ttpos = middleAtom.transform.position + toolTipDistanceWeight * GlobalCtrl.Singleton.currentCamera.transform.right + toolTipDistanceWeight * GlobalCtrl.Singleton.currentCamera.transform.up;
         toolTipInstance.transform.position = ttpos;
@@ -573,7 +573,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         markTorsionTerm(term, true);
         var middlebond = atomList[term.Atom2].getBond(atomList[term.Atom3]);
         // create tool tip
-        toolTipInstance = Instantiate(myToolTipPrefab);
+        toolTipInstance = Instantiate(Atom.myAtomToolTipPrefab);
         // put tool top to the right 
         Vector3 ttpos = middlebond.transform.position + toolTipDistanceWeight * GlobalCtrl.Singleton.currentCamera.transform.right + toolTipDistanceWeight * GlobalCtrl.Singleton.currentCamera.transform.up;
         toolTipInstance.transform.position = ttpos;
