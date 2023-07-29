@@ -17,12 +17,16 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 1b75c4f7f08b000459deade1ca6c3bd3
   m_SerializeEntries:
-  - m_GUID: 2803bb8940043bb409c4ccb29a5926e2
-    m_Address: Assets/Locales/My Strings Shared Data.asset
+  - m_GUID: 0953dc951d13d004d8d1eec0907d1a4c
+    m_Address: Assets/Locales/My Assets Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
   - m_GUID: fd73660c347dd094586e55d4f07e87fd
     m_Address: Assets/Locales/Elements Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+  - m_GUID: 2803bb8940043bb409c4ccb29a5926e2
+    m_Address: Assets/Locales/My Strings Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
   m_ReadOnly: 1
