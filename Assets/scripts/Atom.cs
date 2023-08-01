@@ -10,7 +10,7 @@ using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 
 [Serializable]
-public class Atom : MonoBehaviour, IMixedRealityPointerHandler
+public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFocusHandler
 {
     // prefabs initialized in GlobalCtrl
     [HideInInspector] public static GameObject myAtomToolTipPrefab;
@@ -27,7 +27,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 
     private List<Atom> currentChain = new List<Atom>();
 
-        public void grabHighlight(bool active)
+    public void grabHighlight(bool active)
     {
         if (active)
         {
@@ -54,6 +54,46 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
 
             }
         }
+    }
+
+    public void focusHighlight(bool active)
+    {
+        if (active)
+        {
+            if (GetComponent<Outline>().enabled)
+            {
+                currentOutlineColor = GetComponent<Outline>().OutlineColor;
+            }
+            else
+            {
+                GetComponent<Outline>().enabled = true;
+                currentOutlineColor = Color.black;
+            }
+            GetComponent<Outline>().OutlineColor = Color.white;
+        }
+        else
+        {
+            if (currentOutlineColor == Color.black)
+            {
+                GetComponent<Outline>().enabled = false;
+            }
+            else
+            {
+                GetComponent<Outline>().OutlineColor = currentOutlineColor;
+
+            }
+        }
+    }
+
+    private void OnFocusEnter(FocusEventData eventData)
+    {
+        // Highlight target
+        focusHighlight(true);
+    }
+
+    void OnFocusExit(FocusEventData eventData)
+    {
+        focusHighlight(false);
     }
 
 #if !WINDOWS_UWP
@@ -961,4 +1001,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         return LocalizationSettings.StringDatabase.GetLocalizedString("Elements", text);
     }
 
+    void IMixedRealityFocusHandler.OnFocusEnter(FocusEventData eventData)
+    {
+        OnFocusEnter(eventData);
+    }
+
+    void IMixedRealityFocusHandler.OnFocusExit(FocusEventData eventData)
+    {
+        OnFocusExit(eventData);
+    }
 }
