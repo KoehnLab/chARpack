@@ -103,6 +103,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
             }
         }
 
+        resetMolPositionAfterMove();
+
         // check for potential merge
         if (GlobalCtrl.Singleton.collision)
         {
@@ -204,6 +206,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
                 atom.transform.parent = m_molecule.transform;
             }
             currentChain.Clear();
+
+            resetMolPositionAfterMove();
 
             stopwatch?.Stop();
             //UnityEngine.Debug.Log($"[Atom] Interaction stopwatch: {stopwatch.ElapsedMilliseconds} [ms]");
@@ -398,6 +402,19 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler
         m_molecule.shrinkAtomIDs();
 
         // Debug.Log(string.Format("Modified latest {0}:  rad={1}   scale={2} ", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale));
+    }
+
+    private void resetMolPositionAfterMove()
+    {
+        // reset molecule position
+        Vector3 molCenter = m_molecule.getCenter();
+        // positions relative to the molecule center
+        List<Vector3> localAtomPositions = new List<Vector3>();
+        foreach (Atom a in m_molecule.atomList)
+        {
+            a.transform.localPosition = a.transform.position - molCenter;
+        }
+        m_molecule.transform.position = molCenter;
     }
 
 
