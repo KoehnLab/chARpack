@@ -17,6 +17,7 @@ public class ServerInputSystem : MonoBehaviour
             doMovement();
         }
         createStuff();
+        selectWholeMolecule();
     }
 
     private void doMovement()
@@ -63,6 +64,18 @@ public class ServerInputSystem : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.C))
         {
             GlobalCtrl.Singleton.createAtomUI("C");
+        }
+    }
+
+    private void selectWholeMolecule()
+    {
+        if (Input.GetKey(KeyCode.RightShift) && Input.GetKeyDown(KeyCode.A))
+        {
+            Atom marked = (Atom)GlobalCtrl.Singleton.getNextMarked(1);
+            if (marked != null)
+            {
+                marked.m_molecule.markMoleculeUI(true);
+            }
         }
     }
 }
