@@ -162,6 +162,11 @@ public static class OpenBabelExtensions
         return (term.Atom1 == id || term.Atom2 == id);
     }
 
+    public static bool Contains(this ForceField.BondTerm term, ushort id1, ushort id2)
+    {
+        return (term.Atom1 == id1 && term.Atom2 == id2 || term.Atom1 == id2 && term.Atom2 == id1);
+    }
+
     public static bool Contains(this ForceField.AngleTerm term, ushort id)
     {
         return (term.Atom1 == id || term.Atom2 == id || term.Atom3 == id);

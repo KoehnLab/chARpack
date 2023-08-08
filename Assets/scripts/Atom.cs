@@ -180,10 +180,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             var dot_products = new List<float>();
             foreach (var atom in con_atoms)
             {
-                if (atom.isGrabbed)
-                {
-                    GlobalCtrl.Singleton.SeparateMolecule(this, atom);
-                }
                 var dir = atom.transform.position - transform.position;
                 dot_products.Add(Vector3.Dot(fwd, dir));
             }
@@ -211,6 +207,20 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         // position relative to molecule position
         EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
+
+        var con_atoms = connectedAtoms();
+        foreach (var atom in con_atoms)
+        {
+            if (atom.isGrabbed)
+            {
+                var term = m_molecule.bondTerms.Find(p => p.Contains(m_id, atom.m_id));
+                var current_dist = ((transform.localPosition - atom.transform.localPosition) / ForceField.scalingfactor).magnitude;
+                if (current_dist > 3 * term.eqDist)
+                {
+                    GlobalCtrl.Singleton.SeparateMolecule(this, atom);
+                }
+            }
+        }
 
         // if chain interaction send positions of all connected atoms
         if (currentChain.Any())
