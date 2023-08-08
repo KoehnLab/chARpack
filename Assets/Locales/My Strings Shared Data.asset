@@ -221,6 +221,14 @@ MonoBehaviour:
       1
     m_Metadata:
       m_Items: []
+  - m_Id: 5142275573186560
+    m_Key: HandMenu/HandMenu/MenuContent/ToggleInteractionModeButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5165129048031232
+    m_Key: PressableButtonHoloLens2/PressableButtonHoloLens2/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

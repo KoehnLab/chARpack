@@ -268,6 +268,7 @@ GameObject:
   - component: {fileID: 1665666299313617182}
   - component: {fileID: 1665666299313617250}
   - component: {fileID: 1665666299313617181}
+  - component: {fileID: 3218363356987921837}
   m_Layer: 0
   m_Name: TextMeshPro
   m_TagString: Untagged
@@ -429,6 +430,44 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_renderer: {fileID: 1665666299313617250}
   m_maskType: 0
+--- !u!114 &3218363356987921837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665666299313617183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69beb381e244f92449b8c4cf954630e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TrackedObjects:
+  - rid: 1226353818219577344
+  references:
+    version: 2
+    RefIds:
+    - rid: 1226353818219577344
+      type: {class: TrackedUGuiGraphic, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
+      data:
+        m_Target: {fileID: 1665666299313617181}
+        m_TrackedProperties:
+          items:
+          - rid: 1226353818219577345
+        m_UpdateType: 0
+    - rid: 1226353818219577345
+      type: {class: LocalizedStringProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
+      data:
+        m_Localized:
+          m_TableReference:
+            m_TableCollectionName: GUID:2803bb8940043bb409c4ccb29a5926e2
+          m_TableEntryReference:
+            m_KeyId: 5142275573186560
+            m_Key: 
+          m_FallbackState: 0
+          m_WaitForCompletion: 0
+          m_LocalVariables: []
+        m_PropertyPath: m_text
 --- !u!1 &1665666299495269264
 GameObject:
   m_ObjectHideFlags: 0
@@ -2841,7 +2880,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canScroll: 1
   maskEditMode: 0
-  colliderEditMode: 0
+  colliderEditMode: 1
   maskEnabled: 1
   handDeltaScrollThreshold: 0.02
   releaseThresholdFront: 0.03
@@ -2883,7 +2922,7 @@ MonoBehaviour:
   tiersPerPage: 3
   cellWidth: 0.04
   cellHeight: 0.034
-  cellDepth: 0.024
+  cellDepth: 0.025
   bounceMultiplier: 0.1
   OnClick:
     m_PersistentCalls:
@@ -2917,7 +2956,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.08, y: 0.102000006, z: 0.001}
+  m_Size: {x: 0.08, y: 0.11, z: 0.001}
   m_Center: {x: 0.04, y: -0.051000003, z: 0.013}
 --- !u!114 &8411123793344136809
 MonoBehaviour:
@@ -2935,8 +2974,8 @@ MonoBehaviour:
   debounceThreshold: 0.01
   localForward: {x: -0, y: -0, z: -1}
   localUp: {x: 0, y: 1, z: 0}
-  localCenter: {x: 0.04, y: -0.051000003, z: -0.012}
-  bounds: {x: 0.08, y: 0.102000006}
+  localCenter: {x: 0.04, y: -0.051000003, z: 0.0125}
+  bounds: {x: 0.08, y: 0.11}
   touchableCollider: {fileID: 3400603517439531685}
 --- !u!1 &5549660057095110657
 GameObject:
@@ -3774,7 +3813,7 @@ Transform:
   m_GameObject: {fileID: 7547200336564974956}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.04, y: -0.051000003, z: 0}
-  m_LocalScale: {x: 0.08, y: 0.102000006, z: 0.024}
+  m_LocalScale: {x: 0.08, y: 0.102000006, z: 0.025}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8732685963762177030}

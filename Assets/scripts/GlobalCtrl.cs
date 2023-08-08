@@ -12,6 +12,8 @@ using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Reflection;
 using Microsoft.MixedReality.Toolkit.Input;
 using System.Linq;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 [Serializable]
 public class GlobalCtrl : MonoBehaviour
@@ -189,13 +191,14 @@ public class GlobalCtrl : MonoBehaviour
         Atom.modifyHybridizationPrefab = (GameObject)Resources.Load("prefabs/modifyHybridization");
 
         // Molecule
-        Molecule.myToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKAtomToolTip");
+        Molecule.myToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKMoleculeTooltip");
         Molecule.deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
         Molecule.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
         Molecule.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
         Molecule.changeBondWindowPrefab = (GameObject)Resources.Load("prefabs/ChangeBondWindow");
         Molecule.toggleDummiesButtonPrefab = (GameObject)Resources.Load("prefabs/ToggleDummiesButton");
         Molecule.undoButtonPrefab = (GameObject)Resources.Load("prefabs/UndoButton");
+        Molecule.copyButtonPrefab = (GameObject)Resources.Load("prefabs/CopyMeButton");
 
         Debug.Log("[GlobalCtrl] Initialization complete.");
 
@@ -248,7 +251,6 @@ public class GlobalCtrl : MonoBehaviour
         }
         return num_atoms;
     }
-
     #endregion
 
     #region delete
@@ -1166,6 +1168,22 @@ public class GlobalCtrl : MonoBehaviour
         MergeMolecule(List_curMolecules[molInHand].atomList[dummyInHand], List_curMolecules[molInAir].atomList[dummyInAir]);
     }
 
+    /// This method separates a molecule between two grabbed atoms
+    /// This method is called when a bond will be deleted and two atoms are separated
+    /// </summary>
+    /// <param name="atom1">the first of the grabbed atoms</param>
+    /// <param name="atom2">the second of the grabbed atoms</param>
+    public void SeparateMolecule(Atom atom1, Atom atom2)
+    {
+        Molecule mol = atom1.m_molecule;
+
+        Bond bond = mol.bondList.Find(p => (p.atomID1 == atom1.m_id && p.atomID2 == atom2.m_id)
+                                            || (p.atomID1 == atom2.m_id && p.atomID2 == atom1.m_id));
+
+        deleteBondUI(bond);
+
+    }
+
     public bool changeBondTerm(ushort mol_id, ushort term_id, ForceField.BondTerm new_term)
     {
         if (term_id >= List_curMolecules.ElementAtOrDefault(mol_id).bondTerms.Count)
@@ -1197,6 +1215,48 @@ public class GlobalCtrl : MonoBehaviour
         List_curMolecules[mol_id].changeTorsionParameters(new_term, term_id);
 
         return true;
+    }
+
+
+
+    public void copyMolecule(Molecule molecule)
+    {
+        // save old molecule data
+        Vector3 molePos = molecule.transform.localPosition;
+        List<cmlAtom> list_atom = new List<cmlAtom>();
+        foreach (Atom a in molecule.atomList)
+        {
+
+            list_atom.Add(new cmlAtom(a.m_id, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
+        }
+        List<cmlBond> list_bond = new List<cmlBond>();
+        foreach (Bond b in molecule.bondList)
+        {
+            list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
+        }
+        cmlData moleData = new cmlData(molePos, molecule.transform.rotation, molecule.m_id, list_atom, list_bond);
+
+
+        // Create new molecule
+        var freshMoleculeID = getFreshMoleculeID();
+
+        Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, moleData.molePos, Quaternion.identity).AddComponent<Molecule>();
+        tempMolecule.f_Init(freshMoleculeID, atomWorld.transform, moleData);
+        List_curMolecules.Add(tempMolecule);
+
+        //LOAD STRUCTURE CHECK LIST / DICTIONNARY
+
+        for (int i = 0; i < moleData.atomArray.Length; i++)
+        {
+            RebuildAtom(moleData.atomArray[i].id, moleData.atomArray[i].abbre, moleData.atomArray[i].hybrid, moleData.atomArray[i].pos, tempMolecule);
+        }
+        for (int i = 0; i < moleData.bondArray.Length; i++)
+        {
+            CreateBond(tempMolecule.atomList.ElementAtOrDefault(moleData.bondArray[i].id1), tempMolecule.atomList.ElementAtOrDefault(moleData.bondArray[i].id2), tempMolecule);
+        }
+        moveMolecule(freshMoleculeID, moleData.molePos + Vector3.up*0.05f, moleData.moleQuat);
+        EventManager.Singleton.MoveMolecule(freshMoleculeID, moleData.molePos + Vector3.up * 0.05f, moleData.moleQuat);
+        EventManager.Singleton.ChangeMolData(tempMolecule);
     }
     #endregion
 
@@ -1639,6 +1699,11 @@ public class GlobalCtrl : MonoBehaviour
     {
         if (isAnyAtomChanged)
             CFileHelper.SaveData(Application.streamingAssetsPath + "/MoleculeFolder/ElementData.xml", list_ElementData);
+    }
+
+    public string GetLocalizedString(string text)
+    {
+        return LocalizationSettings.StringDatabase.GetLocalizedString("My Strings", text);
     }
 
 }

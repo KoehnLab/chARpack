@@ -64,7 +64,7 @@ MonoBehaviour:
   radialRange: 180
   distance: 0
   rows: 1
-  columns: 3
+  columns: 4
   cellWidth: 10
   cellHeight: 12
   assetVersion: 1
@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 7068097177861879001}
   - component: {fileID: 7648513102559648688}
   m_Layer: 0
-  m_Name: MRTKAtomToolTip
+  m_Name: MRTKMoleculeTooltip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -973,7 +973,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -10, y: 0}
+  m_AnchoredPosition: {x: -15, y: 0}
   m_SizeDelta: {x: 26, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &1280960932929266388

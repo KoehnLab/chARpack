@@ -143,6 +143,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             }
         }
 
+        resetMolPositionAfterMove();
+
         // check for potential merge
         if (GlobalCtrl.Singleton.collision)
         {
@@ -177,6 +179,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             var dot_products = new List<float>();
             foreach (var atom in con_atoms)
             {
+                if (atom.isGrabbed)
+                {
+                    GlobalCtrl.Singleton.SeparateMolecule(this, atom);
+                }
                 var dir = atom.transform.position - transform.position;
                 dot_products.Add(Vector3.Dot(fwd, dir));
             }
@@ -240,6 +246,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 atom.transform.parent = m_molecule.transform;
             }
             currentChain.Clear();
+
+            resetMolPositionAfterMove();
 
             stopwatch?.Stop();
             //UnityEngine.Debug.Log($"[Atom] Interaction stopwatch: {stopwatch.ElapsedMilliseconds} [ms]");
@@ -434,6 +442,19 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         m_molecule.shrinkAtomIDs();
 
         // Debug.Log(string.Format("Modified latest {0}:  rad={1}   scale={2} ", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale));
+    }
+
+    private void resetMolPositionAfterMove()
+    {
+        // reset molecule position
+        Vector3 molCenter = m_molecule.getCenter();
+        // positions relative to the molecule center
+        List<Vector3> localAtomPositions = new List<Vector3>();
+        foreach (Atom a in m_molecule.atomList)
+        {
+            a.transform.localPosition = a.transform.position - molCenter;
+        }
+        m_molecule.transform.position = molCenter;
     }
 
 
@@ -987,10 +1008,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private string getToolTipText(string name, double mass, double radius, double bondNum)
     {
         //$"Name: {m_data.m_name}\nMass: {m_data.m_mass}\nRadius: {m_data.m_radius}\nNumBonds: {m_data.m_bondNum}"
-        string rad = m_molecule.GetLocalizedString("RADIUS");
-        string numBonds = m_molecule.GetLocalizedString("NUM_BONDS"); 
-        string massStr = m_molecule.GetLocalizedString("MASS");
-        string nameStr = m_molecule.GetLocalizedString("NAME");
+        string rad = GlobalCtrl.Singleton.GetLocalizedString("RADIUS");
+        string numBonds = GlobalCtrl.Singleton.GetLocalizedString("NUM_BONDS"); 
+        string massStr = GlobalCtrl.Singleton.GetLocalizedString("MASS");
+        string nameStr = GlobalCtrl.Singleton.GetLocalizedString("NAME");
         name = GetLocalizedElementName(name);
         string toolTipText = $"{nameStr}: {name}\n{massStr}: {mass}\n{rad}: {radius}\n{numBonds}: {bondNum}";
         return toolTipText;
