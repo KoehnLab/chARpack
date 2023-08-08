@@ -2,6 +2,7 @@ using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.UI;
 using StructClass;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -454,9 +455,18 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             a.transform.localPosition = a.transform.position - molCenter;
         }
+        // scale, position and orient bonds
+        foreach (Bond bond in m_molecule.bondList)
+        {
+            Atom a1 = m_molecule.atomList.ElementAtOrDefault(bond.atomID1);
+            Atom a2 = m_molecule.atomList.ElementAtOrDefault(bond.atomID2);
+            float distance = Vector3.Distance(a1.transform.position, a2.transform.position) / m_molecule.transform.localScale.x;
+            bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
+            bond.transform.position = (a1.transform.position + a2.transform.position) / 2;
+            bond.transform.LookAt(a2.transform.position);
+        }
         m_molecule.transform.position = molCenter;
     }
-
 
     public void addDummy(int numConnected)
     {
