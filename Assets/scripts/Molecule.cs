@@ -227,6 +227,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void markMolecule(bool mark, bool showToolTip = false)
     {
+        isMarked = mark;
         if (showToolTip && toolTipInstance)
         {
             Destroy(toolTipInstance);
@@ -235,13 +236,14 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         foreach (Atom a in atomList)
         {
             a.markAtom(mark);
+            // Remove single marked atoms from list when whole molecule is selected
+            Atom.markedAtoms.Remove(a);
         }
 
         foreach (Bond b in bondList)
         {
             b.markBond(mark);
         }
-        isMarked = mark;
         if (!mark)
         {
             if (toolTipInstance)

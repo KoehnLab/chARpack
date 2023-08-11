@@ -28,6 +28,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     private List<Atom> currentChain = new List<Atom>();
 
+    public static List<Atom> markedAtoms = new List<Atom>();
+
     public void grabHighlight(bool active)
     {
         if (active)
@@ -837,6 +839,15 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             {
                 createToolTip();
             }
+            if (!m_molecule.isMarked)
+            {
+                markedAtoms.Add(this);
+            }
+            else
+            {
+                // Remove single marked atoms if whole molecule selected
+                markedAtoms.Remove(this);
+            }
         }
         else
         {
@@ -847,6 +858,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             }
             colorSwapSelect(0);
             markConnectedBonds(false);
+            markedAtoms.Remove(this);
         }
         // destroy tooltip of marked without flag
         if (!toolTip && toolTipInstance)

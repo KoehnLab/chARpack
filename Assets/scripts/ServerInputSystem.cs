@@ -71,7 +71,8 @@ public class ServerInputSystem : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.RightShift) && Input.GetKeyDown(KeyCode.A))
         {
-            Atom marked = (Atom)GlobalCtrl.Singleton.getNextMarked(1);
+            //get last marked atom
+            Atom marked = Atom.markedAtoms[Atom.markedAtoms.Count-1];
             if (marked != null)
             {
                 marked.m_molecule.markMoleculeUI(true);
