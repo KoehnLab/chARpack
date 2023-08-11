@@ -868,7 +868,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
     }
 
-    private void markConnections(bool toolTip = false)
+    public void markConnections(bool toolTip = false)
     {
         // check for connected atom
         var markedList = new List<Atom>();
@@ -961,8 +961,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         markConnections(toolTip);
     }
 
-    private void createToolTip()
+    public void createToolTip()
     {
+        if (toolTipInstance)
+        {
+            Destroy(toolTipInstance);
+        }
         // create tool tip
         toolTipInstance = Instantiate(myAtomToolTipPrefab);
         // calc position for tool tip
@@ -1024,6 +1028,22 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         GlobalCtrl.Singleton.changeAtomUI(m_molecule.m_id, m_id, chemAbbre);
         markAtomUI(false);
+    }
+
+    /// <summary>
+    /// Helper method to find out if atom is part of angle bond (for tool tip regeneration)
+    /// </summary>
+    public bool anyConnectedAtomsMarked()
+    {
+        var conAtoms = connectedAtoms();
+        foreach(Atom a in conAtoms)
+        {
+            if (a.isMarked)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 

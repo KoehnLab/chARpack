@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using StructClass;
@@ -108,6 +109,8 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     private string lastAtom = "C";
 
+    private Locale currentLocale;
+
     [HideInInspector] public int numAtoms = 0;
 
     public Stack<List<cmlData>> systemState = new Stack<List<cmlData>>();
@@ -142,6 +145,8 @@ public class GlobalCtrl : MonoBehaviour
         // make sure that numbers are printed with a dot as required by any post-processing with standard software
         CultureInfo.CurrentCulture = new CultureInfo("en-US", false);
         CultureInfo.CurrentUICulture = new CultureInfo("en-US", false);
+
+        currentLocale = LocalizationSettings.SelectedLocale;
 
         // check if file is found otherwise throw error
         string element_file_path = Path.Combine(Application.streamingAssetsPath, "ElementData.xml");
@@ -211,6 +216,15 @@ public class GlobalCtrl : MonoBehaviour
         mainCamera = Camera.main;
         // for use in mouse events
         currentCamera = mainCamera;
+    }
+
+    private void Update()
+    {
+        if(currentLocale != LocalizationSettings.SelectedLocale)
+        {
+            regenerateTooltips();
+            currentLocale = LocalizationSettings.SelectedLocale;
+        }
     }
 
 
@@ -1673,9 +1687,65 @@ public class GlobalCtrl : MonoBehaviour
         handMenu.Singleton.toggleVisible();
     }
 
-        #endregion
+    private void regenerateTooltips()
+    {
+        var toolTips = FindObjectsOfType<DynamicToolTip>();
+        foreach(var tooltip in toolTips)
+        {
+            var target = tooltip.GetComponent<myToolTipConnector>().Target;
 
-        public void backToMain()
+            // Molecule tool tips
+            if (target.GetComponent<Molecule>() != null)
+            {
+                if (target.GetComponent<Molecule>().toolTipInstance)
+                {
+                    Destroy(target.GetComponent<Molecule>().toolTipInstance);
+                }
+                target.GetComponent<Molecule>().createToolTip();
+            }
+
+            // Atom and angle bond tool tips
+            else if(target.GetComponent<Atom>()!=null)
+            {
+                Atom a = target.GetComponent<Atom>();
+                if (a.anyConnectedAtomsMarked())
+                {
+                    a.markConnections(true);
+                }
+                else
+                {
+                    a.createToolTip();
+                }
+            }
+
+            // Single and torsion bond tips
+            else 
+            {
+                ushort id = target.GetComponent<Bond>().atomID1;
+                Atom a = findAtomById(target.GetComponent<Bond>().m_molecule, id);
+                if(a != null)
+                {
+                    a.markConnections(true);
+                }
+            }
+        }
+    }
+
+    private Atom findAtomById(Molecule m, ushort id)
+    {
+        foreach (Atom a in m.atomList)
+        {
+            if(a.m_id == id)
+            {
+                return a;
+            }
+        }
+        return null;
+    }
+
+    #endregion
+
+    public void backToMain()
     {
         var myDialog = Dialog.Open(exitConfirmPrefab, DialogButtonType.Yes | DialogButtonType.No, "Confirm Exit", $"Are you sure you want quit?", true);
         if (myDialog != null)

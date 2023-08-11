@@ -370,9 +370,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     }
 
-#region ToolTips
+    #region ToolTips
 
-    private void createToolTip()
+    public void createToolTip()
     {
         // create tool tip
         toolTipInstance = Instantiate(myToolTipPrefab);
