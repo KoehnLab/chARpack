@@ -35,7 +35,7 @@ public class ServerInputSystem : MonoBehaviour
             Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
             transform.position += moveSpeed * rotated;
         }
-        if (Input.GetKey(KeyCode.A))
+        if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.RightShift))
         {
             Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
             transform.position -= moveSpeed * rotated;
