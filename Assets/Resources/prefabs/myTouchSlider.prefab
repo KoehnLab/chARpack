@@ -196,10 +196,10 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 48114245917028299}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
-  m_ConstrainProportionsScale: 1
+  m_LocalScale: {x: 13.404929, y: 13.404929, z: 13.404929}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4328514543481927453}
   - {fileID: 48114245780348088}
@@ -232,8 +232,8 @@ MonoBehaviour:
   tickMarks: {fileID: 0}
   thumbVisuals: {fileID: 0}
   sliderAxis: 0
-  sliderStartDistance: 0
-  sliderEndDistance: 0
+  sliderStartDistance: -0.12500003
+  sliderEndDistance: 0.12500015
   OnValueUpdated:
     m_PersistentCalls:
       m_Calls:
@@ -316,7 +316,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 48114245917028299}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db568ff594a361d4e9a9ac960905ddd3, type: 3}
   m_Name: 
@@ -343,12 +343,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0063582e8e75f25478ee30dbd5c7e63a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  minVal: 0
+  maxVal: 1
   thumbRoot: {fileID: 48114245780348095}
   isTouchable: 1
   snapToPosition: 1
   thumbCollider: {fileID: 1505799088109494833}
   touchCollider: {fileID: 6932249223571280874}
-  sliderValue: 0.5
   useSliderStepDivisions: 0
   sliderStepDivisions: 1
   trackVisuals: {fileID: 48114246356694279}

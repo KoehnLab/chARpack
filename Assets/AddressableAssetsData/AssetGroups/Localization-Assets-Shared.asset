@@ -21,14 +21,17 @@ MonoBehaviour:
     m_Address: Assets/Locales/My Assets Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fd73660c347dd094586e55d4f07e87fd
     m_Address: Assets/Locales/Elements Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2803bb8940043bb409c4ccb29a5926e2
     m_Address: Assets/Locales/My Strings Shared Data.asset
     m_ReadOnly: 1
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 1
   m_Settings: {fileID: 11400000, guid: 98c3f5c7dc2b28c4d974faebff55570d, type: 2}
   m_SchemaSet:
