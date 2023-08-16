@@ -208,16 +208,20 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         // position relative to molecule position
         EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
 
-        var con_atoms = connectedAtoms();
-        foreach (var atom in con_atoms)
+        if (m_data.m_abbre != "Dummy")
         {
-            if (atom.isGrabbed)
+            var con_atoms = connectedAtoms();
+            foreach (var atom in con_atoms)
             {
-                var term = m_molecule.bondTerms.Find(p => p.Contains(m_id, atom.m_id));
-                var current_dist = ((transform.localPosition - atom.transform.localPosition) / ForceField.scalingfactor).magnitude;
-                if (current_dist > 3 * term.eqDist)
+                // make sure this is only executed once and not for both grabbed atoms (id check)
+                if (atom.isGrabbed && atom.m_data.m_abbre != "Dummy" && m_id < atom.m_id)
                 {
-                    GlobalCtrl.Singleton.SeparateMolecule(this, atom);
+                    var term = m_molecule.bondTerms.Find(p => p.Contains(m_id, atom.m_id));
+                    var current_dist = ((transform.localPosition - atom.transform.localPosition) / ForceField.scalingfactor).magnitude;
+                    if (current_dist > 3 * term.eqDist)
+                    {
+                        GlobalCtrl.Singleton.SeparateMolecule(this, atom);
+                    }
                 }
             }
         }
