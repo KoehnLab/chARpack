@@ -204,6 +204,8 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.toggleDummiesButtonPrefab = (GameObject)Resources.Load("prefabs/ToggleDummiesButton");
         Molecule.undoButtonPrefab = (GameObject)Resources.Load("prefabs/UndoButton");
         Molecule.copyButtonPrefab = (GameObject)Resources.Load("prefabs/CopyMeButton");
+        Molecule.scaleMoleculeButtonPrefab = (GameObject)Resources.Load("prefabs/ScaleMoleculeButton");
+        Molecule.scalingSliderPrefab = (GameObject)Resources.Load("prefabs/myTouchSlider");
 
         Debug.Log("[GlobalCtrl] Initialization complete.");
 

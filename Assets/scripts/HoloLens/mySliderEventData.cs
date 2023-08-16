@@ -10,8 +10,8 @@ namespace Microsoft.MixedReality.Toolkit.UI
     {
         public mySliderEventData(float o, float n, IMixedRealityPointer pointer, mySlider slider)
         {
-            OldValue = o*(slider.maxVal - slider.minVal);
-            NewValue = n*(slider.maxVal - slider.minVal);
+            OldValue = o*(slider.maxVal - slider.minVal)+slider.minVal;
+            NewValue = n*(slider.maxVal - slider.minVal)+slider.minVal;
             Pointer = pointer;
             Slider = slider;
         }

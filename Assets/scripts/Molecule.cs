@@ -59,6 +59,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         GetComponent<myBoundingBox>().setGrabbed(false);
     }
 
+    public void OnSliderUpdated(mySliderEventData eventData)
+    {
+        gameObject.transform.localScale = eventData.NewValue * startingScale;
+    }
+
     //private void HandleOnManipulationStarted(ManipulationEventData eventData)
     //{
     //    var pointer = eventData.Pointer;
@@ -77,8 +82,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject undoButtonPrefab;
     [HideInInspector] public static GameObject changeBondWindowPrefab;
     [HideInInspector] public static GameObject copyButtonPrefab;
+    [HideInInspector] public static GameObject scaleMoleculeButtonPrefab;
+    [HideInInspector] public static GameObject scalingSliderPrefab;
     public GameObject toolTipInstance;
+    public GameObject scalingSliderInstance;
     private float toolTipDistanceWeight = 0.01f;
+    private Vector3 startingScale;
 
     /// <summary>
     /// molecule id
@@ -403,12 +412,34 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
 
         // making sure the delete and close buttons are not too close together; has to be improved
-        toolTipInstance.GetComponent<DynamicToolTip>().addContent(new GameObject());
+        //toolTipInstance.GetComponent<DynamicToolTip>().addContent(new GameObject());
+
+        var scaleMoleculeButtonInstance = Instantiate(scaleMoleculeButtonPrefab);
+        scaleMoleculeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { toggleScalingSlider(); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(scaleMoleculeButtonInstance);
 
         var delButtonInstance = Instantiate(deleteMeButtonPrefab);
         delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteMoleculeUI(this); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
 
+    }
+
+    public void toggleScalingSlider()
+    {
+        if (!scalingSliderInstance)
+        {
+            // position needs to be optimized
+            scalingSliderInstance = Instantiate(scalingSliderPrefab, gameObject.transform.position - 0.25f*Vector3.forward - 0.05f*Vector3.up, gameObject.transform.rotation);
+            scalingSliderInstance.GetComponent<mySlider>().maxVal = 5;
+            scalingSliderInstance.GetComponent<mySlider>().minVal = 0.1f;
+            scalingSliderInstance.GetComponent<mySlider>().SliderValue = 1 / (scalingSliderInstance.GetComponent<mySlider>().maxVal - scalingSliderInstance.GetComponent<mySlider>().minVal);
+            startingScale = gameObject.transform.localScale;
+            scalingSliderInstance.GetComponent<mySlider>().OnValueUpdated.AddListener(OnSliderUpdated);
+        }
+        else
+        {
+            Destroy(scalingSliderInstance);
+        }
     }
 
     public void createBondToolTip(ForceField.BondTerm term)
