@@ -1,4 +1,4 @@
-using RiptideNetworking.Utils;
+using Riptide.Utils;
 using System.Collections.Generic;
 using System.Net;
 using TMPro;

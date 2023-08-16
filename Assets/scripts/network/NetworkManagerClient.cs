@@ -1,6 +1,6 @@
 using Microsoft.MixedReality.Toolkit.UI;
-using RiptideNetworking;
-using RiptideNetworking.Utils;
+using Riptide;
+using Riptide.Utils;
 using StructClass;
 using System;
 using System.Collections.Generic;
@@ -100,7 +100,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Client.Tick();
+        Client.Update();
     }
 
     private void OnDestroy()
@@ -206,7 +206,7 @@ public class NetworkManagerClient : MonoBehaviour
     /// </summary>
     public void sendName()
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.deviceNameAndType);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.deviceNameAndType);
         message.AddString(SystemInfo.deviceName);
         message.AddUShort(getDeviceType());
         message.AddVector3(LoginData.offsetPos);
@@ -216,13 +216,13 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendSyncRequest()
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.syncMe);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.syncMe);
         Client.Send(message);
     }
 
     public void sendAtomCreated(ushort id, string abbre, Vector3 pos, ushort hyb)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.atomCreated);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.atomCreated);
         message.AddUShort(id);
         message.AddString(abbre);
         message.AddVector3(pos);
@@ -232,7 +232,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendMoleculeMoved(ushort id, Vector3 pos, Quaternion quat)
     {
-        Message message = Message.Create(MessageSendMode.unreliable, ClientToServerID.moleculeMoved);
+        Message message = Message.Create(MessageSendMode.Unreliable, ClientToServerID.moleculeMoved);
         message.AddUShort(id);
         message.AddVector3(pos);
         message.AddQuaternion(quat);
@@ -241,7 +241,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendAtomMoved(ushort mol_id, ushort atom_id, Vector3 pos)
     {
-        Message message = Message.Create(MessageSendMode.unreliable, ClientToServerID.atomMoved);
+        Message message = Message.Create(MessageSendMode.Unreliable, ClientToServerID.atomMoved);
         message.AddUShort(mol_id);
         message.AddUShort(atom_id);
         message.AddVector3(pos);
@@ -250,7 +250,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendMoleculeMerged(ushort mol1ID, ushort atom1ID, ushort mol2ID, ushort atom2ID)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.moleculeMerged);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.moleculeMerged);
         message.AddUShort(mol1ID);
         message.AddUShort(atom1ID);
         message.AddUShort(mol2ID);
@@ -266,13 +266,13 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendDeleteEverything()
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.deleteEverything);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.deleteEverything);
         Client.Send(message);
     }
     
     public void sendSelectAtom(ushort mol_id, ushort atom_id, bool selected)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.selectAtom);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.selectAtom);
         message.AddUShort(mol_id);
         message.AddUShort(atom_id);
         message.AddBool(selected);
@@ -281,7 +281,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendSelectMolecule(ushort id, bool selected)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.selectMolecule);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.selectMolecule);
         message.AddUShort(id);
         message.AddBool(selected);
         Client.Send(message);
@@ -289,7 +289,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendSelectBond(ushort bond_id, ushort mol_id, bool selected)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.selectBond);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.selectBond);
         message.AddUShort(bond_id);
         message.AddUShort(mol_id);
         message.AddBool(selected);
@@ -298,7 +298,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendDeleteAtom(ushort mol_id, ushort atom_id)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.deleteAtom);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.deleteAtom);
         message.AddUShort(mol_id);
         message.AddUShort(atom_id);
         Client.Send(message);
@@ -307,7 +307,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendDeleteMolecule(ushort id)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.deleteMolecule);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.deleteMolecule);
         message.AddUShort(id);
         Client.Send(message);
         UnityEngine.Debug.Log("[NetworkManagerClient] Sent delete molecule");
@@ -315,7 +315,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendDeleteBond(ushort bond_id, ushort mol_id)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.deleteBond);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.deleteBond);
         message.AddUShort(bond_id);
         message.AddUShort(mol_id);
         Client.Send(message);
@@ -324,7 +324,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendChangeAtom(ushort mol_id, ushort atom_id, string chemAbbre)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.changeAtom);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.changeAtom);
         message.AddUShort(mol_id);
         message.AddUShort(atom_id);
         message.AddString(chemAbbre);
@@ -334,13 +334,13 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendUndo()
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.undo);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.undo);
         Client.Send(message);
     }
 
     public void sendEnableForceField(bool enableForceField)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.enableForceField);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.enableForceField);
         message.AddBool(enableForceField);
         Client.Send(message);
     }
@@ -348,7 +348,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendChangeBondTerm(ForceField.BondTerm term, ushort mol_id, ushort term_id)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.changeBondTerm);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.changeBondTerm);
         message.AddUShort(mol_id);
         message.AddUShort(term_id);
         message.AddBondTerm(term);
@@ -357,7 +357,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendChangeAngleTerm(ForceField.AngleTerm term, ushort mol_id, ushort term_id)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.changeAngleTerm);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.changeAngleTerm);
         message.AddUShort(mol_id);
         message.AddUShort(term_id);
         message.AddAngleTerm(term);
@@ -366,7 +366,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendChangeTorsionTerm(ForceField.TorsionTerm term, ushort mol_id, ushort term_id)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.changeTorsionTerm);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.changeTorsionTerm);
         message.AddUShort(mol_id);
         message.AddUShort(term_id);
         message.AddTorsionTerm(term);
@@ -375,7 +375,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendMarkTerm(ushort term_type, ushort mol_id, ushort term_id, bool marked)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.markTerm);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.markTerm);
         message.AddUShort(term_type);
         message.AddUShort(mol_id);
         message.AddUShort(term_id);
@@ -385,7 +385,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendModifyHyb(ushort mol_id, ushort atom_id, ushort hyb)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.modifyHyb);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.modifyHyb);
         message.AddUShort(mol_id);
         message.AddUShort(atom_id);
         message.AddUShort(hyb);
@@ -394,7 +394,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendKeepConfig(ushort mol_id, bool keep_config)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.keepConfig);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.keepConfig);
         message.AddUShort(mol_id);
         message.AddBool(keep_config);
         Client.Send(message);
@@ -403,7 +403,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     public void sendReplaceDummies(ushort mol_id)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ClientToServerID.replaceDummies);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.replaceDummies);
         message.AddUShort(mol_id);
         Client.Send(message);
     }

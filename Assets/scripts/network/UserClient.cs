@@ -1,5 +1,5 @@
-using RiptideNetworking;
-using RiptideNetworking.Utils;
+using Riptide;
+using Riptide.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -87,7 +87,7 @@ public class UserClient : MonoBehaviour
 
     private void sendPositionAndRotation()
     {
-        Message message = Message.Create(MessageSendMode.unreliable, ClientToServerID.positionAndRotation);
+        Message message = Message.Create(MessageSendMode.Unreliable, ClientToServerID.positionAndRotation);
 
         message.AddVector3(GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(GlobalCtrl.Singleton.mainCamera.transform.position));
         message.AddQuaternion(Quaternion.Inverse(GlobalCtrl.Singleton.atomWorld.transform.rotation) * GlobalCtrl.Singleton.mainCamera.transform.rotation);

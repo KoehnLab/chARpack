@@ -1,5 +1,5 @@
-using RiptideNetworking;
-using RiptideNetworking.Utils;
+using Riptide;
+using Riptide.Utils;
 using StructClass;
 using System.Collections.Generic;
 using System.Linq;
@@ -102,7 +102,7 @@ public class NetworkManagerServer : MonoBehaviour
     {
         if (ServerStarted)
         {
-            Server.Tick();
+            Server.Update();
         }
     }
 
@@ -119,14 +119,17 @@ public class NetworkManagerServer : MonoBehaviour
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void ClientDisconnected(object sender, ClientDisconnectedEventArgs e)
+    private void ClientDisconnected(object sender, ServerDisconnectedEventArgs e)
     {
-        Debug.Log($"[NetworkManagerServer] Client {e.Id} disconnected. Cleaning up.");
+        Debug.Log($"[NetworkManagerServer] Client {e.Client.Id} disconnected. Cleaning up.");
         // destroy user gameObject and pannel entry
-        Destroy(UserServer.list[e.Id].gameObject);
+        if (UserServer.list.ContainsKey(e.Client.Id))
+        {
+            Destroy(UserServer.list[e.Client.Id].gameObject);
+        }
     }
 
-    private void ClientConnected(object sender, ServerClientConnectedEventArgs e)
+    private void ClientConnected(object sender, ServerConnectedEventArgs e)
     {
         // send current atom world
         Debug.Log($"[NetworkManagerServer] Client {e.Client.Id} connected. Sending current world.");
@@ -142,7 +145,7 @@ public class NetworkManagerServer : MonoBehaviour
     public void bcastMoveAtom(ushort mol_id, ushort atom_id, Vector3 pos)
     {
         // Broadcast to other clients
-        Message message = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastAtomMoved);
+        Message message = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastAtomMoved);
         message.AddUShort(0);
         message.AddUShort(mol_id);
         message.AddUShort(atom_id);
@@ -153,7 +156,7 @@ public class NetworkManagerServer : MonoBehaviour
     public void bcastMoveMolecule(ushort mol_id, Vector3 pos, Quaternion quat)
     {
         // Broadcast to other clients
-        Message message = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastMoleculeMoved);
+        Message message = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastMoleculeMoved);
         message.AddUShort(0);
         message.AddUShort(mol_id);
         message.AddVector3(pos);
@@ -163,7 +166,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastMergeMolecule(ushort mol1ID, ushort atom1ID, ushort mol2ID, ushort atom2ID)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastMoleculeMerged);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastMoleculeMerged);
         message.AddUShort(0);
         message.AddUShort(mol1ID);
         message.AddUShort(atom1ID);
@@ -174,7 +177,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastSelectAtom(ushort mol_id, ushort atom_id, bool selected)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastSelectAtom);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSelectAtom);
         message.AddUShort(0);
         message.AddUShort(mol_id);
         message.AddUShort(atom_id);
@@ -184,7 +187,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastSelectMolecule(ushort mol_id, bool selected)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastSelectMolecule);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSelectMolecule);
         message.AddUShort(0);
         message.AddUShort(mol_id);
         message.AddBool(selected);
@@ -192,7 +195,7 @@ public class NetworkManagerServer : MonoBehaviour
     }
     public void bcastSelectBond(ushort bond_id, ushort mol_id, bool selected)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastSelectBond);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSelectBond);
         message.AddUShort(0);
         message.AddUShort(bond_id);
         message.AddUShort(mol_id);
@@ -202,7 +205,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastCreateAtom(ushort id, string abbre, Vector3 pos, ushort hyb)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastAtomCreated);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastAtomCreated);
         message.AddUShort(0);
         message.AddUShort(id);
         message.AddString(abbre);
@@ -213,7 +216,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastDeleteAtom(ushort mol_id, ushort atom_id)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastDeleteAtom);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteAtom);
         message.AddUShort(0);
         message.AddUShort(mol_id);
         message.AddUShort(atom_id);
@@ -222,7 +225,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastDeleteMolecule(ushort mol_id)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastDeleteMolecule);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteMolecule);
         message.AddUShort(0);
         message.AddUShort(mol_id);
         Server.SendToAll(message);
@@ -230,7 +233,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastReplaceDummies(ushort mol_id)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastReplaceDummies);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastReplaceDummies);
         message.AddUShort(0);
         message.AddUShort(mol_id);
         Server.SendToAll(message);
@@ -238,7 +241,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastMarkTerm(ushort term_type, ushort mol_id, ushort term_id, bool marked)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastMarkTerm);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastMarkTerm);
         message.AddUShort(0);
         message.AddUShort(term_type);
         message.AddUShort(mol_id);
@@ -249,7 +252,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastChangeBondTerm(ForceField.BondTerm term, ushort mol_id, ushort term_id)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastChangeBondTerm);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastChangeBondTerm);
         message.AddUShort(0);
         message.AddUShort(mol_id);
         message.AddUShort(term_id);
@@ -259,7 +262,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastChangeAngleTerm(ForceField.AngleTerm term, ushort mol_id, ushort term_id)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastChangeAngleTerm);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastChangeAngleTerm);
         message.AddUShort(0);
         message.AddUShort(mol_id);
         message.AddUShort(term_id);
@@ -269,7 +272,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastChangeTorsionTerm(ForceField.TorsionTerm term, ushort mol_id, ushort term_id)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastChangeTorsionTerm);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastChangeTorsionTerm);
         message.AddUShort(0);
         message.AddUShort(mol_id);
         message.AddUShort(term_id);
@@ -279,7 +282,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastModifyHyb(ushort mol_id, ushort atom_id, ushort hyb)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastModifyHyb);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastModifyHyb);
         message.AddUShort(0);
         message.AddUShort(mol_id);
         message.AddUShort(atom_id);
@@ -289,7 +292,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastChangeAtom(ushort mol_id, ushort atom_id, string chemAbbre)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastChangeAtom);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastChangeAtom);
         message.AddUShort(0);
         message.AddUShort(mol_id);
         message.AddUShort(atom_id);
@@ -299,7 +302,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void sendDeleteBond(ushort bond_id, ushort mol_id)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastDeleteBond);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteBond);
         message.AddUShort(0);
         message.AddUShort(bond_id);
         message.AddUShort(mol_id);
@@ -320,7 +323,7 @@ public class NetworkManagerServer : MonoBehaviour
         GlobalCtrl.Singleton.CreateAtom(atom_id, abbre, pos, hyb, true);
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastAtomCreated);
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastAtomCreated);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(atom_id);
         outMessage.AddString(abbre);
@@ -344,7 +347,7 @@ public class NetworkManagerServer : MonoBehaviour
         }
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastMoleculeMoved);
+        Message outMessage = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastMoleculeMoved);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(molecule_id);
         outMessage.AddVector3(pos);
@@ -367,7 +370,7 @@ public class NetworkManagerServer : MonoBehaviour
         }
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastAtomMoved);
+        Message outMessage = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastAtomMoved);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(mol_id);
         outMessage.AddUShort(atom_id);
@@ -396,7 +399,7 @@ public class NetworkManagerServer : MonoBehaviour
         GlobalCtrl.Singleton.MergeMolecule(mol1ID, atom1ID, mol2ID, atom2ID);
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastMoleculeMerged);
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastMoleculeMerged);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(mol1ID);
         outMessage.AddUShort(atom1ID);
@@ -445,7 +448,7 @@ public class NetworkManagerServer : MonoBehaviour
     {
         GlobalCtrl.Singleton.DeleteAll();
         GlobalCtrl.Singleton.SaveMolecule(true); // for working undo state
-        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastDeleteEverything);
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteEverything);
         outMessage.AddUShort(fromClientId);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
@@ -472,7 +475,7 @@ public class NetworkManagerServer : MonoBehaviour
         atom.advancedMarkAtom(selected, true);
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastSelectAtom);
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSelectAtom);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(mol_id);
         outMessage.AddUShort(atom_id);
@@ -497,7 +500,7 @@ public class NetworkManagerServer : MonoBehaviour
         mol.markMolecule(selected, true);
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastSelectMolecule);
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSelectMolecule);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(mol_id);
         outMessage.AddBool(selected);
@@ -523,7 +526,7 @@ public class NetworkManagerServer : MonoBehaviour
         bond.markBond(selected);
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastSelectBond);
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSelectBond);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(bond_id);
         outMessage.AddUShort(mol_id);
@@ -548,7 +551,7 @@ public class NetworkManagerServer : MonoBehaviour
         GlobalCtrl.Singleton.deleteAtom(atom);
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastDeleteAtom);
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteAtom);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(mol_id);
         outMessage.AddUShort(atom_id);
@@ -571,7 +574,7 @@ public class NetworkManagerServer : MonoBehaviour
         GlobalCtrl.Singleton.deleteMolecule(mol);
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastDeleteMolecule);
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteMolecule);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(mol_id);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
@@ -595,7 +598,7 @@ public class NetworkManagerServer : MonoBehaviour
         GlobalCtrl.Singleton.deleteBond(bond);
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastDeleteBond);
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteBond);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(bond_id);
         outMessage.AddUShort(mol_id);
@@ -623,7 +626,7 @@ public class NetworkManagerServer : MonoBehaviour
         }
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastChangeAtom);
+        Message outMessage = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastChangeAtom);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(mol_id);
         outMessage.AddUShort(atom_id);
@@ -650,7 +653,7 @@ public class NetworkManagerServer : MonoBehaviour
         ForceField.Singleton.enableForceFieldMethod(ffEnabled);
 
         // Broadcast
-        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastEnableForceField);
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastEnableForceField);
         outMessage.AddUShort(fromClientId);
         outMessage.AddBool(ffEnabled);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
@@ -673,7 +676,7 @@ public class NetworkManagerServer : MonoBehaviour
         }
 
         // Broadcast
-        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastChangeBondTerm);
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastChangeBondTerm);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(mol_id);
         outMessage.AddUShort(term_id);
@@ -698,7 +701,7 @@ public class NetworkManagerServer : MonoBehaviour
         }
 
         // Broadcast
-        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastChangeAngleTerm);
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastChangeAngleTerm);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(mol_id);
         outMessage.AddUShort(term_id);
@@ -723,7 +726,7 @@ public class NetworkManagerServer : MonoBehaviour
         }
 
         // Broadcast
-        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastChangeTorsionTerm);
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastChangeTorsionTerm);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(mol_id);
         outMessage.AddUShort(term_id);
@@ -766,7 +769,7 @@ public class NetworkManagerServer : MonoBehaviour
         }
 
         // Broadcast
-        Message outMessage = Message.Create(MessageSendMode.reliable, ServerToClientID.bcastMarkTerm);
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastMarkTerm);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(term_type);
         outMessage.AddUShort(mol_id);
@@ -790,7 +793,7 @@ public class NetworkManagerServer : MonoBehaviour
         }
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastModifyHyb);
+        Message outMessage = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastModifyHyb);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(mol_id);
         outMessage.AddUShort(atom_id);
@@ -813,7 +816,7 @@ public class NetworkManagerServer : MonoBehaviour
         }
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastKeepConfig);
+        Message outMessage = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastKeepConfig);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(mol_id);
         outMessage.AddBool(keep_config);
@@ -836,7 +839,7 @@ public class NetworkManagerServer : MonoBehaviour
         mol.toggleDummies();
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastReplaceDummies);
+        Message outMessage = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastReplaceDummies);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(mol_id);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);

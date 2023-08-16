@@ -1,4 +1,4 @@
-using RiptideNetworking;
+using Riptide;
 using StructClass;
 using System.Collections;
 using System.Collections.Generic;
@@ -58,7 +58,7 @@ public static class NetworkUtils
     public static void serializeCmlData(ushort messageSignature, List<cmlData> data, ushort chunkSize_, bool toServer = false, int toClientID = -1)
     {
         // prepare clients for the messages'
-        Message startMessage = Message.Create(MessageSendMode.reliable, messageSignature);
+        Message startMessage = Message.Create(MessageSendMode.Reliable, messageSignature);
         startMessage.AddString("start");
         if (toServer)
         {
@@ -106,7 +106,7 @@ public static class NetworkUtils
                 var currentPieceID = j; // third
                 var piece = totalBytes[..bytesPerPiece[j]]; // forth
                 totalBytes = totalBytes[bytesPerPiece[j]..];
-                Message message = Message.Create(MessageSendMode.reliable, messageSignature);
+                Message message = Message.Create(MessageSendMode.Reliable, messageSignature);
                 message.AddString("data");
                 message.AddUInt(totalLength);
                 message.AddUShort(numPieces);
@@ -129,7 +129,7 @@ public static class NetworkUtils
                 }
             }
         }
-        Message endMessage = Message.Create(MessageSendMode.reliable, messageSignature);
+        Message endMessage = Message.Create(MessageSendMode.Reliable, messageSignature);
         endMessage.AddString("end");
         if (toServer)
         {

@@ -1,5 +1,5 @@
-using RiptideNetworking;
-using RiptideNetworking.Utils;
+using Riptide;
+using Riptide.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -104,14 +104,14 @@ public class UserServer : MonoBehaviour
 
     private void sendSpawned()
     {
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.userSpawned);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.userSpawned);
 
         NetworkManagerServer.Singleton.Server.SendToAll(addSpawnData(message));
     }
 
     private void sendSpawned(ushort toClientID)
     {
-        Message message = Message.Create(MessageSendMode.reliable, ServerToClientID.userSpawned);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.userSpawned);
 
         NetworkManagerServer.Singleton.Server.Send(addSpawnData(message),toClientID);
     }
@@ -139,7 +139,7 @@ public class UserServer : MonoBehaviour
         {
             if (otherUser.ID != fromClientId)
             {
-                Message bcastMessage = Message.Create(MessageSendMode.unreliable, ServerToClientID.bcastPositionAndRotation);
+                Message bcastMessage = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastPositionAndRotation);
                 bcastMessage.AddUShort(fromClientId);
                 bcastMessage.AddVector3(pos);
                 bcastMessage.AddQuaternion(quat);

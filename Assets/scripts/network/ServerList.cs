@@ -1,7 +1,7 @@
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.Utilities;
-using RiptideNetworking;
-using RiptideNetworking.Utils;
+using Riptide;
+using Riptide.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Net;

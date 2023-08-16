@@ -1,10 +1,10 @@
-using RiptideNetworking;
+using Riptide;
 using UnityEngine;
 using StructClass;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace RiptideNetworking.Utils
+namespace Riptide.Utils
 {
     public static class MessageExtensions
     {
