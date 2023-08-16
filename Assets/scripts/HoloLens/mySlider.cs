@@ -561,8 +561,8 @@ namespace Microsoft.MixedReality.Toolkit.UI
                 return;
             }
 
-            float result = Vector3.Project(sliderTouchPoint, sliderVector).magnitude;
-            //float result = sliderProgress / sliderVector.magnitude;
+            float sliderProgress = Vector3.Project(sliderTouchPoint, sliderVector).magnitude;
+            float result = sliderProgress / sliderVector.magnitude;
             float clampedResult = result;
             if (UseSliderStepDivisions)
             {
@@ -610,7 +610,7 @@ namespace Microsoft.MixedReality.Toolkit.UI
 
                 if (SnapToPosition)
                 {
-                    CalculateSliderValueBasedOnTouchPoint(ActivePointer.Result.Details.Point);
+                    //CalculateSliderValueBasedOnTouchPoint(ActivePointer.Result.Details.Point);
                 }
 
                 if (OnInteractionStarted != null)
@@ -686,10 +686,10 @@ namespace Microsoft.MixedReality.Toolkit.UI
         /// </summary>
         public void OnTouchUpdated(HandTrackingInputEventData eventData)
         {
-            if (isTouchable)
-            {
-                CalculateSliderValueBasedOnTouchPoint(eventData.InputData);
-            }
+            //if (isTouchable)
+            //{
+            //    CalculateSliderValueBasedOnTouchPoint(eventData.InputData);
+            //}
         }
 
         #endregion IMixedRealityTouchHandler
