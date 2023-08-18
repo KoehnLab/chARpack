@@ -652,7 +652,6 @@ namespace Microsoft.MixedReality.Toolkit.UI
 
         #endregion
 
-
         #region IMixedRealityTouchHandler
         public void OnTouchStarted(HandTrackingInputEventData eventData)
         {
@@ -693,5 +692,11 @@ namespace Microsoft.MixedReality.Toolkit.UI
         }
 
         #endregion IMixedRealityTouchHandler
+
+        public void close()
+        {
+            Destroy(gameObject);
+        }
+
     }
 }
