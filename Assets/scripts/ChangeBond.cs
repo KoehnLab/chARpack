@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ChangeBond : MonoBehaviour
 {
@@ -62,4 +63,11 @@ public class ChangeBond : MonoBehaviour
         tt_.vk = float.Parse(kInputField.GetComponent<MRTKTMPInputField>().text);
     }
 
+    void OnGUI()
+    {
+        if (Event.current.Equals(Event.KeyboardEvent("return")))
+        {
+            okButton.GetComponent<Button>().onClick.Invoke();
+        }
+    }
 }
