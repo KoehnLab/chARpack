@@ -49,11 +49,8 @@ public class DebugWindow : myScrollObject
         }
     }
 
-    //public GameObject gridObjectCollection;
     public GameObject debugWindow;
     public GameObject logEntryPrefab;
-    //public GameObject scrollingObjectCollection;
-    //public GameObject clippingBox;
 
     private bool isEnabled = false;
     private bool showStackTrace = false;
@@ -137,13 +134,6 @@ public class DebugWindow : myScrollObject
         scrollingObjectCollection.GetComponent<ScrollingObjectCollection>().UpdateContent();
         // add all renderers of a log entry to the clipping box renderer list to make the buttons disappear when out of bounds
         updateClipping();
-        //var cb = clippingBox.GetComponent<ClippingBox>();
-        //var renderers = newLogEntry.GetComponentsInChildren<Renderer>();
-        //foreach (var renderer in renderers)
-        //{
-        //    cb.AddRenderer(renderer);
-        //}
-
 
 
     }
@@ -176,20 +166,10 @@ public class DebugWindow : myScrollObject
         }
     }
 
-    //public void updateClipping()
-    //{
-    //    if (debugWindow.activeSelf)
-    //    {
-    //        var cb = clippingBox.GetComponent<ClippingBox>();
-    //        foreach (Transform child in gridObjCollectionGO.transform)
-    //        {
-    //            var renderers = child.GetComponentsInChildren<Renderer>();
-    //            foreach (var renderer in renderers)
-    //            {
-    //                cb.AddRenderer(renderer);
-    //            }
-    //        }
-    //    }
-    //}
-
+    public void scrollAllDown()
+    {
+        // scrolls down by as many elements as there are in the log stack
+        // this is usually too much, but ScrollingObjectCollection handles scrolling too far in either direction
+        ScrollByTier(logStack.Count);
+    }
 }
