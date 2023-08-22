@@ -45,7 +45,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
         else
         {
-            if (currentOutlineColor == Color.black)
+            if (currentOutlineColor == Color.black || currentOutlineColor == Color.white)
             {
                 GetComponent<Outline>().enabled = false;
             }
@@ -74,14 +74,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
         else
         {
-            if (currentOutlineColor == Color.black)
+            if (currentOutlineColor == Color.black || currentOutlineColor == Color.blue)
             {
                 GetComponent<Outline>().enabled = false;
             }
             else
             {
                 GetComponent<Outline>().OutlineColor = currentOutlineColor;
-
             }
         }
     }
@@ -90,11 +89,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         // Highlight target
         focusHighlight(true);
+        EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, true);
     }
 
     void OnFocusExit(FocusEventData eventData)
     {
         focusHighlight(false);
+        EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
     }
 
 #if !WINDOWS_UWP
@@ -252,6 +253,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             ForceField.Singleton.resetMeasurment();
 
             // reset outline
+            focusHighlight(false);
             grabHighlight(false);
             foreach (var atom in currentChain)
             {

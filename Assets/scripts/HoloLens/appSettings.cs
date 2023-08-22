@@ -37,12 +37,40 @@ public class appSettings : MonoBehaviour
 
     public GameObject bondStiffnessValueGO;
     public GameObject repuslionScaleValueGO;
+    // Indicators
+    public GameObject ForceFieldIndicator;
+    public GameObject HandJointIndicator;
+    public GameObject HandMenuIndicator;
+    public GameObject HandMeshIndicator;
+    public GameObject HandRayIndicator;
+    public GameObject SpatialMeshIndicator;
+    public GameObject DebugWindowIndicator;
+
     private void Start()
     {
-        bondStiffnessValueGO.GetComponent<TextMeshPro>().text = ForceField.Singleton.stiffness.ToString();
-        repuslionScaleValueGO.GetComponent<TextMeshPro>().text = ForceField.Singleton.repulsionScale.ToString();
+        updateVisuals();
     }
 
+    public void updateVisuals()
+    {
+        setBondStiffnessVisual(SettingsData.bondStiffness);
+        setForceFieldVisual(SettingsData.forceField);
+        setHandJointVisual(SettingsData.handJoints);
+        setHandMenuVisual(SettingsData.handMenu);
+        setHandMeshVisual(SettingsData.handMesh);
+        setHandRayVisual(SettingsData.handRay);
+        setRepulsionScaleVisual(SettingsData.repulsionScale);
+        setSpatialMeshVisual(SettingsData.spatialMesh);
+        if (DebugWindow.Singleton == null)
+        {
+            setDebugWindowVisual(false);
+        }
+        else
+        {
+            setDebugWindowVisual(DebugWindow.Singleton.gameObject.activeSelf);
+        }
+
+    }
 
     public void toggleSpatialMesh()
     {
@@ -53,33 +81,72 @@ public class appSettings : MonoBehaviour
         {
             // Set to visible
             observer.DisplayOption = SpatialAwarenessMeshDisplayOptions.Visible;
-
+            SettingsData.spatialMesh = true;
         }
         else
         {
             // Set to not visible
             observer.DisplayOption = SpatialAwarenessMeshDisplayOptions.None;
+            SettingsData.spatialMesh = false;
         }
+        updateVisuals();
+    }
 
+    public void setSpatialMeshVisual(bool value)
+    {
+        if (value)
+        {
+            SpatialMeshIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+        }
+        else
+        {
+            SpatialMeshIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+        }
     }
 
     public void toggleForceField()
     {
         ForceField.Singleton.toggleForceFieldUI();
+        updateVisuals();
+    }
+
+    public void setForceFieldVisual(bool value)
+    {
+        if (value)
+        {
+            ForceFieldIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+        }
+        else
+        {
+            ForceFieldIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+        }
     }
 
     public void toggleDebugWindow()
     {
         GlobalCtrl.Singleton.toggleDebugWindow();
+        updateVisuals();
     }
 
+    private void setDebugWindowVisual(bool value)
+    {
+        if (value)
+        {
+            DebugWindowIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+        }
+        else
+        {
+            DebugWindowIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+        }
+    }
 
     public void increaseBondStiffness()
     {
         if (ForceField.Singleton.stiffness < 4)
         {
             ForceField.Singleton.stiffness += 1;
-            bondStiffnessValueGO.GetComponent<TextMeshPro>().text = ForceField.Singleton.stiffness.ToString();
+            SettingsData.bondStiffness = ForceField.Singleton.stiffness;
+            updateVisuals();
         }
     }
 
@@ -88,8 +155,14 @@ public class appSettings : MonoBehaviour
         if (ForceField.Singleton.stiffness > 0)
         {
             ForceField.Singleton.stiffness -= 1;
-            bondStiffnessValueGO.GetComponent<TextMeshPro>().text = ForceField.Singleton.stiffness.ToString();
+            SettingsData.bondStiffness = ForceField.Singleton.stiffness;
+            updateVisuals();
         }
+    }
+
+    public void setBondStiffnessVisual(ushort value)
+    {
+        bondStiffnessValueGO.GetComponent<TextMeshPro>().text = value.ToString();
     }
 
     public void increaseRepusionScale()
@@ -97,7 +170,8 @@ public class appSettings : MonoBehaviour
         if (ForceField.Singleton.repulsionScale < 0.9f)
         {
             ForceField.Singleton.repulsionScale += 0.1f;
-            repuslionScaleValueGO.GetComponent<TextMeshPro>().text = ForceField.Singleton.repulsionScale.ToString();
+            SettingsData.repulsionScale = ForceField.Singleton.repulsionScale;
+            updateVisuals();
         }
     }
 
@@ -106,8 +180,14 @@ public class appSettings : MonoBehaviour
         if (ForceField.Singleton.repulsionScale > 0.1f)
         {
             ForceField.Singleton.repulsionScale -= 0.1f;
-            repuslionScaleValueGO.GetComponent<TextMeshPro>().text = ForceField.Singleton.repulsionScale.ToString();
+            SettingsData.repulsionScale = ForceField.Singleton.repulsionScale;
+            updateVisuals();
         }
+    }
+
+    public void setRepulsionScaleVisual(float value)
+    {
+        repuslionScaleValueGO.GetComponent<TextMeshPro>().text = value.ToString();
     }
 
     /// <summary>
@@ -125,6 +205,20 @@ public class appSettings : MonoBehaviour
         if (handTrackingProfile != null)
         {
             handTrackingProfile.EnableHandMeshVisualization = !handTrackingProfile.EnableHandMeshVisualization;
+            SettingsData.handMesh = handTrackingProfile.EnableHandMeshVisualization;
+            updateVisuals();
+        }
+    }
+
+    public void setHandMeshVisual(bool value)
+    {
+        if (value)
+        {
+            HandMeshIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+        }
+        else
+        {
+            HandMeshIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
         }
     }
 
@@ -143,6 +237,20 @@ public class appSettings : MonoBehaviour
         if (handTrackingProfile != null)
         {
             handTrackingProfile.EnableHandJointVisualization = !handTrackingProfile.EnableHandJointVisualization;
+            SettingsData.handJoints = handTrackingProfile.EnableHandJointVisualization;
+            updateVisuals();
+        }
+    }
+
+    public void setHandJointVisual(bool value)
+    {
+        if (value)
+        {
+            HandJointIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+        }
+        else
+        {
+            HandJointIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
         }
     }
 
@@ -160,10 +268,12 @@ public class appSettings : MonoBehaviour
         if (oldBehavior == PointerBehavior.AlwaysOff)
         {
             newBehavior = PointerBehavior.Default;
+            SettingsData.handRay = true;
         }
         else
         {
             newBehavior = PointerBehavior.AlwaysOff;
+            SettingsData.handRay = false;
         }
         PointerUtils.SetPointerBehavior<T>(newBehavior, inputType);
     }
@@ -175,11 +285,37 @@ public class appSettings : MonoBehaviour
     public void toggleHandRay()
     {
         TogglePointerEnabled<ShellHandRayPointer>(InputSourceType.Hand);
+        updateVisuals();
+    }
+
+    public void setHandRayVisual(bool value)
+    {
+        if (value)
+        {
+            HandRayIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+        }
+        else
+        {
+            HandRayIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+        }
     }
 
     public void toggleHandMenu()
     {
         GlobalCtrl.Singleton.toggleHandMenu();
+        updateVisuals();
+    }
+
+    public void setHandMenuVisual(bool value)
+    {
+        if (value)
+        {
+            HandMenuIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+        }
+        else
+        {
+            HandMenuIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+        }
     }
 
     // Switch languages between German and English
@@ -194,5 +330,5 @@ public class appSettings : MonoBehaviour
         {
             LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("en");
         }
-    } 
+    }
 }

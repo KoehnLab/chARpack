@@ -82,6 +82,7 @@ public class handMenu : myScrollObject
     public void toggleVisible()
     {
         gameObject.SetActive(!gameObject.activeSelf);
+        SettingsData.handMenu = gameObject.activeSelf;
     }
 
     public void OnEnable()

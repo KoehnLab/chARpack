@@ -28,7 +28,7 @@ public class ForceField : MonoBehaviour
         }
     }
 
-    bool enableForceField = true;
+    bool enableForceField = SettingsData.forceField;
 
     public struct BondTerm
     {
@@ -54,7 +54,7 @@ public class ForceField : MonoBehaviour
     // note that the forcefield works in the atomic scale (i.e. all distances measure in pm)
     // we scale back when applying the movements to the actual objects
     public static float scalingfactor = GlobalCtrl.scale / GlobalCtrl.u2pm;
-    private float _repulsionScale = 0.5f;
+    private float _repulsionScale = SettingsData.repulsionScale;
     public float repulsionScale { get => _repulsionScale; set => _repulsionScale = value; }
 
     // Parameters of the integration methods
@@ -193,11 +193,13 @@ public class ForceField : MonoBehaviour
     public void toggleForceField()
     {
         enableForceField = !enableForceField;
+        SettingsData.forceField = enableForceField;
     }
 
     public void enableForceFieldMethod(bool enable)
     {
         enableForceField = enable;
+        SettingsData.forceField = enableForceField;
     }
 
     // Start is called before the first frame update
@@ -212,7 +214,7 @@ public class ForceField : MonoBehaviour
             FFlog.WriteLine("LogLevel = " + LogLevel);
         }
         // init integration variables
-        stiffness = 1;
+        stiffness = SettingsData.bondStiffness;
         currentMethod = Method.MidPoint;
 
         Dictionary<string, ElementData> element_dict = GlobalCtrl.Singleton.Dic_ElementData;

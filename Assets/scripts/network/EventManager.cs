@@ -202,6 +202,20 @@ public class EventManager : MonoBehaviour
         OnSetKeepConfig?.Invoke(mol_id, keep_config);
     }
 
+    public delegate void UpdateSettingsAction();
+    public event UpdateSettingsAction OnUpdateSettings;
+    public void UpdateSettings()
+    {
+        OnUpdateSettings?.Invoke();
+    }
+
+    public delegate void FocusHighlightAction(ushort mol_id, ushort atom_id, bool active);
+    public event FocusHighlightAction OnFocusHighlight;
+    public void FocusHighlight(ushort mol_id, ushort atom_id, bool active)
+    {
+        OnFocusHighlight?.Invoke(mol_id, atom_id, active);
+    }
+
     #endregion
 
 

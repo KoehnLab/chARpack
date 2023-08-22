@@ -1641,7 +1641,8 @@ public class GlobalCtrl : MonoBehaviour
         }
         return null;
     }
-
+    #endregion
+    #region Settings
     public void toggleDebugWindow()
     {
         if (DebugWindow.Singleton)
@@ -1673,9 +1674,9 @@ public class GlobalCtrl : MonoBehaviour
         handMenu.Singleton.toggleVisible();
     }
 
-        #endregion
+    #endregion
 
-        public void backToMain()
+    public void backToMain()
     {
         var myDialog = Dialog.Open(exitConfirmPrefab, DialogButtonType.Yes | DialogButtonType.No, "Confirm Exit", $"Are you sure you want quit?", true);
         if (myDialog != null)

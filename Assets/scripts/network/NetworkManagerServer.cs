@@ -72,7 +72,8 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnChangeTorsionTerm += bcastChangeTorsionTerm;
         EventManager.Singleton.OnModifyHyb += bcastModifyHyb;
         EventManager.Singleton.OnChangeAtom +=  bcastChangeAtom;
-        EventManager.Singleton.OnDeleteBond +=  sendDeleteBond;
+        EventManager.Singleton.OnDeleteBond +=  bcastDeleteBond;
+        EventManager.Singleton.OnUpdateSettings += bcastSettings;
 
     }
 
@@ -135,6 +136,7 @@ public class NetworkManagerServer : MonoBehaviour
         Debug.Log($"[NetworkManagerServer] Client {e.Client.Id} connected. Sending current world.");
         var atomWorld = GlobalCtrl.Singleton.saveAtomWorld();
         sendAtomWorld(atomWorld, e.Client.Id);
+        bcastSettings();
     }
 
     #region Messages
@@ -300,7 +302,7 @@ public class NetworkManagerServer : MonoBehaviour
         Server.SendToAll(message);
     }
 
-    public void sendDeleteBond(ushort bond_id, ushort mol_id)
+    public void bcastDeleteBond(ushort bond_id, ushort mol_id)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteBond);
         message.AddUShort(0);
@@ -308,6 +310,23 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddUShort(mol_id);
         Server.SendToAll(message);
     }
+
+    public void bcastSettings()
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSettings);
+        message.AddUShort(0);
+        message.AddUShort(SettingsData.bondStiffness);
+        message.AddFloat(SettingsData.repulsionScale);
+        message.AddBool(SettingsData.forceField); 
+        message.AddBool(SettingsData.spatialMesh);
+        message.AddBool(SettingsData.handMesh);
+        message.AddBool(SettingsData.handJoints);
+        message.AddBool(SettingsData.handRay);
+        message.AddBool(SettingsData.handMenu);
+        message.AddString(SettingsData.language);
+        Server.SendToAll(message);
+    }
+
     #endregion
 
     #region MessageHandler
@@ -793,7 +812,7 @@ public class NetworkManagerServer : MonoBehaviour
         }
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastModifyHyb);
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastModifyHyb);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(mol_id);
         outMessage.AddUShort(atom_id);
@@ -816,7 +835,7 @@ public class NetworkManagerServer : MonoBehaviour
         }
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastKeepConfig);
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastKeepConfig);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(mol_id);
         outMessage.AddBool(keep_config);
@@ -839,9 +858,36 @@ public class NetworkManagerServer : MonoBehaviour
         mol.toggleDummies();
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastReplaceDummies);
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastReplaceDummies);
         outMessage.AddUShort(fromClientId);
         outMessage.AddUShort(mol_id);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
+
+    [MessageHandler((ushort)ClientToServerID.focusHighlight)]
+    private static void getFocusHighlight(ushort fromClientId, Message message)
+    {
+        var mol_id = message.GetUShort();
+        var atom_id = message.GetUShort();
+        var active = message.GetBool();
+
+        // do the move on the server
+        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+        var atom = mol.atomList.ElementAtOrDefault(atom_id);
+        if (mol == default || atom == default)
+        {
+            Debug.LogError($"[NetworkManagerServer:getFocusHighlight] Molecule with id {mol_id} or atom with id {atom_id} do not exist.\nSynchronizing world with client {fromClientId}.");
+            NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
+            return;
+        }
+        atom.focusHighlight(active);
+
+        // Broadcast to other clients
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastFocusHighlight);
+        outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(mol_id);
+        outMessage.AddUShort(atom_id);
+        outMessage.AddBool(active);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
 
