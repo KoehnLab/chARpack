@@ -62,6 +62,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     public void OnSliderUpdated(mySliderEventData eventData)
     {
         gameObject.transform.localScale = eventData.NewValue * startingScale;
+        // networking
+        EventManager.Singleton.ChangeMoleculeScale(m_id, gameObject.transform.localScale.x);
     }
 
     //private void HandleOnManipulationStarted(ManipulationEventData eventData)
@@ -430,8 +432,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             // position needs to be optimized
             scalingSliderInstance = Instantiate(scalingSliderPrefab, gameObject.transform.position - 0.25f*Vector3.forward - 0.05f*Vector3.up, gameObject.transform.rotation);
-            scalingSliderInstance.GetComponent<mySlider>().maxVal = 5;
-            scalingSliderInstance.GetComponent<mySlider>().minVal = 0.5f;
+            scalingSliderInstance.GetComponent<mySlider>().maxVal = 2;
+            scalingSliderInstance.GetComponent<mySlider>().minVal = 0.1f;
             // Set effective starting value to 1
             scalingSliderInstance.GetComponent<mySlider>().SliderValue = (1 - scalingSliderInstance.GetComponent<mySlider>().minVal)/ (scalingSliderInstance.GetComponent<mySlider>().maxVal - scalingSliderInstance.GetComponent<mySlider>().minVal);
             startingScale = gameObject.transform.localScale;

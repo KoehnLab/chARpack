@@ -216,6 +216,13 @@ public class EventManager : MonoBehaviour
         OnFocusHighlight?.Invoke(mol_id, atom_id, active);
     }
 
+    public delegate void ChangeMoleculeScaleAction(ushort mol_id, float scale);
+    public event ChangeMoleculeScaleAction OnChangeMoleculeScale;
+    public void ChangeMoleculeScale(ushort mol_id, float scale)
+    {
+        OnChangeMoleculeScale?.Invoke(mol_id, scale);
+    }
+
     #endregion
 
 

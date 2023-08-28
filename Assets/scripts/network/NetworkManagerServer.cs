@@ -891,5 +891,29 @@ public class NetworkManagerServer : MonoBehaviour
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
 
+    [MessageHandler((ushort)ClientToServerID.scaleMolecule)]
+    private static void getScaleMolecule(ushort fromClientId, Message message)
+    {
+        var mol_id = message.GetUShort();
+        var scale = message.GetFloat();
+
+        // do the move on the server
+        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+        if (mol == default)
+        {
+            Debug.LogError($"[NetworkManagerServer:getScaleMolecule] Molecule with id {mol_id} does not exist.\nSynchronizing world with client {fromClientId}.");
+            NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
+            return;
+        }
+        mol.transform.localScale = scale * Vector3.one;
+
+        // Broadcast to other clients
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastScaleMolecule);
+        outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(mol_id);
+        outMessage.AddFloat(scale);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
+
     #endregion
 }

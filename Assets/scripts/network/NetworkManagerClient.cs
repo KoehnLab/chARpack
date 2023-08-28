@@ -97,6 +97,7 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnSetKeepConfig += sendKeepConfig;
         EventManager.Singleton.OnReplaceDummies += sendReplaceDummies;
         EventManager.Singleton.OnFocusHighlight += sendFocusHighlight;
+        EventManager.Singleton.OnChangeMoleculeScale += sendScaleMolecue;
     }
 
     private void FixedUpdate()
@@ -418,6 +419,13 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
+    public void sendScaleMolecue(ushort mol_id, float scale)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.scaleMolecule);
+        message.AddUShort(mol_id);
+        message.AddFloat(scale);
+        Client.Send(message);
+    }
 
     #endregion
 
@@ -896,6 +904,26 @@ public class NetworkManagerClient : MonoBehaviour
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
             atom.focusHighlight(active);
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastScaleMolecule)]
+    private static void getScaleMolecule(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
+        var scale = message.GetFloat();
+
+        // do the change
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+            if (mol == default)
+            {
+                Debug.LogError($"[NetworkManagerClient:getScaleMolecule] Molecule {mol_id} does not exists.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
+            mol.transform.localScale = scale * Vector3.one;
         }
     }
     #endregion
