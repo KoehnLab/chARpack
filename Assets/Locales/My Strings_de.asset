@@ -45,7 +45,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 3999708725248
-    m_Localized: Einstellunge
+    m_Localized: Einstellungen
     m_Metadata:
       m_Items: []
   - m_Id: 4030889181184
@@ -232,6 +232,10 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 5165129048031232
     m_Localized: Kopieren
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16334419667222528
+    m_Localized: "Molek\xFCl \nskalieren"
     m_Metadata:
       m_Items: []
   references:

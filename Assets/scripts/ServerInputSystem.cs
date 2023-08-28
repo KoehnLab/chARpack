@@ -35,7 +35,7 @@ public class ServerInputSystem : MonoBehaviour
             Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
             transform.position += moveSpeed * rotated;
         }
-        if (Input.GetKey(KeyCode.A))
+        if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.RightShift))
         {
             Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
             transform.position -= moveSpeed * rotated;
@@ -71,7 +71,8 @@ public class ServerInputSystem : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.RightShift) && Input.GetKeyDown(KeyCode.A))
         {
-            Atom marked = (Atom)GlobalCtrl.Singleton.getNextMarked(1);
+            //get last marked atom
+            Atom marked = Atom.markedAtoms[Atom.markedAtoms.Count-1];
             if (marked != null)
             {
                 marked.m_molecule.markMoleculeUI(true);

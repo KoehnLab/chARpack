@@ -28,6 +28,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     private List<Atom> currentChain = new List<Atom>();
 
+    public static List<Atom> markedAtoms = new List<Atom>();
+
     public void grabHighlight(bool active)
     {
         if (active)
@@ -843,6 +845,15 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             {
                 createToolTip();
             }
+            if (!m_molecule.isMarked)
+            {
+                markedAtoms.Add(this);
+            }
+            else
+            {
+                // Remove single marked atoms if whole molecule selected
+                markedAtoms.Remove(this);
+            }
         }
         else
         {
@@ -853,6 +864,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             }
             colorSwapSelect(0);
             markConnectedBonds(false);
+            markedAtoms.Remove(this);
         }
         // destroy tooltip of marked without flag
         if (!toolTip && toolTipInstance)
@@ -862,7 +874,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
     }
 
-    private void markConnections(bool toolTip = false)
+    public void markConnections(bool toolTip = false)
     {
         // check for connected atom
         var markedList = new List<Atom>();
@@ -955,8 +967,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         markConnections(toolTip);
     }
 
-    private void createToolTip()
+    public void createToolTip()
     {
+        if (toolTipInstance)
+        {
+            Destroy(toolTipInstance);
+        }
         // create tool tip
         toolTipInstance = Instantiate(myAtomToolTipPrefab);
         // calc position for tool tip
@@ -1018,6 +1034,22 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         GlobalCtrl.Singleton.changeAtomUI(m_molecule.m_id, m_id, chemAbbre);
         markAtomUI(false);
+    }
+
+    /// <summary>
+    /// Helper method to find out if atom is part of angle bond (for tool tip regeneration)
+    /// </summary>
+    public bool anyConnectedAtomsMarked()
+    {
+        var conAtoms = connectedAtoms();
+        foreach(Atom a in conAtoms)
+        {
+            if (a.isMarked)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class DebugWindow : MonoBehaviour
+public class DebugWindow : myScrollObject
 {
     // only needed to count double messages and show the counter
     private class LogStack
@@ -49,11 +49,8 @@ public class DebugWindow : MonoBehaviour
         }
     }
 
-    public GameObject gridObjCollectionGO;
     public GameObject debugWindow;
     public GameObject logEntryPrefab;
-    public GameObject scrollingObjectCollection;
-    public GameObject clippingBox;
 
     private bool isEnabled = false;
     private bool showStackTrace = false;
@@ -119,7 +116,8 @@ public class DebugWindow : MonoBehaviour
         newLogEntry.GetComponent<showStackTrace>().stack_trace = stackTrace;
         newLogEntry.GetComponent<showStackTrace>().log_type = type;
         // By default the SetParent function tries to maintain the same world position the object had before gaining its new parent. The false fixes that
-        newLogEntry.transform.SetParent(gridObjCollectionGO.transform, false);
+        //newLogEntry.transform.SetParent(gridObjectCollection.transform, false);
+        newLogEntry.transform.parent = gridObjectCollection.transform;
         logStack.Add(new LogStack(colored_message, newLogEntry));
 
         //IMPORTANT: in scroll collection use the safe AddContent methode ....
@@ -131,17 +129,11 @@ public class DebugWindow : MonoBehaviour
         // update collection also repositions all content
 
         // update on collection places all items in order
-        gridObjCollectionGO.GetComponent<GridObjectCollection>().UpdateCollection();
+        gridObjectCollection.GetComponent<GridObjectCollection>().UpdateCollection();
         // update on scoll content makes the list scrollable
         scrollingObjectCollection.GetComponent<ScrollingObjectCollection>().UpdateContent();
         // add all renderers of a log entry to the clipping box renderer list to make the buttons disappear when out of bounds
-        var cb = clippingBox.GetComponent<ClippingBox>();
-        var renderers = newLogEntry.GetComponentsInChildren<Renderer>();
-        foreach (var renderer in renderers)
-        {
-            cb.AddRenderer(renderer);
-        }
-
+        updateClipping();
 
 
     }
@@ -174,20 +166,10 @@ public class DebugWindow : MonoBehaviour
         }
     }
 
-    public void updateClipping()
+    public void scrollAllDown()
     {
-        if (debugWindow.activeSelf)
-        {
-            var cb = clippingBox.GetComponent<ClippingBox>();
-            foreach (Transform child in gridObjCollectionGO.transform)
-            {
-                var renderers = child.GetComponentsInChildren<Renderer>();
-                foreach (var renderer in renderers)
-                {
-                    cb.AddRenderer(renderer);
-                }
-            }
-        }
+        // scrolls down by as many elements as there are in the log stack
+        // this is usually too much, but ScrollingObjectCollection handles scrolling too far in either direction
+        ScrollByTier(logStack.Count);
     }
-
 }

@@ -234,6 +234,10 @@ MonoBehaviour:
     m_Localized: Copy
     m_Metadata:
       m_Items: []
+  - m_Id: 16334419667222528
+    m_Localized: "Scale \nMolecule"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
