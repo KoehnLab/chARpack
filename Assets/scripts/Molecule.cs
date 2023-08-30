@@ -431,7 +431,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         if (!scalingSliderInstance)
         {
             // position needs to be optimized
-            scalingSliderInstance = Instantiate(scalingSliderPrefab, gameObject.transform.position - 0.25f*Vector3.forward - 0.05f*Vector3.up, gameObject.transform.rotation);
+            scalingSliderInstance = Instantiate(scalingSliderPrefab, gameObject.transform.position - 0.25f*Vector3.forward - 0.05f*Vector3.up, Quaternion.identity);
             scalingSliderInstance.GetComponent<mySlider>().maxVal = 2;
             scalingSliderInstance.GetComponent<mySlider>().minVal = 0.1f;
             // Set effective starting value to 1

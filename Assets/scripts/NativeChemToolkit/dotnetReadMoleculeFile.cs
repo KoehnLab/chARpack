@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Diagnostics;
 using System.IO;
-using UnityEditor;
 using StructClass;
 using OpenBabel;
+using System.Collections;
+using System.Threading.Tasks;
+using SimpleFileBrowser;
 
 public class dotnetReadMoleculeFile : MonoBehaviour
 {
@@ -59,50 +61,137 @@ public class dotnetReadMoleculeFile : MonoBehaviour
 
     public void openLoadFileDialog()
     {
-#if !WINDOWS_UWP
-        var path = EditorUtility.OpenFilePanel("Open Molecule File", "", "");
-        if (path.Length != 0)
+        // implementation using EditorUtility (pauses main execution loop)
+        //#if !WINDOWS_UWP
+
+        //        var path = EditorUtility.OpenFilePanel("Open Molecule File", "", "");
+
+        //        if (path.Length != 0)
+        //        {
+        //            // do checks on file
+        //            FileInfo fi = new FileInfo(path);
+        //            UnityEngine.Debug.Log($"[ReadMoleculeFile] Current extension: {fi.Extension}");
+        //            if (!fi.Exists)
+        //            {
+        //                UnityEngine.Debug.LogError("[ReadMoleculeFile] Something went wrong during path conversion. Abort.");
+        //                return;
+        //            }
+        //            loadMolecule(fi);
+        //        }
+        //#endif
+        StartCoroutine( ShowLoadDialogCoroutine() );
+    }
+
+    IEnumerator ShowLoadDialogCoroutine()
+    {
+        yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files);
+
+
+        if (FileBrowser.Success)
         {
-            // do checks on file
-            FileInfo fi = new FileInfo(path);
+            if (FileBrowser.Result.Length != 1)
+            {
+                UnityEngine.Debug.LogError("[ReadMoleculeFile] Path from FileBrowser is empty. Abort.");
+                yield break;
+            }
+            FileInfo fi = new FileInfo(FileBrowser.Result[0]);
             UnityEngine.Debug.Log($"[ReadMoleculeFile] Current extension: {fi.Extension}");
             if (!fi.Exists)
             {
                 UnityEngine.Debug.LogError("[ReadMoleculeFile] Something went wrong during path conversion. Abort.");
-                return;
+                yield break;
             }
-            loadMolecule(fi);
+            yield return loadMolecule(fi);
         }
-#endif
     }
+
 
     public void openSaveFileDialog()
     {
-#if !WINDOWS_UWP
-        var path = EditorUtility.SaveFilePanel("Save Molecule to File", Application.streamingAssetsPath + "/SavedMolecules/", "mol01", supportedOutputFormats.AsCommaSeparatedString());
-        if (path.Length != 0)
+        //#if !WINDOWS_UWP
+        //        var path = EditorUtility.SaveFilePanel("Save Molecule to File", Application.streamingAssetsPath + "/SavedMolecules/", "mol01", supportedOutputFormats.AsCommaSeparatedString());
+        //        if (path.Length != 0)
+        //        {
+        //            // do checks on file
+        //            FileInfo fi = new FileInfo(path);
+        //            if (!checkOutputSupported(path))
+        //            {
+        //                UnityEngine.Debug.LogError($"[SaveMolecule] Chosen output format {fi.Extension} is not supported.");
+        //                return;
+        //            }
+        //            // TODO How to select molecule to save?
+        //            if (GlobalCtrl.Singleton.List_curMolecules.Count < 1)
+        //            {
+        //                UnityEngine.Debug.LogError("[SaveMolecule] No Molecules in currently in scene.");
+        //                return;
+        //            }
+        //            Molecule mol;
+        //            var selectedObject = Selection.activeGameObject;
+        //            var objMol = selectedObject?.GetComponent<Molecule>();
+        //            mol = objMol ? objMol : GlobalCtrl.Singleton.List_curMolecules[0];
+
+        //            saveMolecule(mol, fi);
+        //        }
+        //#endif
+        StartCoroutine(ShowSaveDialogCoroutine());
+    }
+
+    IEnumerator ShowSaveDialogCoroutine()
+    {
+        yield return FileBrowser.WaitForSaveDialog(FileBrowser.PickMode.Files);
+
+
+        if (FileBrowser.Success)
         {
-            // do checks on file
-            FileInfo fi = new FileInfo(path);
-            if (!checkOutputSupported(path))
+            if (FileBrowser.Result.Length != 1)
+            {
+                UnityEngine.Debug.LogError("[SaveMoleculeFile] Path from FileBrowser is empty. Abort.");
+                yield break;
+            }
+            FileInfo fi = new FileInfo(FileBrowser.Result[0]);
+            if (!checkOutputSupported(FileBrowser.Result[0]))
             {
                 UnityEngine.Debug.LogError($"[SaveMolecule] Chosen output format {fi.Extension} is not supported.");
-                return;
+                yield break;
             }
-            // TODO How to select molecule to save?
+
             if (GlobalCtrl.Singleton.List_curMolecules.Count < 1)
             {
                 UnityEngine.Debug.LogError("[SaveMolecule] No Molecules in currently in scene.");
-                return;
+                yield break;
             }
-            Molecule mol;
-            var selectedObject = Selection.activeGameObject;
-            var objMol = selectedObject?.GetComponent<Molecule>();
-            mol = objMol ? objMol : GlobalCtrl.Singleton.List_curMolecules[0];
 
-            saveMolecule(mol, fi);
+            var mols = new List<Molecule>();
+            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+            {
+                if (mol.isMarked)
+                {
+                    mols.Add(mol);
+                }
+            }
+            if (mols.Count < 1)
+            {
+                mols.Add(GlobalCtrl.Singleton.List_curMolecules[0]);
+            }
+
+            foreach (var mol in mols)
+            {
+                if (mols.Count > 1)
+                {
+                    var f_dir = fi.Directory;
+                    var f_name = Path.GetFileNameWithoutExtension(fi.FullName);
+                    var f_ext = fi.Extension;
+                    var new_path = Path.Combine(f_dir.FullName, f_name + "_" + mol.m_id + f_ext);
+                    var new_fi = new FileInfo(new_path);
+                    yield return saveMolecule(mol, new_fi);
+                }
+                else
+                {
+                    yield return saveMolecule(mol, fi);
+                }
+
+            }
         }
-#endif
     }
 
     private bool checkInputSupported(string path)
@@ -135,14 +224,14 @@ public class dotnetReadMoleculeFile : MonoBehaviour
         return supported;
     }
 
-    private void loadMolecule(FileInfo fi)
+    private IEnumerator loadMolecule(FileInfo fi)
     {
 
         if (!checkInputSupported(fi.Name))
         {
 
             UnityEngine.Debug.LogError($"[ReadMoleculeFile] File {fi.Name} with extension {fi.Extension} is not in list of supported formats.");
-            return;
+            return null;
         }
 
         UnityEngine.Debug.Log($"[ReadMoleculeFile] Loading Molecule {fi.FullName}");
@@ -250,14 +339,16 @@ public class dotnetReadMoleculeFile : MonoBehaviour
         if (saveData == null || saveData.Count == 0)
         {
             UnityEngine.Debug.LogError($"[ReadMoleculeFile] File {fi.FullName} could not be read. Abort.");
-            return;
+            return null;
         }
 
         GlobalCtrl.Singleton.rebuildAtomWorld(saveData, true);
         NetworkManagerServer.Singleton.pushLoadMolecule(saveData);
+
+        return null;
     }
 
-    public void saveMolecule(Molecule mol, FileInfo fi)
+    public IEnumerator saveMolecule(Molecule mol, FileInfo fi)
     {
         UnityEngine.Debug.Log($"[ReadMoleculeFile] Saving Molecule {fi.FullName}");
         if (fi.Extension.ToLower() == ".xml")
@@ -270,6 +361,7 @@ public class dotnetReadMoleculeFile : MonoBehaviour
             conv.SetOutFormat(fi.Extension);
             conv.WriteFile(mol.AsCML().AsOBMol(), fi.FullName);
         }
+        return null;
     }
 
 }
