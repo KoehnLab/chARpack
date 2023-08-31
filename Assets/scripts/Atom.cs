@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Animations;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 
@@ -192,11 +193,23 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
             {
                 currentChain = start_atom.connectedChain(this);
+
+                ConstraintSource cs = new ConstraintSource();
+                cs.sourceTransform = transform;
+                cs.weight = 1;
                 foreach (var atom in currentChain)
                 {
                     atom.grabHighlight(true);
                     atom.isGrabbed = true;
-                    atom.transform.parent = transform;
+                    //atom.transform.parent = transform;
+                    // use parent constraint
+
+                    var pc = atom.gameObject.AddComponent<ParentConstraint>();
+                    var positionDelta = pc.transform.position - transform.position;
+                    pc.AddSource(cs);
+                    pc.SetTranslationOffset(0, Quaternion.Inverse(transform.rotation) * positionDelta);
+                    pc.constraintActive = true;
+
                 }
             }
         }
@@ -211,7 +224,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         // position relative to molecule position
         EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
 
-        if (m_data.m_abbre != "Dummy")
+        if (m_data.m_abbre != "Dummy" && GlobalCtrl.Singleton.currentInteractionMode != GlobalCtrl.InteractionModes.CHAIN)
         {
             var con_atoms = connectedAtoms();
             foreach (var atom in con_atoms)
@@ -261,8 +274,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             {
                 atom.grabHighlight(false);
                 atom.isGrabbed = false;
-                //atom.transform.SetParent(m_molecule.transform, true);
-                atom.transform.parent = m_molecule.transform;
+                //atom.transform.parent = m_molecule.transform;
+                Destroy(atom.GetComponent<ParentConstraint>());
             }
             currentChain.Clear();
 
@@ -717,8 +730,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             }
             currentLayer = nextLayer;
         }
-
-        return chainAtomList;
+        chainAtomList.RemoveAll(item => item == this);
+        return new List<Atom>(new HashSet<Atom>(chainAtomList));
     }
 
     public List<Atom> connectedDummys()

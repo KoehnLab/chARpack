@@ -83,7 +83,6 @@ public class GlobalCtrl : MonoBehaviour
     public GameObject atomWorld;
 
     public Bond bondPrefab;
-    private bool isAnyAtomChanged;
     public Material overlapMat;
     public Material bondMat;
 
@@ -1773,8 +1772,8 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     private void OnApplicationQuit()
     {
-        if (isAnyAtomChanged)
-            CFileHelper.SaveData(Application.streamingAssetsPath + "/MoleculeFolder/ElementData.xml", list_ElementData);
+        //if (isAnyAtomChanged)
+        //    CFileHelper.SaveData(Application.streamingAssetsPath + "/MoleculeFolder/ElementData.xml", list_ElementData);
     }
 
     public string GetLocalizedString(string text)

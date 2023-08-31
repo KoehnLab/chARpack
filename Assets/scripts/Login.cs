@@ -74,6 +74,8 @@ public class Login : MonoBehaviour
         {
             Vector3 spawnPos = transform.position - new Vector3(1, 0, 0) * 0.1f + new Vector3(0, 1, 0) * 0.1f;
             serverListInstance = Instantiate(serverListPrefab, spawnPos, Quaternion.identity);
+            //make sure the window is rotated to the camera
+            serverListInstance.transform.forward = Camera.main.transform.forward;
             gameObject.SetActive(false);
         }
     }

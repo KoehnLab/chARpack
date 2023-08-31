@@ -18,7 +18,7 @@ public class showConnectConfirm : MonoBehaviour
         ServerList.Singleton.gameObject.SetActive(false);
         var myDialog = Dialog.Open(connectConfirmPrefab, DialogButtonType.Yes | DialogButtonType.No, "Confirm Connect", $"Are you sure you want to connect to:\n{ip}", true);
         //make sure the dialog is rotated to the camera
-        myDialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
+        myDialog.transform.forward = Camera.main.transform.forward;
 
         if (myDialog != null)
         {
@@ -33,7 +33,8 @@ public class showConnectConfirm : MonoBehaviour
             LoginData.ip = ip;
             LoginData.normal_mode = false;
             SceneManager.LoadScene("MainScene");
-        } else
+        }
+        else
         {
             // show server list again
             ServerList.Singleton.gameObject.SetActive(true);

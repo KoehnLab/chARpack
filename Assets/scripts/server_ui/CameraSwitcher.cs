@@ -40,6 +40,13 @@ public class CameraSwitcher : MonoBehaviour
         {
             currentCam_ = value;
             canvas.worldCamera = currentCam_;
+            foreach (var cam in cameras)
+            {
+                cam.Value.tag = "Untagged";
+                cam.Value.enabled = false;
+            }
+            currentCam.tag = "MainCamera";
+            currentCam.enabled = true;
         }
     }
     
@@ -64,9 +71,7 @@ public class CameraSwitcher : MonoBehaviour
         }
         if (cameras.Count == 0)
         {
-            currentCam.enabled = false;
             currentCam = cam;
-            currentCam.enabled = true;
         }
         if (!cameras.ContainsKey(id))
         {
@@ -115,7 +120,6 @@ public class CameraSwitcher : MonoBehaviour
                 foreach (var cam in cameras)
                 {
                     currentCam = cam.Value;
-                    currentCam.enabled = true;
                     pannel[cam.Key].transform.Find("Background").gameObject.SetActive(true);
                     break;
                 }
@@ -135,7 +139,6 @@ public class CameraSwitcher : MonoBehaviour
             // Do nothing if no client camera is registered
             return;
         }
-        currentCam.enabled = false;
         var user_id = cameras.FirstOrDefault(x => x.Value == currentCam).Key;
         pannel[user_id].transform.Find("Background").gameObject.SetActive(false);
 
@@ -144,7 +147,6 @@ public class CameraSwitcher : MonoBehaviour
         currentCam = cameras.Values.ToList().getWrapElement(id_in_list+1);
 
         var new_user_id = cameras.FirstOrDefault(x => x.Value == currentCam).Key;
-        currentCam.enabled = true;
         pannel[new_user_id].transform.Find("Background").gameObject.SetActive(true);
         GlobalCtrl.Singleton.currentCamera = currentCam;
     }
@@ -156,7 +158,6 @@ public class CameraSwitcher : MonoBehaviour
             // Do nothing if no client camera is registered
             return;
         }
-        currentCam.enabled = false;
         var user_id = cameras.FirstOrDefault(x => x.Value == currentCam).Key;
         pannel[user_id].transform.Find("Background").gameObject.SetActive(false);
 
@@ -165,7 +166,6 @@ public class CameraSwitcher : MonoBehaviour
         currentCam = cameras.Values.ToList().getWrapElement(id_in_list - 1);
 
         var new_user_id = cameras.FirstOrDefault(x => x.Value == currentCam).Key;
-        currentCam.enabled = true;
         pannel[new_user_id].transform.Find("Background").gameObject.SetActive(true);
         GlobalCtrl.Singleton.currentCamera = currentCam;
     }
