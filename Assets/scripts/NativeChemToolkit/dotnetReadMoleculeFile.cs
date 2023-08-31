@@ -189,7 +189,6 @@ public class dotnetReadMoleculeFile : MonoBehaviour
                 {
                     yield return saveMolecule(mol, fi);
                 }
-
             }
         }
     }

@@ -135,6 +135,8 @@ public class DebugWindow : myScrollObject
         // add all renderers of a log entry to the clipping box renderer list to make the buttons disappear when out of bounds
         updateClipping();
 
+        // make sure the log is not rotated
+        newLogEntry.transform.localRotation = Quaternion.identity;
 
     }
     public void toggleVisible()

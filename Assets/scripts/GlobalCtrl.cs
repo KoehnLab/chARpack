@@ -1751,6 +1751,9 @@ public class GlobalCtrl : MonoBehaviour
     public void backToMain()
     {
         var myDialog = Dialog.Open(exitConfirmPrefab, DialogButtonType.Yes | DialogButtonType.No, "Confirm Exit", $"Are you sure you want quit?", true);
+        //make sure the dialog is rotated to the camera
+        myDialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
+
         if (myDialog != null)
         {
             myDialog.OnClosed += OnBackToMainDialogEvent;

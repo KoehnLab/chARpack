@@ -17,6 +17,9 @@ public class showConnectConfirm : MonoBehaviour
         // hide server list
         ServerList.Singleton.gameObject.SetActive(false);
         var myDialog = Dialog.Open(connectConfirmPrefab, DialogButtonType.Yes | DialogButtonType.No, "Confirm Connect", $"Are you sure you want to connect to:\n{ip}", true);
+        //make sure the dialog is rotated to the camera
+        myDialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
+
         if (myDialog != null)
         {
             myDialog.OnClosed += OnClosedDialogEvent;
