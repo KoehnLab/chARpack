@@ -47,21 +47,25 @@ public class cornerClickScript : MonoBehaviour
         {
             mol.markMoleculeUI(!mol.isMarked, true);
         }
-        if (GlobalCtrl.Singleton.collision)
+        else
         {
-            Atom d1 = GlobalCtrl.Singleton.collider1;
-            Atom d2 = GlobalCtrl.Singleton.collider2;
-
-            Atom a1 = d1.dummyFindMain();
-            Atom a2 = d2.dummyFindMain();
-
-            if (!a1.alreadyConnected(a2))
+            if (GlobalCtrl.Singleton.collision)
             {
-                EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
-                GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
-            }
+                Atom d1 = GlobalCtrl.Singleton.collider1;
+                Atom d2 = GlobalCtrl.Singleton.collider2;
 
+                Atom a1 = d1.dummyFindMain();
+                Atom a2 = d2.dummyFindMain();
+
+                if (!a1.alreadyConnected(a2))
+                {
+                    EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
+                    GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+                }
+
+            }
         }
+
         // change material back to normal
         box.setGrabbed(false);
     }

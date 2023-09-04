@@ -40,20 +40,22 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             markMoleculeUI(!isMarked, true);
         }
-        if (GlobalCtrl.Singleton.collision)
+        else
         {
-            Atom d1 = GlobalCtrl.Singleton.collider1;
-            Atom d2 = GlobalCtrl.Singleton.collider2;
-
-            Atom a1 = d1.dummyFindMain();
-            Atom a2 = d2.dummyFindMain();
-
-            if (!a1.alreadyConnected(a2))
+            if (GlobalCtrl.Singleton.collision)
             {
-                EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
-                GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
-            }
+                Atom d1 = GlobalCtrl.Singleton.collider1;
+                Atom d2 = GlobalCtrl.Singleton.collider2;
 
+                Atom a1 = d1.dummyFindMain();
+                Atom a2 = d2.dummyFindMain();
+
+                if (!a1.alreadyConnected(a2))
+                {
+                    EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
+                    GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+                }
+            }
         }
         // change material back to normal
         GetComponent<myBoundingBox>().setGrabbed(false);
@@ -77,6 +79,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     //}
 
     [HideInInspector] public static GameObject myToolTipPrefab;
+    [HideInInspector] public static GameObject mySnapToolTipPrefab;
     [HideInInspector] public static GameObject deleteMeButtonPrefab;
     [HideInInspector] public static GameObject closeMeButtonPrefab;
     [HideInInspector] public static GameObject modifyMeButtonPrefab;
@@ -86,7 +89,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject copyButtonPrefab;
     [HideInInspector] public static GameObject scaleMoleculeButtonPrefab;
     [HideInInspector] public static GameObject scalingSliderPrefab;
-    [HideInInspector] public static GameObject freezeMePrefab;
+    [HideInInspector] public static GameObject freezeMeButtonPrefab;
+    [HideInInspector] public static GameObject snapMeButtonPrefab;
     public GameObject toolTipInstance;
     public GameObject scalingSliderInstance;
     private float toolTipDistanceWeight = 0.01f;
@@ -272,12 +276,108 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 createToolTip();
             }
         }
+
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        {
+            if (mol != this && mol.isMarked)
+            {
+                if (!GlobalCtrl.Singleton.snapToolTipInstances.ContainsKey(new Tuple<ushort,ushort>(m_id, mol.m_id)) && 
+                    !GlobalCtrl.Singleton.snapToolTipInstances.ContainsKey(new Tuple<ushort, ushort>(mol.m_id, m_id)))
+                {
+                    createSnapToolTip(mol.m_id);
+                }
+                else
+                {
+                    if (mark == false)
+                    {
+                        if (GlobalCtrl.Singleton.snapToolTipInstances.ContainsKey(new Tuple<ushort, ushort>(m_id, mol.m_id)))
+                        {
+                            Destroy(GlobalCtrl.Singleton.snapToolTipInstances[new Tuple<ushort, ushort>(m_id, mol.m_id)]);
+                            GlobalCtrl.Singleton.snapToolTipInstances.Remove(new Tuple<ushort, ushort>(m_id, mol.m_id));
+                        }
+                        else
+                        {
+                            Destroy(GlobalCtrl.Singleton.snapToolTipInstances[new Tuple<ushort, ushort>(mol.m_id, m_id)]);
+                            GlobalCtrl.Singleton.snapToolTipInstances.Remove(new Tuple<ushort, ushort>(mol.m_id, m_id));
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void markMoleculeUI(bool mark, bool showToolTip = true)
     {
         EventManager.Singleton.SelectMolecule(m_id, !isMarked);
         markMolecule(mark, showToolTip);
+    }
+
+    public void createSnapToolTip(ushort otherMolID)
+    {
+        // create tool tip
+        var snapToolTip = Instantiate(mySnapToolTipPrefab);
+
+        // put tool top to the right 
+        snapToolTip.transform.position = (GlobalCtrl.Singleton.List_curMolecules[otherMolID].transform.position - transform.position)/2f + transform.position - 0.25f * Vector3.up;
+        // add atom as connector
+        snapToolTip.GetComponent<myDoubleLineToolTipConnector>().Target1 = gameObject;
+        snapToolTip.GetComponent<myDoubleLineToolTipConnector>().Target2 = GlobalCtrl.Singleton.List_curMolecules[otherMolID].gameObject;
+        string toolTipText = $"Molecule1 ID: {m_id}\nMolecule2 ID: {otherMolID}";
+        snapToolTip.GetComponent<DoubleLineDynamicToolTip>().ToolTipText = toolTipText;
+
+        var snapMoleculeButtonInstance = Instantiate(snapMeButtonPrefab);
+        snapMoleculeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { snapUI(otherMolID); });
+        snapToolTip.GetComponent<DoubleLineDynamicToolTip>().addContent(snapMoleculeButtonInstance);
+
+        var closeSnapButtonInstance = Instantiate(closeMeButtonPrefab);
+        closeSnapButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { closeSnapUI(otherMolID); });
+        snapToolTip.GetComponent<DoubleLineDynamicToolTip>().addContent(closeSnapButtonInstance);
+
+        GlobalCtrl.Singleton.snapToolTipInstances[new Tuple<ushort, ushort>(m_id, otherMolID)] = snapToolTip;
+    }
+
+    private void snapUI(ushort otherMolID)
+    {
+
+        var otherMol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(otherMolID);
+        if (otherMol == default)
+        {
+            UnityEngine.Debug.LogError($"[Molecule:snapUI] Could not find Molecule with ID {otherMolID}");
+            return;
+        }
+        snap(otherMolID);
+        markMolecule(false);
+        otherMol.markMolecule(false);
+        EventManager.Singleton.MoveMolecule(m_id, otherMol.transform.localPosition, otherMol.transform.localRotation);
+        EventManager.Singleton.SelectMolecule(m_id, false);
+        EventManager.Singleton.SelectMolecule(otherMolID, false);
+    }
+
+    private bool snap(ushort otherMolID)
+    {
+        var otherMol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(otherMolID);
+        if (otherMol == default)
+        {
+            return false;
+        }
+        transform.localPosition = otherMol.transform.localPosition;
+        transform.localRotation = otherMol.transform.localRotation;
+
+        return true;
+    }
+
+    private void closeSnapUI(ushort otherMolID)
+    {
+        var otherMol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(otherMolID);
+        if (otherMol == default)
+        {
+            UnityEngine.Debug.LogError($"[Molecule:closeSnapUI] Could not find Molecule with ID {otherMolID}");
+            return;
+        }
+        markMolecule(false);
+        otherMol.markMolecule(false);
+        EventManager.Singleton.SelectMolecule(m_id, false);
+        EventManager.Singleton.SelectMolecule(otherMolID, false);
     }
 
     /// <summary>
@@ -422,7 +522,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         scaleMoleculeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { toggleScalingSlider(); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(scaleMoleculeButtonInstance);
 
-        var freezeMoleculeButtonInstance = Instantiate(freezeMePrefab);
+        var freezeMoleculeButtonInstance = Instantiate(freezeMeButtonPrefab);
         freezeMoleculeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { freezeUI(!frozen); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(freezeMoleculeButtonInstance);
 
@@ -480,9 +580,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         modifyButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { createChangeBondWindow(term); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(modifyButtonInstance);
 
-        var delButtonInstance = Instantiate(deleteMeButtonPrefab);
-        delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteBondUI(bond); });
-        toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
+        if (atom1.m_data.m_abbre != "Dummy" && atom2.m_data.m_abbre != "Dummy")
+        {
+            var delButtonInstance = Instantiate(deleteMeButtonPrefab);
+            delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteBondUI(bond); });
+            toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
+        }
 
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
         closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markBondTermUI(term, false); });

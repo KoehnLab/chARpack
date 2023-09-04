@@ -241,6 +241,10 @@ MonoBehaviour:
     m_Key: FreezeMeButton/FreezeMeButton/IconAndText/TextMeshPro
     m_Metadata:
       m_Items: []
+  - m_Id: 23962793127481344
+    m_Key: SnapMeButton/SnapMeButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

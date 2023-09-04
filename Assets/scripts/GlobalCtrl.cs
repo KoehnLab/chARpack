@@ -114,6 +114,9 @@ public class GlobalCtrl : MonoBehaviour
 
     public Stack<List<cmlData>> systemState = new Stack<List<cmlData>>();
 
+    // tooltips to connect two molecules
+    public Dictionary<Tuple<ushort, ushort>, GameObject> snapToolTipInstances = new Dictionary<Tuple<ushort, ushort>, GameObject>();
+
     #region Interaction
     // Interaction modes
     public enum InteractionModes {NORMAL, CHAIN, MEASURMENT};
@@ -211,6 +214,7 @@ public class GlobalCtrl : MonoBehaviour
 
         // Molecule
         Molecule.myToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKMoleculeTooltip");
+        Molecule.mySnapToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKSnapMoleculeTooltip");
         Molecule.deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
         Molecule.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
         Molecule.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
@@ -220,7 +224,8 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.copyButtonPrefab = (GameObject)Resources.Load("prefabs/CopyMeButton");
         Molecule.scaleMoleculeButtonPrefab = (GameObject)Resources.Load("prefabs/ScaleMoleculeButton");
         Molecule.scalingSliderPrefab = (GameObject)Resources.Load("prefabs/myTouchSlider");
-        Molecule.freezeMePrefab = (GameObject)Resources.Load("prefabs/FreezeMeButton");
+        Molecule.freezeMeButtonPrefab = (GameObject)Resources.Load("prefabs/FreezeMeButton");
+        Molecule.snapMeButtonPrefab = (GameObject)Resources.Load("prefabs/SnapMeButton");
 
         Debug.Log("[GlobalCtrl] Initialization complete.");
 
@@ -613,8 +618,8 @@ public class GlobalCtrl : MonoBehaviour
         {
             bond.markBond(false);
         }
-        m.markMolecule(false);
-        List_curMolecules.Remove(m);
+        //m.markMolecule(false);
+        //List_curMolecules.Remove(m);
         Destroy(m.gameObject);
         shrinkMoleculeIDs();
         SaveMolecule(true);

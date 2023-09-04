@@ -246,6 +246,10 @@ MonoBehaviour:
     m_Localized: Einfrieren
     m_Metadata:
       m_Items: []
+  - m_Id: 23962793127481344
+    m_Localized: Schnappen
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

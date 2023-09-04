@@ -167,7 +167,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 7903775277056
-    m_Localized: Freeze
+    m_Localized: Modify
     m_Metadata:
       m_Items: []
   - m_Id: 8301739229184
@@ -227,7 +227,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5142275573186560
-    m_Localized: 
+    m_Localized: Chain Mode
     m_Metadata:
       m_Items: []
   - m_Id: 5165129048031232
@@ -244,6 +244,10 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 23923190035156992
     m_Localized: Freeze
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23962793127481344
+    m_Localized: Snap
     m_Metadata:
       m_Items: []
   references:
