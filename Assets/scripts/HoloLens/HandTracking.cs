@@ -39,6 +39,12 @@ public class HandTracking : MonoBehaviour
     public Vector3 indexForward { get => _indexForward; private set => _indexForward = value; }
     private MixedRealityPose indexKnucklePose = MixedRealityPose.ZeroIdentity;
     private MixedRealityPose indexTipPose = MixedRealityPose.ZeroIdentity;
+    public GameObject chainIndicator;
+
+    public void showVisual(bool show)
+    {
+        chainIndicator.SetActive(show);
+    }
 
     // check hand pose to pick which end of chain to move
     //public void OnSourceDetected(SourceStateEventData eventData)

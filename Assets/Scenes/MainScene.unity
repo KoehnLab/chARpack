@@ -3863,6 +3863,60 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1175498769}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1240155038 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2297978557063401266, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
+  m_PrefabInstance: {fileID: 5371978316124899573}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1240155041 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4469488691655995652, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
+  m_PrefabInstance: {fileID: 5371978316124899573}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1240155038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9541d86e2fd84c1d9990edf0852d74ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1240155043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1240155038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69beb381e244f92449b8c4cf954630e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TrackedObjects:
+  - rid: 4178321305477578766
+  references:
+    version: 2
+    RefIds:
+    - rid: 4178321305477578766
+      type: {class: TrackedUGuiGraphic, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
+      data:
+        m_Target: {fileID: 1240155041}
+        m_TrackedProperties:
+          items:
+          - rid: 4178321305477578767
+        m_UpdateType: 0
+    - rid: 4178321305477578767
+      type: {class: LocalizedStringProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
+      data:
+        m_Localized:
+          m_TableReference:
+            m_TableCollectionName: 
+          m_TableEntryReference:
+            m_KeyId: 0
+            m_Key: 
+          m_FallbackState: 0
+          m_WaitForCompletion: 0
+          m_LocalVariables: []
+        m_PropertyPath: m_text
 --- !u!1 &1245187104
 GameObject:
   m_ObjectHideFlags: 0
@@ -5352,6 +5406,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a99b88fff293d3344986dc729efde132, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  measurment: {fileID: 0}
+  chainIndicator: {fileID: 515315609}
 --- !u!1 &1601631981
 GameObject:
   m_ObjectHideFlags: 0
@@ -9141,6 +9197,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 692946000708069094, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
+      propertyPath: m_TrackedObjects.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1665666299313617251, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -9229,7 +9289,8 @@ PrefabInstance:
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: toggleChainInteractionMode
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 692946000708069094, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
 --- !u!1 &5464695368618527900
 GameObject:

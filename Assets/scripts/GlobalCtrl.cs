@@ -115,7 +115,11 @@ public class GlobalCtrl : MonoBehaviour
     public Stack<List<cmlData>> systemState = new Stack<List<cmlData>>();
 
     // tooltips to connect two molecules
-    public Dictionary<Tuple<ushort, ushort>, GameObject> snapToolTipInstances = new Dictionary<Tuple<ushort, ushort>, GameObject>();
+    [HideInInspector] public Dictionary<Tuple<ushort, ushort>, GameObject> snapToolTipInstances = new Dictionary<Tuple<ushort, ushort>, GameObject>();
+
+    // measurmemt dict
+    [HideInInspector] public Dictionary<Measurment, Tuple<Atom, Atom>> measurmentDict = new Dictionary<Measurment, Tuple<Atom, Atom>>();
+    [HideInInspector] public GameObject measurmentInHand = null; 
 
     #region Interaction
     // Interaction modes
@@ -129,6 +133,7 @@ public class GlobalCtrl : MonoBehaviour
         {
             currentInteractionMode = InteractionModes.CHAIN;
             HandTracking.Singleton.gameObject.SetActive(true);
+            HandTracking.Singleton.showVisual(true);
         }
         else
         {
@@ -143,6 +148,7 @@ public class GlobalCtrl : MonoBehaviour
         {
             currentInteractionMode = InteractionModes.MEASURMENT;
             HandTracking.Singleton.gameObject.SetActive(true);
+            HandTracking.Singleton.showVisual(false);
         }
         else
         {
@@ -206,6 +212,7 @@ public class GlobalCtrl : MonoBehaviour
         // Init some prefabs
         // Atom
         Atom.myAtomToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKAtomToolTip");
+        Atom.measurmentPrefab = (GameObject)Resources.Load("prefabs/MeasurmentPrefab");
         Atom.deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
         Atom.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
         Atom.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
@@ -731,6 +738,27 @@ public class GlobalCtrl : MonoBehaviour
             EventManager.Singleton.ChangeMolData(m);
         }
     }
+
+    public void deleteMeasurment(Atom atom)
+    {
+        List<Measurment> toRemove = new List<Measurment>();
+        foreach (var entry in measurmentDict)
+        {
+            if (entry.Value.Item1 == atom || entry.Value.Item2 == atom)
+            {
+                toRemove.Add(entry.Key);
+            }
+        }
+        toRemove = new List<Measurment>(new HashSet<Measurment>(toRemove)); // remove duplicates
+        foreach (var measurment in toRemove)
+        {
+            measurmentDict.Remove(measurment);
+            Destroy(measurment.gameObject);
+        }
+
+    }
+
+
 
     /// <summary>
     /// this method creates a topological map of a molecule
