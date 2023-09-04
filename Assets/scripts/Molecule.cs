@@ -86,10 +86,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject copyButtonPrefab;
     [HideInInspector] public static GameObject scaleMoleculeButtonPrefab;
     [HideInInspector] public static GameObject scalingSliderPrefab;
+    [HideInInspector] public static GameObject freezeMePrefab;
     public GameObject toolTipInstance;
     public GameObject scalingSliderInstance;
     private float toolTipDistanceWeight = 0.01f;
     private Vector3 startingScale;
+    public bool frozen = false;
 
     /// <summary>
     /// molecule id
@@ -420,6 +422,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         scaleMoleculeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { toggleScalingSlider(); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(scaleMoleculeButtonInstance);
 
+        var freezeMoleculeButtonInstance = Instantiate(freezeMePrefab);
+        freezeMoleculeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { freezeUI(!frozen); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(freezeMoleculeButtonInstance);
+
         var delButtonInstance = Instantiate(deleteMeButtonPrefab);
         delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteMoleculeUI(this); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
@@ -733,9 +739,25 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         return toolTipText;
     }
 
-#endregion
+    public void freezeUI(bool value)
+    {
+        if (value == frozen) return;
+        freeze(value);
+        EventManager.Singleton.FreezeMolecule(m_id, value);
+    }
 
-#region id_management
+    public void freeze(bool value)
+    {
+        foreach (var atom in atomList)
+        {
+            atom.freeze(value);
+        }
+        frozen = value;
+    }
+
+    #endregion
+
+    #region id_management
     /// <summary>
     /// this method gets the maximum atomID currently in the scene
     /// </summary>

@@ -123,4 +123,9 @@ public class HandTracking : MonoBehaviour
     {
         return indexForward;
     }
+
+    public Vector3 getIndexTip()
+    {
+        return indexTipPose.Position;
+    }
 }

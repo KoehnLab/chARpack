@@ -437,7 +437,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 937783100, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
   m_PrefabInstance: {fileID: 2204069621197619693}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3335135795436181724
+--- !u!114 &2783146985807710608
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -450,26 +450,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_TrackedObjects:
-  - rid: 3401264042199482496
+  - rid: 4178321305477578756
   references:
     version: 2
     RefIds:
-    - rid: 3401264042199482496
+    - rid: 4178321305477578756
       type: {class: TrackedUGuiGraphic, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
       data:
         m_Target: {fileID: 2204069621878992595}
         m_TrackedProperties:
           items:
-          - rid: 3401264042199482497
+          - rid: 4178321305477578757
         m_UpdateType: 0
-    - rid: 3401264042199482497
+    - rid: 4178321305477578757
       type: {class: LocalizedStringProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
       data:
         m_Localized:
           m_TableReference:
-            m_TableCollectionName: GUID:2803bb8940043bb409c4ccb29a5926e2
+            m_TableCollectionName: 
           m_TableEntryReference:
-            m_KeyId: 7903775277056
+            m_KeyId: 0
             m_Key: 
           m_FallbackState: 0
           m_WaitForCompletion: 0

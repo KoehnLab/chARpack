@@ -20,12 +20,14 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     [HideInInspector] public static GameObject closeMeButtonPrefab;
     [HideInInspector] public static GameObject modifyMeButtonPrefab;
     [HideInInspector] public static GameObject modifyHybridizationPrefab;
+    [HideInInspector] public static GameObject freezeMePrefab;
 
     private Stopwatch stopwatch;
     private GameObject toolTipInstance = null;
     private float toolTipDistanceWeight = 2.5f;
     private Color currentOutlineColor = Color.black;
     public bool keepConfig = false;
+    public bool frozen = false;
 
     private List<Atom> currentChain = new List<Atom>();
 
@@ -119,10 +121,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     void OnMouseDrag()
     {
-        Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f);
-        transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + offset;
-        // position relative to molecule position
-        EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
+        if (!frozen)
+        {
+            Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f);
+            transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + offset;
+            // position relative to molecule position
+            EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
+        }
     }
 
     private void OnMouseUp()
@@ -1030,6 +1035,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             modifyButtonInstance.GetComponent<ButtonConfigHelper>().MainLabelText = "To Hydrogen";
             toolTipInstance.GetComponent<DynamicToolTip>().addContent(modifyButtonInstance);
         }
+        var freezeButtonInstance = Instantiate(freezeMePrefab);
+        freezeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { freezeUI(!frozen); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(freezeButtonInstance);
+
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
         closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markAtomUI(false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
@@ -1101,5 +1110,29 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     void IMixedRealityFocusHandler.OnFocusExit(FocusEventData eventData)
     {
         OnFocusExit(eventData);
+    }
+
+    public void freezeUI(bool value)
+    {
+        if (value == frozen) return;
+        freeze(value);
+        EventManager.Singleton.FreezeAtom(m_molecule.m_id, m_id, value);
+    }
+
+    public void freeze(bool value)
+    {
+        GetComponent<NearInteractionGrabbable>().enabled = !value;
+        GetComponent<ObjectManipulator>().enabled = !value;
+        if (value)
+        {
+            m_data.m_mass = -1f;
+        }
+        else
+        {
+            ElementData tempData = GlobalCtrl.Singleton.Dic_ElementData[m_data.m_abbre];
+            m_data.m_mass = tempData.m_mass;
+        }
+
+        frozen = value;
     }
 }

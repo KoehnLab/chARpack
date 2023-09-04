@@ -9145,6 +9145,14 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 2123164476787930189, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 684068572}
+    - target: {fileID: 2123164476787930189, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: toggleMeasurmentMode
+      objectReference: {fileID: 0}
     - target: {fileID: 3537350985816977441, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
       propertyPath: useOnPreRender
       value: 0
@@ -9217,6 +9225,10 @@ PrefabInstance:
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 684068572}
+    - target: {fileID: 8097096242911856206, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: toggleChainInteractionMode
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
 --- !u!1 &5464695368618527900

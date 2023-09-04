@@ -167,7 +167,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 7903775277056
-    m_Localized: Modify
+    m_Localized: Freeze
     m_Metadata:
       m_Items: []
   - m_Id: 8301739229184
@@ -227,7 +227,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5142275573186560
-    m_Localized: Chain Mode
+    m_Localized: 
     m_Metadata:
       m_Items: []
   - m_Id: 5165129048031232
@@ -236,6 +236,14 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 16334419667222528
     m_Localized: "Scale \nMolecule"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22875769976950784
+    m_Localized: Measurment Mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23923190035156992
+    m_Localized: Freeze
     m_Metadata:
       m_Items: []
   references:

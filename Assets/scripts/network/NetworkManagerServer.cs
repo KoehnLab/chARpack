@@ -915,5 +915,56 @@ public class NetworkManagerServer : MonoBehaviour
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
 
+    [MessageHandler((ushort)ClientToServerID.freezeAtom)]
+    private static void getFreezeAtom(ushort fromClientId, Message message)
+    {
+        var mol_id = message.GetUShort();
+        var atom_id = message.GetUShort();
+        var freeze = message.GetBool();
+
+        // do the move on the server
+        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+        var atom = mol.atomList.ElementAtOrDefault(atom_id);
+        if (mol == default || atom == default)
+        {
+            Debug.LogError($"[NetworkManagerServer:getFreezeAtom] Molecule with id {mol_id} or atom with id {atom_id} do not exist.\nSynchronizing world with client {fromClientId}.");
+            NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
+            return;
+        }
+        atom.freeze(freeze);
+
+        // Broadcast to other clients
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastFreezeAtom);
+        outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(mol_id);
+        outMessage.AddUShort(atom_id);
+        outMessage.AddBool(freeze);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
+
+    [MessageHandler((ushort)ClientToServerID.freezeMolecule)]
+    private static void getFreezeMolecule(ushort fromClientId, Message message)
+    {
+        var mol_id = message.GetUShort();
+        var freeze = message.GetBool();
+
+        // do the move on the server
+        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+        if (mol == default)
+        {
+            Debug.LogError($"[NetworkManagerServer:getFreezeMolecule] Molecule with id {mol_id} does not exist.\nSynchronizing world with client {fromClientId}.");
+            NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
+            return;
+        }
+        mol.freeze(freeze);
+
+        // Broadcast to other clients
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastFreezeMolecule);
+        outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(mol_id);
+        outMessage.AddBool(freeze);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
+
     #endregion
 }

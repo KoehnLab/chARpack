@@ -116,15 +116,29 @@ public class GlobalCtrl : MonoBehaviour
 
     #region Interaction
     // Interaction modes
-    public enum InteractionModes {NORMAL, CHAIN};
+    public enum InteractionModes {NORMAL, CHAIN, MEASURMENT};
     private InteractionModes _currentInteractionMode = InteractionModes.NORMAL;
     public InteractionModes currentInteractionMode { get => _currentInteractionMode; private set => _currentInteractionMode = value; }
 
-    public void toggleInteractionMode()
+    public void toggleChainInteractionMode()
     {
-        if (currentInteractionMode == InteractionModes.NORMAL)
+        if (currentInteractionMode != InteractionModes.CHAIN)
         {
             currentInteractionMode = InteractionModes.CHAIN;
+            HandTracking.Singleton.gameObject.SetActive(true);
+        }
+        else
+        {
+            currentInteractionMode = InteractionModes.NORMAL;
+            HandTracking.Singleton.gameObject.SetActive(false);
+        }
+    }
+
+    public void toggleMeasurmentMode()
+    {
+        if (currentInteractionMode != InteractionModes.MEASURMENT)
+        {
+            currentInteractionMode = InteractionModes.MEASURMENT;
             HandTracking.Singleton.gameObject.SetActive(true);
         }
         else
@@ -193,6 +207,7 @@ public class GlobalCtrl : MonoBehaviour
         Atom.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
         Atom.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
         Atom.modifyHybridizationPrefab = (GameObject)Resources.Load("prefabs/modifyHybridization");
+        Atom.freezeMePrefab = (GameObject)Resources.Load("prefabs/FreezeMeButton");
 
         // Molecule
         Molecule.myToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKMoleculeTooltip");
@@ -205,6 +220,7 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.copyButtonPrefab = (GameObject)Resources.Load("prefabs/CopyMeButton");
         Molecule.scaleMoleculeButtonPrefab = (GameObject)Resources.Load("prefabs/ScaleMoleculeButton");
         Molecule.scalingSliderPrefab = (GameObject)Resources.Load("prefabs/myTouchSlider");
+        Molecule.freezeMePrefab = (GameObject)Resources.Load("prefabs/FreezeMeButton");
 
         Debug.Log("[GlobalCtrl] Initialization complete.");
 
@@ -983,11 +999,22 @@ public class GlobalCtrl : MonoBehaviour
         EventManager.Singleton.ChangeMolData(tempMolecule);
     }
 
+    public void createAtomUI(string ChemicalID)
+    {
+        lastAtom = ChemicalID; // remember this for later
+        Vector3 create_position = currentCamera.transform.position + 0.5f * currentCamera.transform.forward;
+        var newID = getFreshMoleculeID();
+        CreateAtom(newID, ChemicalID, create_position, curHybrid);
+
+        // Let the networkManager know about the user action
+        // Important: insert localPosition here
+        EventManager.Singleton.CreateAtom(newID, ChemicalID, List_curMolecules[newID].transform.localPosition, curHybrid);
+    }
+
     public ushort calcNumBonds(ushort hyb, ushort element_bondNum)
     {
         return (ushort)Mathf.Max(0, element_bondNum - (3 - hyb)); // a preliminary solution
     }
-
 
     /// <summary>
     /// this method changes the type of an atom
@@ -1576,17 +1603,7 @@ public class GlobalCtrl : MonoBehaviour
 
     #region ui functions
 
-    public void createAtomUI(string ChemicalID)
-    {
-        lastAtom = ChemicalID; // remember this for later
-        Vector3 create_position = currentCamera.transform.position + 0.5f * currentCamera.transform.forward;
-        var newID = getFreshMoleculeID();
-        CreateAtom(newID, ChemicalID, create_position, curHybrid);
 
-        // Let the networkManager know about the user action
-        // Important: insert localPosition here
-        EventManager.Singleton.CreateAtom(newID, ChemicalID, List_curMolecules[newID].transform.localPosition, curHybrid);
-    }
 
     public ElementData GetElementbyAbbre(string abbre)
     {
@@ -1657,6 +1674,7 @@ public class GlobalCtrl : MonoBehaviour
         return null;
     }
     #endregion
+
     #region Settings
     public void toggleDebugWindow()
     {
