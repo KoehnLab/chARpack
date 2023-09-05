@@ -4,7 +4,7 @@ using UnityEngine;
 using TMPro;
 using Microsoft.MixedReality.Toolkit.Utilities;
 
-public class Measurment : MonoBehaviour
+public class DistanceMeasurment : MonoBehaviour
 {
 
     public LineRenderer Line;
@@ -12,6 +12,9 @@ public class Measurment : MonoBehaviour
 
     [HideInInspector] private Atom startAtom;
     [HideInInspector] private Atom endAtom;
+
+    private Vector3 wDirection = Vector3.zero;
+    private float dist = 0f;
 
     public Atom StartAtom
     {
@@ -43,23 +46,40 @@ public class Measurment : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float dist = 0f;
         if (StartAtom != null && EndAtom == null)
         {
             var indexPos = HandTracking.Singleton.getIndexTip();
             Line.SetPosition(0, startAtom.transform.position);
             Line.SetPosition(1, indexPos);
-            dist = Vector3.Magnitude(indexPos - startAtom.transform.position) * (1f / ForceField.scalingfactor);
+            dist = Vector3.Magnitude(indexPos - startAtom.transform.position);
             Label.transform.position = (indexPos - startAtom.transform.position) / 2f + startAtom.transform.position;
+            wDirection = indexPos - startAtom.transform.position;
         }
         else if (StartAtom != null && EndAtom != null)
         {
             Line.SetPosition(0, startAtom.transform.position);
             Line.SetPosition(1, endAtom.transform.position);
-            dist = Vector3.Magnitude(endAtom.transform.position - startAtom.transform.position) * (1f / ForceField.scalingfactor);
+            dist = Vector3.Magnitude(endAtom.transform.position - startAtom.transform.position);
             Label.transform.position = (endAtom.transform.position - startAtom.transform.position) / 2f + startAtom.transform.position;
+            wDirection = endAtom.transform.position - startAtom.transform.position;
         }
-        Label.text = (dist*0.01f).ToString("F2") + " Å"; // conversion to Angstrom
+        Label.text = (dist* (1f / ForceField.scalingfactor) * 0.01f).ToString("F2") + " Å"; // conversion to Angstrom
         Label.transform.forward = GlobalCtrl.Singleton.currentCamera.transform.forward;
     }
+
+    public Vector3 getWeightedDirection()
+    {
+        return wDirection;
+    }
+
+    public float getDistance()
+    {
+        return dist;
+    }
+
+    public Vector3 getNormalizedDirection()
+    {
+        return Vector3.Normalize(wDirection);
+    }
+
 }

@@ -118,7 +118,8 @@ public class GlobalCtrl : MonoBehaviour
     [HideInInspector] public Dictionary<Tuple<ushort, ushort>, GameObject> snapToolTipInstances = new Dictionary<Tuple<ushort, ushort>, GameObject>();
 
     // measurmemt dict
-    [HideInInspector] public Dictionary<Measurment, Tuple<Atom, Atom>> measurmentDict = new Dictionary<Measurment, Tuple<Atom, Atom>>();
+    [HideInInspector] public Dictionary<DistanceMeasurment, Tuple<Atom, Atom>> distMeasurmentDict = new Dictionary<DistanceMeasurment, Tuple<Atom, Atom>>();
+    [HideInInspector] public Dictionary<AngleMeasurment, Tuple<DistanceMeasurment, DistanceMeasurment>> angleMeasurmentDict = new Dictionary<AngleMeasurment, Tuple<DistanceMeasurment, DistanceMeasurment>>();
     [HideInInspector] public GameObject measurmentInHand = null; 
 
     #region Interaction
@@ -212,7 +213,8 @@ public class GlobalCtrl : MonoBehaviour
         // Init some prefabs
         // Atom
         Atom.myAtomToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKAtomToolTip");
-        Atom.measurmentPrefab = (GameObject)Resources.Load("prefabs/MeasurmentPrefab");
+        Atom.distMeasurmentPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurmentPrefab");
+        Atom.angleMeasurmentPrefab = (GameObject)Resources.Load("prefabs/AngleMeasurmentPrefab");
         Atom.deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
         Atom.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
         Atom.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
@@ -739,23 +741,38 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
-    public void deleteMeasurment(Atom atom)
+    public void deleteDistanceMeasurment(Atom atom)
     {
-        List<Measurment> toRemove = new List<Measurment>();
-        foreach (var entry in measurmentDict)
+        List<DistanceMeasurment> toRemove = new List<DistanceMeasurment>();
+        foreach (var entry in distMeasurmentDict)
         {
             if (entry.Value.Item1 == atom || entry.Value.Item2 == atom)
             {
                 toRemove.Add(entry.Key);
             }
         }
-        toRemove = new List<Measurment>(new HashSet<Measurment>(toRemove)); // remove duplicates
+        toRemove = new List<DistanceMeasurment>(new HashSet<DistanceMeasurment>(toRemove)); // remove duplicates
         foreach (var measurment in toRemove)
         {
-            measurmentDict.Remove(measurment);
+            distMeasurmentDict.Remove(measurment);
             Destroy(measurment.gameObject);
         }
+    }
 
+    public List<DistanceMeasurment> getDistanceMeasurmentsOf(Atom atom)
+    {
+
+        List<DistanceMeasurment> contained_in = new List<DistanceMeasurment>();
+        foreach (var entry in distMeasurmentDict)
+        {
+            if (entry.Value.Item1 == atom || entry.Value.Item2 == atom)
+            {
+                contained_in.Add(entry.Key);
+            }
+        }
+        contained_in = new List<DistanceMeasurment>(new HashSet<DistanceMeasurment>(contained_in)); // remove duplicates
+
+        return contained_in;
     }
 
 

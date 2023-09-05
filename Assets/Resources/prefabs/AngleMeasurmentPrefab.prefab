@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4300886343496398767}
-  - component: {fileID: 6648435046426366304}
+  - component: {fileID: 8089165338859975646}
   m_Layer: 0
-  m_Name: MeasurmentPrefab
+  m_Name: AngleMeasurmentPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -33,7 +33,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6648435046426366304
+--- !u!114 &8089165338859975646
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -42,7 +42,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2068922351619355334}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd7e7ad654813004982a9534bbed1fe5, type: 3}
+  m_Script: {fileID: 11500000, guid: e1f5d6a84e189a44ab2fc950393605b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Line: {fileID: 775021824805174376}
@@ -272,7 +272,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a7157836e358e30498db3860dc7f20f3, type: 2}
+  - {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

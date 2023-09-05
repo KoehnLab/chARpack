@@ -16,7 +16,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 {
     // prefabs initialized in GlobalCtrl
     [HideInInspector] public static GameObject myAtomToolTipPrefab;
-    [HideInInspector] public static GameObject measurmentPrefab;
+    [HideInInspector] public static GameObject distMeasurmentPrefab;
+    [HideInInspector] public static GameObject angleMeasurmentPrefab;
     [HideInInspector] public static GameObject deleteMeButtonPrefab;
     [HideInInspector] public static GameObject closeMeButtonPrefab;
     [HideInInspector] public static GameObject modifyMeButtonPrefab;
@@ -345,19 +346,55 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 {
                     if (GlobalCtrl.Singleton.measurmentInHand == null)
                     {
-                        var measurementGO = Instantiate(measurmentPrefab);
-                        var measurement = measurementGO.GetComponent<Measurment>();
-                        measurement.StartAtom = this;
-                        GlobalCtrl.Singleton.measurmentInHand = measurementGO;
-                        GlobalCtrl.Singleton.measurmentDict[measurement] = new Tuple<Atom, Atom>(this, null);
+                        var distMeasurementGO = Instantiate(distMeasurmentPrefab);
+                        var distMeasurement = distMeasurementGO.GetComponent<DistanceMeasurment>();
+                        distMeasurement.StartAtom = this;
+                        GlobalCtrl.Singleton.measurmentInHand = distMeasurementGO;
+                        var otherDistanceMeasurments = GlobalCtrl.Singleton.getDistanceMeasurmentsOf(this);// order is important here
+                        GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement] = new Tuple<Atom, Atom>(this, null);
+                        if (otherDistanceMeasurments.Count > 0)
+                        {
+                            foreach (var m in otherDistanceMeasurments)
+                            {
+                                var angleMeasurementGO = Instantiate(angleMeasurmentPrefab);
+                                var angleMeasurement = angleMeasurementGO.GetComponent<AngleMeasurment>();
+                                angleMeasurement.originAtom = this;
+                                angleMeasurement.distMeasurment1 = m;
+                                if (m.StartAtom != this)
+                                {
+                                    angleMeasurement.distMeasurment1Sign = -1f;
+                                }
+                                angleMeasurement.distMeasurment2 = distMeasurement;
+                                GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Tuple<DistanceMeasurment, DistanceMeasurment>(m, distMeasurement);
+                            }
+                        }
                     }
                     else
                     {
-                        var measurment = GlobalCtrl.Singleton.measurmentInHand.GetComponent<Measurment>();
-                        measurment.EndAtom = this;
-                        var startAtom = GlobalCtrl.Singleton.measurmentDict[measurment].Item1;
-                        GlobalCtrl.Singleton.measurmentDict[measurment] = new Tuple<Atom, Atom>(startAtom, this);
+                        var distMeasurement = GlobalCtrl.Singleton.measurmentInHand.GetComponent<DistanceMeasurment>();
+                        distMeasurement.EndAtom = this;
+                        var startAtom = GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement].Item1;
+                        GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement] = new Tuple<Atom, Atom>(startAtom, this);
                         GlobalCtrl.Singleton.measurmentInHand = null;
+                        var otherDistanceMeasurments = GlobalCtrl.Singleton.getDistanceMeasurmentsOf(this);
+                        if (otherDistanceMeasurments.Count > 1)
+                        {
+                            foreach (var m in otherDistanceMeasurments)
+                            {
+                                if (m == distMeasurement) continue;
+                                var angleMeasurementGO = Instantiate(angleMeasurmentPrefab);
+                                var angleMeasurement = angleMeasurementGO.GetComponent<AngleMeasurment>();
+                                angleMeasurement.originAtom = this;
+                                angleMeasurement.distMeasurment1 = m;
+                                if (m.StartAtom != this)
+                                {
+                                    angleMeasurement.distMeasurment1Sign = -1f;
+                                }
+                                angleMeasurement.distMeasurment2 = distMeasurement;
+                                angleMeasurement.distMeasurment2Sign = -1f;
+                                GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Tuple<DistanceMeasurment, DistanceMeasurment>(m, distMeasurement);
+                            }
+                        }
                     }
                 }
             }
@@ -1133,7 +1170,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             Destroy(toolTipInstance);
             toolTipInstance = null;
         }
-        GlobalCtrl.Singleton.deleteMeasurment(this);
+        GlobalCtrl.Singleton.deleteDistanceMeasurment(this);
     }
 
     // Helper methods to generate localized tool tip text
