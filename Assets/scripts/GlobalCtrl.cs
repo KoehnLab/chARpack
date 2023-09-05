@@ -119,7 +119,7 @@ public class GlobalCtrl : MonoBehaviour
 
     // measurmemt dict
     [HideInInspector] public Dictionary<DistanceMeasurment, Tuple<Atom, Atom>> distMeasurmentDict = new Dictionary<DistanceMeasurment, Tuple<Atom, Atom>>();
-    [HideInInspector] public Dictionary<AngleMeasurment, Tuple<DistanceMeasurment, DistanceMeasurment>> angleMeasurmentDict = new Dictionary<AngleMeasurment, Tuple<DistanceMeasurment, DistanceMeasurment>>();
+    [HideInInspector] public Dictionary<AngleMeasurment, Triple<Atom, DistanceMeasurment, DistanceMeasurment>> angleMeasurmentDict = new Dictionary<AngleMeasurment, Triple<Atom, DistanceMeasurment, DistanceMeasurment>>();
     [HideInInspector] public GameObject measurmentInHand = null; 
 
     #region Interaction
@@ -150,11 +150,13 @@ public class GlobalCtrl : MonoBehaviour
             currentInteractionMode = InteractionModes.MEASURMENT;
             HandTracking.Singleton.gameObject.SetActive(true);
             HandTracking.Singleton.showVisual(false);
+            freezeWorld(true);
         }
         else
         {
             currentInteractionMode = InteractionModes.NORMAL;
             HandTracking.Singleton.gameObject.SetActive(false);
+            freezeWorld(false);
         }
     }
 
@@ -741,22 +743,72 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
-    public void deleteDistanceMeasurment(Atom atom)
+    public void deleteMeasurmentsOf(Atom atom)
     {
-        List<DistanceMeasurment> toRemove = new List<DistanceMeasurment>();
+        // Distances
+        List<DistanceMeasurment> distToRemove = new List<DistanceMeasurment>();
         foreach (var entry in distMeasurmentDict)
         {
             if (entry.Value.Item1 == atom || entry.Value.Item2 == atom)
             {
-                toRemove.Add(entry.Key);
+                distToRemove.Add(entry.Key);
             }
         }
-        toRemove = new List<DistanceMeasurment>(new HashSet<DistanceMeasurment>(toRemove)); // remove duplicates
-        foreach (var measurment in toRemove)
+        distToRemove = new List<DistanceMeasurment>(new HashSet<DistanceMeasurment>(distToRemove)); // remove duplicates
+        foreach (var dist in distToRemove)
         {
-            distMeasurmentDict.Remove(measurment);
-            Destroy(measurment.gameObject);
+            distMeasurmentDict.Remove(dist);
+            Destroy(dist.gameObject);
         }
+
+        // Angles
+        //List<AngleMeasurment> angleToRemove = new List<AngleMeasurment>();
+        //foreach (var entry in angleMeasurmentDict)
+        //{
+        //    if (entry.Value.Item1 == atom)
+        //    {
+        //        angleToRemove.Add(entry.Key);
+        //    }
+        //}
+        //angleToRemove = new List<AngleMeasurment>(new HashSet<AngleMeasurment>(angleToRemove)); // remove duplicates
+        //foreach (var angle in angleToRemove)
+        //{
+        //    angleMeasurmentDict.Remove(angle);
+        //    Destroy(angle.gameObject);
+        //}
+    }
+
+    public void deleteAngleMeasurmentsOf(DistanceMeasurment dist)
+    {
+        List<AngleMeasurment> angleToRemove = new List<AngleMeasurment>();
+        foreach (var entry in angleMeasurmentDict)
+        {
+            if (entry.Value.Item2 == dist || entry.Value.Item3 == dist)
+            {
+                angleToRemove.Add(entry.Key);
+            }
+        }
+        angleToRemove = new List<AngleMeasurment>(new HashSet<AngleMeasurment>(angleToRemove)); // remove duplicates
+        foreach (var angle in angleToRemove)
+        {
+            angleMeasurmentDict.Remove(angle);
+            Destroy(angle.gameObject);
+        }
+    }
+
+    public void deleteAllMeasurements()
+    {
+        foreach (var entry in distMeasurmentDict)
+        {
+            Destroy(entry.Key.gameObject);
+        }
+        distMeasurmentDict.Clear();
+
+        foreach (var entry in angleMeasurmentDict)
+        {
+            Destroy(entry.Key.gameObject);
+        }
+        angleMeasurmentDict.Clear();
     }
 
     public List<DistanceMeasurment> getDistanceMeasurmentsOf(Atom atom)
@@ -775,7 +827,13 @@ public class GlobalCtrl : MonoBehaviour
         return contained_in;
     }
 
-
+    public void freezeWorld(bool value)
+    {
+        foreach (var mol in List_curMolecules)
+        {
+            mol.freeze(value);
+        }
+    }
 
     /// <summary>
     /// this method creates a topological map of a molecule

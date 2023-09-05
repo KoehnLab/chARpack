@@ -365,7 +365,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                                     angleMeasurement.distMeasurment1Sign = -1f;
                                 }
                                 angleMeasurement.distMeasurment2 = distMeasurement;
-                                GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Tuple<DistanceMeasurment, DistanceMeasurment>(m, distMeasurement);
+                                GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(this, m, distMeasurement);
                             }
                         }
                     }
@@ -392,7 +392,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                                 }
                                 angleMeasurement.distMeasurment2 = distMeasurement;
                                 angleMeasurement.distMeasurment2Sign = -1f;
-                                GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Tuple<DistanceMeasurment, DistanceMeasurment>(m, distMeasurement);
+                                GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(this, m, distMeasurement);
                             }
                         }
                     }
@@ -1170,7 +1170,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             Destroy(toolTipInstance);
             toolTipInstance = null;
         }
-        GlobalCtrl.Singleton.deleteDistanceMeasurment(this);
+        GlobalCtrl.Singleton.deleteMeasurmentsOf(this);
     }
 
     // Helper methods to generate localized tool tip text

@@ -82,4 +82,9 @@ public class DistanceMeasurment : MonoBehaviour
         return Vector3.Normalize(wDirection);
     }
 
+    private void OnDestroy()
+    {
+        GlobalCtrl.Singleton.deleteAngleMeasurmentsOf(this);
+    }
+
 }

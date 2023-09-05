@@ -855,6 +855,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             atom.freeze(value);
         }
+        GetComponent<NearInteractionGrabbable>().enabled = !value;
+        GetComponent<ObjectManipulator>().enabled = !value;
         frozen = value;
     }
 
