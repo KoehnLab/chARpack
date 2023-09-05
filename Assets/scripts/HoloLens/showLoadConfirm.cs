@@ -22,6 +22,9 @@ public class showLoadConfirm : MonoBehaviour
     {
         loadSaveWindow.Singleton.gameObject.SetActive(false);
         var myDialog = Dialog.Open(loadConfirmPrefab, DialogButtonType.Yes | DialogButtonType.No, "Confirm File Load ", $"Are you sure you want to load: \n{m_mol_name}", true);
+        //make sure the dialog is rotated to the camera
+        myDialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
+
         if (myDialog != null)
         {
             myDialog.OnClosed += OnClosedDialogEvent;

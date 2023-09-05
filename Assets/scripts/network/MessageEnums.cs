@@ -30,7 +30,10 @@ public enum ClientToServerID : ushort
     modifyHyb,
     keepConfig,
     replaceDummies,
-    focusHighlight
+    focusHighlight,
+    scaleMolecule,
+    freezeAtom,
+    freezeMolecule
 }
 
 public enum ServerToClientID : ushort
@@ -60,7 +63,10 @@ public enum ServerToClientID : ushort
     bcastKeepConfig,
     bcastReplaceDummies,
     bcastSettings,
-    bcastFocusHighlight
+    bcastFocusHighlight,
+    bcastScaleMolecule,
+    bcastFreezeAtom,
+    bcastFreezeMolecule
 }
 
 public enum myDeviceType : ushort

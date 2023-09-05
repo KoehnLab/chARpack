@@ -216,6 +216,27 @@ public class EventManager : MonoBehaviour
         OnFocusHighlight?.Invoke(mol_id, atom_id, active);
     }
 
+    public delegate void ChangeMoleculeScaleAction(ushort mol_id, float scale);
+    public event ChangeMoleculeScaleAction OnChangeMoleculeScale;
+    public void ChangeMoleculeScale(ushort mol_id, float scale)
+    {
+        OnChangeMoleculeScale?.Invoke(mol_id, scale);
+    }
+
+    public delegate void FreezeAtomAction(ushort mol_id, ushort atom_id, bool value);
+    public event FreezeAtomAction OnFreezeAtom;
+    public void FreezeAtom(ushort mol_id, ushort atom_id, bool value)
+    {
+        OnFreezeAtom?.Invoke(mol_id, atom_id, value);
+    }
+
+    public delegate void FreezeMoleculeAction(ushort mol_id, bool value);
+    public event FreezeMoleculeAction OnFreezeMolecule;
+    public void FreezeMolecule(ushort mol_id, bool value)
+    {
+        OnFreezeMolecule?.Invoke(mol_id, value);
+    }
+
     #endregion
 
 

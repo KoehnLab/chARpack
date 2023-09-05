@@ -18,6 +18,9 @@ public class doTheSave : MonoBehaviour
         {
             saveDialog.SetActive(false);
             var myDialog = Dialog.Open(errorDialogPrefab, DialogButtonType.OK, "Error", "Please enter file name", true);
+            //make sure the dialog is rotated to the camera
+            myDialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
+
             if (myDialog != null)
             {
                 myDialog.OnClosed += OnClosedDialogEvent;

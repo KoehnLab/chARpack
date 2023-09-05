@@ -102,4 +102,12 @@ public class FindServer : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        if (lanDiscovery != null)
+        {
+            lanDiscovery.Stop();
+        }
+    }
+
 }

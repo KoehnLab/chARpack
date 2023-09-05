@@ -97,6 +97,9 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnSetKeepConfig += sendKeepConfig;
         EventManager.Singleton.OnReplaceDummies += sendReplaceDummies;
         EventManager.Singleton.OnFocusHighlight += sendFocusHighlight;
+        EventManager.Singleton.OnChangeMoleculeScale += sendScaleMolecue;
+        EventManager.Singleton.OnFreezeAtom += sendFreezeAtom;
+        EventManager.Singleton.OnFreezeMolecule += sendFreezeMolecule;
     }
 
     private void FixedUpdate()
@@ -141,6 +144,9 @@ public class NetworkManagerClient : MonoBehaviour
     private void FailedToConnect(object sender, EventArgs e)
     {
         var myDialog = Dialog.Open(showErrorPrefab, DialogButtonType.OK, "Connection Failed", $"Connection to {LoginData.ip}:{LoginData.port} failed\nGoing back to Login Screen.", true);
+        //make sure the dialog is rotated to the camera
+        myDialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
+
         if (myDialog != null)
         {
             myDialog.OnClosed += OnClosedDialogEvent;
@@ -173,6 +179,9 @@ public class NetworkManagerClient : MonoBehaviour
     private void DidDisconnect(object sender, EventArgs e)
     {
         var myDialog = Dialog.Open(showErrorPrefab, DialogButtonType.OK, "Connection Failed", $"Connection to {LoginData.ip}:{LoginData.port} failed\nGoing back to Login Screen.", true);
+        //make sure the dialog is rotated to the camera
+        myDialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
+
         if (myDialog != null)
         {
             myDialog.OnClosed += OnClosedDialogEvent;
@@ -418,6 +427,30 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
+    public void sendScaleMolecue(ushort mol_id, float scale)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.scaleMolecule);
+        message.AddUShort(mol_id);
+        message.AddFloat(scale);
+        Client.Send(message);
+    }
+
+    public void sendFreezeAtom(ushort mol_id, ushort atom_id, bool value)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.freezeAtom);
+        message.AddUShort(mol_id);
+        message.AddUShort(atom_id);
+        message.AddBool(value);
+        Client.Send(message);
+    }
+
+    public void sendFreezeMolecule(ushort mol_id, bool value)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.freezeMolecule);
+        message.AddUShort(mol_id);
+        message.AddBool(value);
+        Client.Send(message);
+    }
 
     #endregion
 
@@ -898,6 +931,69 @@ public class NetworkManagerClient : MonoBehaviour
             atom.focusHighlight(active);
         }
     }
+
+    [MessageHandler((ushort)ServerToClientID.bcastScaleMolecule)]
+    private static void getScaleMolecule(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
+        var scale = message.GetFloat();
+
+        // do the change
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+            if (mol == default)
+            {
+                Debug.LogError($"[NetworkManagerClient:getScaleMolecule] Molecule {mol_id} does not exists.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
+            mol.transform.localScale = scale * Vector3.one;
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastFreezeAtom)]
+    private static void getFreezeAtom(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
+        var atom_id = message.GetUShort();
+        var freeze = message.GetBool();
+
+        // do the change
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+            var atom = mol.atomList.ElementAtOrDefault(atom_id);
+            if (mol == default || atom == default)
+            {
+                Debug.LogError($"[NetworkManagerClient:getFreezeAtom] Molecule {mol_id} or Atom {atom_id} does not exists.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
+            atom.freeze(freeze);
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastFreezeMolecule)]
+    private static void getFreezeMolecule(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
+        var freeze = message.GetBool();
+
+        // do the change
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+            if (mol == default)
+            {
+                Debug.LogError($"[NetworkManagerClient:getFreezeMolecule] Molecule {mol_id} does not exists.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
+            mol.freeze(freeze);
+        }
+    }
+
     #endregion
 
 }

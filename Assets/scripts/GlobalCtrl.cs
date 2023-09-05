@@ -83,7 +83,6 @@ public class GlobalCtrl : MonoBehaviour
     public GameObject atomWorld;
 
     public Bond bondPrefab;
-    private bool isAnyAtomChanged;
     public Material overlapMat;
     public Material bondMat;
 
@@ -115,18 +114,42 @@ public class GlobalCtrl : MonoBehaviour
 
     public Stack<List<cmlData>> systemState = new Stack<List<cmlData>>();
 
+    // tooltips to connect two molecules
+    [HideInInspector] public Dictionary<Tuple<ushort, ushort>, GameObject> snapToolTipInstances = new Dictionary<Tuple<ushort, ushort>, GameObject>();
+
+    // measurmemt dict
+    [HideInInspector] public Dictionary<DistanceMeasurment, Tuple<Atom, Atom>> distMeasurmentDict = new Dictionary<DistanceMeasurment, Tuple<Atom, Atom>>();
+    [HideInInspector] public Dictionary<AngleMeasurment, Tuple<DistanceMeasurment, DistanceMeasurment>> angleMeasurmentDict = new Dictionary<AngleMeasurment, Tuple<DistanceMeasurment, DistanceMeasurment>>();
+    [HideInInspector] public GameObject measurmentInHand = null; 
+
     #region Interaction
     // Interaction modes
-    public enum InteractionModes {NORMAL, CHAIN};
+    public enum InteractionModes {NORMAL, CHAIN, MEASURMENT};
     private InteractionModes _currentInteractionMode = InteractionModes.NORMAL;
     public InteractionModes currentInteractionMode { get => _currentInteractionMode; private set => _currentInteractionMode = value; }
 
-    public void toggleInteractionMode()
+    public void toggleChainInteractionMode()
     {
-        if (currentInteractionMode == InteractionModes.NORMAL)
+        if (currentInteractionMode != InteractionModes.CHAIN)
         {
             currentInteractionMode = InteractionModes.CHAIN;
             HandTracking.Singleton.gameObject.SetActive(true);
+            HandTracking.Singleton.showVisual(true);
+        }
+        else
+        {
+            currentInteractionMode = InteractionModes.NORMAL;
+            HandTracking.Singleton.gameObject.SetActive(false);
+        }
+    }
+
+    public void toggleMeasurmentMode()
+    {
+        if (currentInteractionMode != InteractionModes.MEASURMENT)
+        {
+            currentInteractionMode = InteractionModes.MEASURMENT;
+            HandTracking.Singleton.gameObject.SetActive(true);
+            HandTracking.Singleton.showVisual(false);
         }
         else
         {
@@ -190,13 +213,17 @@ public class GlobalCtrl : MonoBehaviour
         // Init some prefabs
         // Atom
         Atom.myAtomToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKAtomToolTip");
+        Atom.distMeasurmentPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurmentPrefab");
+        Atom.angleMeasurmentPrefab = (GameObject)Resources.Load("prefabs/AngleMeasurmentPrefab");
         Atom.deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
         Atom.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
         Atom.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
         Atom.modifyHybridizationPrefab = (GameObject)Resources.Load("prefabs/modifyHybridization");
+        Atom.freezeMePrefab = (GameObject)Resources.Load("prefabs/FreezeMeButton");
 
         // Molecule
         Molecule.myToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKMoleculeTooltip");
+        Molecule.mySnapToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKSnapMoleculeTooltip");
         Molecule.deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
         Molecule.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
         Molecule.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
@@ -206,6 +233,8 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.copyButtonPrefab = (GameObject)Resources.Load("prefabs/CopyMeButton");
         Molecule.scaleMoleculeButtonPrefab = (GameObject)Resources.Load("prefabs/ScaleMoleculeButton");
         Molecule.scalingSliderPrefab = (GameObject)Resources.Load("prefabs/myTouchSlider");
+        Molecule.freezeMeButtonPrefab = (GameObject)Resources.Load("prefabs/FreezeMeButton");
+        Molecule.snapMeButtonPrefab = (GameObject)Resources.Load("prefabs/SnapMeButton");
 
         Debug.Log("[GlobalCtrl] Initialization complete.");
 
@@ -598,8 +627,8 @@ public class GlobalCtrl : MonoBehaviour
         {
             bond.markBond(false);
         }
-        m.markMolecule(false);
-        List_curMolecules.Remove(m);
+        //m.markMolecule(false);
+        //List_curMolecules.Remove(m);
         Destroy(m.gameObject);
         shrinkMoleculeIDs();
         SaveMolecule(true);
@@ -711,6 +740,42 @@ public class GlobalCtrl : MonoBehaviour
             EventManager.Singleton.ChangeMolData(m);
         }
     }
+
+    public void deleteDistanceMeasurment(Atom atom)
+    {
+        List<DistanceMeasurment> toRemove = new List<DistanceMeasurment>();
+        foreach (var entry in distMeasurmentDict)
+        {
+            if (entry.Value.Item1 == atom || entry.Value.Item2 == atom)
+            {
+                toRemove.Add(entry.Key);
+            }
+        }
+        toRemove = new List<DistanceMeasurment>(new HashSet<DistanceMeasurment>(toRemove)); // remove duplicates
+        foreach (var measurment in toRemove)
+        {
+            distMeasurmentDict.Remove(measurment);
+            Destroy(measurment.gameObject);
+        }
+    }
+
+    public List<DistanceMeasurment> getDistanceMeasurmentsOf(Atom atom)
+    {
+
+        List<DistanceMeasurment> contained_in = new List<DistanceMeasurment>();
+        foreach (var entry in distMeasurmentDict)
+        {
+            if (entry.Value.Item1 == atom || entry.Value.Item2 == atom)
+            {
+                contained_in.Add(entry.Key);
+            }
+        }
+        contained_in = new List<DistanceMeasurment>(new HashSet<DistanceMeasurment>(contained_in)); // remove duplicates
+
+        return contained_in;
+    }
+
+
 
     /// <summary>
     /// this method creates a topological map of a molecule
@@ -984,11 +1049,22 @@ public class GlobalCtrl : MonoBehaviour
         EventManager.Singleton.ChangeMolData(tempMolecule);
     }
 
+    public void createAtomUI(string ChemicalID)
+    {
+        lastAtom = ChemicalID; // remember this for later
+        Vector3 create_position = currentCamera.transform.position + 0.5f * currentCamera.transform.forward;
+        var newID = getFreshMoleculeID();
+        CreateAtom(newID, ChemicalID, create_position, curHybrid);
+
+        // Let the networkManager know about the user action
+        // Important: insert localPosition here
+        EventManager.Singleton.CreateAtom(newID, ChemicalID, List_curMolecules[newID].transform.localPosition, curHybrid);
+    }
+
     public ushort calcNumBonds(ushort hyb, ushort element_bondNum)
     {
         return (ushort)Mathf.Max(0, element_bondNum - (3 - hyb)); // a preliminary solution
     }
-
 
     /// <summary>
     /// this method changes the type of an atom
@@ -1577,17 +1653,7 @@ public class GlobalCtrl : MonoBehaviour
 
     #region ui functions
 
-    public void createAtomUI(string ChemicalID)
-    {
-        lastAtom = ChemicalID; // remember this for later
-        Vector3 create_position = currentCamera.transform.position + 0.5f * currentCamera.transform.forward;
-        var newID = getFreshMoleculeID();
-        CreateAtom(newID, ChemicalID, create_position, curHybrid);
 
-        // Let the networkManager know about the user action
-        // Important: insert localPosition here
-        EventManager.Singleton.CreateAtom(newID, ChemicalID, List_curMolecules[newID].transform.localPosition, curHybrid);
-    }
 
     public ElementData GetElementbyAbbre(string abbre)
     {
@@ -1658,6 +1724,7 @@ public class GlobalCtrl : MonoBehaviour
         return null;
     }
     #endregion
+
     #region Settings
     public void toggleDebugWindow()
     {
@@ -1751,6 +1818,9 @@ public class GlobalCtrl : MonoBehaviour
     public void backToMain()
     {
         var myDialog = Dialog.Open(exitConfirmPrefab, DialogButtonType.Yes | DialogButtonType.No, "Confirm Exit", $"Are you sure you want quit?", true);
+        //make sure the dialog is rotated to the camera
+        myDialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
+
         if (myDialog != null)
         {
             myDialog.OnClosed += OnBackToMainDialogEvent;
@@ -1770,8 +1840,8 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     private void OnApplicationQuit()
     {
-        if (isAnyAtomChanged)
-            CFileHelper.SaveData(Application.streamingAssetsPath + "/MoleculeFolder/ElementData.xml", list_ElementData);
+        //if (isAnyAtomChanged)
+        //    CFileHelper.SaveData(Application.streamingAssetsPath + "/MoleculeFolder/ElementData.xml", list_ElementData);
     }
 
     public string GetLocalizedString(string text)

@@ -4,7 +4,6 @@ using Microsoft.MixedReality.Toolkit.Utilities.Solvers;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 
 public class atomMenuScrollable : myScrollObject
 {
@@ -59,7 +58,8 @@ public class atomMenuScrollable : myScrollObject
     private void Start()
     {
         // also set starting position
-        transform.position = GlobalCtrl.Singleton.mainCamera.transform.position + 0.35f * Camera.main.transform.forward;
+        transform.position = GlobalCtrl.Singleton.mainCamera.transform.position + 0.35f * GlobalCtrl.Singleton.mainCamera.transform.forward;
+        transform.forward = GlobalCtrl.Singleton.mainCamera.transform.forward;
     }
 
     public void close()

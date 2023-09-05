@@ -94,11 +94,16 @@ public class ServerList : myScrollObject
     {
         clearEntries();
 
+        if (!(FindServer.serverList.Count > 0) && !(FindServer.manualServerList.Count > 0))
+        {
+            Debug.Log("[ServerList] No Servers found and no servers manually added.");
+            return;
+        }
+
         // get old scale
         var oldScale = scrollingObjectCollection.transform.parent.localScale;
         //reset scale 
         scrollingObjectCollection.transform.parent.localScale = Vector3.one;
-
 
         // first manually added servers
         if (FindServer.manualServerList.Count > 0)
@@ -116,12 +121,8 @@ public class ServerList : myScrollObject
             {
                 generateSingleEntry(server);
             }
-
-
-        } else
-        {
-            Debug.Log("[ServerList] No Servers found.");
         }
+        
         // update on collection places all items in order
         gridObjectCollection.GetComponent<GridObjectCollection>().UpdateCollection();
         // update on scoll content makes the list scrollable
@@ -147,7 +148,8 @@ public class ServerList : myScrollObject
     public void manualAddServer()
     {
         var manualAddInstance = Instantiate(manualAddServerPrefab);
-        manualAddInstance.transform.position += 0.5f * GlobalCtrl.Singleton.mainCamera.transform.forward;
+        manualAddInstance.transform.position = Camera.main.transform.position + 0.5f * Camera.main.transform.forward;
+        manualAddInstance.transform.forward = Camera.main.transform.forward;
         manualAddInstance.GetComponent<ManualAddServer>().serverListInstance = gameObject;
         gameObject.SetActive(false);
     }

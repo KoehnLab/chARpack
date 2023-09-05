@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Animations;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 
@@ -15,16 +16,23 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 {
     // prefabs initialized in GlobalCtrl
     [HideInInspector] public static GameObject myAtomToolTipPrefab;
+    [HideInInspector] public static GameObject distMeasurmentPrefab;
+    [HideInInspector] public static GameObject angleMeasurmentPrefab;
     [HideInInspector] public static GameObject deleteMeButtonPrefab;
     [HideInInspector] public static GameObject closeMeButtonPrefab;
     [HideInInspector] public static GameObject modifyMeButtonPrefab;
     [HideInInspector] public static GameObject modifyHybridizationPrefab;
+    [HideInInspector] public static GameObject freezeMePrefab;
 
     private Stopwatch stopwatch;
     private GameObject toolTipInstance = null;
     private float toolTipDistanceWeight = 2.5f;
-    private Color currentOutlineColor = Color.black;
+    private Color notEnabledColor = Color.black;
+    private Color grabColor = Color.blue;
+    private Color focusColor = Color.white;
+    public Color currentOutlineColor = Color.black;
     public bool keepConfig = false;
+    public bool frozen = false;
 
     private List<Atom> currentChain = new List<Atom>();
 
@@ -36,18 +44,21 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             if (GetComponent<Outline>().enabled)
             {
-                currentOutlineColor = GetComponent<Outline>().OutlineColor;
+                if (GetComponent<Outline>().OutlineColor != focusColor && GetComponent<Outline>().OutlineColor != grabColor)
+                {
+                    currentOutlineColor = GetComponent<Outline>().OutlineColor;
+                }
             }
             else
             {
                 GetComponent<Outline>().enabled = true;
-                currentOutlineColor = Color.black;
+                currentOutlineColor = notEnabledColor;
             }
-            GetComponent<Outline>().OutlineColor = Color.blue;
+            GetComponent<Outline>().OutlineColor = grabColor;
         }
         else
         {
-            if (currentOutlineColor == Color.black || currentOutlineColor == Color.white)
+            if (currentOutlineColor == notEnabledColor)
             {
                 GetComponent<Outline>().enabled = false;
             }
@@ -65,18 +76,21 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             if (GetComponent<Outline>().enabled)
             {
-                currentOutlineColor = GetComponent<Outline>().OutlineColor;
+                if (GetComponent<Outline>().OutlineColor != focusColor && GetComponent<Outline>().OutlineColor != grabColor)
+                {
+                    currentOutlineColor = GetComponent<Outline>().OutlineColor;
+                }
             }
             else
             {
                 GetComponent<Outline>().enabled = true;
-                currentOutlineColor = Color.black;
+                currentOutlineColor = notEnabledColor;
             }
-            GetComponent<Outline>().OutlineColor = Color.white;
+            GetComponent<Outline>().OutlineColor = focusColor;
         }
         else
         {
-            if (currentOutlineColor == Color.black || currentOutlineColor == Color.blue)
+            if (currentOutlineColor == notEnabledColor)
             {
                 GetComponent<Outline>().enabled = false;
             }
@@ -105,63 +119,69 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private Vector3 offset = Vector3.zero;
     void OnMouseDown()
     {
-        offset = gameObject.transform.position -
-        GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
-            new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f));
-        //
-        stopwatch = Stopwatch.StartNew();
-        grabHighlight(true);
-        isGrabbed = true;
+        if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
+        {
+            offset = gameObject.transform.position - GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
+                     new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f));
 
-
+            stopwatch = Stopwatch.StartNew();
+            grabHighlight(true);
+            isGrabbed = true;
+        }
     }
 
     void OnMouseDrag()
     {
-        Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f);
-        transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + offset;
-        // position relative to molecule position
-        EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
+        if (!frozen && GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
+        {
+            Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f);
+            transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + offset;
+            // position relative to molecule position
+            EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
+        }
     }
 
     private void OnMouseUp()
     {
         isGrabbed = false;
-
-        // measure convergence
-        ForceField.Singleton.resetMeasurment();
-
         // reset outline
         grabHighlight(false);
 
-        stopwatch?.Stop();
-        if (stopwatch?.ElapsedMilliseconds < 200)
+
+        if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
         {
-            if (m_molecule.isMarked)
+            // measure convergence
+            ForceField.Singleton.resetMeasurment();
+
+            stopwatch?.Stop();
+            if (stopwatch?.ElapsedMilliseconds < 200)
             {
-                m_molecule.markMolecule(false);
+                if (m_molecule.isMarked)
+                {
+                    m_molecule.markMolecule(false);
+                }
+                else
+                {
+                    markAtomUI(!isMarked);
+                }
             }
-            else
+
+            resetMolPositionAfterMove();
+
+            // check for potential merge
+            if (GlobalCtrl.Singleton.collision)
             {
-                markAtomUI(!isMarked);
-            }
-        }
+                Atom d1 = GlobalCtrl.Singleton.collider1;
+                Atom d2 = GlobalCtrl.Singleton.collider2;
 
-        resetMolPositionAfterMove();
+                Atom a1 = d1.dummyFindMain();
+                Atom a2 = d2.dummyFindMain();
 
-        // check for potential merge
-        if (GlobalCtrl.Singleton.collision)
-        {
-            Atom d1 = GlobalCtrl.Singleton.collider1;
-            Atom d2 = GlobalCtrl.Singleton.collider2;
-
-            Atom a1 = d1.dummyFindMain();
-            Atom a2 = d2.dummyFindMain();
-
-            if (!a1.alreadyConnected(a2))
-            {
-                EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
-                GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+                if (!a1.alreadyConnected(a2))
+                {
+                    EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
+                    GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+                }
             }
         }
     }
@@ -192,11 +212,23 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
             {
                 currentChain = start_atom.connectedChain(this);
+
+                ConstraintSource cs = new ConstraintSource();
+                cs.sourceTransform = transform;
+                cs.weight = 1;
                 foreach (var atom in currentChain)
                 {
                     atom.grabHighlight(true);
                     atom.isGrabbed = true;
-                    atom.transform.parent = transform;
+                    //atom.transform.parent = transform;
+                    // use parent constraint
+
+                    var pc = atom.gameObject.AddComponent<ParentConstraint>();
+                    var positionDelta = pc.transform.position - transform.position;
+                    pc.AddSource(cs);
+                    pc.SetTranslationOffset(0, Quaternion.Inverse(transform.rotation) * positionDelta);
+                    pc.constraintActive = true;
+
                 }
             }
         }
@@ -211,7 +243,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         // position relative to molecule position
         EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
 
-        if (m_data.m_abbre != "Dummy")
+        if (m_data.m_abbre != "Dummy" && GlobalCtrl.Singleton.currentInteractionMode != GlobalCtrl.InteractionModes.CHAIN)
         {
             var con_atoms = connectedAtoms();
             foreach (var atom in con_atoms)
@@ -250,54 +282,124 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         if (eventData.Pointer is SpherePointer)
         {
             isGrabbed = false;
+            // reset outline
+            focusHighlight(false);
+            grabHighlight(false);
+
+            stopwatch?.Stop();
 
             // measure convergence
             ForceField.Singleton.resetMeasurment();
 
-            // reset outline
-            focusHighlight(false);
-            grabHighlight(false);
-            foreach (var atom in currentChain)
+            if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
             {
-                atom.grabHighlight(false);
-                atom.isGrabbed = false;
-                //atom.transform.SetParent(m_molecule.transform, true);
-                atom.transform.parent = m_molecule.transform;
+                foreach (var atom in currentChain)
+                {
+                    atom.grabHighlight(false);
+                    atom.isGrabbed = false;
+                    //atom.transform.parent = m_molecule.transform;
+                    Destroy(atom.GetComponent<ParentConstraint>());
+                }
+                currentChain.Clear();
             }
-            currentChain.Clear();
+
 
             resetMolPositionAfterMove();
 
-            stopwatch?.Stop();
-            //UnityEngine.Debug.Log($"[Atom] Interaction stopwatch: {stopwatch.ElapsedMilliseconds} [ms]");
-            if (stopwatch?.ElapsedMilliseconds < 200)
+            if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
             {
-                if (m_molecule.isMarked)
+                //UnityEngine.Debug.Log($"[Atom] Interaction stopwatch: {stopwatch.ElapsedMilliseconds} [ms]");
+                if (stopwatch?.ElapsedMilliseconds < 200)
                 {
-                    m_molecule.markMolecule(false);
+                    if (m_molecule.isMarked)
+                    {
+                        m_molecule.markMolecule(false);
+                    }
+                    else
+                    {
+                        markAtomUI(!isMarked);
+                    }
                 }
                 else
                 {
-                    markAtomUI(!isMarked);
+                    // check for potential merge
+                    if (GlobalCtrl.Singleton.collision)
+                    {
+                        Atom d1 = GlobalCtrl.Singleton.collider1;
+                        Atom d2 = GlobalCtrl.Singleton.collider2;
+
+                        Atom a1 = d1.dummyFindMain();
+                        Atom a2 = d2.dummyFindMain();
+
+                        if (!a1.alreadyConnected(a2))
+                        {
+                            EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
+                            GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+                        }
+                    }
                 }
             }
 
-            // check for potential merge
-            if (GlobalCtrl.Singleton.collision)
+            if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASURMENT)
             {
-                Atom d1 = GlobalCtrl.Singleton.collider1;
-                Atom d2 = GlobalCtrl.Singleton.collider2;
-
-                Atom a1 = d1.dummyFindMain();
-                Atom a2 = d2.dummyFindMain();
-
-                if (!a1.alreadyConnected(a2))
+                if (stopwatch?.ElapsedMilliseconds < 300)
                 {
-                    EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
-                    GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+                    if (GlobalCtrl.Singleton.measurmentInHand == null)
+                    {
+                        var distMeasurementGO = Instantiate(distMeasurmentPrefab);
+                        var distMeasurement = distMeasurementGO.GetComponent<DistanceMeasurment>();
+                        distMeasurement.StartAtom = this;
+                        GlobalCtrl.Singleton.measurmentInHand = distMeasurementGO;
+                        var otherDistanceMeasurments = GlobalCtrl.Singleton.getDistanceMeasurmentsOf(this);// order is important here
+                        GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement] = new Tuple<Atom, Atom>(this, null);
+                        if (otherDistanceMeasurments.Count > 0)
+                        {
+                            foreach (var m in otherDistanceMeasurments)
+                            {
+                                var angleMeasurementGO = Instantiate(angleMeasurmentPrefab);
+                                var angleMeasurement = angleMeasurementGO.GetComponent<AngleMeasurment>();
+                                angleMeasurement.originAtom = this;
+                                angleMeasurement.distMeasurment1 = m;
+                                if (m.StartAtom != this)
+                                {
+                                    angleMeasurement.distMeasurment1Sign = -1f;
+                                }
+                                angleMeasurement.distMeasurment2 = distMeasurement;
+                                GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Tuple<DistanceMeasurment, DistanceMeasurment>(m, distMeasurement);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var distMeasurement = GlobalCtrl.Singleton.measurmentInHand.GetComponent<DistanceMeasurment>();
+                        distMeasurement.EndAtom = this;
+                        var startAtom = GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement].Item1;
+                        GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement] = new Tuple<Atom, Atom>(startAtom, this);
+                        GlobalCtrl.Singleton.measurmentInHand = null;
+                        var otherDistanceMeasurments = GlobalCtrl.Singleton.getDistanceMeasurmentsOf(this);
+                        if (otherDistanceMeasurments.Count > 1)
+                        {
+                            foreach (var m in otherDistanceMeasurments)
+                            {
+                                if (m == distMeasurement) continue;
+                                var angleMeasurementGO = Instantiate(angleMeasurmentPrefab);
+                                var angleMeasurement = angleMeasurementGO.GetComponent<AngleMeasurment>();
+                                angleMeasurement.originAtom = this;
+                                angleMeasurement.distMeasurment1 = m;
+                                if (m.StartAtom != this)
+                                {
+                                    angleMeasurement.distMeasurment1Sign = -1f;
+                                }
+                                angleMeasurement.distMeasurment2 = distMeasurement;
+                                angleMeasurement.distMeasurment2Sign = -1f;
+                                GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Tuple<DistanceMeasurment, DistanceMeasurment>(m, distMeasurement);
+                            }
+                        }
+                    }
                 }
             }
-            //Debug.Log($"[Atom] OnPointerUp: {eventData}");
+
+
         }
     }
 
@@ -556,24 +658,28 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             //GetComponent<Renderer>().material = GlobalCtrl.Singleton.markedMat;
             GetComponent<Outline>().enabled = true;
             GetComponent<Outline>().OutlineColor = Color.yellow;
+            currentOutlineColor = Color.yellow;
         }
         else if (col == 3)
         {
             // as part of single bond
             GetComponent<Outline>().enabled = true;
             GetComponent<Outline>().OutlineColor = new Color(1.0f,0.5f,0.0f); //orange
+            currentOutlineColor = new Color(1.0f, 0.5f, 0.0f);
         }
         else if (col == 4)
         {
             // as part of angle bond
             GetComponent<Outline>().enabled = true;
             GetComponent<Outline>().OutlineColor = Color.red;
+            currentOutlineColor = Color.red;
         }
         else if (col == 5)
         {
             // as part of angle bond
             GetComponent<Outline>().enabled = true;
             GetComponent<Outline>().OutlineColor = Color.green;
+            currentOutlineColor = Color.green;
         }
         else
         {
@@ -717,8 +823,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             }
             currentLayer = nextLayer;
         }
-
-        return chainAtomList;
+        chainAtomList.RemoveAll(item => item == this);
+        return new List<Atom>(new HashSet<Atom>(chainAtomList));
     }
 
     public List<Atom> connectedDummys()
@@ -1017,6 +1123,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             modifyButtonInstance.GetComponent<ButtonConfigHelper>().MainLabelText = "To Hydrogen";
             toolTipInstance.GetComponent<DynamicToolTip>().addContent(modifyButtonInstance);
         }
+        var freezeButtonInstance = Instantiate(freezeMePrefab);
+        freezeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { freezeUI(!frozen); });
+        toolTipInstance.GetComponent<DynamicToolTip>().addContent(freezeButtonInstance);
+
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
         closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markAtomUI(false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
@@ -1060,6 +1170,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             Destroy(toolTipInstance);
             toolTipInstance = null;
         }
+        GlobalCtrl.Singleton.deleteDistanceMeasurment(this);
     }
 
     // Helper methods to generate localized tool tip text
@@ -1088,5 +1199,29 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     void IMixedRealityFocusHandler.OnFocusExit(FocusEventData eventData)
     {
         OnFocusExit(eventData);
+    }
+
+    public void freezeUI(bool value)
+    {
+        if (value == frozen) return;
+        freeze(value);
+        EventManager.Singleton.FreezeAtom(m_molecule.m_id, m_id, value);
+    }
+
+    public void freeze(bool value)
+    {
+        GetComponent<NearInteractionGrabbable>().enabled = !value;
+        GetComponent<ObjectManipulator>().enabled = !value;
+        if (value)
+        {
+            m_data.m_mass = -1f;
+        }
+        else
+        {
+            ElementData tempData = GlobalCtrl.Singleton.Dic_ElementData[m_data.m_abbre];
+            m_data.m_mass = tempData.m_mass;
+        }
+
+        frozen = value;
     }
 }

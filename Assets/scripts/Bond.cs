@@ -10,7 +10,6 @@ using UnityEngine;
 public class Bond : MonoBehaviour
 {
 
-    private GameObject toolTipInstance;
     public ushort atomID1;
     public ushort atomID2;
     [HideInInspector] public float m_bondOrder;  // 1.0 for single bonds; 1.5 for resonant bonds; 2.0 for double bonds; idea is to scale the bond diameter by this value
@@ -118,14 +117,6 @@ public class Bond : MonoBehaviour
             // reset or nothing
             GetComponent<Outline>().enabled = false;
             GetComponentInChildren<Renderer>().material = GlobalCtrl.Singleton.bondMat;
-        }
-    }
-
-    public void OnDestroy()
-    {
-        if (toolTipInstance != null)
-        {
-            Destroy(toolTipInstance);
         }
     }
 

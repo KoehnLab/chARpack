@@ -238,6 +238,18 @@ MonoBehaviour:
     m_Localized: "Scale \nMolecule"
     m_Metadata:
       m_Items: []
+  - m_Id: 22875769976950784
+    m_Localized: Measurment Mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23923190035156992
+    m_Localized: Freeze
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23962793127481344
+    m_Localized: Snap
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

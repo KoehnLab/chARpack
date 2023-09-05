@@ -145,7 +145,7 @@ namespace QRTracking
                 }
                 catch(Exception ex)
                 {
-                    Debug.Log("[QRCodesManager] Starting QRCodeWatcher Exception:" + ex.ToString());
+                    Debug.LogWarning("[QRCodesManager] Starting QRCodeWatcher Exception:" + ex.ToString());
                 }
             }
         }

@@ -222,7 +222,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5142275573186560
-    m_Key: HandMenu/HandMenu/MenuContent/ToggleInteractionModeButton/IconAndText/TextMeshPro
+    m_Key: HandMenu/HandMenu/MenuContent/ToggleChainModeButton/IconAndText/TextMeshPro
     m_Metadata:
       m_Items: []
   - m_Id: 5165129048031232
@@ -231,6 +231,18 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 16334419667222528
     m_Key: ScaleMoleculeButton/ScaleMoleculeButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22875769976950784
+    m_Key: HandMenu/HandMenu/MenuContent/ToggleMeasurmentModeButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23923190035156992
+    m_Key: FreezeMeButton/FreezeMeButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23962793127481344
+    m_Key: SnapMeButton/SnapMeButton/IconAndText/TextMeshPro
     m_Metadata:
       m_Items: []
   m_Metadata:

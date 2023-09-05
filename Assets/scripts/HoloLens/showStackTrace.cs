@@ -22,7 +22,9 @@ public class showStackTrace : MonoBehaviour
 
     public void triggered()
     {
-        Dialog.Open(DialogPrefabSmall, DialogButtonType.OK, "Message: " + m_log_message, "Stack Trace: " + stack_trace, true);
+        var dialog = Dialog.Open(DialogPrefabSmall, DialogButtonType.OK, "Message: " + m_log_message, "Stack Trace: " + stack_trace, true);
+        //make sure the dialog is rotated to the camera
+        dialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
     }
 
 
