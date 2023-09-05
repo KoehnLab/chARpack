@@ -182,9 +182,6 @@ GameObject:
   - component: {fileID: 48114245917028293}
   - component: {fileID: 48114245917028292}
   - component: {fileID: 7785059576157304341}
-  - component: {fileID: 7940435402569096409}
-  - component: {fileID: 4501178833221778944}
-  - component: {fileID: 1966128714659175520}
   m_Layer: 0
   m_Name: myTouchSlider
   m_TagString: Untagged
@@ -353,7 +350,7 @@ MonoBehaviour:
   isTouchable: 1
   snapToPosition: 1
   thumbCollider: {fileID: 1505799088109494833}
-  touchCollider: {fileID: 7940435402569096409}
+  touchCollider: {fileID: 0}
   useSliderStepDivisions: 0
   sliderStepDivisions: 1
   trackVisuals: {fileID: 48114246356694279}
@@ -438,52 +435,6 @@ MonoBehaviour:
           m_StringArgument: Default
           m_BoolArgument: 0
         m_CallState: 2
---- !u!65 &7940435402569096409
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 48114245917028299}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.3143433, y: 0.09, z: 0.010599999}
-  m_Center: {x: -0.0000000018626, y: 0.0135, z: 0}
---- !u!114 &4501178833221778944
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 48114245917028299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5afd5316c63705643b3daba5a6e923bd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTetherWhenManipulating: 0
-  IsBoundsHandles: 0
---- !u!114 &1966128714659175520
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 48114245917028299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 98c748f3768ab714a8449b60fb9edc5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  eventsToReceive: 0
-  debounceThreshold: 0.01
-  localForward: {x: -0, y: -0, z: -1}
-  localUp: {x: 0, y: 1, z: 0}
-  localCenter: {x: -0.0000000018626, y: 0.0135, z: -0.0052999994}
-  bounds: {x: 0.3143433, y: 0.09}
-  touchableCollider: {fileID: 7940435402569096409}
 --- !u!1 &48114246356694279
 GameObject:
   m_ObjectHideFlags: 0
@@ -640,13 +591,14 @@ GameObject:
   - component: {fileID: 6932249223571280874}
   - component: {fileID: 4518018427873061046}
   - component: {fileID: 9024346995519746191}
+  - component: {fileID: 8914298012711699366}
   m_Layer: 0
   m_Name: TouchCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &4328514543481927453
 Transform:
   m_ObjectHideFlags: 0
@@ -708,6 +660,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTetherWhenManipulating: 0
   IsBoundsHandles: 0
+--- !u!114 &8914298012711699366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4001606657894476829}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6a484a58a6dbfb4794112ac332f78bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slider: {fileID: 7785059576157304341}
 --- !u!1 &6863016452560500493
 GameObject:
   m_ObjectHideFlags: 0
