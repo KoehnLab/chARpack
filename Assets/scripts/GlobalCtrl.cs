@@ -135,6 +135,7 @@ public class GlobalCtrl : MonoBehaviour
             currentInteractionMode = InteractionModes.CHAIN;
             HandTracking.Singleton.gameObject.SetActive(true);
             HandTracking.Singleton.showVisual(true);
+            freezeWorld(false);
         }
         else
         {
