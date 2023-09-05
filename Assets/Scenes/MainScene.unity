@@ -10413,6 +10413,30 @@ PrefabInstance:
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: toggleChainInteractionMode
       objectReference: {fileID: 0}
+    - target: {fileID: 9167512196016673697, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
+      propertyPath: showScaleHandles
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9167512196016673697, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
+      propertyPath: proximityEffectActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9167512196016673697, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
+      propertyPath: showRotationHandleForX
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9167512196016673697, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
+      propertyPath: showRotationHandleForY
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9167512196016673697, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
+      propertyPath: showRotationHandleForZ
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9167512196016673697, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
+      propertyPath: drawTetherWhenManipulating
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 692946000708069094, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
