@@ -407,9 +407,11 @@ public class NetworkManagerServer : MonoBehaviour
 
         // do the merge on the server
         // fist check the existence of atoms with the correspoinding ids
-        var atom1 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol1ID).atomList.ElementAtOrDefault(atom1ID);
-        var atom2 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol2ID).atomList.ElementAtOrDefault(atom2ID);
-        if (atom1 == default || atom2 == default)
+        var mol1 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol1ID, null);
+        var atom1 = mol1?.atomList.ElementAtOrNull(atom1ID, null);
+        var mol2 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol2ID, null);
+        var atom2 = mol2?.atomList.ElementAtOrNull(atom2ID, null);
+        if (mol1 == null || atom1 == null || mol2 == null || atom2 == null)
         {
             Debug.LogError($"[NetworkManagerServer:getMoleculeMerged] Merging operation cannot be executed. Atom IDs do not exist (Atom1 {mol1ID}:{atom1ID}, Atom2 {mol2ID}:{atom2ID}).\nSynchronizing world with client {fromClientId}.");
             NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
@@ -480,10 +482,11 @@ public class NetworkManagerServer : MonoBehaviour
         var selected = message.GetBool();
         // do the select on the server
         // don't show the tooltip - may change later
-        var atom = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
-        if (atom == default)
+        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
+        if (mol == null || atom == null)
         {
-            Debug.LogError($"[NetworkManagerServer:getAtomSelected] Atom with id {atom_id} does not exist.\nSynchronizing world with client {fromClientId}.");
+            Debug.LogError($"[NetworkManagerServer:getAtomSelected] Atom with id {atom_id} of Molecule {mol_id} does not exist.\nSynchronizing world with client {fromClientId}.");
             NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
             return;
         }
@@ -534,9 +537,9 @@ public class NetworkManagerServer : MonoBehaviour
         var selected = message.GetBool();
         // do the select on the server
         // don't show the tooltip - may change later
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
-        var bond = mol.bondList.ElementAtOrDefault(bond_id);
-        if (mol == default || bond == default)
+        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var bond = mol?.bondList.ElementAtOrNull(bond_id, null);
+        if (mol == null || bond == null)
         {
             Debug.LogError($"[NetworkManagerClient:getBondSelected] Bond with id {bond_id} or molecule with id {mol_id} does not exist.\nSynchronizing world with client {fromClientId}.");
             NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
@@ -560,8 +563,9 @@ public class NetworkManagerServer : MonoBehaviour
         var mol_id = message.GetUShort();
         var atom_id = message.GetUShort();
         // do the delete on the server
-        var atom = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
-        if (atom == default)
+        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
+        if (mol == null || atom == null)
         {
             Debug.LogError($"[NetworkManagerServer:getAtomDeleted] Atom with id {atom_id} does not exist.\nSynchronizing world with client {fromClientId}.");
             NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
@@ -606,9 +610,9 @@ public class NetworkManagerServer : MonoBehaviour
         var bond_id = message.GetUShort();
         var mol_id = message.GetUShort();
         // do the delete on the server
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
-        var bond = mol.bondList.ElementAtOrDefault(bond_id);
-        if (mol == default || bond == default)
+        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var bond = mol?.bondList.ElementAtOrNull(bond_id, null);
+        if (mol == null || bond == null)
         {
             Debug.LogError($"[NetworkManagerServer:getBondDeleted] Bond with id {bond_id} or molecule with id {mol_id} does not exist.\nSynchronizing world with client {fromClientId}.");
             NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
@@ -713,7 +717,7 @@ public class NetworkManagerServer : MonoBehaviour
 
         // do the change
         if (!GlobalCtrl.Singleton.changeAngleTerm(mol_id, term_id, term))
-            {
+        {
             Debug.LogError($"[NetworkManagerServer:changeAngleTerm] Molecule with id {mol_id} or angle term with id {term_id} does not exist.\nSynchronizing world with client {fromClientId}.");
             NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
             return;
@@ -872,9 +876,9 @@ public class NetworkManagerServer : MonoBehaviour
         var active = message.GetBool();
 
         // do the move on the server
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
-        var atom = mol.atomList.ElementAtOrDefault(atom_id);
-        if (mol == default || atom == default)
+        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
+        if (mol == null || atom == null)
         {
             Debug.LogError($"[NetworkManagerServer:getFocusHighlight] Molecule with id {mol_id} or atom with id {atom_id} do not exist.\nSynchronizing world with client {fromClientId}.");
             NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
@@ -923,9 +927,9 @@ public class NetworkManagerServer : MonoBehaviour
         var freeze = message.GetBool();
 
         // do the move on the server
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
-        var atom = mol.atomList.ElementAtOrDefault(atom_id);
-        if (mol == default || atom == default)
+        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
+        if (mol == null || atom == null)
         {
             Debug.LogError($"[NetworkManagerServer:getFreezeAtom] Molecule with id {mol_id} or atom with id {atom_id} do not exist.\nSynchronizing world with client {fromClientId}.");
             NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);

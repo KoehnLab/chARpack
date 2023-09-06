@@ -1029,16 +1029,17 @@ public class GlobalCtrl : MonoBehaviour
 
     public bool moveAtom(ushort mol_id, ushort atom_id, Vector3 pos)
     {
-        var atom = List_curMolecules.ElementAtOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
-        if (atom != null)
-        {
-            atom.transform.localPosition = pos;
-            return true;
-        }
-        else
+        var mol = Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
+        if (mol == null || atom == null)
         {
             Debug.LogError($"[GlobalCtrl] Trying to move Atom {atom_id} of molecule {mol_id}, but it does not exist.");
             return false;
+        }
+        else
+        {
+            atom.transform.localPosition = pos;
+            return true;
         }
     }
 
@@ -1133,8 +1134,9 @@ public class GlobalCtrl : MonoBehaviour
     public bool changeAtom(ushort idMol, ushort idAtom, string ChemicalAbbre)
     {
         // TODO: do not overwrite runtime data
-        Atom chgAtom = List_curMolecules.ElementAtOrDefault(idMol).atomList.ElementAtOrDefault(idAtom);
-        if (chgAtom == default)
+        var mol = Singleton.List_curMolecules.ElementAtOrNull(idMol, null);
+        var chgAtom = mol?.atomList.ElementAtOrNull(idAtom, null);
+        if (mol == null || chgAtom == null)
         {
             return false;
         }
@@ -1877,7 +1879,7 @@ public class GlobalCtrl : MonoBehaviour
     public void backToMain()
     {
         MainActionMenu.Singleton.gameObject.SetActive(false);
-        var myDialog = Dialog.Open(exitConfirmPrefab, DialogButtonType.Yes | DialogButtonType.No, "Confirm Exit", $"Are you sure you want quit?", false);
+        var myDialog = Dialog.Open(exitConfirmPrefab, DialogButtonType.Yes | DialogButtonType.No, "Confirm Exit", $"Are you sure you want quit?", true);
         //make sure the dialog is rotated to the camera
         myDialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
         myDialog.transform.position = GlobalCtrl.Singleton.mainCamera.transform.position + 0.01f * myDialog.transform.forward;

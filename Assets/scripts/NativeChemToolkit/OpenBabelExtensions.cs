@@ -247,4 +247,9 @@ public static class OpenBabelExtensions
         return lhs[((index % n) + n) % n];
     }
 
+    public static T ElementAtOrNull<T>(this IList<T> list, int index, T @default)
+    {
+        return index >= 0 && index < list.Count ? list[index] : @default;
+    }
+
 }
