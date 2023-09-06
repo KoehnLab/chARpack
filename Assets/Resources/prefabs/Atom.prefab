@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 4994947135205735893}
   - component: {fileID: -5052192153474105092}
   - component: {fileID: 7732512597380005716}
+  - component: {fileID: 371874988673283350}
   m_Layer: 0
   m_Name: Atom
   m_TagString: Untagged
@@ -202,6 +203,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad25123af20a58d45b73d5668055c686, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+  keepConfig: 0
+  frozen: 0
   m_id: 0
   m_molecule: {fileID: 0}
   m_data:
@@ -238,3 +242,43 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &371874988673283350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7377244445179915796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1e6657bab90ac149872e5361b42ea62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selectAction:
+    id: 0
+    description: None
+    axisConstraint: 0
+  voiceSelect: []
+  dwellTimeInSec: 0.8
+  onLookAtStart:
+    m_PersistentCalls:
+      m_Calls: []
+  whileLookingAtTarget:
+    m_PersistentCalls:
+      m_Calls: []
+  onLookAway:
+    m_PersistentCalls:
+      m_Calls: []
+  onDwell:
+    m_PersistentCalls:
+      m_Calls: []
+  onSelected:
+    m_PersistentCalls:
+      m_Calls: []
+  onTapDown:
+    m_PersistentCalls:
+      m_Calls: []
+  onTapUp:
+    m_PersistentCalls:
+      m_Calls: []
+  eyeCursorSnapToTargetCenter: 0

@@ -182,9 +182,11 @@ public class NetworkManagerClient : MonoBehaviour
         if (!controlledExit)
         {
             controlledExit = false;
-            var myDialog = Dialog.Open(showErrorPrefab, DialogButtonType.OK, "Connection Failed", $"Connection to {LoginData.ip}:{LoginData.port} failed\nGoing back to Login Screen.", true);
+            MainActionMenu.Singleton.gameObject.SetActive(false);
+            var myDialog = Dialog.Open(showErrorPrefab, DialogButtonType.OK, "Connection Failed", $"Connection to {LoginData.ip}:{LoginData.port} failed\nGoing back to Login Screen.", false);
             //make sure the dialog is rotated to the camera
             myDialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
+            myDialog.transform.position = GlobalCtrl.Singleton.mainCamera.transform.position + 0.01f * myDialog.transform.forward;
 
             if (myDialog != null)
             {

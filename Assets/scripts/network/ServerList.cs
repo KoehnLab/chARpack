@@ -23,7 +23,6 @@ public class ServerList : myScrollObject
                 Debug.Log($"[{nameof(ServerList)}] Instance already exists, destroying duplicate!");
                 Destroy(value);
             }
-
         }
     }
 

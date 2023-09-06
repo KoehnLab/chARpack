@@ -39,7 +39,7 @@ public class CameraSwitcher : MonoBehaviour
         private set
         {
             currentCam_ = value;
-            canvas.worldCamera = currentCam_;
+            if (canvas != null) canvas.worldCamera = currentCam_;
             foreach (var cam in cameras)
             {
                 cam.Value.tag = "Untagged";
@@ -119,7 +119,7 @@ public class CameraSwitcher : MonoBehaviour
             {
                 foreach (var cam in cameras)
                 {
-                    currentCam = cam.Value;
+                    if (cam.Value != null) currentCam = cam.Value;
                     pannel[cam.Key].transform.Find("Background").gameObject.SetActive(true);
                     break;
                 }

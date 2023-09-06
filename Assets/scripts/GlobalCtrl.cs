@@ -1876,9 +1876,11 @@ public class GlobalCtrl : MonoBehaviour
 
     public void backToMain()
     {
-        var myDialog = Dialog.Open(exitConfirmPrefab, DialogButtonType.Yes | DialogButtonType.No, "Confirm Exit", $"Are you sure you want quit?", true);
+        MainActionMenu.Singleton.gameObject.SetActive(false);
+        var myDialog = Dialog.Open(exitConfirmPrefab, DialogButtonType.Yes | DialogButtonType.No, "Confirm Exit", $"Are you sure you want quit?", false);
         //make sure the dialog is rotated to the camera
         myDialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
+        myDialog.transform.position = GlobalCtrl.Singleton.mainCamera.transform.position + 0.01f * myDialog.transform.forward;
 
         if (myDialog != null)
         {
@@ -1895,6 +1897,10 @@ public class GlobalCtrl : MonoBehaviour
                 NetworkManagerClient.Singleton.controlledExit = true;
             }
             SceneManager.LoadScene("LoginScreenScene");
+        } 
+        else
+        {
+            MainActionMenu.Singleton.gameObject.SetActive(true);
         }
     }
 

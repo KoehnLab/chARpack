@@ -10,6 +10,7 @@ using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Events;
 
 [Serializable]
 public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFocusHandler
@@ -37,6 +38,25 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private List<Atom> currentChain = new List<Atom>();
 
     public static List<Atom> markedAtoms = new List<Atom>();
+
+    private void Start()
+    {
+        var et = GetComponent<EyeTrackingTarget>();
+        et.OnLookAtStart.AddListener(delegate { onLookStart(); });
+        et.OnLookAway.AddListener(delegate { onLookAway(); });
+    }
+
+    private void onLookStart()
+    {
+        focusHighlight(true);
+        EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, true);
+    }
+
+    private void onLookAway()
+    {
+        focusHighlight(false);
+        EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
+    }
 
     public void grabHighlight(bool active)
     {
@@ -567,14 +587,20 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     private void resetMolPositionAfterMove()
     {
+
         // reset molecule position
         Vector3 molCenter = m_molecule.getCenter();
+        var mol_rot = m_molecule.transform.localRotation;
+        m_molecule.transform.localRotation = Quaternion.identity;
+        var mol_center_rotated = m_molecule.getCenter();
         // positions relative to the molecule center
-        List<Vector3> localAtomPositions = new List<Vector3>();
         foreach (Atom a in m_molecule.atomList)
         {
-            a.transform.localPosition = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a.transform.position) - molCenter;
+            a.transform.localPosition = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a.transform.position) - mol_center_rotated;
         }
+        // rotate back
+        m_molecule.transform.localRotation = mol_rot;
+        m_molecule.transform.localPosition = molCenter;
         // scale, position and orient bonds
         foreach (Bond bond in m_molecule.bondList)
         {
@@ -587,7 +613,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             bond.transform.position = (a1.transform.position + a2.transform.position) / 2;
             bond.transform.LookAt(a2.transform.position);
         }
-        m_molecule.transform.localPosition = molCenter;
     }
 
     public void addDummy(int numConnected)

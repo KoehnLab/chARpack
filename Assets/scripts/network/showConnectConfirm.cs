@@ -19,6 +19,7 @@ public class showConnectConfirm : MonoBehaviour
         var myDialog = Dialog.Open(connectConfirmPrefab, DialogButtonType.Yes | DialogButtonType.No, "Confirm Connect", $"Are you sure you want to connect to:\n{ip}", true);
         //make sure the dialog is rotated to the camera
         myDialog.transform.forward = Camera.main.transform.forward;
+        myDialog.transform.position = Camera.main.transform.position + 0.01f * myDialog.transform.forward;
 
         if (myDialog != null)
         {
