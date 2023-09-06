@@ -245,6 +245,10 @@ MonoBehaviour:
     m_Key: SnapMeButton/SnapMeButton/IconAndText/TextMeshPro
     m_Metadata:
       m_Items: []
+  - m_Id: 24331552324354048
+    m_Key: HandMenu/HandMenu/MenuContent/Grid/ToggleMeasurmentModeButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

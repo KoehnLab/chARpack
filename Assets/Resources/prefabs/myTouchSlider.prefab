@@ -350,7 +350,7 @@ MonoBehaviour:
   isTouchable: 1
   snapToPosition: 1
   thumbCollider: {fileID: 1505799088109494833}
-  touchCollider: {fileID: 6932249223571280874}
+  touchCollider: {fileID: 0}
   useSliderStepDivisions: 0
   sliderStepDivisions: 1
   trackVisuals: {fileID: 48114246356694279}
@@ -591,6 +591,7 @@ GameObject:
   - component: {fileID: 6932249223571280874}
   - component: {fileID: 4518018427873061046}
   - component: {fileID: 9024346995519746191}
+  - component: {fileID: 8914298012711699366}
   m_Layer: 0
   m_Name: TouchCollider
   m_TagString: Untagged
@@ -659,6 +660,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTetherWhenManipulating: 0
   IsBoundsHandles: 0
+--- !u!114 &8914298012711699366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4001606657894476829}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6a484a58a6dbfb4794112ac332f78bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slider: {fileID: 7785059576157304341}
 --- !u!1 &6863016452560500493
 GameObject:
   m_ObjectHideFlags: 0

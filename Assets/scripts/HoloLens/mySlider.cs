@@ -338,7 +338,7 @@ namespace Microsoft.MixedReality.Toolkit.UI
         /// <summary>
         /// Float value that holds the starting value of the slider.
         /// </summary>
-        protected float StartSliderValue { get; private set; }
+        public float StartSliderValue { get; private set; }
 
         /// <summary>
         /// Starting position of mixed reality pointer in world space
@@ -588,37 +588,7 @@ namespace Microsoft.MixedReality.Toolkit.UI
         }
         #endregion
 
-        #region Mouse Interaction
-        // DOES NOT WORK YET!
-
-        private Vector3 startingPosition = Vector3.zero;
-
-        public void OnMouseDown()
-        {
-            startingPosition = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
-                new Vector3(UnityEngine.Input.mousePosition.x, UnityEngine.Input.mousePosition.y, transform.position.z));
-        }
-
-        public void OnMouseDrag()
-        {
-
-            Vector3 newPosition = new Vector3(UnityEngine.Input.mousePosition.x, UnityEngine.Input.mousePosition.y, transform.position.z);
-            var delta = newPosition - startingPosition;
-            var mouseDelta = Vector3.Dot(SliderTrackDirection.normalized, delta);
-
-            if (useSliderStepDivisions)
-            {
-                var stepVal = (mouseDelta / SliderTrackDirection.magnitude > 0) ? sliderStepVal : (sliderStepVal * -1);
-                var stepMag = Mathf.Floor(Mathf.Abs(mouseDelta / SliderTrackDirection.magnitude) / sliderStepVal);
-                SliderValue = Mathf.Clamp(StartSliderValue + (stepVal * stepMag), 0, 1);
-            }
-            else
-            {
-                SliderValue = Mathf.Clamp(StartSliderValue + mouseDelta / SliderTrackDirection.magnitude, 0, 1);
-            }
-        }
-
-        #endregion
+        // Mouse interaction moved to mySliderCollider
 
         #region IMixedRealityPointerHandler
 
@@ -673,6 +643,7 @@ namespace Microsoft.MixedReality.Toolkit.UI
                 else
                 {
                     SliderValue = Mathf.Clamp(StartSliderValue + handDelta / SliderTrackDirection.magnitude, 0, 1);
+                    Debug.Log(SliderValue);
                 }
 
                 // Mark the pointer data as used to prevent other behaviors from handling input events
