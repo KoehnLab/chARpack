@@ -119,8 +119,9 @@ public class CameraSwitcher : MonoBehaviour
             {
                 foreach (var cam in cameras)
                 {
-                    if (cam.Value != null) currentCam = cam.Value;
-                    pannel[cam.Key].transform.Find("Background").gameObject.SetActive(true);
+                    if (cam.Value == null) continue;
+                    currentCam = cam.Value;
+                    pannel[cam.Key]?.transform.Find("Background").gameObject.SetActive(true);
                     break;
                 }
             }

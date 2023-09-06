@@ -880,8 +880,7 @@ public class NetworkManagerServer : MonoBehaviour
         var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
         if (mol == null || atom == null)
         {
-            Debug.LogError($"[NetworkManagerServer:getFocusHighlight] Molecule with id {mol_id} or atom with id {atom_id} do not exist.\nSynchronizing world with client {fromClientId}.");
-            NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
+            Debug.LogError($"[NetworkManagerServer:getFocusHighlight] Molecule with id {mol_id} or atom with id {atom_id} do not exist. Abort\n");
             return;
         }
         atom.focusHighlight(active);

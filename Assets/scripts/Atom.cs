@@ -34,6 +34,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     public Color currentOutlineColor = Color.black;
     public bool keepConfig = false;
     public bool frozen = false;
+    private bool focused = false;
 
     private List<Atom> currentChain = new List<Atom>();
 
@@ -48,14 +49,22 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     private void onLookStart()
     {
-        focusHighlight(true);
-        EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, true);
+        if (!focused)
+        {
+            focusHighlight(true);
+            focused = true;
+            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, true);
+        }
     }
 
     private void onLookAway()
     {
-        focusHighlight(false);
-        EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
+        if (focused)
+        {
+            focusHighlight(false);
+            focused = false;
+           EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
+        }
     }
 
     public void grabHighlight(bool active)
@@ -85,7 +94,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             else
             {
                 GetComponent<Outline>().OutlineColor = currentOutlineColor;
-
             }
         }
     }
@@ -96,6 +104,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             if (GetComponent<Outline>().enabled)
             {
+                if (GetComponent<Outline>().OutlineColor == grabColor) return;
                 if (GetComponent<Outline>().OutlineColor != focusColor && GetComponent<Outline>().OutlineColor != grabColor)
                 {
                     currentOutlineColor = GetComponent<Outline>().OutlineColor;
@@ -110,6 +119,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
         else
         {
+            if (GetComponent<Outline>().OutlineColor == grabColor) return;
             if (currentOutlineColor == notEnabledColor)
             {
                 GetComponent<Outline>().enabled = false;
@@ -123,15 +133,22 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     private void OnFocusEnter(FocusEventData eventData)
     {
-        // Highlight target
-        focusHighlight(true);
-        EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, true);
+        if(!focused)
+        {
+            focusHighlight(true);
+            focused = true;
+            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, true);
+        }
     }
 
     void OnFocusExit(FocusEventData eventData)
     {
-        focusHighlight(false);
-        EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
+        if (focused)
+        {
+            focusHighlight(false);
+            focused = false;
+            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
+        }
     }
 
 #if !WINDOWS_UWP
@@ -199,8 +216,16 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
                 if (!a1.alreadyConnected(a2))
                 {
-                    EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
-                    GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+                    if (a1 == this)
+                    {
+                        EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
+                        GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+                    }
+                    else
+                    {
+                        EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id, GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id);
+                        GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2, GlobalCtrl.Singleton.collider1);
+                    }
                 }
             }
         }
@@ -352,8 +377,16 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
                             if (!a1.alreadyConnected(a2))
                             {
-                                EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
-                                GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+                                if (a1 == this)
+                                {
+                                    EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
+                                    GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+                                }
+                                else
+                                {
+                                    EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id, GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id);
+                                    GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2, GlobalCtrl.Singleton.collider1);
+                                }
                             }
                         }
                     }

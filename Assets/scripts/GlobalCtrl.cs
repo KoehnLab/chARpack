@@ -759,7 +759,7 @@ public class GlobalCtrl : MonoBehaviour
         foreach (var dist in distToRemove)
         {
             distMeasurmentDict.Remove(dist);
-            Destroy(dist.gameObject);
+            Destroy(dist?.gameObject);
         }
 
         // Angles
@@ -1272,11 +1272,15 @@ public class GlobalCtrl : MonoBehaviour
     public void MergeMolecule(Atom dummyInHand, Atom dummyInAir)
     {
         collision = false;
+        dummyInHand.dummyFindMain().keepConfig = false;
+
+        //Debug.Log($"[MergeMolecule] Mol in hand num_atoms {dummyInHand.m_molecule.atomList.Count}");
+        //Debug.Log($"[MergeMolecule] Mol in air num_atoms {dummyInAir.m_molecule.atomList.Count}");
 
         Molecule molInHand = dummyInHand.m_molecule;
         Molecule molInAir = dummyInAir.m_molecule;
         // scale before merge
-        molInAir.transform.localScale = molInHand.transform.localScale;
+        molInHand.transform.localScale = molInAir.transform.localScale;
         Bond bondInHand = molInHand.bondList.Find(p=>p.atomID1 == dummyInHand.m_id || p.atomID2 == dummyInHand.m_id);
         Bond bondInAir = molInAir.bondList.Find(p => p.atomID1 == dummyInAir.m_id || p.atomID2 == dummyInAir.m_id);
         if(molInHand != molInAir)
