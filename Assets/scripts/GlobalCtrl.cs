@@ -1890,6 +1890,10 @@ public class GlobalCtrl : MonoBehaviour
     {
         if (obj.Result == DialogButtonType.Yes)
         {
+            if (!LoginData.normal_mode)
+            {
+                NetworkManagerClient.Singleton.controlledExit = true;
+            }
             SceneManager.LoadScene("LoginScreenScene");
         }
     }

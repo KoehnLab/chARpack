@@ -13,12 +13,17 @@ using UnityEngine.UI;
 public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
     private Stopwatch stopwatch;
+    [HideInInspector] public bool isGrabbed = false;
     public void OnPointerDown(MixedRealityPointerEventData eventData)
     {
+        isGrabbed = true;
         stopwatch = Stopwatch.StartNew();
         // change material of grabbed object
-        GetComponent<myBoundingBox>().setGrabbed(true);
-
+        if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL ||
+            GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
+        {
+            GetComponent<myBoundingBox>().setGrabbed(true);
+        }
     }
 
     public void OnPointerClicked(MixedRealityPointerEventData eventData)
@@ -36,29 +41,37 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     public void OnPointerUp(MixedRealityPointerEventData eventData)
     {
         stopwatch?.Stop();
-        if (stopwatch?.ElapsedMilliseconds < 200)
+        if (isGrabbed)
         {
-            markMoleculeUI(!isMarked, true);
-        }
-        else
-        {
-            if (GlobalCtrl.Singleton.collision)
+            isGrabbed = false;
+            if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL ||
+                GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
             {
-                Atom d1 = GlobalCtrl.Singleton.collider1;
-                Atom d2 = GlobalCtrl.Singleton.collider2;
-
-                Atom a1 = d1.dummyFindMain();
-                Atom a2 = d2.dummyFindMain();
-
-                if (!a1.alreadyConnected(a2))
+                if (stopwatch?.ElapsedMilliseconds < 200)
                 {
-                    EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
-                    GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+                    markMoleculeUI(!isMarked, true);
                 }
+                else
+                {
+                    if (GlobalCtrl.Singleton.collision)
+                    {
+                        Atom d1 = GlobalCtrl.Singleton.collider1;
+                        Atom d2 = GlobalCtrl.Singleton.collider2;
+
+                        Atom a1 = d1.dummyFindMain();
+                        Atom a2 = d2.dummyFindMain();
+
+                        if (!a1.alreadyConnected(a2))
+                        {
+                            EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
+                            GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+                        }
+                    }
+                }
+                // change material back to normal
+                GetComponent<myBoundingBox>().setGrabbed(false);
             }
         }
-        // change material back to normal
-        GetComponent<myBoundingBox>().setGrabbed(false);
     }
 
     public void OnSliderUpdated(mySliderEventData eventData)
@@ -440,7 +453,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         foreach (Atom atom in atomList)
         {
-            center += atom.transform.position;
+            center += GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(atom.transform.position);
         }
         center /= num_atoms > 0 ? num_atoms : 1;
 
@@ -453,7 +466,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         foreach (Atom atom in atomList)
         {
-            Vector3 atom_pos = atom.transform.position;
+            Vector3 atom_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(atom.transform.position);
             dists.Add(Mathf.Sqrt(center[0]*atom_pos[0] + center[1] * atom_pos[1] + center[2] * atom_pos[2]));
         }
 

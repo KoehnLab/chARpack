@@ -35,6 +35,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static ushort chunkSize = 255;
     public Client Client { get; private set; }
     [HideInInspector] public GameObject userWorld;
+    [HideInInspector] public bool controlledExit = false;
     //public GameObject playspace;
     //public GameObject sceneContent;
 
@@ -178,13 +179,17 @@ public class NetworkManagerClient : MonoBehaviour
     /// <param name="e"></param>
     private void DidDisconnect(object sender, EventArgs e)
     {
-        var myDialog = Dialog.Open(showErrorPrefab, DialogButtonType.OK, "Connection Failed", $"Connection to {LoginData.ip}:{LoginData.port} failed\nGoing back to Login Screen.", true);
-        //make sure the dialog is rotated to the camera
-        myDialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
-
-        if (myDialog != null)
+        if (!controlledExit)
         {
-            myDialog.OnClosed += OnClosedDialogEvent;
+            controlledExit = false;
+            var myDialog = Dialog.Open(showErrorPrefab, DialogButtonType.OK, "Connection Failed", $"Connection to {LoginData.ip}:{LoginData.port} failed\nGoing back to Login Screen.", true);
+            //make sure the dialog is rotated to the camera
+            myDialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
+
+            if (myDialog != null)
+            {
+                myDialog.OnClosed += OnClosedDialogEvent;
+            }
         }
     }
 

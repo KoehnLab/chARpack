@@ -234,7 +234,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
     }
 
-    public void OnPointerClicked(MixedRealityPointerEventData eventData) 
+    public void OnPointerClicked(MixedRealityPointerEventData eventData)
     {
         // Intentionally empty
     }
@@ -275,131 +275,131 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     // This function is triggered when a grabbed object is dropped
     public void OnPointerUp(MixedRealityPointerEventData eventData)
     {
-        if (eventData.Pointer is MousePointer)
-        {
-            UnityEngine.Debug.Log("Mouse");
-        }
-        if (eventData.Pointer is SpherePointer)
+        stopwatch?.Stop();
+        if (isGrabbed)
         {
             isGrabbed = false;
-            // reset outline
-            focusHighlight(false);
-            grabHighlight(false);
-
-            stopwatch?.Stop();
-
-            // measure convergence
-            ForceField.Singleton.resetMeasurment();
-
-            if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
+            if (eventData.Pointer is MousePointer)
             {
-                foreach (var atom in currentChain)
-                {
-                    atom.grabHighlight(false);
-                    atom.isGrabbed = false;
-                    //atom.transform.parent = m_molecule.transform;
-                    Destroy(atom.GetComponent<ParentConstraint>());
-                }
-                currentChain.Clear();
+                UnityEngine.Debug.Log("Mouse");
             }
-
-
-            resetMolPositionAfterMove();
-
-            if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
+            if (eventData.Pointer is SpherePointer)
             {
-                //UnityEngine.Debug.Log($"[Atom] Interaction stopwatch: {stopwatch.ElapsedMilliseconds} [ms]");
-                if (stopwatch?.ElapsedMilliseconds < 200)
+                // reset outline
+                focusHighlight(false);
+                grabHighlight(false);
+
+                // measure convergence
+                ForceField.Singleton.resetMeasurment();
+
+                if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
                 {
-                    if (m_molecule.isMarked)
+                    foreach (var atom in currentChain)
                     {
-                        m_molecule.markMolecule(false);
+                        atom.grabHighlight(false);
+                        atom.isGrabbed = false;
+                        //atom.transform.parent = m_molecule.transform;
+                        Destroy(atom.GetComponent<ParentConstraint>());
                     }
-                    else
-                    {
-                        markAtomUI(!isMarked);
-                    }
+                    currentChain.Clear();
+                    resetMolPositionAfterMove();
                 }
-                else
+
+                if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
                 {
-                    // check for potential merge
-                    if (GlobalCtrl.Singleton.collision)
+                    //UnityEngine.Debug.Log($"[Atom] Interaction stopwatch: {stopwatch.ElapsedMilliseconds} [ms]");
+                    if (stopwatch?.ElapsedMilliseconds < 200)
                     {
-                        Atom d1 = GlobalCtrl.Singleton.collider1;
-                        Atom d2 = GlobalCtrl.Singleton.collider2;
-
-                        Atom a1 = d1.dummyFindMain();
-                        Atom a2 = d2.dummyFindMain();
-
-                        if (!a1.alreadyConnected(a2))
+                        if (m_molecule.isMarked)
                         {
-                            EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
-                            GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+                            m_molecule.markMolecule(false);
                         }
-                    }
-                }
-            }
-
-            if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASURMENT)
-            {
-                if (stopwatch?.ElapsedMilliseconds < 300)
-                {
-                    if (GlobalCtrl.Singleton.measurmentInHand == null)
-                    {
-                        var distMeasurementGO = Instantiate(distMeasurmentPrefab);
-                        var distMeasurement = distMeasurementGO.GetComponent<DistanceMeasurment>();
-                        distMeasurement.StartAtom = this;
-                        GlobalCtrl.Singleton.measurmentInHand = distMeasurementGO;
-                        var otherDistanceMeasurments = GlobalCtrl.Singleton.getDistanceMeasurmentsOf(this);// order is important here
-                        GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement] = new Tuple<Atom, Atom>(this, null);
-                        if (otherDistanceMeasurments.Count > 0)
+                        else
                         {
-                            foreach (var m in otherDistanceMeasurments)
-                            {
-                                var angleMeasurementGO = Instantiate(angleMeasurmentPrefab);
-                                var angleMeasurement = angleMeasurementGO.GetComponent<AngleMeasurment>();
-                                angleMeasurement.originAtom = this;
-                                angleMeasurement.distMeasurment1 = m;
-                                if (m.StartAtom != this)
-                                {
-                                    angleMeasurement.distMeasurment1Sign = -1f;
-                                }
-                                angleMeasurement.distMeasurment2 = distMeasurement;
-                                GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(this, m, distMeasurement);
-                            }
+                            markAtomUI(!isMarked);
                         }
                     }
                     else
                     {
-                        var distMeasurement = GlobalCtrl.Singleton.measurmentInHand.GetComponent<DistanceMeasurment>();
-                        distMeasurement.EndAtom = this;
-                        var startAtom = GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement].Item1;
-                        GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement] = new Tuple<Atom, Atom>(startAtom, this);
-                        GlobalCtrl.Singleton.measurmentInHand = null;
-                        var otherDistanceMeasurments = GlobalCtrl.Singleton.getDistanceMeasurmentsOf(this);
-                        if (otherDistanceMeasurments.Count > 1)
+                        // check for potential merge
+                        if (GlobalCtrl.Singleton.collision)
                         {
-                            foreach (var m in otherDistanceMeasurments)
+                            Atom d1 = GlobalCtrl.Singleton.collider1;
+                            Atom d2 = GlobalCtrl.Singleton.collider2;
+
+                            Atom a1 = d1.dummyFindMain();
+                            Atom a2 = d2.dummyFindMain();
+
+                            if (!a1.alreadyConnected(a2))
                             {
-                                if (m == distMeasurement) continue;
-                                var angleMeasurementGO = Instantiate(angleMeasurmentPrefab);
-                                var angleMeasurement = angleMeasurementGO.GetComponent<AngleMeasurment>();
-                                angleMeasurement.originAtom = this;
-                                angleMeasurement.distMeasurment1 = m;
-                                if (m.StartAtom != this)
+                                EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
+                                GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+                            }
+                        }
+                    }
+                    resetMolPositionAfterMove();
+                }
+
+                if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASURMENT)
+                {
+                    if (stopwatch?.ElapsedMilliseconds < 300)
+                    {
+                        if (GlobalCtrl.Singleton.measurmentInHand == null)
+                        {
+                            var distMeasurementGO = Instantiate(distMeasurmentPrefab);
+                            var distMeasurement = distMeasurementGO.GetComponent<DistanceMeasurment>();
+                            distMeasurement.StartAtom = this;
+                            GlobalCtrl.Singleton.measurmentInHand = distMeasurementGO;
+                            var otherDistanceMeasurments = GlobalCtrl.Singleton.getDistanceMeasurmentsOf(this); // order is important here
+                            GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement] = new Tuple<Atom, Atom>(this, null);
+                            if (otherDistanceMeasurments.Count > 0)
+                            {
+                                foreach (var m in otherDistanceMeasurments)
                                 {
-                                    angleMeasurement.distMeasurment1Sign = -1f;
+                                    var angleMeasurementGO = Instantiate(angleMeasurmentPrefab);
+                                    var angleMeasurement = angleMeasurementGO.GetComponent<AngleMeasurment>();
+                                    angleMeasurement.originAtom = this;
+                                    angleMeasurement.distMeasurment1 = m;
+                                    if (m.StartAtom != this)
+                                    {
+                                        angleMeasurement.distMeasurment1Sign = -1f;
+                                    }
+                                    angleMeasurement.distMeasurment2 = distMeasurement;
+                                    GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(this, m, distMeasurement);
                                 }
-                                angleMeasurement.distMeasurment2 = distMeasurement;
-                                angleMeasurement.distMeasurment2Sign = -1f;
-                                GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(this, m, distMeasurement);
+                            }
+                        }
+                        else
+                        {
+                            var distMeasurement = GlobalCtrl.Singleton.measurmentInHand.GetComponent<DistanceMeasurment>();
+                            distMeasurement.EndAtom = this;
+                            var startAtom = GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement].Item1;
+                            GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement] = new Tuple<Atom, Atom>(startAtom, this);
+                            GlobalCtrl.Singleton.measurmentInHand = null;
+                            var otherDistanceMeasurments = GlobalCtrl.Singleton.getDistanceMeasurmentsOf(this);
+                            if (otherDistanceMeasurments.Count > 1)
+                            {
+                                foreach (var m in otherDistanceMeasurments)
+                                {
+                                    if (m == distMeasurement) continue;
+                                    var angleMeasurementGO = Instantiate(angleMeasurmentPrefab);
+                                    var angleMeasurement = angleMeasurementGO.GetComponent<AngleMeasurment>();
+                                    angleMeasurement.originAtom = this;
+                                    angleMeasurement.distMeasurment1 = m;
+                                    if (m.StartAtom != this)
+                                    {
+                                        angleMeasurement.distMeasurment1Sign = -1f;
+                                    }
+                                    angleMeasurement.distMeasurment2 = distMeasurement;
+                                    angleMeasurement.distMeasurment2Sign = -1f;
+                                    GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(this, m, distMeasurement);
+                                }
                             }
                         }
                     }
                 }
+
             }
-
-
         }
     }
 
@@ -463,8 +463,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
 
         transform.parent = inputMole.transform;
-        transform.localPosition = pos;    
-        transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.scale/GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
+        transform.localPosition = pos;
+        transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.scale / GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
 
         //Debug.Log(string.Format("Added latest {0}:  rad={1}  scale={2}  hyb={3}  nBonds={4}", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale, m_data.m_hybridization, m_data.m_bondNum));
 
@@ -540,9 +540,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.scale / GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
 
 
-        foreach(Atom a in connectedDummys())
+        foreach (Atom a in connectedDummys())
         {
-            if(numConnected > dummyLimit)
+            if (numConnected > dummyLimit)
             {
                 numConnected--;
                 a.m_molecule.atomList.Remove(a);
@@ -573,19 +573,21 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         List<Vector3> localAtomPositions = new List<Vector3>();
         foreach (Atom a in m_molecule.atomList)
         {
-            a.transform.localPosition = a.transform.position - molCenter;
+            a.transform.localPosition = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a.transform.position) - molCenter;
         }
         // scale, position and orient bonds
         foreach (Bond bond in m_molecule.bondList)
         {
             Atom a1 = m_molecule.atomList.ElementAtOrDefault(bond.atomID1);
             Atom a2 = m_molecule.atomList.ElementAtOrDefault(bond.atomID2);
-            float distance = Vector3.Distance(a1.transform.position, a2.transform.position) / m_molecule.transform.localScale.x;
+            var a1_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a1.transform.position);
+            var a2_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a2.transform.position);
+            float distance = Vector3.Distance(a1_pos, a2_pos) / m_molecule.transform.localScale.x;
             bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
             bond.transform.position = (a1.transform.position + a2.transform.position) / 2;
             bond.transform.LookAt(a2.transform.position);
         }
-        m_molecule.transform.position = molCenter;
+        m_molecule.transform.localPosition = molCenter;
     }
 
     public void addDummy(int numConnected)
@@ -599,7 +601,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         switch (numConnected)
         {
             case (0):
-                position = transform.localPosition + new Vector3(0,0,0.05f);
+                position = transform.localPosition + new Vector3(0, 0, 0.05f);
                 GlobalCtrl.Singleton.CreateDummy(m_molecule.getFreshAtomID(), m_molecule, this, position);
                 break;
             case (1):
@@ -632,13 +634,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 GlobalCtrl.Singleton.CreateDummy(m_molecule.getFreshAtomID(), m_molecule, this, position);
                 break;
             case (4):
-                position = (conAtoms[1].transform.localPosition - conAtoms[0].transform.localPosition)/2.0f;
+                position = (conAtoms[1].transform.localPosition - conAtoms[0].transform.localPosition) / 2.0f;
 
                 GlobalCtrl.Singleton.CreateDummy(m_molecule.getFreshAtomID(), m_molecule, this, position);
                 break;
             default:
                 break;
-        } 
+        }
     }
 
     /// <summary>
@@ -664,7 +666,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             // as part of single bond
             GetComponent<Outline>().enabled = true;
-            GetComponent<Outline>().OutlineColor = new Color(1.0f,0.5f,0.0f); //orange
+            GetComponent<Outline>().OutlineColor = new Color(1.0f, 0.5f, 0.0f); //orange
             currentOutlineColor = new Color(1.0f, 0.5f, 0.0f);
         }
         else if (col == 4)
@@ -736,7 +738,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     public List<Atom> connectedAtoms()
     {
         List<Atom> conAtomList = new List<Atom>();
-        foreach(Bond b in m_molecule.bondList)
+        foreach (Bond b in m_molecule.bondList)
         {
             if (b.atomID1 == m_id || b.atomID2 == m_id)
             {
@@ -817,7 +819,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 not_reached_end = false;
             }
             // Update layers
-            foreach( var a in currentLayer)
+            foreach (var a in currentLayer)
             {
                 prevLayer.Add(a);
             }
@@ -831,7 +833,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         List<Atom> allConnected = connectedAtoms();
         List<Atom> conDummys = new List<Atom>();
-        foreach(Atom at in allConnected)
+        foreach (Atom at in allConnected)
         {
             if (at.m_data.m_abbre == "Dummy")
                 conDummys.Add(at);
@@ -915,7 +917,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     /// <returns>true or false depending on if the atoms are connected</returns>
     public bool alreadyConnected(Atom a2)
     {
-        foreach(Bond b in m_molecule.bondList)
+        foreach (Bond b in m_molecule.bondList)
         {
             if (b.findTheOther(this) == a2)
                 return true;
@@ -1100,7 +1102,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         GameObject modifyHybridizationInstance = null;
         if (m_data.m_abbre != "Dummy")
         {
-            
+
             if (m_data.m_abbre == "H")
             {
                 var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
@@ -1152,7 +1154,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     public bool anyConnectedAtomsMarked()
     {
         var conAtoms = connectedAtoms();
-        foreach(Atom a in conAtoms)
+        foreach (Atom a in conAtoms)
         {
             if (a.isMarked)
             {
@@ -1178,7 +1180,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         //$"Name: {m_data.m_name}\nMass: {m_data.m_mass}\nRadius: {m_data.m_radius}\nNumBonds: {m_data.m_bondNum}"
         string rad = GlobalCtrl.Singleton.GetLocalizedString("RADIUS");
-        string numBonds = GlobalCtrl.Singleton.GetLocalizedString("NUM_BONDS"); 
+        string numBonds = GlobalCtrl.Singleton.GetLocalizedString("NUM_BONDS");
         string massStr = GlobalCtrl.Singleton.GetLocalizedString("MASS");
         string nameStr = GlobalCtrl.Singleton.GetLocalizedString("NAME");
         name = GetLocalizedElementName(name);
