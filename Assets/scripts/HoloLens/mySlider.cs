@@ -307,6 +307,11 @@ namespace Microsoft.MixedReality.Toolkit.UI
             get { return SliderEndPosition - SliderStartPosition; }
         }
 
+        /// <summary>
+        /// Float value that holds the starting value of the slider.
+        /// </summary>
+        public float StartSliderValue;
+
         #endregion
 
         #region Event Handlers
@@ -334,11 +339,6 @@ namespace Microsoft.MixedReality.Toolkit.UI
         #endregion
 
         #region Protected Properties
-
-        /// <summary>
-        /// Float value that holds the starting value of the slider.
-        /// </summary>
-        public float StartSliderValue { get; private set; }
 
         /// <summary>
         /// Starting position of mixed reality pointer in world space

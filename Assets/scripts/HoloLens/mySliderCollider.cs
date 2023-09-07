@@ -7,21 +7,21 @@ namespace Microsoft.MixedReality.Toolkit.UI
     public class mySliderCollider : MonoBehaviour
     {
         private Vector3 startingPosition = Vector3.zero;
+        private float distToCamera = 0;
         public mySlider slider;
 
         public void OnMouseDown()
         {
-            var cameraDistance = Vector3.Dot(transform.position - GlobalCtrl.Singleton.currentCamera.transform.position, GlobalCtrl.Singleton.currentCamera.transform.forward);
+            distToCamera = Vector3.Dot(GlobalCtrl.Singleton.currentCamera.transform.forward, transform.position - GlobalCtrl.Singleton.currentCamera.transform.position);
             startingPosition = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
-                new Vector3(UnityEngine.Input.mousePosition.x, UnityEngine.Input.mousePosition.y, cameraDistance));
+                new Vector3(UnityEngine.Input.mousePosition.x, UnityEngine.Input.mousePosition.y, distToCamera));
+            slider.StartSliderValue = slider.SliderValue;
         }
 
         public void OnMouseDrag()
         {
-            var cameraDistance = Vector3.Dot(transform.position - GlobalCtrl.Singleton.currentCamera.transform.position, GlobalCtrl.Singleton.currentCamera.transform.forward);
-
             Vector3 newPosition = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
-                new Vector3(2*UnityEngine.Input.mousePosition.x, UnityEngine.Input.mousePosition.y, cameraDistance));
+                new Vector3(UnityEngine.Input.mousePosition.x, UnityEngine.Input.mousePosition.y, distToCamera));
             var delta = newPosition - startingPosition;
             var mouseDelta = Vector3.Dot(slider.SliderTrackDirection.normalized, delta);
 
