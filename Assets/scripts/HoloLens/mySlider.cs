@@ -24,6 +24,10 @@ namespace Microsoft.MixedReality.Toolkit.UI
         /// </summary>
         public float maxVal = 1.0f;
 
+        /// <summary>
+        /// The value that the slider takes on by default
+        /// </summary>
+        public float defaultVal = 0.5f;
 
         [Tooltip("The gameObject that contains the slider thumb.")]
         [SerializeField]
@@ -698,6 +702,11 @@ namespace Microsoft.MixedReality.Toolkit.UI
         public void close()
         {
             Destroy(gameObject);
+        }
+
+        public void resetValue()
+        {
+            SliderValue = defaultVal;
         }
 
     }

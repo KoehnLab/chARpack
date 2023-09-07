@@ -571,11 +571,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         if (!scalingSliderInstance)
         {
             // position needs to be optimized
-            scalingSliderInstance = Instantiate(scalingSliderPrefab, gameObject.transform.position - 0.25f*GlobalCtrl.Singleton.currentCamera.transform.forward - 0.05f*Vector3.up, GlobalCtrl.Singleton.currentCamera.transform.rotation);
+            scalingSliderInstance = Instantiate(scalingSliderPrefab, gameObject.transform.position - 0.17f*GlobalCtrl.Singleton.currentCamera.transform.forward - 0.05f*Vector3.up, GlobalCtrl.Singleton.currentCamera.transform.rotation);
             scalingSliderInstance.GetComponent<mySlider>().maxVal = 2;
             scalingSliderInstance.GetComponent<mySlider>().minVal = 0.1f;
-            // Set effective starting value to 1
+            // Set effective starting value and default to 1
             scalingSliderInstance.GetComponent<mySlider>().SliderValue = (1 - scalingSliderInstance.GetComponent<mySlider>().minVal)/ (scalingSliderInstance.GetComponent<mySlider>().maxVal - scalingSliderInstance.GetComponent<mySlider>().minVal);
+            scalingSliderInstance.GetComponent<mySlider>().defaultVal = (1 - scalingSliderInstance.GetComponent<mySlider>().minVal) / (scalingSliderInstance.GetComponent<mySlider>().maxVal - scalingSliderInstance.GetComponent<mySlider>().minVal);
             startingScale = gameObject.transform.localScale;
             scalingSliderInstance.GetComponent<mySlider>().OnValueUpdated.AddListener(OnSliderUpdated);
         }
