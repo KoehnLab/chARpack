@@ -643,7 +643,6 @@ namespace Microsoft.MixedReality.Toolkit.UI
                 else
                 {
                     SliderValue = Mathf.Clamp(StartSliderValue + handDelta / SliderTrackDirection.magnitude, 0, 1);
-                    Debug.Log(SliderValue);
                 }
 
                 // Mark the pointer data as used to prevent other behaviors from handling input events

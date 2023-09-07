@@ -350,7 +350,7 @@ MonoBehaviour:
   isTouchable: 1
   snapToPosition: 1
   thumbCollider: {fileID: 1505799088109494833}
-  touchCollider: {fileID: 0}
+  touchCollider: {fileID: 6932249223571280874}
   useSliderStepDivisions: 0
   sliderStepDivisions: 1
   trackVisuals: {fileID: 48114246356694279}
