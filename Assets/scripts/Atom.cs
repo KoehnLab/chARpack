@@ -1234,7 +1234,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     }
 
     // Helper methods to generate localized tool tip text
-    private string getToolTipText(string name, double mass, double radius, double bondNum)
+    private string getToolTipText(string name, double mass, double radius, int bondNum)
     {
         //$"Name: {m_data.m_name}\nMass: {m_data.m_mass}\nRadius: {m_data.m_radius}\nNumBonds: {m_data.m_bondNum}"
         string rad = GlobalCtrl.Singleton.GetLocalizedString("RADIUS");
@@ -1242,7 +1242,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         string massStr = GlobalCtrl.Singleton.GetLocalizedString("MASS");
         string nameStr = GlobalCtrl.Singleton.GetLocalizedString("NAME");
         name = GetLocalizedElementName(name);
-        string toolTipText = $"{nameStr}: {name}\n{massStr}: {mass}\n{rad}: {radius}\n{numBonds}: {bondNum}";
+        string toolTipText = $"{nameStr}: {name}\n{massStr}: {mass:0.00}\n{rad}: {radius:0.00}\n{numBonds}: {bondNum}";
         return toolTipText;
     }
 

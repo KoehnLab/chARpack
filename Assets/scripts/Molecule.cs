@@ -845,7 +845,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string numAtoms = GlobalCtrl.Singleton.GetLocalizedString("NUM_ATOMS");
         string numBonds = GlobalCtrl.Singleton.GetLocalizedString("NUM_BONDS");
         string mass = GlobalCtrl.Singleton.GetLocalizedString("TOT_MASS");
-        string toolTipText = $"{numAtoms}: {atomList.Count}\n{numBonds}: {bondList.Count}\n{mass}: {totMass.ToString("0.00")}\nMaxRadius: {maxDist.ToString("0.00")}";
+        string toolTipText = $"{numAtoms}: {atomList.Count}\n{numBonds}: {bondList.Count}\n{mass}: {totMass:0.00}\nMaxRadius: {maxDist:0.00}";
         return toolTipText;
     }
 
@@ -854,7 +854,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string dist = GlobalCtrl.Singleton.GetLocalizedString("EQ_DIST");
         string singleBond = GlobalCtrl.Singleton.GetLocalizedString("SINGLE_BOND");
         string ord = GlobalCtrl.Singleton.GetLocalizedString("ORDER");
-        string toolTipText = $"{singleBond}\n{dist}: {eqDist}\nk: {kBond}\n{ord}: {order}";
+        string toolTipText = $"{singleBond}\n{dist}: {eqDist:0.00}\nk: {kBond:0.00}\n{ord}: {order:0.00}";
         return toolTipText;
     }
 
@@ -863,7 +863,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string angleBond = GlobalCtrl.Singleton.GetLocalizedString("ANGLE_BOND");
         string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
         string kAngleStr = GlobalCtrl.Singleton.GetLocalizedString("K_ANGLE");
-        string toolTipText = $"{angleBond}\n{eqAngleStr}: {eqAngle}\n{kAngleStr}: {kAngle}";
+        string toolTipText = $"{angleBond}\n{eqAngleStr}: {eqAngle:0.00}\n{kAngleStr}: {kAngle:0.00}";
         return toolTipText;
     }
     
@@ -872,7 +872,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         //$"Torsion Bond\nEqui. Angle: {term.eqAngle}\nvk: {term.vk}\nnn: {term.nn}"
         string torsionBond = GlobalCtrl.Singleton.GetLocalizedString("TORSION_BOND");
         string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
-        string toolTipText = $"{torsionBond}\n{eqAngleStr}: {eqAngle}\nvk: {vk}\nnn: {nn}";
+        string toolTipText = $"{torsionBond}\n{eqAngleStr}: {eqAngle:0.00}\nvk: {vk:0.00}\nnn: {nn:0.00}";
         return toolTipText;
     }
 
