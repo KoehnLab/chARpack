@@ -1423,6 +1423,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             Destroy(toolTipInstance);
             toolTipInstance = null;
         }
+        if (scalingSliderInstance)
+        {
+            Destroy(scalingSliderInstance);
+            scalingSliderInstance = null;
+        }
         EventManager.Singleton.OnMolDataChanged -= triggerGenerateFF;
         EventManager.Singleton.OnMolDataChanged -= adjustBBox;
     }
