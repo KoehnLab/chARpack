@@ -237,16 +237,20 @@ MonoBehaviour:
     m_Key: HandMenu/HandMenu/MenuContent/ToggleMeasurmentModeButton/IconAndText/TextMeshPro
     m_Metadata:
       m_Items: []
-  - m_Id: 23923190035156992
-    m_Key: FreezeMeButton/FreezeMeButton/IconAndText/TextMeshPro
-    m_Metadata:
-      m_Items: []
-  - m_Id: 23962793127481344
-    m_Key: SnapMeButton/SnapMeButton/IconAndText/TextMeshPro
-    m_Metadata:
-      m_Items: []
   - m_Id: 24331552324354048
     m_Key: HandMenu/HandMenu/MenuContent/Grid/ToggleMeasurmentModeButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25041727584190464
+    m_Key: Snap
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25041763416129536
+    m_Key: Freeze
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25042481984290816
+    m_Key: Clear_Measure
     m_Metadata:
       m_Items: []
   m_Metadata:
