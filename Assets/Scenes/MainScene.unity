@@ -3120,7 +3120,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 778220956}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81b498afc6c2803408ca65bb53a40933, type: 3}
+  m_Script: {fileID: 11500000, guid: 2663b38be43c833459af949edd4dc177, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   defaultDistanceInMeters: 2
@@ -3144,7 +3144,7 @@ MeshRenderer:
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f35b45e77783d754ea8d9fc0f502c49d, type: 2}
+  - {fileID: 2100000, guid: 3999a94838504e34fb5939398e1b6c99, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

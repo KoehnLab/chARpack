@@ -11,6 +11,7 @@ using UnityEngine.Animations;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Events;
+using Microsoft.MixedReality.Toolkit.Utilities;
 
 [Serializable]
 public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFocusHandler
@@ -256,6 +257,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             // go through the chain of connected atoms and add the force there too
             if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
             {
+                GetComponent<MoveAxisConstraint>().enabled = true;
+
                 currentChain = start_atom.connectedChain(this);
 
                 ConstraintSource cs = new ConstraintSource();
@@ -339,6 +342,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
                 if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
                 {
+                    GetComponent<MoveAxisConstraint>().enabled = false;
                     foreach (var atom in currentChain)
                     {
                         atom.grabHighlight(false);
@@ -629,7 +633,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         // positions relative to the molecule center
         foreach (Atom a in m_molecule.atomList)
         {
-            a.transform.localPosition = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a.transform.position) - mol_center_rotated;
+            a.transform.localPosition = (GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a.transform.position) - mol_center_rotated) * (1f/m_molecule.transform.localScale.x);
         }
         // rotate back
         m_molecule.transform.localRotation = mol_rot;
