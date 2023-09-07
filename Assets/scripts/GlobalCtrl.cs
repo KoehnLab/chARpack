@@ -1033,7 +1033,7 @@ public class GlobalCtrl : MonoBehaviour
         var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
         if (mol == null || atom == null)
         {
-            Debug.LogError($"[GlobalCtrl] Trying to move Atom {atom_id} of molecule {mol_id}, but it does not exist.");
+            Debug.LogError($"[GlobalCtrl:moveAtom] Trying to move Atom {atom_id} of molecule {mol_id}, but it does not exist.");
             return false;
         }
         else
@@ -1046,7 +1046,7 @@ public class GlobalCtrl : MonoBehaviour
     public bool moveMolecule(ushort id, Vector3 pos, Quaternion quat)
     {
         var molecule = List_curMolecules.ElementAtOrDefault(id);
-        if (molecule != null)
+        if (molecule != default)
         {
             molecule.transform.localPosition = pos;
             molecule.transform.localRotation = quat;

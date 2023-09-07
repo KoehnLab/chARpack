@@ -454,7 +454,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         return atomCount;
     }
 
-    public Vector3 getCenter()
+    public Vector3 getCenterInAtomWorld()
     {
         Vector3 center = new Vector3(0.0f, 0.0f, 0.0f);
         int num_atoms = atomList.Count;
@@ -462,6 +462,20 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         foreach (Atom atom in atomList)
         {
             center += GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(atom.transform.position);
+        }
+        center /= num_atoms > 0 ? num_atoms : 1;
+
+        return center;
+    }
+
+    public Vector3 getCenter()
+    {
+        Vector3 center = new Vector3(0.0f, 0.0f, 0.0f);
+        int num_atoms = atomList.Count;
+
+        foreach (Atom atom in atomList)
+        {
+            center += atom.transform.position;
         }
         center /= num_atoms > 0 ? num_atoms : 1;
 
@@ -550,7 +564,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var delButtonInstance = Instantiate(deleteMeButtonPrefab);
         delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteMoleculeUI(this); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
-
     }
 
     public void toggleScalingSlider()
@@ -558,7 +571,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         if (!scalingSliderInstance)
         {
             // position needs to be optimized
-            scalingSliderInstance = Instantiate(scalingSliderPrefab, gameObject.transform.position - 0.25f*Vector3.forward - 0.05f*Vector3.up, Quaternion.identity);
+            scalingSliderInstance = Instantiate(scalingSliderPrefab, gameObject.transform.position - 0.25f*GlobalCtrl.Singleton.currentCamera.transform.forward - 0.05f*Vector3.up, GlobalCtrl.Singleton.currentCamera.transform.rotation);
             scalingSliderInstance.GetComponent<mySlider>().maxVal = 2;
             scalingSliderInstance.GetComponent<mySlider>().minVal = 0.1f;
             // Set effective starting value to 1

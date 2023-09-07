@@ -622,10 +622,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
 
         // reset molecule position
-        Vector3 molCenter = m_molecule.getCenter();
+        Vector3 molCenter = m_molecule.getCenterInAtomWorld();
         var mol_rot = m_molecule.transform.localRotation;
         m_molecule.transform.localRotation = Quaternion.identity;
-        var mol_center_rotated = m_molecule.getCenter();
+        var mol_center_rotated = m_molecule.getCenterInAtomWorld();
         // positions relative to the molecule center
         foreach (Atom a in m_molecule.atomList)
         {
