@@ -78,7 +78,7 @@ public class AngleMeasurment : MonoBehaviour
         }
     }
 
-    void renderStaightSegment(Vector3 start, Vector3 end)
+    void renderStraightSegment(Vector3 start, Vector3 end)
     {
         Line.positionCount = 2;
         Line.SetPosition(0, start);
@@ -100,7 +100,7 @@ public class AngleMeasurment : MonoBehaviour
             angle = Mathf.Acos(Vector3.Dot(norm1, norm2));
 
             renderCircleSegment(norm1, norm2);
-            //renderStaightSegment(lineStart, lineEnd);
+            //renderStraightSegment(lineStart, lineEnd);
 
 
             Label.transform.position = norm1 * radius * 1.2f + originAtom.transform.position + (norm2 * radius - norm1 * radius) *0.5f;
