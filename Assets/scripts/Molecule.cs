@@ -113,6 +113,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject freezeMeButtonPrefab;
     [HideInInspector] public static GameObject snapMeButtonPrefab;
     public GameObject toolTipInstance;
+    private GameObject freezeButton;
     public GameObject scalingSliderInstance;
     private float toolTipDistanceWeight = 0.01f;
     private Vector3 startingScale;
@@ -560,10 +561,14 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var freezeMoleculeButtonInstance = Instantiate(freezeMeButtonPrefab);
         freezeMoleculeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { freezeUI(!frozen); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(freezeMoleculeButtonInstance);
+        freezeButton = freezeMoleculeButtonInstance;
 
         var delButtonInstance = Instantiate(deleteMeButtonPrefab);
         delButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.deleteMoleculeUI(this); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
+
+        // Starting color for indicators
+        setFrozenVisual(frozen);
     }
 
     public void toggleScalingSlider()
@@ -893,6 +898,20 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         GetComponent<NearInteractionGrabbable>().enabled = !value;
         GetComponent<ObjectManipulator>().enabled = !value;
         frozen = value;
+        setFrozenVisual(frozen);
+    }
+
+    public void setFrozenVisual(bool value)
+    {
+        var FrozenIndicator = freezeButton.transform.Find("IconAndText").gameObject.transform.Find("Indicator").gameObject;
+        if (value)
+        {
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+        }
+        else
+        {
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+        }
     }
 
     #endregion
