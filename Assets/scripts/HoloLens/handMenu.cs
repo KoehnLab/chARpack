@@ -20,6 +20,9 @@ public class handMenu : myScrollObject
         "Ti"
     };
 
+    public GameObject ChainModeIndicator;
+    public GameObject MeasurementModeIndicator;
+
     private static handMenu _singleton;
 
     public static handMenu Singleton
@@ -48,6 +51,12 @@ public class handMenu : myScrollObject
         // add atom buttons
         atomEntryPrefab = (GameObject)Resources.Load("prefabs/AtomButton");
         generateAtomEntries();
+    }
+
+    private void Start()
+    {
+        // Set starting colors for indicators
+        setVisuals();
     }
 
     public void generateAtomEntries()
@@ -88,6 +97,25 @@ public class handMenu : myScrollObject
     public void OnEnable()
     {
         scrollUpdate();
+    }
+
+    public void setVisuals()
+    {
+        if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
+        {
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+        }
+        else if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASURMENT)
+        {
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+        }
+        else
+        {
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+        }
     }
 
 }

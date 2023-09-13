@@ -142,6 +142,9 @@ public class GlobalCtrl : MonoBehaviour
             currentInteractionMode = InteractionModes.NORMAL;
             HandTracking.Singleton.gameObject.SetActive(false);
         }
+
+        // Update visuals on hand menu toggle buttons
+        handMenu.Singleton.setVisuals();
     }
 
     public void toggleMeasurmentMode()
@@ -159,6 +162,9 @@ public class GlobalCtrl : MonoBehaviour
             HandTracking.Singleton.gameObject.SetActive(false);
             freezeWorld(false);
         }
+
+        // Update visuals on hand menu toggle buttons
+        handMenu.Singleton.setVisuals();
     }
 
     #endregion
