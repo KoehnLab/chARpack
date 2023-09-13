@@ -1292,7 +1292,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
 
         frozen = value;
-        setFrozenVisual(frozen);
+        if (freezeButton)
+        {
+            setFrozenVisual(frozen);
+        }
     }
 
     public void setFrozenVisual(bool value)

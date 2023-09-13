@@ -898,7 +898,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         GetComponent<NearInteractionGrabbable>().enabled = !value;
         GetComponent<ObjectManipulator>().enabled = !value;
         frozen = value;
-        setFrozenVisual(frozen);
+        if (freezeButton)
+        {
+            setFrozenVisual(frozen);
+        }
     }
 
     public void setFrozenVisual(bool value)
