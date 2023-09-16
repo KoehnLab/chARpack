@@ -257,6 +257,10 @@ MonoBehaviour:
     m_Key: ResetMeButton/IconAndText/TextMeshPro
     m_Metadata:
       m_Items: []
+  - m_Id: 28314155435982848
+    m_Key: Settings/Settings/ButtonCollection/ToggleGazeHighlight/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -262,6 +262,10 @@ MonoBehaviour:
     m_Localized: Reset
     m_Metadata:
       m_Items: []
+  - m_Id: 28314155435982848
+    m_Localized: Gaze Highlighting
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

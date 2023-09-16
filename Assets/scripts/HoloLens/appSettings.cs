@@ -45,6 +45,7 @@ public class appSettings : MonoBehaviour
     public GameObject HandRayIndicator;
     public GameObject SpatialMeshIndicator;
     public GameObject DebugWindowIndicator;
+    public GameObject GazeHighlightingIndicator;
 
     private void Start()
     {
@@ -69,7 +70,7 @@ public class appSettings : MonoBehaviour
         {
             setDebugWindowVisual(DebugWindow.Singleton.gameObject.activeSelf);
         }
-
+        setGazeHighlightingVisual(SettingsData.gazeHighlighting);
     }
 
     public void toggleSpatialMesh()
@@ -329,6 +330,24 @@ public class appSettings : MonoBehaviour
         else
         {
             LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("en");
+        }
+    }
+
+    public void toggleGazeHighlighting()
+    {
+        GlobalCtrl.Singleton.toggleGazeHighlighting();
+        updateVisuals();
+    }
+
+    public void setGazeHighlightingVisual(bool value)
+    {
+        if (value)
+        {
+            GazeHighlightingIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+        }
+        else
+        {
+            GazeHighlightingIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
         }
     }
 }

@@ -122,6 +122,9 @@ public class GlobalCtrl : MonoBehaviour
     [HideInInspector] public Dictionary<AngleMeasurment, Triple<Atom, DistanceMeasurment, DistanceMeasurment>> angleMeasurmentDict = new Dictionary<AngleMeasurment, Triple<Atom, DistanceMeasurment, DistanceMeasurment>>();
     [HideInInspector] public GameObject measurmentInHand = null; 
 
+    [HideInInspector] public GameObject eyeTracking1;
+    [HideInInspector] public GameObject eyeTracking2;
+
     #region Interaction
     // Interaction modes
     public enum InteractionModes {NORMAL, CHAIN, MEASURMENT};
@@ -179,6 +182,11 @@ public class GlobalCtrl : MonoBehaviour
         CultureInfo.CurrentUICulture = new CultureInfo("en-US", false);
 
         currentLocale = LocalizationSettings.SelectedLocale;
+        // At the moment, it is necessary to toggle both the DefaultGazeCursor and
+        // the object containing FollowEyeGaze script
+        // TODO: Put functionality in one object?
+        eyeTracking1 = GameObject.Find("DefaultGazeCursor(Clone)");
+        eyeTracking2 = GameObject.Find("EyeGazeDirectedTarget");
 
         // check if file is found otherwise throw error
         string element_file_path = Path.Combine(Application.streamingAssetsPath, "ElementData.xml");
@@ -1828,6 +1836,12 @@ public class GlobalCtrl : MonoBehaviour
         handMenu.Singleton.toggleVisible();
     }
 
+    public void toggleGazeHighlighting()
+    {
+        eyeTracking1.SetActive(!eyeTracking1.activeSelf);
+        eyeTracking2.SetActive(!eyeTracking2.activeSelf);
+        SettingsData.gazeHighlighting = eyeTracking1.activeSelf;
+    }
     #endregion
 
     private void regenerateTooltips()
