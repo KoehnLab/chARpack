@@ -468,6 +468,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     // we have to clarify the role of m_data: Is this just basic (and constant) data?
     // 0: none; 1: sp1; 2: sp2;  3: sp3;  4: hypervalent trig. bipy; 5: unused;  6: hypervalent octahedral
     [HideInInspector] public Material m_mat;
+    [HideInInspector] public Material frozen_mat;
 
     [HideInInspector] public Rigidbody m_rigid;
     [HideInInspector] public bool isGrabbed = false;
@@ -519,6 +520,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             GetComponent<MeshRenderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
             m_mat = GetComponent<MeshRenderer>().material;
         }
+
+        frozen_mat = Resources.Load("materials/frozenMaterial") as Material;
 
         transform.parent = inputMole.transform;
         transform.localPosition = pos;
@@ -1284,11 +1287,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         if (value)
         {
             m_data.m_mass = -1f;
+            GetComponent<MeshRenderer>().materials = new Material[] { m_mat, frozen_mat };
         }
         else
         {
             ElementData tempData = GlobalCtrl.Singleton.Dic_ElementData[m_data.m_abbre];
             m_data.m_mass = tempData.m_mass;
+            GetComponent<MeshRenderer>().materials = new Material[] { m_mat };
         }
 
         frozen = value;
