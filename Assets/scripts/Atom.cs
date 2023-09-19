@@ -167,6 +167,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             grabHighlight(true);
             isGrabbed = true;
         }
+        else if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASURMENT)
+        {
+            handleMeasurements();
+        }
     }
 
     void OnMouseDrag()
@@ -402,61 +406,66 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 {
                     if (stopwatch?.ElapsedMilliseconds < 300)
                     {
-                        if (GlobalCtrl.Singleton.measurmentInHand == null)
-                        {
-                            var distMeasurementGO = Instantiate(distMeasurmentPrefab);
-                            var distMeasurement = distMeasurementGO.GetComponent<DistanceMeasurment>();
-                            distMeasurement.StartAtom = this;
-                            GlobalCtrl.Singleton.measurmentInHand = distMeasurementGO;
-                            var otherDistanceMeasurments = GlobalCtrl.Singleton.getDistanceMeasurmentsOf(this); // order is important here
-                            GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement] = new Tuple<Atom, Atom>(this, null);
-                            if (otherDistanceMeasurments.Count > 0)
-                            {
-                                foreach (var m in otherDistanceMeasurments)
-                                {
-                                    var angleMeasurementGO = Instantiate(angleMeasurmentPrefab);
-                                    var angleMeasurement = angleMeasurementGO.GetComponent<AngleMeasurment>();
-                                    angleMeasurement.originAtom = this;
-                                    angleMeasurement.distMeasurment1 = m;
-                                    if (m.StartAtom != this)
-                                    {
-                                        angleMeasurement.distMeasurment1Sign = -1f;
-                                    }
-                                    angleMeasurement.distMeasurment2 = distMeasurement;
-                                    GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(this, m, distMeasurement);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            var distMeasurement = GlobalCtrl.Singleton.measurmentInHand.GetComponent<DistanceMeasurment>();
-                            distMeasurement.EndAtom = this;
-                            var startAtom = GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement].Item1;
-                            GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement] = new Tuple<Atom, Atom>(startAtom, this);
-                            GlobalCtrl.Singleton.measurmentInHand = null;
-                            var otherDistanceMeasurments = GlobalCtrl.Singleton.getDistanceMeasurmentsOf(this);
-                            if (otherDistanceMeasurments.Count > 1)
-                            {
-                                foreach (var m in otherDistanceMeasurments)
-                                {
-                                    if (m == distMeasurement) continue;
-                                    var angleMeasurementGO = Instantiate(angleMeasurmentPrefab);
-                                    var angleMeasurement = angleMeasurementGO.GetComponent<AngleMeasurment>();
-                                    angleMeasurement.originAtom = this;
-                                    angleMeasurement.distMeasurment1 = m;
-                                    if (m.StartAtom != this)
-                                    {
-                                        angleMeasurement.distMeasurment1Sign = -1f;
-                                    }
-                                    angleMeasurement.distMeasurment2 = distMeasurement;
-                                    angleMeasurement.distMeasurment2Sign = -1f;
-                                    GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(this, m, distMeasurement);
-                                }
-                            }
-                        }
+                        handleMeasurements();
                     }
                 }
 
+            }
+        }
+    }
+
+    private void handleMeasurements()
+    {
+        if (GlobalCtrl.Singleton.measurmentInHand == null)
+        {
+            var distMeasurementGO = Instantiate(distMeasurmentPrefab);
+            var distMeasurement = distMeasurementGO.GetComponent<DistanceMeasurment>();
+            distMeasurement.StartAtom = this;
+            GlobalCtrl.Singleton.measurmentInHand = distMeasurementGO;
+            var otherDistanceMeasurments = GlobalCtrl.Singleton.getDistanceMeasurmentsOf(this); // order is important here
+            GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement] = new Tuple<Atom, Atom>(this, null);
+            if (otherDistanceMeasurments.Count > 0)
+            {
+                foreach (var m in otherDistanceMeasurments)
+                {
+                    var angleMeasurementGO = Instantiate(angleMeasurmentPrefab);
+                    var angleMeasurement = angleMeasurementGO.GetComponent<AngleMeasurment>();
+                    angleMeasurement.originAtom = this;
+                    angleMeasurement.distMeasurment1 = m;
+                    if (m.StartAtom != this)
+                    {
+                        angleMeasurement.distMeasurment1Sign = -1f;
+                    }
+                    angleMeasurement.distMeasurment2 = distMeasurement;
+                    GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(this, m, distMeasurement);
+                }
+            }
+        }
+        else
+        {
+            var distMeasurement = GlobalCtrl.Singleton.measurmentInHand.GetComponent<DistanceMeasurment>();
+            distMeasurement.EndAtom = this;
+            var startAtom = GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement].Item1;
+            GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement] = new Tuple<Atom, Atom>(startAtom, this);
+            GlobalCtrl.Singleton.measurmentInHand = null;
+            var otherDistanceMeasurments = GlobalCtrl.Singleton.getDistanceMeasurmentsOf(this);
+            if (otherDistanceMeasurments.Count > 1)
+            {
+                foreach (var m in otherDistanceMeasurments)
+                {
+                    if (m == distMeasurement) continue;
+                    var angleMeasurementGO = Instantiate(angleMeasurmentPrefab);
+                    var angleMeasurement = angleMeasurementGO.GetComponent<AngleMeasurment>();
+                    angleMeasurement.originAtom = this;
+                    angleMeasurement.distMeasurment1 = m;
+                    if (m.StartAtom != this)
+                    {
+                        angleMeasurement.distMeasurment1Sign = -1f;
+                    }
+                    angleMeasurement.distMeasurment2 = distMeasurement;
+                    angleMeasurement.distMeasurment2Sign = -1f;
+                    GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(this, m, distMeasurement);
+                }
             }
         }
     }
