@@ -28,6 +28,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     private Stopwatch stopwatch;
     private GameObject toolTipInstance = null;
+    private GameObject freezeButton;
     private float toolTipDistanceWeight = 2.5f;
     private Color notEnabledColor = Color.black;
     private Color grabColor = Color.blue;
@@ -1190,6 +1191,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         var freezeButtonInstance = Instantiate(freezeMePrefab);
         freezeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { freezeUI(!frozen); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(freezeButtonInstance);
+        freezeButton = freezeButtonInstance;
 
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
         closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markAtomUI(false); });
@@ -1200,6 +1202,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             toolTipInstance.GetComponent<DynamicToolTip>().addContent(modifyHybridizationInstance);
         }
+
+        // Starting color for indicator
+        setFrozenVisual(frozen);
 
     }
 
@@ -1287,5 +1292,22 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
 
         frozen = value;
+        if (freezeButton)
+        {
+            setFrozenVisual(frozen);
+        }
+    }
+
+    public void setFrozenVisual(bool value)
+    {
+        var FrozenIndicator = freezeButton.transform.Find("IconAndText").gameObject.transform.Find("Indicator").gameObject;
+        if (value)
+        {
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+        }
+        else
+        {
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+        }
     }
 }
