@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class cornerClickScript : MonoBehaviour
 {
@@ -23,6 +24,9 @@ public class cornerClickScript : MonoBehaviour
     private Vector3 offset = Vector3.zero;
     void OnMouseDown()
     {
+        // Handle server GUI interactions
+        if (EventSystem.current.IsPointerOverGameObject()) { return; }
+
         offset = mol.transform.position -
         GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
             new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f));
@@ -33,6 +37,8 @@ public class cornerClickScript : MonoBehaviour
 
     void OnMouseDrag()
     {
+        if (EventSystem.current.IsPointerOverGameObject()) { return; }
+
         Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f);
         mol.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + offset;
         // position relative to molecule position
@@ -41,6 +47,8 @@ public class cornerClickScript : MonoBehaviour
 
     private void OnMouseUp()
     {
+        if (EventSystem.current.IsPointerOverGameObject()) { return; }
+
         stopwatch?.Stop();
         if (stopwatch?.ElapsedMilliseconds < 200)
         {

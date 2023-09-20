@@ -12,6 +12,7 @@ using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Events;
 using Microsoft.MixedReality.Toolkit.Utilities;
+using UnityEngine.EventSystems;
 
 [Serializable]
 public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFocusHandler
@@ -158,6 +159,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private Vector3 offset = Vector3.zero;
     void OnMouseDown()
     {
+        // Handle server GUI interaction
+        if (EventSystem.current.IsPointerOverGameObject()) { return; }
+
         if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
         {
             offset = gameObject.transform.position - GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
@@ -175,6 +179,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     void OnMouseDrag()
     {
+        if (EventSystem.current.IsPointerOverGameObject()) { return; }
+
         if (!frozen && GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
         {
             Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f);
@@ -186,6 +192,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     private void OnMouseUp()
     {
+        if (EventSystem.current.IsPointerOverGameObject()) { return; }
+
         isGrabbed = false;
         // reset outline
         grabHighlight(false);
