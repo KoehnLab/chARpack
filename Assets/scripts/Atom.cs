@@ -1296,13 +1296,18 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         if (value)
         {
             m_data.m_mass = -1f;
-            GetComponent<MeshRenderer>().materials = new Material[] { m_mat, frozen_mat };
+            // Append frozen material to end of list
+            Material[] frozen = GetComponent<MeshRenderer>().sharedMaterials.ToList().Append(frozen_mat).ToArray();
+            GetComponent<MeshRenderer>().sharedMaterials = frozen;
         }
         else
         {
             ElementData tempData = GlobalCtrl.Singleton.Dic_ElementData[m_data.m_abbre];
             m_data.m_mass = tempData.m_mass;
-            GetComponent<MeshRenderer>().materials = new Material[] { m_mat };
+            // Remove frozen material
+            List<Material> unfrozen = GetComponent<MeshRenderer>().sharedMaterials.ToList();
+            unfrozen.Remove(frozen_mat);
+            GetComponent<MeshRenderer>().sharedMaterials = unfrozen.ToArray();
         }
 
         frozen = value;
