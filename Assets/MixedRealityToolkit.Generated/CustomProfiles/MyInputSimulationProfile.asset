@@ -42,7 +42,7 @@ MonoBehaviour:
   moveUpDown: UpDown
   lookHorizontal: AXIS_4
   lookVertical: AXIS_5
-  defaultEyeGazeSimulationMode: 1
+  defaultEyeGazeSimulationMode: 2
   defaultControllerSimulationMode: 2
   toggleLeftControllerKey:
     bindingType: 2
@@ -61,7 +61,7 @@ MonoBehaviour:
   controllerRotateButton:
     bindingType: 2
     code: 306
-  defaultHandGesture: 2
+  defaultHandGesture: 1
   leftMouseHandGesture: 3
   middleMouseHandGesture: 0
   rightMouseHandGesture: 0
