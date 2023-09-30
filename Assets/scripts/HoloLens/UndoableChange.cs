@@ -29,18 +29,23 @@ public class UndoableChange
                     after = getMoleculeData(target);
                 }
                 // Merging molecules
-                if (target.GetComponent<Bond>())
+                else if (target.GetComponent<Bond>())
                 {
 
                 }
                 break;
             case Type.DELETE:
-                if (target.GetComponent<Molecule>() || target.GetComponent<Atom>())
+                if (target.GetComponent<Molecule>())
                 {
                     before = getMoleculeData(target);
                 }
+                else if (target.GetComponent<Atom>())
+                {
+                    this.target = target.GetComponent<Atom>().m_molecule.gameObject;
+                    before = getMoleculeData(this.target);
+                }
                 // Separating molecules
-                if (target.GetComponent<Bond>())
+                else if (target.GetComponent<Bond>())
                 {
 
                 }

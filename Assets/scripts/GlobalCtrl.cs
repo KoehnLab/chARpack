@@ -667,6 +667,7 @@ public class GlobalCtrl : MonoBehaviour
         {
             deleteAtom(to_delete);
             EventManager.Singleton.DeleteAtom(mol_id, id);
+            undoStack.Push(new UndoableChange(UndoableChange.Type.DELETE, to_delete.gameObject));
         }
         catch (Exception e)
         {
@@ -1627,6 +1628,7 @@ public class GlobalCtrl : MonoBehaviour
         SaveMolecule(true);
     }
 
+    // Rebuilds molecule from data when undoing delete action
     public void rebuildMolecule(cmlData molecule)
     {
         // Need to work on preserving IDs
