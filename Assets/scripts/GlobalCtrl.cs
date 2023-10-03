@@ -113,7 +113,6 @@ public class GlobalCtrl : MonoBehaviour
     [HideInInspector] public int numAtoms = 0;
 
     public Stack<List<cmlData>> systemState = new Stack<List<cmlData>>();
-    public Stack<UndoableChange> undoStack = new Stack<UndoableChange>();
 
     // tooltips to connect two molecules
     [HideInInspector] public Dictionary<Tuple<ushort, ushort>, GameObject> snapToolTipInstances = new Dictionary<Tuple<ushort, ushort>, GameObject>();
@@ -629,7 +628,7 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
-    public void deleteMolecule(Molecule m, bool save = true)
+    public void deleteMolecule(Molecule m)
     {
         if (m.isMarked)
         {
@@ -647,14 +646,9 @@ public class GlobalCtrl : MonoBehaviour
         }
         //m.markMolecule(false);
         //List_curMolecules.Remove(m);
-
-        if (save)
-        {
-            undoStack.Push(new UndoableChange(UndoableChange.Type.DELETE, m.gameObject));
-            SaveMolecule(true);
-        }
         Destroy(m.gameObject);
         shrinkMoleculeIDs();
+        SaveMolecule(true);
         // no need to invoke change event
     }
 
@@ -1125,8 +1119,6 @@ public class GlobalCtrl : MonoBehaviour
         List_curMolecules.Add(tempMolecule);
 
         SaveMolecule(true);
-
-        undoStack.Push(new UndoableChange(UndoableChange.Type.CREATE, tempMolecule.gameObject));
 
         EventManager.Singleton.ChangeMolData(tempMolecule);
     }
@@ -1627,35 +1619,6 @@ public class GlobalCtrl : MonoBehaviour
         SaveMolecule(true);
     }
 
-    public void rebuildMolecule(cmlData molecule)
-    {
-        // Need to work on preserving IDs
-        var freshMoleculeID = getFreshMoleculeID();
-
-        Molecule tempMolecule = Instantiate(myBoundingBoxPrefab).AddComponent<Molecule>();
-        tempMolecule.f_Init(freshMoleculeID, atomWorld.transform, molecule);
-        tempMolecule.transform.localPosition = molecule.molePos;
-        tempMolecule.transform.localRotation = molecule.moleQuat;
-        List_curMolecules.Add(tempMolecule);
-
-        for (int i = 0; i < molecule.atomArray.Length; i++)
-        {
-            RebuildAtom(molecule.atomArray[i].id, molecule.atomArray[i].abbre, molecule.atomArray[i].hybrid, molecule.atomArray[i].pos, tempMolecule);
-        }
-        for (int i = 0; i < molecule.bondArray.Length; i++)
-        {
-            CreateBond(tempMolecule.atomList.ElementAtOrDefault(molecule.bondArray[i].id1), tempMolecule.atomList.ElementAtOrDefault(molecule.bondArray[i].id2), tempMolecule);
-        }
-        if (molecule.keepConfig)
-        {
-            foreach (var atom in tempMolecule.atomList)
-            {
-                atom.keepConfig = true;
-            }
-        }
-        EventManager.Singleton.ChangeMolData(tempMolecule);
-    }
-
     public void undoUI()
     {
         if (LoginData.normal_mode)
@@ -1670,31 +1633,25 @@ public class GlobalCtrl : MonoBehaviour
 
     public void undo()
     {
-        if (undoStack.Count > 0)
+        Debug.Log($"[GlobalCrtl:undo] Stack size: {systemState.Count}.");
+        List<cmlData> loadData = null;
+        for (int i = 0; i < 2; i++)
         {
-            UndoableChange lastChange = undoStack.Pop();
-            lastChange.Undo();
+            if (systemState.Count > 0)
+            {
+                loadData = systemState.Pop();
+            }
+            else
+            {
+                loadData = null;
+            }
         }
 
-        //Debug.Log($"[GlobalCrtl:undo] Stack size: {systemState.Count}.");
-        //List<cmlData> loadData = null;
-        //for (int i = 0; i < 2; i++)
-        //{
-        //    if (systemState.Count > 0)
-        //    {
-        //        loadData = systemState.Pop();
-        //    }
-        //    else
-        //    {
-        //        loadData = null;
-        //    }
-        //}
-
-        //if (loadData != null)
-        //{
-        //    DeleteAll();
-        //    rebuildAtomWorld(loadData);
-        //}
+        if (loadData != null)
+        {
+            DeleteAll();
+            rebuildAtomWorld(loadData);
+        }
     }
 
 
