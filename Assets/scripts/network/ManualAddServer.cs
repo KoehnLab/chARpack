@@ -11,6 +11,14 @@ public class ManualAddServer : MonoBehaviour
 
     public GameObject inputField;
 
+    public void OnGUI()
+    {
+        if (Event.current.Equals(Event.KeyboardEvent("return")))
+        {
+            addServer();
+        }
+    }
+
     public void addServer()
     {
         var ip = inputField.GetComponent<MRTKTMPInputField>().text;
