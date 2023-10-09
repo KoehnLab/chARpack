@@ -1,4 +1,5 @@
 using Microsoft.MixedReality.Toolkit.Experimental.UI;
+using Microsoft.MixedReality.Toolkit.Utilities;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
@@ -33,6 +34,7 @@ public class ManualAddServer : MonoBehaviour
 
     private void OnDestroy()
     {
+        serverListInstance.GetComponent<ServerList>().gridObjectCollection.GetComponent<GridObjectCollection>().UpdateCollection();
         serverListInstance.SetActive(true);
     }
 
