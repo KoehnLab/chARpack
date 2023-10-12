@@ -49,6 +49,8 @@ public class ServerList : myScrollObject
         // get servers and generate entries
         generateServerEntries();
 
+
+        refresh();
     }
 
     private void addDefaultServers()
