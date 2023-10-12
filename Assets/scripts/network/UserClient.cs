@@ -33,6 +33,7 @@ public class UserClient : MonoBehaviour
             var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cubeUser.transform.localScale = Vector3.one * 0.2f;
             cubeUser.GetComponent<Renderer>().material = (Material)Resources.Load("materials/UserMaterial");
+            cubeUser.tag = "User Box";
             user = cubeUser.AddComponent<UserClient>();
             
 

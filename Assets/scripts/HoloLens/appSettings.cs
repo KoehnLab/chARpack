@@ -350,4 +350,24 @@ public class appSettings : MonoBehaviour
             GazeHighlightingIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
         }
     }
+
+    public void toggleUserBox()
+    {
+        var userBoxes = GameObject.FindGameObjectsWithTag("User Box");
+        bool active = userBoxes[0].GetComponent<MeshRenderer>().enabled;
+        foreach(GameObject userBox in userBoxes)
+        {
+            userBox.GetComponent<MeshRenderer>().enabled = !active;
+        }
+    }
+
+    public void toggleUserRay()
+    {
+        var userRays = GameObject.FindGameObjectsWithTag("User Box");
+        bool active = userRays[0].GetComponent<LineRenderer>().enabled;
+        foreach (GameObject userRay in userRays)
+        {
+            userRay.GetComponent<LineRenderer>().enabled = !active;
+        }
+    }
 }
