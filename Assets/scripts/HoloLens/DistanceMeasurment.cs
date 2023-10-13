@@ -77,6 +77,11 @@ public class DistanceMeasurment : MonoBehaviour
         return dist;
     }
 
+    public float getDistanceInHundredAngstrom()
+    {
+        return dist * (1f / ForceField.scalingfactor) * (1f / startAtom.m_molecule.transform.localScale.x);
+    }
+
     public Vector3 getNormalizedDirection()
     {
         return Vector3.Normalize(wDirection);
