@@ -89,6 +89,32 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         EventManager.Singleton.ChangeMoleculeScale(m_id, gameObject.transform.localScale.x);
     }
 
+    public void Update()
+    {
+        if (toolTipInstance)
+        {
+            if(type == toolTipType.SINGLE)
+            {
+                string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
+                string[] distance = text[2].Split(": ");
+                double dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurment>().getDistanceInHundredAngstrom();
+                string newDistance = string.Concat(distance[0], ": ", $"{dist:0.00}");
+                text[2] = newDistance;
+
+                toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
+
+            }
+            else if(type == toolTipType.ANGLE)
+            {
+
+            }
+            else if(type == toolTipType.TORSION)
+            {
+
+            }
+        }
+    }
+
     //private void HandleOnManipulationStarted(ManipulationEventData eventData)
     //{
     //    var pointer = eventData.Pointer;
@@ -112,12 +138,23 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject scalingSliderPrefab;
     [HideInInspector] public static GameObject freezeMeButtonPrefab;
     [HideInInspector] public static GameObject snapMeButtonPrefab;
+    [HideInInspector] public static GameObject distanceMeasurementPrefab;
+    [HideInInspector] public static GameObject angleMeasurementPrefab;
     public GameObject toolTipInstance;
     private GameObject freezeButton;
     public GameObject scalingSliderInstance;
     private float toolTipDistanceWeight = 0.01f;
     private Vector3 startingScale;
     public bool frozen = false;
+
+    private enum toolTipType
+    {
+        MOLECULE,
+        SINGLE,
+        ANGLE,
+        TORSION
+    }
+    private toolTipType type;
 
     /// <summary>
     /// molecule id
@@ -525,6 +562,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         // create tool tip
         toolTipInstance = Instantiate(myToolTipPrefab);
+        type = toolTipType.MOLECULE;
         // put tool top to the right 
         Vector3 ttpos = transform.position + toolTipDistanceWeight * GlobalCtrl.Singleton.mainCamera.transform.right + toolTipDistanceWeight * GlobalCtrl.Singleton.mainCamera.transform.up;
         toolTipInstance.transform.position = ttpos;
@@ -597,6 +635,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var bond = atomList[term.Atom1].getBond(atomList[term.Atom2]);
         // create tool tip
         toolTipInstance = Instantiate(Atom.myAtomToolTipPrefab);
+        type = toolTipType.SINGLE;
         // calc position for tool tip
         // first: get position in the bounding box and decide if the tool tip spawns left, right, top or bottom of the box
         Vector3 mol_center = getCenter();
@@ -610,10 +649,20 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.transform.position = ttpos;
         // add bond as connector
         toolTipInstance.GetComponent<myToolTipConnector>().Target = bond.gameObject;
-        // show meta data 
+
+        // get current measurements
+        var distGO = Instantiate(distanceMeasurementPrefab);
+        distGO.transform.parent = toolTipInstance.transform;
+        distGO.name = "Distance Measurement";
+        distGO.transform.Find("Line").gameObject.SetActive(false);
         var atom1 = atomList.ElementAtOrDefault(term.Atom1);
         var atom2 = atomList.ElementAtOrDefault(term.Atom2);
-        string toolTipText = getBondToolTipText(term.eqDist, term.kBond, term.order);
+        DistanceMeasurment dist = distGO.GetComponent<DistanceMeasurment>();
+        dist.StartAtom = atom1;
+        dist.EndAtom = atom2;
+
+        // show meta data 
+        string toolTipText = getBondToolTipText(term.eqDist, dist.getDistanceInHundredAngstrom(), term.kBond, term.order);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
 
         var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
@@ -647,8 +696,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         cb.changeBondParametersBT();
         var bt = cb.bt;
         // Update tool tip
-        string toolTipText = getBondToolTipText(bt.eqDist, bt.kBond, bt.order);
-        toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        //string toolTipText = getBondToolTipText(bt.eqDist, bt.kBond, bt.order);
+        //toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
 
         changeBondParameters(bt, id);
         EventManager.Singleton.ChangeBondTerm(bt, m_id, (ushort)id);
@@ -692,6 +741,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var middleAtom = atomList[term.Atom2];
         // create tool tip
         toolTipInstance = Instantiate(Atom.myAtomToolTipPrefab);
+        type = toolTipType.ANGLE;
         // put tool top to the right 
         Vector3 ttpos = middleAtom.transform.position + toolTipDistanceWeight * GlobalCtrl.Singleton.currentCamera.transform.right + toolTipDistanceWeight * GlobalCtrl.Singleton.currentCamera.transform.up;
         toolTipInstance.transform.position = ttpos;
@@ -771,6 +821,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var middlebond = atomList[term.Atom2].getBond(atomList[term.Atom3]);
         // create tool tip
         toolTipInstance = Instantiate(Atom.myAtomToolTipPrefab);
+        type = toolTipType.TORSION;
         // put tool top to the right 
         Vector3 ttpos = middlebond.transform.position + toolTipDistanceWeight * GlobalCtrl.Singleton.currentCamera.transform.right + toolTipDistanceWeight * GlobalCtrl.Singleton.currentCamera.transform.up;
         toolTipInstance.transform.position = ttpos;
@@ -855,12 +906,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         return toolTipText;
     }
 
-    private string getBondToolTipText(double eqDist, double kBond, double order)
+    private string getBondToolTipText(double eqDist, double curDist, double kBond, double order)
     {
         string dist = GlobalCtrl.Singleton.GetLocalizedString("EQ_DIST");
         string singleBond = GlobalCtrl.Singleton.GetLocalizedString("SINGLE_BOND");
         string ord = GlobalCtrl.Singleton.GetLocalizedString("ORDER");
-        string toolTipText = $"{singleBond}\n{dist}: {eqDist:0.00}\nk: {kBond:0.00}\n{ord}: {order:0.00}";
+        string toolTipText = $"{singleBond}\n{dist}: {eqDist:0.00}\nCurrent dist: {curDist:0.00}\nk: {kBond:0.00}\n{ord}: {order:0.00}";
         return toolTipText;
     }
 
