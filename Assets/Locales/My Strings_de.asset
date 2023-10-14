@@ -266,6 +266,10 @@ MonoBehaviour:
     m_Localized: Blick- hervorhebung
     m_Metadata:
       m_Items: []
+  - m_Id: 38470251307892736
+    m_Localized: Aktuell
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
