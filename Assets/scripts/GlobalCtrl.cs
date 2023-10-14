@@ -1848,42 +1848,37 @@ public class GlobalCtrl : MonoBehaviour
 
     private void regenerateTooltips()
     {
-        var toolTips = FindObjectsOfType<DynamicToolTip>();
-        foreach(var tooltip in toolTips)
+        foreach(Molecule mol in List_curMolecules)
         {
-            var target = tooltip.GetComponent<myToolTipConnector>().Target;
-
-            // Molecule tool tips
-            if (target.GetComponent<Molecule>() != null)
+            // Single atom tool tips
+            foreach(Atom a in mol.atomList)
             {
-                if (target.GetComponent<Molecule>().toolTipInstance)
+                if (a.toolTipInstance)
                 {
-                    Destroy(target.GetComponent<Molecule>().toolTipInstance);
-                }
-                target.GetComponent<Molecule>().createToolTip();
-            }
-
-            // Atom and angle bond tool tips
-            else if(target.GetComponent<Atom>()!=null)
-            {
-                Atom a = target.GetComponent<Atom>();
-                if (a.anyConnectedAtomsMarked())
-                {
-                    a.markConnections(true);
-                }
-                else
-                {
+                    Destroy(a.toolTipInstance);
                     a.createToolTip();
                 }
             }
 
-            // Single and torsion bond tips
-            else 
+            // Molecule and bond tool tips
+            if (mol.toolTipInstance)
             {
-                ushort id = target.GetComponent<Bond>().atomID1;
-                Atom a = findAtomById(target.GetComponent<Bond>().m_molecule, id);
-                if(a != null)
+                Molecule.toolTipType type = mol.type;
+                var target = mol.toolTipInstance.GetComponent<myToolTipConnector>().Target;
+                Destroy(mol.toolTipInstance);
+                if(type == Molecule.toolTipType.MOLECULE)
                 {
+                    mol.createToolTip();
+                }
+                else if(type == Molecule.toolTipType.SINGLE || type == Molecule.toolTipType.TORSION)
+                {
+                    ushort id = target.GetComponent<Bond>().atomID1;
+                    Atom a = findAtomById(mol, id);
+                    a.markConnections(true);
+                }
+                else if(type == Molecule.toolTipType.ANGLE)
+                {
+                    Atom a = target.GetComponent<Atom>();
                     a.markConnections(true);
                 }
             }
