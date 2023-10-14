@@ -153,14 +153,14 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private Vector3 startingScale;
     public bool frozen = false;
 
-    private enum toolTipType
+    public enum toolTipType
     {
         MOLECULE,
         SINGLE,
         ANGLE,
         TORSION
     }
-    private toolTipType type;
+    public toolTipType type;
 
     /// <summary>
     /// molecule id

@@ -28,7 +28,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     [HideInInspector] public static GameObject freezeMePrefab;
 
     private Stopwatch stopwatch;
-    private GameObject toolTipInstance = null;
+    [HideInInspector] public GameObject toolTipInstance = null;
     private GameObject freezeButton;
     private float toolTipDistanceWeight = 2.5f;
     private Color notEnabledColor = Color.black;
