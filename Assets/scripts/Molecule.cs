@@ -106,7 +106,13 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             }
             else if(type == toolTipType.ANGLE)
             {
+                string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
+                string[] ang = text[3].Split(": ");
+                double angle = toolTipInstance.transform.Find("Angle Measurement").GetComponent<AngleMeasurment>().getAngle();
+                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}");
+                text[3] = newAng;
 
+                toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
             }
             else if(type == toolTipType.TORSION)
             {
@@ -695,9 +701,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var cb = windowInstance.GetComponent<ChangeBond>();
         cb.changeBondParametersBT();
         var bt = cb.bt;
+
+        var dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurment>();
         // Update tool tip
-        //string toolTipText = getBondToolTipText(bt.eqDist, bt.kBond, bt.order);
-        //toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        string toolTipText = getBondToolTipText(bt.eqDist, dist.getDistanceInHundredAngstrom(), bt.kBond, bt.order);
+        toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
 
         changeBondParameters(bt, id);
         EventManager.Singleton.ChangeBondTerm(bt, m_id, (ushort)id);
@@ -747,8 +755,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.transform.position = ttpos;
         // add atom as connector
         toolTipInstance.GetComponent<myToolTipConnector>().Target = middleAtom.gameObject;
+        AngleMeasurment angle = getMeasurements(term);
+
         // show angle term data
-        string toolTipText = getAngleToolTipText(term.eqAngle, term.kAngle);
+        string toolTipText = getAngleToolTipText(term.eqAngle, term.kAngle, angle.getAngle());
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
 
         var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
@@ -758,6 +768,31 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
         closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markAngleTermUI(term, false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
+    }
+
+    private AngleMeasurment getMeasurements(ForceField.AngleTerm term)
+    {
+        var dist1 = Instantiate(distanceMeasurementPrefab);
+        var dist2 = Instantiate(distanceMeasurementPrefab);
+        var angle = Instantiate(angleMeasurementPrefab);
+        dist1.transform.parent = toolTipInstance.transform;
+        dist2.transform.parent = toolTipInstance.transform;
+        angle.transform.parent = toolTipInstance.transform;
+        dist1.transform.Find("Line").gameObject.SetActive(false);
+        dist2.transform.Find("Line").gameObject.SetActive(false);
+        angle.transform.Find("Line").gameObject.SetActive(false);
+
+        angle.name = "Angle Measurement";
+
+        dist1.GetComponent<DistanceMeasurment>().StartAtom = atomList[term.Atom1];
+        dist1.GetComponent<DistanceMeasurment>().EndAtom = atomList[term.Atom2];
+        dist2.GetComponent<DistanceMeasurment>().StartAtom = atomList[term.Atom2];
+        dist2.GetComponent<DistanceMeasurment>().EndAtom = atomList[term.Atom3];
+        angle.GetComponent<AngleMeasurment>().distMeasurment1 = dist1.GetComponent<DistanceMeasurment>();
+        angle.GetComponent<AngleMeasurment>().distMeasurment2 = dist2.GetComponent<DistanceMeasurment>();
+        angle.GetComponent<AngleMeasurment>().distMeasurment1Sign = -1f;
+
+        return angle.GetComponent<AngleMeasurment>();
     }
 
     private void createChangeAngleWindow(ForceField.AngleTerm bond)
@@ -910,17 +945,19 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         string dist = GlobalCtrl.Singleton.GetLocalizedString("EQ_DIST");
         string singleBond = GlobalCtrl.Singleton.GetLocalizedString("SINGLE_BOND");
+        string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
         string ord = GlobalCtrl.Singleton.GetLocalizedString("ORDER");
-        string toolTipText = $"{singleBond}\n{dist}: {eqDist:0.00}\nCurrent dist: {curDist:0.00}\nk: {kBond:0.00}\n{ord}: {order:0.00}";
+        string toolTipText = $"{singleBond}\n{dist}: {eqDist:0.00}\n{current}: {curDist:0.00}\nk: {kBond:0.00}\n{ord}: {order:0.00}";
         return toolTipText;
     }
 
-    private string getAngleToolTipText(double eqAngle, double kAngle)
+    private string getAngleToolTipText(double eqAngle, double kAngle, double curAngle = 0)
     {
         string angleBond = GlobalCtrl.Singleton.GetLocalizedString("ANGLE_BOND");
         string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
         string kAngleStr = GlobalCtrl.Singleton.GetLocalizedString("K_ANGLE");
-        string toolTipText = $"{angleBond}\n{eqAngleStr}: {eqAngle:0.00}\n{kAngleStr}: {kAngle:0.00}";
+        string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
+        string toolTipText = $"{angleBond}\n{eqAngleStr}: {eqAngle:0.00}\n{kAngleStr}: {kAngle:0.00}\n{current}: {curAngle:0.00}";
         return toolTipText;
     }
     

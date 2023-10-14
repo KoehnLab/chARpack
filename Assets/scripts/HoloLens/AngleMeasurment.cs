@@ -85,6 +85,16 @@ public class AngleMeasurment : MonoBehaviour
         Line.SetPosition(1, end);
     }
 
+    public double getAngle()
+    {
+        var norm1 = distMeasurment1Sign * distMeasurment1.getNormalizedDirection();
+        var norm2 = distMeasurment2Sign * distMeasurment2.getNormalizedDirection();
+
+        angle = Mathf.Acos(Vector3.Dot(norm1, norm2));
+
+        return Mathf.Rad2Deg * angle;
+    }
+
     // Update is called once per frame
     void Update()
     {

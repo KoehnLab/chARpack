@@ -261,6 +261,10 @@ MonoBehaviour:
     m_Key: Settings/Settings/ButtonCollection/ToggleGazeHighlight/IconAndText/TextMeshPro
     m_Metadata:
       m_Items: []
+  - m_Id: 38470251307892736
+    m_Key: CURRENT
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
