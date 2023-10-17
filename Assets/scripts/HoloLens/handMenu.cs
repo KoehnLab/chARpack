@@ -107,7 +107,7 @@ public class handMenu : myScrollObject
             ChainModeIndicator.GetComponent<MeshRenderer>().material.color = orange;
             MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
-        else if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASURMENT)
+        else if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)
         {
             ChainModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
             MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = orange;
