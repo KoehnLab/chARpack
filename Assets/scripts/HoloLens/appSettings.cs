@@ -47,6 +47,8 @@ public class appSettings : MonoBehaviour
     public GameObject DebugWindowIndicator;
     public GameObject GazeHighlightingIndicator;
 
+    private Color orange = new Color(1.0f, 0.5f, 0.0f);
+
     private void Start()
     {
         updateVisuals();
@@ -97,11 +99,11 @@ public class appSettings : MonoBehaviour
     {
         if (value)
         {
-            SpatialMeshIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+            SpatialMeshIndicator.GetComponent<MeshRenderer>().material.color = orange;
         }
         else
         {
-            SpatialMeshIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+            SpatialMeshIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
     }
 
@@ -115,11 +117,11 @@ public class appSettings : MonoBehaviour
     {
         if (value)
         {
-            ForceFieldIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+            ForceFieldIndicator.GetComponent<MeshRenderer>().material.color = orange;
         }
         else
         {
-            ForceFieldIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+            ForceFieldIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
     }
 
@@ -133,11 +135,11 @@ public class appSettings : MonoBehaviour
     {
         if (value)
         {
-            DebugWindowIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+            DebugWindowIndicator.GetComponent<MeshRenderer>().material.color = orange;
         }
         else
         {
-            DebugWindowIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+            DebugWindowIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
     }
 
@@ -215,11 +217,11 @@ public class appSettings : MonoBehaviour
     {
         if (value)
         {
-            HandMeshIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+            HandMeshIndicator.GetComponent<MeshRenderer>().material.color = orange;
         }
         else
         {
-            HandMeshIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+            HandMeshIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
     }
 
@@ -247,11 +249,11 @@ public class appSettings : MonoBehaviour
     {
         if (value)
         {
-            HandJointIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+            HandJointIndicator.GetComponent<MeshRenderer>().material.color = orange;
         }
         else
         {
-            HandJointIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+            HandJointIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
     }
 
@@ -293,11 +295,11 @@ public class appSettings : MonoBehaviour
     {
         if (value)
         {
-            HandRayIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+            HandRayIndicator.GetComponent<MeshRenderer>().material.color = orange;
         }
         else
         {
-            HandRayIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+            HandRayIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
     }
 
@@ -311,11 +313,11 @@ public class appSettings : MonoBehaviour
     {
         if (value)
         {
-            HandMenuIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+            HandMenuIndicator.GetComponent<MeshRenderer>().material.color = orange;
         }
         else
         {
-            HandMenuIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+            HandMenuIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
     }
 
@@ -343,11 +345,11 @@ public class appSettings : MonoBehaviour
     {
         if (value)
         {
-            GazeHighlightingIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+            GazeHighlightingIndicator.GetComponent<MeshRenderer>().material.color = orange;
         }
         else
         {
-            GazeHighlightingIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+            GazeHighlightingIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
     }
 
