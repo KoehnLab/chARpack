@@ -127,7 +127,7 @@ public class GlobalCtrl : MonoBehaviour
 
     #region Interaction
     // Interaction modes
-    public enum InteractionModes {NORMAL, CHAIN, MEASURMENT};
+    public enum InteractionModes {NORMAL, CHAIN, MEASUREMENT};
     private InteractionModes _currentInteractionMode = InteractionModes.NORMAL;
     public InteractionModes currentInteractionMode { get => _currentInteractionMode; private set => _currentInteractionMode = value; }
 
@@ -152,9 +152,9 @@ public class GlobalCtrl : MonoBehaviour
 
     public void toggleMeasurmentMode()
     {
-        if (currentInteractionMode != InteractionModes.MEASURMENT)
+        if (currentInteractionMode != InteractionModes.MEASUREMENT)
         {
-            currentInteractionMode = InteractionModes.MEASURMENT;
+            currentInteractionMode = InteractionModes.MEASUREMENT;
             HandTracking.Singleton.gameObject.SetActive(true);
             HandTracking.Singleton.showVisual(false);
             freezeWorld(true);
@@ -1119,6 +1119,11 @@ public class GlobalCtrl : MonoBehaviour
         }
 
         List_curMolecules.Add(tempMolecule);
+
+        if(currentInteractionMode == InteractionModes.MEASUREMENT)
+        {
+            tempMolecule.freezeUI(true);
+        }
 
         SaveMolecule(true);
 
