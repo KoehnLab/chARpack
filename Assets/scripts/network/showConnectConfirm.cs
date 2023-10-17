@@ -39,8 +39,8 @@ public class showConnectConfirm : MonoBehaviour
         else
         {
             // show server list again
-            ServerList.Singleton.refresh();
             ServerList.Singleton.gameObject.SetActive(true);
+            ServerList.Singleton.scrollUpdate();
         }
 
     }
