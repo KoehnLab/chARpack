@@ -22,6 +22,7 @@ public class handMenu : myScrollObject
 
     public GameObject ChainModeIndicator;
     public GameObject MeasurementModeIndicator;
+    private Color orange = new Color(1.0f, 0.5f, 0.0f);
 
     private static handMenu _singleton;
 
@@ -103,18 +104,18 @@ public class handMenu : myScrollObject
     {
         if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
         {
-            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
-            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = orange;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
         else if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASURMENT)
         {
-            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
-            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = orange;
         }
         else
         {
-            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
-            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
     }
 
