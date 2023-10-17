@@ -77,9 +77,9 @@ public class DistanceMeasurment : MonoBehaviour
         return dist;
     }
 
-    public float getDistanceInHundredAngstrom()
+    public float getDistanceInAngstrom()
     {
-        return dist * (1f / ForceField.scalingfactor) * (1f / startAtom.m_molecule.transform.localScale.x);
+        return dist * (1f / ForceField.scalingfactor) * 0.01f * (1f / startAtom.m_molecule.transform.localScale.x);
     }
 
     public Vector3 getNormalizedDirection()

@@ -97,8 +97,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             {
                 string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
                 string[] distance = text[2].Split(": ");
-                double dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurment>().getDistanceInHundredAngstrom();
-                string newDistance = string.Concat(distance[0], ": ", $"{dist:0.00}");
+                double dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurment>().getDistanceInAngstrom();
+                string newDistance = string.Concat(distance[0], ": ", $"{dist:0.00}\u00C5");
                 text[2] = newDistance;
 
                 toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
@@ -109,7 +109,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
                 string[] ang = text[3].Split(": ");
                 double angle = toolTipInstance.transform.Find("Angle Measurement").GetComponent<AngleMeasurment>().getAngle();
-                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}");
+                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}°");
                 text[3] = newAng;
 
                 toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
@@ -695,8 +695,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         dist.StartAtom = atom1;
         dist.EndAtom = atom2;
 
-        // show meta data 
-        string toolTipText = getBondToolTipText(term.eqDist, dist.getDistanceInHundredAngstrom(), term.kBond, term.order);
+        // show meta data (in Angstrom)
+        string toolTipText = getBondToolTipText(term.eqDist/100, dist.getDistanceInAngstrom(), term.kBond, term.order);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
 
         var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
@@ -732,7 +732,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         var dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurment>();
         // Update tool tip
-        string toolTipText = getBondToolTipText(bt.eqDist, dist.getDistanceInHundredAngstrom(), bt.kBond, bt.order);
+        string toolTipText = getBondToolTipText(bt.eqDist, dist.getDistanceInAngstrom(), bt.kBond, bt.order);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
 
         changeBondParameters(bt, id);
@@ -975,7 +975,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string singleBond = GlobalCtrl.Singleton.GetLocalizedString("SINGLE_BOND");
         string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
         string ord = GlobalCtrl.Singleton.GetLocalizedString("ORDER");
-        string toolTipText = $"{singleBond}\n{dist}: {eqDist:0.00}\n{current}: {curDist:0.00}\nk: {kBond:0.00}\n{ord}: {order:0.00}";
+        string toolTipText = $"{singleBond}\n{dist}: {eqDist:0.00}\u00C5\n{current}: {curDist:0.00}\u00C5\nk: {kBond:0.00}\n{ord}: {order:0.00}";
         return toolTipText;
     }
 
@@ -985,7 +985,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
         string kAngleStr = GlobalCtrl.Singleton.GetLocalizedString("K_ANGLE");
         string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
-        string toolTipText = $"{angleBond}\n{eqAngleStr}: {eqAngle:0.00}\n{kAngleStr}: {kAngle:0.00}\n{current}: {curAngle:0.00}";
+        string toolTipText = $"{angleBond}\n{kAngleStr}: {kAngle:0.00}\n{eqAngleStr}: {eqAngle:0.00}°\n{current}: {curAngle:0.00}°";
         return toolTipText;
     }
     
