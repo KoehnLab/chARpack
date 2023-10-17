@@ -150,7 +150,7 @@ public class GlobalCtrl : MonoBehaviour
         handMenu.Singleton.setVisuals();
     }
 
-    public void toggleMeasurmentMode()
+    public void toggleMeasurementMode()
     {
         if (currentInteractionMode != InteractionModes.MEASUREMENT)
         {
@@ -1314,7 +1314,6 @@ public class GlobalCtrl : MonoBehaviour
         var atom1 = dummyInHand.dummyFindMain();
         var atom2 = dummyInAir.dummyFindMain();
 
-
         //remove dummy and dummy bond of molecule in air
         molInAir.atomList.Remove(dummyInAir);
         Destroy(dummyInAir.gameObject);
@@ -1333,6 +1332,10 @@ public class GlobalCtrl : MonoBehaviour
 
         molInAir.shrinkAtomIDs();
         shrinkMoleculeIDs();
+
+        // Clear selection
+        // TODO differentiate between problematic and not problematic cases
+        molInAir.markMoleculeUI(false);
 
         SaveMolecule(true);
 
