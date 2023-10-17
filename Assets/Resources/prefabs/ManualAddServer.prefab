@@ -761,19 +761,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 0}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7471095714978197092}
-        m_TargetAssemblyTypeName: ManualAddServer, Assembly-CSharp
-        m_MethodName: addServer
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &952259364396497144
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1080,6 +1068,18 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: Microsoft.MixedReality.Toolkit.PhysicalPressEventRouter,
           Microsoft.MixedReality.Toolkit.SDK
         m_MethodName: OnHandPressTriggered
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 7471095714978197092}
+        m_TargetAssemblyTypeName: ManualAddServer, Assembly-CSharp
+        m_MethodName: addServer
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2597,7 +2597,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5619290985948430250}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 11.1, z: -3}
+  m_LocalPosition: {x: 0, y: 0, z: -3}
   m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6198,7 +6198,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -0.935}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 2.8, y: 0.8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &2663542500563698923
@@ -6349,7 +6349,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_TrackedObjects:
   - rid: 3401264042199482487
-  - rid: 3401264042199482490
   references:
     version: 2
     RefIds:
@@ -6386,36 +6385,6 @@ MonoBehaviour:
         - localeIdentifier:
             m_Code: de
           value: -6.299649
-    - rid: 3401264042199482490
-      type: {class: TrackedRectTransform, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
-      data:
-        m_Target: {fileID: 565269251613082275}
-        m_TrackedProperties:
-          items:
-          - rid: 3401264042199482491
-          - rid: 3401264042199482499
-    - rid: 3401264042199482491
-      type: {class: FloatTrackedProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
-      data:
-        m_PropertyPath: m_AnchoredPosition.x
-        m_VariantData:
-        - localeIdentifier:
-            m_Code: en
-          value: 0
-        - localeIdentifier:
-            m_Code: de
-          value: -1.72
-    - rid: 3401264042199482499
-      type: {class: FloatTrackedProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
-      data:
-        m_PropertyPath: m_SizeDelta.x
-        m_VariantData:
-        - localeIdentifier:
-            m_Code: en
-          value: 2.8
-        - localeIdentifier:
-            m_Code: de
-          value: 4
 --- !u!1 &6542631491012735175
 GameObject:
   m_ObjectHideFlags: 0
