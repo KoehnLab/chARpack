@@ -270,6 +270,10 @@ MonoBehaviour:
     m_Localized: Aktuell
     m_Metadata:
       m_Items: []
+  - m_Id: 40611639874535424
+    m_Localized: "Handmen\xFC rechts"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
