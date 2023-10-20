@@ -48,34 +48,14 @@ public class appSettings : MonoBehaviour
     public GameObject DebugWindowIndicator;
     public GameObject GazeHighlightingIndicator;
     public GameObject RightHandMenuIndicator;
+    public GameObject UserBoxIndicator;
+    public GameObject UserRayIndicator;
 
     private Color orange = new Color(1.0f, 0.5f, 0.0f);
 
     private void Start()
     {
         updateVisuals();
-    }
-
-    public void updateVisuals()
-    {
-        setBondStiffnessVisual(SettingsData.bondStiffness);
-        setForceFieldVisual(SettingsData.forceField);
-        setHandJointVisual(SettingsData.handJoints);
-        setHandMenuVisual(SettingsData.handMenu);
-        setHandMeshVisual(SettingsData.handMesh);
-        setHandRayVisual(SettingsData.handRay);
-        setRepulsionScaleVisual(SettingsData.repulsionScale);
-        setSpatialMeshVisual(SettingsData.spatialMesh);
-        if (DebugWindow.Singleton == null)
-        {
-            setDebugWindowVisual(false);
-        }
-        else
-        {
-            setDebugWindowVisual(DebugWindow.Singleton.gameObject.activeSelf);
-        }
-        setGazeHighlightingVisual(SettingsData.gazeHighlighting);
-        setHandednessVisual(SettingsData.rightHandMenu);
     }
 
     public void toggleSpatialMesh()
@@ -98,52 +78,16 @@ public class appSettings : MonoBehaviour
         updateVisuals();
     }
 
-    public void setSpatialMeshVisual(bool value)
-    {
-        if (value)
-        {
-            SpatialMeshIndicator.GetComponent<MeshRenderer>().material.color = orange;
-        }
-        else
-        {
-            SpatialMeshIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-        }
-    }
-
     public void toggleForceField()
     {
         ForceField.Singleton.toggleForceFieldUI();
         updateVisuals();
     }
 
-    public void setForceFieldVisual(bool value)
-    {
-        if (value)
-        {
-            ForceFieldIndicator.GetComponent<MeshRenderer>().material.color = orange;
-        }
-        else
-        {
-            ForceFieldIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-        }
-    }
-
     public void toggleDebugWindow()
     {
         GlobalCtrl.Singleton.toggleDebugWindow();
         updateVisuals();
-    }
-
-    private void setDebugWindowVisual(bool value)
-    {
-        if (value)
-        {
-            DebugWindowIndicator.GetComponent<MeshRenderer>().material.color = orange;
-        }
-        else
-        {
-            DebugWindowIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-        }
     }
 
     public void increaseBondStiffness()
@@ -166,10 +110,6 @@ public class appSettings : MonoBehaviour
         }
     }
 
-    public void setBondStiffnessVisual(ushort value)
-    {
-        bondStiffnessValueGO.GetComponent<TextMeshPro>().text = value.ToString();
-    }
 
     public void increaseRepusionScale()
     {
@@ -191,10 +131,6 @@ public class appSettings : MonoBehaviour
         }
     }
 
-    public void setRepulsionScaleVisual(float value)
-    {
-        repuslionScaleValueGO.GetComponent<TextMeshPro>().text = value.ToString();
-    }
 
     /// <summary>
     /// Toggles hand mesh visualization
@@ -216,18 +152,6 @@ public class appSettings : MonoBehaviour
         }
     }
 
-    public void setHandMeshVisual(bool value)
-    {
-        if (value)
-        {
-            HandMeshIndicator.GetComponent<MeshRenderer>().material.color = orange;
-        }
-        else
-        {
-            HandMeshIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-        }
-    }
-
     /// <summary>
     /// Toggles hand joint visualization
     /// </summary>
@@ -245,18 +169,6 @@ public class appSettings : MonoBehaviour
             handTrackingProfile.EnableHandJointVisualization = !handTrackingProfile.EnableHandJointVisualization;
             SettingsData.handJoints = handTrackingProfile.EnableHandJointVisualization;
             updateVisuals();
-        }
-    }
-
-    public void setHandJointVisual(bool value)
-    {
-        if (value)
-        {
-            HandJointIndicator.GetComponent<MeshRenderer>().material.color = orange;
-        }
-        else
-        {
-            HandJointIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
     }
 
@@ -294,34 +206,11 @@ public class appSettings : MonoBehaviour
         updateVisuals();
     }
 
-    public void setHandRayVisual(bool value)
-    {
-        if (value)
-        {
-            HandRayIndicator.GetComponent<MeshRenderer>().material.color = orange;
-        }
-        else
-        {
-            HandRayIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-        }
-    }
 
     public void toggleHandMenu()
     {
         GlobalCtrl.Singleton.toggleHandMenu();
         updateVisuals();
-    }
-
-    public void setHandMenuVisual(bool value)
-    {
-        if (value)
-        {
-            HandMenuIndicator.GetComponent<MeshRenderer>().material.color = orange;
-        }
-        else
-        {
-            HandMenuIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-        }
     }
 
     public void toggleHandSettingsMenu()
@@ -350,18 +239,6 @@ public class appSettings : MonoBehaviour
         updateVisuals();
     }
 
-    public void setGazeHighlightingVisual(bool value)
-    {
-        if (value)
-        {
-            GazeHighlightingIndicator.GetComponent<MeshRenderer>().material.color = orange;
-        }
-        else
-        {
-            GazeHighlightingIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-        }
-    }
-
     public void toggleMenuHandedness()
     {
         if(handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness == Handedness.Left)
@@ -379,17 +256,6 @@ public class appSettings : MonoBehaviour
         updateVisuals();
     }
 
-    public void setHandednessVisual(bool value)
-    {
-        if (value)
-        {
-            RightHandMenuIndicator.GetComponent<MeshRenderer>().material.color = orange;
-        }
-        else
-        {
-            RightHandMenuIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-        }
-    }
 
     public void toggleUserBox()
     {
@@ -410,4 +276,53 @@ public class appSettings : MonoBehaviour
             userRay.GetComponent<LineRenderer>().enabled = !active;
         }
     }
+
+    #region Visuals
+    public void updateVisuals()
+    {
+        setBondStiffnessVisual(SettingsData.bondStiffness);
+        setRepulsionScaleVisual(SettingsData.repulsionScale);
+
+        setVisual(HandJointIndicator, SettingsData.handJoints);
+        setVisual(HandMenuIndicator, SettingsData.handMenu);
+        setVisual(HandMeshIndicator, SettingsData.handMesh);
+        setVisual(HandRayIndicator, SettingsData.handRay);
+        setVisual(ForceFieldIndicator, SettingsData.forceField);
+        setVisual(SpatialMeshIndicator, SettingsData.spatialMesh);
+
+        if (DebugWindow.Singleton == null)
+        {
+            setVisual(DebugWindowIndicator, false);
+        }
+        else
+        {
+            setVisual(DebugWindowIndicator, DebugWindow.Singleton.gameObject.activeSelf);
+        }
+
+        setVisual(GazeHighlightingIndicator, SettingsData.gazeHighlighting);
+        setVisual(RightHandMenuIndicator, SettingsData.rightHandMenu);
+    }
+
+    private void setVisual(GameObject indicator, bool value)
+    {
+        if (value)
+        {
+            indicator.GetComponent<MeshRenderer>().material.color = orange;
+        }
+        else
+        {
+            indicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+        }
+    }
+
+    public void setBondStiffnessVisual(ushort value)
+    {
+        bondStiffnessValueGO.GetComponent<TextMeshPro>().text = value.ToString();
+    }
+
+    public void setRepulsionScaleVisual(float value)
+    {
+        repuslionScaleValueGO.GetComponent<TextMeshPro>().text = value.ToString();
+    }
+    #endregion
 }
