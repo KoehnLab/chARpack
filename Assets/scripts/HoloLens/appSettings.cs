@@ -2,6 +2,7 @@ using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.SpatialAwareness;
 using Microsoft.MixedReality.Toolkit.Utilities;
+using Microsoft.MixedReality.Toolkit.Utilities.Solvers;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -46,6 +47,7 @@ public class appSettings : MonoBehaviour
     public GameObject SpatialMeshIndicator;
     public GameObject DebugWindowIndicator;
     public GameObject GazeHighlightingIndicator;
+    public GameObject RightHandMenuIndicator;
 
     private Color orange = new Color(1.0f, 0.5f, 0.0f);
 
@@ -73,6 +75,7 @@ public class appSettings : MonoBehaviour
             setDebugWindowVisual(DebugWindow.Singleton.gameObject.activeSelf);
         }
         setGazeHighlightingVisual(SettingsData.gazeHighlighting);
+        setHandednessVisual(SettingsData.rightHandMenu);
     }
 
     public void toggleSpatialMesh()
@@ -350,6 +353,35 @@ public class appSettings : MonoBehaviour
         else
         {
             GazeHighlightingIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+        }
+    }
+
+    public void toggleMenuHandedness()
+    {
+        if(handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness == Handedness.Left)
+        {
+            handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness = Handedness.Right;
+            handMenu.Singleton.setButtonPosition(Handedness.Right);
+            SettingsData.rightHandMenu = true;
+        }
+        else if (handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness == Handedness.Right)
+        {
+            handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness = Handedness.Left;
+            handMenu.Singleton.setButtonPosition(Handedness.Left);
+            SettingsData.rightHandMenu = false;
+        }
+        updateVisuals();
+    }
+
+    public void setHandednessVisual(bool value)
+    {
+        if (value)
+        {
+            RightHandMenuIndicator.GetComponent<MeshRenderer>().material.color = orange;
+        }
+        else
+        {
+            RightHandMenuIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
     }
 

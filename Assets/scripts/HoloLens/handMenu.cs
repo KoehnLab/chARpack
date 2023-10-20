@@ -119,4 +119,21 @@ public class handMenu : myScrollObject
         }
     }
 
+    public void setButtonPosition(Handedness hand)
+    {
+        if(hand == Handedness.Right)
+        {
+            gameObject.transform.Find("MenuContent/Grid/ToggleChainModeButton").transform.localPosition = new Vector3(0.205f, 0.025f, 0);
+            gameObject.transform.Find("MenuContent/Grid/ToggleMeasurmentModeButton").transform.localPosition = new Vector3(0.205f, -0.025f, 0);
+
+            gameObject.transform.Find("MenuContent/ScrollParent/ScrollPaginationButtons").transform.localPosition = new Vector3(-0.0327f, 0, 0);
+        }
+        else if(hand == Handedness.Left)
+        {
+            gameObject.transform.Find("MenuContent/Grid/ToggleChainModeButton").transform.localPosition = new Vector3(0, 0.025f, 0);
+            gameObject.transform.Find("MenuContent/Grid/ToggleMeasurmentModeButton").transform.localPosition = new Vector3(0, -0.025f, 0);
+
+            gameObject.transform.Find("MenuContent/ScrollParent/ScrollPaginationButtons").transform.localPosition = new Vector3(0.1f, 0, 0);
+        }
+    }
 }
