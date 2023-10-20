@@ -269,6 +269,10 @@ MonoBehaviour:
     m_Key: Settings/Settings/ButtonCollection/Handedness/IconAndText/TextMeshPro
     m_Metadata:
       m_Items: []
+  - m_Id: 40617137625612288
+    m_Key: HandSettings
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

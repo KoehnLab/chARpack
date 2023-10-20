@@ -324,6 +324,12 @@ public class appSettings : MonoBehaviour
         }
     }
 
+    public void toggleHandSettingsMenu()
+    {
+        GameObject handSettings = gameObject.transform.Find("HandSettings").gameObject;
+        handSettings.SetActive(!handSettings.activeSelf);
+    }
+
     // Switch languages between German and English
     public void switchLanguage()
     {
