@@ -172,6 +172,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     }
     public toolTipType type;
 
+    private Color orange = new Color(1.0f, 0.5f, 0.0f);
+
     /// <summary>
     /// molecule id
     /// </summary>
@@ -1050,11 +1052,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var FrozenIndicator = freezeButton.transform.Find("IconAndText").gameObject.transform.Find("Indicator").gameObject;
         if (value)
         {
-            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = orange;
         }
         else
         {
-            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
     }
 

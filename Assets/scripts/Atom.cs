@@ -39,6 +39,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     public bool frozen = false;
     private bool focused = false;
 
+    private Color orange = new Color(1.0f, 0.5f, 0.0f);
+
     private List<Atom> currentChain = new List<Atom>();
 
     public static List<Atom> markedAtoms = new List<Atom>();
@@ -1330,11 +1332,11 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         var FrozenIndicator = freezeButton.transform.Find("IconAndText").gameObject.transform.Find("Indicator").gameObject;
         if (value)
         {
-            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = orange;
         }
         else
         {
-            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
     }
 
