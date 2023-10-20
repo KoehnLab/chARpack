@@ -278,6 +278,22 @@ MonoBehaviour:
     m_Localized: Hand Einstellungen
     m_Metadata:
       m_Items: []
+  - m_Id: 40637782321250304
+    m_Localized: Kooperations-einstellungen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40638709660893184
+    m_Localized: Kooperationseinstellungen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40640045014040576
+    m_Localized: Nutzer Strahl
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40640217840336896
+    m_Localized: Nutzer Box
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

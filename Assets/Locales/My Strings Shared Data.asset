@@ -273,6 +273,22 @@ MonoBehaviour:
     m_Key: HandSettings
     m_Metadata:
       m_Items: []
+  - m_Id: 40637782321250304
+    m_Key: CoopSettingsButton
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40638709660893184
+    m_Key: CoopSettingsTitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40640045014040576
+    m_Key: Settings/Settings/CoopSettings/ButtonCollection/ToggleUserRay/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40640217840336896
+    m_Key: Settings/Settings/CoopSettings/ButtonCollection/ToggleUserBox/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

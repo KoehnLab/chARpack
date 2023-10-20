@@ -278,6 +278,22 @@ MonoBehaviour:
     m_Localized: Hand Settings
     m_Metadata:
       m_Items: []
+  - m_Id: 40637782321250304
+    m_Localized: Cooperation Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40638709660893184
+    m_Localized: Cooperation Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40640045014040576
+    m_Localized: User Ray
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40640217840336896
+    m_Localized: User Box
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
