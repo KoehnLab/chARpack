@@ -56,6 +56,8 @@ public class appSettings : MonoBehaviour
     private void Start()
     {
         updateVisuals();
+        setVisual(UserBoxIndicator, true);
+        setVisual(UserRayIndicator, true);
     }
 
     public void toggleSpatialMesh()
@@ -176,26 +178,6 @@ public class appSettings : MonoBehaviour
     }
 
 
-    public void toggleUserBox()
-    {
-        var userBoxes = GameObject.FindGameObjectsWithTag("User Box");
-        bool active = userBoxes[0].GetComponent<MeshRenderer>().enabled;
-        foreach(GameObject userBox in userBoxes)
-        {
-            userBox.GetComponent<MeshRenderer>().enabled = !active;
-        }
-    }
-
-    public void toggleUserRay()
-    {
-        var userRays = GameObject.FindGameObjectsWithTag("User Box");
-        bool active = userRays[0].GetComponent<LineRenderer>().enabled;
-        foreach (GameObject userRay in userRays)
-        {
-            userRay.GetComponent<LineRenderer>().enabled = !active;
-        }
-    }
-
     #region Hand settings
     public void toggleHandSettingsMenu()
     {
@@ -274,6 +256,46 @@ public class appSettings : MonoBehaviour
             SettingsData.rightHandMenu = false;
         }
         updateVisuals();
+    }
+
+    #endregion
+
+    #region Cooperation settings
+
+    public void toggleCoopSettings()
+    {
+        GameObject coopSettings = gameObject.transform.Find("CoopSettings").gameObject;
+        coopSettings.SetActive(!coopSettings.activeSelf);
+    }
+
+    // TODO: does this have to be broadcast?
+    public void toggleUserBox()
+    {
+        try
+        {
+            var userBoxes = GameObject.FindGameObjectsWithTag("User Box");
+            bool active = userBoxes[0].GetComponent<MeshRenderer>().enabled;
+            foreach (GameObject userBox in userBoxes)
+            {
+                userBox.GetComponent<MeshRenderer>().enabled = !active;
+            }
+            setVisual(UserBoxIndicator, !active);
+        }
+        catch {} // No need to do something, we are simply not in coop mode
+    }
+
+    public void toggleUserRay()
+    {
+        try
+        {
+            var userRays = GameObject.FindGameObjectsWithTag("User Box");
+            bool active = userRays[0].GetComponent<LineRenderer>().enabled;
+            foreach (GameObject userRay in userRays)
+            {
+                userRay.GetComponent<LineRenderer>().enabled = !active;
+            }
+            setVisual(UserRayIndicator, !active);
+        } catch { }
     }
 
     #endregion
