@@ -340,7 +340,7 @@ public class appSettings : MonoBehaviour
 
     public void toggleGazeHighlighting()
     {
-        GlobalCtrl.Singleton.toggleGazeHighlighting();
+        SettingsData.gazeHighlighting = !SettingsData.gazeHighlighting;
         updateVisuals();
     }
 
