@@ -131,6 +131,77 @@ public class appSettings : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Toggles a pointer's "enabled" behavior. If a pointer's is Default or AlwaysOn,
+    /// set it to AlwaysOff. Otherwise, set the pointer's behavior to Default.
+    /// Will set this state for all matching pointers.
+    /// </summary>
+    /// <typeparam name="T">Type of pointer to set</typeparam>
+    /// <param name="inputType">Input type of pointer to set</param>
+    public void TogglePointerEnabled<T>(InputSourceType inputType) where T : class, IMixedRealityPointer
+    {
+        PointerBehavior oldBehavior = PointerUtils.GetPointerBehavior<T>(Handedness.Any, inputType);
+        PointerBehavior newBehavior;
+        if (oldBehavior == PointerBehavior.AlwaysOff)
+        {
+            newBehavior = PointerBehavior.AlwaysOn;
+            SettingsData.handRay = true;
+        }
+        else
+        {
+            newBehavior = PointerBehavior.AlwaysOff;
+            SettingsData.handRay = false;
+        }
+        PointerUtils.SetPointerBehavior<T>(newBehavior, inputType);
+    }
+
+    // Switch languages between German and English
+    public void switchLanguage()
+    {
+        LocaleIdentifier current = LocalizationSettings.SelectedLocale.Identifier;
+        if(current == "en")
+        {
+            LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("de");
+        }
+        else
+        {
+            LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("en");
+        }
+    }
+
+    public void toggleGazeHighlighting()
+    {
+        SettingsData.gazeHighlighting = !SettingsData.gazeHighlighting;
+        updateVisuals();
+    }
+
+
+    public void toggleUserBox()
+    {
+        var userBoxes = GameObject.FindGameObjectsWithTag("User Box");
+        bool active = userBoxes[0].GetComponent<MeshRenderer>().enabled;
+        foreach(GameObject userBox in userBoxes)
+        {
+            userBox.GetComponent<MeshRenderer>().enabled = !active;
+        }
+    }
+
+    public void toggleUserRay()
+    {
+        var userRays = GameObject.FindGameObjectsWithTag("User Box");
+        bool active = userRays[0].GetComponent<LineRenderer>().enabled;
+        foreach (GameObject userRay in userRays)
+        {
+            userRay.GetComponent<LineRenderer>().enabled = !active;
+        }
+    }
+
+    #region Hand settings
+    public void toggleHandSettingsMenu()
+    {
+        GameObject handSettings = gameObject.transform.Find("HandSettings").gameObject;
+        handSettings.SetActive(!handSettings.activeSelf);
+    }
 
     /// <summary>
     /// Toggles hand mesh visualization
@@ -173,30 +244,6 @@ public class appSettings : MonoBehaviour
     }
 
     /// <summary>
-    /// Toggles a pointer's "enabled" behavior. If a pointer's is Default or AlwaysOn,
-    /// set it to AlwaysOff. Otherwise, set the pointer's behavior to Default.
-    /// Will set this state for all matching pointers.
-    /// </summary>
-    /// <typeparam name="T">Type of pointer to set</typeparam>
-    /// <param name="inputType">Input type of pointer to set</param>
-    public void TogglePointerEnabled<T>(InputSourceType inputType) where T : class, IMixedRealityPointer
-    {
-        PointerBehavior oldBehavior = PointerUtils.GetPointerBehavior<T>(Handedness.Any, inputType);
-        PointerBehavior newBehavior;
-        if (oldBehavior == PointerBehavior.AlwaysOff)
-        {
-            newBehavior = PointerBehavior.Default;
-            SettingsData.handRay = true;
-        }
-        else
-        {
-            newBehavior = PointerBehavior.AlwaysOff;
-            SettingsData.handRay = false;
-        }
-        PointerUtils.SetPointerBehavior<T>(newBehavior, inputType);
-    }
-
-    /// <summary>
     /// If hand ray is AlwaysOn or Default, set it to off.
     /// Otherwise, set behavior to default
     /// </summary>
@@ -206,42 +253,15 @@ public class appSettings : MonoBehaviour
         updateVisuals();
     }
 
-
     public void toggleHandMenu()
     {
         GlobalCtrl.Singleton.toggleHandMenu();
         updateVisuals();
     }
 
-    public void toggleHandSettingsMenu()
-    {
-        GameObject handSettings = gameObject.transform.Find("HandSettings").gameObject;
-        handSettings.SetActive(!handSettings.activeSelf);
-    }
-
-    // Switch languages between German and English
-    public void switchLanguage()
-    {
-        LocaleIdentifier current = LocalizationSettings.SelectedLocale.Identifier;
-        if(current == "en")
-        {
-            LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("de");
-        }
-        else
-        {
-            LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("en");
-        }
-    }
-
-    public void toggleGazeHighlighting()
-    {
-        SettingsData.gazeHighlighting = !SettingsData.gazeHighlighting;
-        updateVisuals();
-    }
-
     public void toggleMenuHandedness()
     {
-        if(handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness == Handedness.Left)
+        if (handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness == Handedness.Left)
         {
             handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness = Handedness.Right;
             handMenu.Singleton.setButtonPosition(Handedness.Right);
@@ -256,26 +276,7 @@ public class appSettings : MonoBehaviour
         updateVisuals();
     }
 
-
-    public void toggleUserBox()
-    {
-        var userBoxes = GameObject.FindGameObjectsWithTag("User Box");
-        bool active = userBoxes[0].GetComponent<MeshRenderer>().enabled;
-        foreach(GameObject userBox in userBoxes)
-        {
-            userBox.GetComponent<MeshRenderer>().enabled = !active;
-        }
-    }
-
-    public void toggleUserRay()
-    {
-        var userRays = GameObject.FindGameObjectsWithTag("User Box");
-        bool active = userRays[0].GetComponent<LineRenderer>().enabled;
-        foreach (GameObject userRay in userRays)
-        {
-            userRay.GetComponent<LineRenderer>().enabled = !active;
-        }
-    }
+    #endregion
 
     #region Visuals
     public void updateVisuals()
@@ -303,7 +304,7 @@ public class appSettings : MonoBehaviour
         setVisual(RightHandMenuIndicator, SettingsData.rightHandMenu);
     }
 
-    private void setVisual(GameObject indicator, bool value)
+    public void setVisual(GameObject indicator, bool value)
     {
         if (value)
         {
