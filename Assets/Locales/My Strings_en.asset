@@ -274,6 +274,10 @@ MonoBehaviour:
     m_Localized: Menu On Right Hand
     m_Metadata:
       m_Items: []
+  - m_Id: 40617137625612288
+    m_Localized: Hand Settings
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
