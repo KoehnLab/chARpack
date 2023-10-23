@@ -97,8 +97,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             {
                 string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
                 string[] distance = text[2].Split(": ");
-                double dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurment>().getDistanceInHundredAngstrom();
-                string newDistance = string.Concat(distance[0], ": ", $"{dist:0.00}");
+                double dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurment>().getDistanceInAngstrom();
+                string newDistance = string.Concat(distance[0], ": ", $"{dist:0.00}\u00C5");
                 text[2] = newDistance;
 
                 toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
@@ -109,14 +109,20 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
                 string[] ang = text[3].Split(": ");
                 double angle = toolTipInstance.transform.Find("Angle Measurement").GetComponent<AngleMeasurment>().getAngle();
-                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}");
+                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}°");
                 text[3] = newAng;
 
                 toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
             }
             else if(type == toolTipType.TORSION)
             {
+                string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
+                string[] ang = text[2].Split(": ");
+                double angle = toolTipInstance.transform.Find("Dihedral Angle Measurement").GetComponent<DihedralAngleMeasurement>().getAngle();
+                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}°");
+                text[2] = newAng;
 
+                toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
             }
         }
     }
@@ -165,6 +171,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         TORSION
     }
     public toolTipType type;
+
+    private Color orange = new Color(1.0f, 0.5f, 0.0f);
 
     /// <summary>
     /// molecule id
@@ -695,8 +703,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         dist.StartAtom = atom1;
         dist.EndAtom = atom2;
 
-        // show meta data 
-        string toolTipText = getBondToolTipText(term.eqDist, dist.getDistanceInHundredAngstrom(), term.kBond, term.order);
+        // show meta data (in Angstrom)
+        string toolTipText = getBondToolTipText(term.eqDist/100, dist.getDistanceInAngstrom(), term.kBond, term.order);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
 
         var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
@@ -732,7 +740,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         var dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurment>();
         // Update tool tip
-        string toolTipText = getBondToolTipText(bt.eqDist, dist.getDistanceInHundredAngstrom(), bt.kBond, bt.order);
+        string toolTipText = getBondToolTipText(bt.eqDist, dist.getDistanceInAngstrom(), bt.kBond, bt.order);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
 
         changeBondParameters(bt, id);
@@ -890,8 +898,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.transform.position = ttpos;
         // add atom as connector
         toolTipInstance.GetComponent<myToolTipConnector>().Target = middlebond.gameObject;
+
+        var curAngle = getDihedralAngle(term.Atom1, term.Atom2, term.Atom3, term.Atom4);
+
         // show angle term data
-        string toolTipText = getTorsionToolTipText(term.eqAngle, term.vk, term.nn);
+        string toolTipText = getTorsionToolTipText(term.eqAngle, term.vk, term.nn, curAngle);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
 
         var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
@@ -902,6 +913,21 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markTorsionTermUI(term, false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
 
+    }
+
+    private double getDihedralAngle(ushort atom1, ushort atom2, ushort atom3, ushort atom4)
+    {
+        Atom a1 = atomList[atom1];
+        Atom a2 = atomList[atom2];
+        Atom a3 = atomList[atom3];
+        Atom a4 = atomList[atom4];
+
+        GameObject measurement = Instantiate((GameObject)Resources.Load("prefabs/DihedralAngleMeasurementPrefab"));
+        measurement.transform.parent = toolTipInstance.transform;
+        measurement.name = "Dihedral Angle Measurement";
+        measurement.GetComponent<DihedralAngleMeasurement>().atoms = new List<Atom> { a1, a2, a3, a4 };
+
+        return measurement.GetComponent<DihedralAngleMeasurement>().getAngle();
     }
 
     private void createChangeTorsionWindow(ForceField.TorsionTerm bond)
@@ -975,7 +1001,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string singleBond = GlobalCtrl.Singleton.GetLocalizedString("SINGLE_BOND");
         string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
         string ord = GlobalCtrl.Singleton.GetLocalizedString("ORDER");
-        string toolTipText = $"{singleBond}\n{dist}: {eqDist:0.00}\n{current}: {curDist:0.00}\nk: {kBond:0.00}\n{ord}: {order:0.00}";
+        string toolTipText = $"{singleBond}\n{dist}: {eqDist:0.00}\u00C5\n{current}: {curDist:0.00}\u00C5\nk: {kBond:0.00}\n{ord}: {order:0.00}";
         return toolTipText;
     }
 
@@ -985,16 +1011,17 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
         string kAngleStr = GlobalCtrl.Singleton.GetLocalizedString("K_ANGLE");
         string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
-        string toolTipText = $"{angleBond}\n{eqAngleStr}: {eqAngle:0.00}\n{kAngleStr}: {kAngle:0.00}\n{current}: {curAngle:0.00}";
+        string toolTipText = $"{angleBond}\n{kAngleStr}: {kAngle:0.00}\n{eqAngleStr}: {eqAngle:0.00}°\n{current}: {curAngle:0.00}°";
         return toolTipText;
     }
     
-    private string getTorsionToolTipText(double eqAngle, double vk, double nn)
+    private string getTorsionToolTipText(double eqAngle, double vk, double nn, double curAngle = 0f)
     {
         //$"Torsion Bond\nEqui. Angle: {term.eqAngle}\nvk: {term.vk}\nnn: {term.nn}"
         string torsionBond = GlobalCtrl.Singleton.GetLocalizedString("TORSION_BOND");
         string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
-        string toolTipText = $"{torsionBond}\n{eqAngleStr}: {eqAngle:0.00}\nvk: {vk:0.00}\nnn: {nn:0.00}";
+        string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
+        string toolTipText = $"{torsionBond}\n{eqAngleStr}: {eqAngle:0.00}°\n{current}: {curAngle:0.00}°\nvk: {vk:0.00}\nnn: {nn:0.00}";
         return toolTipText;
     }
 
@@ -1025,11 +1052,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var FrozenIndicator = freezeButton.transform.Find("IconAndText").gameObject.transform.Find("Indicator").gameObject;
         if (value)
         {
-            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = orange;
         }
         else
         {
-            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
     }
 

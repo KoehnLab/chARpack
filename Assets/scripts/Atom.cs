@@ -39,6 +39,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     public bool frozen = false;
     private bool focused = false;
 
+    private Color orange = new Color(1.0f, 0.5f, 0.0f);
+
     private List<Atom> currentChain = new List<Atom>();
 
     public static List<Atom> markedAtoms = new List<Atom>();
@@ -52,7 +54,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     private void onLookStart()
     {
-        if (!focused)
+        if (!focused && SettingsData.gazeHighlighting)
         {
             focusHighlight(true);
             focused = true;
@@ -62,7 +64,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     private void onLookAway()
     {
-        if (focused)
+        if (focused && SettingsData.gazeHighlighting)
         {
             focusHighlight(false);
             focused = false;
@@ -136,7 +138,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     private void OnFocusEnter(FocusEventData eventData)
     {
-        if(!focused)
+        if(!focused && SettingsData.gazeHighlighting)
         {
             focusHighlight(true);
             focused = true;
@@ -146,7 +148,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     void OnFocusExit(FocusEventData eventData)
     {
-        if (focused)
+        if (focused && SettingsData.gazeHighlighting)
         {
             focusHighlight(false);
             focused = false;
@@ -171,7 +173,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             grabHighlight(true);
             isGrabbed = true;
         }
-        else if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASURMENT)
+        else if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)
         {
             handleMeasurements();
         }
@@ -410,7 +412,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     resetMolPositionAfterMove();
                 }
 
-                if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASURMENT)
+                if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)
                 {
                     if (stopwatch?.ElapsedMilliseconds < 300)
                     {
@@ -1330,11 +1332,11 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         var FrozenIndicator = freezeButton.transform.Find("IconAndText").gameObject.transform.Find("Indicator").gameObject;
         if (value)
         {
-            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.green;
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = orange;
         }
         else
         {
-            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.red;
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
     }
 

@@ -26,7 +26,14 @@ public class ManualAddServer : MonoBehaviour
         var data = new FindServer.ServerData();
         data.ip = IPAddress.Parse(ip);
         data.port = LoginData.port;
-        FindServer.manualServerList.Add(data);
+        if (!FindServer.manualServerList.Contains(data) && !FindServer.serverList.Contains(data))
+        {
+            FindServer.manualServerList.Add(data);
+        } 
+        else
+        {
+            Debug.Log("[ManualAddServer] Server already listed");
+        }
 
         serverListInstance.GetComponent<ServerList>().generateServerEntries();
         Destroy(gameObject);

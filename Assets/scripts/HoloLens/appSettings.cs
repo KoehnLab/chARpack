@@ -2,6 +2,7 @@ using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.SpatialAwareness;
 using Microsoft.MixedReality.Toolkit.Utilities;
+using Microsoft.MixedReality.Toolkit.Utilities.Solvers;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -46,33 +47,25 @@ public class appSettings : MonoBehaviour
     public GameObject SpatialMeshIndicator;
     public GameObject DebugWindowIndicator;
     public GameObject GazeHighlightingIndicator;
+    public GameObject RightHandMenuIndicator;
+    public GameObject UserBoxIndicator;
+    public GameObject UserRayIndicator;
 
     private Color orange = new Color(1.0f, 0.5f, 0.0f);
 
     private void Start()
     {
         updateVisuals();
-    }
-
-    public void updateVisuals()
-    {
-        setBondStiffnessVisual(SettingsData.bondStiffness);
-        setForceFieldVisual(SettingsData.forceField);
-        setHandJointVisual(SettingsData.handJoints);
-        setHandMenuVisual(SettingsData.handMenu);
-        setHandMeshVisual(SettingsData.handMesh);
-        setHandRayVisual(SettingsData.handRay);
-        setRepulsionScaleVisual(SettingsData.repulsionScale);
-        setSpatialMeshVisual(SettingsData.spatialMesh);
-        if (DebugWindow.Singleton == null)
+        try 
+        { 
+            var userBoxes = GameObject.FindGameObjectsWithTag("User Box");
+            setVisual(UserBoxIndicator, true);
+            setVisual(UserRayIndicator, true);
+        } catch // not in coop mode
         {
-            setDebugWindowVisual(false);
+            setVisual(UserBoxIndicator, false);
+            setVisual(UserRayIndicator, false);
         }
-        else
-        {
-            setDebugWindowVisual(DebugWindow.Singleton.gameObject.activeSelf);
-        }
-        setGazeHighlightingVisual(SettingsData.gazeHighlighting);
     }
 
     public void toggleSpatialMesh()
@@ -95,52 +88,16 @@ public class appSettings : MonoBehaviour
         updateVisuals();
     }
 
-    public void setSpatialMeshVisual(bool value)
-    {
-        if (value)
-        {
-            SpatialMeshIndicator.GetComponent<MeshRenderer>().material.color = orange;
-        }
-        else
-        {
-            SpatialMeshIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-        }
-    }
-
     public void toggleForceField()
     {
         ForceField.Singleton.toggleForceFieldUI();
         updateVisuals();
     }
 
-    public void setForceFieldVisual(bool value)
-    {
-        if (value)
-        {
-            ForceFieldIndicator.GetComponent<MeshRenderer>().material.color = orange;
-        }
-        else
-        {
-            ForceFieldIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-        }
-    }
-
     public void toggleDebugWindow()
     {
         GlobalCtrl.Singleton.toggleDebugWindow();
         updateVisuals();
-    }
-
-    private void setDebugWindowVisual(bool value)
-    {
-        if (value)
-        {
-            DebugWindowIndicator.GetComponent<MeshRenderer>().material.color = orange;
-        }
-        else
-        {
-            DebugWindowIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-        }
     }
 
     public void increaseBondStiffness()
@@ -163,10 +120,6 @@ public class appSettings : MonoBehaviour
         }
     }
 
-    public void setBondStiffnessVisual(ushort value)
-    {
-        bondStiffnessValueGO.GetComponent<TextMeshPro>().text = value.ToString();
-    }
 
     public void increaseRepusionScale()
     {
@@ -188,9 +141,56 @@ public class appSettings : MonoBehaviour
         }
     }
 
-    public void setRepulsionScaleVisual(float value)
+    /// <summary>
+    /// Toggles a pointer's "enabled" behavior. If a pointer's is Default or AlwaysOn,
+    /// set it to AlwaysOff. Otherwise, set the pointer's behavior to Default.
+    /// Will set this state for all matching pointers.
+    /// </summary>
+    /// <typeparam name="T">Type of pointer to set</typeparam>
+    /// <param name="inputType">Input type of pointer to set</param>
+    public void TogglePointerEnabled<T>(InputSourceType inputType) where T : class, IMixedRealityPointer
     {
-        repuslionScaleValueGO.GetComponent<TextMeshPro>().text = value.ToString();
+        PointerBehavior oldBehavior = PointerUtils.GetPointerBehavior<T>(Handedness.Any, inputType);
+        PointerBehavior newBehavior;
+        if (oldBehavior == PointerBehavior.AlwaysOff)
+        {
+            newBehavior = PointerBehavior.AlwaysOn;
+            SettingsData.handRay = true;
+        }
+        else
+        {
+            newBehavior = PointerBehavior.AlwaysOff;
+            SettingsData.handRay = false;
+        }
+        PointerUtils.SetPointerBehavior<T>(newBehavior, inputType);
+    }
+
+    // Switch languages between German and English
+    public void switchLanguage()
+    {
+        LocaleIdentifier current = LocalizationSettings.SelectedLocale.Identifier;
+        if(current == "en")
+        {
+            LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("de");
+        }
+        else
+        {
+            LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("en");
+        }
+    }
+
+    public void toggleGazeHighlighting()
+    {
+        SettingsData.gazeHighlighting = !SettingsData.gazeHighlighting;
+        updateVisuals();
+    }
+
+
+    #region Hand settings
+    public void toggleHandSettingsMenu()
+    {
+        GameObject handSettings = gameObject.transform.Find("HandSettings").gameObject;
+        handSettings.SetActive(!handSettings.activeSelf);
     }
 
     /// <summary>
@@ -210,18 +210,6 @@ public class appSettings : MonoBehaviour
             handTrackingProfile.EnableHandMeshVisualization = !handTrackingProfile.EnableHandMeshVisualization;
             SettingsData.handMesh = handTrackingProfile.EnableHandMeshVisualization;
             updateVisuals();
-        }
-    }
-
-    public void setHandMeshVisual(bool value)
-    {
-        if (value)
-        {
-            HandMeshIndicator.GetComponent<MeshRenderer>().material.color = orange;
-        }
-        else
-        {
-            HandMeshIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
     }
 
@@ -245,42 +233,6 @@ public class appSettings : MonoBehaviour
         }
     }
 
-    public void setHandJointVisual(bool value)
-    {
-        if (value)
-        {
-            HandJointIndicator.GetComponent<MeshRenderer>().material.color = orange;
-        }
-        else
-        {
-            HandJointIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-        }
-    }
-
-    /// <summary>
-    /// Toggles a pointer's "enabled" behavior. If a pointer's is Default or AlwaysOn,
-    /// set it to AlwaysOff. Otherwise, set the pointer's behavior to Default.
-    /// Will set this state for all matching pointers.
-    /// </summary>
-    /// <typeparam name="T">Type of pointer to set</typeparam>
-    /// <param name="inputType">Input type of pointer to set</param>
-    public void TogglePointerEnabled<T>(InputSourceType inputType) where T : class, IMixedRealityPointer
-    {
-        PointerBehavior oldBehavior = PointerUtils.GetPointerBehavior<T>(Handedness.Any, inputType);
-        PointerBehavior newBehavior;
-        if (oldBehavior == PointerBehavior.AlwaysOff)
-        {
-            newBehavior = PointerBehavior.Default;
-            SettingsData.handRay = true;
-        }
-        else
-        {
-            newBehavior = PointerBehavior.AlwaysOff;
-            SettingsData.handRay = false;
-        }
-        PointerUtils.SetPointerBehavior<T>(newBehavior, inputType);
-    }
-
     /// <summary>
     /// If hand ray is AlwaysOn or Default, set it to off.
     /// Otherwise, set behavior to default
@@ -291,85 +243,123 @@ public class appSettings : MonoBehaviour
         updateVisuals();
     }
 
-    public void setHandRayVisual(bool value)
-    {
-        if (value)
-        {
-            HandRayIndicator.GetComponent<MeshRenderer>().material.color = orange;
-        }
-        else
-        {
-            HandRayIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-        }
-    }
-
     public void toggleHandMenu()
     {
         GlobalCtrl.Singleton.toggleHandMenu();
         updateVisuals();
     }
 
-    public void setHandMenuVisual(bool value)
+    public void toggleMenuHandedness()
     {
-        if (value)
+        if (handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness == Handedness.Left)
         {
-            HandMenuIndicator.GetComponent<MeshRenderer>().material.color = orange;
+            handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness = Handedness.Right;
+            handMenu.Singleton.setButtonPosition(Handedness.Right);
+            SettingsData.rightHandMenu = true;
         }
-        else
+        else if (handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness == Handedness.Right)
         {
-            HandMenuIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+            handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness = Handedness.Left;
+            handMenu.Singleton.setButtonPosition(Handedness.Left);
+            SettingsData.rightHandMenu = false;
         }
-    }
-
-    // Switch languages between German and English
-    public void switchLanguage()
-    {
-        LocaleIdentifier current = LocalizationSettings.SelectedLocale.Identifier;
-        if(current == "en")
-        {
-            LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("de");
-        }
-        else
-        {
-            LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("en");
-        }
-    }
-
-    public void toggleGazeHighlighting()
-    {
-        GlobalCtrl.Singleton.toggleGazeHighlighting();
         updateVisuals();
     }
 
-    public void setGazeHighlightingVisual(bool value)
+    #endregion
+
+    #region Cooperation settings
+
+    public void toggleCoopSettings()
     {
-        if (value)
-        {
-            GazeHighlightingIndicator.GetComponent<MeshRenderer>().material.color = orange;
-        }
-        else
-        {
-            GazeHighlightingIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-        }
+        GameObject coopSettings = gameObject.transform.Find("CoopSettings").gameObject;
+        coopSettings.SetActive(!coopSettings.activeSelf);
     }
 
+    // TODO: does this have to be broadcast?
     public void toggleUserBox()
     {
-        var userBoxes = GameObject.FindGameObjectsWithTag("User Box");
-        bool active = userBoxes[0].GetComponent<MeshRenderer>().enabled;
-        foreach(GameObject userBox in userBoxes)
+        try
         {
-            userBox.GetComponent<MeshRenderer>().enabled = !active;
+            var userBoxes = GameObject.FindGameObjectsWithTag("User Box");
+            bool active = userBoxes[0].GetComponent<MeshRenderer>().enabled;
+            foreach (GameObject userBox in userBoxes)
+            {
+                userBox.GetComponent<MeshRenderer>().enabled = !active;
+            }
+            setVisual(UserBoxIndicator, !active);
         }
+        catch 
+        {
+            setVisual(UserBoxIndicator, false);
+        } // No need to do something, we are simply not in coop mode
     }
 
     public void toggleUserRay()
     {
-        var userRays = GameObject.FindGameObjectsWithTag("User Box");
-        bool active = userRays[0].GetComponent<LineRenderer>().enabled;
-        foreach (GameObject userRay in userRays)
+        try
         {
-            userRay.GetComponent<LineRenderer>().enabled = !active;
+            var userRays = GameObject.FindGameObjectsWithTag("User Box");
+            bool active = userRays[0].GetComponent<LineRenderer>().enabled;
+            foreach (GameObject userRay in userRays)
+            {
+                userRay.GetComponent<LineRenderer>().enabled = !active;
+            }
+            setVisual(UserRayIndicator, !active);
+        } catch
+        {
+            setVisual(UserRayIndicator, false);
         }
     }
+
+    #endregion
+
+    #region Visuals
+    public void updateVisuals()
+    {
+        setBondStiffnessVisual(SettingsData.bondStiffness);
+        setRepulsionScaleVisual(SettingsData.repulsionScale);
+
+        setVisual(HandJointIndicator, SettingsData.handJoints);
+        setVisual(HandMenuIndicator, SettingsData.handMenu);
+        setVisual(HandMeshIndicator, SettingsData.handMesh);
+        setVisual(HandRayIndicator, SettingsData.handRay);
+        setVisual(ForceFieldIndicator, SettingsData.forceField);
+        setVisual(SpatialMeshIndicator, SettingsData.spatialMesh);
+
+        if (DebugWindow.Singleton == null)
+        {
+            setVisual(DebugWindowIndicator, false);
+        }
+        else
+        {
+            setVisual(DebugWindowIndicator, DebugWindow.Singleton.gameObject.activeSelf);
+        }
+
+        setVisual(GazeHighlightingIndicator, SettingsData.gazeHighlighting);
+        setVisual(RightHandMenuIndicator, SettingsData.rightHandMenu);
+    }
+
+    public void setVisual(GameObject indicator, bool value)
+    {
+        if (value)
+        {
+            indicator.GetComponent<MeshRenderer>().material.color = orange;
+        }
+        else
+        {
+            indicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+        }
+    }
+
+    public void setBondStiffnessVisual(ushort value)
+    {
+        bondStiffnessValueGO.GetComponent<TextMeshPro>().text = value.ToString();
+    }
+
+    public void setRepulsionScaleVisual(float value)
+    {
+        repuslionScaleValueGO.GetComponent<TextMeshPro>().text = value.ToString();
+    }
+    #endregion
 }

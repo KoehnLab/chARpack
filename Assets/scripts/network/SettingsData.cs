@@ -12,4 +12,5 @@ public class SettingsData
     [SerializeField] static public bool handMenu = true;
     [SerializeField] static public string language = "en";
     [SerializeField] static public bool gazeHighlighting = true;
+    [SerializeField] static public bool rightHandMenu = false;
 }

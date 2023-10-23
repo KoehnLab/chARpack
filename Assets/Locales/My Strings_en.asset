@@ -270,6 +270,30 @@ MonoBehaviour:
     m_Localized: Current
     m_Metadata:
       m_Items: []
+  - m_Id: 40611639874535424
+    m_Localized: Menu On Right Hand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40617137625612288
+    m_Localized: Hand Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40637782321250304
+    m_Localized: Cooperation Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40638709660893184
+    m_Localized: Cooperation Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40640045014040576
+    m_Localized: User Ray
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40640217840336896
+    m_Localized: User Box
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
