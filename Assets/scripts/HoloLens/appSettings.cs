@@ -56,8 +56,16 @@ public class appSettings : MonoBehaviour
     private void Start()
     {
         updateVisuals();
-        setVisual(UserBoxIndicator, true);
-        setVisual(UserRayIndicator, true);
+        try 
+        { 
+            var userBoxes = GameObject.FindGameObjectsWithTag("User Box");
+            setVisual(UserBoxIndicator, true);
+            setVisual(UserRayIndicator, true);
+        } catch // not in coop mode
+        {
+            setVisual(UserBoxIndicator, false);
+            setVisual(UserRayIndicator, false);
+        }
     }
 
     public void toggleSpatialMesh()
@@ -281,7 +289,10 @@ public class appSettings : MonoBehaviour
             }
             setVisual(UserBoxIndicator, !active);
         }
-        catch {} // No need to do something, we are simply not in coop mode
+        catch 
+        {
+            setVisual(UserBoxIndicator, false);
+        } // No need to do something, we are simply not in coop mode
     }
 
     public void toggleUserRay()
@@ -295,7 +306,10 @@ public class appSettings : MonoBehaviour
                 userRay.GetComponent<LineRenderer>().enabled = !active;
             }
             setVisual(UserRayIndicator, !active);
-        } catch { }
+        } catch
+        {
+            setVisual(UserRayIndicator, false);
+        }
     }
 
     #endregion
