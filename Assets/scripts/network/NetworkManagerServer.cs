@@ -195,6 +195,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddBool(selected);
         Server.SendToAll(message);
     }
+
     public void bcastSelectBond(ushort bond_id, ushort mol_id, bool selected)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSelectBond);
