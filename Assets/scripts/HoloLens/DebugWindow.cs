@@ -51,11 +51,13 @@ public class DebugWindow : myScrollObject
 
     public GameObject debugWindow;
     public GameObject logEntryPrefab;
+    public GameObject debugIndicator;
 
     private bool isEnabled = false;
     private bool showStackTrace = false;
 
     private List<LogStack> logStack = new List<LogStack>();
+    private UnityEngine.Color orange = new UnityEngine.Color(1.0f, 0.5f, 0.0f);
 
     private enum Color { red, green, blue, black, white, yellow, orange };
 
@@ -142,9 +144,23 @@ public class DebugWindow : myScrollObject
     public void toggleVisible()
     {
         debugWindow.SetActive(!debugWindow.activeSelf);
+        setVisual(debugIndicator, debugWindow.activeSelf);
         // somehow the renderer list for clipping gets emptied after disable
         updateClipping();
     }
+
+    public void setVisual(GameObject indicator, bool value)
+    {
+        if (value)
+        {
+            indicator.GetComponent<MeshRenderer>().material.color = orange;
+        }
+        else
+        {
+            indicator.GetComponent<MeshRenderer>().material.color = UnityEngine.Color.gray;
+        }
+    }
+
     public void toggleStackTrace()
     {
         showStackTrace = !showStackTrace;
