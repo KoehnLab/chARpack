@@ -108,6 +108,8 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     private string lastAtom = "C";
 
+    private Color orange = new Color(1.0f, 0.5f, 0.0f);
+
     private Locale currentLocale;
 
     [HideInInspector] public int numAtoms = 0;
@@ -834,6 +836,39 @@ public class GlobalCtrl : MonoBehaviour
         contained_in = new List<DistanceMeasurment>(new HashSet<DistanceMeasurment>(contained_in)); // remove duplicates
 
         return contained_in;
+    }
+
+    public void makeCurrentMeasurementsPermanent()
+    {
+        GameObject indicator = GameObject.Find("NearMenu/MeasurementsPermanentButton/IconAndText/Indicator");
+        if(indicator.GetComponent<MeshRenderer>().material.color == null || indicator.GetComponent<MeshRenderer>().material.color == Color.gray)
+        {
+            // Make ALL current measurements permanent
+            distMeasurmentDict.Clear();
+            angleMeasurmentDict.Clear();
+            indicator.GetComponent<MeshRenderer>().material.color = orange;
+        }
+        else
+        {
+            // restore ALL measurements
+            DistanceMeasurment[] measurements = FindObjectsOfType<DistanceMeasurment>();
+            foreach (DistanceMeasurment measurement in measurements)
+            {
+                if (measurement.gameObject.GetComponentInChildren<LineRenderer>().enabled && !distMeasurmentDict.ContainsKey(measurement))
+                {
+                    distMeasurmentDict.Add(measurement, new Tuple<Atom, Atom>(measurement.StartAtom, measurement.EndAtom));
+                }
+            }
+            AngleMeasurment[] angleMeasurements = FindObjectsOfType<AngleMeasurment>();
+            foreach (AngleMeasurment measurement in angleMeasurements)
+            {
+                if (measurement.gameObject.GetComponentInChildren<LineRenderer>().enabled && !angleMeasurmentDict.ContainsKey(measurement))
+                {
+                    angleMeasurmentDict.Add(measurement, new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(measurement.originAtom, measurement.distMeasurment1, measurement.distMeasurment2));
+                }
+            }
+            indicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+        }
     }
 
     public void freezeWorld(bool value)
