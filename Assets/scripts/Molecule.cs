@@ -152,6 +152,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject snapMeButtonPrefab;
     [HideInInspector] public static GameObject distanceMeasurementPrefab;
     [HideInInspector] public static GameObject angleMeasurementPrefab;
+
+    [HideInInspector] public static Material compMaterialA;
+    [HideInInspector] public static Material compMaterialB;
+
     public GameObject toolTipInstance;
     private GameObject freezeButton;
     public GameObject scalingSliderInstance;
@@ -207,6 +211,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         //om.OnManipulationStarted.AddListener(HandleOnManipulationStarted);
 
         gameObject.AddComponent<NearInteractionGrabbable>();
+
+        compMaterialA = Resources.Load("materials/ComparisonMaterialA") as Material;
+        compMaterialB = Resources.Load("materials/ComparisonMaterialB") as Material;
 
         if (mol_data.keepConfig)
         {
@@ -433,10 +440,31 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             return false;
         }
+        // apply transformation
         transform.localPosition = otherMol.transform.localPosition;
         transform.localRotation = otherMol.transform.localRotation;
+        // TODO: Add advanced alignment mode
+        // add coloring
+        addSnapColor(ref compMaterialA);
+        otherMol.addSnapColor(ref compMaterialB);
 
         return true;
+    }
+
+    private void addSnapColor(ref Material mat)
+    {
+        foreach (var atom in atomList)
+        {
+            // Append comparison material to end of list
+            Material[] comp = atom.GetComponent<MeshRenderer>().sharedMaterials.ToList().Append(mat).ToArray();
+            atom.GetComponent<MeshRenderer>().sharedMaterials = comp;
+        }
+        foreach (var bond in bondList)
+        {
+            // Append comparison material to end of list
+            Material[] comp = bond.GetComponentInChildren<MeshRenderer>().sharedMaterials.ToList().Append(mat).ToArray();
+            bond.GetComponentInChildren<MeshRenderer>().sharedMaterials = comp;
+        }
     }
 
     private void closeSnapUI(ushort otherMolID)

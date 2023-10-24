@@ -1339,4 +1339,5 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
         }
     }
+
 }
