@@ -2934,8 +2934,6 @@ MonoBehaviour:
   curHybrid: 3
   numAtoms: 0
   measurmentInHand: {fileID: 0}
-  eyeTracking1: {fileID: 0}
-  eyeTracking2: {fileID: 0}
   mainCamera: {fileID: 0}
   currentCamera: {fileID: 0}
 --- !u!4 &684068573
@@ -10399,7 +10397,7 @@ PrefabInstance:
       objectReference: {fileID: 684068572}
     - target: {fileID: 2123164476787930189, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: toggleMeasurmentMode
+      value: toggleMeasurementMode
       objectReference: {fileID: 0}
     - target: {fileID: 3537350985816977441, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
       propertyPath: useOnPreRender
