@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class ChangeBond : MonoBehaviour
@@ -68,6 +69,19 @@ public class ChangeBond : MonoBehaviour
         if (Event.current.Equals(Event.KeyboardEvent("return")))
         {
             okButton.GetComponent<Button>().onClick.Invoke();
+        }
+        if (Event.current.Equals(Event.KeyboardEvent("tab")))
+        {
+            if(EventSystem.current.currentSelectedGameObject == distInputField)
+            {
+                kInputField.GetComponent<myInputField>().Select();
+                // Deactivate other input field so there aren't two blinking carets at the same time
+                distInputField.GetComponent<myInputField>().DeactivateInputField();
+            } else
+            {
+                distInputField.GetComponent<myInputField>().Select();
+                kInputField.GetComponent<myInputField>().DeactivateInputField();
+            }
         }
     }
 }
