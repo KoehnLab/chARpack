@@ -4801,6 +4801,7 @@ GameObject:
   - component: {fileID: 5139832348544558345}
   - component: {fileID: 166982635072368511}
   - component: {fileID: 195233912770425156}
+  - component: {fileID: 1312104486162827674}
   m_Layer: 0
   m_Name: saveDialog
   m_TagString: Untagged
@@ -5078,6 +5079,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c47159e90e218544690c72d7d979b90a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1312104486162827674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6325399774208577938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d35c5d4a5b8d32744a43da8d0e8c1900, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  okButton: {fileID: 952259364396497141}
+  inputField: {fileID: 6053885373884993670}
 --- !u!1 &6325399774342466925
 GameObject:
   m_ObjectHideFlags: 0
