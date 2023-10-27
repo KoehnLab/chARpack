@@ -1051,6 +1051,22 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    public bool stopMoveAtom(ushort mol_id, ushort atom_id)
+    {
+        var mol = Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
+        if (mol == null || atom == null)
+        {
+            Debug.LogError($"[GlobalCtrl:stopMoveAtom] Trying to resetMolPositionAfterMove of Atom {atom_id} of molecule {mol_id}, but it does not exist.");
+            return false;
+        }
+        else
+        {
+            atom.resetMolPositionAfterMove();
+            return true;
+        }
+    }
+
     public bool moveMolecule(ushort id, Vector3 pos, Quaternion quat)
     {
         var molecule = List_curMolecules.ElementAtOrDefault(id);

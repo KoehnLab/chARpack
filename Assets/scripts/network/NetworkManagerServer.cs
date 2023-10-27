@@ -57,6 +57,7 @@ public class NetworkManagerServer : MonoBehaviour
 
         EventManager.Singleton.OnCmlReceiveCompleted += flagReceiveComplete;
         EventManager.Singleton.OnMoveAtom += bcastMoveAtom;
+        EventManager.Singleton.OnStopMoveAtom += bcastStopMoveAtom;
         EventManager.Singleton.OnMergeMolecule += bcastMergeMolecule;
         EventManager.Singleton.OnSelectAtom += bcastSelectAtom;
         EventManager.Singleton.OnCreateAtom += bcastCreateAtom;
@@ -152,6 +153,16 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddUShort(mol_id);
         message.AddUShort(atom_id);
         message.AddVector3(pos);
+        Server.SendToAll(message);
+    }
+
+    public void bcastStopMoveAtom(ushort mol_id, ushort atom_id)
+    {
+        // Broadcast to other clients
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastStopMoveAtom);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        message.AddUShort(atom_id);
         Server.SendToAll(message);
     }
 
@@ -395,6 +406,27 @@ public class NetworkManagerServer : MonoBehaviour
         outMessage.AddUShort(mol_id);
         outMessage.AddUShort(atom_id);
         outMessage.AddVector3(pos);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
+
+    [MessageHandler((ushort)ClientToServerID.atomMoved)]
+    private static void getStopMoveAtom(ushort fromClientId, Message message)
+    {
+        var mol_id = message.GetUShort();
+        var atom_id = message.GetUShort();
+        // do the stop on the server
+        if (!GlobalCtrl.Singleton.stopMoveAtom(mol_id, atom_id))
+        {
+            Debug.LogError($"[NetworkManagerServer:getStopMoveAtom] Atom with id {atom_id} of Molecule {mol_id} does not exist.\nSynchronizing world with client {fromClientId}.");
+            NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
+            return;
+        }
+
+        // Broadcast to other clients
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastStopMoveAtom);
+        outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(mol_id);
+        outMessage.AddUShort(atom_id);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
 
