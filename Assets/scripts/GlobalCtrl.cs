@@ -1047,6 +1047,7 @@ public class GlobalCtrl : MonoBehaviour
         else
         {
             atom.transform.localPosition = pos;
+            atom.resetMolPositionAfterMove();
             return true;
         }
     }
