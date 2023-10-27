@@ -28,7 +28,7 @@ public class loadSaveWindow : myScrollObject
             else if (_singleton != value)
             {
                 Debug.Log($"[{nameof(loadSaveWindow)}] Instance already exists, destroying duplicate!");
-                Destroy(value);
+                Destroy(value.gameObject);
             }
 
         }

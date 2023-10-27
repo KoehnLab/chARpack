@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class ManualAddServer : MonoBehaviour
 {
@@ -17,6 +18,13 @@ public class ManualAddServer : MonoBehaviour
         if (Event.current.Equals(Event.KeyboardEvent("return")))
         {
             addServer();
+        }
+        if (Event.current.Equals(Event.KeyboardEvent("tab")))
+        {
+            if (EventSystem.current.currentSelectedGameObject != inputField)
+            {
+                inputField.GetComponent<myInputField>().Select();
+            } 
         }
     }
 
