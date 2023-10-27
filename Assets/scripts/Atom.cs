@@ -220,6 +220,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             }
 
             resetMolPositionAfterMove();
+            EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
 
             // check for potential merge
             if (GlobalCtrl.Singleton.collision)
@@ -367,6 +368,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     }
                     currentChain.Clear();
                     resetMolPositionAfterMove();
+                    EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
                 }
 
                 if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
@@ -410,6 +412,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                         }
                     }
                     resetMolPositionAfterMove();
+                    EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
                 }
 
                 if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)

@@ -78,6 +78,7 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnCreateAtom += sendAtomCreated;
         EventManager.Singleton.OnMoveMolecule += sendMoleculeMoved;
         EventManager.Singleton.OnMoveAtom += sendAtomMoved;
+        EventManager.Singleton.OnStopMoveAtom += sendStopMoveAtom;
         EventManager.Singleton.OnMergeMolecule += sendMoleculeMerged;
         EventManager.Singleton.OnLoadMolecule += sendMoleculeLoaded;
         EventManager.Singleton.OnDeleteEverything += sendDeleteEverything;
@@ -262,6 +263,14 @@ public class NetworkManagerClient : MonoBehaviour
         message.AddUShort(mol_id);
         message.AddUShort(atom_id);
         message.AddVector3(pos);
+        Client.Send(message);
+    }
+
+    public void sendStopMoveAtom(ushort mol_id, ushort atom_id)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.stopMoveAtom);
+        message.AddUShort(mol_id);
+        message.AddUShort(atom_id);
         Client.Send(message);
     }
 
@@ -525,6 +534,24 @@ public class NetworkManagerClient : MonoBehaviour
             if (!GlobalCtrl.Singleton.moveAtom(mol_id, atom_id, pos))
             {
                 Debug.LogError($"[NetworkManagerClient:getAtomMoved] Atom with id {atom_id} of Molecule {mol_id} does not exists.\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastStopMoveAtom)]
+    private static void getStopMoveAtom(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
+        var atom_id = message.GetUShort();
+
+        // do the move
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            if (!GlobalCtrl.Singleton.stopMoveAtom(mol_id, atom_id))
+            {
+                Debug.LogError($"[NetworkManagerClient:getStopMoveAtom] Atom with id {atom_id} of Molecule {mol_id} does not exists.\nRequesing world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
         }

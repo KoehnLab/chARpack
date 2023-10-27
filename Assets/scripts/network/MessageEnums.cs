@@ -33,7 +33,8 @@ public enum ClientToServerID : ushort
     focusHighlight,
     scaleMolecule,
     freezeAtom,
-    freezeMolecule
+    freezeMolecule,
+    stopMoveAtom
 }
 
 public enum ServerToClientID : ushort
@@ -66,7 +67,8 @@ public enum ServerToClientID : ushort
     bcastFocusHighlight,
     bcastScaleMolecule,
     bcastFreezeAtom,
-    bcastFreezeMolecule
+    bcastFreezeMolecule,
+    bcastStopMoveAtom
 }
 
 public enum myDeviceType : ushort
