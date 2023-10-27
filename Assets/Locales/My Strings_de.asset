@@ -294,6 +294,10 @@ MonoBehaviour:
     m_Localized: Nutzer Box
     m_Metadata:
       m_Items: []
+  - m_Id: 43185531663138816
+    m_Localized: Finger-hervorhebung
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -47,6 +47,7 @@ public class appSettings : MonoBehaviour
     public GameObject SpatialMeshIndicator;
     public GameObject DebugWindowIndicator;
     public GameObject GazeHighlightingIndicator;
+    public GameObject PointerHighlightingIndicator;
     public GameObject RightHandMenuIndicator;
     public GameObject UserBoxIndicator;
     public GameObject UserRayIndicator;
@@ -182,6 +183,12 @@ public class appSettings : MonoBehaviour
     public void toggleGazeHighlighting()
     {
         SettingsData.gazeHighlighting = !SettingsData.gazeHighlighting;
+        updateVisuals();
+    }
+
+    public void togglePointerHighlighting()
+    {
+        SettingsData.pointerHighlighting = !SettingsData.pointerHighlighting;
         updateVisuals();
     }
 
@@ -337,6 +344,7 @@ public class appSettings : MonoBehaviour
         }
 
         setVisual(GazeHighlightingIndicator, SettingsData.gazeHighlighting);
+        setVisual(PointerHighlightingIndicator, SettingsData.pointerHighlighting);
         setVisual(RightHandMenuIndicator, SettingsData.rightHandMenu);
     }
 

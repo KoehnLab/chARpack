@@ -138,7 +138,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     private void OnFocusEnter(FocusEventData eventData)
     {
-        if(!focused && SettingsData.gazeHighlighting)
+        if(!focused && SettingsData.pointerHighlighting)
         {
             focusHighlight(true);
             focused = true;
@@ -148,7 +148,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     void OnFocusExit(FocusEventData eventData)
     {
-        if (focused && SettingsData.gazeHighlighting)
+        if (focused && SettingsData.pointerHighlighting)
         {
             focusHighlight(false);
             focused = false;

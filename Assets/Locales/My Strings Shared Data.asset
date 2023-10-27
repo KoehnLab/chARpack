@@ -289,6 +289,10 @@ MonoBehaviour:
     m_Key: Settings/Settings/CoopSettings/ButtonCollection/ToggleUserBox/IconAndText/TextMeshPro
     m_Metadata:
       m_Items: []
+  - m_Id: 43185531663138816
+    m_Key: Settings/Settings/ButtonCollection/TogglePointerHighlight/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
