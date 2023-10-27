@@ -1327,7 +1327,7 @@ public class GlobalCtrl : MonoBehaviour
 
         // Clear selection
         // TODO differentiate between problematic and not problematic cases
-        molInAir.markMoleculeUI(false);
+        molInAir.markMolecule(false);
 
         SaveMolecule(true);
 
