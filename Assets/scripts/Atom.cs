@@ -645,7 +645,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         // Debug.Log(string.Format("Modified latest {0}:  rad={1}   scale={2} ", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale));
     }
 
-    private void resetMolPositionAfterMove()
+    public void resetMolPositionAfterMove()
     {
 
         // reset molecule position
