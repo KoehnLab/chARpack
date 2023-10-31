@@ -2,6 +2,7 @@ using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Linq;
+using UnityEngine.UI;
 
 public class Login : MonoBehaviour
 {
@@ -37,6 +38,8 @@ public class Login : MonoBehaviour
 
     [HideInInspector] public GameObject anchorPrefab;
 
+    public GameObject toggleDebugButton;
+
     private void Awake()
     {
         Singleton = this;
@@ -44,6 +47,11 @@ public class Login : MonoBehaviour
         qrManagerPrefab = (GameObject)Resources.Load("prefabs/QR/QRCodesManager");
         stopScanButtonPrefab = (GameObject)Resources.Load("prefabs/QR/StopScanButton");
         anchorPrefab = (GameObject)Resources.Load("prefabs/QR/QRAnchor");
+
+        GameObject debugWindow = Instantiate((GameObject)Resources.Load("prefabs/DebugWindow"));
+        debugWindow.SetActive(false);
+        toggleDebugButton.GetComponent<Button>().onClick.AddListener(delegate { DebugWindow.Singleton.toggleVisible(); });
+        DebugWindow.Singleton.debugIndicator = toggleDebugButton.transform.Find("IconAndText/Indicator").gameObject;
 
     }
 
