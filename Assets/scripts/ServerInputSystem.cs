@@ -20,6 +20,9 @@ public class ServerInputSystem : MonoBehaviour
         selectWholeMolecule();
     }
 
+    /// <summary>
+    /// Implements WASD movement and mouse-based turning.
+    /// </summary>
     private void doMovement()
     {
         if (Input.GetKey(KeyCode.W))
@@ -67,6 +70,9 @@ public class ServerInputSystem : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Selects the whole molecule belonging to the last selected atom.
+    /// </summary>
     private void selectWholeMolecule()
     {
         if (Input.GetKey(KeyCode.RightShift) && Input.GetKeyDown(KeyCode.A))

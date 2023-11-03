@@ -45,25 +45,37 @@ public class ChangeBond : MonoBehaviour
         kInputField.GetComponent<MRTKTMPInputField>().text = tt.vk.ToString();
     }
 
-
+    /// <summary>
+    /// Changes the bond parameters of a single bond 
+    /// according to the text input.
+    /// </summary>
     public void changeBondParametersBT()
     {
         bt_.eqDist = float.Parse(distInputField.GetComponent<MRTKTMPInputField>().text);
         bt_.kBond = float.Parse(kInputField.GetComponent<MRTKTMPInputField>().text);
     }
 
+    /// <summary>
+    /// Changes the bond parameters of an angle bond 
+    /// according to the text input.
+    /// </summary>
     public void changeBondParametersAT()
     {
         at_.eqAngle = float.Parse(distInputField.GetComponent<MRTKTMPInputField>().text);
         at_.kAngle = float.Parse(kInputField.GetComponent<MRTKTMPInputField>().text);
     }
 
+    /// <summary>
+    /// Changes the bond parameters of a torsion bond 
+    /// according to the text input.
+    /// </summary>
     public void changeBondParametersTT()
     {
         tt_.eqAngle = float.Parse(distInputField.GetComponent<MRTKTMPInputField>().text);
         tt_.vk = float.Parse(kInputField.GetComponent<MRTKTMPInputField>().text);
     }
 
+    // Keyboard interactions
     void OnGUI()
     {
         if (Event.current.Equals(Event.KeyboardEvent("return")))

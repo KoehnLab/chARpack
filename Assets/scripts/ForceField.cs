@@ -270,6 +270,9 @@ public class ForceField : MonoBehaviour
         stopwatch = Stopwatch.StartNew();
     }
 
+    /// <summary>
+    /// Measures convergence based on size of movements due to force field.
+    /// </summary>
     void measureConvergence()
     {
         bool converged = true;
@@ -424,6 +427,9 @@ public class ForceField : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Applies the force field to all molecules, bonds, atoms etc.
+    /// </summary>
     void applyFF_onConvergence()
     {
         bool notConverged = true;
@@ -464,7 +470,12 @@ public class ForceField : MonoBehaviour
         //UnityEngine.Debug.Log("[FF] Jump");
     }
 
-    // calculate non-bonding repulsion forces
+    /// <summary>
+    /// calculate non-bonding repulsion forces
+    /// </summary>
+    /// <param name="hsTerm"></param>
+    /// <param name="mol"></param>
+    /// <param name="second_pass"></param>
     void calcRepForces(HardSphereTerm hsTerm, Molecule mol, bool second_pass = false)
     {
         if (LogLevel >= 1000) FFlog.WriteLine("calcRepForces for {0} - {1}", hsTerm.Atom1, hsTerm.Atom2);
@@ -491,8 +502,12 @@ public class ForceField : MonoBehaviour
         }
     }
 
-
-    // calculate bond forces
+    /// <summary>
+    /// calculate bond forces
+    /// </summary>
+    /// <param name="bond"></param>
+    /// <param name="mol"></param>
+    /// <param name="second_pass"></param>
     void calcBondForces(BondTerm bond, Molecule mol, bool second_pass = false)
     {
         if (LogLevel >= 1000) FFlog.WriteLine("calcBondForces for {0} - {1}", bond.Atom1, bond.Atom2);
@@ -534,8 +549,12 @@ public class ForceField : MonoBehaviour
         }
     }
 
-
-    // calculate angle forces
+    /// <summary>
+    /// calculate angle forces
+    /// </summary>
+    /// <param name="angle"></param>
+    /// <param name="mol"></param>
+    /// <param name="second_pass"></param>
     void calcAngleForces(AngleTerm angle, Molecule mol, bool second_pass = false)
     {
         if (LogLevel >= 1000) FFlog.WriteLine("calcAngleForces for {0} - {1} - {2}", angle.Atom1, angle.Atom2, angle.Atom3);
@@ -602,7 +621,12 @@ public class ForceField : MonoBehaviour
     }
 
 
-    //calculate orsion forces
+    /// <summary>
+    /// calculate torsion forces
+    /// </summary>
+    /// <param name="torsion"></param>
+    /// <param name="mol"></param>
+    /// <param name="second_pass"></param>
     void calcTorsionForces(TorsionTerm torsion, Molecule mol, bool second_pass = false)
      {
 
@@ -673,6 +697,11 @@ public class ForceField : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Computes the root mean square force in a molecule.
+    /// </summary>
+    /// <param name="mol"></param>
+    /// <returns>the root mean square force in a molecule</returns>
     float RMSforce(Molecule mol)
     {
         if (nAtoms == 0)
@@ -692,8 +721,10 @@ public class ForceField : MonoBehaviour
             return sqsum;
         }
     }
-
-    // turn forces into movements and apply sanity checks 
+    /// <summary>
+    /// Turn forces into movements and apply sanity checks.
+    /// Uses the Euler method for integration.
+    /// </summary>
     void eulerIntegration()
     {
 
@@ -878,6 +909,9 @@ public class ForceField : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Applies the movements calculated from the force field to all molecules.
+    /// </summary>
     void applyMovements()
     {
         // momentum change to position change: apply time factor

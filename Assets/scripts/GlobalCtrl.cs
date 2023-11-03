@@ -128,6 +128,10 @@ public class GlobalCtrl : MonoBehaviour
     private InteractionModes _currentInteractionMode = InteractionModes.NORMAL;
     public InteractionModes currentInteractionMode { get => _currentInteractionMode; private set => _currentInteractionMode = value; }
 
+    /// <summary>
+    /// Toggles the interaction mode "chain":
+    /// unfreezes molecules if they were frozen and updates indicators.
+    /// </summary>
     public void toggleChainInteractionMode()
     {
         if (currentInteractionMode != InteractionModes.CHAIN)
@@ -147,6 +151,10 @@ public class GlobalCtrl : MonoBehaviour
         handMenu.Singleton.setVisuals();
     }
 
+    /// <summary>
+    /// Toggles the interaction mode "measurement":
+    /// freezes molecules if activated and updates indicators.
+    /// </summary>
     public void toggleMeasurementMode()
     {
         if (currentInteractionMode != InteractionModes.MEASUREMENT)
@@ -278,7 +286,13 @@ public class GlobalCtrl : MonoBehaviour
 
 
     #region atom_helper
-
+    /// <summary>
+    /// Try to get an atom based on molecule and atom id.
+    /// </summary>
+    /// <param name="mol_id"></param>
+    /// <param name="atom_id"></param>
+    /// <param name="atomInstance"></param>
+    /// <returns>Whether the atom was found</returns>
     public bool getAtom(ushort mol_id, ushort atom_id, ref Atom atomInstance)
     {
         var mol = List_curMolecules.ElementAtOrDefault(mol_id);
@@ -297,6 +311,10 @@ public class GlobalCtrl : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// Counts the atoms in the entire scene.
+    /// </summary>
+    /// <returns>the number of atoms in the scene</returns>
     public int getNumAtoms()
     {
         int num_atoms = 0;
@@ -451,6 +469,10 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Deletes a given bond and invokes a delete bond event.
+    /// </summary>
+    /// <param name="to_delete"></param>
     public void deleteBondUI(Bond to_delete)
     {
         var mol_id = to_delete.m_molecule.m_id;
@@ -475,6 +497,11 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Try to delete a given bond (without triggering a network event).
+    /// </summary>
+    /// <param name="b"></param>
+    /// <returns>whether the deletion was successful</returns>
     public bool deleteBond(Bond b)
     {
 
@@ -607,7 +634,10 @@ public class GlobalCtrl : MonoBehaviour
         return true;
     }
 
-
+    /// <summary>
+    /// Deletes a given molecule and invokes a delete molecule event.
+    /// </summary>
+    /// <param name="to_delete"></param>
     public void deleteMoleculeUI(Molecule to_delete)
     {
         var mol_id = to_delete.m_id;
@@ -622,6 +652,11 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Deletes a given molecule; removes all outlines on 
+    /// atoms and bonds contained in the molecule;
+    /// </summary>
+    /// <param name="m"></param>
     public void deleteMolecule(Molecule m)
     {
         if (m.isMarked)
@@ -646,7 +681,10 @@ public class GlobalCtrl : MonoBehaviour
         // no need to invoke change event
     }
 
-
+    /// <summary>
+    /// Deletes a given atom and invokes a delete atom event.
+    /// </summary>
+    /// <param name="to_delete"></param>
     public void deleteAtomUI(Atom to_delete)
     {
         var mol_id = to_delete.m_molecule.m_id;
@@ -675,6 +713,10 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Deletes a given atom and restores positions of dependent molecules.
+    /// </summary>
+    /// <param name="to_delete"></param>
     public void deleteAtom(Atom to_delete)
     {
         Dictionary<Atom, List<Vector3>> positionsRestore = new Dictionary<Atom, List<Vector3>>();
@@ -752,6 +794,11 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Deletes the measurements starting from or ending in the 
+    /// given atom.
+    /// </summary>
+    /// <param name="atom"></param>
     public void deleteMeasurmentsOf(Atom atom)
     {
         // Distances
@@ -787,6 +834,11 @@ public class GlobalCtrl : MonoBehaviour
         //}
     }
 
+    /// <summary>
+    /// Deletes angle measurements that depend on the given
+    /// distance measurement.
+    /// </summary>
+    /// <param name="dist"></param>
     public void deleteAngleMeasurmentsOf(DistanceMeasurment dist)
     {
         List<AngleMeasurment> angleToRemove = new List<AngleMeasurment>();
@@ -805,6 +857,9 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Deletes all registered measurements in the scene and clears the register.
+    /// </summary>
     public void deleteAllMeasurements()
     {
         foreach (var entry in distMeasurmentDict)
@@ -820,6 +875,12 @@ public class GlobalCtrl : MonoBehaviour
         angleMeasurmentDict.Clear();
     }
 
+    /// <summary>
+    /// Gets all distance measurements that start or end in 
+    /// the given atom.
+    /// </summary>
+    /// <param name="atom"></param>
+    /// <returns>a list of distance measurements that include <c>atom</c></returns>
     public List<DistanceMeasurment> getDistanceMeasurmentsOf(Atom atom)
     {
 
@@ -836,6 +897,10 @@ public class GlobalCtrl : MonoBehaviour
         return contained_in;
     }
 
+    /// <summary>
+    /// Freezes/unfreezes all molecules in the scene.
+    /// </summary>
+    /// <param name="value">whether to freeze or unfreeze</param>
     public void freezeWorld(bool value)
     {
         foreach (var mol in List_curMolecules)
@@ -999,8 +1064,10 @@ public class GlobalCtrl : MonoBehaviour
     #endregion
 
     #region layer management
-    // This method toggles everything in a background layer and 
-    // toggles the bonds in the front layer 
+    /// <summary>
+    /// This method toggles everything in a background layer and 
+    /// toggles the bonds in the front layer
+    /// </summary> 
     public void toggleBondLayer()
     {
         bondsInForeground = !bondsInForeground;
@@ -1034,7 +1101,13 @@ public class GlobalCtrl : MonoBehaviour
     #endregion
 
     #region move functions
-
+    /// <summary>
+    /// Try to move an atom of a given molecule to a given position.
+    /// </summary>
+    /// <param name="mol_id"></param>
+    /// <param name="atom_id"></param>
+    /// <param name="pos"></param>
+    /// <returns>whether the atom could successfully be moved</returns>
     public bool moveAtom(ushort mol_id, ushort atom_id, Vector3 pos)
     {
         var mol = Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
@@ -1051,6 +1124,12 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Try to stop the movement of an atom (needed for correct networking).
+    /// </summary>
+    /// <param name="mol_id"></param>
+    /// <param name="atom_id"></param>
+    /// <returns>whether the stop was completed successfully</returns>
     public bool stopMoveAtom(ushort mol_id, ushort atom_id)
     {
         var mol = Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
@@ -1067,6 +1146,13 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Attempt to move a molecule to a given position in a given rotation.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="pos"></param>
+    /// <param name="quat"></param>
+    /// <returns>whether the molecule was moved successfully</returns>
     public bool moveMolecule(ushort id, Vector3 pos, Quaternion quat)
     {
         var molecule = List_curMolecules.ElementAtOrDefault(id);
@@ -1138,6 +1224,10 @@ public class GlobalCtrl : MonoBehaviour
         EventManager.Singleton.ChangeMolData(tempMolecule);
     }
 
+    /// <summary>
+    /// Creates an atom of the given type and invokes a create atom event.
+    /// </summary>
+    /// <param name="ChemicalID"></param>
     public void createAtomUI(string ChemicalID)
     {
         lastAtom = ChemicalID; // remember this for later
@@ -1181,18 +1271,34 @@ public class GlobalCtrl : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// changes the type of an atom and invokes a change atom event.
+    /// </summary>
+    /// <param name="idMol">ID of the molecule containing the selected atom</param>
+    /// <param name="idAtom">ID of the selected atom</param>
+    /// <param name="ChemicalAbbre">chemical abbrevation of the new atom type</param>
     public void changeAtomUI(ushort idMol, ushort idAtom, string ChemicalAbbre)
     {
         EventManager.Singleton.ChangeAtom(idMol, idAtom, ChemicalAbbre);
         changeAtom(idMol, idAtom, ChemicalAbbre);
     }
 
+    /// <summary>
+    /// Modifies the hybridization of a given atom and invokes a modify hybridization event.
+    /// </summary>
+    /// <param name="atom">the atom of which to modify the hybridization</param>
+    /// <param name="hybrid">the new hybridization</param>
     public void modifyHybridUI(Atom atom, ushort hybrid)
     {
         EventManager.Singleton.ModifyHyb(atom.m_molecule.m_id, atom.m_id, hybrid);
         modifyHybrid(atom, hybrid);
     }
 
+    /// <summary>
+    /// Modifies the hybridization of a given atom.
+    /// </summary>
+    /// <param name="atom">the atom of which to modify the hybridization</param>
+    /// <param name="hybrid">the new hybridization</param>
     public void modifyHybrid(Atom atom, ushort hybrid)
     {
         ElementData tempData = Dic_ElementData[atom.m_data.m_abbre];
@@ -1204,6 +1310,13 @@ public class GlobalCtrl : MonoBehaviour
         EventManager.Singleton.ChangeMolData(atom.m_molecule);
     }
 
+    /// <summary>
+    /// Try to modify the hybridization of an atom in a molecule given by IDs.
+    /// </summary>
+    /// <param name="mol_id">ID of the molecule containing the selected atom</param>
+    /// <param name="atom_id">ID of the selected atom</param>
+    /// <param name="hybrid">new hybridization to use</param>
+    /// <returns>whether the hybridization could be successfully modified</returns>
     public bool modifyHybrid(ushort mol_id, ushort atom_id, ushort hybrid)
     {
 
@@ -1357,6 +1470,7 @@ public class GlobalCtrl : MonoBehaviour
         MergeMolecule(List_curMolecules[molInHand].atomList[dummyInHand], List_curMolecules[molInAir].atomList[dummyInAir]);
     }
 
+    /// <summary>
     /// This method separates a molecule between two grabbed atoms
     /// This method is called when a bond will be deleted and two atoms are separated
     /// </summary>
@@ -1373,6 +1487,13 @@ public class GlobalCtrl : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Try to change the force field term of a single bond.
+    /// </summary>
+    /// <param name="mol_id">ID of the molecule containing the selected bond</param>
+    /// <param name="term_id">ID of the selected bond term</param>
+    /// <param name="new_term">the new bond term to use</param>
+    /// <returns>whether the change was successful</returns>
     public bool changeBondTerm(ushort mol_id, ushort term_id, ForceField.BondTerm new_term)
     {
         if (term_id >= List_curMolecules.ElementAtOrDefault(mol_id).bondTerms.Count)
@@ -1384,6 +1505,13 @@ public class GlobalCtrl : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// Try to change the force field term of an angle bond.
+    /// </summary>
+    /// <param name="mol_id">ID of the molecule containing the selected angle bond</param>
+    /// <param name="term_id">ID of the selected angle term</param>
+    /// <param name="new_term">the new angle term to use</param>
+    /// <returns>whether the change was successful</returns>
     public bool changeAngleTerm(ushort mol_id, ushort term_id, ForceField.AngleTerm new_term)
     {
         if (term_id >= List_curMolecules.ElementAtOrDefault(mol_id).angleTerms.Count)
@@ -1395,6 +1523,13 @@ public class GlobalCtrl : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// Try to change the force field term of a torsion bond.
+    /// </summary>
+    /// <param name="mol_id">ID of the molecule containing the selected bond</param>
+    /// <param name="term_id">ID of the selected torsion term</param>
+    /// <param name="new_term">the new torsion term to use</param>
+    /// <returns>whether the change was successful</returns>
     public bool changeTorsionTerm(ushort mol_id, ushort term_id, ForceField.TorsionTerm new_term)
     {
         if (term_id >= List_curMolecules.ElementAtOrDefault(mol_id).torsionTerms.Count)
@@ -1407,7 +1542,11 @@ public class GlobalCtrl : MonoBehaviour
     }
 
 
-
+    /// <summary>
+    /// Creates a copy of the given molecule slightly upwards of it.
+    /// Invokes a network event for the new molecule.
+    /// </summary>
+    /// <param name="molecule">the molecule to copy</param>
     public void copyMolecule(Molecule molecule)
     {
         // save old molecule data
@@ -1556,11 +1695,20 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Reads molecule data from an xml file.
+    /// </summary>
+    /// <param name="name">the file name (without type extension and path)</param>
+    /// <returns>a list of cmlData</returns>
     public List<cmlData> getMoleculeData(string name)
     {
         return (List<cmlData>)CFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
     }
 
+    /// <summary>
+    /// Saves all molecules, atoms and different bonds.
+    /// </summary>
+    /// <returns>list of cmlData representing the entire atom world</returns>
     public List<cmlData> saveAtomWorld()
     {
         // flatten IDs first
@@ -1600,7 +1748,11 @@ public class GlobalCtrl : MonoBehaviour
         return saveData;
     }
 
-
+    /// <summary>
+    /// Rebuilds the atom world.
+    /// </summary>
+    /// <param name="data">list of cmlData that represents the world state to rebuild</param>
+    /// <param name="add">whether to add to an existing atom world</param>
     public void rebuildAtomWorld(List<cmlData> data, bool add = false)
     {
         // this method preserves the ids of all objects
@@ -1637,6 +1789,9 @@ public class GlobalCtrl : MonoBehaviour
         SaveMolecule(true);
     }
 
+    /// <summary>
+    /// Performs an undo operation and invokes an undo event.
+    /// </summary>
     public void undoUI()
     {
         if (LoginData.normal_mode)
@@ -1649,6 +1804,9 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Performs an undo operation by loading the last saved system state.
+    /// </summary>
     public void undo()
     {
         Debug.Log($"[GlobalCrtl:undo] Stack size: {systemState.Count}.");
@@ -1751,7 +1909,11 @@ public class GlobalCtrl : MonoBehaviour
     #region ui functions
 
 
-
+    /// <summary>
+    /// Gets data of an element based on its chemical abbreviation.
+    /// </summary>
+    /// <param name="abbre">chemical abbreviation of the needed element</param>
+    /// <returns>data of the requested element</returns>
     public ElementData GetElementbyAbbre(string abbre)
     {
         foreach(KeyValuePair<string, ElementData> pair in Dic_ElementData)
@@ -1786,7 +1948,11 @@ public class GlobalCtrl : MonoBehaviour
     //    CreateAtom(getFreshMoleculeID(), favorites[pos - 1], create_position, curHybrid);
     //}
 
-
+    /// <summary>
+    /// Returns the first marked object of type <c>type</c> in the current list of molecules.
+    /// </summary>
+    /// <param name="type">the type of object to search (0: Molecule, 1: Atom, 2: Bond)</param>
+    /// <returns>the first marked object of the requested type</returns>
     public object getNextMarked(int type)
     {
         if(type == 0)
@@ -1823,6 +1989,9 @@ public class GlobalCtrl : MonoBehaviour
     #endregion
 
     #region Settings
+    /// <summary>
+    /// Toggles visibility of the debug window.
+    /// </summary>
     public void toggleDebugWindow()
     {
         if (DebugWindow.Singleton)
@@ -1831,30 +2000,46 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Opens an instance of the settings window.
+    /// </summary>
     public void openSettingsWindow()
     {
         var settingsPrefab = (GameObject)Resources.Load("prefabs/Settings");
         Instantiate(settingsPrefab);
     }
 
+    /// <summary>
+    /// Opens an instance of the Load/Save window.
+    /// </summary>
     public void openLoadSaveWindow()
     {
         var load_save = (GameObject)Resources.Load("prefabs/LoadSaveList");
         Instantiate(load_save);
     }
 
+    /// <summary>
+    /// Opens an instance of the scrollable atom menu.
+    /// </summary>
     public void openAtomMenuScrollable()
     {
         var atomMenuScrollablePrefab = (GameObject)Resources.Load("prefabs/AtomMenuScrollable");
         Instantiate(atomMenuScrollablePrefab);
     }
 
+    /// <summary>
+    /// Toggles visibility of the hand menu.
+    /// </summary>
     public void toggleHandMenu()
     {
         handMenu.Singleton.toggleVisible();
     }
     #endregion
 
+    /// <summary>
+    /// Destroys and regenerates all tool tips in the scene.
+    /// This is used when changing the locale to properly update the tool tip text.
+    /// </summary>
     private void regenerateTooltips()
     {
         foreach(Molecule mol in List_curMolecules)
@@ -1906,6 +2091,10 @@ public class GlobalCtrl : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// Starts the process of exiting the main scene and returning to the login screen.
+    /// Prompts the user to confirm their wish to exit.
+    /// </summary>
     public void backToMain()
     {
         MainActionMenu.Singleton.gameObject.SetActive(false);
@@ -1945,6 +2134,11 @@ public class GlobalCtrl : MonoBehaviour
         //    CFileHelper.SaveData(Application.streamingAssetsPath + "/MoleculeFolder/ElementData.xml", list_ElementData);
     }
 
+    /// <summary>
+    /// Gets the appropriate version of given text for the current loacle.
+    /// </summary>
+    /// <param name="text"></param>
+    /// <returns>a localized version of the given text</returns>
     public string GetLocalizedString(string text)
     {
         return LocalizationSettings.StringDatabase.GetLocalizedString("My Strings", text);

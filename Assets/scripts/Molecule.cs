@@ -14,6 +14,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
     private Stopwatch stopwatch;
     [HideInInspector] public bool isGrabbed = false;
+    /// <summary>
+    /// This method is triggered when a grab/select gesture is started.
+    /// Sets the molecule to grabbed unless measurement mode is active.
+    /// </summary>
+    /// <param name="eventData"></param>
     public void OnPointerDown(MixedRealityPointerEventData eventData)
     {
         isGrabbed = true;
@@ -31,13 +36,24 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         // Intentionally empty
     }
 
+    /// <summary>
+    /// This method is triggered when the grabbed molecule is dragged.
+    /// It invokes a network event to keep molecule positions synchronized.
+    /// </summary>
+    /// <param name="eventData"></param>
     public void OnPointerDragged(MixedRealityPointerEventData eventData)
     {
         // keep everything relative to atom world
         EventManager.Singleton.MoveMolecule(m_id, transform.localPosition, transform.localRotation);
     }
 
-    // This function is triggered when a grabbed object is dropped
+    /// <summary>
+    /// This function is triggered when a grabbed molecule is dropped.
+    /// It ends the grabbed status of the molecule, marks it if less than
+    /// the maximum timespan for the select gesture has elapsed and checks for/performs
+    /// potential merges.
+    /// </summary>
+    /// <param name="eventData"></param>
     public void OnPointerUp(MixedRealityPointerEventData eventData)
     {
         stopwatch?.Stop();
@@ -82,6 +98,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    /// <summary>
+    /// Scales the molecule based on the slider value and invokes a 
+    /// change molecule scale event.
+    /// </summary>
+    /// <param name="eventData"></param>
     public void OnSliderUpdated(mySliderEventData eventData)
     {
         gameObject.transform.localScale = eventData.NewValue * startingScale;
@@ -321,7 +342,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         Destroy(gameObject);
     }
 
-
+    /// <summary>
+    /// Outlines the molecule in the selection color and potentially spawns a molecule tool tip.
+    /// </summary>
+    /// <param name="mark"></param>
+    /// <param name="showToolTip"></param>
     public void markMolecule(bool mark, bool showToolTip = false)
     {
         isMarked = mark;
@@ -386,12 +411,24 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    /// <summary>
+    /// Marks the molecule and invokes a mark molecule event.
+    /// </summary>
+    /// <param name="mark"></param>
+    /// <param name="showToolTip"></param>
     public void markMoleculeUI(bool mark, bool showToolTip = true)
     {
         EventManager.Singleton.SelectMolecule(m_id, !isMarked);
         markMolecule(mark, showToolTip);
     }
 
+    /// <summary>
+    /// Creates a snap tool tip connected to the current molecule and the
+    /// other selected molecule.
+    /// It contains information about the molecules and a button that provides
+    /// the option to perform the snap.
+    /// </summary>
+    /// <param name="otherMolID">ID of the other selected molecule</param>
     public void createSnapToolTip(ushort otherMolID)
     {
         // create tool tip
@@ -534,6 +571,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         return atomCount;
     }
 
+    /// <summary>
+    /// Computes the center of the molecule relative to the atom world.
+    /// </summary>
+    /// <returns>a vector describing the molecule's center in the atom world</returns>
     public Vector3 getCenterInAtomWorld()
     {
         Vector3 center = new Vector3(0.0f, 0.0f, 0.0f);
@@ -548,6 +589,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         return center;
     }
 
+    /// <summary>
+    /// Computes the center of the molecule in global coordinates.
+    /// </summary>
+    /// <returns>a vector describing the molecule's center</returns>
     public Vector3 getCenter()
     {
         Vector3 center = new Vector3(0.0f, 0.0f, 0.0f);
@@ -562,6 +607,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         return center;
     }
 
+    /// <summary>
+    /// Calculates the maximum distance any atom in the current molecule
+    /// has from a given point.
+    /// </summary>
+    /// <param name="center"></param>
+    /// <returns>the maximum distance from <c>center</c></returns>
     public float getMaxDistFromCenter(Vector3 center)
     {
         List<float> dists = new List<float>();
@@ -599,7 +650,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     }
 
     #region ToolTips
-
+    /// <summary>
+    /// Creates a molecule tool tip with information about the molecule as well
+    /// as buttons to provide interactions like copying and toggling dummies.
+    /// </summary>
     public void createToolTip()
     {
         // create tool tip
@@ -671,6 +725,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    /// <summary>
+    /// Creates a tool tip for a single bond that contains both static and dynamic information about
+    /// its length and buttons, including the option to change the bonds equilibrium parameters.
+    /// </summary>
+    /// <param name="term"></param>
     public void createBondToolTip(ForceField.BondTerm term)
     {
         markBondTerm(term, true);
@@ -778,7 +837,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     }
 
 
-
+    /// <summary>
+    /// Creates a tool tip for an angle bond that contains both static and dynamic information about
+    /// its size and buttons, including the option to change the bonds equilibrium parameters.
+    /// </summary>
+    /// <param name="term"></param>
     public void createAngleToolTip(ForceField.AngleTerm term)
     {
         markAngleTerm(term, true);
@@ -885,7 +948,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
-
+    /// <summary>
+    /// Creates a tool tip for a torsion bond that contains both static and dynamic information about
+    /// its angle and buttons, including the option to change the bonds equilibrium parameters.
+    /// </summary>
+    /// <param name="term"></param>
     public void createTorsionToolTip(ForceField.TorsionTerm term)
     {
         markTorsionTerm(term, true);
@@ -1025,6 +1092,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         return toolTipText;
     }
 
+    /// <summary>
+    /// Freezes/unfreezes the molecule and invokes a freeze molecule event.
+    /// </summary>
+    /// <param name="value">whether to freeze or unfreeze the molecule</param>
     public void freezeUI(bool value)
     {
         if (value == frozen) return;
@@ -1032,6 +1103,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         EventManager.Singleton.FreezeMolecule(m_id, value);
     }
 
+    /// <summary>
+    /// Freezes the molecule; this changes its appearance and makes it non-interactable.
+    /// </summary>
+    /// <param name="value">whether to freeze or unfreeze the molecule</param>
     public void freeze(bool value)
     {
         foreach (var atom in atomList)
@@ -1047,6 +1122,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    /// <summary>
+    /// Updates the indicator on the freeze button depending on whether the molecule is frozen.
+    /// </summary>
+    /// <param name="value"></param>
     public void setFrozenVisual(bool value)
     {
         var FrozenIndicator = freezeButton.transform.Find("IconAndText").gameObject.transform.Find("Indicator").gameObject;
@@ -1166,6 +1245,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    /// <summary>
+    /// Generates a force field including the current molecule.
+    /// </summary>
     public void generateFF()
     {
 

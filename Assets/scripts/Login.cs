@@ -55,13 +55,18 @@ public class Login : MonoBehaviour
 
     }
 
-
+    /// <summary>
+    /// Loads normal mode.
+    /// </summary>
     public void normal()
     {
         LoginData.normal_mode = true;
         SceneManager.LoadScene("MainScene");
     }
 
+    /// <summary>
+    /// Loads the server scene.
+    /// </summary>
     public void host()
     {
         Debug.Log("[Login] Starting Server.");
@@ -76,6 +81,9 @@ public class Login : MonoBehaviour
         Application.Quit();
     }
 
+    /// <summary>
+    /// Spawns an instance of the server list facing the camera.
+    /// </summary>
     public void showServerList()
     {
         if (serverListInstance == null)
@@ -88,6 +96,9 @@ public class Login : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Starts scanning of a QR code, spawns stop scan button.
+    /// </summary>
     public void startScanQR()
     {
         // initializes singleton
@@ -104,6 +115,10 @@ public class Login : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Ends scanning the QR code; sets appropriate offsets
+    /// for commmon coordinate system if the scan was successful.
+    /// </summary>
     public void stopScanQR()
     {
         var qrManager = qrManagerInstance.GetComponent<QRTracking.QRCodesManager>();
