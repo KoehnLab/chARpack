@@ -14,6 +14,10 @@ using UnityEngine.Events;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using UnityEngine.EventSystems;
 
+
+/// <summary>
+/// A class that provides the functionalities of single atoms.
+/// </summary>
 [Serializable]
 public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFocusHandler
 {
@@ -72,6 +76,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
     }
 
+    /// <summary>
+    /// Outlines the current atom in grabColor; is used upon grabbing an atom.
+    /// </summary>
+    /// <param name="active">Whether to activate or deactivate the grabColor outline</param>
     public void grabHighlight(bool active)
     {
         if (active)
@@ -103,6 +111,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
     }
 
+    /// <summary>
+    /// Outlines the current atom in focusColor; is used when a pointer from the index finger gets close to the atom.
+    /// </summary>
+    /// <param name="active">Whether to activate or deactivate the focusColor outline</param>
     public void focusHighlight(bool active)
     {
         if (active)
@@ -249,6 +261,11 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     }
 #endif
 
+    /// <summary>
+    /// Handles the start of a grab gesture.
+    /// The handling depends on the current interaction mode (e.g. in chain mode the correct chain of connected atoms is computed).
+    /// </summary>
+    /// <param name="eventData">The data of the triggering pointer event</param>
     public void OnPointerDown(MixedRealityPointerEventData eventData)
     {
         if (eventData.Pointer is SpherePointer)
@@ -302,6 +319,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         // Intentionally empty
     }
+
+    /// <summary>
+    /// This function is triggered when a grabbed atom is dragged.
+    /// Moves the current grabbed atom; if two atoms in a molecule are grabbed and pulled apart, they are separated.
+    /// </summary>
+    /// <param name="eventData"></param>
     public void OnPointerDragged(MixedRealityPointerEventData eventData)
     {
         // position relative to molecule position
@@ -336,7 +359,26 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
     }
 
-    // This function is triggered when a grabbed object is dropped
+    /// <summary>
+    /// This function is triggered when a grabbed object is dropped.
+    /// It resets the grab and focus highlights on the current atom
+    /// <para>
+    /// In chain mode, highlights are reset on every atom in the current chain.
+    /// </para>
+    /// <para>
+    /// In normal mode, the atom is selected if the triggering interaction 
+    /// was shorter than 200ms (selection gesture).
+    /// If the interaction was longer (i.e. the atom was moved), the method checks
+    /// for and handles potential merges with other molecules.
+    /// </para>
+    /// <para>
+    /// In measurement mode, measurements are made if the interaction was 
+    /// shorter than 300ms (<see cref="handleMeasurements"/>).
+    /// </para>
+    /// If the atom was moved, the resulting new position of the entire molecule 
+    /// is then computed.
+    /// </summary>
+    /// <param name="eventData"></param>
     public void OnPointerUp(MixedRealityPointerEventData eventData)
     {
         stopwatch?.Stop();
@@ -427,6 +469,14 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
     }
 
+    /// <summary>
+    /// This method is used in measurement mode to start, end and document distance and angle measurements.
+    /// If the selected atom is the first of a pair, a distance measurement is created that connects to the tip of the index finger.
+    /// If it is the second, the end of the distance measurement is attached to it.
+    /// If there is a third atom connected by a distance measurement, an angle measurement is created between the three.
+    /// 
+    /// The new measurements are then registered in GlobalCtrl.
+    /// </summary>
     private void handleMeasurements()
     {
         if (GlobalCtrl.Singleton.measurmentInHand == null)
@@ -648,6 +698,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         // Debug.Log(string.Format("Modified latest {0}:  rad={1}   scale={2} ", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale));
     }
 
+    /// <summary>
+    /// Handles the transfer of the movement of a single atom (with 
+    /// consequences because of the force field) to the containing molecule.
+    /// </summary>
     public void resetMolPositionAfterMove()
     {
 
@@ -678,6 +732,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
     }
 
+    /// <summary>
+    /// Adds a dummy to the current atom.
+    /// </summary>
+    /// <param name="numConnected">The number of already connected atoms</param>
     public void addDummy(int numConnected)
     {
         List<Atom> conAtoms = connectedAtoms();
@@ -838,6 +896,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         return conAtomList;
     }
 
+    /// <summary>
+    /// Calculates a list of all connected atoms for a given atom,
+    /// excluding a specific one.
+    /// </summary>
+    /// <param name="exclude">The atom that should not appear in the list</param>
+    /// <returns>list of connected atoms without <c>exclude</c></returns>
     public List<Atom> otherConnectedAtoms(Atom exclude)
     {
         var conList = connectedAtoms();
@@ -848,6 +912,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         return conList;
     }
 
+    /// <summary>
+    /// Calculates a list of all connected atoms for a given atom,
+    /// excluding multiple specific ones.
+    /// </summary>
+    /// <param name="exclude">The atoms that should not appear in the list</param>
+    /// <returns>list of connected atoms without <c>exclude</c></returns>
     public HashSet<Atom> otherConnectedAtoms(HashSet<Atom> exclude)
     {
         HashSet<Atom> conAtomList = new HashSet<Atom>();
@@ -871,7 +941,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         return conAtomList;
     }
 
-
+    /// <summary>
+    /// Computes the chain of atoms from the current one in the direction
+    /// of <c>exceptAtom</c>.
+    /// </summary>
+    /// <param name="exceptAtom">The atom in the direction of the chain</param>
+    /// <returns>A list of atoms in the chain</returns>
     public List<Atom> connectedChain(Atom exceptAtom)
     {
         // get start set
@@ -917,6 +992,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         return new List<Atom>(new HashSet<Atom>(chainAtomList));
     }
 
+    /// <summary>
+    /// Returns all dummies connected to the current atom.
+    /// </summary>
+    /// <returns>list of connected dummies</returns>
     public List<Atom> connectedDummys()
     {
         List<Atom> allConnected = connectedAtoms();
@@ -1070,6 +1149,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
     }
 
+    /// <summary>
+    /// Marks a list of atoms and potentially creates corresponding tool tips,
+    /// depending on whether one, two (single bond), three (angle bond)
+    /// or four (torsion bond) connected atoms are selected.
+    /// </summary>
+    /// <param name="toolTip">Whether to spawn a tool tip</param>
     public void markConnections(bool toolTip = false)
     {
         // check for connected atom
@@ -1151,6 +1236,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
     }
 
+    /// <summary>
+    /// Marks an atom with networking and differentiates between a
+    /// single selected atom and multiple connected ones.
+    /// </summary>
+    /// <param name="mark">whether the atom should be marked</param>
+    /// <param name="toolTip">whether to spawn a tool tip</param>
     public void markAtomUI(bool mark, bool toolTip = true)
     {
         EventManager.Singleton.SelectAtom(m_molecule.m_id, m_id, !isMarked);
@@ -1163,6 +1254,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         markConnections(toolTip);
     }
 
+    /// <summary>
+    /// Creates a tool tip for a single atom.
+    /// This includes a localized tool tip text with data about the atom as 
+    /// well as multiple buttons for different user interactions 
+    /// (e.g. freezing the atom).
+    /// </summary>
     public void createToolTip()
     {
         if (toolTipInstance)
@@ -1280,6 +1377,11 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         return toolTipText;
     }
 
+    /// <summary>
+    /// Gets the localized version of the atom's element name.
+    /// </summary>
+    /// <param name="text">the key corresponding to the correct entry in the "Elements" table</param>
+    /// <returns>a string with the localized element name</returns>
     public string GetLocalizedElementName(string text)
     {
         return LocalizationSettings.StringDatabase.GetLocalizedString("Elements", text);
@@ -1295,6 +1397,11 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         OnFocusExit(eventData);
     }
 
+    /// <summary>
+    /// Freezes/unfreezes the current atom and triggers
+    /// a network event for this action.
+    /// </summary>
+    /// <param name="value">Whether to freeze or unfreeze the atom</param>
     public void freezeUI(bool value)
     {
         if (value == frozen) return;
@@ -1302,6 +1409,11 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         EventManager.Singleton.FreezeAtom(m_molecule.m_id, m_id, value);
     }
 
+    /// <summary>
+    /// Freezes/unfreezes the current atom.
+    /// This changes its appearance and makes it non-interactable.
+    /// </summary>
+    /// <param name="value"></param>
     public void freeze(bool value)
     {
         GetComponent<NearInteractionGrabbable>().enabled = !value;
@@ -1330,6 +1442,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
     }
 
+    /// <summary>
+    /// Set the color of the indicator on the frozen button.
+    /// </summary>
+    /// <param name="value">Whether the atom is frozen</param>
     public void setFrozenVisual(bool value)
     {
         var FrozenIndicator = freezeButton.transform.Find("IconAndText").gameObject.transform.Find("Indicator").gameObject;
