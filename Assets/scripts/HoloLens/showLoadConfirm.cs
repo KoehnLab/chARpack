@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This script shows a prompt asking the user to confirm the requested load operation.
+/// </summary>
 public class showLoadConfirm : MonoBehaviour
 {
     private string m_mol_name;

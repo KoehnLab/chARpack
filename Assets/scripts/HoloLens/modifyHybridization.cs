@@ -1,6 +1,11 @@
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// This script allows for the manipulation of the hybridization of single atoms.
+/// The hybridization is an integer value between 0 and 6.
+/// The default value is 1.
+/// </summary>
 public class modifyHybridization : MonoBehaviour
 {
     private ushort _hyb;
@@ -13,7 +18,9 @@ public class modifyHybridization : MonoBehaviour
     public Atom currentAtom { get => _currentAtom; set { _currentAtom = value; hyb = _currentAtom.m_data.m_hybridization;  } }
 
 
-
+    /// <summary>
+    /// Increases the current hybridization by 1 and applies the change to the current atom.
+    /// </summary>
     public void increase()
     {
         if (hyb < 6)
@@ -24,6 +31,9 @@ public class modifyHybridization : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Decreases the current hybridization by 1 and applies the change to the current atom.
+    /// </summary>
     public void decrease()
     {
         if (hyb > 0)

@@ -4,6 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Tis class provides the user interaction for saving a molecule to a file.
+/// </summary>
 public class doTheSave : MonoBehaviour
 {
 
@@ -11,6 +14,10 @@ public class doTheSave : MonoBehaviour
     public GameObject errorDialogPrefab;
     public GameObject saveDialog;
 
+    /// <summary>
+    /// Attempts to save the molecule to the given file name.
+    /// If the file name was invalid, displays an error message.
+    /// </summary>
     public void performSave()
     {
         var name = inputField.GetComponent<MRTKTMPInputField>().text;

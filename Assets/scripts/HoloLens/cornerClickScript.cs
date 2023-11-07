@@ -7,6 +7,9 @@ using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+/// <summary>
+/// This script allows for mouse interaction with molecules and their bounding boxes.
+/// </summary>
 public class cornerClickScript : MonoBehaviour
 {
 #if !WINDOWS_UWP

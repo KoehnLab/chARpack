@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This class shows the full text of a debug log message including the stack trace in a separate window.
+/// </summary>
 public class showStackTrace : MonoBehaviour
 {
     private string m_log_message;

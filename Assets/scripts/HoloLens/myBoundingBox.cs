@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// This class provides the functionality for a bounding box enclosing a molecule.
+/// </summary>
 public class myBoundingBox : MonoBehaviour
 {
 
@@ -177,6 +180,11 @@ public class myBoundingBox : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Scales the corners of the bounding box.
+    /// This is used to keep the corner size consistent with molecule size.
+    /// </summary>
+    /// <param name="scale"></param>
     public void scaleCorners(float scale)
     {
         var vec_scale = Vector3.one * scale;
@@ -186,6 +194,10 @@ public class myBoundingBox : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Sets the bounding box materials fade property.
+    /// </summary>
+    /// <param name="fade_">whether to use the material with fade effect</param>
     public void setNormalMaterial(bool fade_)
     {
         fade = fade_;
@@ -209,6 +221,10 @@ public class myBoundingBox : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Changes the visuals of lines and corners when the bounding box is grabbed.
+    /// </summary>
+    /// <param name="grabbed">whether the box is grabbed</param>
     public void setGrabbed(bool grabbed)
     {
         if (grabbed)

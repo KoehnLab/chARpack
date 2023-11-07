@@ -10,6 +10,9 @@ using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 
+/// <summary>
+/// This class contains the implementation of all functions of the settings menu.
+/// </summary>
 public class appSettings : MonoBehaviour
 {
 
@@ -69,6 +72,10 @@ public class appSettings : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Toggles the MRTK spatial mesh on/off.
+    /// The default state is off.
+    /// </summary>
     public void toggleSpatialMesh()
     {
         // Get the first Mesh Observer available, generally we have only one registered
@@ -89,18 +96,33 @@ public class appSettings : MonoBehaviour
         updateVisuals();
     }
 
+    /// <summary>
+    /// Toggles the force field on/off.
+    /// When the force field is off, atoms will not move toward an equilibrium by themselves
+    /// and instead stay in potentially physically unreasonable positions.
+    /// By default, the force field is on.
+    /// </summary>
     public void toggleForceField()
     {
         ForceField.Singleton.toggleForceFieldUI();
         updateVisuals();
     }
 
+    /// <summary>
+    /// Toggles visibility of the debug log window.
+    /// By default, it is not visible.
+    /// </summary>
     public void toggleDebugWindow()
     {
         GlobalCtrl.Singleton.toggleDebugWindow();
         updateVisuals();
     }
 
+    /// <summary>
+    /// Increases the stiffness of atom bonds.
+    /// The stiffness is an integer value between 0 and 4.
+    /// The default value is 1.
+    /// </summary>
     public void increaseBondStiffness()
     {
         if (ForceField.Singleton.stiffness < 4)
@@ -111,6 +133,11 @@ public class appSettings : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Decreases the stiffness of atom bonds.
+    /// The stiffness is an integer value between 0 and 4.
+    /// The default value is 1.
+    /// </summary>
     public void decreaseBondStiffness()
     {
         if (ForceField.Singleton.stiffness > 0)
@@ -121,7 +148,11 @@ public class appSettings : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// Increases the repulsion scale for force field computations by 0.1.
+    /// The repulsion scale is a floating point value between 0.1 and 0.9.
+    /// The default value is 0.5.
+    /// </summary>
     public void increaseRepusionScale()
     {
         if (ForceField.Singleton.repulsionScale < 0.9f)
@@ -132,6 +163,11 @@ public class appSettings : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Increases the repulsion scale for force field computations by 0.1.
+    /// The repulsion scale is a floating point value between 0.1 and 0.9.
+    /// The default value is 0.5.
+    /// </summary>
     public void decreaseRepusionScale()
     {
         if (ForceField.Singleton.repulsionScale > 0.1f)
@@ -144,7 +180,7 @@ public class appSettings : MonoBehaviour
 
     /// <summary>
     /// Toggles a pointer's "enabled" behavior. If a pointer's is Default or AlwaysOn,
-    /// set it to AlwaysOff. Otherwise, set the pointer's behavior to Default.
+    /// set it to AlwaysOff. Otherwise, set the pointer's behavior to AlwaysOn.
     /// Will set this state for all matching pointers.
     /// </summary>
     /// <typeparam name="T">Type of pointer to set</typeparam>
@@ -166,7 +202,10 @@ public class appSettings : MonoBehaviour
         PointerUtils.SetPointerBehavior<T>(newBehavior, inputType);
     }
 
-    // Switch languages between German and English
+    /// <summary>
+    /// Toggles the selected locale between German and English.
+    /// English is the default language.
+    /// </summary>
     public void switchLanguage()
     {
         LocaleIdentifier current = LocalizationSettings.SelectedLocale.Identifier;
@@ -180,12 +219,22 @@ public class appSettings : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Toggles gaze highlighting of atoms (atoms are marked with a white outline 
+    /// when a user looks at them).
+    /// By default, this behaviour is active.
+    /// </summary>
     public void toggleGazeHighlighting()
     {
         SettingsData.gazeHighlighting = !SettingsData.gazeHighlighting;
         updateVisuals();
     }
 
+    /// <summary>
+    /// Toggles pointer/finger highlighting of atoms (atoms are marked with a white outline 
+    /// when a user moves their index finger close to it).
+    /// By default, this behaviour is active.
+    /// </summary>
     public void togglePointerHighlighting()
     {
         SettingsData.pointerHighlighting = !SettingsData.pointerHighlighting;
@@ -194,6 +243,9 @@ public class appSettings : MonoBehaviour
 
 
     #region Hand settings
+    /// <summary>
+    /// Toggles visibility of the child menu containing hand settings.
+    /// </summary>
     public void toggleHandSettingsMenu()
     {
         GameObject handSettings = gameObject.transform.Find("HandSettings").gameObject;
@@ -201,7 +253,8 @@ public class appSettings : MonoBehaviour
     }
 
     /// <summary>
-    /// Toggles hand mesh visualization
+    /// Toggles hand mesh visualization.
+    /// The hand mesh is active by default.
     /// </summary>
     public void toggleHandMesh()
     {
@@ -221,7 +274,8 @@ public class appSettings : MonoBehaviour
     }
 
     /// <summary>
-    /// Toggles hand joint visualization
+    /// Toggles hand joint visualization.
+    /// This visualization is not active by default.
     /// </summary>
     public void toggleHandJoint()
     {
@@ -242,7 +296,8 @@ public class appSettings : MonoBehaviour
 
     /// <summary>
     /// If hand ray is AlwaysOn or Default, set it to off.
-    /// Otherwise, set behavior to default
+    /// Otherwise, set behavior to AlwaysOn.
+    /// The hand ray is active by default.
     /// </summary>
     public void toggleHandRay()
     {
@@ -250,12 +305,22 @@ public class appSettings : MonoBehaviour
         updateVisuals();
     }
 
+    /// <summary>
+    /// Toggles activity of the hand menu.
+    /// When toggled off, the hand menu cannot be accessed by the user.
+    /// By default, the hand menu is active.
+    /// </summary>
     public void toggleHandMenu()
     {
         GlobalCtrl.Singleton.toggleHandMenu();
         updateVisuals();
     }
 
+    /// <summary>
+    /// Toggles handedness of the hand menu.
+    /// The default value corresponds to a hand menu on the left hand
+    /// which is more intuitive for right-handed users.
+    /// </summary>
     public void toggleMenuHandedness()
     {
         if (handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness == Handedness.Left)
@@ -277,12 +342,19 @@ public class appSettings : MonoBehaviour
 
     #region Cooperation settings
 
+    /// <summary>
+    /// Toggles visibility of the child menu containing cooperation settings.
+    /// </summary>
     public void toggleCoopSettings()
     {
         GameObject coopSettings = gameObject.transform.Find("CoopSettings").gameObject;
         coopSettings.SetActive(!coopSettings.activeSelf);
     }
 
+    /// <summary>
+    /// Toggles the box shown around a user's head in cooperation mode.
+    /// It is active by default.
+    /// </summary>
     // TODO: does this have to be broadcast?
     public void toggleUserBox()
     {
@@ -302,6 +374,10 @@ public class appSettings : MonoBehaviour
         } // No need to do something, we are simply not in coop mode
     }
 
+    /// <summary>
+    /// Toggles the ray shown in a user's gaze direction in cooperation mode.
+    /// It is active by default.
+    /// </summary>
     public void toggleUserRay()
     {
         try
@@ -322,6 +398,10 @@ public class appSettings : MonoBehaviour
     #endregion
 
     #region Visuals
+    /// <summary>
+    /// Updates the numbers for bond stiffness and repulsion scale
+    /// as well as the colors of the indicator fields on each toggle button.
+    /// </summary>
     public void updateVisuals()
     {
         setBondStiffnessVisual(SettingsData.bondStiffness);
@@ -348,6 +428,11 @@ public class appSettings : MonoBehaviour
         setVisual(RightHandMenuIndicator, SettingsData.rightHandMenu);
     }
 
+    /// <summary>
+    /// Sets an indicator field's color corresponding to on/off.
+    /// </summary>
+    /// <param name="indicator">the GameObject of the indicator</param>
+    /// <param name="value">whether to set the indicator to the color corresponding to on or off</param>
     public void setVisual(GameObject indicator, bool value)
     {
         if (value)
@@ -360,11 +445,19 @@ public class appSettings : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Sets the text of the bond stiffness field to a new number.
+    /// </summary>
+    /// <param name="value">the new bond stiffness</param>
     public void setBondStiffnessVisual(ushort value)
     {
         bondStiffnessValueGO.GetComponent<TextMeshPro>().text = value.ToString();
     }
 
+    /// <summary>
+    /// Sets the text of the repulsion scale field to a new number.
+    /// </summary>
+    /// <param name="value">the new repulsion scale</param>
     public void setRepulsionScaleVisual(float value)
     {
         repuslionScaleValueGO.GetComponent<TextMeshPro>().text = value.ToString();

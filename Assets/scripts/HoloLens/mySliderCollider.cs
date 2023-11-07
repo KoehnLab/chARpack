@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace Microsoft.MixedReality.Toolkit.UI
 {
+    /// <summary>
+    /// This script provides mouse interactability for a slider thumb.
+    /// </summary>
     public class mySliderCollider : MonoBehaviour
     {
         private Vector3 startingPosition = Vector3.zero;

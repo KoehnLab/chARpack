@@ -5,6 +5,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
+/// <summary>
+/// This class provides the functionality of a small scrollable atom menu
+/// attached to the user's hand as well.
+/// The menu also contains buttons to switch between interaction modes.
+/// </summary>
 public class handMenu : myScrollObject
 {
 
@@ -60,6 +65,9 @@ public class handMenu : myScrollObject
         setVisuals();
     }
 
+    /// <summary>
+    /// Generates buttons ordered in a GridObjectCollection for the different atom types.
+    /// </summary>
     public void generateAtomEntries()
     {
         clearEntries();
@@ -89,6 +97,9 @@ public class handMenu : myScrollObject
         resetRotation();
     }
 
+    /// <summary>
+    /// Toggles activity of the hand menu.
+    /// </summary>
     public void toggleVisible()
     {
         gameObject.SetActive(!gameObject.activeSelf);
@@ -100,6 +111,10 @@ public class handMenu : myScrollObject
         scrollUpdate();
     }
 
+    /// <summary>
+    /// Sets the colors of the indicators on the interaction mode buttons
+    /// according to which one is currently active.
+    /// </summary>
     public void setVisuals()
     {
         if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
@@ -119,6 +134,11 @@ public class handMenu : myScrollObject
         }
     }
 
+    /// <summary>
+    /// Sets the position of interaction mode and pagination buttons depending on which hand
+    /// the menu attaches to.
+    /// </summary>
+    /// <param name="hand">the hand the menu attaches to</param>
     public void setButtonPosition(Handedness hand)
     {
         if(hand == Handedness.Right)

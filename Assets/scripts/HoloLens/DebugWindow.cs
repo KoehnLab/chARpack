@@ -5,6 +5,10 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// This class contains the functionality for an MRTK window showing the application's debug log.
+/// It offers scrollability both by pagination and by touch.
+/// </summary>
 public class DebugWindow : myScrollObject
 {
     // only needed to count double messages and show the counter
@@ -83,6 +87,16 @@ public class DebugWindow : myScrollObject
         }
     }
 
+    /// <summary>
+    /// Creates a new entry in the debug log window containing the start
+    /// of the debug message (most often to long to show in full).
+    /// The entry can be clicked to show the full text in a separate window.
+    /// Messages are logged in different colors dependinf on their type 
+    /// (informative, warning or error message).
+    /// </summary>
+    /// <param name="message">the debug log message</param>
+    /// <param name="stackTrace">the stack trace of the debug message</param>
+    /// <param name="type">the message type (informative, Warning or Error)</param>
     public void LogMessage(string message, string stackTrace, LogType type)
     {
 
@@ -141,6 +155,9 @@ public class DebugWindow : myScrollObject
         newLogEntry.transform.localRotation = Quaternion.identity;
 
     }
+    /// <summary>
+    /// Toggles visibility of the debug log.
+    /// </summary>
     public void toggleVisible()
     {
         debugWindow.SetActive(!debugWindow.activeSelf);
@@ -149,6 +166,11 @@ public class DebugWindow : myScrollObject
         updateClipping();
     }
 
+    /// <summary>
+    /// Set the indicator's color depending on whether the debug log is on or off.
+    /// </summary>
+    /// <param name="indicator"></param>
+    /// <param name="value"></param>
     public void setVisual(GameObject indicator, bool value)
     {
         if (value)
@@ -161,6 +183,10 @@ public class DebugWindow : myScrollObject
         }
     }
 
+    /// <summary>
+    /// Toggles whether the stack trace of a message is shown.
+    /// The default value is false.
+    /// </summary>
     public void toggleStackTrace()
     {
         showStackTrace = !showStackTrace;
@@ -184,6 +210,10 @@ public class DebugWindow : myScrollObject
         }
     }
 
+    /// <summary>
+    /// Extends the scrolling functionality by providing a way to
+    /// scroll all the way down to the latest message.
+    /// </summary>
     public void scrollAllDown()
     {
         // scrolls down by as many elements as there are in the log stack

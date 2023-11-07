@@ -5,6 +5,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This class provides a hand tracking functionality used in the chain interaction mode.
+/// </summary>
 public class HandTracking : MonoBehaviour
 {
     private static HandTracking _singleton;

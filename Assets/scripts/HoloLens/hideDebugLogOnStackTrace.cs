@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This script hides the debug window upon showing the stack trace of a specific message.
+/// </summary>
 public class hideDebugLogOnStackTrace : MonoBehaviour
 {
     private GameObject debugLogGO;

@@ -5,6 +5,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This class offers the functionality of the atom menu.
+/// It features scrollability by pagination.
+/// </summary>
 public class atomMenuScrollable : myScrollObject
 {
 
@@ -62,15 +66,25 @@ public class atomMenuScrollable : myScrollObject
         transform.forward = GlobalCtrl.Singleton.mainCamera.transform.forward;
     }
 
+    /// <summary>
+    /// Destroys the atom menu.
+    /// Called when pressing the close button.
+    /// </summary>
     public void close()
     {
         Destroy(gameObject);
     }
+    /// <summary>
+    /// Refreshes the menu content.
+    /// </summary>
     public void refresh()
     {
         generateAtomEntries();
     }
 
+    /// <summary>
+    /// Generates buttons ordered in a GridObjectCollection for the different atom types.
+    /// </summary>
     public void generateAtomEntries()
     {
         clearEntries();

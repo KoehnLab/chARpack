@@ -6,6 +6,10 @@ using Microsoft.MixedReality.Toolkit.Input;
 
 namespace Microsoft.MixedReality.Toolkit.UI
 {
+    /// <summary>
+    /// A custom slider event data class that provides the ability to 
+    /// use values outside of the [0,1] range used by the default MRTK slider.
+    /// </summary>
     public class mySliderEventData
     {
         public mySliderEventData(float o, float n, IMixedRealityPointer pointer, mySlider slider)

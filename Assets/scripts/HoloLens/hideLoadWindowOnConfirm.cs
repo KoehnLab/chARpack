@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This script hides the Load/Save window upon opening the load confirm dialog.
+/// </summary>
 public class hideLoadWindowOnConfirm : MonoBehaviour
 {
     private GameObject loadConfirmGO;

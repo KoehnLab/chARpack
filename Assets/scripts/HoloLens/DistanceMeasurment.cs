@@ -4,6 +4,9 @@ using UnityEngine;
 using TMPro;
 using Microsoft.MixedReality.Toolkit.Utilities;
 
+/// <summary>
+/// This class provides tools for dynamically measuring the distance between atoms.
+/// </summary>
 public class DistanceMeasurment : MonoBehaviour
 {
 
@@ -72,11 +75,19 @@ public class DistanceMeasurment : MonoBehaviour
         return wDirection;
     }
 
+    /// <summary>
+    /// Returns the distance between StartAtom and EndAtom in picometers.
+    /// </summary>
+    /// <returns>the distance in picometers</returns>
     public float getDistance()
     {
         return dist;
     }
 
+    /// <summary>
+    /// Returns the distance between StartAtom and EndAtom in Angstrom.
+    /// </summary>
+    /// <returns>the distance in Angstrom</returns>
     public float getDistanceInAngstrom()
     {
         return dist * (1f / ForceField.scalingfactor) * 0.01f * (1f / startAtom.m_molecule.transform.localScale.x);

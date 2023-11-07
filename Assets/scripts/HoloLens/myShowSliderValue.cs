@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace Microsoft.MixedReality.Toolkit.Examples.Demos
 {
+    /// <summary>
+    /// This class updates the text of the slider label when the slider is moved.
+    /// </summary>
     public class myShowSliderValue : MonoBehaviour
     {
         [SerializeField]

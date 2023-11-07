@@ -4,6 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This class provides scrollability by pagination used in multiple menus.
+/// </summary>
 public class myScrollObject : MonoBehaviour
 {
     public GameObject gridObjectCollection;
@@ -28,6 +31,9 @@ public class myScrollObject : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Updates clipping of out of sight entries.
+    /// </summary>
     public void updateClipping()
     {
         if (gameObject.activeSelf)
@@ -55,6 +61,9 @@ public class myScrollObject : MonoBehaviour
         scrollUpdate();
     }
 
+    /// <summary>
+    /// Implements a short waiting period so the scrolling animation runs smoothly.
+    /// </summary>
     public void scrollUpdate()
     {
         StartCoroutine(waitAndUpdate());

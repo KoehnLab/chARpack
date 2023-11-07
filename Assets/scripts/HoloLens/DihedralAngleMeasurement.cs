@@ -3,6 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This class provides tools for measuring dihedral angles between bond planes 
+/// (used for torsion bonds).
+/// </summary>
 public class DihedralAngleMeasurement : MonoBehaviour
 {
     [HideInInspector] public List<Atom> atoms = new List<Atom>();
@@ -19,6 +23,11 @@ public class DihedralAngleMeasurement : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Computes the dihedral angle between four provided atoms
+    /// using the normal vectors obtained by a cross product between their connections.
+    /// </summary>
+    /// <returns>the dihedral angle between the planes of the four provided atoms</returns>
     private double computeDihedralAngle()
     {
         Vector3[] distances = new Vector3[3];

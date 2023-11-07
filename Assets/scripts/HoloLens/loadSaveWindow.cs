@@ -6,6 +6,9 @@ using System.IO;
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// This class provides functionalities to load or save molecules from/to files.
+/// </summary>
 public class loadSaveWindow : myScrollObject
 {
 
@@ -51,7 +54,7 @@ public class loadSaveWindow : myScrollObject
     }
 
     /// <summary>
-    /// this method initialises the saved files and refreshes them
+    /// This method initialises the saved files and refreshes them.
     /// </summary>
     public void initSavedFiles()
     {
@@ -102,6 +105,9 @@ public class loadSaveWindow : myScrollObject
         resetRotation();
     }
 
+    /// <summary>
+    /// Opens a dialog where the user can enter save details and confirm the save process.
+    /// </summary>
     public void openSaveDialog()
     {
         var saveDialogInstance = Instantiate(saveDialogPrefab);

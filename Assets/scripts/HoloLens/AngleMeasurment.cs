@@ -4,6 +4,9 @@ using UnityEngine;
 using TMPro;
 using Microsoft.MixedReality.Toolkit.Utilities;
 
+/// <summary>
+/// This class provides tools for measuring angles between atom bonds.
+/// </summary>
 public class AngleMeasurment : MonoBehaviour
 {
 
@@ -27,7 +30,11 @@ public class AngleMeasurment : MonoBehaviour
         Line.endWidth = 0.002f;
     }
 
-
+    /// <summary>
+    /// Renders a sphere segment between two given points.
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
     void renderSphereSegment(Vector3 start, Vector3 end)
     {
         var theta1 = Mathf.Acos(start.z); // already normalized
@@ -47,6 +54,12 @@ public class AngleMeasurment : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Computes the smaller of two angles.
+    /// </summary>
+    /// <param name="phi1"></param>
+    /// <param name="phi2"></param>
+    /// <returns>the smaller of the two given angles</returns>
     float smallestAngle(float phi1, float phi2)
     {
         var a = phi1 - phi2;
@@ -54,6 +67,12 @@ public class AngleMeasurment : MonoBehaviour
         return a;
     }
 
+    /// <summary>
+    /// Renders a circle segment between two given points.
+    /// This visualization is currently used to show angle measurements.
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
     void renderCircleSegment(Vector3 start, Vector3 end)
     {
         var normal = Vector3.Normalize(Vector3.Cross(end, start));
@@ -78,6 +97,11 @@ public class AngleMeasurment : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Renders a straight line between two given points.
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
     void renderStraightSegment(Vector3 start, Vector3 end)
     {
         Line.positionCount = 2;
