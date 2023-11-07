@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// This class provides functionalities for a server device.
+/// </summary>
 public class UserServer : MonoBehaviour
 {
     public static Dictionary<ushort, UserServer> list = new Dictionary<ushort, UserServer>();

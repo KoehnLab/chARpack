@@ -4,6 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This class provides functions for a client device in the scene.
+/// </summary>
 public class UserClient : MonoBehaviour
 {
     public static Dictionary<ushort, UserClient> list = new Dictionary<ushort, UserClient>();
@@ -17,6 +20,14 @@ public class UserClient : MonoBehaviour
         list.Remove(ID);
     }
 
+    /// <summary>
+    /// Spawns a user client object in the user world.
+    /// If the user is connected to a non-local server, also adds a box and a ray
+    /// indicating the user's head and forward direction respectively.
+    /// </summary>
+    /// <param name="id_"></param>
+    /// <param name="deviceName_"></param>
+    /// <param name="deviceType_"></param>
     public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_)
     {
         Debug.Log($"[UserClient:spawn] Id from function call {id_}, id from NetworkManager {NetworkManagerClient.Singleton.Client.Id}");

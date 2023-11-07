@@ -6,6 +6,10 @@ using System.Net;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+/// <summary>
+/// This class provides the functionality for the ManualAddServerDialog.
+/// This includes keyboard interactions.
+/// </summary>
 public class ManualAddServer : MonoBehaviour
 {
 
@@ -28,6 +32,10 @@ public class ManualAddServer : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Adds a server with the specified IP adress to the server list.
+    /// Duplicate entries are only listed once.
+    /// </summary>
     public void addServer()
     {
         var ip = inputField.GetComponent<MRTKTMPInputField>().text;

@@ -13,6 +13,9 @@ public class showConnectConfirm : MonoBehaviour
         connectConfirmPrefab = (GameObject)Resources.Load("prefabs/confirmDialog");
     }
 
+    /// <summary>
+    /// Shows a dialog window asking the user to confirm their wish to connect to the selected server.
+    /// </summary>
     public void triggered()
     {
         // hide server list

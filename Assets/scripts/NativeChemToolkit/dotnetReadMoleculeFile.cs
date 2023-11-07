@@ -8,6 +8,9 @@ using System.Collections;
 using System.Threading.Tasks;
 using SimpleFileBrowser;
 
+/// <summary>
+/// This class provides methods to read molecule data from files using OpenBabel.
+/// </summary>
 public class dotnetReadMoleculeFile : MonoBehaviour
 {
     private string[] supportedInputFormats = null;
@@ -59,6 +62,10 @@ public class dotnetReadMoleculeFile : MonoBehaviour
         supportedOutputFormats[outFormats.Count] = "xml";
     }
 
+    /// <summary>
+    /// Opens the file browser and waits for the user to select a file.
+    /// If the file path is valid, the molecule is loaded.
+    /// </summary>
     public void openLoadFileDialog()
     {
         // implementation using EditorUtility (pauses main execution loop)
@@ -105,7 +112,11 @@ public class dotnetReadMoleculeFile : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// Opens a file browser and waits for the user to select a path.
+    /// If the path and the selected extension are valid, saves marked molecules
+    /// to a file.
+    /// </summary>
     public void openSaveFileDialog()
     {
         //#if !WINDOWS_UWP
@@ -347,6 +358,13 @@ public class dotnetReadMoleculeFile : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// Saves a molecule to the specified file, either in XML format
+    /// or a format supported by OpenBabel.
+    /// </summary>
+    /// <param name="mol"></param>
+    /// <param name="fi"></param>
+    /// <returns></returns>
     public IEnumerator saveMolecule(Molecule mol, FileInfo fi)
     {
         UnityEngine.Debug.Log($"[ReadMoleculeFile] Saving Molecule {fi.FullName}");

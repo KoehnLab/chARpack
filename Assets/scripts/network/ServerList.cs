@@ -6,6 +6,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Net;
 
+/// <summary>
+/// This class provides the functionality of a scrollable list of available servers.
+/// </summary>
 public class ServerList : myScrollObject
 {
     private static ServerList _singleton;
@@ -84,6 +87,9 @@ public class ServerList : myScrollObject
         Destroy(gameObject);
     }
 
+    /// <summary>
+    /// Loads the main scene locally without connecting to a server.
+    /// </summary>
     public void connectLocal()
     {
         LoginData.ip = "127.0.0.1";
@@ -91,6 +97,9 @@ public class ServerList : myScrollObject
         SceneManager.LoadScene("MainScene");
     }
 
+    /// <summary>
+    /// Generates list entries for each automatically found or manually added server.
+    /// </summary>
     public void generateServerEntries()
     {
         clearEntries();
@@ -146,6 +155,9 @@ public class ServerList : myScrollObject
         serverEntry.transform.parent = gridObjectCollection.transform;
     }
 
+    /// <summary>
+    /// Opens a dialog for the user to manually enter the IP address they want to connect to.
+    /// </summary>
     public void manualAddServer()
     {
         var manualAddInstance = Instantiate(manualAddServerPrefab);

@@ -61,6 +61,11 @@ public class CameraSwitcher : MonoBehaviour
         addCamera(0, currentCam);
     }
 
+    /// <summary>
+    /// Registers a camera from a new user to the available cameras.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cam"></param>
     public void addCamera(ushort id, Camera cam)
     {
 
@@ -101,6 +106,10 @@ public class CameraSwitcher : MonoBehaviour
         GlobalCtrl.Singleton.currentCamera = currentCam;
     }
 
+    /// <summary>
+    /// Removes a camera from the lsit of registered cameras.
+    /// </summary>
+    /// <param name="id"></param>
     public void removeCamera(ushort id)
     {
         if (cameras.ContainsKey(id))
@@ -133,6 +142,9 @@ public class CameraSwitcher : MonoBehaviour
         GlobalCtrl.Singleton.currentCamera = currentCam;
     }
 
+    /// <summary>
+    /// Switches to the view from the next registered user camera.
+    /// </summary>
     public void nextCam()
     {
         if (cameras.Count < 1)
@@ -152,6 +164,9 @@ public class CameraSwitcher : MonoBehaviour
         GlobalCtrl.Singleton.currentCamera = currentCam;
     }
 
+    /// <summary>
+    /// Switches to the view from the previous registered user camera.
+    /// </summary>
     public void previousCam()
     {
         if (cameras.Count < 1)

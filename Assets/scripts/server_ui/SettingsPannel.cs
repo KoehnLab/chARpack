@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// This class provides the functionality for the server-side settings panel.
+/// </summary>
 public class SettingsPannel : MonoBehaviour
 {
 
@@ -26,6 +29,9 @@ public class SettingsPannel : MonoBehaviour
         updateElements();
     }
 
+    /// <summary>
+    /// Checks the current state of all settings data from the network.
+    /// </summary>
     void updateElements()
     {
         bondStiffnessSlider.GetComponent<Slider>().value = SettingsData.bondStiffness;
@@ -54,6 +60,9 @@ public class SettingsPannel : MonoBehaviour
         languageDropdown.GetComponent<TMPro.TMP_Dropdown>().value = langValue;
     }
 
+    /// <summary>
+    /// Saves the (changed) settings and triggers an update settings event.
+    /// </summary>
     public void saveSettings()
     {
         SettingsData.bondStiffness = (ushort)bondStiffnessSlider.GetComponent<Slider>().value;
@@ -74,6 +83,9 @@ public class SettingsPannel : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// Toggles visibility of the settings panel.
+    /// </summary>
     public void togglePannel()
     {
         var active = gameObject.activeSelf;

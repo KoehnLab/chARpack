@@ -4,6 +4,9 @@ using System.Net;
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// This class attempts to find servers/clients using LAN discovery.
+/// </summary>
 public class FindServer : MonoBehaviour
 {
     public struct ServerData
@@ -59,6 +62,10 @@ public class FindServer : MonoBehaviour
     }
 
     //Client
+    /// <summary>
+    /// Client-side method.
+    /// Uses broadcast to look for server, updates user visuals with number of discovered servers.
+    /// </summary>
     public void HelloThere()
     {
         // update connect button with number of servers
@@ -71,6 +78,9 @@ public class FindServer : MonoBehaviour
     }
 
     //Server
+    /// <summary>
+    /// Server-side method, starts listening for client broadcasts.
+    /// </summary>
     public void ImHere()
     {
         lanDiscovery.HostIP = lanDiscovery.GetLocalIPAddress();
