@@ -41,6 +41,7 @@ public class appSettings : MonoBehaviour
 
     public GameObject bondStiffnessValueGO;
     public GameObject repuslionScaleValueGO;
+    public GameObject integrationMethodGO;
     // Indicators
     public GameObject ForceFieldIndicator;
     public GameObject HandJointIndicator;
@@ -241,6 +242,34 @@ public class appSettings : MonoBehaviour
         updateVisuals();
     }
 
+    #region Integration method
+    /// <summary>
+    /// Toggles visibility of the child menu containing the integration method.
+    /// </summary>
+    public void toggleIntegrationMethod()
+    {
+        GameObject integrationMethodMenu = gameObject.transform.Find("IntegrationMethod").gameObject;
+        integrationMethodMenu.SetActive(!integrationMethodMenu.activeSelf);
+    }
+
+    /// <summary>
+    /// Switches to the next available force field integration method.
+    /// </summary>
+    public void switchIntegrationMethodForward()
+    {
+        ForceField.Singleton.switchIntegrationMethodForward();
+        updateVisuals();
+    }
+
+    /// <summary>
+    /// Switches to the last available force field integration method.
+    /// </summary>
+    public void switchIntegrationMethodBackward()
+    {
+        ForceField.Singleton.switchIntegrationMethodBackward();
+        updateVisuals();
+    }
+    #endregion
 
     #region Hand settings
     /// <summary>
@@ -406,6 +435,7 @@ public class appSettings : MonoBehaviour
     {
         setBondStiffnessVisual(SettingsData.bondStiffness);
         setRepulsionScaleVisual(SettingsData.repulsionScale);
+        setIntegrationMethodVisual(ForceField.Singleton.currentMethod);
 
         setVisual(HandJointIndicator, SettingsData.handJoints);
         setVisual(HandMenuIndicator, SettingsData.handMenu);
@@ -461,6 +491,11 @@ public class appSettings : MonoBehaviour
     public void setRepulsionScaleVisual(float value)
     {
         repuslionScaleValueGO.GetComponent<TextMeshPro>().text = value.ToString();
+    }
+
+    public void setIntegrationMethodVisual(ForceField.Method method)
+    {
+        integrationMethodGO.GetComponent<TextMeshPro>().text = method.ToString();
     }
     #endregion
 }

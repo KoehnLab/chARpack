@@ -16,6 +16,10 @@ using System.Linq;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 
+/*! \mainpage 
+ * API reference page for chARp Molecular builder
+ */
+
 [Serializable]
 public class GlobalCtrl : MonoBehaviour
 {
