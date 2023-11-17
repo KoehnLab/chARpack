@@ -495,7 +495,7 @@ public class appSettings : MonoBehaviour
 
     public void setIntegrationMethodVisual(ForceField.Method method)
     {
-        integrationMethodGO.GetComponent<TextMeshPro>().text = method.ToString();
+        integrationMethodGO.GetComponent<TextMeshPro>().text = GlobalCtrl.Singleton.GetLocalizedString(method.ToString());
     }
     #endregion
 }

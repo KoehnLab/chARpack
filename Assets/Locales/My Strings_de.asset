@@ -306,6 +306,30 @@ MonoBehaviour:
     m_Localized: Integrationsmethode
     m_Metadata:
       m_Items: []
+  - m_Id: 50768774994313216
+    m_Localized: Mittelpunkt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50768981853192192
+    m_Localized: Euler
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50769049666699264
+    m_Localized: Verlet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50769088724058112
+    m_Localized: Runge-Kutta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50769175667785728
+    m_Localized: Heun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50769287102054400
+    m_Localized: Ralston
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

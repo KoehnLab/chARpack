@@ -278,6 +278,7 @@ public class GlobalCtrl : MonoBehaviour
         {
             regenerateTooltips();
             currentLocale = LocalizationSettings.SelectedLocale;
+            appSettings.Singleton.updateVisuals();
         }
     }
 
