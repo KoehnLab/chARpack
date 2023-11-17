@@ -298,6 +298,14 @@ MonoBehaviour:
     m_Localized: Pointer Highlighting
     m_Metadata:
       m_Items: []
+  - m_Id: 50767666435571712
+    m_Localized: Integration Method
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50767914994221056
+    m_Localized: Integration Method
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

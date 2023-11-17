@@ -293,6 +293,14 @@ MonoBehaviour:
     m_Key: Settings/Settings/ButtonCollection/TogglePointerHighlight/IconAndText/TextMeshPro
     m_Metadata:
       m_Items: []
+  - m_Id: 50767666435571712
+    m_Key: Settings/Settings/ButtonCollection/ToggleIntegrationMethodMenu/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50767914994221056
+    m_Key: Settings/Settings/IntegrationMethod/label
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
