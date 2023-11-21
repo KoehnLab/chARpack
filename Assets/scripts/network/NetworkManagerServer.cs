@@ -75,6 +75,7 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnChangeAtom +=  bcastChangeAtom;
         EventManager.Singleton.OnDeleteBond +=  bcastDeleteBond;
         EventManager.Singleton.OnUpdateSettings += bcastSettings;
+        EventManager.Singleton.OnChangeMoleculeScale += bcastScaleMolecule;
 
     }
 
@@ -336,6 +337,15 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddBool(SettingsData.handRay);
         message.AddBool(SettingsData.handMenu);
         message.AddString(SettingsData.language);
+        Server.SendToAll(message);
+    }
+
+    public void bcastScaleMolecule(ushort mol_id, float scale)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastScaleMolecule);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        message.AddFloat(scale);
         Server.SendToAll(message);
     }
 
