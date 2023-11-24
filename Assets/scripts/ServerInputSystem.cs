@@ -59,6 +59,13 @@ public class ServerInputSystem : MonoBehaviour
             transform.RotateAround(transform.position, -transform.right, delta_y);
             transform.rotation = Quaternion.LookRotation(transform.forward, Vector3.up);
         }
+        if (Input.GetMouseButton(2))
+        {
+            float move_left_right = Input.GetAxis("Mouse X");
+            float move_up_down = Input.GetAxis("Mouse Y");
+            Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
+            transform.position -= moveSpeed * (move_left_right * rotated + move_up_down * transform.up);
+        }
     }
 
     private void createStuff()
