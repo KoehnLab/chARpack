@@ -225,8 +225,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         atomList = new List<Atom>();
         bondList = new List<Bond>();
         // TODO put collider into a corner
-        var collider = gameObject.AddComponent<BoxCollider>();
-        collider.size = new Vector3(0.001f, 0.001f, 0.001f);
+        //var collider = gameObject.AddComponent<BoxCollider>();
+        //collider.size = new Vector3(0.001f, 0.001f, 0.001f);
         // these objects take input from corner colliders and manipulate the moluecule
         var om = gameObject.AddComponent<ObjectManipulator>();
         //om.OnManipulationStarted.AddListener(HandleOnManipulationStarted);
