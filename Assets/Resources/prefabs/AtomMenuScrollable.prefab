@@ -2612,9 +2612,9 @@ MonoBehaviour:
   OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: Microsoft.MixedReality.Toolkit.UI.myFollowToggle,
-          Assembly-CSharp
+      - m_Target: {fileID: 3756824591516960450}
+        m_TargetAssemblyTypeName: Microsoft.MixedReality.Toolkit.UI.FollowMeToggle,
+          Microsoft.MixedReality.Toolkit.SDK
         m_MethodName: ToggleFollowMeBehavior
         m_Mode: 1
         m_Arguments:
@@ -4609,6 +4609,9 @@ GameObject:
   m_Component:
   - component: {fileID: 8609912644970626541}
   - component: {fileID: 461811221687887283}
+  - component: {fileID: 2203248182513214450}
+  - component: {fileID: -3495243863737921106}
+  - component: {fileID: 3756824591516960450}
   m_Layer: 0
   m_Name: AtomMenuScrollable
   m_TagString: Untagged
@@ -4650,6 +4653,76 @@ MonoBehaviour:
   clippingBox: {fileID: 8609912644264496672}
   atomMenuScrollablePrefab: {fileID: 0}
   atomEntryPrefab: {fileID: 0}
+--- !u!114 &2203248182513214450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8609912644970626540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b55691ad5b034fe6966763a6e23818d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  trackedTargetType: 0
+  trackedHandedness: 3
+  trackedHandJoint: 2
+  transformOverride: {fileID: 0}
+  additionalOffset: {x: 0, y: 0, z: 0}
+  additionalRotation: {x: 0, y: 0, z: 0}
+  updateSolvers: 1
+--- !u!114 &-3495243863737921106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8609912644970626540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4684083f6dff4a1d8a790bccc354fcf4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  updateLinkedTransform: 0
+  moveLerpTime: 0.1
+  rotateLerpTime: 0.1
+  scaleLerpTime: 0
+  maintainScaleOnInitialization: 1
+  smoothing: 1
+  lifetime: 0
+  referenceDirection: 1
+  minDistance: 0.4
+  maxDistance: 1.5
+  minViewDegrees: 0
+  maxViewDegrees: 30
+  aspectV: 1
+  ignoreAngleClamp: 0
+  ignoreDistanceClamp: 0
+  useFixedVerticalPosition: 0
+  fixedVerticalPosition: -0.4
+  orientToReferenceDirection: 0
+--- !u!114 &3756824591516960450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8609912644970626540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d1fea68463e4e84b86c395b654f950d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualizationObject: {fileID: 0}
+  interactableObject: {fileID: 0}
+  buttonBehavior: 0
+  autoFollowAtDistance: 1
+  autoFollowDistance: 1.5
+  autoFollowTransformTarget: {fileID: 0}
+  autoFollowTriggered:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &8609912644980711204
 GameObject:
   m_ObjectHideFlags: 0
