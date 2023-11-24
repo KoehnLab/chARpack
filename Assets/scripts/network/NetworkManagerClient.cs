@@ -923,6 +923,8 @@ public class NetworkManagerClient : MonoBehaviour
         var handRay = message.GetBool();
         var handMenu = message.GetBool();
         var language = message.GetString();
+        var gazeHighlighting = message.GetBool();
+        var pointerHighlighting = message.GetBool();
 
         // do the change
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
@@ -936,6 +938,8 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.handRay = handRay;
             SettingsData.handMenu = handMenu;
             SettingsData.language = language;
+            SettingsData.gazeHighlighting = gazeHighlighting;
+            SettingsData.pointerHighlighting = pointerHighlighting;
             settingsControl.Singleton.updateSettings();
             if (appSettings.Singleton != null)
             {

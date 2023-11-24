@@ -337,6 +337,8 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddBool(SettingsData.handRay);
         message.AddBool(SettingsData.handMenu);
         message.AddString(SettingsData.language);
+        message.AddBool(SettingsData.gazeHighlighting);
+        message.AddBool(SettingsData.pointerHighlighting);
         Server.SendToAll(message);
     }
 
