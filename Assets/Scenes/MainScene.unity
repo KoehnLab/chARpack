@@ -2164,9 +2164,9 @@ MonoBehaviour:
   OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: ToggleProfiler
+      - m_Target: {fileID: 238955597}
+        m_TargetAssemblyTypeName: createHybridization, Assembly-CSharp
+        m_MethodName: increase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2421,18 +2421,6 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 238955597}
-        m_TargetAssemblyTypeName: createHybridization, Assembly-CSharp
-        m_MethodName: increase
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: C
           m_BoolArgument: 0
         m_CallState: 2
   ButtonReleased:
@@ -5406,9 +5394,9 @@ MonoBehaviour:
   OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: ToggleProfiler
+      - m_Target: {fileID: 238955597}
+        m_TargetAssemblyTypeName: createHybridization, Assembly-CSharp
+        m_MethodName: decrease
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5663,18 +5651,6 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 238955597}
-        m_TargetAssemblyTypeName: createHybridization, Assembly-CSharp
-        m_MethodName: decrease
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: C
           m_BoolArgument: 0
         m_CallState: 2
   ButtonReleased:

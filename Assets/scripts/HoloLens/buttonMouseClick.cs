@@ -12,7 +12,11 @@ public class buttonMouseClick : MonoBehaviour
     {
         if (EventSystem.current.IsPointerOverGameObject()) { return; }
 
-        GetComponent<PressableButtonHoloLens2>().ButtonPressed.Invoke();
+        // Avoid double pressing with mouse and finger click; special case for canvas buttons that don't have buttonConfigHelper and OnClick
+        if (GameObject.FindObjectOfType(typeof(Microsoft.MixedReality.Toolkit.Input.RiggedHandVisualizer)) != null || gameObject.GetComponent<CanvasRenderer>())
+        {
+            GetComponent<PressableButtonHoloLens2>().ButtonPressed.Invoke();
+        }
     }
 #endif
 }
