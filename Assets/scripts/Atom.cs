@@ -13,7 +13,7 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.Events;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using UnityEngine.EventSystems;
-
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// A class that provides the functionalities of single atoms.
@@ -169,6 +169,75 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     }
 
 #if !WINDOWS_UWP
+    public static bool anyArcball;
+    private bool arcball;
+    private Vector3 oldMousePosition;
+    private Vector3 newMousePosition;
+    public void Update()
+    {
+        if (SceneManager.GetActiveScene().name == "ServerScene")
+        {
+            if (Input.GetMouseButtonDown(1) && mouseOverAtom())
+            {
+                arcball = true; anyArcball = true;
+                oldMousePosition = Input.mousePosition;
+                newMousePosition = Input.mousePosition;
+            }
+            if (Input.GetMouseButtonUp(1))
+            {
+                arcball = false; anyArcball = false;
+            }
+
+            if (arcball)
+            {
+                oldMousePosition = newMousePosition;
+                newMousePosition = Input.mousePosition;
+                if (newMousePosition != oldMousePosition)
+                {
+                    var vector2 = getArcballVector(newMousePosition);
+                    var vector1 = getArcballVector(oldMousePosition);
+                    float angle = (float)Math.Acos(Vector3.Dot(vector1, vector2));
+                    var axis_cam = Vector3.Cross(vector1, vector2);
+
+                    Matrix4x4 viewMatrix = Camera.main.worldToCameraMatrix;
+                    Matrix4x4 modelMatrix = transform.localToWorldMatrix;
+                    Matrix4x4 cameraToObjectMatrix = Matrix4x4.Inverse(viewMatrix * modelMatrix);
+                    var axis_world = cameraToObjectMatrix * axis_cam;
+
+                    m_molecule.transform.RotateAround(transform.position, axis_world, 2 * Mathf.Rad2Deg * angle);
+                }
+            }
+        }
+    }
+
+    private bool mouseOverAtom()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            if(hit.collider == GetComponent<BoxCollider>())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Vector3 getArcballVector(Vector3 inputPos)
+    {
+        Vector3 vector = CameraSwitcher.Singleton.currentCam.ScreenToViewportPoint(inputPos);
+        vector = -vector;
+        if (vector.x * vector.x + vector.y * vector.y <= 1)
+        {
+            vector.z = (float)Math.Sqrt(1 - vector.x * vector.x - vector.y * vector.y);
+        }
+        else
+        {
+            vector = vector.normalized;
+        }
+        return vector;
+    }
+
     // offset for mouse interaction
     private Vector3 offset = Vector3.zero;
     void OnMouseDown()

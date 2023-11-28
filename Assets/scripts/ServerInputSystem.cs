@@ -53,11 +53,14 @@ public class ServerInputSystem : MonoBehaviour
         }
         if (Input.GetMouseButton(1))
         {
-            float delta_x = Input.GetAxis("Mouse X") * turnSpeed;
-            transform.RotateAround(transform.position, transform.up, delta_x);
-            float delta_y = Input.GetAxis("Mouse Y") * turnSpeed;
-            transform.RotateAround(transform.position, -transform.right, delta_y);
-            transform.rotation = Quaternion.LookRotation(transform.forward, Vector3.up);
+            if (!Atom.anyArcball)
+            {
+                float delta_x = Input.GetAxis("Mouse X") * turnSpeed;
+                transform.RotateAround(transform.position, transform.up, delta_x);
+                float delta_y = Input.GetAxis("Mouse Y") * turnSpeed;
+                transform.RotateAround(transform.position, -transform.right, delta_y);
+                transform.rotation = Quaternion.LookRotation(transform.forward, Vector3.up);
+            }
         }
         if (Input.GetMouseButton(2))
         {

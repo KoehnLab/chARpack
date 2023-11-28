@@ -147,24 +147,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
             }
         }
-        // TODO: Arcball interaction for server
-        //if (Input.GetMouseButton(1))
-        //{
-        //    var vector2 = getArcballVector(Input.mousePosition);
-        //    var vector1 = getArcballVector(Input.mousePosition - new Vector3(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"), 0));
-        //    float angle = (float)Math.Acos(Vector3.Dot(vector1, vector2));
-        //    var axis_cam = Vector3.Cross(vector1, vector2);
-        //    transform.Rotate(axis_cam, angle);
-        //}
     }
 
-    private Vector3 getArcballVector(Vector3 inputPos)
-    {
-        Vector3 vector = CameraSwitcher.Singleton.currentCam.ScreenToViewportPoint(inputPos);
-        vector.y = -vector.y;
-        vector.z = (float)Math.Sqrt(1 - vector.x * vector.x - vector.y * vector.y);
-        return vector;
-    }
     //private void HandleOnManipulationStarted(ManipulationEventData eventData)
     //{
     //    var pointer = eventData.Pointer;
