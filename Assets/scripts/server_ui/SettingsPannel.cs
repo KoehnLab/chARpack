@@ -56,12 +56,19 @@ public class SettingsPannel : MonoBehaviour
 
         handMenuToggle.GetComponent<Toggle>().isOn = SettingsData.handMenu;
 
+        gazeHighlightingToggle.GetComponent<Toggle>().isOn = SettingsData.gazeHighlighting;
+
+        pointerHighlightingToggle.GetComponent<Toggle>().isOn = SettingsData.pointerHighlighting;
+
         int langValue = 0;
         if (SettingsData.language == "de")
         {
             langValue = 1;
         }
         languageDropdown.GetComponent<TMPro.TMP_Dropdown>().value = langValue;
+
+        int integrationMethodValue = (int)SettingsData.integrationMethod;
+        integrationMethodDropdown.GetComponent<TMPro.TMP_Dropdown>().value = integrationMethodValue;
     }
 
     /// <summary>
