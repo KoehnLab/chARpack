@@ -409,7 +409,7 @@ public class NetworkManagerServer : MonoBehaviour
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
 
-    [MessageHandler((ushort)ClientToServerID.atomMoved)]
+    [MessageHandler((ushort)ClientToServerID.stopMoveAtom)]
     private static void getStopMoveAtom(ushort fromClientId, Message message)
     {
         var mol_id = message.GetUShort();
