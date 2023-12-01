@@ -22,6 +22,7 @@ public class SettingsPannel : MonoBehaviour
     public GameObject gazeHighlightingToggle;
     public GameObject pointerHighlightingToggle;
     public GameObject integrationMethodDropdown;
+    public GameObject interactionModeDropdown;
 
     private void Start()
     {
@@ -69,6 +70,9 @@ public class SettingsPannel : MonoBehaviour
 
         int integrationMethodValue = (int)SettingsData.integrationMethod;
         integrationMethodDropdown.GetComponent<TMPro.TMP_Dropdown>().value = integrationMethodValue;
+
+        int interactionModeValue = (int)SettingsData.interactionMode;
+        interactionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().value = interactionModeValue;
     }
 
     /// <summary>
@@ -91,8 +95,12 @@ public class SettingsPannel : MonoBehaviour
         SettingsData.language = lang;
         options = integrationMethodDropdown.GetComponent<TMPro.TMP_Dropdown>().options;
         var methodString = options[integrationMethodDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text;
-        Enum.TryParse(methodString, out ForceField.Method method);
+        Enum.TryParse(methodString, ignoreCase:true, out ForceField.Method method);
         SettingsData.integrationMethod = method;
+        options = interactionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().options;
+        var interactionString = options[interactionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text;
+        Enum.TryParse(interactionString, ignoreCase:true, out GlobalCtrl.InteractionModes mode);
+        SettingsData.interactionMode = mode;
 
         settingsControl.Singleton.updateSettings();
         EventManager.Singleton.UpdateSettings();

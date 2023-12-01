@@ -130,7 +130,8 @@ public class GlobalCtrl : MonoBehaviour
     // Interaction modes
     public enum InteractionModes {NORMAL, CHAIN, MEASUREMENT};
     private InteractionModes _currentInteractionMode = InteractionModes.NORMAL;
-    public InteractionModes currentInteractionMode { get => _currentInteractionMode; private set => _currentInteractionMode = value; }
+    // Setter can't be private because settingsControl needs to access it
+    public InteractionModes currentInteractionMode { get => _currentInteractionMode; /*private*/ set => _currentInteractionMode = value; }
 
     /// <summary>
     /// Toggles the interaction mode "chain":

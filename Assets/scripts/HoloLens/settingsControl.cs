@@ -43,6 +43,7 @@ public class settingsControl : MonoBehaviour
         setSpatialMesh(SettingsData.spatialMesh);
         setLanguage(SettingsData.language);
         setIntegrationMethod(SettingsData.integrationMethod);
+        setInteractionMode(SettingsData.interactionMode);
         // gaze and pointer highlighting are handled by checking the value in SettingsData directly in the script
     }
 
@@ -141,5 +142,10 @@ public class settingsControl : MonoBehaviour
     private void setIntegrationMethod(ForceField.Method method)
     {
         ForceField.Singleton.currentMethod = method;
+    }
+
+    private void setInteractionMode(GlobalCtrl.InteractionModes mode)
+    {
+        GlobalCtrl.Singleton.currentInteractionMode = mode;
     }
 }
