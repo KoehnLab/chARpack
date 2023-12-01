@@ -2305,7 +2305,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 110, y: -455}
-  m_SizeDelta: {x: 220, y: 50}
+  m_SizeDelta: {x: 230, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &425201905
 MonoBehaviour:
@@ -10182,6 +10182,9 @@ MonoBehaviour:
   handRayToggle: {fileID: 1437608563}
   handMenuToggle: {fileID: 263379667}
   languageDropdown: {fileID: 1154404902}
+  gazeHighlightingToggle: {fileID: 634763977}
+  pointerHighlightingToggle: {fileID: 1985800618}
+  integrationMethodDropdown: {fileID: 425201903}
 --- !u!114 &1915393806
 MonoBehaviour:
   m_ObjectHideFlags: 0

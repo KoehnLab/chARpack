@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,6 +19,9 @@ public class SettingsPannel : MonoBehaviour
     public GameObject handRayToggle;
     public GameObject handMenuToggle;
     public GameObject languageDropdown;
+    public GameObject gazeHighlightingToggle;
+    public GameObject pointerHighlightingToggle;
+    public GameObject integrationMethodDropdown;
 
     private void Start()
     {
@@ -73,9 +77,15 @@ public class SettingsPannel : MonoBehaviour
         SettingsData.handJoints = handJointsToggle.GetComponent<Toggle>().isOn;
         SettingsData.handRay = handRayToggle.GetComponent<Toggle>().isOn;
         SettingsData.handMenu = handMenuToggle.GetComponent<Toggle>().isOn;
+        SettingsData.gazeHighlighting = gazeHighlightingToggle.GetComponent<Toggle>().isOn;
+        SettingsData.pointerHighlighting = pointerHighlightingToggle.GetComponent<Toggle>().isOn;
         var options = languageDropdown.GetComponent<TMPro.TMP_Dropdown>().options;
         var lang = options[languageDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text;
         SettingsData.language = lang;
+        options = integrationMethodDropdown.GetComponent<TMPro.TMP_Dropdown>().options;
+        var methodString = options[integrationMethodDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text;
+        Enum.TryParse(methodString, out ForceField.Method method);
+        SettingsData.integrationMethod = method;
 
         settingsControl.Singleton.updateSettings();
         EventManager.Singleton.UpdateSettings();

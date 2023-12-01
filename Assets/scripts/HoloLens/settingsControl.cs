@@ -42,6 +42,8 @@ public class settingsControl : MonoBehaviour
         setRepulsionScale(SettingsData.repulsionScale);
         setSpatialMesh(SettingsData.spatialMesh);
         setLanguage(SettingsData.language);
+        setIntegrationMethod(SettingsData.integrationMethod);
+        // gaze and pointer highlighting are handled by checking the value in SettingsData directly in the script
     }
 
     public void setForceField(bool value)
@@ -134,5 +136,10 @@ public class settingsControl : MonoBehaviour
     private void setLanguage(string lang)
     {
         LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale(lang);
+    }
+
+    private void setIntegrationMethod(ForceField.Method method)
+    {
+        ForceField.Singleton.currentMethod = method;
     }
 }
