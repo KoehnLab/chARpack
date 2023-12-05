@@ -340,6 +340,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddBool(SettingsData.gazeHighlighting);
         message.AddBool(SettingsData.pointerHighlighting);
         message.AddString(SettingsData.integrationMethod.ToString());
+        message.AddFloats(SettingsData.timeFactors);
         message.AddString(SettingsData.interactionMode.ToString());
         Server.SendToAll(message);
     }

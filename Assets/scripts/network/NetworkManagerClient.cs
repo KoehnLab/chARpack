@@ -926,6 +926,7 @@ public class NetworkManagerClient : MonoBehaviour
         var gazeHighlighting = message.GetBool();
         var pointerHighlighting = message.GetBool();
         var integrationMethodString = message.GetString();
+        var timeFactors = message.GetFloats();
         var interactionModeString = message.GetString();
 
         // Get enum entries from strings
@@ -947,6 +948,7 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.gazeHighlighting = gazeHighlighting;
             SettingsData.pointerHighlighting = pointerHighlighting;
             SettingsData.integrationMethod = integrationMethod;
+            SettingsData.timeFactors = timeFactors;
             SettingsData.interactionMode = interactionMode;
             settingsControl.Singleton.updateSettings();
             if (appSettings.Singleton != null)

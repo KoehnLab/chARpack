@@ -1,6 +1,7 @@
 using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.SpatialAwareness;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -43,6 +44,7 @@ public class settingsControl : MonoBehaviour
         setSpatialMesh(SettingsData.spatialMesh);
         setLanguage(SettingsData.language);
         setIntegrationMethod(SettingsData.integrationMethod);
+        setTimeFactors(SettingsData.timeFactors);
         setInteractionMode(SettingsData.interactionMode);
         // gaze and pointer highlighting are handled by checking the value in SettingsData directly in the script
     }
@@ -142,6 +144,15 @@ public class settingsControl : MonoBehaviour
     private void setIntegrationMethod(ForceField.Method method)
     {
         ForceField.Singleton.currentMethod = method;
+    }
+
+    private void setTimeFactors(float[] timeFactors)
+    {
+        ForceField.Singleton.EulerTimeFactor = timeFactors[0];
+        ForceField.Singleton.SVtimeFactor = timeFactors[1];
+        ForceField.Singleton.RKtimeFactor = timeFactors[2];
+        ForceField.Singleton.MPtimeFactor = timeFactors[3];
+
     }
 
     private void setInteractionMode(GlobalCtrl.InteractionModes mode)
