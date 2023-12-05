@@ -925,6 +925,12 @@ public class NetworkManagerClient : MonoBehaviour
         var language = message.GetString();
         var gazeHighlighting = message.GetBool();
         var pointerHighlighting = message.GetBool();
+        var integrationMethodString = message.GetString();
+        var interactionModeString = message.GetString();
+
+        // Get enum entries from strings
+        Enum.TryParse(integrationMethodString, ignoreCase: true, out ForceField.Method integrationMethod);
+        Enum.TryParse(interactionModeString, ignoreCase: true, out GlobalCtrl.InteractionModes interactionMode);
 
         // do the change
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
@@ -940,6 +946,8 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.language = language;
             SettingsData.gazeHighlighting = gazeHighlighting;
             SettingsData.pointerHighlighting = pointerHighlighting;
+            SettingsData.integrationMethod = integrationMethod;
+            SettingsData.interactionMode = interactionMode;
             settingsControl.Singleton.updateSettings();
             if (appSettings.Singleton != null)
             {
