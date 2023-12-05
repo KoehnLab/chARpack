@@ -32,6 +32,11 @@ public class settingsControl : MonoBehaviour
         Singleton = this;
     }
 
+    public void Start()
+    {
+        updateSettings();
+    }
+
     public void updateSettings()
     {
         setBondStiffness(SettingsData.bondStiffness);
