@@ -71,7 +71,6 @@ public class settingsControl : MonoBehaviour
 
     private void setSpatialMesh(bool value)
     {
-#if WINDOWS_UWP
         // Get the first Mesh Observer available, generally we have only one registered
         var observer = CoreServices.GetSpatialAwarenessSystemDataProvider<IMixedRealitySpatialAwarenessMeshObserver>();
 
@@ -83,12 +82,10 @@ public class settingsControl : MonoBehaviour
         {
             observer.DisplayOption = SpatialAwarenessMeshDisplayOptions.None;
         }
-#endif
     }
 
     private void setHandMesh(bool value)
     {
-#if WINDOWS_UWP
         MixedRealityInputSystemProfile inputSystemProfile = CoreServices.InputSystem?.InputSystemProfile;
         if (inputSystemProfile == null)
         {
@@ -100,12 +97,10 @@ public class settingsControl : MonoBehaviour
         {
             handTrackingProfile.EnableHandMeshVisualization = value;
         }
-#endif
     }
 
     private void setHandJoint(bool value)
     {
-#if WINDOWS_UWP
         MixedRealityHandTrackingProfile handTrackingProfile = null;
 
         if (CoreServices.InputSystem?.InputSystemProfile != null)
@@ -117,12 +112,10 @@ public class settingsControl : MonoBehaviour
         {
             handTrackingProfile.EnableHandJointVisualization = value;
         }
-#endif
     }
 
     private void setHandRay(bool value)
     {
-#if WINDOWS_UWP
         if (value)
         {
             PointerUtils.SetPointerBehavior<ShellHandRayPointer>(PointerBehavior.Default, InputSourceType.Hand);
@@ -131,14 +124,11 @@ public class settingsControl : MonoBehaviour
         {
             PointerUtils.SetPointerBehavior<ShellHandRayPointer>(PointerBehavior.AlwaysOff, InputSourceType.Hand);
         }
-#endif
     }
 
     private void setHandMenu(bool value)
     {
-#if WINDOWS_UWP
         handMenu.Singleton.gameObject.SetActive(value);
-#endif
     }
 
     private void setLanguage(string lang)
