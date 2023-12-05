@@ -61,12 +61,13 @@ public class appSettings : MonoBehaviour
     private void Start()
     {
         updateVisuals();
-        try 
-        { 
-            var userBoxes = GameObject.FindGameObjectsWithTag("User Box");
+        var userBoxes = GameObject.FindGameObjectsWithTag("User Box");
+        // Connected to server (not local)
+        if (LoginData.ip!=null && LoginData.ip!="127.0.0.1")
+        {
             setVisual(UserBoxIndicator, true);
             setVisual(UserRayIndicator, true);
-        } catch // not in coop mode
+        } else
         {
             setVisual(UserBoxIndicator, false);
             setVisual(UserRayIndicator, false);
