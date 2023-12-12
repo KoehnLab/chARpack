@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
+using UnityEngine.SceneManagement;
 
 public class settingsControl : MonoBehaviour
 {
@@ -39,18 +40,26 @@ public class settingsControl : MonoBehaviour
 
     public void updateSettings()
     {
+        try
+        {
+            // These settings currently depend on the presence of hand-related game objects in the scene
+            setHandJoint(SettingsData.handJoints);
+            setHandMenu(SettingsData.handMenu);
+            setHandMesh(SettingsData.handMesh);
+            setHandRay(SettingsData.handRay);
+            setSpatialMesh(SettingsData.spatialMesh);
+            setInteractionMode(SettingsData.interactionMode);
+        }
+        catch
+        {
+            Debug.Log("Probably in Server Scene");
+        }
         setBondStiffness(SettingsData.bondStiffness);
         setForceField(SettingsData.forceField);
-        setHandJoint(SettingsData.handJoints);
-        setHandMenu(SettingsData.handMenu);
-        setHandMesh(SettingsData.handMesh);
-        setHandRay(SettingsData.handRay);
         setRepulsionScale(SettingsData.repulsionScale);
-        setSpatialMesh(SettingsData.spatialMesh);
         setLanguage(SettingsData.language);
         setIntegrationMethod(SettingsData.integrationMethod);
         setTimeFactors(SettingsData.timeFactors);
-        setInteractionMode(SettingsData.interactionMode);
         // gaze and pointer highlighting are handled by checking the value in SettingsData directly in the script
     }
 
@@ -152,6 +161,6 @@ public class settingsControl : MonoBehaviour
 
     private void setInteractionMode(GlobalCtrl.InteractionModes mode)
     {
-        GlobalCtrl.Singleton.currentInteractionMode = mode;
+        GlobalCtrl.Singleton.setInteractionMode(mode);
     }
 }
