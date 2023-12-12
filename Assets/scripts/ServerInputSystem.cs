@@ -53,7 +53,9 @@ public class ServerInputSystem : MonoBehaviour
         }
         if (Input.GetMouseButton(1))
         {
+#if !WINDOWS_UWP
             if (!Atom.anyArcball)
+#endif
             {
                 float delta_x = Input.GetAxis("Mouse X") * turnSpeed;
                 transform.RotateAround(transform.position, transform.up, delta_x);
