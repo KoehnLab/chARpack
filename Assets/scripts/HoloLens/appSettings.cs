@@ -303,6 +303,10 @@ public class appSettings : MonoBehaviour
                                                 SVTimeFactorSlider.GetComponent<mySlider>().SliderValue,
                                                 RKTimeFactorSlider.GetComponent<mySlider>().SliderValue,
                                                 MPTimeFactorSlider.GetComponent<mySlider>().SliderValue};
+        ForceField.Singleton.EulerTimeFactor = EulerTimeFactorSlider.GetComponent<mySlider>().SliderValue;
+        ForceField.Singleton.SVtimeFactor = SVTimeFactorSlider.GetComponent<mySlider>().SliderValue;
+        ForceField.Singleton.RKtimeFactor = RKTimeFactorSlider.GetComponent<mySlider>().SliderValue;
+        ForceField.Singleton.MPtimeFactor = MPTimeFactorSlider.GetComponent<mySlider>().SliderValue;
     }
 
     #endregion
