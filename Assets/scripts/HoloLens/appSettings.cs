@@ -1,8 +1,10 @@
 using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.SpatialAwareness;
+using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using Microsoft.MixedReality.Toolkit.Utilities.Solvers;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -55,11 +57,17 @@ public class appSettings : MonoBehaviour
     public GameObject RightHandMenuIndicator;
     public GameObject UserBoxIndicator;
     public GameObject UserRayIndicator;
+    // Time factor sliders
+    public GameObject EulerTimeFactorSlider;
+    public GameObject SVTimeFactorSlider;
+    public GameObject RKTimeFactorSlider;
+    public GameObject MPTimeFactorSlider;
 
     private Color orange = new Color(1.0f, 0.5f, 0.0f);
 
     private void Start()
     {
+        initTimeFactors();
         updateVisuals();
         var userBoxes = GameObject.FindGameObjectsWithTag("User Box");
         // Connected to server (not local)
@@ -74,6 +82,7 @@ public class appSettings : MonoBehaviour
         }
     }
 
+    #region General
     /// <summary>
     /// Toggles the MRTK spatial mesh on/off.
     /// The default state is off.
@@ -242,6 +251,7 @@ public class appSettings : MonoBehaviour
         SettingsData.pointerHighlighting = !SettingsData.pointerHighlighting;
         updateVisuals();
     }
+#endregion
 
     #region Integration method
     /// <summary>
@@ -270,6 +280,31 @@ public class appSettings : MonoBehaviour
         ForceField.Singleton.switchIntegrationMethodBackward();
         updateVisuals();
     }
+
+    private void initTimeFactors()
+    {
+        GameObject[] sliders = new GameObject[] { EulerTimeFactorSlider, SVTimeFactorSlider, RKTimeFactorSlider, MPTimeFactorSlider };
+        float[] defaultVals = new float[] { /*Euler*/0.6f, /*SV*/0.75f, /*RK*/0.25f, /*MP*/0.2f };
+        for (int i = 0; i < sliders.Length; i++)
+        {
+            GameObject slider = sliders[i];
+            // TODO: use more sensible max and min vals
+            slider.GetComponent<mySlider>().maxVal = 1f;
+            slider.GetComponent<mySlider>().minVal = 0f;
+
+            slider.GetComponent<mySlider>().defaultVal = defaultVals[i];
+            slider.GetComponent<mySlider>().OnValueUpdated.AddListener(OnSliderUpdated);
+        }
+    }
+
+    public void OnSliderUpdated(mySliderEventData eventData)
+    {
+        SettingsData.timeFactors = new float[] {EulerTimeFactorSlider.GetComponent<mySlider>().SliderValue,
+                                                SVTimeFactorSlider.GetComponent<mySlider>().SliderValue,
+                                                RKTimeFactorSlider.GetComponent<mySlider>().SliderValue,
+                                                MPTimeFactorSlider.GetComponent<mySlider>().SliderValue};
+    }
+
     #endregion
 
     #region Hand settings
@@ -457,6 +492,7 @@ public class appSettings : MonoBehaviour
         setVisual(GazeHighlightingIndicator, SettingsData.gazeHighlighting);
         setVisual(PointerHighlightingIndicator, SettingsData.pointerHighlighting);
         setVisual(RightHandMenuIndicator, SettingsData.rightHandMenu);
+        setTimeFactorVisuals(SettingsData.timeFactors);
     }
 
     /// <summary>
@@ -497,6 +533,17 @@ public class appSettings : MonoBehaviour
     public void setIntegrationMethodVisual(ForceField.Method method)
     {
         integrationMethodGO.GetComponent<TextMeshPro>().text = GlobalCtrl.Singleton.GetLocalizedString(method.ToString());
+    }
+
+    public void setTimeFactorVisuals(float[] timeFactors)
+    {
+        GameObject[] sliders = new GameObject[] { EulerTimeFactorSlider, SVTimeFactorSlider, RKTimeFactorSlider, MPTimeFactorSlider };
+
+        for(int i=0; i<sliders.Length; i++)
+        {
+            GameObject slider = sliders[i];
+            slider.GetComponent<mySlider>().SliderValue = timeFactors[i];
+        }
     }
     #endregion
 }
