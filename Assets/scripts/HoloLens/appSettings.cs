@@ -37,6 +37,7 @@ public class appSettings : MonoBehaviour
     private void Awake()
     {
         Singleton = this;
+        DebugWindow.Singleton.debugIndicator = DebugWindowIndicator;
     }
 
     public GameObject bondStiffnessValueGO;
