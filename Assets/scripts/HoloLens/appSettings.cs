@@ -435,11 +435,13 @@ public class appSettings : MonoBehaviour
             {
                 userBox.GetComponent<MeshRenderer>().enabled = !active;
             }
+            SettingsData.coop[0] = !active;
             setVisual(UserBoxIndicator, !active);
         }
         catch 
         {
             setVisual(UserBoxIndicator, false);
+            SettingsData.coop[0] = false;
         } // No need to do something, we are simply not in coop mode
     }
 
@@ -457,10 +459,12 @@ public class appSettings : MonoBehaviour
             {
                 userRay.GetComponent<LineRenderer>().enabled = !active;
             }
+            SettingsData.coop[1] = !active;
             setVisual(UserRayIndicator, !active);
         } catch
         {
             setVisual(UserRayIndicator, false);
+            SettingsData.coop[1] = false;
         }
     }
 
@@ -497,6 +501,8 @@ public class appSettings : MonoBehaviour
         setVisual(PointerHighlightingIndicator, SettingsData.pointerHighlighting);
         setVisual(RightHandMenuIndicator, SettingsData.rightHandMenu);
         setTimeFactorVisuals(SettingsData.timeFactors);
+        setVisual(UserBoxIndicator, SettingsData.coop[0]);
+        setVisual(UserRayIndicator, SettingsData.coop[1]);
     }
 
     /// <summary>

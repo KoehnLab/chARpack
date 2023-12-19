@@ -60,6 +60,7 @@ public class settingsControl : MonoBehaviour
         setLanguage(SettingsData.language);
         setIntegrationMethod(SettingsData.integrationMethod);
         setTimeFactors(SettingsData.timeFactors);
+        setCoopSettings(SettingsData.coop);
         // gaze and pointer highlighting are handled by checking the value in SettingsData directly in the script
     }
 
@@ -162,5 +163,21 @@ public class settingsControl : MonoBehaviour
     private void setInteractionMode(GlobalCtrl.InteractionModes mode)
     {
         GlobalCtrl.Singleton.setInteractionMode(mode);
+    }
+
+    private void setCoopSettings(bool[] coop)
+    {
+        bool userBox = coop[0];
+        bool userRay = coop[1];
+        // We want to keep seeing the boxes in the server scene
+        if (!SceneManager.GetActiveScene().name.Equals("ServerScene"))
+        {
+            var userBoxes = GameObject.FindGameObjectsWithTag("User Box");
+            foreach (GameObject box in userBoxes)
+            {
+                box.GetComponent<MeshRenderer>().enabled = userBox;
+                box.GetComponent<LineRenderer>().enabled = userRay;
+            }
+        }
     }
 }

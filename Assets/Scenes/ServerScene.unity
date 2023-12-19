@@ -14116,6 +14116,8 @@ MonoBehaviour:
   svSlider: {fileID: 563650789}
   rkSlider: {fileID: 1207099986}
   mpSlider: {fileID: 1379064244}
+  userBoxToggle: {fileID: 1346809127}
+  userRayToggle: {fileID: 790718256}
 --- !u!114 &1915393806
 MonoBehaviour:
   m_ObjectHideFlags: 0

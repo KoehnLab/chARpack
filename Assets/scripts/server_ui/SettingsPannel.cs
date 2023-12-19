@@ -27,6 +27,8 @@ public class SettingsPannel : MonoBehaviour
     public GameObject svSlider;
     public GameObject rkSlider;
     public GameObject mpSlider;
+    public GameObject userBoxToggle;
+    public GameObject userRayToggle;
 
     private void Start()
     {
@@ -121,6 +123,7 @@ public class SettingsPannel : MonoBehaviour
                                                 svSlider.GetComponent<Slider>().value, 
                                                 rkSlider.GetComponent<Slider>().value, 
                                                 mpSlider.GetComponent<Slider>().value };
+        SettingsData.coop = new bool[] { userBoxToggle.GetComponent<Toggle>().isOn, userRayToggle.GetComponent<Toggle>().isOn };
 
         settingsControl.Singleton.updateSettings();
         EventManager.Singleton.UpdateSettings();

@@ -17,4 +17,5 @@ public class SettingsData
     [SerializeField] static public ForceField.Method integrationMethod = ForceField.Method.MidPoint;
     [SerializeField] static public float[] timeFactors = new float[] { /*Euler*/0.6f, /*SV*/0.75f, /*RK*/0.25f, /*MP*/0.2f };
     [SerializeField] static public GlobalCtrl.InteractionModes interactionMode = GlobalCtrl.InteractionModes.NORMAL;
+    [SerializeField] static public bool[] coop = new bool[] { /*User box*/true, /*User ray*/true };
 }
