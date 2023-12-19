@@ -1056,7 +1056,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 137095782}
         m_TargetAssemblyTypeName: UpdateSliderLabel, Assembly-CSharp
-        m_MethodName: updateLabel
+        m_MethodName: updateLabelTwoDigitPrecision
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4436,7 +4436,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 563650791}
         m_TargetAssemblyTypeName: UpdateSliderLabel, Assembly-CSharp
-        m_MethodName: updateLabel
+        m_MethodName: updateLabelTwoDigitPrecision
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9255,7 +9255,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1207099988}
         m_TargetAssemblyTypeName: UpdateSliderLabel, Assembly-CSharp
-        m_MethodName: updateLabel
+        m_MethodName: updateLabelTwoDigitPrecision
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10498,7 +10498,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1379064246}
         m_TargetAssemblyTypeName: UpdateSliderLabel, Assembly-CSharp
-        m_MethodName: updateLabel
+        m_MethodName: updateLabelTwoDigitPrecision
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
