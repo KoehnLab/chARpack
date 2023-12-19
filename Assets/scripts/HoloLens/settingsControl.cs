@@ -52,7 +52,7 @@ public class settingsControl : MonoBehaviour
         }
         catch
         {
-            Debug.Log("Probably in Server Scene");
+            Debug.Log("Couldn't set hand settings locally; probably in Server Scene");
         }
         setBondStiffness(SettingsData.bondStiffness);
         setForceField(SettingsData.forceField);
