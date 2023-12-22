@@ -285,28 +285,46 @@ public class appSettings : MonoBehaviour
     {
         GameObject[] sliders = new GameObject[] { EulerTimeFactorSlider, SVTimeFactorSlider, RKTimeFactorSlider, MPTimeFactorSlider };
         float[] defaultVals = new float[] { /*Euler*/0.6f, /*SV*/0.75f, /*RK*/0.25f, /*MP*/0.2f };
+        // TODO: use more sensible max and min vals
+        float[] maxVals = new float[] { 1f, 1f, 1f, 1f };
+        float[] minVals = new float[] { 0f, 0f, 0f, 0f };
         for (int i = 0; i < sliders.Length; i++)
         {
             GameObject slider = sliders[i];
-            // TODO: use more sensible max and min vals
-            slider.GetComponent<mySlider>().maxVal = 1f;
-            slider.GetComponent<mySlider>().minVal = 0f;
+            slider.GetComponent<mySlider>().maxVal = maxVals[i];
+            slider.GetComponent<mySlider>().minVal = minVals[i];
 
             slider.GetComponent<mySlider>().defaultVal = defaultVals[i];
-            slider.GetComponent<mySlider>().OnValueUpdated.AddListener(OnSliderUpdated);
         }
+
+        EulerTimeFactorSlider.GetComponent<mySlider>().OnValueUpdated.AddListener(OnEulerUpdated);
+        SVTimeFactorSlider.GetComponent<mySlider>().OnValueUpdated.AddListener(OnSVUpdated);
+        RKTimeFactorSlider.GetComponent<mySlider>().OnValueUpdated.AddListener(OnRKUpdated);
+        MPTimeFactorSlider.GetComponent<mySlider>().OnValueUpdated.AddListener(OnMPUpdated);
     }
 
-    public void OnSliderUpdated(mySliderEventData eventData)
+    public void OnEulerUpdated(mySliderEventData eventData)
     {
-        SettingsData.timeFactors = new float[] {EulerTimeFactorSlider.GetComponent<mySlider>().SliderValue,
-                                                SVTimeFactorSlider.GetComponent<mySlider>().SliderValue,
-                                                RKTimeFactorSlider.GetComponent<mySlider>().SliderValue,
-                                                MPTimeFactorSlider.GetComponent<mySlider>().SliderValue};
-        ForceField.Singleton.EulerTimeFactor = EulerTimeFactorSlider.GetComponent<mySlider>().SliderValue;
-        ForceField.Singleton.SVtimeFactor = SVTimeFactorSlider.GetComponent<mySlider>().SliderValue;
-        ForceField.Singleton.RKtimeFactor = RKTimeFactorSlider.GetComponent<mySlider>().SliderValue;
-        ForceField.Singleton.MPtimeFactor = MPTimeFactorSlider.GetComponent<mySlider>().SliderValue;
+        SettingsData.timeFactors[0] = eventData.NewValue;
+        ForceField.Singleton.EulerTimeFactor = eventData.NewValue;
+    }
+
+    public void OnSVUpdated(mySliderEventData eventData)
+    {
+        SettingsData.timeFactors[1] = eventData.NewValue;
+        ForceField.Singleton.SVtimeFactor = eventData.NewValue;
+    }
+
+    public void OnRKUpdated(mySliderEventData eventData)
+    {
+        SettingsData.timeFactors[2] = eventData.NewValue;
+        ForceField.Singleton.RKtimeFactor = eventData.NewValue;
+    }
+
+    public void OnMPUpdated(mySliderEventData eventData)
+    {
+        SettingsData.timeFactors[3] = eventData.NewValue;
+        ForceField.Singleton.MPtimeFactor = eventData.NewValue;
     }
 
     #endregion
