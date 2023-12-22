@@ -1029,5 +1029,42 @@ public class NetworkManagerServer : MonoBehaviour
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
 
+    [MessageHandler((ushort)ClientToServerID.createDistanceMeasurement)]
+    private static void getCreateDistanceMeasurement(ushort fromClientId, Message message)
+    {
+        var mol_id1 = message.GetUShort();
+        var atom_id1 = message.GetUShort();
+        var mol_id2 = message.GetUShort();
+        var atom_id2 = message.GetUShort();
+
+        // do the move on the server
+        var mol1 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id1, null);
+        var atom1 = mol1?.atomList.ElementAtOrNull(atom_id1, null);
+        var mol2 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id2, null);
+        var atom2 = mol2?.atomList.ElementAtOrNull(atom_id2, null);
+        if (mol1 == null || atom1 == null)
+        {
+            Debug.LogError($"[NetworkManagerServer:getFreezeAtom] Molecule with id {mol_id1} or atom with id {atom_id1} do not exist.\nSynchronizing world with client {fromClientId}.");
+            NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
+            return;
+        }
+        if (mol2 == null || atom2 == null)
+        {
+            Debug.LogError($"[NetworkManagerServer:getFreezeAtom] Molecule with id {mol_id2} or atom with id {atom_id2} do not exist.\nSynchronizing world with client {fromClientId}.");
+            NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
+            return;
+        }
+        GlobalCtrl.Singleton.CreateDistanceMeasurement(mol_id1,atom_id1,mol_id2,atom_id2);
+
+        // Broadcast to other clients
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastCreateDistanceMeasurement);
+        outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(mol_id1);
+        outMessage.AddUShort(atom_id1);
+        outMessage.AddUShort(mol_id2);
+        outMessage.AddUShort(atom_id2);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
+
     #endregion
 }

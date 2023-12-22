@@ -34,7 +34,8 @@ public enum ClientToServerID : ushort
     scaleMolecule,
     freezeAtom,
     freezeMolecule,
-    stopMoveAtom
+    stopMoveAtom,
+    createDistanceMeasurement
 }
 
 public enum ServerToClientID : ushort

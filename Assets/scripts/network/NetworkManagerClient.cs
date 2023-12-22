@@ -468,6 +468,15 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
+    public void sendCreateDistanceMeasurement(ushort mol_id1, ushort atom_id1, ushort mol_id2, ushort atom_id2)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.createDistanceMeasurement);
+        message.AddUShort(mol_id1);
+        message.AddUShort(atom_id1);
+        message.AddUShort(mol_id2);
+        message.AddUShort(atom_id2);
+        Client.Send(message);
+    }
     #endregion
 
     #region Listen
@@ -789,7 +798,7 @@ public class NetworkManagerClient : MonoBehaviour
         {
             if (!GlobalCtrl.Singleton.changeAngleTerm(mol_id, term_id, term))
             {
-                Debug.LogError($"[NetworkManagerClient:getAtomChanged] Angle term with id {term_id} of Molecule {mol_id} does not exist.\nRequesting world sync.");
+                Debug.LogError($"[NetworkManagerClient:getAngleTermChanged] Angle term with id {term_id} of Molecule {mol_id} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
         }
@@ -808,7 +817,7 @@ public class NetworkManagerClient : MonoBehaviour
         {
             if (!GlobalCtrl.Singleton.changeTorsionTerm(mol_id, term_id, term))
             {
-                Debug.LogError($"[NetworkManagerClient:getAtomChanged] Angle term with id {term_id} of Molecule {mol_id} does not exist.\nRequesting world sync.");
+                Debug.LogError($"[NetworkManagerClient:getTorsionTermChanged] Angle term with id {term_id} of Molecule {mol_id} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
         }
@@ -1039,6 +1048,36 @@ public class NetworkManagerClient : MonoBehaviour
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
             mol.freeze(freeze);
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastCreateDistanceMeasurement)]
+    private static void getCreateDistanceMeasurement(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol_id1 = message.GetUShort();
+        var atom_id1 = message.GetUShort();
+        var mol_id2 = message.GetUShort();
+        var atom_id2 = message.GetUShort();
+
+        // do the change
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            var mol1 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id1);
+            var atom1 = mol1.atomList.ElementAtOrDefault(atom_id1);
+            var mol2 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id2);
+            var atom2 = mol2.atomList.ElementAtOrDefault(atom_id2);
+            if (mol1 == default || atom1 == default)
+            {
+                Debug.LogError($"[NetworkManagerClient:getFreezeAtom] Molecule {mol_id1} or Atom {atom_id1} does not exist.\nRequesting world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
+            if (mol2 == default || atom2 == default)
+            {
+                Debug.LogError($"[NetworkManagerClient:getFreezeAtom] Molecule {mol_id2} or Atom {atom_id2} does not exist.\nRequesting world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
+            GlobalCtrl.Singleton.CreateDistanceMeasurement(mol_id1, atom_id1, mol_id2, atom_id2);
         }
     }
     #endregion

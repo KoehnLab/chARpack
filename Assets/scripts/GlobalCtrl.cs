@@ -2153,4 +2153,18 @@ public class GlobalCtrl : MonoBehaviour
         return LocalizationSettings.StringDatabase.GetLocalizedString("My Strings", text);
     }
 
+    public void CreateDistanceMeasurement(ushort mol_id1, ushort atom_id1, ushort mol_id2, ushort atom_id2)
+    {
+        Atom atom1 = findAtomById(List_curMolecules[mol_id1], atom_id1);
+        Atom atom2 = findAtomById(List_curMolecules[mol_id2], atom_id2);
+        // Avoid creating an already existing measurement
+        if (!distMeasurmentDict.ContainsValue(new Tuple<Atom, Atom>(atom1, atom2)) && !distMeasurmentDict.ContainsValue(new Tuple<Atom, Atom>(atom2, atom1)))
+        {
+            var dist = Instantiate(Molecule.distanceMeasurementPrefab);
+            dist.GetComponent<DistanceMeasurment>().StartAtom = atom1;
+            dist.GetComponent<DistanceMeasurment>().EndAtom = atom2;
+            distMeasurmentDict.Add(dist.GetComponent<DistanceMeasurment>(), new Tuple<Atom, Atom>(atom1, atom2));
+        }
+    }
+
 }
