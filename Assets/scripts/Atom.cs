@@ -579,6 +579,11 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             distMeasurement.EndAtom = this;
             var startAtom = GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement].Item1;
             GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement] = new Tuple<Atom, Atom>(startAtom, this);
+            if (SettingsData.networkMeasurements)
+            {
+                // Send created measurements to the network
+                EventManager.Singleton.CreateDistanceMeasurement(startAtom.m_molecule.m_id, startAtom.m_id, m_molecule.m_id, m_id);
+            }
             GlobalCtrl.Singleton.measurmentInHand = null;
             var otherDistanceMeasurments = GlobalCtrl.Singleton.getDistanceMeasurmentsOf(this);
             if (otherDistanceMeasurments.Count > 1)

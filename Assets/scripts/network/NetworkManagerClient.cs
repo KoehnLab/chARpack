@@ -1077,7 +1077,10 @@ public class NetworkManagerClient : MonoBehaviour
                 Debug.LogError($"[NetworkManagerClient:getFreezeAtom] Molecule {mol_id2} or Atom {atom_id2} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
-            GlobalCtrl.Singleton.CreateDistanceMeasurement(mol_id1, atom_id1, mol_id2, atom_id2);
+            if (SettingsData.networkMeasurements)
+            {
+                GlobalCtrl.Singleton.CreateDistanceMeasurement(mol_id1, atom_id1, mol_id2, atom_id2);
+            }
         }
     }
     #endregion
