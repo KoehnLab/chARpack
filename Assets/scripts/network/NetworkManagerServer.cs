@@ -344,6 +344,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddFloats(SettingsData.timeFactors);
         message.AddString(SettingsData.interactionMode.ToString());
         message.AddBools(SettingsData.coop);
+        message.AddBool(SettingsData.networkMeasurements);
         Server.SendToAll(message);
     }
 
