@@ -247,6 +247,13 @@ public class EventManager : MonoBehaviour
         OnFreezeMolecule?.Invoke(mol_id, value);
     }
 
+    public delegate void CreateDistanceMeasurementAction(ushort mol_id1, ushort atom_id1, ushort mol_id2, ushort atom_id2);
+    public event CreateDistanceMeasurementAction OnCreateDistanceMeasurement;
+    public void CreateDistanceMeasurement(ushort mol_id1, ushort atom_id1, ushort mol_id2, ushort atom_id2)
+    {
+        OnCreateDistanceMeasurement?.Invoke(mol_id1, atom_id1, mol_id2, atom_id2);
+    }
+
     #endregion
 
 

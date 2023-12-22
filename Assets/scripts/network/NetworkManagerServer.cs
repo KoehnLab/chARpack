@@ -76,6 +76,7 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnDeleteBond +=  bcastDeleteBond;
         EventManager.Singleton.OnUpdateSettings += bcastSettings;
         EventManager.Singleton.OnChangeMoleculeScale += bcastScaleMolecule;
+        EventManager.Singleton.OnCreateDistanceMeasurement += bcastCreateDistanceMeasurement;
 
     }
 
@@ -351,6 +352,17 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddUShort(0);
         message.AddUShort(mol_id);
         message.AddFloat(scale);
+        Server.SendToAll(message);
+    }
+
+    public void bcastCreateDistanceMeasurement(ushort mol_id1, ushort atom_id1, ushort mol_id2, ushort atom_id2)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastCreateDistanceMeasurement);
+        message.AddUShort(0);
+        message.AddUShort(mol_id1);
+        message.AddUShort(atom_id1);
+        message.AddUShort(mol_id2);
+        message.AddUShort(atom_id2);
         Server.SendToAll(message);
     }
 
