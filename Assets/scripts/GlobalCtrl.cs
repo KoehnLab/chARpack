@@ -180,6 +180,33 @@ public class GlobalCtrl : MonoBehaviour
         handMenu.Singleton.setVisuals();
     }
 
+    /// <summary>
+    /// Sets the interaction mode.
+    /// Used to change the interaction mode upon receiving a corresponding
+    /// message from the server.
+    /// </summary>
+    public void setInteractionMode(InteractionModes mode)
+    {
+        if (currentInteractionMode == mode) return;
+        currentInteractionMode = mode;
+        if(mode == InteractionModes.CHAIN)
+        {
+            HandTracking.Singleton.gameObject.SetActive(true);
+            HandTracking.Singleton.showVisual(true);
+            freezeWorld(false);
+        } else if(mode == InteractionModes.MEASUREMENT)
+        {
+            HandTracking.Singleton.gameObject.SetActive(true);
+            HandTracking.Singleton.showVisual(false);
+            freezeWorld(true);
+        } else
+        {
+            HandTracking.Singleton.gameObject.SetActive(false);
+            freezeWorld(false);
+        }
+        handMenu.Singleton.setVisuals();
+    }
+
     #endregion
 
     // Start is called before the first frame update

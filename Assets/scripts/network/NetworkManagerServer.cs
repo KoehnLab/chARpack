@@ -343,6 +343,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddString(SettingsData.integrationMethod.ToString());
         message.AddFloats(SettingsData.timeFactors);
         message.AddString(SettingsData.interactionMode.ToString());
+        message.AddBools(SettingsData.coop);
         Server.SendToAll(message);
     }
 

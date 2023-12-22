@@ -11,4 +11,9 @@ public class UpdateSliderLabel : MonoBehaviour
     {
         label.GetComponent<Text>().text = $"{GetComponent<Slider>().value}";
     }
+
+    public void updateLabelTwoDigitPrecision()
+    {
+        label.GetComponent<Text>().text = $"{GetComponent<Slider>().value:0.00}";
+    }
 }
