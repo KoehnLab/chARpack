@@ -23,6 +23,12 @@ public class SettingsPannel : MonoBehaviour
     public GameObject pointerHighlightingToggle;
     public GameObject integrationMethodDropdown;
     public GameObject interactionModeDropdown;
+    public GameObject eulerSlider;
+    public GameObject svSlider;
+    public GameObject rkSlider;
+    public GameObject mpSlider;
+    public GameObject userBoxToggle;
+    public GameObject userRayToggle;
 
     private void Start()
     {
@@ -73,6 +79,18 @@ public class SettingsPannel : MonoBehaviour
 
         int interactionModeValue = (int)SettingsData.interactionMode;
         interactionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().value = interactionModeValue;
+
+        eulerSlider.GetComponent<Slider>().value = SettingsData.timeFactors[0];
+        eulerSlider.GetComponent<UpdateSliderLabel>().updateLabel();
+
+        svSlider.GetComponent<Slider>().value = SettingsData.timeFactors[1];
+        svSlider.GetComponent<UpdateSliderLabel>().updateLabel();
+
+        rkSlider.GetComponent<Slider>().value = SettingsData.timeFactors[2];
+        rkSlider.GetComponent<UpdateSliderLabel>().updateLabel();
+
+        mpSlider.GetComponent<Slider>().value = SettingsData.timeFactors[3];
+        mpSlider.GetComponent<UpdateSliderLabel>().updateLabel();
     }
 
     /// <summary>
@@ -101,6 +119,11 @@ public class SettingsPannel : MonoBehaviour
         var interactionString = options[interactionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text;
         Enum.TryParse(interactionString, ignoreCase:true, out GlobalCtrl.InteractionModes mode);
         SettingsData.interactionMode = mode;
+        SettingsData.timeFactors = new float[]{ eulerSlider.GetComponent<Slider>().value, 
+                                                svSlider.GetComponent<Slider>().value, 
+                                                rkSlider.GetComponent<Slider>().value, 
+                                                mpSlider.GetComponent<Slider>().value };
+        SettingsData.coop = new bool[] { userBoxToggle.GetComponent<Toggle>().isOn, userRayToggle.GetComponent<Toggle>().isOn };
 
         settingsControl.Singleton.updateSettings();
         EventManager.Singleton.UpdateSettings();

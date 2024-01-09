@@ -691,10 +691,10 @@ namespace Microsoft.MixedReality.Toolkit.UI
         /// </summary>
         public void OnTouchUpdated(HandTrackingInputEventData eventData)
         {
-            //if (isTouchable)
-            //{
-            //    CalculateSliderValueBasedOnTouchPoint(eventData.InputData);
-            //}
+            if (isTouchable)
+            {
+                CalculateSliderValueBasedOnTouchPoint(eventData.InputData);
+            }
         }
 
         #endregion IMixedRealityTouchHandler
