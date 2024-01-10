@@ -334,17 +334,6 @@ public class GlobalCtrl : MonoBehaviour
         }
         return num_atoms;
     }
-
-    public Atom findAtomWithCml(cmlAtom atom, cmlData molecule)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Bond findBondWithCml(cmlBond bond, cmlData molecule)
-    {
-        throw new NotImplementedException();
-    }
-
     #endregion
 
     #region delete
@@ -1618,12 +1607,29 @@ public class GlobalCtrl : MonoBehaviour
     /// Recreates a given molecule (used to undo deletes).
     /// </summary>
     /// <param name="molecule">the molecule to recreate</param>
-    public void recreateMolecule(cmlData moleData)
+    public void recreateMolecule(Molecule molecule)
     {
+        // save old molecule data
+        Vector3 molePos = molecule.transform.localPosition;
+        List<cmlAtom> list_atom = new List<cmlAtom>();
+        foreach (Atom a in molecule.atomList)
+        {
+
+            list_atom.Add(new cmlAtom(a.m_id, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
+        }
+        List<cmlBond> list_bond = new List<cmlBond>();
+        foreach (Bond b in molecule.bondList)
+        {
+            list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
+        }
+        cmlData moleData = new cmlData(molePos, molecule.transform.rotation, molecule.m_id, list_atom, list_bond);
+
+
+        // Create new molecule
         //var freshMoleculeID = getFreshMoleculeID();
 
         Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, moleData.molePos, Quaternion.identity).AddComponent<Molecule>();
-        tempMolecule.f_Init(moleData.moleID, atomWorld.transform, moleData);
+        tempMolecule.f_Init(molecule.m_id, atomWorld.transform, moleData);
         List_curMolecules.Add(tempMolecule);
 
         //LOAD STRUCTURE CHECK LIST / DICTIONNARY

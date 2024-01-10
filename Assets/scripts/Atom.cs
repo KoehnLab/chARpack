@@ -767,11 +767,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         // Debug.Log(string.Format("Modified latest {0}:  rad={1}   scale={2} ", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale));
     }
 
-    public cmlAtom GetCmlAtom()
-    {
-        return new cmlAtom(m_id, m_data.m_abbre, m_data.m_hybridization, transform.localPosition);
-    }
-
     /// <summary>
     /// Handles the transfer of the movement of a single atom (with 
     /// consequences because of the force field) to the containing molecule.

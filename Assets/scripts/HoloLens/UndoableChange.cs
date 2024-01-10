@@ -1,4 +1,3 @@
-using StructClass;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,78 +9,65 @@ public class UndoableChange
         Create,
         Destroy
     }
-    public enum Argument
-    {
-        Molecule,
-        Atom,
-        Bond,
-        Generic
-    }
 
-    public cmlData molecule;
-    public cmlBond bond;
-    public cmlAtom atom;
+    public Molecule molecule;
+    public Bond bond;
+    public Atom atom;
     public Type type;
-    public Argument argument;
 
     public UndoableChange(Molecule molecule, Type type)
     {
-        this.molecule = molecule.getCmlData();
+        this.molecule = molecule;
         this.type = type;
-        argument = Argument.Molecule;
     }
 
     public UndoableChange(Atom atom, Type type)
     {
-        this.atom = atom.GetCmlAtom();
-        molecule = atom.m_molecule.getCmlData();
+        this.atom = atom;
         this.type = type;
-        argument = Argument.Atom;
     }
 
     public UndoableChange(Bond bond, Type type)
     {
-        this.bond = bond.GetCmlBond();
-        molecule = bond.m_molecule.getCmlData();
+        this.bond = bond;
         this.type = type;
-        argument = Argument.Bond;
     }
 
     public void Undo()
     {
         //TODO: manage network messages
-        // TODO: deal with IDs
         if (type == Type.Create)
         {
-            if (argument == Argument.Atom)
+            if (molecule!=null)
             {
-                Atom a = GlobalCtrl.Singleton.findAtomWithCml(atom, molecule);
-                GlobalCtrl.Singleton.deleteAtom(a, false);
+                GlobalCtrl.Singleton.deleteMolecule(molecule, false);
             }
-            else if(argument == Argument.Bond)
+            else if (atom != null)
             {
-                Bond b = GlobalCtrl.Singleton.findBondWithCml(bond, molecule);
-                GlobalCtrl.Singleton.deleteBond(b, false);
+                GlobalCtrl.Singleton.deleteAtom(atom, false);
             }
-            else if (argument == Argument.Molecule)
+            else if(bond != null)
             {
-                Molecule mol = GlobalCtrl.Singleton.List_curMolecules[molecule.moleID];
-                GlobalCtrl.Singleton.deleteMolecule(mol, false);
+                GlobalCtrl.Singleton.deleteBond(bond, false);
             }
         } 
         else if(type == Type.Destroy)
         {
-            if (argument == Argument.Molecule)
+            if (molecule != null)
             {
+                // TODO: deal with conflicting IDs
                 GlobalCtrl.Singleton.recreateMolecule(molecule);
             }
-            else if (argument == Argument.Atom)
+            else if (atom != null)
             {
 
             }
-            else if (argument == Argument.Bond)
+            else if (bond != null)
             {
-
+                Debug.Log("Undoing delete bond");
+                Atom atom1 = bond.m_molecule.atomList[bond.atomID1];
+                Atom atom2 = bond.m_molecule.atomList[bond.atomID2];
+                GlobalCtrl.Singleton.CreateBond(atom1, atom2, bond.m_molecule);
             }
         }
         // TODO: delete all

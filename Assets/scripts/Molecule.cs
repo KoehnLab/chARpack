@@ -286,22 +286,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         EventManager.Singleton.OnMolDataChanged += adjustBBox;
     }
 
-    public cmlData getCmlData()
-    {
-        List<cmlAtom> list_atom = new List<cmlAtom>();
-        foreach (Atom a in atomList)
-        {
-
-            list_atom.Add(new cmlAtom(a.m_id, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
-        }
-        List<cmlBond> list_bond = new List<cmlBond>();
-        foreach (Bond b in bondList)
-        {
-            list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
-        }
-        return new cmlData(transform.position, transform.rotation, m_id, list_atom, list_bond);
-    }
-
     private void adjustBBox(Molecule mol)
     {
 #if !WINDOWS_UWP

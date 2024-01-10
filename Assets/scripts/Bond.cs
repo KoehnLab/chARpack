@@ -1,6 +1,5 @@
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.UI;
-using StructClass;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -40,11 +39,6 @@ public class Bond : MonoBehaviour
         float distance = Vector3.Distance(_atom1.transform.position, _atom2.transform.position);
         transform.localScale = new Vector3(m_bondOrder, m_bondOrder, distance);
 
-    }
-
-    public cmlBond GetCmlBond()
-    {
-        return new cmlBond(atomID1, atomID2, m_bondOrder);
     }
 
     /// <summary>
