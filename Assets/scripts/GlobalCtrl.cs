@@ -511,7 +511,7 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     /// <param name="b"></param>
     /// <returns>whether the deletion was successful</returns>
-    public bool deleteBond(Bond b, bool addToUndoStack = true)
+    public bool deleteBond(Bond b)
     {
 
         if (b.isMarked)
@@ -604,8 +604,7 @@ public class GlobalCtrl : MonoBehaviour
         }
 
 
-        //SaveMolecule(true);
-        if (addToUndoStack) UndoManager.Singleton.AddChange(b.gameObject, UndoableChange.Type.Destroy);
+        SaveMolecule(true);
         // invoke data change event for new molecules
         foreach (Molecule m in addMoleculeList)
         {
@@ -667,7 +666,7 @@ public class GlobalCtrl : MonoBehaviour
     /// atoms and bonds contained in the molecule;
     /// </summary>
     /// <param name="m"></param>
-    public void deleteMolecule(Molecule m, bool addToUndoStack = true)
+    public void deleteMolecule(Molecule m)
     {
         if (m.isMarked)
         {
@@ -687,8 +686,7 @@ public class GlobalCtrl : MonoBehaviour
         //List_curMolecules.Remove(m);
         Destroy(m.gameObject);
         shrinkMoleculeIDs();
-        if(addToUndoStack) UndoManager.Singleton.AddChange(m.gameObject, UndoableChange.Type.Destroy);
-        //SaveMolecule(true);
+        SaveMolecule(true);
         // no need to invoke change event
     }
 
@@ -728,7 +726,7 @@ public class GlobalCtrl : MonoBehaviour
     /// Deletes a given atom and restores positions of dependent molecules.
     /// </summary>
     /// <param name="to_delete"></param>
-    public void deleteAtom(Atom to_delete, bool addToUndoStack = true)
+    public void deleteAtom(Atom to_delete)
     {
         Dictionary<Atom, List<Vector3>> positionsRestore = new Dictionary<Atom, List<Vector3>>();
         List<Atom> delAtomList = new List<Atom>();
@@ -797,8 +795,7 @@ public class GlobalCtrl : MonoBehaviour
             a.m_molecule.shrinkAtomIDs();
         }
 
-        if (addToUndoStack) UndoManager.Singleton.AddChange(to_delete.gameObject, UndoableChange.Type.Destroy);
-        //SaveMolecule(true);
+        SaveMolecule(true);
         // invoke data change event for new molecules
         foreach (Molecule m in addMoleculeList)
         {
@@ -1191,7 +1188,7 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     /// <param name="ChemicalID">chemical ID of the atom which should be created</param>
     /// <param name="pos">position, where the atom should be created</param>
-    public void CreateAtom(ushort moleculeID, string ChemicalAbbre, Vector3 pos, ushort hyb, bool createLocal = false, bool addToUndoStack=true)
+    public void CreateAtom(ushort moleculeID, string ChemicalAbbre, Vector3 pos, ushort hyb, bool createLocal = false)
     {
         // create atom from atom prefab
         GameObject tempMoleculeGO = Instantiate(myBoundingBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity);
@@ -1231,8 +1228,7 @@ public class GlobalCtrl : MonoBehaviour
             tempMolecule.freezeUI(true);
         }
 
-        if (addToUndoStack) UndoManager.Singleton.AddChange(tempMoleculeGO, UndoableChange.Type.Create);
-        //SaveMolecule(true);
+        SaveMolecule(true);
 
         EventManager.Singleton.ChangeMolData(tempMolecule);
     }
@@ -1471,8 +1467,7 @@ public class GlobalCtrl : MonoBehaviour
         // TODO differentiate between problematic and not problematic cases
         molInAir.markMolecule(false);
 
-        //SaveMolecule(true);
-        UndoManager.Singleton.AddChange(molInAir.bondList.Find(p => p.atomID1 == atom1.m_id || p.atomID2 == atom2.m_id || p.atomID1 == atom2.m_id || p.atomID2 == atom1.m_id).gameObject, UndoableChange.Type.Create);
+        SaveMolecule(true);
 
         EventManager.Singleton.ChangeMolData(molInAir);
 
@@ -1598,50 +1593,7 @@ public class GlobalCtrl : MonoBehaviour
         }
         moveMolecule(freshMoleculeID, moleData.molePos + Vector3.up*0.05f, moleData.moleQuat);
         EventManager.Singleton.MoveMolecule(freshMoleculeID, moleData.molePos + Vector3.up * 0.05f, moleData.moleQuat);
-
-        UndoManager.Singleton.AddChange(tempMolecule.gameObject, UndoableChange.Type.Create);
         EventManager.Singleton.ChangeMolData(tempMolecule);
-    }
-
-    /// <summary>
-    /// Recreates a given molecule (used to undo deletes).
-    /// </summary>
-    /// <param name="molecule">the molecule to recreate</param>
-    public void recreateMolecule(Molecule molecule)
-    {
-        // save old molecule data
-        Vector3 molePos = molecule.transform.localPosition;
-        List<cmlAtom> list_atom = new List<cmlAtom>();
-        foreach (Atom a in molecule.atomList)
-        {
-
-            list_atom.Add(new cmlAtom(a.m_id, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
-        }
-        List<cmlBond> list_bond = new List<cmlBond>();
-        foreach (Bond b in molecule.bondList)
-        {
-            list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
-        }
-        cmlData moleData = new cmlData(molePos, molecule.transform.rotation, molecule.m_id, list_atom, list_bond);
-
-
-        // Create new molecule
-        //var freshMoleculeID = getFreshMoleculeID();
-
-        Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, moleData.molePos, Quaternion.identity).AddComponent<Molecule>();
-        tempMolecule.f_Init(molecule.m_id, atomWorld.transform, moleData);
-        List_curMolecules.Add(tempMolecule);
-
-        //LOAD STRUCTURE CHECK LIST / DICTIONNARY
-
-        for (int i = 0; i < moleData.atomArray.Length; i++)
-        {
-            RebuildAtom(moleData.atomArray[i].id, moleData.atomArray[i].abbre, moleData.atomArray[i].hybrid, moleData.atomArray[i].pos, tempMolecule);
-        }
-        for (int i = 0; i < moleData.bondArray.Length; i++)
-        {
-            CreateBond(tempMolecule.atomList.ElementAtOrDefault(moleData.bondArray[i].id1), tempMolecule.atomList.ElementAtOrDefault(moleData.bondArray[i].id2), tempMolecule);
-        }
     }
     #endregion
 
@@ -1866,26 +1818,25 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     public void undo()
     {
-        //Debug.Log($"[GlobalCrtl:undo] Stack size: {systemState.Count}.");
-        //List<cmlData> loadData = null;
-        //for (int i = 0; i < 2; i++)
-        //{
-        //    if (systemState.Count > 0)
-        //    {
-        //        loadData = systemState.Pop();
-        //    }
-        //    else
-        //    {
-        //        loadData = null;
-        //    }
-        //}
+        Debug.Log($"[GlobalCrtl:undo] Stack size: {systemState.Count}.");
+        List<cmlData> loadData = null;
+        for (int i = 0; i < 2; i++)
+        {
+            if (systemState.Count > 0)
+            {
+                loadData = systemState.Pop();
+            }
+            else
+            {
+                loadData = null;
+            }
+        }
 
-        //if (loadData != null)
-        //{
-        //    DeleteAll();
-        //    rebuildAtomWorld(loadData);
-        //}
-        UndoManager.Singleton.Undo();
+        if (loadData != null)
+        {
+            DeleteAll();
+            rebuildAtomWorld(loadData);
+        }
     }
 
 
@@ -2125,7 +2076,7 @@ public class GlobalCtrl : MonoBehaviour
                 else if(type == Molecule.toolTipType.SINGLE || type == Molecule.toolTipType.TORSION)
                 {
                     ushort id = target.GetComponent<Bond>().atomID1;
-                    Atom a = mol.atomList.ElementAtOrDefault(id);
+                    Atom a = findAtomById(mol, id);
                     a.markConnections(true);
                 }
                 else if(type == Molecule.toolTipType.ANGLE)
@@ -2135,6 +2086,18 @@ public class GlobalCtrl : MonoBehaviour
                 }
             }
         }
+    }
+
+    private Atom findAtomById(Molecule m, ushort id)
+    {
+        foreach (Atom a in m.atomList)
+        {
+            if(a.m_id == id)
+            {
+                return a;
+            }
+        }
+        return null;
     }
 
     /// <summary>
