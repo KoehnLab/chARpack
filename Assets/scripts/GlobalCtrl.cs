@@ -117,6 +117,7 @@ public class GlobalCtrl : MonoBehaviour
     [HideInInspector] public int numAtoms = 0;
 
     public Stack<List<cmlData>> systemState = new Stack<List<cmlData>>();
+    public UndoStack undoStack = new UndoStack();
 
     // tooltips to connect two molecules
     [HideInInspector] public Dictionary<Tuple<ushort, ushort>, GameObject> snapToolTipInstances = new Dictionary<Tuple<ushort, ushort>, GameObject>();
@@ -666,8 +667,9 @@ public class GlobalCtrl : MonoBehaviour
     /// atoms and bonds contained in the molecule;
     /// </summary>
     /// <param name="m"></param>
-    public void deleteMolecule(Molecule m)
+    public void deleteMolecule(Molecule m, bool addToUndoStack = true)
     {
+        if (addToUndoStack) undoStack.AddChange(new DeleteMoleculeAction(m.AsCML()));
         if (m.isMarked)
         {
             m.markMolecule(false);
@@ -688,6 +690,11 @@ public class GlobalCtrl : MonoBehaviour
         shrinkMoleculeIDs();
         SaveMolecule(true);
         // no need to invoke change event
+    }
+
+    public void deleteMolecule(ushort m_id, bool addToUndoStack = true)
+    {
+        deleteMolecule(List_curMolecules[m_id], addToUndoStack);
     }
 
     /// <summary>
@@ -1229,6 +1236,7 @@ public class GlobalCtrl : MonoBehaviour
         }
 
         SaveMolecule(true);
+        undoStack.AddChange(new CreateMoleculeAction(tempMolecule.AsCML()));
 
         EventManager.Singleton.ChangeMolData(tempMolecule);
     }
@@ -1704,6 +1712,32 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    public ushort BuildMoleculeFromCML(cmlData molecule)
+    {
+        var freshMoleculeID = getFreshMoleculeID();
+
+        Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos, Quaternion.identity).AddComponent<Molecule>();
+        tempMolecule.f_Init(freshMoleculeID, atomWorld.transform, molecule);
+        List_curMolecules.Add(tempMolecule);
+
+
+        //LOAD STRUCTURE CHECK LIST / DICTIONNARY
+
+        for (int i = 0; i < molecule.atomArray.Length; i++)
+        {
+            RebuildAtom(molecule.atomArray[i].id, molecule.atomArray[i].abbre, molecule.atomArray[i].hybrid, molecule.atomArray[i].pos, tempMolecule);
+        }
+        for (int i = 0; i < molecule.bondArray.Length; i++)
+        {
+            CreateBond(tempMolecule.atomList.ElementAtOrDefault(molecule.bondArray[i].id1), tempMolecule.atomList.ElementAtOrDefault(molecule.bondArray[i].id2), tempMolecule);
+        }
+        moveMolecule(freshMoleculeID, molecule.molePos, molecule.moleQuat);
+        EventManager.Singleton.MoveMolecule(freshMoleculeID, molecule.molePos, molecule.moleQuat);
+        EventManager.Singleton.ChangeMolData(tempMolecule);
+
+        return tempMolecule.m_id;
+    }
+
     /// <summary>
     /// Reads molecule data from an xml file.
     /// </summary>
@@ -1818,25 +1852,27 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     public void undo()
     {
-        Debug.Log($"[GlobalCrtl:undo] Stack size: {systemState.Count}.");
-        List<cmlData> loadData = null;
-        for (int i = 0; i < 2; i++)
-        {
-            if (systemState.Count > 0)
-            {
-                loadData = systemState.Pop();
-            }
-            else
-            {
-                loadData = null;
-            }
-        }
+        //Debug.Log($"[GlobalCrtl:undo] Stack size: {systemState.Count}.");
+        //List<cmlData> loadData = null;
+        //for (int i = 0; i < 2; i++)
+        //{
+        //    if (systemState.Count > 0)
+        //    {
+        //        loadData = systemState.Pop();
+        //    }
+        //    else
+        //    {
+        //        loadData = null;
+        //    }
+        //}
 
-        if (loadData != null)
-        {
-            DeleteAll();
-            rebuildAtomWorld(loadData);
-        }
+        //if (loadData != null)
+        //{
+        //    DeleteAll();
+        //    rebuildAtomWorld(loadData);
+        //}
+        Debug.Log($"Undo stack size: {undoStack.getUndoStackSize()}");
+        undoStack.Undo();
     }
 
 
