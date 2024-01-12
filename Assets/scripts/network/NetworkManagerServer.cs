@@ -456,9 +456,9 @@ public class NetworkManagerServer : MonoBehaviour
 
         // do the merge on the server
         // fist check the existence of atoms with the correspoinding ids
-        var mol1 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol1ID, null);
+        var mol1 = GlobalCtrl.Singleton.MoleculeAtKeyOrNull(mol1ID);
         var atom1 = mol1?.atomList.ElementAtOrNull(atom1ID, null);
-        var mol2 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol2ID, null);
+        var mol2 = GlobalCtrl.Singleton.MoleculeAtKeyOrNull(mol2ID);
         var atom2 = mol2?.atomList.ElementAtOrNull(atom2ID, null);
         if (mol1 == null || atom1 == null || mol2 == null || atom2 == null)
         {
@@ -531,7 +531,7 @@ public class NetworkManagerServer : MonoBehaviour
         var selected = message.GetBool();
         // do the select on the server
         // don't show the tooltip - may change later
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var mol = GlobalCtrl.Singleton.MoleculeAtKeyOrNull(mol_id);
         var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
         if (mol == null || atom == null)
         {
@@ -561,7 +561,7 @@ public class NetworkManagerServer : MonoBehaviour
         var selected = message.GetBool();
         // do the select on the server
         // don't show the tooltip - may change later
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+        var mol = GlobalCtrl.Singleton.MoleculeAtKeyOrDefault(mol_id);
         if (mol == default)
         {
             Debug.LogError($"[NetworkManagerClient:getMoleculeSelected] Molecule with id {mol_id} does not exist.\nSynchronizing world with client {fromClientId}.");
@@ -586,7 +586,7 @@ public class NetworkManagerServer : MonoBehaviour
         var selected = message.GetBool();
         // do the select on the server
         // don't show the tooltip - may change later
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var mol = GlobalCtrl.Singleton.MoleculeAtKeyOrNull(mol_id);
         var bond = mol?.bondList.ElementAtOrNull(bond_id, null);
         if (mol == null || bond == null)
         {
@@ -612,7 +612,7 @@ public class NetworkManagerServer : MonoBehaviour
         var mol_id = message.GetUShort();
         var atom_id = message.GetUShort();
         // do the delete on the server
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var mol = GlobalCtrl.Singleton.MoleculeAtKeyOrNull(mol_id);
         var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
         if (mol == null || atom == null)
         {
@@ -636,7 +636,7 @@ public class NetworkManagerServer : MonoBehaviour
         Debug.Log("[NetworkManagerServer] Received delete molecule");
         var mol_id = message.GetUShort();
         // do the delete on the server
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+        var mol = GlobalCtrl.Singleton.MoleculeAtKeyOrDefault(mol_id);
         if (mol == default)
         {
             Debug.LogError($"[NetworkManagerServer:getMoleculeDeleted] Molecule with id {mol_id} does not exist.\nSynchronizing world with client {fromClientId}.");
@@ -659,7 +659,7 @@ public class NetworkManagerServer : MonoBehaviour
         var bond_id = message.GetUShort();
         var mol_id = message.GetUShort();
         // do the delete on the server
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var mol = GlobalCtrl.Singleton.MoleculeAtKeyOrNull(mol_id);
         var bond = mol?.bondList.ElementAtOrNull(bond_id, null);
         if (mol == null || bond == null)
         {
@@ -816,7 +816,7 @@ public class NetworkManagerServer : MonoBehaviour
         var marked = message.GetBool();
 
         // do the change
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+        var mol = GlobalCtrl.Singleton.MoleculeAtKeyOrDefault(mol_id);
         if (mol == default)
         {
             Debug.LogError($"[NetworkManagerServer:getMarkTerm] Molecule with id {mol_id} does not exist.\nSynchronizing world with client {fromClientId}.");
@@ -901,7 +901,7 @@ public class NetworkManagerServer : MonoBehaviour
         var mol_id = message.GetUShort();
 
         // do the move on the server
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+        var mol = GlobalCtrl.Singleton.MoleculeAtKeyOrDefault(mol_id);
         if (mol == default)
         {
             Debug.LogError($"[NetworkManagerServer:getReplaceDummies] Molecule with id {mol_id} does not exist.\nSynchronizing world with client {fromClientId}.");
@@ -925,7 +925,7 @@ public class NetworkManagerServer : MonoBehaviour
         var active = message.GetBool();
 
         // do the move on the server
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var mol = GlobalCtrl.Singleton.MoleculeAtKeyOrNull(mol_id);
         var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
         if (mol == null || atom == null)
         {
@@ -950,7 +950,7 @@ public class NetworkManagerServer : MonoBehaviour
         var scale = message.GetFloat();
 
         // do the move on the server
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+        var mol = GlobalCtrl.Singleton.MoleculeAtKeyOrDefault(mol_id);
         if (mol == default)
         {
             Debug.LogError($"[NetworkManagerServer:getScaleMolecule] Molecule with id {mol_id} does not exist.\nSynchronizing world with client {fromClientId}.");
@@ -975,7 +975,7 @@ public class NetworkManagerServer : MonoBehaviour
         var freeze = message.GetBool();
 
         // do the move on the server
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var mol = GlobalCtrl.Singleton.MoleculeAtKeyOrNull(mol_id);
         var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
         if (mol == null || atom == null)
         {
@@ -1001,7 +1001,7 @@ public class NetworkManagerServer : MonoBehaviour
         var freeze = message.GetBool();
 
         // do the move on the server
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
+        var mol = GlobalCtrl.Singleton.MoleculeAtKeyOrDefault(mol_id);
         if (mol == default)
         {
             Debug.LogError($"[NetworkManagerServer:getFreezeMolecule] Molecule with id {mol_id} does not exist.\nSynchronizing world with client {fromClientId}.");

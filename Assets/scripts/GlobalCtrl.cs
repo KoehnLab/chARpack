@@ -55,6 +55,7 @@ public class GlobalCtrl : MonoBehaviour
     [HideInInspector] public Dictionary<string, ElementData> Dic_ElementData { get; private set; }
 
     [HideInInspector] public List<Molecule> List_curMolecules { get; private set; }
+    [HideInInspector] public Dictionary<ushort, Molecule> Dict_curMolecules { get; private set; }
     //public Dictionary<int, Molecule> Dic_curMolecules { get; private set; }
 
     [HideInInspector] public Dictionary<int, Material> Dic_AtomMat { get; private set; }
@@ -91,6 +92,7 @@ public class GlobalCtrl : MonoBehaviour
     public Material bondMat;
 
     private bool bondsInForeground = false;
+    private ushort curMaxMolId = 0;
 
     [HideInInspector] public bool collision = false;
     [HideInInspector] public Atom collider1;
@@ -234,6 +236,7 @@ public class GlobalCtrl : MonoBehaviour
         }
 
         List_curMolecules = new List<Molecule>();
+        Dict_curMolecules = new Dictionary<ushort, Molecule>();
         Dic_ElementData = new Dictionary<string, ElementData>();
         Dic_AtomMat = new Dictionary<int, Material>();
         foreach (ElementData e in list_ElementData)
@@ -331,7 +334,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>Whether the atom was found</returns>
     public bool getAtom(ushort mol_id, ushort atom_id, ref Atom atomInstance)
     {
-        var mol = List_curMolecules.ElementAtOrDefault(mol_id);
+        var mol = MoleculeAtKeyOrDefault(mol_id);
         if (mol == default)
         {
             return false;
@@ -347,6 +350,16 @@ public class GlobalCtrl : MonoBehaviour
         return true;
     }
 
+    public Molecule MoleculeAtKeyOrDefault(ushort mol_id)
+    {
+        return Dict_curMolecules.ContainsKey(mol_id) ? Dict_curMolecules[mol_id] : default;
+    }
+
+    public Molecule MoleculeAtKeyOrNull(ushort mol_id)
+    {
+        return Dict_curMolecules.ContainsKey(mol_id) ? Dict_curMolecules[mol_id] : null;
+    }
+
     /// <summary>
     /// Counts the atoms in the entire scene.
     /// </summary>
@@ -354,7 +367,7 @@ public class GlobalCtrl : MonoBehaviour
     public int getNumAtoms()
     {
         int num_atoms = 0;
-        foreach (var mol in List_curMolecules)
+        foreach (var mol in Dict_curMolecules.Values)
         {
             mol.shrinkAtomIDs();
             num_atoms += mol.getMaxAtomID() + 1;
@@ -403,7 +416,7 @@ public class GlobalCtrl : MonoBehaviour
         List<Molecule> delMoleculeList = new List<Molecule>();
         List<Molecule> addMoleculeList = new List<Molecule>();
 
-        foreach (Molecule m in List_curMolecules)
+        foreach (Molecule m in Dict_curMolecules.Values)
         {
             // add to delete list
             foreach (Atom a in m.atomList)
@@ -460,7 +473,7 @@ public class GlobalCtrl : MonoBehaviour
 
         foreach (Molecule m in delMoleculeList)
         {
-            List_curMolecules.Remove(m);
+            Dict_curMolecules.Remove(m.m_id);
             foreach (var atom in m.atomList)
             {
                 atom.markAtom(false);
@@ -470,18 +483,18 @@ public class GlobalCtrl : MonoBehaviour
                 bond.markBond(false);
             }
             m.markMolecule(false);
-            List_curMolecules.Remove(m);
+            Dict_curMolecules.Remove(m.m_id);
             Destroy(m.gameObject);
 
         }
 
         foreach (Molecule m in addMoleculeList)
         {
-            List_curMolecules.Add(m);
+            Dict_curMolecules.Add(m.m_id,m);
         }
-        shrinkMoleculeIDs();
+        //shrinkMoleculeIDs();
 
-        foreach (Molecule m in List_curMolecules)
+        foreach (Molecule m in Dict_curMolecules.Values)
         {
             int size = m.atomList.Count;
             for (int i = 0; i < size; i++)
@@ -503,6 +516,9 @@ public class GlobalCtrl : MonoBehaviour
         {
             EventManager.Singleton.ChangeMolData(m);
         }
+
+        // Reset maximum molecule ID after deleting atom world
+        if (deleteAll) curMaxMolId = 0;
     }
 
     /// <summary>
@@ -598,7 +614,7 @@ public class GlobalCtrl : MonoBehaviour
 
         foreach (Molecule m in delMoleculeList)
         {
-            List_curMolecules.Remove(m);
+            Dict_curMolecules.Remove(m.m_id);
             foreach (var atom in m.atomList)
             {
                 atom.markAtom(false);
@@ -608,15 +624,15 @@ public class GlobalCtrl : MonoBehaviour
                 bond.markBond(false);
             }
             m.markMolecule(false);
-            List_curMolecules.Remove(m);
+            Dict_curMolecules.Remove(m.m_id);
             Destroy(m.gameObject);
         }
 
         foreach (Molecule m in addMoleculeList)
         {
-            List_curMolecules.Add(m);
+            Dict_curMolecules.Add(m.m_id,m);
         }
-        shrinkMoleculeIDs();
+        //shrinkMoleculeIDs();
 
         foreach (var entry in numConnectedAtoms)
         {
@@ -700,7 +716,7 @@ public class GlobalCtrl : MonoBehaviour
             m.markMolecule(false);
         }
 
-        List_curMolecules.Remove(m);
+        Dict_curMolecules.Remove(m.m_id);
         foreach (var atom in m.atomList)
         {
             atom.markAtom(false);
@@ -712,7 +728,7 @@ public class GlobalCtrl : MonoBehaviour
         //m.markMolecule(false);
         //List_curMolecules.Remove(m);
         Destroy(m.gameObject);
-        shrinkMoleculeIDs();
+        //shrinkMoleculeIDs();
         SaveMolecule(true);
         // no need to invoke change event
     }
@@ -738,7 +754,7 @@ public class GlobalCtrl : MonoBehaviour
 
     public void deleteAtom(ushort mol_id, ushort atom_id)
     {
-        var atom = List_curMolecules.ElementAtOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
+        var atom = MoleculeAtKeyOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
         if (atom != default)
         {
             deleteAtom(atom);
@@ -800,15 +816,15 @@ public class GlobalCtrl : MonoBehaviour
 
         foreach (Molecule m in delMoleculeList)
         {
-            List_curMolecules.Remove(m);
+            Dict_curMolecules.Remove(m.m_id);
             Destroy(m.gameObject);
         }
 
         foreach (Molecule m in addMoleculeList)
         {
-            List_curMolecules.Add(m);
+            Dict_curMolecules.Add(m.m_id,m);
         }
-        shrinkMoleculeIDs();
+        //shrinkMoleculeIDs();
 
         foreach (var entry in numConnectedAtoms)
         {
@@ -939,7 +955,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="value">whether to freeze or unfreeze</param>
     public void freezeWorld(bool value)
     {
-        foreach (var mol in List_curMolecules)
+        foreach (var mol in Dict_curMolecules.Values)
         {
             mol.freeze(value);
         }
@@ -1114,7 +1130,7 @@ public class GlobalCtrl : MonoBehaviour
             bondLayer = 0;
             atomLayer = 6;
         }
-        foreach (var molecule in List_curMolecules)
+        foreach (var molecule in Dict_curMolecules.Values)
         {
             molecule.gameObject.layer = atomLayer;
             foreach (Transform child in molecule.transform)
@@ -1146,7 +1162,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the atom could successfully be moved</returns>
     public bool moveAtom(ushort mol_id, ushort atom_id, Vector3 pos)
     {
-        var mol = Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var mol = Singleton.MoleculeAtKeyOrNull(mol_id);
         var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
         if (mol == null || atom == null)
         {
@@ -1168,7 +1184,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the stop was completed successfully</returns>
     public bool stopMoveAtom(ushort mol_id, ushort atom_id)
     {
-        var mol = Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var mol = Singleton.MoleculeAtKeyOrNull(mol_id);
         var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
         if (mol == null || atom == null)
         {
@@ -1191,7 +1207,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the molecule was moved successfully</returns>
     public bool moveMolecule(ushort id, Vector3 pos, Quaternion quat)
     {
-        var molecule = List_curMolecules.ElementAtOrDefault(id);
+        var molecule = MoleculeAtKeyOrDefault(id);
         if (molecule != default)
         {
             molecule.transform.localPosition = pos;
@@ -1248,7 +1264,7 @@ public class GlobalCtrl : MonoBehaviour
             CreateDummy(atom_id, tempMolecule, tempAtom, posForDummy);
         }
 
-        List_curMolecules.Add(tempMolecule);
+        Dict_curMolecules.Add(tempMolecule.m_id, tempMolecule);
 
         if(currentInteractionMode == InteractionModes.MEASUREMENT)
         {
@@ -1273,7 +1289,7 @@ public class GlobalCtrl : MonoBehaviour
 
         // Let the networkManager know about the user action
         // Important: insert localPosition here
-        EventManager.Singleton.CreateAtom(newID, ChemicalID, List_curMolecules[newID].transform.localPosition, curHybrid);
+        EventManager.Singleton.CreateAtom(newID, ChemicalID, Dict_curMolecules[newID].transform.localPosition, curHybrid);
     }
 
     public ushort calcNumBonds(ushort hyb, ushort element_bondNum)
@@ -1289,7 +1305,7 @@ public class GlobalCtrl : MonoBehaviour
     public bool changeAtom(ushort idMol, ushort idAtom, string ChemicalAbbre)
     {
         // TODO: do not overwrite runtime data
-        var mol = Singleton.List_curMolecules.ElementAtOrNull(idMol, null);
+        var mol = Singleton.MoleculeAtKeyOrNull(idMol);
         var chgAtom = mol?.atomList.ElementAtOrNull(idAtom, null);
         if (mol == null || chgAtom == null)
         {
@@ -1303,7 +1319,7 @@ public class GlobalCtrl : MonoBehaviour
         chgAtom.f_Modify(tempData);
 
         SaveMolecule(true);
-        EventManager.Singleton.ChangeMolData(List_curMolecules.ElementAtOrDefault(idMol));
+        EventManager.Singleton.ChangeMolData(Singleton.MoleculeAtKeyOrDefault(idMol));
         return true;
     }
 
@@ -1356,7 +1372,7 @@ public class GlobalCtrl : MonoBehaviour
     public bool modifyHybrid(ushort mol_id, ushort atom_id, ushort hybrid)
     {
 
-        Atom chgAtom = List_curMolecules.ElementAtOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
+        Atom chgAtom = MoleculeAtKeyOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
         if (chgAtom == default)
         {
             return false;
@@ -1376,7 +1392,7 @@ public class GlobalCtrl : MonoBehaviour
     public bool switchDummyHydrogen(ushort idMol, ushort idAtom, bool isDummy=true)
     {
         // TODO: do not overwrite runtime data
-        Atom chgAtom = List_curMolecules.ElementAtOrDefault(idMol).atomList.ElementAtOrDefault(idAtom);
+        Atom chgAtom = MoleculeAtKeyOrDefault(idMol).atomList.ElementAtOrDefault(idAtom);
         if (chgAtom == default)
         {
             return false;
@@ -1488,7 +1504,7 @@ public class GlobalCtrl : MonoBehaviour
         //Debug.Log($"[GlobalCtrl:MergeMolecule] Atoms in Molecule {molInAir.atomList.Count}, bonds in Molecule {molInAir.bondList.Count}"); 
 
         molInAir.shrinkAtomIDs();
-        shrinkMoleculeIDs();
+        //shrinkMoleculeIDs();
 
         // Clear selection
         // TODO differentiate between problematic and not problematic cases
@@ -1503,7 +1519,7 @@ public class GlobalCtrl : MonoBehaviour
     // overload to handle IDs
     public void MergeMolecule(ushort molInHand, ushort dummyInHand, ushort molInAir, ushort dummyInAir)
     {
-        MergeMolecule(List_curMolecules[molInHand].atomList[dummyInHand], List_curMolecules[molInAir].atomList[dummyInAir]);
+        MergeMolecule(Dict_curMolecules[molInHand].atomList[dummyInHand], Dict_curMolecules[molInAir].atomList[dummyInAir]);
     }
 
     /// <summary>
@@ -1532,11 +1548,11 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the change was successful</returns>
     public bool changeBondTerm(ushort mol_id, ushort term_id, ForceField.BondTerm new_term)
     {
-        if (term_id >= List_curMolecules.ElementAtOrDefault(mol_id).bondTerms.Count)
+        if (term_id >= MoleculeAtKeyOrDefault(mol_id).bondTerms.Count)
         {
             return false;
         }
-        List_curMolecules[mol_id].changeBondParameters(new_term, term_id);
+        Dict_curMolecules[mol_id].changeBondParameters(new_term, term_id);
 
         return true;
     }
@@ -1550,11 +1566,11 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the change was successful</returns>
     public bool changeAngleTerm(ushort mol_id, ushort term_id, ForceField.AngleTerm new_term)
     {
-        if (term_id >= List_curMolecules.ElementAtOrDefault(mol_id).angleTerms.Count)
+        if (term_id >= MoleculeAtKeyOrDefault(mol_id).angleTerms.Count)
         {
             return false;
         }
-        List_curMolecules[mol_id].changeAngleParameters(new_term, term_id);
+        Dict_curMolecules[mol_id].changeAngleParameters(new_term, term_id);
 
         return true;
     }
@@ -1568,11 +1584,11 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the change was successful</returns>
     public bool changeTorsionTerm(ushort mol_id, ushort term_id, ForceField.TorsionTerm new_term)
     {
-        if (term_id >= List_curMolecules.ElementAtOrDefault(mol_id).torsionTerms.Count)
+        if (term_id >= MoleculeAtKeyOrDefault(mol_id).torsionTerms.Count)
         {
             return false;
         }
-        List_curMolecules[mol_id].changeTorsionParameters(new_term, term_id);
+        Dict_curMolecules[mol_id].changeTorsionParameters(new_term, term_id);
 
         return true;
     }
@@ -1606,7 +1622,7 @@ public class GlobalCtrl : MonoBehaviour
 
         Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, moleData.molePos, Quaternion.identity).AddComponent<Molecule>();
         tempMolecule.f_Init(freshMoleculeID, atomWorld.transform, moleData);
-        List_curMolecules.Add(tempMolecule);
+        Dict_curMolecules.Add(tempMolecule.m_id,tempMolecule);
 
         //LOAD STRUCTURE CHECK LIST / DICTIONNARY
 
@@ -1637,7 +1653,7 @@ public class GlobalCtrl : MonoBehaviour
         List<cmlData> saveData = new List<cmlData>();
         if(!onStack)
         {
-            foreach (Molecule inputMole in List_curMolecules)
+            foreach (Molecule inputMole in Dict_curMolecules.Values)
             {
                 meanPos += inputMole.transform.localPosition;
                 nMol++;
@@ -1646,7 +1662,7 @@ public class GlobalCtrl : MonoBehaviour
         }
 
 
-        foreach (Molecule inputMole in List_curMolecules)
+        foreach (Molecule inputMole in Dict_curMolecules.Values)
         {
             Vector3 molePos = inputMole.transform.localPosition - meanPos;  // relative to mean position
             List<cmlAtom> list_atom = new List<cmlAtom>();
@@ -1711,7 +1727,7 @@ public class GlobalCtrl : MonoBehaviour
 
                 Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos, Quaternion.identity).AddComponent<Molecule>();
                 tempMolecule.f_Init(freshMoleculeID, atomWorld.transform, molecule);
-                List_curMolecules.Add(tempMolecule);
+                Dict_curMolecules.Add(tempMolecule.m_id,tempMolecule);
 
 
                 //LOAD STRUCTURE CHECK LIST / DICTIONNARY
@@ -1748,10 +1764,10 @@ public class GlobalCtrl : MonoBehaviour
     public List<cmlData> saveAtomWorld()
     {
         // flatten IDs first
-        shrinkMoleculeIDs();
+        //shrinkMoleculeIDs();
         // this method preserves the position of the molecules and atoms (and rotation)
         List<cmlData> saveData = new List<cmlData>();
-        foreach (Molecule inputMole in List_curMolecules)
+        foreach (Molecule inputMole in Dict_curMolecules.Values)
         {
             inputMole.shrinkAtomIDs();
             List<cmlAtom> list_atom = new List<cmlAtom>();
@@ -1802,7 +1818,7 @@ public class GlobalCtrl : MonoBehaviour
                 tempMolecule.f_Init(add == true ? freshMoleculeID : molecule.moleID, atomWorld.transform, molecule);
                 tempMolecule.transform.localPosition = molecule.molePos;
                 tempMolecule.transform.localRotation = molecule.moleQuat;
-                List_curMolecules.Add(tempMolecule);
+                Dict_curMolecules.Add(tempMolecule.m_id,tempMolecule);
 
                 for (int i = 0; i < molecule.atomArray.Length; i++)
                 {
@@ -1901,26 +1917,22 @@ public class GlobalCtrl : MonoBehaviour
     /// this method gets the maximum atomID currently in the scene
     /// </summary>
     /// <returns>id</returns>
+    // TODO: make compatible with unique IDs
     public ushort getMaxMoleculeID()
     {
-        ushort id = 0;
-        foreach (Molecule m in List_curMolecules)
-        {
-            id = Math.Max(id, m.m_id);
-        }
-        return id;
+        return curMaxMolId;
     }
 
     /// <summary>
     /// this method shrinks the IDs of the molecules to prevent an overflow
     /// </summary>
-    public void shrinkMoleculeIDs()
-    {
-        for (ushort i = 0; i < List_curMolecules.Count; i++)
-        {
-            List_curMolecules[i].m_id = i;
-        }
-    }
+    //public void shrinkMoleculeIDs()
+    //{
+    //    for (ushort i = 0; i < List_curMolecules.Count; i++)
+    //    {
+    //        List_curMolecules[i].m_id = i;
+    //    }
+    //}
 
     /// <summary>
     /// gets a fresh available atom id
@@ -1928,15 +1940,8 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="idNew">new ID</param>
     public ushort getFreshMoleculeID()
     {
-        if (List_curMolecules.Count == 0)
-        {
-            return 0;
-        }
-        else
-        {
-            shrinkMoleculeIDs();
-            return (ushort)(getMaxMoleculeID() + 1);
-        }
+        curMaxMolId++;
+        return (ushort)(getMaxMoleculeID());
     }
 
 
@@ -1993,7 +1998,7 @@ public class GlobalCtrl : MonoBehaviour
     {
         if(type == 0)
         {
-            foreach (Molecule m in List_curMolecules)
+            foreach (Molecule m in Dict_curMolecules.Values)
             {
                 if (m.isMarked)
                     return m;
@@ -2001,7 +2006,7 @@ public class GlobalCtrl : MonoBehaviour
         }
         else if(type == 1)
         {
-            foreach (Molecule m in List_curMolecules)
+            foreach (Molecule m in Dict_curMolecules.Values)
             {
                 foreach (Atom a in m.atomList)
                 {
@@ -2011,7 +2016,7 @@ public class GlobalCtrl : MonoBehaviour
             }
         } else if(type == 2)
         {
-            foreach (Molecule m in List_curMolecules)
+            foreach (Molecule m in Dict_curMolecules.Values)
             {
                 foreach (Bond b in m.bondList)
                 {
@@ -2078,7 +2083,7 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     private void regenerateTooltips()
     {
-        foreach(Molecule mol in List_curMolecules)
+        foreach(Molecule mol in Dict_curMolecules.Values)
         {
             // Single atom tool tips
             foreach(Atom a in mol.atomList)
