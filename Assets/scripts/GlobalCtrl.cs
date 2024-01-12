@@ -478,7 +478,6 @@ public class GlobalCtrl : MonoBehaviour
         {
             Dict_curMolecules.Add(m.m_id,m);
         }
-        //shrinkMoleculeIDs();
 
         foreach (Molecule m in Dict_curMolecules.Values)
         {
@@ -618,7 +617,6 @@ public class GlobalCtrl : MonoBehaviour
         {
             Dict_curMolecules.Add(m.m_id,m);
         }
-        //shrinkMoleculeIDs();
 
         foreach (var entry in numConnectedAtoms)
         {
@@ -714,7 +712,7 @@ public class GlobalCtrl : MonoBehaviour
         //m.markMolecule(false);
         //List_curMolecules.Remove(m);
         Destroy(m.gameObject);
-        //shrinkMoleculeIDs();
+
         SaveMolecule(true);
         // no need to invoke change event
     }
@@ -813,7 +811,6 @@ public class GlobalCtrl : MonoBehaviour
         {
             Dict_curMolecules.Add(m.m_id,m);
         }
-        //shrinkMoleculeIDs();
 
         foreach (var entry in numConnectedAtoms)
         {
@@ -1492,7 +1489,6 @@ public class GlobalCtrl : MonoBehaviour
         //Debug.Log($"[GlobalCtrl:MergeMolecule] Atoms in Molecule {molInAir.atomList.Count}, bonds in Molecule {molInAir.bondList.Count}"); 
 
         molInAir.shrinkAtomIDs();
-        //shrinkMoleculeIDs();
 
         // Clear selection
         // TODO differentiate between problematic and not problematic cases
@@ -1752,7 +1748,6 @@ public class GlobalCtrl : MonoBehaviour
     public List<cmlData> saveAtomWorld()
     {
         // flatten IDs first
-        //shrinkMoleculeIDs();
         // this method preserves the position of the molecules and atoms (and rotation)
         List<cmlData> saveData = new List<cmlData>();
         foreach (Molecule inputMole in Dict_curMolecules.Values)
@@ -1910,17 +1905,6 @@ public class GlobalCtrl : MonoBehaviour
     {
         return curMaxMolId;
     }
-
-    /// <summary>
-    /// this method shrinks the IDs of the molecules to prevent an overflow
-    /// </summary>
-    //public void shrinkMoleculeIDs()
-    //{
-    //    for (ushort i = 0; i < List_curMolecules.Count; i++)
-    //    {
-    //        List_curMolecules[i].m_id = i;
-    //    }
-    //}
 
     /// <summary>
     /// gets a fresh available atom id
