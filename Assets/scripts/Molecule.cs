@@ -458,12 +458,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private void snapUI(ushort otherMolID)
     {
 
-        var otherMol = GlobalCtrl.Singleton.MoleculeAtKeyOrDefault(otherMolID);
-        if (otherMol == default)
+        if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(otherMolID))
         {
             UnityEngine.Debug.LogError($"[Molecule:snapUI] Could not find Molecule with ID {otherMolID}");
             return;
         }
+        var otherMol = GlobalCtrl.Singleton.Dict_curMolecules[otherMolID];
         snap(otherMolID);
         markMolecule(false);
         otherMol.markMolecule(false);
@@ -474,11 +474,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private bool snap(ushort otherMolID)
     {
-        var otherMol = GlobalCtrl.Singleton.MoleculeAtKeyOrDefault(otherMolID);
-        if (otherMol == default)
+
+        if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(otherMolID))
         {
             return false;
         }
+        var otherMol = GlobalCtrl.Singleton.Dict_curMolecules[otherMolID];
         // apply transformation
         transform.localPosition = otherMol.transform.localPosition;
         transform.localRotation = otherMol.transform.localRotation;
@@ -508,12 +509,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void closeSnapUI(ushort otherMolID)
     {
-        var otherMol = GlobalCtrl.Singleton.MoleculeAtKeyOrDefault(otherMolID);
-        if (otherMol == default)
+        if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(otherMolID))
         {
             UnityEngine.Debug.LogError($"[Molecule:closeSnapUI] Could not find Molecule with ID {otherMolID}");
             return;
         }
+        var otherMol = GlobalCtrl.Singleton.Dict_curMolecules[otherMolID];
         markMolecule(false);
         otherMol.markMolecule(false);
         EventManager.Singleton.SelectMolecule(m_id, false);

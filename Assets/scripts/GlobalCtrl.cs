@@ -334,13 +334,9 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>Whether the atom was found</returns>
     public bool getAtom(ushort mol_id, ushort atom_id, ref Atom atomInstance)
     {
-        var mol = MoleculeAtKeyOrDefault(mol_id);
-        if (mol == default)
-        {
-            return false;
-        }
+        if (!Dict_curMolecules.ContainsKey(mol_id)) return false;
 
-        var atom = mol.atomList.ElementAtOrDefault(atom_id);
+        var atom = Dict_curMolecules[mol_id].atomList.ElementAtOrDefault(atom_id);
         if (atom == default)
         {
             return false;
@@ -348,16 +344,6 @@ public class GlobalCtrl : MonoBehaviour
         atomInstance = atom;
 
         return true;
-    }
-
-    public Molecule MoleculeAtKeyOrDefault(ushort mol_id)
-    {
-        return Dict_curMolecules.ContainsKey(mol_id) ? Dict_curMolecules[mol_id] : default;
-    }
-
-    public Molecule MoleculeAtKeyOrNull(ushort mol_id)
-    {
-        return Dict_curMolecules.ContainsKey(mol_id) ? Dict_curMolecules[mol_id] : null;
     }
 
     /// <summary>
@@ -754,10 +740,13 @@ public class GlobalCtrl : MonoBehaviour
 
     public void deleteAtom(ushort mol_id, ushort atom_id)
     {
-        var atom = MoleculeAtKeyOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
-        if (atom != default)
+        if (Dict_curMolecules.ContainsKey(mol_id))
         {
-            deleteAtom(atom);
+            var atom = Dict_curMolecules[mol_id].atomList.ElementAtOrDefault(atom_id);
+            if (atom != default)
+            {
+                deleteAtom(atom);
+            }
         }
         else
         {
@@ -1162,9 +1151,8 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the atom could successfully be moved</returns>
     public bool moveAtom(ushort mol_id, ushort atom_id, Vector3 pos)
     {
-        var mol = Singleton.MoleculeAtKeyOrNull(mol_id);
-        var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
-        if (mol == null || atom == null)
+        var atom = Dict_curMolecules.ContainsKey(mol_id) ? Dict_curMolecules[mol_id].atomList.ElementAtOrNull(atom_id,null) : null;
+        if (atom == null)
         {
             Debug.LogError($"[GlobalCtrl:moveAtom] Trying to move Atom {atom_id} of molecule {mol_id}, but it does not exist.");
             return false;
@@ -1184,9 +1172,8 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the stop was completed successfully</returns>
     public bool stopMoveAtom(ushort mol_id, ushort atom_id)
     {
-        var mol = Singleton.MoleculeAtKeyOrNull(mol_id);
-        var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
-        if (mol == null || atom == null)
+        var atom = Dict_curMolecules.ContainsKey(mol_id) ? Dict_curMolecules[mol_id].atomList.ElementAtOrNull(atom_id, null) : null;
+        if (atom == null)
         {
             Debug.LogError($"[GlobalCtrl:stopMoveAtom] Trying to resetMolPositionAfterMove of Atom {atom_id} of molecule {mol_id}, but it does not exist.");
             return false;
@@ -1207,9 +1194,9 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the molecule was moved successfully</returns>
     public bool moveMolecule(ushort id, Vector3 pos, Quaternion quat)
     {
-        var molecule = MoleculeAtKeyOrDefault(id);
-        if (molecule != default)
+        if (Dict_curMolecules.ContainsKey(id))
         {
+            var molecule = Dict_curMolecules[id];
             molecule.transform.localPosition = pos;
             molecule.transform.localRotation = quat;
             return true;
@@ -1266,7 +1253,7 @@ public class GlobalCtrl : MonoBehaviour
 
         Dict_curMolecules.Add(tempMolecule.m_id, tempMolecule);
 
-        if(currentInteractionMode == InteractionModes.MEASUREMENT)
+        if(currentInteractionMode == InteractionModes.MEASUREMENT )
         {
             tempMolecule.freezeUI(true);
         }
@@ -1305,9 +1292,9 @@ public class GlobalCtrl : MonoBehaviour
     public bool changeAtom(ushort idMol, ushort idAtom, string ChemicalAbbre)
     {
         // TODO: do not overwrite runtime data
-        var mol = Singleton.MoleculeAtKeyOrNull(idMol);
-        var chgAtom = mol?.atomList.ElementAtOrNull(idAtom, null);
-        if (mol == null || chgAtom == null)
+        if (!Dict_curMolecules.ContainsKey(idMol)) return false;
+        var chgAtom = Dict_curMolecules[idMol].atomList.ElementAtOrNull(idAtom, null);
+        if (chgAtom == null)
         {
             return false;
         }
@@ -1319,7 +1306,7 @@ public class GlobalCtrl : MonoBehaviour
         chgAtom.f_Modify(tempData);
 
         SaveMolecule(true);
-        EventManager.Singleton.ChangeMolData(Singleton.MoleculeAtKeyOrDefault(idMol));
+        EventManager.Singleton.ChangeMolData(Dict_curMolecules[idMol]);
         return true;
     }
 
@@ -1371,8 +1358,8 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the hybridization could be successfully modified</returns>
     public bool modifyHybrid(ushort mol_id, ushort atom_id, ushort hybrid)
     {
-
-        Atom chgAtom = MoleculeAtKeyOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
+        if (!Dict_curMolecules.ContainsKey(mol_id)) return false;
+        Atom chgAtom = Dict_curMolecules[mol_id].atomList.ElementAtOrDefault(atom_id);
         if (chgAtom == default)
         {
             return false;
@@ -1392,7 +1379,8 @@ public class GlobalCtrl : MonoBehaviour
     public bool switchDummyHydrogen(ushort idMol, ushort idAtom, bool isDummy=true)
     {
         // TODO: do not overwrite runtime data
-        Atom chgAtom = MoleculeAtKeyOrDefault(idMol).atomList.ElementAtOrDefault(idAtom);
+        if (!Dict_curMolecules.ContainsKey(idMol)) return false;
+        Atom chgAtom = Dict_curMolecules[idMol].atomList.ElementAtOrDefault(idAtom);
         if (chgAtom == default)
         {
             return false;
@@ -1548,7 +1536,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the change was successful</returns>
     public bool changeBondTerm(ushort mol_id, ushort term_id, ForceField.BondTerm new_term)
     {
-        if (term_id >= MoleculeAtKeyOrDefault(mol_id).bondTerms.Count)
+        if (!Dict_curMolecules.ContainsKey(mol_id) || term_id >= Dict_curMolecules[mol_id].bondTerms.Count)
         {
             return false;
         }
@@ -1566,7 +1554,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the change was successful</returns>
     public bool changeAngleTerm(ushort mol_id, ushort term_id, ForceField.AngleTerm new_term)
     {
-        if (term_id >= MoleculeAtKeyOrDefault(mol_id).angleTerms.Count)
+        if (!Dict_curMolecules.ContainsKey(mol_id) || term_id >= Dict_curMolecules[mol_id].angleTerms.Count)
         {
             return false;
         }
@@ -1584,7 +1572,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the change was successful</returns>
     public bool changeTorsionTerm(ushort mol_id, ushort term_id, ForceField.TorsionTerm new_term)
     {
-        if (term_id >= MoleculeAtKeyOrDefault(mol_id).torsionTerms.Count)
+        if (!Dict_curMolecules.ContainsKey(mol_id) || term_id >= Dict_curMolecules[mol_id].torsionTerms.Count)
         {
             return false;
         }
