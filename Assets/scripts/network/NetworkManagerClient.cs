@@ -609,14 +609,13 @@ public class NetworkManagerClient : MonoBehaviour
         // do the select
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var atom = (GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id) && GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomDict.ContainsKey(atom_id)) ? 
-                        GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomDict[atom_id] : default;
-            if (atom == default)
+            if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id) || !GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomDict.ContainsKey(atom_id))
             {
                 Debug.LogError($"[NetworkManagerClient:getAtomSelected] Atom with id {atom_id} does not exist.\nRequesing world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
                 return;
             }
+            var atom = GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomDict[atom_id];
             if (atom.m_molecule.isMarked)
             {
                 atom.m_molecule.markMolecule(false);
@@ -675,15 +674,13 @@ public class NetworkManagerClient : MonoBehaviour
         // do the delete
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var atom = (GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id) && GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomDict.ContainsKey(atom_id)) ?
-                        GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomDict[atom_id] : default;
-            if (atom == default)
+            if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id) || !GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomDict.ContainsKey(atom_id))
             {
                 Debug.LogError($"[NetworkManagerClient:getAtomDeleted] Atom with id {atom_id} does not exist.\nRequesing world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
                 return;
             }
-            GlobalCtrl.Singleton.deleteAtom(atom);
+            GlobalCtrl.Singleton.deleteAtom(GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomDict[atom_id]);
         }
     }
 
@@ -970,14 +967,12 @@ public class NetworkManagerClient : MonoBehaviour
         // do the change
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var atom = (GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id) && GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomDict.ContainsKey(atom_id)) ?
-                        GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomDict[atom_id] : default;
-            if (atom == default)
+            if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id) || !GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomDict.ContainsKey(atom_id))
             {
                 Debug.LogError($"[NetworkManagerClient:getFocusHighlight] Molecule {mol_id} or atom {atom_id} does not exists.\nRequesing world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
-            atom.focusHighlight(active);
+            GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomDict[atom_id].focusHighlight(active);
         }
     }
 
@@ -1011,14 +1006,12 @@ public class NetworkManagerClient : MonoBehaviour
         // do the change
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var atom = (GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id) && GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomDict.ContainsKey(atom_id)) ?
-                        GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomDict[atom_id] : default;
-            if (atom == default)
+            if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id) || !GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomDict.ContainsKey(atom_id))
             {
                 Debug.LogError($"[NetworkManagerClient:getFreezeAtom] Molecule {mol_id} or Atom {atom_id} does not exists.\nRequesing world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
-            atom.freeze(freeze);
+            GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomDict[atom_id].freeze(freeze);
         }
     }
 
