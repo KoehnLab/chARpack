@@ -350,7 +350,7 @@ public class ForceField : MonoBehaviour
         bool converged = true;
         foreach (var mol in GlobalCtrl.Singleton.Dict_curMolecules.Values)
         {
-            for (int i = 0; i < mol.atomList.Count; i++)
+            for (int i = 0; i < mol.atomDict.Count; i++)
             {
                 converged = converged && (mol.FFmovement[i].magnitude < threshold);
             }
@@ -367,7 +367,7 @@ public class ForceField : MonoBehaviour
             mol.FFforces.Clear();
             mol.FFforces_pass2.Clear();
             mol.FFmovement.Clear();
-            foreach(var a in mol.atomList)
+            foreach(var a in mol.atomDict.Values)
             {
                 // if chain atoms are grabbed they are in a different local coordiante systen
                 // need to transform them back to local molecule coordnates
@@ -533,7 +533,7 @@ public class ForceField : MonoBehaviour
         Vector3 rij;
         if (second_pass)
         {
-            rij = (mol.FFposition[hsTerm.Atom1] + alpha * mol.FFforces[hsTerm.Atom1] * RKtimeFactor / mol.atomList[hsTerm.Atom1].m_data.m_mass) - (mol.FFposition[hsTerm.Atom2] + alpha * mol.FFforces[hsTerm.Atom2] * RKtimeFactor / mol.atomList[hsTerm.Atom2].m_data.m_mass);
+            rij = (mol.FFposition[hsTerm.Atom1] + alpha * mol.FFforces[hsTerm.Atom1] * RKtimeFactor / mol.atomDict[hsTerm.Atom1].m_data.m_mass) - (mol.FFposition[hsTerm.Atom2] + alpha * mol.FFforces[hsTerm.Atom2] * RKtimeFactor / mol.atomDict[hsTerm.Atom2].m_data.m_mass);
         }
         else
         {
@@ -565,7 +565,7 @@ public class ForceField : MonoBehaviour
         Vector3 rb;
         if (second_pass)
         {
-            rb = (mol.FFposition[bond.Atom1] + alpha * mol.FFforces[bond.Atom1] * RKtimeFactor / mol.atomList[bond.Atom1].m_data.m_mass) - (mol.FFposition[bond.Atom2] + alpha * mol.FFforces[bond.Atom2] * RKtimeFactor / mol.atomList[bond.Atom2].m_data.m_mass);
+            rb = (mol.FFposition[bond.Atom1] + alpha * mol.FFforces[bond.Atom1] * RKtimeFactor / mol.atomDict[bond.Atom1].m_data.m_mass) - (mol.FFposition[bond.Atom2] + alpha * mol.FFforces[bond.Atom2] * RKtimeFactor / mol.atomDict[bond.Atom2].m_data.m_mass);
         }
         else
         {
@@ -612,8 +612,8 @@ public class ForceField : MonoBehaviour
         Vector3 rb2;
         if (second_pass)
         {
-            rb1 = (mol.FFposition[angle.Atom1] + alpha * mol.FFforces[angle.Atom1] * RKtimeFactor / mol.atomList[angle.Atom1].m_data.m_mass) - (mol.FFposition[angle.Atom2] + alpha * mol.FFforces[angle.Atom2] * RKtimeFactor / mol.atomList[angle.Atom2].m_data.m_mass);
-            rb2 = (mol.FFposition[angle.Atom3] + alpha * mol.FFforces[angle.Atom3] * RKtimeFactor / mol.atomList[angle.Atom3].m_data.m_mass) - (mol.FFposition[angle.Atom2] + alpha * mol.FFforces[angle.Atom2] * RKtimeFactor / mol.atomList[angle.Atom2].m_data.m_mass);
+            rb1 = (mol.FFposition[angle.Atom1] + alpha * mol.FFforces[angle.Atom1] * RKtimeFactor / mol.atomDict[angle.Atom1].m_data.m_mass) - (mol.FFposition[angle.Atom2] + alpha * mol.FFforces[angle.Atom2] * RKtimeFactor / mol.atomDict[angle.Atom2].m_data.m_mass);
+            rb2 = (mol.FFposition[angle.Atom3] + alpha * mol.FFforces[angle.Atom3] * RKtimeFactor / mol.atomDict[angle.Atom3].m_data.m_mass) - (mol.FFposition[angle.Atom2] + alpha * mol.FFforces[angle.Atom2] * RKtimeFactor / mol.atomDict[angle.Atom2].m_data.m_mass);
         }
         else
         {
@@ -686,9 +686,9 @@ public class ForceField : MonoBehaviour
         Vector3 rkl; 
         if (second_pass)
         {
-            rij = (mol.FFposition[torsion.Atom1] + alpha * mol.FFforces[torsion.Atom1] * RKtimeFactor / mol.atomList[torsion.Atom1].m_data.m_mass) - (mol.FFposition[torsion.Atom2] + alpha * mol.FFforces[torsion.Atom2] * RKtimeFactor / mol.atomList[torsion.Atom2].m_data.m_mass);
-            rkj = (mol.FFposition[torsion.Atom3] + alpha * mol.FFforces[torsion.Atom3] * RKtimeFactor / mol.atomList[torsion.Atom3].m_data.m_mass) - (mol.FFposition[torsion.Atom2] + alpha * mol.FFforces[torsion.Atom2] * RKtimeFactor / mol.atomList[torsion.Atom2].m_data.m_mass);
-            rkl = (mol.FFposition[torsion.Atom3] + alpha * mol.FFforces[torsion.Atom3] * RKtimeFactor / mol.atomList[torsion.Atom3].m_data.m_mass) - (mol.FFposition[torsion.Atom4] + alpha * mol.FFforces[torsion.Atom4] * RKtimeFactor / mol.atomList[torsion.Atom4].m_data.m_mass);
+            rij = (mol.FFposition[torsion.Atom1] + alpha * mol.FFforces[torsion.Atom1] * RKtimeFactor / mol.atomDict[torsion.Atom1].m_data.m_mass) - (mol.FFposition[torsion.Atom2] + alpha * mol.FFforces[torsion.Atom2] * RKtimeFactor / mol.atomDict[torsion.Atom2].m_data.m_mass);
+            rkj = (mol.FFposition[torsion.Atom3] + alpha * mol.FFforces[torsion.Atom3] * RKtimeFactor / mol.atomDict[torsion.Atom3].m_data.m_mass) - (mol.FFposition[torsion.Atom2] + alpha * mol.FFforces[torsion.Atom2] * RKtimeFactor / mol.atomDict[torsion.Atom2].m_data.m_mass);
+            rkl = (mol.FFposition[torsion.Atom3] + alpha * mol.FFforces[torsion.Atom3] * RKtimeFactor / mol.atomDict[torsion.Atom3].m_data.m_mass) - (mol.FFposition[torsion.Atom4] + alpha * mol.FFforces[torsion.Atom4] * RKtimeFactor / mol.atomDict[torsion.Atom4].m_data.m_mass);
         }
         else
         {
@@ -786,12 +786,12 @@ public class ForceField : MonoBehaviour
             // check for too long steps:
             float MaxMove = 10f;
             float moveMaxNorm = 0f; // norm of movement vector
-            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            foreach (ushort iAtom in mol.atomDict.Keys)
             {
                 // negative masses flag a fixed atom
-                if (!mol.atomList[iAtom].isGrabbed && mol.atomList[iAtom].m_data.m_mass > 0)
+                if (!mol.atomDict[iAtom].isGrabbed && mol.atomDict[iAtom].m_data.m_mass > 0)
                 {
-                    mol.FFforces[iAtom] *= EulerTimeFactor / mol.atomList[iAtom].m_data.m_mass;
+                    mol.FFforces[iAtom] *= EulerTimeFactor / mol.atomDict[iAtom].m_data.m_mass;
                     float moveNorm = Vector3.Magnitude(mol.FFforces[iAtom]);
                     moveMaxNorm = Mathf.Max(moveMaxNorm, moveNorm);
                     //Debug.Log($"[ForceField] Current Force {mol.FFforces[iAtom].x} {mol.FFforces[iAtom].y} {mol.FFforces[iAtom].z}");
@@ -810,7 +810,7 @@ public class ForceField : MonoBehaviour
             }
 
             // update position and total movement:
-            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            for (int iAtom = 0; iAtom < mol.atomDict.Count; iAtom++)
             {
                 mol.FFmovement[iAtom] += mol.FFforces[iAtom] * scaleMove;
                 mol.FFposition[iAtom] += mol.FFforces[iAtom] * scaleMove;
@@ -823,13 +823,13 @@ public class ForceField : MonoBehaviour
         foreach (var mol in GlobalCtrl.Singleton.Dict_curMolecules.Values)
         {
             // update position and total movement:
-            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            foreach (ushort iAtom in mol.atomDict.Keys)
             {
                 // negative masses flag a fixed atom
-                if (!mol.atomList[iAtom].isGrabbed && mol.atomList[iAtom].m_data.m_mass > 0)
+                if (!mol.atomDict[iAtom].isGrabbed && mol.atomDict[iAtom].m_data.m_mass > 0)
                 {
                     var current_pos = mol.FFposition[iAtom];
-                    mol.FFposition[iAtom] = 2.0f * current_pos - mol.FFlastPosition[iAtom] + mol.FFforces[iAtom] * Mathf.Pow(SVtimeFactor, 2.0f) / mol.atomList[iAtom].m_data.m_mass;
+                    mol.FFposition[iAtom] = 2.0f * current_pos - mol.FFlastPosition[iAtom] + mol.FFforces[iAtom] * Mathf.Pow(SVtimeFactor, 2.0f) / mol.atomDict[iAtom].m_data.m_mass;
                     mol.FFmovement[iAtom] += mol.FFposition[iAtom] - current_pos;
                     mol.FFlastPosition[iAtom] = current_pos;
                 }
@@ -846,13 +846,13 @@ public class ForceField : MonoBehaviour
         foreach (var mol in GlobalCtrl.Singleton.Dict_curMolecules.Values)
         {
             // update position and total movement:
-            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            foreach (ushort iAtom in mol.atomDict.Keys)
             {
                 // negative masses flag a fixed atom
-                if (!mol.atomList[iAtom].isGrabbed && mol.atomList[iAtom].m_data.m_mass > 0)
+                if (!mol.atomDict[iAtom].isGrabbed && mol.atomDict[iAtom].m_data.m_mass > 0)
                 {
                     var current_pos = mol.FFposition[iAtom];
-                    mol.FFposition[iAtom] = current_pos + ((1f - 1f/(2f*alpha)) * mol.FFforces[iAtom] * RKtimeFactor)/ mol.atomList[iAtom].m_data.m_mass + (mol.FFforces_pass2[iAtom] * RKtimeFactor)/ (2f*alpha*mol.atomList[iAtom].m_data.m_mass);
+                    mol.FFposition[iAtom] = current_pos + ((1f - 1f/(2f*alpha)) * mol.FFforces[iAtom] * RKtimeFactor)/ mol.atomDict[iAtom].m_data.m_mass + (mol.FFforces_pass2[iAtom] * RKtimeFactor)/ (2f*alpha*mol.atomDict[iAtom].m_data.m_mass);
 
                     mol.FFmovement[iAtom] += mol.FFposition[iAtom] - current_pos;
                     mol.FFlastPosition[iAtom] = current_pos;
@@ -871,14 +871,14 @@ public class ForceField : MonoBehaviour
         {
 
             // update position and total movement:
-            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            foreach (ushort iAtom in mol.atomDict.Keys)
             {
                 // negative masses flag a fixed atom
-                if (!mol.atomList[iAtom].isGrabbed && mol.atomList[iAtom].m_data.m_mass > 0)
+                if (!mol.atomDict[iAtom].isGrabbed && mol.atomDict[iAtom].m_data.m_mass > 0)
                 {
                     var current_pos = mol.FFposition[iAtom];
 
-                    mol.FFposition[iAtom] = (mol.FFforces[iAtom] * 2f * MPtimeFactor) / mol.atomList[iAtom].m_data.m_mass + mol.FFlastlastPosition[iAtom];
+                    mol.FFposition[iAtom] = (mol.FFforces[iAtom] * 2f * MPtimeFactor) / mol.atomDict[iAtom].m_data.m_mass + mol.FFlastlastPosition[iAtom];
 
                     mol.FFmovement[iAtom] += mol.FFposition[iAtom] - current_pos;
                     mol.FFlastlastPosition[iAtom] = mol.FFlastPosition[iAtom];
@@ -899,10 +899,10 @@ public class ForceField : MonoBehaviour
         {
 
             // update position and total movement:
-            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            foreach (ushort iAtom in mol.atomDict.Keys)
             {
                 // negative masses flag a fixed atom
-                if (!mol.atomList[iAtom].isGrabbed && mol.atomList[iAtom].m_data.m_mass > 0)
+                if (!mol.atomDict[iAtom].isGrabbed && mol.atomDict[iAtom].m_data.m_mass > 0)
                 {
                     var current_pos = mol.FFposition[iAtom];
 
@@ -932,21 +932,21 @@ public class ForceField : MonoBehaviour
         {
 
             // update position and total movement:
-            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            foreach (ushort iAtom in mol.atomDict.Keys)
             {
                 // negative masses flag a fixed atom
-                if (!mol.atomList[iAtom].isGrabbed && mol.atomList[iAtom].m_data.m_mass > 0)
+                if (!mol.atomDict[iAtom].isGrabbed && mol.atomDict[iAtom].m_data.m_mass > 0)
                 {
                     var current_pos = mol.FFposition[iAtom];
 
-                    var rk_result = current_pos + (mol.FFforces[iAtom].multiply(mol.FFtimeStep[iAtom].pow(2.0f))) / (2.0f * mol.atomList[iAtom].m_data.m_mass);
-                    var euler_result = current_pos + (mol.FFforces[iAtom].multiply(mol.FFtimeStep[iAtom])) / mol.atomList[iAtom].m_data.m_mass;
+                    var rk_result = current_pos + (mol.FFforces[iAtom].multiply(mol.FFtimeStep[iAtom].pow(2.0f))) / (2.0f * mol.atomDict[iAtom].m_data.m_mass);
+                    var euler_result = current_pos + (mol.FFforces[iAtom].multiply(mol.FFtimeStep[iAtom])) / mol.atomDict[iAtom].m_data.m_mass;
                     var error = RKc * (euler_result - rk_result).abs().sqrt(); // constant c for adjustments
 
                     if (iAtom == 0) UnityEngine.Debug.Log($"[Error estimate 3D] {error}");
 
                     mol.FFtimeStep[iAtom] = error.max(RKstepMin).min(RKstepMax);
-                    mol.FFposition[iAtom] = current_pos + (mol.FFforces[iAtom].multiply(mol.FFtimeStep[iAtom].pow(2.0f))) / (2.0f * mol.atomList[iAtom].m_data.m_mass);
+                    mol.FFposition[iAtom] = current_pos + (mol.FFforces[iAtom].multiply(mol.FFtimeStep[iAtom].pow(2.0f))) / (2.0f * mol.atomDict[iAtom].m_data.m_mass);
 
                     mol.FFmovement[iAtom] = mol.FFposition[iAtom] - current_pos;
                     mol.FFlastPosition[iAtom] = current_pos;
@@ -967,10 +967,10 @@ public class ForceField : MonoBehaviour
         // momentum change to position change: apply time factor
         foreach (var mol in GlobalCtrl.Singleton.Dict_curMolecules.Values)
         {
-            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            foreach (ushort iAtom in mol.atomDict.Keys)
             {
                 if (float.IsFinite(mol.FFmovement[iAtom].x)) {
-                    var atom = mol.atomList.ElementAtOrDefault(iAtom);
+                    var atom = mol.atomDict[iAtom];
                     if (atom.isGrabbed)
                     {
                         atom.transform.localPosition += (mol.FFmovement[iAtom] * scalingfactor) * atom.transform.localScale.x;
@@ -983,9 +983,9 @@ public class ForceField : MonoBehaviour
                 else
                 {
                     //do small random moves
-                    mol.atomList.ElementAtOrDefault(iAtom).transform.localPosition += new Vector3(UnityEngine.Random.Range(-0.01f, 0.01f), UnityEngine.Random.Range(-0.01f, 0.01f), UnityEngine.Random.Range(-0.01f, 0.01f));
+                    mol.atomDict[iAtom].transform.localPosition += new Vector3(UnityEngine.Random.Range(-0.01f, 0.01f), UnityEngine.Random.Range(-0.01f, 0.01f), UnityEngine.Random.Range(-0.01f, 0.01f));
                 }
-                mol.FFposition[iAtom] = mol.transform.InverseTransformPoint(mol.atomList.ElementAtOrDefault(iAtom).transform.position) * (1f / scalingfactor);
+                mol.FFposition[iAtom] = mol.transform.InverseTransformPoint(mol.atomDict[iAtom].transform.position) * (1f / scalingfactor);
                 mol.FFmovement[iAtom] = Vector3.zero;
                 mol.FFforces[iAtom] = Vector3.zero;
                 mol.FFforces_pass2[iAtom] = Vector3.zero;
@@ -1005,12 +1005,15 @@ public class ForceField : MonoBehaviour
         {
             foreach(Bond bond in mol.bondList)
             {
-                Atom a1 = mol.atomList.ElementAtOrDefault(bond.atomID1);
-                Atom a2 = mol.atomList.ElementAtOrDefault(bond.atomID2);
-                float distance = Vector3.Distance(a1.transform.position, a2.transform.position) / mol.transform.localScale.x;
-                bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
-                bond.transform.position = (a1.transform.position + a2.transform.position) / 2;
-                bond.transform.LookAt(a2.transform.position);
+                if (mol.atomDict.ContainsKey(bond.atomID1) && mol.atomDict.ContainsKey(bond.atomID2))
+                {
+                    Atom a1 = mol.atomDict[bond.atomID1];
+                    Atom a2 = mol.atomDict[bond.atomID2];
+                    float distance = Vector3.Distance(a1.transform.position, a2.transform.position) / mol.transform.localScale.x;
+                    bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
+                    bond.transform.position = (a1.transform.position + a2.transform.position) / 2;
+                    bond.transform.LookAt(a2.transform.position);
+                }
             }
         }
     }

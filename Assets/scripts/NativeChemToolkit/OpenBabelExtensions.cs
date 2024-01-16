@@ -86,9 +86,9 @@ public static class OpenBabelExtensions
         // this method preserves the position of the molecules and atoms (and rotation)
         cmlData saveData;
 
-        mol.shrinkAtomIDs();
+        //mol.shrinkAtomIDs();
         List<cmlAtom> list_atom = new List<cmlAtom>();
-        foreach (Atom a in mol.atomList)
+        foreach (Atom a in mol.atomDict.Values)
         {
             list_atom.Add(new cmlAtom(a.m_id, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
         }
