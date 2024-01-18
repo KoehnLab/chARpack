@@ -289,7 +289,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void initializeMaxAtomID()
     {
-        maxAtomId = (ushort)atomDict.Count;
+        maxAtomId = (ushort)(atomDict.Count-1);
     }
 
     private void adjustBBox(Molecule mol)
