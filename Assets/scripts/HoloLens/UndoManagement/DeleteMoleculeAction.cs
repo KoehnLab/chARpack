@@ -19,7 +19,6 @@ public class DeleteMoleculeAction : IUndoableAction
 
     public void Undo()
     {
-        GlobalCtrl.Singleton.BuildMoleculeFromCML(molecule);
-        EventManager.Singleton.Undo();
+        GlobalCtrl.Singleton.BuildMoleculeFromCML(molecule, molecule.moleID);
     }
 }

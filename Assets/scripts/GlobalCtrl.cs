@@ -54,7 +54,6 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     [HideInInspector] public Dictionary<string, ElementData> Dic_ElementData { get; private set; }
 
-    [HideInInspector] public List<Molecule> List_curMolecules { get; private set; }
     [HideInInspector] public Dictionary<ushort, Molecule> Dict_curMolecules { get; private set; }
     //public Dictionary<int, Molecule> Dic_curMolecules { get; private set; }
 
@@ -236,7 +235,6 @@ public class GlobalCtrl : MonoBehaviour
             Debug.LogError("[GlobalCtrl] list_ElementData is empty.");
         }
 
-        List_curMolecules = new List<Molecule>();
         Dict_curMolecules = new Dictionary<ushort, Molecule>();
         Dic_ElementData = new Dictionary<string, ElementData>();
         Dic_AtomMat = new Dictionary<int, Material>();
@@ -547,6 +545,8 @@ public class GlobalCtrl : MonoBehaviour
         {
             b.markBond(false);
         }
+        cmlData before = b.m_molecule.AsCML();
+        List<cmlData> after = new List<cmlData>();
 
         // add to delete List
         List<Bond> delBondList = new List<Bond>();
@@ -617,6 +617,7 @@ public class GlobalCtrl : MonoBehaviour
         foreach (Molecule m in addMoleculeList)
         {
             Dict_curMolecules.Add(m.m_id,m);
+            after.Add(m.AsCML());
         }
 
         foreach (var entry in numConnectedAtoms)
@@ -631,7 +632,7 @@ public class GlobalCtrl : MonoBehaviour
             a.m_molecule.shrinkAtomIDs();
         }
 
-
+        undoStack.AddChange(new DeleteBondAction(before, after));
         SaveMolecule(true);
         // invoke data change event for new molecules
         foreach (Molecule m in addMoleculeList)
@@ -721,7 +722,7 @@ public class GlobalCtrl : MonoBehaviour
 
     public void deleteMolecule(ushort m_id, bool addToUndoStack = true)
     {
-        deleteMolecule(List_curMolecules[m_id], addToUndoStack);
+        deleteMolecule(Dict_curMolecules[m_id], addToUndoStack);
     }
 
     /// <summary>
@@ -765,6 +766,9 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="to_delete"></param>
     public void deleteAtom(Atom to_delete)
     {
+        cmlData before = to_delete.m_molecule.AsCML();
+        List<cmlData> after = new List<cmlData>();
+
         Dictionary<Atom, List<Vector3>> positionsRestore = new Dictionary<Atom, List<Vector3>>();
         List<Atom> delAtomList = new List<Atom>();
         List<Bond> delBondList = new List<Bond>();
@@ -817,6 +821,7 @@ public class GlobalCtrl : MonoBehaviour
         foreach (Molecule m in addMoleculeList)
         {
             Dict_curMolecules.Add(m.m_id,m);
+            after.Add(m.AsCML());
         }
 
         foreach (var entry in numConnectedAtoms)
@@ -831,6 +836,7 @@ public class GlobalCtrl : MonoBehaviour
             a.m_molecule.shrinkAtomIDs();
         }
 
+        undoStack.AddChange(new DeleteAtomAction(before, after));
         SaveMolecule(true);
         // invoke data change event for new molecules
         foreach (Molecule m in addMoleculeList)
@@ -1263,7 +1269,7 @@ public class GlobalCtrl : MonoBehaviour
         }
 
         SaveMolecule(true);
-        undoStack.AddChange(new CreateMoleculeAction(tempMolecule.AsCML()));
+        undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id,tempMolecule.AsCML()));
 
         EventManager.Singleton.ChangeMolData(tempMolecule);
     }
@@ -1304,11 +1310,16 @@ public class GlobalCtrl : MonoBehaviour
             return false;
         }
 
+        cmlData before = Dict_curMolecules[idMol].AsCML();
+
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
         tempData.m_hybridization = chgAtom.m_data.m_hybridization;
         tempData.m_bondNum = calcNumBonds(tempData.m_hybridization, tempData.m_bondNum);
 
         chgAtom.f_Modify(tempData);
+
+        cmlData after = Dict_curMolecules[idMol].AsCML();
+        undoStack.AddChange(new ChangeAtomAction(before, after));
 
         SaveMolecule(true);
         EventManager.Singleton.ChangeMolData(Dict_curMolecules[idMol]);
@@ -1458,6 +1469,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="dummyInAir">the dummy of the molecule which is in the air</param>
     public void MergeMolecule(Atom dummyInHand, Atom dummyInAir)
     {
+        List<cmlData> before = new List<cmlData>();
         collision = false;
         dummyInHand.dummyFindMain().keepConfig = false;
 
@@ -1466,6 +1478,9 @@ public class GlobalCtrl : MonoBehaviour
 
         Molecule molInHand = dummyInHand.m_molecule;
         Molecule molInAir = dummyInAir.m_molecule;
+
+        before.Add(molInHand.AsCML());
+        before.Add(molInAir.AsCML());
         // scale before merge
         molInHand.transform.localScale = molInAir.transform.localScale;
         Bond bondInHand = molInHand.bondList.Find(p=>p.atomID1 == dummyInHand.m_id || p.atomID2 == dummyInHand.m_id);
@@ -1503,6 +1518,8 @@ public class GlobalCtrl : MonoBehaviour
         molInAir.markMolecule(false);
 
         SaveMolecule(true);
+        cmlData after = molInAir.AsCML();
+        undoStack.AddChange(new MergeMoleculeAction(before, after));
 
         EventManager.Singleton.ChangeMolData(molInAir);
 
@@ -1739,13 +1756,13 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
-    public ushort BuildMoleculeFromCML(cmlData molecule)
+    public ushort BuildMoleculeFromCML(cmlData molecule, ushort id=0)
     {
-        var freshMoleculeID = getFreshMoleculeID();
+        var freshMoleculeID = id==0 ? getFreshMoleculeID() : id;
 
         Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos, Quaternion.identity).AddComponent<Molecule>();
         tempMolecule.f_Init(freshMoleculeID, atomWorld.transform, molecule);
-        List_curMolecules.Add(tempMolecule);
+        Dict_curMolecules.Add(freshMoleculeID,tempMolecule);
 
 
         //LOAD STRUCTURE CHECK LIST / DICTIONNARY
@@ -1899,6 +1916,8 @@ public class GlobalCtrl : MonoBehaviour
         //}
         Debug.Log($"Undo stack size: {undoStack.getUndoStackSize()}");
         undoStack.Undo();
+        // Necessary to network like this?
+        EventManager.Singleton.Undo();
     }
 
 
