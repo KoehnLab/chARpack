@@ -64,14 +64,12 @@ namespace StructClass
     public struct cmlAtom
     {
         public ushort id;
-        public Guid uid;
         public string abbre;
         public ushort hybrid;
         public SaveableVector3 pos;
-        public cmlAtom(ushort _id, Guid _uid, string name, ushort hybridisation, SaveableVector3 _pos)
+        public cmlAtom(ushort _id,string name, ushort hybridisation, SaveableVector3 _pos)
         {
             id = _id;
-            uid = _uid;
             abbre = name;
             hybrid = hybridisation;
             pos = _pos;
@@ -88,16 +86,14 @@ namespace StructClass
     {
         public ushort id1;
         public ushort id2;
-        public Guid uid;
         public float order;
         public float eqDist;
         public float kb;
 
-        public cmlBond(ushort atom1, ushort atom2, Guid _uid, float order_, float eqDist_ = -1.0f, float k = -1.0f)
+        public cmlBond(ushort atom1, ushort atom2, float order_, float eqDist_ = -1.0f, float k = -1.0f)
         {
             id1 = atom1;
             id2 = atom2;
-            uid = _uid;
             order = order_;
             eqDist = eqDist_;
             kb = k;

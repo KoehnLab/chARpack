@@ -32,7 +32,7 @@ public class ForceField : MonoBehaviour
 
     public struct BondTerm
     {
-        public ushort Atom1; public ushort Atom2; public Guid uid; public float kBond; public float eqDist; public float order;
+        public ushort Atom1; public ushort Atom2; public float kBond; public float eqDist; public float order;
     }
     public struct AngleTerm
     {

@@ -4,11 +4,9 @@ using UnityEngine;
 using OpenBabel;
 using StructClass;
 using System.Linq;
-using System;
 
 public static class OpenBabelExtensions
 {
-    // Assigning new unique IDs to atoms and bonds here since OB does not have them
     public static cmlData AsCML(this OBMol molecule)
     {
         uint num_atoms = molecule.NumAtoms();
@@ -36,7 +34,7 @@ public static class OpenBabelExtensions
             var b = (ushort)(bond.GetEndAtomIdx() - 1);
             var order = (float)bond.GetBondOrder();
 
-            list_bond.Add(new cmlBond(a, b, Guid.NewGuid(), order));
+            list_bond.Add(new cmlBond(a, b, order));
         }
 
         var mol_id = GlobalCtrl.Singleton.getFreshMoleculeID();
@@ -45,7 +43,7 @@ public static class OpenBabelExtensions
         for (ushort i = 0; i < num_atoms; i++)
         {
             pos_vec[i] -= mean_pos;
-            list_atom.Add(new cmlAtom(i, Guid.NewGuid(), symbols[i], hybridizatons[i], pos_vec[i]));
+            list_atom.Add(new cmlAtom(i, symbols[i], hybridizatons[i], pos_vec[i]));
         }
 
         // init position is in front of current camera in atom world coordinates
@@ -92,13 +90,13 @@ public static class OpenBabelExtensions
         List<cmlAtom> list_atom = new List<cmlAtom>();
         foreach (Atom a in mol.atomList)
         {
-            list_atom.Add(new cmlAtom(a.m_id, a.uid, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
+            list_atom.Add(new cmlAtom(a.m_id, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
         }
 
         List<cmlBond> list_bond = new List<cmlBond>();
         foreach (var b in mol.bondTerms)
         {
-            list_bond.Add(new cmlBond(b.Atom1, b.Atom2, b.uid, b.order, b.eqDist, b.kBond));
+            list_bond.Add(new cmlBond(b.Atom1, b.Atom2, b.order, b.eqDist, b.kBond));
         }
         List<cmlAngle> list_angle = new List<cmlAngle>();
         foreach (var b in mol.angleTerms)
