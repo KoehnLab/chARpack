@@ -340,7 +340,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             b.atomID2 += maxID;
             newParent.bondList.Add(b);
         }
-        GlobalCtrl.Singleton.List_curMolecules.Remove(this);
+        GlobalCtrl.Singleton.Dict_curMolecules.Remove(m_id);
         Destroy(gameObject);
     }
 
@@ -384,7 +384,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             }
         }
 
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach (var mol in GlobalCtrl.Singleton.Dict_curMolecules.Values)
         {
             if (mol != this && mol.isMarked)
             {
@@ -437,10 +437,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var snapToolTip = Instantiate(mySnapToolTipPrefab);
 
         // put tool top to the right 
-        snapToolTip.transform.position = (GlobalCtrl.Singleton.List_curMolecules[otherMolID].transform.position - transform.position)/2f + transform.position - 0.25f * Vector3.up;
+        snapToolTip.transform.position = (GlobalCtrl.Singleton.Dict_curMolecules[otherMolID].transform.position - transform.position)/2f + transform.position - 0.25f * Vector3.up;
         // add atom as connector
         snapToolTip.GetComponent<myDoubleLineToolTipConnector>().Target1 = gameObject;
-        snapToolTip.GetComponent<myDoubleLineToolTipConnector>().Target2 = GlobalCtrl.Singleton.List_curMolecules[otherMolID].gameObject;
+        snapToolTip.GetComponent<myDoubleLineToolTipConnector>().Target2 = GlobalCtrl.Singleton.Dict_curMolecules[otherMolID].gameObject;
         string toolTipText = $"Molecule1 ID: {m_id}\nMolecule2 ID: {otherMolID}";
         snapToolTip.GetComponent<DoubleLineDynamicToolTip>().ToolTipText = toolTipText;
 
@@ -458,12 +458,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private void snapUI(ushort otherMolID)
     {
 
-        var otherMol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(otherMolID);
-        if (otherMol == default)
+        if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(otherMolID))
         {
             UnityEngine.Debug.LogError($"[Molecule:snapUI] Could not find Molecule with ID {otherMolID}");
             return;
         }
+        var otherMol = GlobalCtrl.Singleton.Dict_curMolecules[otherMolID];
         snap(otherMolID);
         markMolecule(false);
         otherMol.markMolecule(false);
@@ -474,11 +474,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private bool snap(ushort otherMolID)
     {
-        var otherMol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(otherMolID);
-        if (otherMol == default)
+
+        if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(otherMolID))
         {
             return false;
         }
+        var otherMol = GlobalCtrl.Singleton.Dict_curMolecules[otherMolID];
         // apply transformation
         transform.localPosition = otherMol.transform.localPosition;
         transform.localRotation = otherMol.transform.localRotation;
@@ -508,12 +509,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void closeSnapUI(ushort otherMolID)
     {
-        var otherMol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(otherMolID);
-        if (otherMol == default)
+        if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(otherMolID))
         {
             UnityEngine.Debug.LogError($"[Molecule:closeSnapUI] Could not find Molecule with ID {otherMolID}");
             return;
         }
+        var otherMol = GlobalCtrl.Singleton.Dict_curMolecules[otherMolID];
         markMolecule(false);
         otherMol.markMolecule(false);
         EventManager.Singleton.SelectMolecule(m_id, false);
@@ -1254,7 +1255,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
 
         // Clear lists beforehand
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach (var mol in GlobalCtrl.Singleton.Dict_curMolecules.Values)
         {
             mol.FFposition.Clear();
             mol.FFlastPosition.Clear();

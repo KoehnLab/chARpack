@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
+using UnityEngine.SceneManagement;
 
 public class settingsControl : MonoBehaviour
 {
@@ -39,18 +40,27 @@ public class settingsControl : MonoBehaviour
 
     public void updateSettings()
     {
+        try
+        {
+            // These settings currently depend on the presence of hand-related game objects in the scene
+            setHandJoint(SettingsData.handJoints);
+            setHandMenu(SettingsData.handMenu);
+            setHandMesh(SettingsData.handMesh);
+            setHandRay(SettingsData.handRay);
+            setSpatialMesh(SettingsData.spatialMesh);
+            setInteractionMode(SettingsData.interactionMode);
+        }
+        catch
+        {
+            Debug.Log("Couldn't set hand settings locally; probably in Server Scene");
+        }
         setBondStiffness(SettingsData.bondStiffness);
         setForceField(SettingsData.forceField);
-        setHandJoint(SettingsData.handJoints);
-        setHandMenu(SettingsData.handMenu);
-        setHandMesh(SettingsData.handMesh);
-        setHandRay(SettingsData.handRay);
         setRepulsionScale(SettingsData.repulsionScale);
-        setSpatialMesh(SettingsData.spatialMesh);
         setLanguage(SettingsData.language);
         setIntegrationMethod(SettingsData.integrationMethod);
         setTimeFactors(SettingsData.timeFactors);
-        setInteractionMode(SettingsData.interactionMode);
+        setCoopSettings(SettingsData.coop);
         // gaze and pointer highlighting are handled by checking the value in SettingsData directly in the script
     }
 
@@ -152,6 +162,22 @@ public class settingsControl : MonoBehaviour
 
     private void setInteractionMode(GlobalCtrl.InteractionModes mode)
     {
-        GlobalCtrl.Singleton.currentInteractionMode = mode;
+        GlobalCtrl.Singleton.setInteractionMode(mode);
+    }
+
+    private void setCoopSettings(bool[] coop)
+    {
+        bool userBox = coop[0];
+        bool userRay = coop[1];
+        // We want to keep seeing the boxes in the server scene
+        if (!SceneManager.GetActiveScene().name.Equals("ServerScene"))
+        {
+            var userBoxes = GameObject.FindGameObjectsWithTag("User Box");
+            foreach (GameObject box in userBoxes)
+            {
+                box.GetComponent<MeshRenderer>().enabled = userBox;
+                box.GetComponent<LineRenderer>().enabled = userRay;
+            }
+        }
     }
 }

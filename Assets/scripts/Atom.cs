@@ -604,6 +604,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     //[HideInInspector] public ushort m_id;
     public ushort m_id;
+    public Guid uid;
     [HideInInspector] public Molecule m_molecule;
     [HideInInspector] public ElementData m_data; // { get; private set; }
     // we have to clarify the role of m_data: Is this just basic (and constant) data?
@@ -632,7 +633,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         m_molecule = inputMole;
         m_molecule.atomList.Add(this);
         m_data = inputData;
-
+        uid = Guid.NewGuid();
 
         gameObject.name = m_data.m_name;
         gameObject.tag = "Atom";
