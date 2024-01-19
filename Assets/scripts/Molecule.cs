@@ -13,7 +13,6 @@ using UnityEngine.UI;
 public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
     private Stopwatch stopwatch;
-    private ushort maxAtomId = 0;
     [HideInInspector] public bool isGrabbed = false;
 
     /// <summary>
@@ -81,7 +80,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
                         if (!a1.alreadyConnected(a2))
                         {
-                            if (atomDict.ContainsValue(a1))
+                            if (atomList.Contains(a1))
                             {
                                 EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
                                 GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
@@ -206,9 +205,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public bool isMarked;
     /// <summary>
-    /// atom dictionary contains all atoms which belong to this molecule with their respective IDs
+    /// atom list contains all atoms which belong to this molecule
     /// </summary>
-    public Dictionary<ushort, Atom> atomDict { get; private set; }
+    public List<Atom> atomList { get; private set; }
     /// <summary>
     /// bond list contains all bonds which belong to this molecule
     /// </summary>
@@ -224,7 +223,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         m_id = idInScene;
         isMarked = false;
         transform.parent = inputParent;
-        atomDict = new Dictionary<ushort, Atom>();
+        atomList = new List<Atom>();
         bondList = new List<Bond>();
         // TODO put collider into a corner
         var collider = gameObject.AddComponent<BoxCollider>();
@@ -287,11 +286,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         EventManager.Singleton.OnMolDataChanged += adjustBBox;
     }
 
-    public void initializeMaxAtomID()
-    {
-        maxAtomId = (ushort)(atomDict.Count-1);
-    }
-
     private void adjustBBox(Molecule mol)
     {
 #if !WINDOWS_UWP
@@ -331,12 +325,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     public void givingOrphans(Molecule newParent)
     {
         ushort maxID = newParent.getFreshAtomID();
-        foreach (Atom a in atomDict.Values)
+        foreach (Atom a in atomList)
         {
             a.transform.parent = newParent.transform;
             a.m_molecule = newParent;
             a.m_id += maxID;
-            newParent.atomDict.Add(a.m_id,a);
+            newParent.atomList.Add(a);
         }
         foreach (Bond b in bondList)
         {
@@ -363,7 +357,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             Destroy(toolTipInstance);
             toolTipInstance = null;
         }
-        foreach (Atom a in atomDict.Values)
+        foreach (Atom a in atomList)
         {
             a.markAtom(mark);
             // Remove single marked atoms from list when whole molecule is selected
@@ -499,7 +493,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void addSnapColor(ref Material mat)
     {
-        foreach (var atom in atomDict.Values)
+        foreach (var atom in atomList)
         {
             // Append comparison material to end of list
             Material[] comp = atom.GetComponent<MeshRenderer>().sharedMaterials.ToList().Append(mat).ToArray();
@@ -536,7 +530,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var hydrogenCount = countAtoms("H");
         if (dummyCount >= hydrogenCount)
         {
-            foreach (Atom a in atomDict.Values)
+            foreach (Atom a in atomList)
             {
                 if (a.m_data.m_abbre == "Dummy")
                 {
@@ -546,7 +540,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         } 
         else
         {
-            foreach (Atom a in atomDict.Values)
+            foreach (Atom a in atomList)
             {
                 if (a.m_data.m_abbre == "H")
                 {
@@ -570,7 +564,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private int countAtoms(String name)
     {
         int atomCount = 0;
-        foreach (Atom a in atomDict.Values)
+        foreach (Atom a in atomList)
         {
             if (a.m_data.m_abbre == name)
             {
@@ -587,9 +581,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     public Vector3 getCenterInAtomWorld()
     {
         Vector3 center = new Vector3(0.0f, 0.0f, 0.0f);
-        int num_atoms = atomDict.Count;
+        int num_atoms = atomList.Count;
 
-        foreach (Atom atom in atomDict.Values)
+        foreach (Atom atom in atomList)
         {
             center += GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(atom.transform.position);
         }
@@ -605,9 +599,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     public Vector3 getCenter()
     {
         Vector3 center = new Vector3(0.0f, 0.0f, 0.0f);
-        int num_atoms = atomDict.Count;
+        int num_atoms = atomList.Count;
 
-        foreach (Atom atom in atomDict.Values)
+        foreach (Atom atom in atomList)
         {
             center += atom.transform.position;
         }
@@ -626,7 +620,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         List<float> dists = new List<float>();
 
-        foreach (Atom atom in atomDict.Values)
+        foreach (Atom atom in atomList)
         {
             Vector3 atom_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(atom.transform.position);
             dists.Add(Mathf.Sqrt(center[0]*atom_pos[0] + center[1] * atom_pos[1] + center[2] * atom_pos[2]));
@@ -650,7 +644,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         // calc total mass
         float tot_mass = 0.0f;
-        foreach (var atom in atomDict.Values)
+        foreach (var atom in atomList)
         {
             tot_mass += atom.m_data.m_mass;
         }
@@ -742,7 +736,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     public void createBondToolTip(ForceField.BondTerm term)
     {
         markBondTerm(term, true);
-        var bond = atomDict[term.Atom1].getBond(atomDict[term.Atom2]);
+        var bond = atomList[term.Atom1].getBond(atomList[term.Atom2]);
         // create tool tip
         toolTipInstance = Instantiate(Atom.myAtomToolTipPrefab);
         type = toolTipType.SINGLE;
@@ -765,8 +759,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         distGO.transform.parent = toolTipInstance.transform;
         distGO.name = "Distance Measurement";
         distGO.transform.Find("Line").gameObject.SetActive(false);
-        var atom1 = atomDict[term.Atom1];
-        var atom2 = atomDict[term.Atom2];
+        var atom1 = atomList.ElementAtOrDefault(term.Atom1);
+        var atom2 = atomList.ElementAtOrDefault(term.Atom2);
         DistanceMeasurment dist = distGO.GetComponent<DistanceMeasurment>();
         dist.StartAtom = atom1;
         dist.EndAtom = atom2;
@@ -834,9 +828,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void markBondTerm(ForceField.BondTerm term, bool mark)
     {
-        atomDict[term.Atom1].markAtom(mark,3);
-        atomDict[term.Atom2].markAtom(mark,3);
-        atomDict[term.Atom1].getBond(atomDict[term.Atom2])?.markBond(mark,3);
+        atomList[term.Atom1].markAtom(mark,3);
+        atomList[term.Atom2].markAtom(mark,3);
+        atomList[term.Atom1].getBond(atomList[term.Atom2])?.markBond(mark,3);
 
         if (toolTipInstance)
         {
@@ -854,7 +848,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     public void createAngleToolTip(ForceField.AngleTerm term)
     {
         markAngleTerm(term, true);
-        var middleAtom = atomDict[term.Atom2];
+        var middleAtom = atomList[term.Atom2];
         // create tool tip
         toolTipInstance = Instantiate(Atom.myAtomToolTipPrefab);
         type = toolTipType.ANGLE;
@@ -892,10 +886,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         angle.name = "Angle Measurement";
 
-        dist1.GetComponent<DistanceMeasurment>().StartAtom = atomDict[term.Atom1];
-        dist1.GetComponent<DistanceMeasurment>().EndAtom = atomDict[term.Atom2];
-        dist2.GetComponent<DistanceMeasurment>().StartAtom = atomDict[term.Atom2];
-        dist2.GetComponent<DistanceMeasurment>().EndAtom = atomDict[term.Atom3];
+        dist1.GetComponent<DistanceMeasurment>().StartAtom = atomList[term.Atom1];
+        dist1.GetComponent<DistanceMeasurment>().EndAtom = atomList[term.Atom2];
+        dist2.GetComponent<DistanceMeasurment>().StartAtom = atomList[term.Atom2];
+        dist2.GetComponent<DistanceMeasurment>().EndAtom = atomList[term.Atom3];
         angle.GetComponent<AngleMeasurment>().distMeasurment1 = dist1.GetComponent<DistanceMeasurment>();
         angle.GetComponent<AngleMeasurment>().distMeasurment2 = dist2.GetComponent<DistanceMeasurment>();
         angle.GetComponent<AngleMeasurment>().distMeasurment1Sign = -1f;
@@ -944,11 +938,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void markAngleTerm(ForceField.AngleTerm term, bool mark)
     {
-        atomDict[term.Atom1].markAtom(mark,4);
-        atomDict[term.Atom2].markAtom(mark,4);
-        atomDict[term.Atom3].markAtom(mark,4);
-        atomDict[term.Atom1].getBond(atomDict[term.Atom2])?.markBond(mark,4);
-        atomDict[term.Atom2].getBond(atomDict[term.Atom3])?.markBond(mark,4);
+        atomList[term.Atom1].markAtom(mark,4);
+        atomList[term.Atom2].markAtom(mark,4);
+        atomList[term.Atom3].markAtom(mark,4);
+        atomList[term.Atom1].getBond(atomList[term.Atom2])?.markBond(mark,4);
+        atomList[term.Atom2].getBond(atomList[term.Atom3])?.markBond(mark,4);
 
         if (toolTipInstance)
         {
@@ -965,7 +959,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     public void createTorsionToolTip(ForceField.TorsionTerm term)
     {
         markTorsionTerm(term, true);
-        var middlebond = atomDict[term.Atom2].getBond(atomDict[term.Atom3]);
+        var middlebond = atomList[term.Atom2].getBond(atomList[term.Atom3]);
         // create tool tip
         toolTipInstance = Instantiate(Atom.myAtomToolTipPrefab);
         type = toolTipType.TORSION;
@@ -993,10 +987,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private double getDihedralAngle(ushort atom1, ushort atom2, ushort atom3, ushort atom4)
     {
-        Atom a1 = atomDict[atom1];
-        Atom a2 = atomDict[atom2];
-        Atom a3 = atomDict[atom3];
-        Atom a4 = atomDict[atom4];
+        Atom a1 = atomList[atom1];
+        Atom a2 = atomList[atom2];
+        Atom a3 = atomList[atom3];
+        Atom a4 = atomList[atom4];
 
         GameObject measurement = Instantiate((GameObject)Resources.Load("prefabs/DihedralAngleMeasurementPrefab"));
         measurement.transform.parent = toolTipInstance.transform;
@@ -1046,13 +1040,13 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void markTorsionTerm(ForceField.TorsionTerm term, bool mark)
     {
-        atomDict[term.Atom1].markAtom(mark,5);
-        atomDict[term.Atom2].markAtom(mark,5);
-        atomDict[term.Atom3].markAtom(mark,5);
-        atomDict[term.Atom4].markAtom(mark,5);
-        atomDict[term.Atom1].getBond(atomDict[term.Atom2])?.markBond(mark,5);
-        atomDict[term.Atom2].getBond(atomDict[term.Atom3])?.markBond(mark,5);
-        atomDict[term.Atom3].getBond(atomDict[term.Atom4])?.markBond(mark,5);
+        atomList[term.Atom1].markAtom(mark,5);
+        atomList[term.Atom2].markAtom(mark,5);
+        atomList[term.Atom3].markAtom(mark,5);
+        atomList[term.Atom4].markAtom(mark,5);
+        atomList[term.Atom1].getBond(atomList[term.Atom2])?.markBond(mark,5);
+        atomList[term.Atom2].getBond(atomList[term.Atom3])?.markBond(mark,5);
+        atomList[term.Atom3].getBond(atomList[term.Atom4])?.markBond(mark,5);
 
         if (toolTipInstance)
         {
@@ -1067,7 +1061,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string numAtoms = GlobalCtrl.Singleton.GetLocalizedString("NUM_ATOMS");
         string numBonds = GlobalCtrl.Singleton.GetLocalizedString("NUM_BONDS");
         string mass = GlobalCtrl.Singleton.GetLocalizedString("TOT_MASS");
-        string toolTipText = $"{numAtoms}: {atomDict.Count}\n{numBonds}: {bondList.Count}\n{mass}: {totMass:0.00}\nMaxRadius: {maxDist:0.00}";
+        string toolTipText = $"{numAtoms}: {atomList.Count}\n{numBonds}: {bondList.Count}\n{mass}: {totMass:0.00}\nMaxRadius: {maxDist:0.00}";
         return toolTipText;
     }
 
@@ -1118,7 +1112,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="value">whether to freeze or unfreeze the molecule</param>
     public void freeze(bool value)
     {
-        foreach (var atom in atomDict.Values)
+        foreach (var atom in atomList)
         {
             atom.freeze(value);
         }
@@ -1157,52 +1151,60 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// <returns>id</returns>
     public ushort getMaxAtomID()
     {
-        return maxAtomId;
+        ushort id = 0;
+        if (atomList.Count > 0)
+        {
+            foreach (Atom a in atomList)
+            {
+                id = Math.Max(id, a.m_id);
+            }
+        }
+        return id;
     }
 
     /// <summary>
     /// this method shrinks the IDs of the atoms to prevent an overflow
     /// </summary>
-    //public void shrinkAtomIDs()
-    //{
-    //    var from = new List<ushort>();
-    //    var to = new List<ushort>();
-    //    var bonds = new List<Bond>();
-    //    for (ushort i = 0; i < atomList.Count; i++)
-    //    {
-    //        // also change ids in bond
-    //        if (atomList[i].m_id != i)
-    //        {
-    //            from.Add(atomList[i].m_id);
-    //            to.Add(i);
-    //            foreach (var bond in atomList[i].connectedBonds())
-    //            {
-    //                if (!bonds.Contains(bond))
-    //                {
-    //                    bonds.Add(bond);
-    //                }
-    //            }
+    public void shrinkAtomIDs()
+    {
+        var from = new List<ushort>();
+        var to = new List<ushort>();
+        var bonds = new List<Bond>();
+        for (ushort i = 0; i < atomList.Count; i++)
+        {
+            // also change ids in bond
+            if (atomList[i].m_id != i)
+            {
+                from.Add(atomList[i].m_id);
+                to.Add(i);
+                foreach (var bond in atomList[i].connectedBonds())
+                {
+                    if (!bonds.Contains(bond))
+                    {
+                        bonds.Add(bond);
+                    }
+                }
 
-    //        }
-    //        atomList[i].m_id = i;
-    //    }
-    //    foreach (var bond in bonds)
-    //    {
-    //        if (from.Contains(bond.atomID1))
-    //        {
-    //            bond.atomID1 = to[from.FindIndex(a => a == bond.atomID1)];
-    //        }
-    //        if (from.Contains(bond.atomID2))
-    //        {
-    //            bond.atomID2 = to[from.FindIndex(a => a == bond.atomID2)];
-    //        }
-    //    }
-    //    // DEBUG
-    //    //for (ushort i = 0; i < atomList.Count; i++)
-    //    //{
-    //    //    UnityEngine.Debug.Log($"[Molecule:shrinkAtomIDs] list ID {i} atom ID {atomList[i].m_id}");
-    //    //}
-    //}
+            }
+            atomList[i].m_id = i;
+        }
+        foreach (var bond in bonds)
+        {
+            if (from.Contains(bond.atomID1))
+            {
+                bond.atomID1 = to[from.FindIndex(a => a == bond.atomID1)];
+            }
+            if (from.Contains(bond.atomID2))
+            {
+                bond.atomID2 = to[from.FindIndex(a => a == bond.atomID2)];
+            }
+        }
+        // DEBUG
+        //for (ushort i = 0; i < atomList.Count; i++)
+        //{
+        //    UnityEngine.Debug.Log($"[Molecule:shrinkAtomIDs] list ID {i} atom ID {atomList[i].m_id}");
+        //}
+    }
 
     /// <summary>
     /// gets a fresh available atom id
@@ -1210,8 +1212,15 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="idNew">new ID</param>
     public ushort getFreshAtomID()
     {
-        maxAtomId++;
-        return (ushort)(getMaxAtomID());
+        if (atomList.Count == 0)
+        {
+            return 0;
+        }
+        else
+        {
+            shrinkAtomIDs();
+            return (ushort)(getMaxAtomID() + 1);
+        }
     }
 #endregion
 
@@ -1256,7 +1265,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             mol.FFforces_pass2.Clear();
             mol.FFmovement.Clear();
             mol.FFtimeStep.Clear();
-            foreach (var a in mol.atomDict.Values)
+            foreach (var a in mol.atomList)
             {
                 mol.FFposition.Add(a.transform.position * (1f / ForceField.scalingfactor));
                 mol.FFvelocity.Add(Vector3.zero);
@@ -1274,7 +1283,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         hsTerms.Clear();
         torsionTerms.Clear();
 
-        var num_atoms = atomDict.Count;
+        var num_atoms = atomList.Count;
         //UnityEngine.Debug.LogError($"[Molecule:generateFF] num num_atoms {num_atoms}");
         // set topology array       
         bool[,] topo = new bool[num_atoms, num_atoms];
@@ -1288,7 +1297,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         {
             int iAtom = 0;
-            foreach (Atom At1 in atomDict.Values)
+            foreach (Atom At1 in atomList)
             {
                 if (At1 != null)
                 {
@@ -1333,8 +1342,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                     newBond.Atom1 = jAtom;
                     newBond.Atom2 = iAtom;
 
-                    string key1 = string.Format("{0}_{1}", atomDict[jAtom].m_data.m_abbre, atomDict[jAtom].m_data.m_hybridization);
-                    string key2 = string.Format("{0}_{1}", atomDict[iAtom].m_data.m_abbre, atomDict[iAtom].m_data.m_hybridization);
+                    string key1 = string.Format("{0}_{1}", atomList[jAtom].m_data.m_abbre, atomList[jAtom].m_data.m_hybridization);
+                    string key2 = string.Format("{0}_{1}", atomList[iAtom].m_data.m_abbre, atomList[iAtom].m_data.m_hybridization);
 
                     float[] value1;
                     float[] value2;
@@ -1344,7 +1353,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
                     var dreiding_eqDist = R01 + R02 - 1f;
 
-                    if (atomDict[iAtom].keepConfig && atomDict[jAtom].keepConfig)
+                    if (atomList[iAtom].keepConfig && atomList[jAtom].keepConfig)
                     {
                         var currentDist = (FFposition[iAtom] - FFposition[jAtom]).magnitude;
                         if (currentDist.approx(0.0f, 0.00001f))
@@ -1368,7 +1377,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
                     bondTerms.Add(newBond);
                 }
-                else if (atomDict[iAtom].m_data.m_abbre != "Dummy" && atomDict[jAtom].m_data.m_abbre != "Dummy")  // avoid dummy terms right away
+                else if (atomList[iAtom].m_data.m_abbre != "Dummy" && atomList[jAtom].m_data.m_abbre != "Dummy")  // avoid dummy terms right away
                 {
                     bool avoid = false;
                     // check for next-nearest neighborhood (1-3 interaction)
@@ -1386,7 +1395,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                         newHS.Atom1 = jAtom;
                         newHS.Atom2 = iAtom;
                         newHS.kH = 10f;
-                        newHS.Rcrit = ForceField.rhs[atomDict[iAtom].m_data.m_abbre] + ForceField.rhs[atomDict[jAtom].m_data.m_abbre];
+                        newHS.Rcrit = ForceField.rhs[atomList[iAtom].m_data.m_abbre] + ForceField.rhs[atomList[jAtom].m_data.m_abbre];
                         hsTerms.Add(newHS);
                     }
                 }
@@ -1429,7 +1438,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                     newAngle.Atom3 = (ushort)idx;
 
                     float phi0;
-                    if (atomDict[newAngle.Atom1].keepConfig && atomDict[newAngle.Atom2].keepConfig && atomDict[newAngle.Atom3].keepConfig)
+                    if (atomList[newAngle.Atom1].keepConfig && atomList[newAngle.Atom2].keepConfig && atomList[newAngle.Atom3].keepConfig)
                     {
                         var vec1 = FFposition[newAngle.Atom3] - FFposition[newAngle.Atom2];
                         var vec2 = FFposition[newAngle.Atom1] - FFposition[newAngle.Atom2];
@@ -1439,7 +1448,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                     else
                     {
                         float[] value;
-                        string key = string.Format("{0}_{1}", atomDict[(ushort)jdx].m_data.m_abbre, atomDict[(ushort)jdx].m_data.m_hybridization);
+                        string key = string.Format("{0}_{1}", atomList[jdx].m_data.m_abbre, atomList[jdx].m_data.m_hybridization);
 
                         if (ForceField.DREIDINGConst.TryGetValue(key, out value))
                         {
@@ -1539,36 +1548,36 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                             float nTorsTerm = Mathf.Max(1f, (nBondP[jdx] - 1) * (nBondP[kdx] - 1));
                             //Debug.Log(string.Format(" nTorsTerm  {1} {2} {3} {4} : {0} {5} {6} ", nTorsTerm, idx, jdx, kdx, ldx, nBondP[jdx], nBondP[kdx]));
 
-                            if (atomDict[(ushort)jdx].m_data.m_hybridization == 3 && atomDict[(ushort)kdx].m_data.m_hybridization == 3) //two sp3 atoms
+                            if (atomList[jdx].m_data.m_hybridization == 3 && atomList[kdx].m_data.m_hybridization == 3) //two sp3 atoms
                             {
                                 newTorsion.vk = 0.02f * ForceField.k0 / nTorsTerm;
                                 newTorsion.nn = 3;
                                 newTorsion.eqAngle = 180f; // Mathf.PI;
                                 //print("1. Case 2 sp3");
                             }
-                            else if (atomDict[(ushort)jdx].m_data.m_hybridization == 2 && atomDict[(ushort)kdx].m_data.m_hybridization == 3 ||
-                                     atomDict[(ushort)jdx].m_data.m_hybridization == 3 && atomDict[(ushort)kdx].m_data.m_hybridization == 2)
+                            else if (atomList[jdx].m_data.m_hybridization == 2 && atomList[kdx].m_data.m_hybridization == 3 ||
+                                     atomList[jdx].m_data.m_hybridization == 3 && atomList[kdx].m_data.m_hybridization == 2)
                             {
                                 newTorsion.vk = 0.01f * ForceField.k0 / nTorsTerm;
                                 newTorsion.nn = 6;
                                 newTorsion.eqAngle = 0;
                                 //print("2. Case sp3 und sp2");
                             }
-                            else if (atomDict[(ushort)jdx].m_data.m_hybridization == 2 && atomDict[(ushort)kdx].m_data.m_hybridization == 2)
+                            else if (atomList[jdx].m_data.m_hybridization == 2 && atomList[kdx].m_data.m_hybridization == 2)
                             {
                                 newTorsion.vk = 0.05f * ForceField.k0 / nTorsTerm;
                                 newTorsion.nn = 2;
                                 newTorsion.eqAngle = 180f; // Mathf.PI
                                 //print("3. Case 2 sp2");
                             }
-                            else if (atomDict[(ushort)jdx].m_data.m_hybridization == 4 && atomDict[(ushort)kdx].m_data.m_hybridization == 4)
+                            else if (atomList[jdx].m_data.m_hybridization == 4 && atomList[kdx].m_data.m_hybridization == 4)
                             {
                                 newTorsion.vk = 0.25f * ForceField.k0 / nTorsTerm;
                                 newTorsion.nn = 2;
                                 newTorsion.eqAngle = 180f; // Mathf.PI;
                                 //print("resonance bond");
                             }
-                            else if (atomDict[(ushort)jdx].m_data.m_hybridization == 1 || atomDict[(ushort)kdx].m_data.m_hybridization == 1)
+                            else if (atomList[jdx].m_data.m_hybridization == 1 || atomList[kdx].m_data.m_hybridization == 1)
                             {
                                 newTorsion.vk = 0f;
                                 newTorsion.nn = 0;
@@ -1604,7 +1613,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
                             //newTorsion.vk = 2 * kim;
                             newTorsion.nn = 1;
-                            if (atomDict[(ushort)jdx].m_data.m_hybridization == 3)
+                            if (atomList[jdx].m_data.m_hybridization == 3)
                             {
                                 newTorsion.nn = 3; // TRY:
                                                    // if (phi > 0f)
@@ -1616,7 +1625,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                                 //    newTorsion.phieq = -120f;
                                 //}
                             }
-                            else if (atomDict[(ushort)jdx].m_data.m_hybridization == 2)
+                            else if (atomList[jdx].m_data.m_hybridization == 2)
                             {
                                 newTorsion.eqAngle = 180f;
                             }
@@ -1626,7 +1635,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                                 newTorsion.eqAngle = 90f;
                             }
                         }
-                        if (atomDict[newTorsion.Atom1].keepConfig && atomDict[newTorsion.Atom2].keepConfig && atomDict[newTorsion.Atom3].keepConfig && atomDict[newTorsion.Atom4].keepConfig)
+                        if (atomList[newTorsion.Atom1].keepConfig && atomList[newTorsion.Atom2].keepConfig && atomList[newTorsion.Atom3].keepConfig && atomList[newTorsion.Atom4].keepConfig)
                         {
                             //var vec1 = FFposition[idx] - FFposition[jdx];
                             //var vec2 = FFposition[ldx] - FFposition[kdx];

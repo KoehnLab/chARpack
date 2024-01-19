@@ -69,7 +69,7 @@ public class cornerClickScript : MonoBehaviour
 
                 if (!a1.alreadyConnected(a2))
                 {
-                    if (mol.atomDict.ContainsValue(a1))
+                    if (mol.atomList.Contains(a1))
                     {
                         EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
                         GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);

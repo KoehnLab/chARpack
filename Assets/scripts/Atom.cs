@@ -630,7 +630,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         m_id = atom_id;
         m_molecule = inputMole;
-        m_molecule.atomDict.Add(m_id,this);
+        m_molecule.atomList.Add(this);
         m_data = inputData;
 
 
@@ -747,7 +747,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             if (numConnected > dummyLimit)
             {
                 numConnected--;
-                a.m_molecule.atomDict.Remove(a.m_id);
+                a.m_molecule.atomList.Remove(a);
                 Bond b = a.connectedBonds()[0];
                 b.m_molecule.bondList.Remove(b);
                 Destroy(a.gameObject);
@@ -762,7 +762,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             numConnected++;
         }
 
-        //m_molecule.shrinkAtomIDs();
+        m_molecule.shrinkAtomIDs();
 
         // Debug.Log(string.Format("Modified latest {0}:  rad={1}   scale={2} ", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale));
     }
@@ -780,7 +780,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         m_molecule.transform.localRotation = Quaternion.identity;
         var mol_center_rotated = m_molecule.getCenterInAtomWorld();
         // positions relative to the molecule center
-        foreach (Atom a in m_molecule.atomDict.Values)
+        foreach (Atom a in m_molecule.atomList)
         {
             a.transform.localPosition = (GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a.transform.position) - mol_center_rotated) * (1f/m_molecule.transform.localScale.x);
         }
@@ -790,17 +790,14 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         // scale, position and orient bonds
         foreach (Bond bond in m_molecule.bondList)
         {
-            if (m_molecule.atomDict.ContainsKey(bond.atomID1) && m_molecule.atomDict.ContainsKey(bond.atomID2))
-            {
-                Atom a1 = m_molecule.atomDict[bond.atomID1];
-                Atom a2 = m_molecule.atomDict[bond.atomID2];
-                var a1_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a1.transform.position);
-                var a2_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a2.transform.position);
-                float distance = Vector3.Distance(a1_pos, a2_pos) / m_molecule.transform.localScale.x;
-                bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
-                bond.transform.position = (a1.transform.position + a2.transform.position) / 2;
-                bond.transform.LookAt(a2.transform.position);
-            }
+            Atom a1 = m_molecule.atomList.ElementAtOrDefault(bond.atomID1);
+            Atom a2 = m_molecule.atomList.ElementAtOrDefault(bond.atomID2);
+            var a1_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a1.transform.position);
+            var a2_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a2.transform.position);
+            float distance = Vector3.Distance(a1_pos, a2_pos) / m_molecule.transform.localScale.x;
+            bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
+            bond.transform.position = (a1.transform.position + a2.transform.position) / 2;
+            bond.transform.LookAt(a2.transform.position);
         }
     }
 
@@ -1128,17 +1125,17 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             Bond b = m_molecule.bondList.Find(p => p.atomID1 == m_id || p.atomID2 == m_id);
             Atom a;
-            if (!m_molecule.atomDict.ContainsKey(b.atomID2) || !m_molecule.atomDict.ContainsKey(b.atomID1))
-            {
-                throw new Exception("[Atom:dummyFindMain] Could not find Atom on the other side of the bond.");
-            }
             if (m_id == b.atomID1)
             {
-                a = m_molecule.atomDict[b.atomID2];
+                a = m_molecule.atomList.ElementAtOrDefault(b.atomID2);
             }
             else
             {
-                a = m_molecule.atomDict[b.atomID1];
+                a = m_molecule.atomList.ElementAtOrDefault(b.atomID1);
+            }
+            if (a == default)
+            {
+                throw new Exception("[Atom:dummyFindMain] Could not find Atom on the other side of the bond.");
             }
             return a;
         }
@@ -1231,7 +1228,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         // check for connected atom
         var markedList = new List<Atom>();
-        foreach (var atom in m_molecule.atomDict.Values)
+        foreach (var atom in m_molecule.atomList)
         {
             if (atom.isMarked)
             {

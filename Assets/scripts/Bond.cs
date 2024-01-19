@@ -49,9 +49,9 @@ public class Bond : MonoBehaviour
     public Atom findTheOther(Atom at)
     {
         if (at.m_id == atomID1)
-            return m_molecule.atomDict.ContainsKey(atomID2) ? m_molecule.atomDict[atomID2] : null;
+            return m_molecule.atomList.ElementAtOrDefault(atomID2);
         else if (at.m_id == atomID2)
-            return m_molecule.atomDict.ContainsKey(atomID1) ? m_molecule.atomDict[atomID1] : null;
+            return m_molecule.atomList.ElementAtOrDefault(atomID1);
         else
             return null;
     }
