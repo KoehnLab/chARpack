@@ -174,7 +174,7 @@ public class ReadMoleculeFile : MonoBehaviour
         for (ushort i = 0; i < num_atoms; i++)
         {
             pos_vec[i] -= mean_pos;
-            list_atom.Add(new cmlAtom(i, symbols[i], hybridization, pos_vec[i]));
+            list_atom.Add(new cmlAtom(i, Guid.NewGuid(), symbols[i], hybridization, pos_vec[i]));
             new_ids.Add(i);
         }
         List<cmlBond> list_bond = new List<cmlBond>();
@@ -182,7 +182,7 @@ public class ReadMoleculeFile : MonoBehaviour
         var bond_order = 1.0f;
         for (int j = 0; j < num_single_bonds; j++)
         {
-            list_bond.Add(new cmlBond(new_ids[single_bonds[2 * j + 0]-1], new_ids[single_bonds[2 * j + 1]-1], bond_order));
+            list_bond.Add(new cmlBond(new_ids[single_bonds[2 * j + 0]-1], new_ids[single_bonds[2 * j + 1]-1], Guid.NewGuid(), bond_order));
         }
         // init position is in front of current camera in atom world coordinates
         Vector3 create_position = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(CameraSwitcher.Singleton.currentCam.transform.position + 0.5f * CameraSwitcher.Singleton.currentCam.transform.forward);
