@@ -106,6 +106,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="eventData"></param>
     public void OnSliderUpdated(mySliderEventData eventData)
     {
+        GlobalCtrl.Singleton.undoStack.AddChange(new ScaleMoleculeAction(m_id, eventData.OldValue));
         gameObject.transform.localScale = eventData.NewValue * startingScale;
         // networking
         EventManager.Singleton.ChangeMoleculeScale(m_id, gameObject.transform.localScale.x);

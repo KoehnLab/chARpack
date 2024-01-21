@@ -1920,6 +1920,16 @@ public class GlobalCtrl : MonoBehaviour
         EventManager.Singleton.Undo();
     }
 
+    /// <summary>
+    /// This method is called when a scaling operation is undone.
+    /// It removes the last change (caused by resetting the scale) in order
+    /// to avoid an infinite undo loop.
+    /// </summary>
+    public void SignalUndoScaling()
+    {
+        undoStack.SignalUndoSlider();
+    }
+
 
     public void LoadPreset(int number)
     {
