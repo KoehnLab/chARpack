@@ -33,7 +33,7 @@ public class MergeMoleculeAction : IUndoableAction
         {
             cmlData molecule = before[i];
             var offset = molecule.molePos - meanPos;
-            molecule.molePos = GlobalCtrl.Singleton.Dict_curMolecules[after.moleID].transform.position + offset;
+            molecule.molePos = GlobalCtrl.Singleton.Dict_curMolecules[after.moleID].transform.localPosition + offset;
             before[i] = molecule;
         }
         GlobalCtrl.Singleton.deleteMolecule(after.moleID, false);
