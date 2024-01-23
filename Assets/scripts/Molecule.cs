@@ -296,7 +296,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 #else
         if (mol == this)
         {
-            if (GlobalCtrl.Singleton.List_curMolecules.Contains(mol))
+            if (GlobalCtrl.Singleton.Dict_curMolecules.Values.Contains(mol))
             {
                 StartCoroutine(adjustBBoxCoroutine());
             }
