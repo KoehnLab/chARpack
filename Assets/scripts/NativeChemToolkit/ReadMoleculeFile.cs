@@ -186,7 +186,7 @@ public class ReadMoleculeFile : MonoBehaviour
         }
         // init position is in front of current camera in atom world coordinates
         Vector3 create_position = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(CameraSwitcher.Singleton.currentCam.transform.position + 0.5f * CameraSwitcher.Singleton.currentCam.transform.forward);
-        cmlData tempData = new cmlData(create_position, Quaternion.identity, mol_id, list_atom, list_bond, null, null, true); // TODO maybe get angles and torsions out of OpenBabel
+        cmlData tempData = new cmlData(create_position, Vector3.one, Quaternion.identity, mol_id, list_atom, list_bond, null, null, true); // TODO maybe get angles and torsions out of OpenBabel
         saveData.Add(tempData);
 
         GlobalCtrl.Singleton.rebuildAtomWorld(saveData, true);

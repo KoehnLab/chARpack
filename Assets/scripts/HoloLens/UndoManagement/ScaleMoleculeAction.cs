@@ -6,20 +6,19 @@ using UnityEngine;
 
 public class ScaleMoleculeAction : IUndoableAction
 {
-    public ushort molID { get; private set; }
-    public float prevSliderValue;
+    public cmlData before;
+    public cmlData after { get; private set; }
 
-    public ScaleMoleculeAction(ushort molID, float prevSliderValue)
+    public ScaleMoleculeAction(cmlData before, cmlData after)
     {
-        this.molID = molID;
-        this.prevSliderValue = (prevSliderValue - GlobalCtrl.Singleton.Dict_curMolecules[molID].scalingSliderInstance.GetComponent<mySlider>().minVal) /
-             (GlobalCtrl.Singleton.Dict_curMolecules[molID].scalingSliderInstance.GetComponent<mySlider>().maxVal - GlobalCtrl.Singleton.Dict_curMolecules[molID].scalingSliderInstance.GetComponent<mySlider>().minVal);
+        this.before = before;
+        this.after = after;
     }
 
     public ScaleMoleculeAction(ScaleMoleculeAction action)
     {
-        molID = action.molID;
-        prevSliderValue = action.prevSliderValue;
+        before = action.before;
+        after = action.after;
     }
     public void Execute()
     {
@@ -29,7 +28,20 @@ public class ScaleMoleculeAction : IUndoableAction
 
     public void Undo()
     {
-        GlobalCtrl.Singleton.Dict_curMolecules[molID].scalingSliderInstance.GetComponent<mySlider>().SliderValue = prevSliderValue;
+        bool hasSlider = false;
+        var ratio = 1.0f;
+        if (GlobalCtrl.Singleton.Dict_curMolecules[after.moleID].scalingSliderInstance)
+        {
+            ratio = after.moleScale.x / GlobalCtrl.Singleton.Dict_curMolecules[after.moleID].scalingSliderInstance.GetComponent<mySlider>().SliderValue;
+            hasSlider = true;
+        }
+        GlobalCtrl.Singleton.deleteMolecule(after.moleID, false);
+        GlobalCtrl.Singleton.BuildMoleculeFromCML(before, before.moleID);
+        if (hasSlider)
+        {
+            GlobalCtrl.Singleton.Dict_curMolecules[before.moleID].toggleScalingSlider();
+            GlobalCtrl.Singleton.Dict_curMolecules[before.moleID].scalingSliderInstance.GetComponent<mySlider>().StartSliderValue = before.moleScale.x / ratio;
+        }
         GlobalCtrl.Singleton.SignalUndoScaling();
     }
 }
