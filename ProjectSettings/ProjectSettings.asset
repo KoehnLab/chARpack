@@ -212,8 +212,6 @@ PlayerSettings:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 11400000, guid: c89d1f67c70363a45b1feafdccb56e5f, type: 2}
-  - {fileID: -6537968979333704884, guid: c3fe4c36bae045a499a08a7172f72f51, type: 2}
-  - {fileID: 1413913175106088384, guid: 7602b06e7b6958c4b889ed9beaad348d, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -721,9 +719,9 @@ PlayerSettings:
   metroPackageVersion: 1.0.0.0
   metroCertificatePath: Assets\WSATestCertificate.pfx
   metroCertificatePassword: 
-  metroCertificateSubject: DefaultCompany
-  metroCertificateIssuer: DefaultCompany
-  metroCertificateNotAfter: 006403a4911dda01
+  metroCertificateSubject: ITheoC
+  metroCertificateIssuer: ITheoC
+  metroCertificateNotAfter: 80cee0eff06cdb01
   metroApplicationDescription: Chemisty AR Package - Molecular Builder
   wsaImages:
     65636: Assets/Logo/charp_icon_50.png
