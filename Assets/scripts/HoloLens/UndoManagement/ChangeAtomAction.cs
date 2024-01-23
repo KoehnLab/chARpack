@@ -22,7 +22,7 @@ public class ChangeAtomAction : IUndoableAction
 
     public void Undo()
     {
-        before.molePos = GlobalCtrl.Singleton.Dict_curMolecules[after.moleID].transform.position;
+        before.molePos = GlobalCtrl.Singleton.Dict_curMolecules[after.moleID].transform.localPosition;
         GlobalCtrl.Singleton.deleteMolecule(after.moleID, false);
         GlobalCtrl.Singleton.BuildMoleculeFromCML(before, before.moleID);
     }
