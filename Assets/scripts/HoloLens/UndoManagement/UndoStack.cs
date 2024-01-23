@@ -52,8 +52,8 @@ public class UndoStack
         var merged = new ScaleMoleculeAction(lastChange as ScaleMoleculeAction);
         while (lastChange!=null && lastChange.GetType().Equals(typeof(ScaleMoleculeAction)))
         {
-            if ((lastChange as ScaleMoleculeAction).molID != merged.molID) break;
-            merged.prevSliderValue = (lastChange as ScaleMoleculeAction).prevSliderValue;
+            if ((lastChange as ScaleMoleculeAction).before.moleID != merged.before.moleID) break;
+            merged.before = (lastChange as ScaleMoleculeAction).before;
             lastChange = GetLastChange();
         }
         // Put the last change back onto the stack since it was not a scale molecule action

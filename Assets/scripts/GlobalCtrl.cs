@@ -1623,7 +1623,7 @@ public class GlobalCtrl : MonoBehaviour
         {
             list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
         }
-        cmlData moleData = new cmlData(molePos, molecule.transform.rotation, molecule.m_id, list_atom, list_bond);
+        cmlData moleData = new cmlData(molePos, molecule.transform.localScale, molecule.transform.rotation, molecule.m_id, list_atom, list_bond);
 
 
         // Create new molecule
@@ -1685,7 +1685,7 @@ public class GlobalCtrl : MonoBehaviour
             {
                 list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
             }
-            cmlData tempData = new cmlData(molePos, inputMole.transform.rotation, inputMole.m_id, list_atom, list_bond);
+            cmlData tempData = new cmlData(molePos, inputMole.transform.localScale, inputMole.transform.rotation, inputMole.m_id, list_atom, list_bond);
             saveData.Add(tempData);
         }
 
@@ -1735,6 +1735,7 @@ public class GlobalCtrl : MonoBehaviour
                 var freshMoleculeID = getFreshMoleculeID();
 
                 Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos, Quaternion.identity).AddComponent<Molecule>();
+                tempMolecule.gameObject.transform.localScale = molecule.moleScale;
                 tempMolecule.f_Init(freshMoleculeID, atomWorld.transform, molecule);
                 Dict_curMolecules.Add(tempMolecule.m_id,tempMolecule);
 
@@ -1761,6 +1762,7 @@ public class GlobalCtrl : MonoBehaviour
         var freshMoleculeID = id==0 ? getFreshMoleculeID() : id;
 
         Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos, Quaternion.identity).AddComponent<Molecule>();
+        tempMolecule.gameObject.transform.localScale = molecule.moleScale;
         tempMolecule.f_Init(freshMoleculeID, atomWorld.transform, molecule);
         Dict_curMolecules.Add(freshMoleculeID,tempMolecule);
 
@@ -1827,7 +1829,7 @@ public class GlobalCtrl : MonoBehaviour
                 list_torsion.Add(new cmlTorsion(b.Atom1, b.Atom2, b.Atom3, b.Atom4, b.eqAngle, b.vk, b.nn));
             }
 
-            tempData = new cmlData(inputMole.transform.localPosition, inputMole.transform.localRotation, inputMole.m_id, list_atom, list_bond, list_angle, list_torsion, true);
+            tempData = new cmlData(inputMole.transform.localPosition, inputMole.transform.localScale, inputMole.transform.localRotation, inputMole.m_id, list_atom, list_bond, list_angle, list_torsion, true);
             saveData.Add(tempData);
         }
 
@@ -1849,6 +1851,7 @@ public class GlobalCtrl : MonoBehaviour
                 var freshMoleculeID = getFreshMoleculeID();
 
                 Molecule tempMolecule = Instantiate(myBoundingBoxPrefab).AddComponent<Molecule>();
+                tempMolecule.gameObject.transform.localScale = molecule.moleScale;
                 tempMolecule.f_Init(add == true ? freshMoleculeID : molecule.moleID, atomWorld.transform, molecule);
                 tempMolecule.transform.localPosition = molecule.molePos;
                 tempMolecule.transform.localRotation = molecule.moleQuat;

@@ -48,7 +48,7 @@ public static class OpenBabelExtensions
 
         // init position is in front of current camera in atom world coordinates
         Vector3 create_position = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(CameraSwitcher.Singleton.currentCam.transform.position + 0.5f * CameraSwitcher.Singleton.currentCam.transform.forward);
-        cmlData tempData = new cmlData(create_position, Quaternion.identity, mol_id, list_atom, list_bond, null, null, true); // TODO maybe get angles and torsions out of OpenBabel
+        cmlData tempData = new cmlData(create_position, Vector3.one,Quaternion.identity, mol_id, list_atom, list_bond, null, null, true); // TODO maybe get angles and torsions out of OpenBabel
 
         return tempData;
     }
@@ -109,7 +109,7 @@ public static class OpenBabelExtensions
             list_torsion.Add(new cmlTorsion(b.Atom1, b.Atom2, b.Atom3, b.Atom4, b.eqAngle, b.vk, b.nn));
         }
 
-        saveData = new cmlData(mol.transform.localPosition, mol.transform.localRotation, mol.m_id, list_atom, list_bond, list_angle, list_torsion, true);
+        saveData = new cmlData(mol.transform.localPosition, mol.transform.localScale, mol.transform.localRotation, mol.m_id, list_atom, list_bond, list_angle, list_torsion, true);
 
 
         return saveData;
