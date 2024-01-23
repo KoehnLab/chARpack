@@ -106,9 +106,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="eventData"></param>
     public void OnSliderUpdated(mySliderEventData eventData)
     {
-        cmlData before = this.AsCML();
-        before.moleScale = eventData.OldValue * gameObject.transform.localScale / eventData.NewValue;
-        GlobalCtrl.Singleton.undoStack.AddChange(new ScaleMoleculeAction(before,this.AsCML()));
+        if (eventData.Pointer != null) // exclude slider update on startup
+        {
+            cmlData before = this.AsCML();
+            before.moleScale = eventData.OldValue * gameObject.transform.localScale / eventData.NewValue;
+            GlobalCtrl.Singleton.undoStack.AddChange(new ScaleMoleculeAction(before, this.AsCML()));
+        }
         gameObject.transform.localScale = eventData.NewValue * startingScale;
         // networking
         EventManager.Singleton.ChangeMoleculeScale(m_id, gameObject.transform.localScale.x);

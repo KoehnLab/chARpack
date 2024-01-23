@@ -35,6 +35,7 @@ public class ScaleMoleculeAction : IUndoableAction
             ratio = after.moleScale.x / GlobalCtrl.Singleton.Dict_curMolecules[after.moleID].scalingSliderInstance.GetComponent<mySlider>().SliderValue;
             hasSlider = true;
         }
+        before.molePos = GlobalCtrl.Singleton.Dict_curMolecules[after.moleID].transform.position;
         GlobalCtrl.Singleton.deleteMolecule(after.moleID, false);
         GlobalCtrl.Singleton.BuildMoleculeFromCML(before, before.moleID);
         if (hasSlider)

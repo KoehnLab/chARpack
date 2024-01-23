@@ -1898,26 +1898,6 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     public void undo()
     {
-        //Debug.Log($"[GlobalCrtl:undo] Stack size: {systemState.Count}.");
-        //List<cmlData> loadData = null;
-        //for (int i = 0; i < 2; i++)
-        //{
-        //    if (systemState.Count > 0)
-        //    {
-        //        loadData = systemState.Pop();
-        //    }
-        //    else
-        //    {
-        //        loadData = null;
-        //    }
-        //}
-
-        //if (loadData != null)
-        //{
-        //    DeleteAll();
-        //    rebuildAtomWorld(loadData);
-        //}
-        Debug.Log($"Undo stack size: {undoStack.getUndoStackSize()}");
         undoStack.Undo();
         // Necessary to network like this?
         EventManager.Singleton.Undo();
