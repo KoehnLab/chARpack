@@ -385,7 +385,9 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     public void DeleteAllUI()
     {
+        List<cmlData> atomWorld = saveAtomWorld();
         DeleteAll();
+        undoStack.AddChange(new DeleteAllAction(atomWorld));
         SaveMolecule(true);
         EventManager.Singleton.DeleteEverything();
     }
