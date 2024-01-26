@@ -54,7 +54,6 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     [HideInInspector] public Dictionary<string, ElementData> Dic_ElementData { get; private set; }
 
-    [HideInInspector] public List<Molecule> List_curMolecules { get; private set; }
     [HideInInspector] public Dictionary<ushort, Molecule> Dict_curMolecules { get; private set; }
     //public Dictionary<int, Molecule> Dic_curMolecules { get; private set; }
 
@@ -235,7 +234,6 @@ public class GlobalCtrl : MonoBehaviour
             Debug.LogError("[GlobalCtrl] list_ElementData is empty.");
         }
 
-        List_curMolecules = new List<Molecule>();
         Dict_curMolecules = new Dictionary<ushort, Molecule>();
         Dic_ElementData = new Dictionary<string, ElementData>();
         Dic_AtomMat = new Dictionary<int, Material>();
@@ -2159,8 +2157,8 @@ public class GlobalCtrl : MonoBehaviour
 
     public void CreateDistanceMeasurement(ushort mol_id1, ushort atom_id1, ushort mol_id2, ushort atom_id2)
     {
-        Atom atom1 = findAtomById(List_curMolecules[mol_id1], atom_id1);
-        Atom atom2 = findAtomById(List_curMolecules[mol_id2], atom_id2);
+        Atom atom1 = findAtomById(Dict_curMolecules[mol_id1], atom_id1);
+        Atom atom2 = findAtomById(Dict_curMolecules[mol_id2], atom_id2);
         // Avoid creating an already existing measurement
         if (!distMeasurmentDict.ContainsValue(new Tuple<Atom, Atom>(atom1, atom2)) && !distMeasurmentDict.ContainsValue(new Tuple<Atom, Atom>(atom2, atom1)))
         {
@@ -2169,6 +2167,30 @@ public class GlobalCtrl : MonoBehaviour
             dist.GetComponent<DistanceMeasurment>().EndAtom = atom2;
             distMeasurmentDict.Add(dist.GetComponent<DistanceMeasurment>(), new Tuple<Atom, Atom>(atom1, atom2));
         }
+    }
+
+    public bool CreateAngleMeasurement(Atom middleAtom, Atom atom1, Atom atom2, float dist1Sign, float dist2Sign)
+    {
+        DistanceMeasurment distanceMeasurement1 = distMeasurmentDict.FirstOrDefault(i => i.Equals(new Tuple<Atom, Atom>(middleAtom, atom1)) || i.Equals(new Tuple<Atom,Atom>(atom1,middleAtom))).Key;
+        DistanceMeasurment distanceMeasurement2 = distMeasurmentDict.FirstOrDefault(i => i.Equals(new Tuple<Atom, Atom>(middleAtom, atom2)) || i.Equals(new Tuple<Atom, Atom>(atom2, middleAtom))).Key;
+        if(distanceMeasurement1 == default || distanceMeasurement2 == default)
+        {
+            return false;
+        }
+
+        if(!angleMeasurmentDict.ContainsValue(new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(middleAtom, distanceMeasurement1, distanceMeasurement2)) && !angleMeasurmentDict.ContainsValue(new Triple<Atom, DistanceMeasurment, DistanceMeasurment>( middleAtom, distanceMeasurement2, distanceMeasurement1)))
+        {
+            var angle = Instantiate(Molecule.angleMeasurementPrefab);
+            angle.GetComponent<AngleMeasurment>().originAtom = middleAtom;
+            angle.GetComponent<AngleMeasurment>().distMeasurment1 = distanceMeasurement1;
+            angle.GetComponent<AngleMeasurment>().distMeasurment1Sign = dist1Sign;
+            angle.GetComponent<AngleMeasurment>().distMeasurment2 = distanceMeasurement2;
+            angle.GetComponent<AngleMeasurment>().distMeasurment2Sign = dist2Sign;
+            angleMeasurmentDict.Add(angle.GetComponent<AngleMeasurment>(), new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(middleAtom, distanceMeasurement1, distanceMeasurement2));
+            return true;
+        }
+        Debug.Log("[GlobalCtrl:CreateAngleMeasurement]: Trying to create an already existing angle measurement!");
+        return true;
     }
 
 }

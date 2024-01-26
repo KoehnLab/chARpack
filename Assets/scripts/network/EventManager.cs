@@ -254,6 +254,12 @@ public class EventManager : MonoBehaviour
         OnCreateDistanceMeasurement?.Invoke(mol_id1, atom_id1, mol_id2, atom_id2);
     }
 
+    public delegate void CreateAngleMeasurementAction(ushort mol_id, ushort middle_atom_id, ushort mol_id1, ushort atom_id1, float distMeasurement1Sign, ushort mol_id2, ushort atom_id2, float distMeasurement2Sign);
+    public event CreateAngleMeasurementAction OnCreateAngleMeasurement;
+    public void CreateAngleMeasurement(ushort mol_id, ushort middle_atom_id, ushort mol_id1, ushort atom_id1, float distMeasurement1Sign, ushort mol_id2, ushort atom_id2, float distMeasurement2Sign)
+    {
+        OnCreateAngleMeasurement?.Invoke(mol_id, middle_atom_id, mol_id1, atom_id1, distMeasurement1Sign, mol_id2, atom_id2, distMeasurement2Sign);
+    }
     #endregion
 
 

@@ -602,9 +602,29 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     angleMeasurement.distMeasurment2 = distMeasurement;
                     angleMeasurement.distMeasurment2Sign = -1f;
                     GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(this, m, distMeasurement);
+                    if (SettingsData.networkMeasurements)
+                    {
+                        SendAngleMeasurementToNetwork(angleMeasurement);
+                    }
                 }
             }
         }
+    }
+
+    private void SendAngleMeasurementToNetwork(AngleMeasurment angleMeasurement)
+    {
+        var mol_id = m_molecule.m_id;
+        var middle_atom_id = m_id;
+
+        var atom1 = angleMeasurement.distMeasurment1.StartAtom != this ? angleMeasurement.distMeasurment1.StartAtom : angleMeasurement.distMeasurment1.EndAtom;
+        var atom2 = angleMeasurement.distMeasurment2.StartAtom != this ? angleMeasurement.distMeasurment2.StartAtom : angleMeasurement.distMeasurment2.EndAtom;
+
+        var mol_id1 = atom1.m_molecule.m_id;
+        var atom_id1 = atom1.m_id;
+        var mol_id2 = atom2.m_molecule.m_id;
+        var atom_id2 = atom2.m_id;
+
+        EventManager.Singleton.CreateAngleMeasurement(mol_id, middle_atom_id, mol_id1, atom_id1, angleMeasurement.distMeasurment1Sign, mol_id2, atom_id2, angleMeasurement.distMeasurment2Sign);
     }
 
     //[HideInInspector] public ushort m_id;

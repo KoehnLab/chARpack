@@ -102,6 +102,8 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnChangeMoleculeScale += sendScaleMolecue;
         EventManager.Singleton.OnFreezeAtom += sendFreezeAtom;
         EventManager.Singleton.OnFreezeMolecule += sendFreezeMolecule;
+        EventManager.Singleton.OnCreateDistanceMeasurement += sendCreateDistanceMeasurement;
+        EventManager.Singleton.OnCreateAngleMeasurement += sendCreateAngleMeasurement;
     }
 
     private void FixedUpdate()
@@ -475,6 +477,20 @@ public class NetworkManagerClient : MonoBehaviour
         message.AddUShort(atom_id1);
         message.AddUShort(mol_id2);
         message.AddUShort(atom_id2);
+        Client.Send(message);
+    }
+
+    public void sendCreateAngleMeasurement(ushort mol_id, ushort middle_atom_id,ushort mol_id1, ushort atom_id1, float distMeasurement1Sign, ushort mol_id2, ushort atom_id2, float distMeasurement2Sign)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.createAngleMeasurement);
+        message.AddUShort(mol_id);
+        message.AddUShort(middle_atom_id);
+        message.AddUShort(mol_id1);
+        message.AddUShort(atom_id1);
+        message.AddFloat(distMeasurement1Sign);
+        message.AddUShort(mol_id2);
+        message.AddUShort(atom_id2);
+        message.AddFloat(distMeasurement2Sign);
         Client.Send(message);
     }
     #endregion
@@ -1060,23 +1076,68 @@ public class NetworkManagerClient : MonoBehaviour
         // do the change
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var mol1 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id1);
-            var atom1 = mol1.atomList.ElementAtOrDefault(atom_id1);
-            var mol2 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id2);
-            var atom2 = mol2.atomList.ElementAtOrDefault(atom_id2);
-            if (mol1 == default || atom1 == default)
+            var atom1 = GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id1) ? GlobalCtrl.Singleton.Dict_curMolecules[mol_id1].atomList.ElementAtOrDefault(atom_id1) : default;
+            var atom2 = GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id2) ? GlobalCtrl.Singleton.Dict_curMolecules[mol_id2].atomList.ElementAtOrDefault(atom_id2) : default;
+            if (atom1 == default)
             {
-                Debug.LogError($"[NetworkManagerClient:getFreezeAtom] Molecule {mol_id1} or Atom {atom_id1} does not exist.\nRequesting world sync.");
+                Debug.LogError($"[NetworkManagerClient:getCreateDistanceMeasurement] Molecule {mol_id1} or Atom {atom_id1} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
-            if (mol2 == default || atom2 == default)
+            if (atom2 == default)
             {
-                Debug.LogError($"[NetworkManagerClient:getFreezeAtom] Molecule {mol_id2} or Atom {atom_id2} does not exist.\nRequesting world sync.");
+                Debug.LogError($"[NetworkManagerClient:getCreateDistanceMeasurement] Molecule {mol_id2} or Atom {atom_id2} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
             if (SettingsData.networkMeasurements)
             {
                 GlobalCtrl.Singleton.CreateDistanceMeasurement(mol_id1, atom_id1, mol_id2, atom_id2);
+            }
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastCreateAngleMeasurement)]
+    private static void getCreateAngleMeasurement(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol_id = message.GetUShort();
+        var middle_atom_id = message.GetUShort();
+        var mol_id1 = message.GetUShort();
+        var atom_id1 = message.GetUShort();
+        var distMeasurement1Sign = message.GetFloat();
+        var mol_id2 = message.GetUShort();
+        var atom_id2 = message.GetUShort();
+        var distMeasurement2Sign = message.GetFloat();
+
+        // do the change
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            var middleAtom = GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id) ? GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomList.ElementAtOrDefault(middle_atom_id) : default;
+            var atom1 = GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id1) ? GlobalCtrl.Singleton.Dict_curMolecules[mol_id1].atomList.ElementAtOrDefault(atom_id1) : default;
+            var atom2 = GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id2) ? GlobalCtrl.Singleton.Dict_curMolecules[mol_id2].atomList.ElementAtOrDefault(atom_id2) : default;
+            if (middleAtom == default)
+            {
+                Debug.LogError($"[NetworkManagerClient:getCreateAngleMeasurement] Molecule {mol_id} or Atom {middle_atom_id} does not exist.\nRequesting world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
+            if (atom1 == default)
+            {
+                Debug.LogError($"[NetworkManagerClient:getCreateAngleMeasurement] Molecule {mol_id1} or Atom {atom_id1} does not exist.\nRequesting world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
+            if (atom2 == default)
+            {
+                Debug.LogError($"[NetworkManagerClient:getCreateAngleMeasurement] Molecule {mol_id2} or Atom {atom_id2} does not exist.\nRequesting world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
+
+            if (SettingsData.networkMeasurements)
+            {
+                bool worked = GlobalCtrl.Singleton.CreateAngleMeasurement(middleAtom, atom1, atom2, distMeasurement1Sign, distMeasurement2Sign);
+                if (!worked)
+                {
+                    Debug.LogError("[NetworkManagerClient:getCreateAngleMeasurement] One of the distance measurements does not exist.\nRequesting world sync.");
+                    NetworkManagerClient.Singleton.sendSyncRequest();
+                }
             }
         }
     }
