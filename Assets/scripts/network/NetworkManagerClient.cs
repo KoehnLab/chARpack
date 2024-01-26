@@ -499,7 +499,7 @@ public class NetworkManagerClient : MonoBehaviour
         // do the create
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            if (GlobalCtrl.Singleton.List_curMolecules.Find(x => mol_id == x.m_id) != null)
+            if (GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id))
             {
                 Debug.LogError($"[NetworkManagerClient:getAtomCreated] Molecule with new creation id {mol_id} already exists.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
@@ -578,8 +578,9 @@ public class NetworkManagerClient : MonoBehaviour
         // do the merge
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            if (GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol1ID).atomList.ElementAtOrDefault(atom1ID) == null ||
-                GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol2ID).atomList.ElementAtOrDefault(atom2ID) == null)
+            if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol1ID) || !GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol2ID) ||
+                GlobalCtrl.Singleton.Dict_curMolecules[mol1ID].atomList.ElementAtOrDefault(atom1ID) == null ||
+                GlobalCtrl.Singleton.Dict_curMolecules[mol2ID].atomList.ElementAtOrDefault(atom2ID) == null)
             {
                 Debug.LogError($"[NetworkManagerClient] Merging operation cannot be executed. Atom IDs do not exist (Atom1: {atom1ID}, Atom2 {atom2ID}).\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
@@ -617,7 +618,7 @@ public class NetworkManagerClient : MonoBehaviour
         // do the select
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var atom = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
+            var atom = GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id) ? GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomList.ElementAtOrDefault(atom_id) : default;
             if (atom == default)
             {
                 Debug.LogError($"[NetworkManagerClient:getAtomSelected] Atom with id {atom_id} does not exist.\nRequesting world sync.");
@@ -641,14 +642,14 @@ public class NetworkManagerClient : MonoBehaviour
         // do the select
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
-            if (mol == default)
+
+            if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id))
             {
                 Debug.LogError($"[NetworkManagerClient:getMoleculeSelected] Molecule with id {mol_id} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
                 return;
             }
-            mol.markMolecule(selected, true);
+            GlobalCtrl.Singleton.Dict_curMolecules[mol_id].markMolecule(selected, true);
         }
     }
 
@@ -662,9 +663,8 @@ public class NetworkManagerClient : MonoBehaviour
         // do the select
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
-            var bond = mol.bondList.ElementAtOrDefault(bond_id);
-            if (mol == default || bond == default)
+            var bond = GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id) ? GlobalCtrl.Singleton.Dict_curMolecules[mol_id].bondList.ElementAtOrDefault(bond_id) : default;
+            if (bond == default)
             {
                 Debug.LogError($"[NetworkManagerClient:getBondSelected] Bond with id {bond_id} or molecule with id {mol_id} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
@@ -683,7 +683,7 @@ public class NetworkManagerClient : MonoBehaviour
         // do the delete
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var atom = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
+            var atom = GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id) ? GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomList.ElementAtOrDefault(atom_id) : default;
             if (atom == default)
             {
                 Debug.LogError($"[NetworkManagerClient:getAtomDeleted] Atom with id {atom_id} does not exist.\nRequesting world sync.");
@@ -702,14 +702,13 @@ public class NetworkManagerClient : MonoBehaviour
         // do the delete
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
-            if (mol == default)
+            if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id))
             {
                 Debug.LogError($"[NetworkManagerClient:getMoleculeSelected] Molecule with id {mol_id} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
                 return;
             }
-            GlobalCtrl.Singleton.deleteMolecule(mol);
+            GlobalCtrl.Singleton.deleteMolecule(GlobalCtrl.Singleton.Dict_curMolecules[mol_id]);
         }
     }
 
@@ -722,9 +721,8 @@ public class NetworkManagerClient : MonoBehaviour
         // do the delete
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
-            var bond = mol.bondList.ElementAtOrDefault(bond_id);
-            if (mol == default || bond == default)
+            var bond = GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id) ? GlobalCtrl.Singleton.Dict_curMolecules[mol_id].bondList.ElementAtOrDefault(bond_id) : default;
+            if (bond == default)
             {
                 Debug.LogError($"[NetworkManagerClient:getBondSelected] Bond with id {bond_id} or molecule with id {mol_id} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
@@ -837,14 +835,14 @@ public class NetworkManagerClient : MonoBehaviour
         {
 
             // do the change
-            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
-            if (mol == default)
+            if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id))
             {
                 Debug.LogError($"[NetworkManagerClient:getMarkTerm] Molecule with id {mol_id} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
                 return;
             }
 
+            var mol = GlobalCtrl.Singleton.Dict_curMolecules[mol_id];
             if (term_type == 0)
             {
                 var term = mol.bondTerms.ElementAtOrDefault(term_id);
@@ -909,13 +907,12 @@ public class NetworkManagerClient : MonoBehaviour
         // do the change
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
-            if (mol == default)
+            if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id))
             {
                 Debug.LogError($"[NetworkManagerClient:getReplaceDummies] Molecule {mol_id} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
-            mol.toggleDummies();
+            GlobalCtrl.Singleton.Dict_curMolecules[mol_id].toggleDummies();
         }
     }
 
@@ -982,9 +979,8 @@ public class NetworkManagerClient : MonoBehaviour
         // do the change
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
-            var atom = mol.atomList.ElementAtOrDefault(atom_id);
-            if (mol == default || atom == default)
+            var atom = GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id) ? GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomList.ElementAtOrDefault(atom_id) : default;
+            if (atom == default)
             {
                 Debug.LogError($"[NetworkManagerClient:getFocusHighlight] Molecule {mol_id} or atom {atom_id} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
@@ -1003,13 +999,12 @@ public class NetworkManagerClient : MonoBehaviour
         // do the change
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
-            if (mol == default)
+            if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id))
             {
                 Debug.LogError($"[NetworkManagerClient:getScaleMolecule] Molecule {mol_id} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
-            mol.transform.localScale = scale * Vector3.one;
+            GlobalCtrl.Singleton.Dict_curMolecules[mol_id].transform.localScale = scale * Vector3.one;
         }
     }
 
@@ -1024,9 +1019,8 @@ public class NetworkManagerClient : MonoBehaviour
         // do the change
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
-            var atom = mol.atomList.ElementAtOrDefault(atom_id);
-            if (mol == default || atom == default)
+            var atom = GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id) ? GlobalCtrl.Singleton.Dict_curMolecules[mol_id].atomList.ElementAtOrDefault(atom_id) : default;
+            if (atom == default)
             {
                 Debug.LogError($"[NetworkManagerClient:getFreezeAtom] Molecule {mol_id} or Atom {atom_id} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
@@ -1045,13 +1039,12 @@ public class NetworkManagerClient : MonoBehaviour
         // do the change
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
-            if (mol == default)
+            if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(mol_id))
             {
                 Debug.LogError($"[NetworkManagerClient:getFreezeMolecule] Molecule {mol_id} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
-            mol.freeze(freeze);
+            GlobalCtrl.Singleton.Dict_curMolecules[mol_id].freeze(freeze);
         }
     }
 
