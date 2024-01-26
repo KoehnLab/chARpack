@@ -299,30 +299,32 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     markAtomUI(!isMarked);
                 }
             }
-
-            resetMolPositionAfterMove();
-            EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
-
-            // check for potential merge
-            if (GlobalCtrl.Singleton.collision)
+            else
             {
-                Atom d1 = GlobalCtrl.Singleton.collider1;
-                Atom d2 = GlobalCtrl.Singleton.collider2;
+                resetMolPositionAfterMove();
+                EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
 
-                Atom a1 = d1.dummyFindMain();
-                Atom a2 = d2.dummyFindMain();
-
-                if (!a1.alreadyConnected(a2))
+                // check for potential merge
+                if (GlobalCtrl.Singleton.collision)
                 {
-                    if (a1 == this)
+                    Atom d1 = GlobalCtrl.Singleton.collider1;
+                    Atom d2 = GlobalCtrl.Singleton.collider2;
+
+                    Atom a1 = d1.dummyFindMain();
+                    Atom a2 = d2.dummyFindMain();
+
+                    if (!a1.alreadyConnected(a2))
                     {
-                        EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
-                        GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
-                    }
-                    else
-                    {
-                        EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id, GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id);
-                        GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2, GlobalCtrl.Singleton.collider1);
+                        if (a1 == this)
+                        {
+                            EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
+                            GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+                        }
+                        else
+                        {
+                            EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id, GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id);
+                            GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2, GlobalCtrl.Singleton.collider1);
+                        }
                     }
                 }
             }
@@ -498,6 +500,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     }
                     else
                     {
+                        resetMolPositionAfterMove();
+                        EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
                         // check for potential merge
                         if (GlobalCtrl.Singleton.collision)
                         {
@@ -522,8 +526,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                             }
                         }
                     }
-                    resetMolPositionAfterMove();
-                    EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
                 }
 
                 if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)
