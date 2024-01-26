@@ -222,7 +222,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5142275573186560
-    m_Key: HandMenu/HandMenu/MenuContent/ToggleChainModeButton/IconAndText/TextMeshPro
+    m_Key: HandMenu/HandMenu/MenuContent/ToggleFragmentRotationButton/IconAndText/TextMeshPro
     m_Metadata:
       m_Items: []
   - m_Id: 5165129048031232

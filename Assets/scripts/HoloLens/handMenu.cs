@@ -117,7 +117,7 @@ public class handMenu : myScrollObject
     /// </summary>
     public void setVisuals()
     {
-        if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
+        if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
         {
             ChainModeIndicator.GetComponent<MeshRenderer>().material.color = orange;
             MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;

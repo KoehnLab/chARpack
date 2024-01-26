@@ -128,20 +128,20 @@ public class GlobalCtrl : MonoBehaviour
 
     #region Interaction
     // Interaction modes
-    public enum InteractionModes {NORMAL, CHAIN, MEASUREMENT};
+    public enum InteractionModes {NORMAL, FRAGMENT_ROTATION, MEASUREMENT};
     private InteractionModes _currentInteractionMode = InteractionModes.NORMAL;
     // Setter can't be private because settingsControl needs to access it
     public InteractionModes currentInteractionMode { get => _currentInteractionMode; /*private*/ set => _currentInteractionMode = value; }
 
     /// <summary>
-    /// Toggles the interaction mode "chain":
+    /// Toggles the interaction mode "fragment rotation":
     /// unfreezes molecules if they were frozen and updates indicators.
     /// </summary>
-    public void toggleChainInteractionMode()
+    public void toggleFragmentRotationMode()
     {
-        if (currentInteractionMode != InteractionModes.CHAIN)
+        if (currentInteractionMode != InteractionModes.FRAGMENT_ROTATION)
         {
-            currentInteractionMode = InteractionModes.CHAIN;
+            currentInteractionMode = InteractionModes.FRAGMENT_ROTATION;
             HandTracking.Singleton.gameObject.SetActive(true);
             HandTracking.Singleton.showVisual(true);
             freezeWorld(false);
@@ -189,7 +189,7 @@ public class GlobalCtrl : MonoBehaviour
     {
         if (currentInteractionMode == mode) return;
         currentInteractionMode = mode;
-        if(mode == InteractionModes.CHAIN)
+        if(mode == InteractionModes.FRAGMENT_ROTATION)
         {
             HandTracking.Singleton.gameObject.SetActive(true);
             HandTracking.Singleton.showVisual(true);

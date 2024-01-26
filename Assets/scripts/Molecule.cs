@@ -26,7 +26,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         stopwatch = Stopwatch.StartNew();
         // change material of grabbed object
         if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL ||
-            GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
+            GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
         {
             GetComponent<myBoundingBox>().setGrabbed(true);
         }
@@ -62,7 +62,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             isGrabbed = false;
             if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL ||
-                GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
+                GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
             {
                 if (stopwatch?.ElapsedMilliseconds < 200)
                 {

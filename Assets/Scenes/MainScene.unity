@@ -10363,6 +10363,14 @@ PrefabInstance:
       propertyPath: m_TrackedObjects.Array.size
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1665666299313617181, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
+      propertyPath: m_fontSize
+      value: 0.07
+      objectReference: {fileID: 0}
+    - target: {fileID: 1665666299313617181, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 0.07
+      objectReference: {fileID: 0}
     - target: {fileID: 1665666299313617251, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -10457,7 +10465,7 @@ PrefabInstance:
       objectReference: {fileID: 684068572}
     - target: {fileID: 8097096242911856206, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: toggleChainInteractionMode
+      value: toggleFragmentRotationMode
       objectReference: {fileID: 0}
     - target: {fileID: 9167512196016673697, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
       propertyPath: showScaleHandles
