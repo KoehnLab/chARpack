@@ -1591,12 +1591,12 @@ public class GlobalCtrl : MonoBehaviour
         foreach (Atom a in molecule.atomList)
         {
 
-            list_atom.Add(new cmlAtom(a.m_id, a.uid, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
+            list_atom.Add(new cmlAtom(a.m_id, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
         }
         List<cmlBond> list_bond = new List<cmlBond>();
         foreach (Bond b in molecule.bondList)
         {
-            list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.uid, b.m_bondOrder));
+            list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
         }
         cmlData moleData = new cmlData(molePos, molecule.transform.rotation, molecule.m_id, list_atom, list_bond);
 
@@ -1653,12 +1653,12 @@ public class GlobalCtrl : MonoBehaviour
             foreach (Atom a in inputMole.atomList)
             {
 
-                list_atom.Add(new cmlAtom(a.m_id, a.uid, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
+                list_atom.Add(new cmlAtom(a.m_id, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
             }
             List<cmlBond> list_bond = new List<cmlBond>();
             foreach (Bond b in inputMole.bondList)
             {
-                list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.uid, b.m_bondOrder));
+                list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
             }
             cmlData tempData = new cmlData(molePos, inputMole.transform.rotation, inputMole.m_id, list_atom, list_bond);
             saveData.Add(tempData);
@@ -1756,14 +1756,14 @@ public class GlobalCtrl : MonoBehaviour
             List<cmlAtom> list_atom = new List<cmlAtom>();
             foreach (Atom a in inputMole.atomList)
             {
-                list_atom.Add(new cmlAtom(a.m_id, a.uid, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
+                list_atom.Add(new cmlAtom(a.m_id, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
             }
 
             cmlData tempData;
             List<cmlBond> list_bond = new List<cmlBond>();
             foreach (var b in inputMole.bondTerms)
             {
-                list_bond.Add(new cmlBond(b.Atom1, b.Atom2, b.uid, b.order, b.eqDist, b.kBond));
+                list_bond.Add(new cmlBond(b.Atom1, b.Atom2, b.order, b.eqDist, b.kBond));
             }
             List<cmlAngle> list_angle = new List<cmlAngle>();
             foreach (var b in inputMole.angleTerms)

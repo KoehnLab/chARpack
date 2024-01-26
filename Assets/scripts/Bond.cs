@@ -13,7 +13,6 @@ public class Bond : MonoBehaviour
 
     public ushort atomID1;
     public ushort atomID2;
-    public Guid uid;
     [HideInInspector] public float m_bondOrder;  // 1.0 for single bonds; 1.5 for resonant bonds; 2.0 for double bonds; idea is to scale the bond diameter by this value
     [HideInInspector] public float m_bondDistance;
     [HideInInspector] public Molecule m_molecule;
@@ -29,7 +28,6 @@ public class Bond : MonoBehaviour
     {
         atomID1 = _atom1.m_id;
         atomID2 = _atom2.m_id;
-        uid = Guid.NewGuid();
         m_molecule = inputMole;
         m_bondOrder = 1.0f;   // standard
         m_bondDistance = 1.0f;
