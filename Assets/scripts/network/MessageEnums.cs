@@ -34,7 +34,9 @@ public enum ClientToServerID : ushort
     scaleMolecule,
     freezeAtom,
     freezeMolecule,
-    stopMoveAtom
+    stopMoveAtom,
+    createMeasurement,
+    clearMeasurements
 }
 
 public enum ServerToClientID : ushort
@@ -68,7 +70,9 @@ public enum ServerToClientID : ushort
     bcastScaleMolecule,
     bcastFreezeAtom,
     bcastFreezeMolecule,
-    bcastStopMoveAtom
+    bcastStopMoveAtom,
+    bcastCreateMeasurement,
+    bcastClearMeasurements
 }
 
 public enum myDeviceType : ushort

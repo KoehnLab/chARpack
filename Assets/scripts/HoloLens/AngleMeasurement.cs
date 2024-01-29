@@ -7,16 +7,16 @@ using Microsoft.MixedReality.Toolkit.Utilities;
 /// <summary>
 /// This class provides tools for measuring angles between atom bonds.
 /// </summary>
-public class AngleMeasurment : MonoBehaviour
+public class AngleMeasurement : MonoBehaviour
 {
 
     public LineRenderer Line;
     public TextMeshPro Label;
 
-    [HideInInspector] public DistanceMeasurment distMeasurment1;
-    [HideInInspector] public float distMeasurment1Sign = 1f;
-    [HideInInspector] public DistanceMeasurment distMeasurment2;
-    [HideInInspector] public float distMeasurment2Sign = 1f;
+    [HideInInspector] public DistanceMeasurement distMeasurement1;
+    [HideInInspector] public float distMeasurement1Sign = 1f;
+    [HideInInspector] public DistanceMeasurement distMeasurement2;
+    [HideInInspector] public float distMeasurement2Sign = 1f;
     [HideInInspector] public Atom originAtom;
 
     private float angle = 0f;
@@ -111,8 +111,8 @@ public class AngleMeasurment : MonoBehaviour
 
     public double getAngle()
     {
-        var norm1 = distMeasurment1Sign * distMeasurment1.getNormalizedDirection();
-        var norm2 = distMeasurment2Sign * distMeasurment2.getNormalizedDirection();
+        var norm1 = distMeasurement1Sign * distMeasurement1.getNormalizedDirection();
+        var norm2 = distMeasurement2Sign * distMeasurement2.getNormalizedDirection();
 
         angle = Mathf.Acos(Vector3.Dot(norm1, norm2));
 
@@ -122,11 +122,11 @@ public class AngleMeasurment : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (distMeasurment1 != null && distMeasurment2 != null && originAtom != null)
+        if (distMeasurement1 != null && distMeasurement2 != null && originAtom != null)
         {
-            var norm1 = distMeasurment1Sign * distMeasurment1.getNormalizedDirection();
-            var norm2 = distMeasurment2Sign * distMeasurment2.getNormalizedDirection();
-            radius = 0.4f * Mathf.Min(distMeasurment1.getDistance(), distMeasurment2.getDistance());
+            var norm1 = distMeasurement1Sign * distMeasurement1.getNormalizedDirection();
+            var norm2 = distMeasurement2Sign * distMeasurement2.getNormalizedDirection();
+            radius = 0.4f * Mathf.Min(distMeasurement1.getDistance(), distMeasurement2.getDistance());
             var lineStart = norm1 * radius + originAtom.transform.position;
             var lineEnd = norm2 * radius + originAtom.transform.position;
 

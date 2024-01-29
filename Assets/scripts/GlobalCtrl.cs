@@ -122,8 +122,8 @@ public class GlobalCtrl : MonoBehaviour
     [HideInInspector] public Dictionary<Tuple<ushort, ushort>, GameObject> snapToolTipInstances = new Dictionary<Tuple<ushort, ushort>, GameObject>();
 
     // measurmemt dict
-    [HideInInspector] public Dictionary<DistanceMeasurment, Tuple<Atom, Atom>> distMeasurmentDict = new Dictionary<DistanceMeasurment, Tuple<Atom, Atom>>();
-    [HideInInspector] public Dictionary<AngleMeasurment, Triple<Atom, DistanceMeasurment, DistanceMeasurment>> angleMeasurmentDict = new Dictionary<AngleMeasurment, Triple<Atom, DistanceMeasurment, DistanceMeasurment>>();
+    [HideInInspector] public Dictionary<DistanceMeasurement, Tuple<Atom, Atom>> distMeasurementDict = new Dictionary<DistanceMeasurement, Tuple<Atom, Atom>>();
+    [HideInInspector] public Dictionary<AngleMeasurement, Triple<Atom, DistanceMeasurement, DistanceMeasurement>> angleMeasurementDict = new Dictionary<AngleMeasurement, Triple<Atom, DistanceMeasurement, DistanceMeasurement>>();
     [HideInInspector] public GameObject measurmentInHand = null; 
 
     #region Interaction
@@ -142,14 +142,20 @@ public class GlobalCtrl : MonoBehaviour
         if (currentInteractionMode != InteractionModes.FRAGMENT_ROTATION)
         {
             currentInteractionMode = InteractionModes.FRAGMENT_ROTATION;
-            HandTracking.Singleton.gameObject.SetActive(true);
-            HandTracking.Singleton.showVisual(true);
+            if (HandTracking.Singleton)
+            {
+                HandTracking.Singleton.gameObject.SetActive(true);
+                HandTracking.Singleton.showVisual(true);
+            }
             freezeWorld(false);
         }
         else
         {
             currentInteractionMode = InteractionModes.NORMAL;
-            HandTracking.Singleton.gameObject.SetActive(false);
+            if (HandTracking.Singleton)
+            {
+                HandTracking.Singleton.gameObject.SetActive(false);
+            }
         }
 
         // Update visuals on hand menu toggle buttons
@@ -165,14 +171,20 @@ public class GlobalCtrl : MonoBehaviour
         if (currentInteractionMode != InteractionModes.MEASUREMENT)
         {
             currentInteractionMode = InteractionModes.MEASUREMENT;
-            HandTracking.Singleton.gameObject.SetActive(true);
-            HandTracking.Singleton.showVisual(false);
+            if (HandTracking.Singleton)
+            {
+                HandTracking.Singleton.gameObject.SetActive(true);
+                HandTracking.Singleton.showVisual(false);
+            }
             freezeWorld(true);
         }
         else
         {
             currentInteractionMode = InteractionModes.NORMAL;
-            HandTracking.Singleton.gameObject.SetActive(false);
+            if (HandTracking.Singleton)
+            {
+                HandTracking.Singleton.gameObject.SetActive(false);
+            }
             freezeWorld(false);
         }
 
@@ -191,22 +203,30 @@ public class GlobalCtrl : MonoBehaviour
         currentInteractionMode = mode;
         if(mode == InteractionModes.FRAGMENT_ROTATION)
         {
-            HandTracking.Singleton.gameObject.SetActive(true);
-            HandTracking.Singleton.showVisual(true);
+            if (HandTracking.Singleton)
+            {
+                HandTracking.Singleton.gameObject.SetActive(true);
+                HandTracking.Singleton.showVisual(true);
+            }
             freezeWorld(false);
         } else if(mode == InteractionModes.MEASUREMENT)
         {
-            HandTracking.Singleton.gameObject.SetActive(true);
-            HandTracking.Singleton.showVisual(false);
+            if (HandTracking.Singleton)
+            {
+                HandTracking.Singleton.gameObject.SetActive(true);
+                HandTracking.Singleton.showVisual(false);
+            }
             freezeWorld(true);
         } else
         {
-            HandTracking.Singleton.gameObject.SetActive(false);
+            if (HandTracking.Singleton)
+            {
+                HandTracking.Singleton.gameObject.SetActive(false);
+            }
             freezeWorld(false);
         }
-        handMenu.Singleton.setVisuals();
+        handMenu.Singleton?.setVisuals();
     }
-
     #endregion
 
     // Start is called before the first frame update
@@ -262,8 +282,8 @@ public class GlobalCtrl : MonoBehaviour
         // Init some prefabs
         // Atom
         Atom.myAtomToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKAtomToolTip");
-        Atom.distMeasurmentPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurmentPrefab");
-        Atom.angleMeasurmentPrefab = (GameObject)Resources.Load("prefabs/AngleMeasurmentPrefab");
+        Atom.distMeasurementPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurementPrefab");
+        Atom.angleMeasurementPrefab = (GameObject)Resources.Load("prefabs/AngleMeasurementPrefab");
         Atom.deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
         Atom.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
         Atom.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
@@ -286,6 +306,10 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.snapMeButtonPrefab = (GameObject)Resources.Load("prefabs/SnapMeButton");
         Molecule.distanceMeasurementPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurmentPrefab");
         Molecule.angleMeasurementPrefab = (GameObject)Resources.Load("prefabs/AngleMeasurmentPrefab");
+
+        // Measuremet
+        DistanceMeasurement.distMeasurementPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurementPrefab");
+        DistanceMeasurement.angleMeasurementPrefab = (GameObject)Resources.Load("prefabs/AngleMeasurementPrefab");
 
         Debug.Log("[GlobalCtrl] Initialization complete.");
 
@@ -838,19 +862,23 @@ public class GlobalCtrl : MonoBehaviour
     public void deleteMeasurmentsOf(Atom atom)
     {
         // Distances
-        List<DistanceMeasurment> distToRemove = new List<DistanceMeasurment>();
-        foreach (var entry in distMeasurmentDict)
+        List<DistanceMeasurement> distToRemove = new List<DistanceMeasurement>();
+        foreach (var entry in distMeasurementDict)
         {
             if (entry.Value.Item1 == atom || entry.Value.Item2 == atom)
             {
                 distToRemove.Add(entry.Key);
             }
         }
-        distToRemove = new List<DistanceMeasurment>(new HashSet<DistanceMeasurment>(distToRemove)); // remove duplicates
+        distToRemove = new List<DistanceMeasurement>(new HashSet<DistanceMeasurement>(distToRemove)); // remove duplicates
         foreach (var dist in distToRemove)
         {
-            distMeasurmentDict.Remove(dist);
-            Destroy(dist?.gameObject);
+            distMeasurementDict.Remove(dist);
+            if (dist)
+            {
+                Destroy(dist.gameObject); 
+            }
+
         }
 
         // Angles
@@ -875,22 +903,32 @@ public class GlobalCtrl : MonoBehaviour
     /// distance measurement.
     /// </summary>
     /// <param name="dist"></param>
-    public void deleteAngleMeasurmentsOf(DistanceMeasurment dist)
+    public void deleteAngleMeasurmentsOf(DistanceMeasurement dist)
     {
-        List<AngleMeasurment> angleToRemove = new List<AngleMeasurment>();
-        foreach (var entry in angleMeasurmentDict)
+        List<AngleMeasurement> angleToRemove = new List<AngleMeasurement>();
+        foreach (var entry in angleMeasurementDict)
         {
             if (entry.Value.Item2 == dist || entry.Value.Item3 == dist)
             {
                 angleToRemove.Add(entry.Key);
             }
         }
-        angleToRemove = new List<AngleMeasurment>(new HashSet<AngleMeasurment>(angleToRemove)); // remove duplicates
+        angleToRemove = new List<AngleMeasurement>(new HashSet<AngleMeasurement>(angleToRemove)); // remove duplicates
         foreach (var angle in angleToRemove)
         {
-            angleMeasurmentDict.Remove(angle);
-            Destroy(angle.gameObject);
+            angleMeasurementDict.Remove(angle);
+            if (angle)
+            {
+                Destroy(angle.gameObject);
+            }
         }
+    }
+
+
+    public void deleteAllMeasurementsUI()
+    {
+        deleteAllMeasurements();
+        EventManager.Singleton.ClearMeasurements();
     }
 
     /// <summary>
@@ -898,17 +936,17 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     public void deleteAllMeasurements()
     {
-        foreach (var entry in distMeasurmentDict)
+        foreach (var entry in distMeasurementDict)
         {
             Destroy(entry.Key.gameObject);
         }
-        distMeasurmentDict.Clear();
+        distMeasurementDict.Clear();
 
-        foreach (var entry in angleMeasurmentDict)
+        foreach (var entry in angleMeasurementDict)
         {
             Destroy(entry.Key.gameObject);
         }
-        angleMeasurmentDict.Clear();
+        angleMeasurementDict.Clear();
     }
 
     /// <summary>
@@ -917,18 +955,18 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     /// <param name="atom"></param>
     /// <returns>a list of distance measurements that include <c>atom</c></returns>
-    public List<DistanceMeasurment> getDistanceMeasurmentsOf(Atom atom)
+    public List<DistanceMeasurement> getDistanceMeasurmentsOf(Atom atom)
     {
 
-        List<DistanceMeasurment> contained_in = new List<DistanceMeasurment>();
-        foreach (var entry in distMeasurmentDict)
+        List<DistanceMeasurement> contained_in = new List<DistanceMeasurement>();
+        foreach (var entry in distMeasurementDict)
         {
             if (entry.Value.Item1 == atom || entry.Value.Item2 == atom)
             {
                 contained_in.Add(entry.Key);
             }
         }
-        contained_in = new List<DistanceMeasurment>(new HashSet<DistanceMeasurment>(contained_in)); // remove duplicates
+        contained_in = new List<DistanceMeasurement>(new HashSet<DistanceMeasurement>(contained_in)); // remove duplicates
 
         return contained_in;
     }

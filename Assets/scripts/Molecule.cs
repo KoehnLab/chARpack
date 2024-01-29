@@ -119,7 +119,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             {
                 string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
                 string[] distance = text[2].Split(": ");
-                double dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurment>().getDistanceInAngstrom();
+                double dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>().getDistanceInAngstrom();
                 string newDistance = string.Concat(distance[0], ": ", $"{dist:0.00}\u00C5");
                 text[2] = newDistance;
 
@@ -130,7 +130,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             {
                 string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
                 string[] ang = text[3].Split(": ");
-                double angle = toolTipInstance.transform.Find("Angle Measurement").GetComponent<AngleMeasurment>().getAngle();
+                double angle = toolTipInstance.transform.Find("Angle Measurement").GetComponent<AngleMeasurement>().getAngle();
                 string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}°");
                 text[3] = newAng;
 
@@ -760,7 +760,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         distGO.transform.Find("Line").gameObject.SetActive(false);
         var atom1 = atomList.ElementAtOrDefault(term.Atom1);
         var atom2 = atomList.ElementAtOrDefault(term.Atom2);
-        DistanceMeasurment dist = distGO.GetComponent<DistanceMeasurment>();
+        DistanceMeasurement dist = distGO.GetComponent<DistanceMeasurement>();
         dist.StartAtom = atom1;
         dist.EndAtom = atom2;
 
@@ -799,7 +799,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         cb.changeBondParametersBT();
         var bt = cb.bt;
 
-        var dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurment>();
+        var dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>();
         // Update tool tip
         string toolTipText = getBondToolTipText(bt.eqDist, dist.getDistanceInAngstrom(), bt.kBond, bt.order);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
@@ -856,7 +856,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.transform.position = ttpos;
         // add atom as connector
         toolTipInstance.GetComponent<myToolTipConnector>().Target = middleAtom.gameObject;
-        AngleMeasurment angle = getMeasurements(term);
+        AngleMeasurement angle = getMeasurements(term);
 
         // show angle term data
         string toolTipText = getAngleToolTipText(term.eqAngle, term.kAngle, angle.getAngle());
@@ -871,7 +871,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
     }
 
-    private AngleMeasurment getMeasurements(ForceField.AngleTerm term)
+    private AngleMeasurement getMeasurements(ForceField.AngleTerm term)
     {
         var dist1 = Instantiate(distanceMeasurementPrefab);
         var dist2 = Instantiate(distanceMeasurementPrefab);
@@ -885,15 +885,15 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         angle.name = "Angle Measurement";
 
-        dist1.GetComponent<DistanceMeasurment>().StartAtom = atomList[term.Atom1];
-        dist1.GetComponent<DistanceMeasurment>().EndAtom = atomList[term.Atom2];
-        dist2.GetComponent<DistanceMeasurment>().StartAtom = atomList[term.Atom2];
-        dist2.GetComponent<DistanceMeasurment>().EndAtom = atomList[term.Atom3];
-        angle.GetComponent<AngleMeasurment>().distMeasurment1 = dist1.GetComponent<DistanceMeasurment>();
-        angle.GetComponent<AngleMeasurment>().distMeasurment2 = dist2.GetComponent<DistanceMeasurment>();
-        angle.GetComponent<AngleMeasurment>().distMeasurment1Sign = -1f;
+        dist1.GetComponent<DistanceMeasurement>().StartAtom = atomList[term.Atom1];
+        dist1.GetComponent<DistanceMeasurement>().EndAtom = atomList[term.Atom2];
+        dist2.GetComponent<DistanceMeasurement>().StartAtom = atomList[term.Atom2];
+        dist2.GetComponent<DistanceMeasurement>().EndAtom = atomList[term.Atom3];
+        angle.GetComponent<AngleMeasurement>().distMeasurement1 = dist1.GetComponent<DistanceMeasurement>();
+        angle.GetComponent<AngleMeasurement>().distMeasurement2 = dist2.GetComponent<DistanceMeasurement>();
+        angle.GetComponent<AngleMeasurement>().distMeasurement1Sign = -1f;
 
-        return angle.GetComponent<AngleMeasurment>();
+        return angle.GetComponent<AngleMeasurement>();
     }
 
     private void createChangeAngleWindow(ForceField.AngleTerm bond)

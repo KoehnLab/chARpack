@@ -76,6 +76,8 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnDeleteBond +=  bcastDeleteBond;
         EventManager.Singleton.OnUpdateSettings += bcastSettings;
         EventManager.Singleton.OnChangeMoleculeScale += bcastScaleMolecule;
+        EventManager.Singleton.OnCreateMeasurement += bcastCreateMeasurement;
+        EventManager.Singleton.OnClearMeasurements += bcastClearMeasurements;
 
     }
 
@@ -352,6 +354,24 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddUShort(0);
         message.AddUShort(mol_id);
         message.AddFloat(scale);
+        Server.SendToAll(message);
+    }
+
+    public void bcastCreateMeasurement(ushort mol1_id, ushort atom1_id, ushort mol2_id, ushort atom2_id)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastCreateMeasurement);
+        message.AddUShort(0);
+        message.AddUShort(mol1_id);
+        message.AddUShort(atom1_id);
+        message.AddUShort(mol2_id);
+        message.AddUShort(atom2_id);
+        Server.SendToAll(message);
+    }
+
+    public void bcastClearMeasurements()
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastClearMeasurements);
+        message.AddUShort(0);
         Server.SendToAll(message);
     }
 
@@ -1018,5 +1038,39 @@ public class NetworkManagerServer : MonoBehaviour
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
 
+    [MessageHandler((ushort)ClientToServerID.createMeasurement)]
+    private static void getCreateMeasurement(ushort fromClientId, Message message)
+    {
+        var mol1ID = message.GetUShort();
+        var atom1ID = message.GetUShort();
+        var mol2ID = message.GetUShort();
+        var atom2ID = message.GetUShort();
+
+        // do the create
+        if (!DistanceMeasurement.Create(mol1ID, atom1ID, mol2ID, atom2ID))
+        {
+            Debug.LogError($"[NetworkManagerClient] Create measuurement cannot be executed. Atom IDs do not exist (Atom1: {atom1ID}, Atom2 {atom2ID}).\nRequesing world sync.");
+            NetworkManagerClient.Singleton.sendSyncRequest();
+            return;
+        }
+
+        // Broadcast to other clients
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastCreateMeasurement);
+        outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(mol1ID);
+        outMessage.AddUShort(atom1ID);
+        outMessage.AddUShort(mol2ID);
+        outMessage.AddUShort(atom2ID);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
+
+    [MessageHandler((ushort)ClientToServerID.clearMeasurements)]
+    private static void getClearMeasurements(ushort fromClientId, Message message)
+    {
+        GlobalCtrl.Singleton.deleteAllMeasurements();
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastClearMeasurements);
+        outMessage.AddUShort(fromClientId);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
     #endregion
 }

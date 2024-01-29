@@ -48,7 +48,6 @@ public class settingsControl : MonoBehaviour
             setHandMesh(SettingsData.handMesh);
             setHandRay(SettingsData.handRay);
             setSpatialMesh(SettingsData.spatialMesh);
-            setInteractionMode(SettingsData.interactionMode);
         }
         catch
         {
@@ -61,6 +60,7 @@ public class settingsControl : MonoBehaviour
         setIntegrationMethod(SettingsData.integrationMethod);
         setTimeFactors(SettingsData.timeFactors);
         setCoopSettings(SettingsData.coop);
+        setInteractionMode(SettingsData.interactionMode);
         // gaze and pointer highlighting are handled by checking the value in SettingsData directly in the script
     }
 

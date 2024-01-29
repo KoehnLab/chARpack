@@ -102,6 +102,8 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnChangeMoleculeScale += sendScaleMolecue;
         EventManager.Singleton.OnFreezeAtom += sendFreezeAtom;
         EventManager.Singleton.OnFreezeMolecule += sendFreezeMolecule;
+        EventManager.Singleton.OnCreateMeasurement += sendCreateMeasurement;
+        EventManager.Singleton.OnClearMeasurements += sendClearMeasurements;
     }
 
     private void FixedUpdate()
@@ -468,6 +470,21 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
+    public void sendCreateMeasurement(ushort mol1_id, ushort atom1_id, ushort mol2_id, ushort atom2_id)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.createMeasurement);
+        message.AddUShort(mol1_id);
+        message.AddUShort(atom1_id);
+        message.AddUShort(mol2_id);
+        message.AddUShort(atom2_id);
+        Client.Send(message);
+    }
+
+    public void sendClearMeasurements()
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.clearMeasurements);
+        Client.Send(message);
+    }
     #endregion
 
     #region Listen
@@ -1044,6 +1061,38 @@ public class NetworkManagerClient : MonoBehaviour
         }
     }
 
-    #endregion
+    [MessageHandler((ushort)ServerToClientID.bcastCreateMeasurement)]
+    private static void getCreateMeasurement(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol1ID = message.GetUShort();
+        var atom1ID = message.GetUShort();
+        var mol2ID = message.GetUShort();
+        var atom2ID = message.GetUShort();
+
+        // do the merge
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            if (!DistanceMeasurement.Create(mol1ID, atom1ID, mol2ID, atom2ID))
+            {
+                Debug.LogError($"[NetworkManagerClient] Create measuurement cannot be executed. Atom IDs do not exist (Atom1: {atom1ID}, Atom2 {atom2ID}).\nRequesing world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+                return;
+            }
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClientID.bcastClearMeasurements)]
+    private static void getClearMeasurements(Message message)
+    {
+        var client_id = message.GetUShort();
+
+        // do the merge
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            GlobalCtrl.Singleton.deleteAllMeasurements();
+        }
+    }
+#endregion
 
 }

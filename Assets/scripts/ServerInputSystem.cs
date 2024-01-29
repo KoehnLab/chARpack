@@ -14,8 +14,12 @@ public class ServerInputSystem : MonoBehaviour
     {
         if (GlobalCtrl.Singleton.currentCamera == GlobalCtrl.Singleton.mainCamera)
         {
-            doMovement();
+            if (!CreateInputField.Singleton.gameObject.activeSelf)
+            {
+                doCameraMovement();
+            }
         }
+        doManipulation();
         createStuff();
         selectWholeMolecule();
     }
@@ -23,34 +27,41 @@ public class ServerInputSystem : MonoBehaviour
     /// <summary>
     /// Implements WASD movement and mouse-based turning.
     /// </summary>
-    private void doMovement()
+    private void doCameraMovement()
     {
-        if (Input.GetKey(KeyCode.W))
+        if (!Input.GetKey(KeyCode.LeftShift) || !Input.GetKey(KeyCode.LeftControl))
         {
-            transform.position += moveSpeed * transform.forward;
+            if (Input.GetKey(KeyCode.W))
+            {
+                transform.position += moveSpeed * transform.forward;
+            }
+            if (Input.GetKey(KeyCode.S))
+            {
+                transform.position -= moveSpeed * transform.forward;
+            }
+            if (Input.GetKey(KeyCode.D))
+            {
+                Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
+                transform.position += moveSpeed * rotated;
+            }
+            if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.RightShift))
+            {
+                Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
+                transform.position -= moveSpeed * rotated;
+            }
+            if (Input.GetKey(KeyCode.F))
+            {
+                transform.position += moveSpeed * transform.up;
+            }
+            if (Input.GetKey(KeyCode.C))
+            {
+                transform.position -= moveSpeed * transform.up;
+            }
         }
-        if (Input.GetKey(KeyCode.S))
-        {
-            transform.position -= moveSpeed * transform.forward;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
-            transform.position += moveSpeed * rotated;
-        }
-        if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.RightShift))
-        {
-            Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
-            transform.position -= moveSpeed * rotated;
-        }
-        if (Input.GetKey(KeyCode.Space))
-        {
-            transform.position += moveSpeed * transform.up;
-        }
-        if (!Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.C))
-        {
-            transform.position -= moveSpeed * transform.up;
-        }
+    }
+
+    private void doManipulation()
+    {
         if (Input.GetMouseButton(1))
         {
 #if !WINDOWS_UWP
@@ -75,10 +86,11 @@ public class ServerInputSystem : MonoBehaviour
 
     private void createStuff()
     {
-        
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.C))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            GlobalCtrl.Singleton.createAtomUI("C");
+            CreateInputField.Singleton.gameObject.SetActive(true);
+            CreateInputField.Singleton.input_field.Select();
+            CreateInputField.Singleton.input_field.ActivateInputField();
         }
     }
 
@@ -87,13 +99,16 @@ public class ServerInputSystem : MonoBehaviour
     /// </summary>
     private void selectWholeMolecule()
     {
-        if (Input.GetKey(KeyCode.RightShift) && Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.A))
         {
             //get last marked atom
-            Atom marked = Atom.markedAtoms[Atom.markedAtoms.Count-1];
-            if (marked != null)
+            if (Atom.markedAtoms.Count > 0)
             {
-                marked.m_molecule.markMoleculeUI(true);
+                Atom marked = Atom.markedAtoms[Atom.markedAtoms.Count - 1];
+                if (marked != null)
+                {
+                    marked.m_molecule.markMoleculeUI(true);
+                }
             }
         }
     }
