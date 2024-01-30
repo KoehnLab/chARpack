@@ -39,7 +39,10 @@ public class appSettings : MonoBehaviour
     private void Awake()
     {
         Singleton = this;
-        DebugWindow.Singleton.debugIndicator = DebugWindowIndicator;
+        try
+        {
+            DebugWindow.Singleton.debugIndicator = DebugWindowIndicator;
+        } catch { }
     }
 
     public GameObject bondStiffnessValueGO;
@@ -58,6 +61,7 @@ public class appSettings : MonoBehaviour
     public GameObject RightHandMenuIndicator;
     public GameObject UserBoxIndicator;
     public GameObject UserRayIndicator;
+    public GameObject NetworkMeasurementIndicator;
     // Time factor sliders
     public GameObject EulerTimeFactorSlider;
     public GameObject SVTimeFactorSlider;
@@ -487,6 +491,12 @@ public class appSettings : MonoBehaviour
         }
     }
 
+    public void toggleMeasurementNetworking()
+    {
+        SettingsData.networkMeasurements = !SettingsData.networkMeasurements;
+        updateVisuals();
+    }
+
     #endregion
 
     #region Visuals
@@ -520,8 +530,13 @@ public class appSettings : MonoBehaviour
         setVisual(PointerHighlightingIndicator, SettingsData.pointerHighlighting);
         setVisual(RightHandMenuIndicator, SettingsData.rightHandMenu);
         setTimeFactorVisuals(SettingsData.timeFactors);
-        setVisual(UserBoxIndicator, SettingsData.coop[0]);
-        setVisual(UserRayIndicator, SettingsData.coop[1]);
+        // Connected to server (not local)
+        if (LoginData.ip != null && LoginData.ip != "127.0.0.1")
+        {
+            setVisual(UserBoxIndicator, SettingsData.coop[0]);
+            setVisual(UserRayIndicator, SettingsData.coop[1]);
+        }
+        setVisual(NetworkMeasurementIndicator, SettingsData.networkMeasurements);
     }
 
     /// <summary>
