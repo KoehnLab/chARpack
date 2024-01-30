@@ -304,8 +304,8 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.scalingSliderPrefab = (GameObject)Resources.Load("prefabs/myTouchSlider");
         Molecule.freezeMeButtonPrefab = (GameObject)Resources.Load("prefabs/FreezeMeButton");
         Molecule.snapMeButtonPrefab = (GameObject)Resources.Load("prefabs/SnapMeButton");
-        Molecule.distanceMeasurementPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurmentPrefab");
-        Molecule.angleMeasurementPrefab = (GameObject)Resources.Load("prefabs/AngleMeasurmentPrefab");
+        Molecule.distanceMeasurementPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurementPrefab");
+        Molecule.angleMeasurementPrefab = (GameObject)Resources.Load("prefabs/AngleMeasurementPrefab");
 
         // Measuremet
         DistanceMeasurement.distMeasurementPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurementPrefab");
