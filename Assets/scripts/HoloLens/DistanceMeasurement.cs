@@ -114,8 +114,10 @@ public class DistanceMeasurement : MonoBehaviour
             }
             else
             {
+#if !WINDOWS_UWP
                 Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f);
                 indexPos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + StartAtom.mouse_offset;
+#endif
             }
             Line.SetPosition(0, startAtom.transform.position);
             Line.SetPosition(1, indexPos);
