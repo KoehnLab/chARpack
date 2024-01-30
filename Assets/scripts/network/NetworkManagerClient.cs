@@ -1,7 +1,7 @@
 using Microsoft.MixedReality.Toolkit.UI;
 using Riptide;
 using Riptide.Utils;
-using StructClass;
+using chARpStructs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,8 +36,6 @@ public class NetworkManagerClient : MonoBehaviour
     public Client Client { get; private set; }
     [HideInInspector] public GameObject userWorld;
     [HideInInspector] public bool controlledExit = false;
-    //public GameObject playspace;
-    //public GameObject sceneContent;
 
     private void Awake()
     {
@@ -52,19 +50,12 @@ public class NetworkManagerClient : MonoBehaviour
         userWorld = new GameObject("UserWorld");
         userWorld.transform.position = LoginData.offsetPos;
         userWorld.transform.rotation = LoginData.offsetRot;
-        //// put MRPlayspace in userWorld coordinates
-        //playspace.transform.position = LoginData.offsetPos;
-        //playspace.transform.rotation = LoginData.offsetRot;
-        //// put MRSceneContent in userWorld coordinates
-        //sceneContent.transform.position = LoginData.offsetPos;
-        //sceneContent.transform.rotation = LoginData.offsetRot;
-
     }
 
     private void Start()
     {
         RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
-        showErrorPrefab = (GameObject)Resources.Load("prefabs/confirmLoadDialog");
+        showErrorPrefab = (GameObject)Resources.Load("prefabs/confirmDialog");
 
         Client = new Client();
         Client.Connected += DidConnect;

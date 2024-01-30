@@ -1,3 +1,4 @@
+using Microsoft.MixedReality.Toolkit.Experimental.UI;
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using System;
@@ -5,6 +6,7 @@ using System.Collections;
 using System.IO;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// This class provides functionalities to load or save molecules from/to files.
@@ -12,8 +14,13 @@ using UnityEngine;
 public class loadSaveWindow : myScrollObject
 {
 
-    public GameObject saveDialogPrefab;
-    public GameObject loadEntryPrefab;
+    private GameObject saveDialogPrefab;
+    private GameObject loadEntryPrefab;
+    private GameObject dialogPrefab;
+    private myInputField dialogInputField;
+    private ButtonConfigHelper dialogCloseButton;
+    private GameObject saveDialogInstance;
+
 
     private enum Color { red, green, blue, black, white, yellow, orange };
 
@@ -44,7 +51,14 @@ public class loadSaveWindow : myScrollObject
 
     public void Start()
     {
+        // load prefabs
+        saveDialogPrefab = (GameObject)Resources.Load("prefabs/saveDialog");
+        loadEntryPrefab = (GameObject)Resources.Load("prefabs/LoadEntry");
+        dialogPrefab = (GameObject)Resources.Load("prefabs/confirmDialog");
+
+        //check for files
         initSavedFiles();
+
         // put window in vision
         //Vector3 in_vision_position = GlobalCtrl.Singleton.mainCamera.transform.position + 0.5f * GlobalCtrl.Singleton.mainCamera.transform.forward;
         //gameObject.transform.position = in_vision_position;
@@ -110,10 +124,55 @@ public class loadSaveWindow : myScrollObject
     /// </summary>
     public void openSaveDialog()
     {
-        var saveDialogInstance = Instantiate(saveDialogPrefab);
+        saveDialogInstance = Instantiate(saveDialogPrefab);
+        var okButton = saveDialogInstance.GetComponent<saveDialogHelper>().okButton;
+        okButton.onClick.AddListener(delegate{ performSave(); });
+        dialogInputField = saveDialogInstance.GetComponent<saveDialogHelper>().inputField;
+        dialogCloseButton = saveDialogInstance.GetComponent<saveDialogHelper>().closeButton;
+        dialogCloseButton.OnClick.AddListener(delegate { onCloseButtonPressed(); });
         // put the dialog a bit further away
         saveDialogInstance.transform.position += 0.5f * GlobalCtrl.Singleton.mainCamera.transform.forward;
         gameObject.SetActive(false);
+    }
+
+    public void onCloseButtonPressed()
+    {
+        Destroy(saveDialogInstance);
+        gameObject.SetActive(true);
+    }
+
+
+    /// <summary>
+    /// Attempts to save the molecule to the given file name.
+    /// If the file name was invalid, displays an error message.
+    /// </summary>
+    public void performSave()
+    {
+        var name = dialogInputField.text;
+        if (name == "" || name == null)
+        {
+            saveDialogInstance.SetActive(false);
+            var myDialog = Dialog.Open(dialogPrefab, DialogButtonType.OK, "Error", "Please enter file name", true);
+            //make sure the dialog is rotated to the camera
+            myDialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
+
+            if (myDialog != null)
+            {
+                myDialog.OnClosed += OnClosedDialogEvent;
+            }
+            return;
+        }
+        GlobalCtrl.Singleton.SaveMolecule(false, name);
+        Destroy(saveDialogInstance);
+        gameObject.SetActive(true);
+    }
+
+    private void OnClosedDialogEvent(DialogResult obj)
+    {
+        if (obj.Result == DialogButtonType.OK)
+        {
+            saveDialogInstance.SetActive(true);
+        }
     }
 
 }

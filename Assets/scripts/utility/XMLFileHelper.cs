@@ -8,11 +8,11 @@ using System.Xml;
 using System.Xml.Serialization;
 
 using UnityEngine;
-public class CFileHelper
+public class XMLFileHelper
 { 
     
     /// <summary>
-    /// It saves the specified object¡¯s data into a XML file.
+    /// It saves the specified objects data into a XML file.
     /// </summary>
     public static string GetXMLString(object data)
     {

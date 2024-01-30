@@ -1,3 +1,4 @@
+using Microsoft.MixedReality.Toolkit.UI;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -9,22 +10,23 @@ using UnityEngine.UI;
 /// This script provides keyboard interactions for the save dialog:
 /// 'tab' switches between input fields, 'enter' confirms the input.
 /// </summary>
-public class saveDialog : MonoBehaviour
+public class saveDialogHelper : MonoBehaviour
 {
-    public GameObject okButton;
-    public GameObject inputField;
+    public Button okButton;
+    public myInputField inputField;
+    public ButtonConfigHelper closeButton;
 
     private void OnGUI()
     {
         if (Event.current.Equals(Event.KeyboardEvent("return")))
         {
-            okButton.GetComponent<Button>().onClick.Invoke();
+            okButton.onClick.Invoke();
         }
         if (Event.current.Equals(Event.KeyboardEvent("tab")))
         {
             if (EventSystem.current.currentSelectedGameObject != inputField)
             {
-                inputField.GetComponent<myInputField>().Select();
+                inputField.Select();
             }
         }
     }

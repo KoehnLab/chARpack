@@ -5,7 +5,7 @@ using System;
 using System.Xml.Serialization;
 using System.ComponentModel;
 
-namespace StructClass
+namespace chARpStructs
 {
     /// <summary>
     /// elements with their order are saved here

@@ -677,7 +677,6 @@ GameObject:
   - component: {fileID: 8644986735117708794}
   - component: {fileID: 6798208038677003133}
   - component: {fileID: 3470627489049769168}
-  - component: {fileID: 2420225500085066992}
   - component: {fileID: 7655519271934801}
   m_Layer: 0
   m_Name: SaveButton
@@ -762,19 +761,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 0}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2420225500085066992}
-        m_TargetAssemblyTypeName: doTheSave, Assembly-CSharp
-        m_MethodName: performSave
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &952259364396497144
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1095,21 +1082,6 @@ MonoBehaviour:
   minCompressPercentage: 0.25
   highlightPlate: {fileID: 0}
   highlightPlateAnimationTime: 0.25
---- !u!114 &2420225500085066992
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 952259364396497141}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 447efaa40ca67a94c9bb0e67b804a563, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inputField: {fileID: 6053885373884993670}
-  errorDialogPrefab: {fileID: 2680377478557818543, guid: 25faf283732369f44889ff6ddd124580, type: 3}
-  saveDialog: {fileID: 6325399774208577938}
 --- !u!114 &7655519271934801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5091,8 +5063,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d35c5d4a5b8d32744a43da8d0e8c1900, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  okButton: {fileID: 952259364396497141}
-  inputField: {fileID: 6053885373884993670}
+  okButton: {fileID: 952259364396497145}
+  inputField: {fileID: 5283559465417931693}
+  closeButton: {fileID: 4466130019475632034}
 --- !u!1 &6325399774342466925
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,7 +5,7 @@ using System.Reflection;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
-using StructClass;
+using chARpStructs;
 using System.Linq;
 using System.Diagnostics;
 

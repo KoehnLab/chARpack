@@ -66,6 +66,10 @@ public class ServerList : myScrollObject
         myServer2.ip = IPAddress.Parse("192.168.178.33");
         myServer2.port = LoginData.port;
 
+        var myServer3 = new FindServer.ServerData();
+        myServer3.ip = IPAddress.Parse("192.168.166.55");
+        myServer3.port = LoginData.port;
+
         if (!FindServer.manualServerList.Contains(myServer1))
         {
             FindServer.manualServerList.Add(myServer1);
@@ -73,6 +77,10 @@ public class ServerList : myScrollObject
         if (!FindServer.manualServerList.Contains(myServer2))
         {
             FindServer.manualServerList.Add(myServer2);
+        }
+        if (!FindServer.manualServerList.Contains(myServer3))
+        {
+            FindServer.manualServerList.Add(myServer3);
         }
     }
 

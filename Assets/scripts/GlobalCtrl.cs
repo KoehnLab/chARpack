@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using StructClass;
+using chARpStructs;
 using System.IO;
 using System;
 using System.Globalization;
@@ -247,7 +247,7 @@ public class GlobalCtrl : MonoBehaviour
             Debug.LogError("[GlobalCtrl] ElementData.xml not found.");
         }
 
-        list_ElementData = (List<ElementData>)CFileHelper.LoadData(element_file_path, typeof(List<ElementData>));
+        list_ElementData = (List<ElementData>)XMLFileHelper.LoadData(element_file_path, typeof(List<ElementData>));
         if (!(list_ElementData.Count > 0))
         {
             Debug.LogError("[GlobalCtrl] list_ElementData is empty.");
@@ -1707,7 +1707,7 @@ public class GlobalCtrl : MonoBehaviour
 
         if(!onStack)
         {
-            CFileHelper.SaveData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", saveData);
+            XMLFileHelper.SaveData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", saveData);
             Debug.Log($"[GlobalCtrl] Saved Molecule as: {name}.xml");
         } else
         {
@@ -1726,7 +1726,7 @@ public class GlobalCtrl : MonoBehaviour
 
         Vector3 meanPos = new Vector3(0.0f, 0.0f, 0.0f);
 
-        loadData = (List<cmlData>)CFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
+        loadData = (List<cmlData>)XMLFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
         if (loadData != null)
         {
             int nMol = 0;
@@ -1779,7 +1779,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>a list of cmlData</returns>
     public List<cmlData> getMoleculeData(string name)
     {
-        return (List<cmlData>)CFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
+        return (List<cmlData>)XMLFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
     }
 
     /// <summary>

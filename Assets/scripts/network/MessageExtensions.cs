@@ -1,6 +1,6 @@
 using Riptide;
 using UnityEngine;
-using StructClass;
+using chARpStructs;
 using System.Collections.Generic;
 using System.Linq;
 

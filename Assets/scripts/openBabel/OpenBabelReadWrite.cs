@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Diagnostics;
 using System.IO;
-using StructClass;
+using chARpStructs;
 using OpenBabel;
 using System.Collections;
 using System.Threading.Tasks;
@@ -11,7 +11,7 @@ using SimpleFileBrowser;
 /// <summary>
 /// This class provides methods to read molecule data from files using OpenBabel.
 /// </summary>
-public class dotnetReadMoleculeFile : MonoBehaviour
+public class OpenBabelReadWrite : MonoBehaviour
 {
     private string[] supportedInputFormats = null;
     private string[] supportedOutputFormats = null;
@@ -248,7 +248,7 @@ public class dotnetReadMoleculeFile : MonoBehaviour
         List<cmlData> saveData = new List<cmlData>();
         if (fi.Extension.ToLower() == ".xml")
         {
-            saveData = (List<cmlData>)CFileHelper.LoadData(fi.FullName, typeof(List<cmlData>));
+            saveData = (List<cmlData>)XMLFileHelper.LoadData(fi.FullName, typeof(List<cmlData>));
         }
         else
         {
@@ -370,7 +370,7 @@ public class dotnetReadMoleculeFile : MonoBehaviour
         UnityEngine.Debug.Log($"[ReadMoleculeFile] Saving Molecule {fi.FullName}");
         if (fi.Extension.ToLower() == ".xml")
         {
-            CFileHelper.SaveData(fi.FullName, mol.AsCML());
+            XMLFileHelper.SaveData(fi.FullName, mol.AsCML());
         }
         else
         {

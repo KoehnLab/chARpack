@@ -1,6 +1,6 @@
 using Riptide;
 using Riptide.Utils;
-using StructClass;
+using chARpStructs;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -148,6 +148,7 @@ public class NetworkManagerServer : MonoBehaviour
     {
         NetworkUtils.serializeCmlData((ushort)ServerToClientID.bcastMoleculeLoad, molecule, chunkSize, false);
     }
+
     public void bcastMoveAtom(ushort mol_id, ushort atom_id, Vector3 pos)
     {
         // Broadcast to other clients
