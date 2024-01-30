@@ -928,7 +928,10 @@ public class GlobalCtrl : MonoBehaviour
     public void deleteAllMeasurementsUI()
     {
         deleteAllMeasurements();
-        EventManager.Singleton.ClearMeasurements();
+        if (SettingsData.networkMeasurements)
+        {
+            EventManager.Singleton.ClearMeasurements();
+        }
     }
 
     /// <summary>
