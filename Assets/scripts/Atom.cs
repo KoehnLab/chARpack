@@ -44,6 +44,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private bool focused = false;
 
     private Color orange = new Color(1.0f, 0.5f, 0.0f);
+    private cmlData before;
 
     private List<Atom> currentChain = new List<Atom>();
 
@@ -253,6 +254,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             stopwatch = Stopwatch.StartNew();
             grabHighlight(true);
             isGrabbed = true;
+            before = m_molecule.AsCML();
         }
         else if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)
         {
@@ -302,6 +304,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             else
             {
                 resetMolPositionAfterMove();
+                cmlData after = m_molecule.AsCML();
+                GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
                 EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
 
                 // check for potential merge
@@ -346,6 +350,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
             stopwatch = Stopwatch.StartNew();
             isGrabbed = true;
+            before = m_molecule.AsCML();
 
             // Get the bond that is closest to grab direction
             var fwd = HandTracking.Singleton.getForward();
@@ -481,6 +486,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     }
                     currentChain.Clear();
                     resetMolPositionAfterMove();
+                    cmlData after = m_molecule.AsCML();
+                    GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
                     EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
                 }
 
@@ -524,6 +531,11 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                                     GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2, GlobalCtrl.Singleton.collider1);
                                 }
                             }
+                        }
+                        else
+                        {
+                            cmlData after = m_molecule.AsCML();
+                            GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
                         }
                     }
                 }

@@ -14,6 +14,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
     private Stopwatch stopwatch;
     [HideInInspector] public bool isGrabbed = false;
+    private cmlData before;
 
     /// <summary>
     /// This method is triggered when a grab/select gesture is started.
@@ -30,6 +31,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             GetComponent<myBoundingBox>().setGrabbed(true);
         }
+        before = this.AsCML();
     }
 
     public void OnPointerClicked(MixedRealityPointerEventData eventData)
@@ -91,6 +93,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                                 GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2, GlobalCtrl.Singleton.collider1);
                             }
                         }
+                    } else
+                    {
+                        cmlData after = this.AsCML();
+                        GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
                     }
                 }
                 // change material back to normal
