@@ -247,19 +247,20 @@ public class EventManager : MonoBehaviour
         OnFreezeMolecule?.Invoke(mol_id, value);
     }
 
-    public delegate void CreateDistanceMeasurementAction(ushort mol_id1, ushort atom_id1, ushort mol_id2, ushort atom_id2);
-    public event CreateDistanceMeasurementAction OnCreateDistanceMeasurement;
-    public void CreateDistanceMeasurement(ushort mol_id1, ushort atom_id1, ushort mol_id2, ushort atom_id2)
+    public delegate void CreateMeasurementAction(ushort mol1_id, ushort atom1_id, ushort mol2_id, ushort atom2_id);
+    public event CreateMeasurementAction OnCreateMeasurement;
+    public void CreateMeasurement(ushort mol1_id, ushort atom1_id, ushort mol2_id, ushort atom2_id)
     {
-        OnCreateDistanceMeasurement?.Invoke(mol_id1, atom_id1, mol_id2, atom_id2);
+        OnCreateMeasurement?.Invoke(mol1_id, atom1_id, mol2_id, atom2_id);
     }
 
-    public delegate void CreateAngleMeasurementAction(ushort mol_id, ushort middle_atom_id, ushort mol_id1, ushort atom_id1, float distMeasurement1Sign, ushort mol_id2, ushort atom_id2, float distMeasurement2Sign);
-    public event CreateAngleMeasurementAction OnCreateAngleMeasurement;
-    public void CreateAngleMeasurement(ushort mol_id, ushort middle_atom_id, ushort mol_id1, ushort atom_id1, float distMeasurement1Sign, ushort mol_id2, ushort atom_id2, float distMeasurement2Sign)
+    public delegate void ClearMeasurementsAction();
+    public event ClearMeasurementsAction OnClearMeasurements;
+    public void ClearMeasurements()
     {
-        OnCreateAngleMeasurement?.Invoke(mol_id, middle_atom_id, mol_id1, atom_id1, distMeasurement1Sign, mol_id2, atom_id2, distMeasurement2Sign);
+        OnClearMeasurements?.Invoke();
     }
+
     #endregion
 
 

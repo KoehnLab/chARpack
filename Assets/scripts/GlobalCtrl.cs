@@ -54,7 +54,7 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     [HideInInspector] public Dictionary<string, ElementData> Dic_ElementData { get; private set; }
 
-    [HideInInspector] public Dictionary<ushort, Molecule> Dict_curMolecules { get; private set; }
+    [HideInInspector] public List<Molecule> List_curMolecules { get; private set; }
     //public Dictionary<int, Molecule> Dic_curMolecules { get; private set; }
 
     [HideInInspector] public Dictionary<int, Material> Dic_AtomMat { get; private set; }
@@ -91,7 +91,6 @@ public class GlobalCtrl : MonoBehaviour
     public Material bondMat;
 
     private bool bondsInForeground = false;
-    private ushort curMaxMolId = 0;
 
     [HideInInspector] public bool collision = false;
     [HideInInspector] public Atom collider1;
@@ -123,34 +122,40 @@ public class GlobalCtrl : MonoBehaviour
     [HideInInspector] public Dictionary<Tuple<ushort, ushort>, GameObject> snapToolTipInstances = new Dictionary<Tuple<ushort, ushort>, GameObject>();
 
     // measurmemt dict
-    [HideInInspector] public Dictionary<DistanceMeasurment, Tuple<Atom, Atom>> distMeasurmentDict = new Dictionary<DistanceMeasurment, Tuple<Atom, Atom>>();
-    [HideInInspector] public Dictionary<AngleMeasurment, Triple<Atom, DistanceMeasurment, DistanceMeasurment>> angleMeasurmentDict = new Dictionary<AngleMeasurment, Triple<Atom, DistanceMeasurment, DistanceMeasurment>>();
+    [HideInInspector] public Dictionary<DistanceMeasurement, Tuple<Atom, Atom>> distMeasurementDict = new Dictionary<DistanceMeasurement, Tuple<Atom, Atom>>();
+    [HideInInspector] public Dictionary<AngleMeasurement, Triple<Atom, DistanceMeasurement, DistanceMeasurement>> angleMeasurementDict = new Dictionary<AngleMeasurement, Triple<Atom, DistanceMeasurement, DistanceMeasurement>>();
     [HideInInspector] public GameObject measurmentInHand = null; 
 
     #region Interaction
     // Interaction modes
-    public enum InteractionModes {NORMAL, CHAIN, MEASUREMENT};
+    public enum InteractionModes {NORMAL, FRAGMENT_ROTATION, MEASUREMENT};
     private InteractionModes _currentInteractionMode = InteractionModes.NORMAL;
     // Setter can't be private because settingsControl needs to access it
     public InteractionModes currentInteractionMode { get => _currentInteractionMode; /*private*/ set => _currentInteractionMode = value; }
 
     /// <summary>
-    /// Toggles the interaction mode "chain":
+    /// Toggles the interaction mode "fragment rotation":
     /// unfreezes molecules if they were frozen and updates indicators.
     /// </summary>
-    public void toggleChainInteractionMode()
+    public void toggleFragmentRotationMode()
     {
-        if (currentInteractionMode != InteractionModes.CHAIN)
+        if (currentInteractionMode != InteractionModes.FRAGMENT_ROTATION)
         {
-            currentInteractionMode = InteractionModes.CHAIN;
-            HandTracking.Singleton.gameObject.SetActive(true);
-            HandTracking.Singleton.showVisual(true);
+            currentInteractionMode = InteractionModes.FRAGMENT_ROTATION;
+            if (HandTracking.Singleton)
+            {
+                HandTracking.Singleton.gameObject.SetActive(true);
+                HandTracking.Singleton.showVisual(true);
+            }
             freezeWorld(false);
         }
         else
         {
             currentInteractionMode = InteractionModes.NORMAL;
-            HandTracking.Singleton.gameObject.SetActive(false);
+            if (HandTracking.Singleton)
+            {
+                HandTracking.Singleton.gameObject.SetActive(false);
+            }
         }
 
         // Update visuals on hand menu toggle buttons
@@ -166,14 +171,20 @@ public class GlobalCtrl : MonoBehaviour
         if (currentInteractionMode != InteractionModes.MEASUREMENT)
         {
             currentInteractionMode = InteractionModes.MEASUREMENT;
-            HandTracking.Singleton.gameObject.SetActive(true);
-            HandTracking.Singleton.showVisual(false);
+            if (HandTracking.Singleton)
+            {
+                HandTracking.Singleton.gameObject.SetActive(true);
+                HandTracking.Singleton.showVisual(false);
+            }
             freezeWorld(true);
         }
         else
         {
             currentInteractionMode = InteractionModes.NORMAL;
-            HandTracking.Singleton.gameObject.SetActive(false);
+            if (HandTracking.Singleton)
+            {
+                HandTracking.Singleton.gameObject.SetActive(false);
+            }
             freezeWorld(false);
         }
 
@@ -190,24 +201,32 @@ public class GlobalCtrl : MonoBehaviour
     {
         if (currentInteractionMode == mode) return;
         currentInteractionMode = mode;
-        if(mode == InteractionModes.CHAIN)
+        if(mode == InteractionModes.FRAGMENT_ROTATION)
         {
-            HandTracking.Singleton.gameObject.SetActive(true);
-            HandTracking.Singleton.showVisual(true);
+            if (HandTracking.Singleton)
+            {
+                HandTracking.Singleton.gameObject.SetActive(true);
+                HandTracking.Singleton.showVisual(true);
+            }
             freezeWorld(false);
         } else if(mode == InteractionModes.MEASUREMENT)
         {
-            HandTracking.Singleton.gameObject.SetActive(true);
-            HandTracking.Singleton.showVisual(false);
+            if (HandTracking.Singleton)
+            {
+                HandTracking.Singleton.gameObject.SetActive(true);
+                HandTracking.Singleton.showVisual(false);
+            }
             freezeWorld(true);
         } else
         {
-            HandTracking.Singleton.gameObject.SetActive(false);
+            if (HandTracking.Singleton)
+            {
+                HandTracking.Singleton.gameObject.SetActive(false);
+            }
             freezeWorld(false);
         }
-        handMenu.Singleton.setVisuals();
+        handMenu.Singleton?.setVisuals();
     }
-
     #endregion
 
     // Start is called before the first frame update
@@ -234,7 +253,7 @@ public class GlobalCtrl : MonoBehaviour
             Debug.LogError("[GlobalCtrl] list_ElementData is empty.");
         }
 
-        Dict_curMolecules = new Dictionary<ushort, Molecule>();
+        List_curMolecules = new List<Molecule>();
         Dic_ElementData = new Dictionary<string, ElementData>();
         Dic_AtomMat = new Dictionary<int, Material>();
         foreach (ElementData e in list_ElementData)
@@ -263,8 +282,8 @@ public class GlobalCtrl : MonoBehaviour
         // Init some prefabs
         // Atom
         Atom.myAtomToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKAtomToolTip");
-        Atom.distMeasurmentPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurmentPrefab");
-        Atom.angleMeasurmentPrefab = (GameObject)Resources.Load("prefabs/AngleMeasurmentPrefab");
+        Atom.distMeasurementPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurementPrefab");
+        Atom.angleMeasurementPrefab = (GameObject)Resources.Load("prefabs/AngleMeasurementPrefab");
         Atom.deleteMeButtonPrefab = (GameObject)Resources.Load("prefabs/DeleteMeButton");
         Atom.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
         Atom.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
@@ -287,6 +306,10 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.snapMeButtonPrefab = (GameObject)Resources.Load("prefabs/SnapMeButton");
         Molecule.distanceMeasurementPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurmentPrefab");
         Molecule.angleMeasurementPrefab = (GameObject)Resources.Load("prefabs/AngleMeasurmentPrefab");
+
+        // Measuremet
+        DistanceMeasurement.distMeasurementPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurementPrefab");
+        DistanceMeasurement.angleMeasurementPrefab = (GameObject)Resources.Load("prefabs/AngleMeasurementPrefab");
 
         Debug.Log("[GlobalCtrl] Initialization complete.");
 
@@ -332,9 +355,13 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>Whether the atom was found</returns>
     public bool getAtom(ushort mol_id, ushort atom_id, ref Atom atomInstance)
     {
-        if (!Dict_curMolecules.ContainsKey(mol_id)) return false;
+        var mol = List_curMolecules.ElementAtOrDefault(mol_id);
+        if (mol == default)
+        {
+            return false;
+        }
 
-        var atom = Dict_curMolecules[mol_id].atomList.ElementAtOrDefault(atom_id);
+        var atom = mol.atomList.ElementAtOrDefault(atom_id);
         if (atom == default)
         {
             return false;
@@ -351,7 +378,7 @@ public class GlobalCtrl : MonoBehaviour
     public int getNumAtoms()
     {
         int num_atoms = 0;
-        foreach (var mol in Dict_curMolecules.Values)
+        foreach (var mol in List_curMolecules)
         {
             mol.shrinkAtomIDs();
             num_atoms += mol.getMaxAtomID() + 1;
@@ -400,7 +427,7 @@ public class GlobalCtrl : MonoBehaviour
         List<Molecule> delMoleculeList = new List<Molecule>();
         List<Molecule> addMoleculeList = new List<Molecule>();
 
-        foreach (Molecule m in Dict_curMolecules.Values)
+        foreach (Molecule m in List_curMolecules)
         {
             // add to delete list
             foreach (Atom a in m.atomList)
@@ -457,7 +484,7 @@ public class GlobalCtrl : MonoBehaviour
 
         foreach (Molecule m in delMoleculeList)
         {
-            Dict_curMolecules.Remove(m.m_id);
+            List_curMolecules.Remove(m);
             foreach (var atom in m.atomList)
             {
                 atom.markAtom(false);
@@ -467,17 +494,18 @@ public class GlobalCtrl : MonoBehaviour
                 bond.markBond(false);
             }
             m.markMolecule(false);
-            Dict_curMolecules.Remove(m.m_id);
+            List_curMolecules.Remove(m);
             Destroy(m.gameObject);
 
         }
 
         foreach (Molecule m in addMoleculeList)
         {
-            Dict_curMolecules.Add(m.m_id,m);
+            List_curMolecules.Add(m);
         }
+        shrinkMoleculeIDs();
 
-        foreach (Molecule m in Dict_curMolecules.Values)
+        foreach (Molecule m in List_curMolecules)
         {
             int size = m.atomList.Count;
             for (int i = 0; i < size; i++)
@@ -499,9 +527,6 @@ public class GlobalCtrl : MonoBehaviour
         {
             EventManager.Singleton.ChangeMolData(m);
         }
-
-        // Reset maximum molecule ID after deleting atom world
-        if (deleteAll) curMaxMolId = 0;
     }
 
     /// <summary>
@@ -597,7 +622,7 @@ public class GlobalCtrl : MonoBehaviour
 
         foreach (Molecule m in delMoleculeList)
         {
-            Dict_curMolecules.Remove(m.m_id);
+            List_curMolecules.Remove(m);
             foreach (var atom in m.atomList)
             {
                 atom.markAtom(false);
@@ -607,14 +632,15 @@ public class GlobalCtrl : MonoBehaviour
                 bond.markBond(false);
             }
             m.markMolecule(false);
-            Dict_curMolecules.Remove(m.m_id);
+            List_curMolecules.Remove(m);
             Destroy(m.gameObject);
         }
 
         foreach (Molecule m in addMoleculeList)
         {
-            Dict_curMolecules.Add(m.m_id,m);
+            List_curMolecules.Add(m);
         }
+        shrinkMoleculeIDs();
 
         foreach (var entry in numConnectedAtoms)
         {
@@ -698,7 +724,7 @@ public class GlobalCtrl : MonoBehaviour
             m.markMolecule(false);
         }
 
-        Dict_curMolecules.Remove(m.m_id);
+        List_curMolecules.Remove(m);
         foreach (var atom in m.atomList)
         {
             atom.markAtom(false);
@@ -710,7 +736,7 @@ public class GlobalCtrl : MonoBehaviour
         //m.markMolecule(false);
         //List_curMolecules.Remove(m);
         Destroy(m.gameObject);
-
+        shrinkMoleculeIDs();
         SaveMolecule(true);
         // no need to invoke change event
     }
@@ -736,13 +762,10 @@ public class GlobalCtrl : MonoBehaviour
 
     public void deleteAtom(ushort mol_id, ushort atom_id)
     {
-        if (Dict_curMolecules.ContainsKey(mol_id))
+        var atom = List_curMolecules.ElementAtOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
+        if (atom != default)
         {
-            var atom = Dict_curMolecules[mol_id].atomList.ElementAtOrDefault(atom_id);
-            if (atom != default)
-            {
-                deleteAtom(atom);
-            }
+            deleteAtom(atom);
         }
         else
         {
@@ -801,14 +824,15 @@ public class GlobalCtrl : MonoBehaviour
 
         foreach (Molecule m in delMoleculeList)
         {
-            Dict_curMolecules.Remove(m.m_id);
+            List_curMolecules.Remove(m);
             Destroy(m.gameObject);
         }
 
         foreach (Molecule m in addMoleculeList)
         {
-            Dict_curMolecules.Add(m.m_id,m);
+            List_curMolecules.Add(m);
         }
+        shrinkMoleculeIDs();
 
         foreach (var entry in numConnectedAtoms)
         {
@@ -838,19 +862,23 @@ public class GlobalCtrl : MonoBehaviour
     public void deleteMeasurmentsOf(Atom atom)
     {
         // Distances
-        List<DistanceMeasurment> distToRemove = new List<DistanceMeasurment>();
-        foreach (var entry in distMeasurmentDict)
+        List<DistanceMeasurement> distToRemove = new List<DistanceMeasurement>();
+        foreach (var entry in distMeasurementDict)
         {
             if (entry.Value.Item1 == atom || entry.Value.Item2 == atom)
             {
                 distToRemove.Add(entry.Key);
             }
         }
-        distToRemove = new List<DistanceMeasurment>(new HashSet<DistanceMeasurment>(distToRemove)); // remove duplicates
+        distToRemove = new List<DistanceMeasurement>(new HashSet<DistanceMeasurement>(distToRemove)); // remove duplicates
         foreach (var dist in distToRemove)
         {
-            distMeasurmentDict.Remove(dist);
-            Destroy(dist?.gameObject);
+            distMeasurementDict.Remove(dist);
+            if (dist)
+            {
+                Destroy(dist.gameObject); 
+            }
+
         }
 
         // Angles
@@ -875,22 +903,32 @@ public class GlobalCtrl : MonoBehaviour
     /// distance measurement.
     /// </summary>
     /// <param name="dist"></param>
-    public void deleteAngleMeasurmentsOf(DistanceMeasurment dist)
+    public void deleteAngleMeasurmentsOf(DistanceMeasurement dist)
     {
-        List<AngleMeasurment> angleToRemove = new List<AngleMeasurment>();
-        foreach (var entry in angleMeasurmentDict)
+        List<AngleMeasurement> angleToRemove = new List<AngleMeasurement>();
+        foreach (var entry in angleMeasurementDict)
         {
             if (entry.Value.Item2 == dist || entry.Value.Item3 == dist)
             {
                 angleToRemove.Add(entry.Key);
             }
         }
-        angleToRemove = new List<AngleMeasurment>(new HashSet<AngleMeasurment>(angleToRemove)); // remove duplicates
+        angleToRemove = new List<AngleMeasurement>(new HashSet<AngleMeasurement>(angleToRemove)); // remove duplicates
         foreach (var angle in angleToRemove)
         {
-            angleMeasurmentDict.Remove(angle);
-            Destroy(angle.gameObject);
+            angleMeasurementDict.Remove(angle);
+            if (angle)
+            {
+                Destroy(angle.gameObject);
+            }
         }
+    }
+
+
+    public void deleteAllMeasurementsUI()
+    {
+        deleteAllMeasurements();
+        EventManager.Singleton.ClearMeasurements();
     }
 
     /// <summary>
@@ -898,17 +936,17 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     public void deleteAllMeasurements()
     {
-        foreach (var entry in distMeasurmentDict)
+        foreach (var entry in distMeasurementDict)
         {
             Destroy(entry.Key.gameObject);
         }
-        distMeasurmentDict.Clear();
+        distMeasurementDict.Clear();
 
-        foreach (var entry in angleMeasurmentDict)
+        foreach (var entry in angleMeasurementDict)
         {
             Destroy(entry.Key.gameObject);
         }
-        angleMeasurmentDict.Clear();
+        angleMeasurementDict.Clear();
     }
 
     /// <summary>
@@ -917,18 +955,18 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     /// <param name="atom"></param>
     /// <returns>a list of distance measurements that include <c>atom</c></returns>
-    public List<DistanceMeasurment> getDistanceMeasurmentsOf(Atom atom)
+    public List<DistanceMeasurement> getDistanceMeasurmentsOf(Atom atom)
     {
 
-        List<DistanceMeasurment> contained_in = new List<DistanceMeasurment>();
-        foreach (var entry in distMeasurmentDict)
+        List<DistanceMeasurement> contained_in = new List<DistanceMeasurement>();
+        foreach (var entry in distMeasurementDict)
         {
             if (entry.Value.Item1 == atom || entry.Value.Item2 == atom)
             {
                 contained_in.Add(entry.Key);
             }
         }
-        contained_in = new List<DistanceMeasurment>(new HashSet<DistanceMeasurment>(contained_in)); // remove duplicates
+        contained_in = new List<DistanceMeasurement>(new HashSet<DistanceMeasurement>(contained_in)); // remove duplicates
 
         return contained_in;
     }
@@ -939,7 +977,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="value">whether to freeze or unfreeze</param>
     public void freezeWorld(bool value)
     {
-        foreach (var mol in Dict_curMolecules.Values)
+        foreach (var mol in List_curMolecules)
         {
             mol.freeze(value);
         }
@@ -1114,7 +1152,7 @@ public class GlobalCtrl : MonoBehaviour
             bondLayer = 0;
             atomLayer = 6;
         }
-        foreach (var molecule in Dict_curMolecules.Values)
+        foreach (var molecule in List_curMolecules)
         {
             molecule.gameObject.layer = atomLayer;
             foreach (Transform child in molecule.transform)
@@ -1146,8 +1184,9 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the atom could successfully be moved</returns>
     public bool moveAtom(ushort mol_id, ushort atom_id, Vector3 pos)
     {
-        var atom = Dict_curMolecules.ContainsKey(mol_id) ? Dict_curMolecules[mol_id].atomList.ElementAtOrNull(atom_id,null) : null;
-        if (atom == null)
+        var mol = Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
+        if (mol == null || atom == null)
         {
             Debug.LogError($"[GlobalCtrl:moveAtom] Trying to move Atom {atom_id} of molecule {mol_id}, but it does not exist.");
             return false;
@@ -1167,8 +1206,9 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the stop was completed successfully</returns>
     public bool stopMoveAtom(ushort mol_id, ushort atom_id)
     {
-        var atom = Dict_curMolecules.ContainsKey(mol_id) ? Dict_curMolecules[mol_id].atomList.ElementAtOrNull(atom_id, null) : null;
-        if (atom == null)
+        var mol = Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
+        if (mol == null || atom == null)
         {
             Debug.LogError($"[GlobalCtrl:stopMoveAtom] Trying to resetMolPositionAfterMove of Atom {atom_id} of molecule {mol_id}, but it does not exist.");
             return false;
@@ -1189,9 +1229,9 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the molecule was moved successfully</returns>
     public bool moveMolecule(ushort id, Vector3 pos, Quaternion quat)
     {
-        if (Dict_curMolecules.ContainsKey(id))
+        var molecule = List_curMolecules.ElementAtOrDefault(id);
+        if (molecule != default)
         {
-            var molecule = Dict_curMolecules[id];
             molecule.transform.localPosition = pos;
             molecule.transform.localRotation = quat;
             return true;
@@ -1246,9 +1286,9 @@ public class GlobalCtrl : MonoBehaviour
             CreateDummy(atom_id, tempMolecule, tempAtom, posForDummy);
         }
 
-        Dict_curMolecules.Add(tempMolecule.m_id, tempMolecule);
+        List_curMolecules.Add(tempMolecule);
 
-        if(currentInteractionMode == InteractionModes.MEASUREMENT )
+        if(currentInteractionMode == InteractionModes.MEASUREMENT)
         {
             tempMolecule.freezeUI(true);
         }
@@ -1271,7 +1311,7 @@ public class GlobalCtrl : MonoBehaviour
 
         // Let the networkManager know about the user action
         // Important: insert localPosition here
-        EventManager.Singleton.CreateAtom(newID, ChemicalID, Dict_curMolecules[newID].transform.localPosition, curHybrid);
+        EventManager.Singleton.CreateAtom(newID, ChemicalID, List_curMolecules[newID].transform.localPosition, curHybrid);
     }
 
     public ushort calcNumBonds(ushort hyb, ushort element_bondNum)
@@ -1287,9 +1327,9 @@ public class GlobalCtrl : MonoBehaviour
     public bool changeAtom(ushort idMol, ushort idAtom, string ChemicalAbbre)
     {
         // TODO: do not overwrite runtime data
-        if (!Dict_curMolecules.ContainsKey(idMol)) return false;
-        var chgAtom = Dict_curMolecules[idMol].atomList.ElementAtOrNull(idAtom, null);
-        if (chgAtom == null)
+        var mol = Singleton.List_curMolecules.ElementAtOrNull(idMol, null);
+        var chgAtom = mol?.atomList.ElementAtOrNull(idAtom, null);
+        if (mol == null || chgAtom == null)
         {
             return false;
         }
@@ -1301,7 +1341,7 @@ public class GlobalCtrl : MonoBehaviour
         chgAtom.f_Modify(tempData);
 
         SaveMolecule(true);
-        EventManager.Singleton.ChangeMolData(Dict_curMolecules[idMol]);
+        EventManager.Singleton.ChangeMolData(List_curMolecules.ElementAtOrDefault(idMol));
         return true;
     }
 
@@ -1353,8 +1393,8 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the hybridization could be successfully modified</returns>
     public bool modifyHybrid(ushort mol_id, ushort atom_id, ushort hybrid)
     {
-        if (!Dict_curMolecules.ContainsKey(mol_id)) return false;
-        Atom chgAtom = Dict_curMolecules[mol_id].atomList.ElementAtOrDefault(atom_id);
+
+        Atom chgAtom = List_curMolecules.ElementAtOrDefault(mol_id).atomList.ElementAtOrDefault(atom_id);
         if (chgAtom == default)
         {
             return false;
@@ -1374,8 +1414,7 @@ public class GlobalCtrl : MonoBehaviour
     public bool switchDummyHydrogen(ushort idMol, ushort idAtom, bool isDummy=true)
     {
         // TODO: do not overwrite runtime data
-        if (!Dict_curMolecules.ContainsKey(idMol)) return false;
-        Atom chgAtom = Dict_curMolecules[idMol].atomList.ElementAtOrDefault(idAtom);
+        Atom chgAtom = List_curMolecules.ElementAtOrDefault(idMol).atomList.ElementAtOrDefault(idAtom);
         if (chgAtom == default)
         {
             return false;
@@ -1487,6 +1526,7 @@ public class GlobalCtrl : MonoBehaviour
         //Debug.Log($"[GlobalCtrl:MergeMolecule] Atoms in Molecule {molInAir.atomList.Count}, bonds in Molecule {molInAir.bondList.Count}"); 
 
         molInAir.shrinkAtomIDs();
+        shrinkMoleculeIDs();
 
         // Clear selection
         // TODO differentiate between problematic and not problematic cases
@@ -1501,7 +1541,7 @@ public class GlobalCtrl : MonoBehaviour
     // overload to handle IDs
     public void MergeMolecule(ushort molInHand, ushort dummyInHand, ushort molInAir, ushort dummyInAir)
     {
-        MergeMolecule(Dict_curMolecules[molInHand].atomList[dummyInHand], Dict_curMolecules[molInAir].atomList[dummyInAir]);
+        MergeMolecule(List_curMolecules[molInHand].atomList[dummyInHand], List_curMolecules[molInAir].atomList[dummyInAir]);
     }
 
     /// <summary>
@@ -1530,11 +1570,11 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the change was successful</returns>
     public bool changeBondTerm(ushort mol_id, ushort term_id, ForceField.BondTerm new_term)
     {
-        if (!Dict_curMolecules.ContainsKey(mol_id) || term_id >= Dict_curMolecules[mol_id].bondTerms.Count)
+        if (term_id >= List_curMolecules.ElementAtOrDefault(mol_id).bondTerms.Count)
         {
             return false;
         }
-        Dict_curMolecules[mol_id].changeBondParameters(new_term, term_id);
+        List_curMolecules[mol_id].changeBondParameters(new_term, term_id);
 
         return true;
     }
@@ -1548,11 +1588,11 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the change was successful</returns>
     public bool changeAngleTerm(ushort mol_id, ushort term_id, ForceField.AngleTerm new_term)
     {
-        if (!Dict_curMolecules.ContainsKey(mol_id) || term_id >= Dict_curMolecules[mol_id].angleTerms.Count)
+        if (term_id >= List_curMolecules.ElementAtOrDefault(mol_id).angleTerms.Count)
         {
             return false;
         }
-        Dict_curMolecules[mol_id].changeAngleParameters(new_term, term_id);
+        List_curMolecules[mol_id].changeAngleParameters(new_term, term_id);
 
         return true;
     }
@@ -1566,11 +1606,11 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the change was successful</returns>
     public bool changeTorsionTerm(ushort mol_id, ushort term_id, ForceField.TorsionTerm new_term)
     {
-        if (!Dict_curMolecules.ContainsKey(mol_id) || term_id >= Dict_curMolecules[mol_id].torsionTerms.Count)
+        if (term_id >= List_curMolecules.ElementAtOrDefault(mol_id).torsionTerms.Count)
         {
             return false;
         }
-        Dict_curMolecules[mol_id].changeTorsionParameters(new_term, term_id);
+        List_curMolecules[mol_id].changeTorsionParameters(new_term, term_id);
 
         return true;
     }
@@ -1604,7 +1644,7 @@ public class GlobalCtrl : MonoBehaviour
 
         Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, moleData.molePos, Quaternion.identity).AddComponent<Molecule>();
         tempMolecule.f_Init(freshMoleculeID, atomWorld.transform, moleData);
-        Dict_curMolecules.Add(tempMolecule.m_id,tempMolecule);
+        List_curMolecules.Add(tempMolecule);
 
         //LOAD STRUCTURE CHECK LIST / DICTIONNARY
 
@@ -1635,7 +1675,7 @@ public class GlobalCtrl : MonoBehaviour
         List<cmlData> saveData = new List<cmlData>();
         if(!onStack)
         {
-            foreach (Molecule inputMole in Dict_curMolecules.Values)
+            foreach (Molecule inputMole in List_curMolecules)
             {
                 meanPos += inputMole.transform.localPosition;
                 nMol++;
@@ -1644,7 +1684,7 @@ public class GlobalCtrl : MonoBehaviour
         }
 
 
-        foreach (Molecule inputMole in Dict_curMolecules.Values)
+        foreach (Molecule inputMole in List_curMolecules)
         {
             Vector3 molePos = inputMole.transform.localPosition - meanPos;  // relative to mean position
             List<cmlAtom> list_atom = new List<cmlAtom>();
@@ -1709,7 +1749,7 @@ public class GlobalCtrl : MonoBehaviour
 
                 Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos, Quaternion.identity).AddComponent<Molecule>();
                 tempMolecule.f_Init(freshMoleculeID, atomWorld.transform, molecule);
-                Dict_curMolecules.Add(tempMolecule.m_id,tempMolecule);
+                List_curMolecules.Add(tempMolecule);
 
 
                 //LOAD STRUCTURE CHECK LIST / DICTIONNARY
@@ -1746,9 +1786,10 @@ public class GlobalCtrl : MonoBehaviour
     public List<cmlData> saveAtomWorld()
     {
         // flatten IDs first
+        shrinkMoleculeIDs();
         // this method preserves the position of the molecules and atoms (and rotation)
         List<cmlData> saveData = new List<cmlData>();
-        foreach (Molecule inputMole in Dict_curMolecules.Values)
+        foreach (Molecule inputMole in List_curMolecules)
         {
             inputMole.shrinkAtomIDs();
             List<cmlAtom> list_atom = new List<cmlAtom>();
@@ -1799,7 +1840,7 @@ public class GlobalCtrl : MonoBehaviour
                 tempMolecule.f_Init(add == true ? freshMoleculeID : molecule.moleID, atomWorld.transform, molecule);
                 tempMolecule.transform.localPosition = molecule.molePos;
                 tempMolecule.transform.localRotation = molecule.moleQuat;
-                Dict_curMolecules.Add(tempMolecule.m_id,tempMolecule);
+                List_curMolecules.Add(tempMolecule);
 
                 for (int i = 0; i < molecule.atomArray.Length; i++)
                 {
@@ -1898,10 +1939,25 @@ public class GlobalCtrl : MonoBehaviour
     /// this method gets the maximum atomID currently in the scene
     /// </summary>
     /// <returns>id</returns>
-    // TODO: make compatible with unique IDs
     public ushort getMaxMoleculeID()
     {
-        return curMaxMolId;
+        ushort id = 0;
+        foreach (Molecule m in List_curMolecules)
+        {
+            id = Math.Max(id, m.m_id);
+        }
+        return id;
+    }
+
+    /// <summary>
+    /// this method shrinks the IDs of the molecules to prevent an overflow
+    /// </summary>
+    public void shrinkMoleculeIDs()
+    {
+        for (ushort i = 0; i < List_curMolecules.Count; i++)
+        {
+            List_curMolecules[i].m_id = i;
+        }
     }
 
     /// <summary>
@@ -1910,8 +1966,15 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="idNew">new ID</param>
     public ushort getFreshMoleculeID()
     {
-        curMaxMolId++;
-        return (ushort)(getMaxMoleculeID());
+        if (List_curMolecules.Count == 0)
+        {
+            return 0;
+        }
+        else
+        {
+            shrinkMoleculeIDs();
+            return (ushort)(getMaxMoleculeID() + 1);
+        }
     }
 
 
@@ -1968,7 +2031,7 @@ public class GlobalCtrl : MonoBehaviour
     {
         if(type == 0)
         {
-            foreach (Molecule m in Dict_curMolecules.Values)
+            foreach (Molecule m in List_curMolecules)
             {
                 if (m.isMarked)
                     return m;
@@ -1976,7 +2039,7 @@ public class GlobalCtrl : MonoBehaviour
         }
         else if(type == 1)
         {
-            foreach (Molecule m in Dict_curMolecules.Values)
+            foreach (Molecule m in List_curMolecules)
             {
                 foreach (Atom a in m.atomList)
                 {
@@ -1986,7 +2049,7 @@ public class GlobalCtrl : MonoBehaviour
             }
         } else if(type == 2)
         {
-            foreach (Molecule m in Dict_curMolecules.Values)
+            foreach (Molecule m in List_curMolecules)
             {
                 foreach (Bond b in m.bondList)
                 {
@@ -2053,7 +2116,7 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     private void regenerateTooltips()
     {
-        foreach(Molecule mol in Dict_curMolecules.Values)
+        foreach(Molecule mol in List_curMolecules)
         {
             // Single atom tool tips
             foreach(Atom a in mol.atomList)
@@ -2153,44 +2216,6 @@ public class GlobalCtrl : MonoBehaviour
     public string GetLocalizedString(string text)
     {
         return LocalizationSettings.StringDatabase.GetLocalizedString("My Strings", text);
-    }
-
-    public void CreateDistanceMeasurement(ushort mol_id1, ushort atom_id1, ushort mol_id2, ushort atom_id2)
-    {
-        Atom atom1 = findAtomById(Dict_curMolecules[mol_id1], atom_id1);
-        Atom atom2 = findAtomById(Dict_curMolecules[mol_id2], atom_id2);
-        // Avoid creating an already existing measurement
-        if (!distMeasurmentDict.ContainsValue(new Tuple<Atom, Atom>(atom1, atom2)) && !distMeasurmentDict.ContainsValue(new Tuple<Atom, Atom>(atom2, atom1)))
-        {
-            var dist = Instantiate(Molecule.distanceMeasurementPrefab);
-            dist.GetComponent<DistanceMeasurment>().StartAtom = atom1;
-            dist.GetComponent<DistanceMeasurment>().EndAtom = atom2;
-            distMeasurmentDict.Add(dist.GetComponent<DistanceMeasurment>(), new Tuple<Atom, Atom>(atom1, atom2));
-        }
-    }
-
-    public bool CreateAngleMeasurement(Atom middleAtom, Atom atom1, Atom atom2, float dist1Sign, float dist2Sign)
-    {
-        DistanceMeasurment distanceMeasurement1 = distMeasurmentDict.FirstOrDefault(i => i.Equals(new Tuple<Atom, Atom>(middleAtom, atom1)) || i.Equals(new Tuple<Atom,Atom>(atom1,middleAtom))).Key;
-        DistanceMeasurment distanceMeasurement2 = distMeasurmentDict.FirstOrDefault(i => i.Equals(new Tuple<Atom, Atom>(middleAtom, atom2)) || i.Equals(new Tuple<Atom, Atom>(atom2, middleAtom))).Key;
-        if(distanceMeasurement1 == default || distanceMeasurement2 == default)
-        {
-            return false;
-        }
-
-        if(!angleMeasurmentDict.ContainsValue(new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(middleAtom, distanceMeasurement1, distanceMeasurement2)) && !angleMeasurmentDict.ContainsValue(new Triple<Atom, DistanceMeasurment, DistanceMeasurment>( middleAtom, distanceMeasurement2, distanceMeasurement1)))
-        {
-            var angle = Instantiate(Molecule.angleMeasurementPrefab);
-            angle.GetComponent<AngleMeasurment>().originAtom = middleAtom;
-            angle.GetComponent<AngleMeasurment>().distMeasurment1 = distanceMeasurement1;
-            angle.GetComponent<AngleMeasurment>().distMeasurment1Sign = dist1Sign;
-            angle.GetComponent<AngleMeasurment>().distMeasurment2 = distanceMeasurement2;
-            angle.GetComponent<AngleMeasurment>().distMeasurment2Sign = dist2Sign;
-            angleMeasurmentDict.Add(angle.GetComponent<AngleMeasurment>(), new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(middleAtom, distanceMeasurement1, distanceMeasurement2));
-            return true;
-        }
-        Debug.Log("[GlobalCtrl:CreateAngleMeasurement]: Trying to create an already existing angle measurement!");
-        return true;
     }
 
 }

@@ -29,7 +29,6 @@ public class SettingsPannel : MonoBehaviour
     public GameObject mpSlider;
     public GameObject userBoxToggle;
     public GameObject userRayToggle;
-    public GameObject networkMeasurementsToggle;
 
     private void Start()
     {
@@ -92,8 +91,6 @@ public class SettingsPannel : MonoBehaviour
 
         mpSlider.GetComponent<Slider>().value = SettingsData.timeFactors[3];
         mpSlider.GetComponent<UpdateSliderLabel>().updateLabel();
-
-        networkMeasurementsToggle.GetComponent<Toggle>().isOn = SettingsData.networkMeasurements;
     }
 
     /// <summary>
@@ -127,7 +124,6 @@ public class SettingsPannel : MonoBehaviour
                                                 rkSlider.GetComponent<Slider>().value, 
                                                 mpSlider.GetComponent<Slider>().value };
         SettingsData.coop = new bool[] { userBoxToggle.GetComponent<Toggle>().isOn, userRayToggle.GetComponent<Toggle>().isOn };
-        SettingsData.networkMeasurements = networkMeasurementsToggle.GetComponent<Toggle>().isOn;
 
         settingsControl.Singleton.updateSettings();
         EventManager.Singleton.UpdateSettings();

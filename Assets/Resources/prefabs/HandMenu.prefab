@@ -1238,7 +1238,7 @@ GameObject:
   - component: {fileID: 9020453519589065428}
   - component: {fileID: 8931499808019207946}
   m_Layer: 0
-  m_Name: ToggleChainModeButton
+  m_Name: ToggleFragmentRotationButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

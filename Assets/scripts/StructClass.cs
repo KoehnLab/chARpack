@@ -67,7 +67,7 @@ namespace StructClass
         public string abbre;
         public ushort hybrid;
         public SaveableVector3 pos;
-        public cmlAtom(ushort _id,  string name, ushort hybridisation, SaveableVector3 _pos)
+        public cmlAtom(ushort _id,string name, ushort hybridisation, SaveableVector3 _pos)
         {
             id = _id;
             abbre = name;

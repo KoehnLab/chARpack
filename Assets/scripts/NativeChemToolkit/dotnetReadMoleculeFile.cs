@@ -166,14 +166,14 @@ public class dotnetReadMoleculeFile : MonoBehaviour
                 yield break;
             }
 
-            if (GlobalCtrl.Singleton.Dict_curMolecules.Count < 1)
+            if (GlobalCtrl.Singleton.List_curMolecules.Count < 1)
             {
                 UnityEngine.Debug.LogError("[SaveMolecule] No Molecules in currently in scene.");
                 yield break;
             }
 
             var mols = new List<Molecule>();
-            foreach (var mol in GlobalCtrl.Singleton.Dict_curMolecules.Values)
+            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
             {
                 if (mol.isMarked)
                 {
@@ -182,8 +182,7 @@ public class dotnetReadMoleculeFile : MonoBehaviour
             }
             if (mols.Count < 1)
             {
-                // Important! New behaviour: adds molecule with maximum ID from current scene
-                mols.Add(GlobalCtrl.Singleton.Dict_curMolecules[GlobalCtrl.Singleton.getMaxMoleculeID()]);
+                mols.Add(GlobalCtrl.Singleton.List_curMolecules[0]);
             }
 
             foreach (var mol in mols)

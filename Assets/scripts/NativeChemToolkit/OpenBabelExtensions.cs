@@ -4,11 +4,9 @@ using UnityEngine;
 using OpenBabel;
 using StructClass;
 using System.Linq;
-using System;
 
 public static class OpenBabelExtensions
 {
-    // Assigning new unique IDs to atoms and bonds here since OB does not have them
     public static cmlData AsCML(this OBMol molecule)
     {
         uint num_atoms = molecule.NumAtoms();

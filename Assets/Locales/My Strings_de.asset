@@ -227,7 +227,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5142275573186560
-    m_Localized: Ketten-modus
+    m_Localized: Fragment-rotation
     m_Metadata:
       m_Items: []
   - m_Id: 5165129048031232
@@ -328,10 +328,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 50769287102054400
     m_Localized: Ralston
-    m_Metadata:
-      m_Items: []
-  - m_Id: 63518995004243968
-    m_Localized: Messungen synchronisieren
     m_Metadata:
       m_Items: []
   references:
