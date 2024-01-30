@@ -48,6 +48,7 @@ public class settingsControl : MonoBehaviour
             setHandMesh(SettingsData.handMesh);
             setHandRay(SettingsData.handRay);
             setSpatialMesh(SettingsData.spatialMesh);
+            setInteractionMode(SettingsData.interactionMode);
         }
         catch
         {
