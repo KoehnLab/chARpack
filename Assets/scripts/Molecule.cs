@@ -14,6 +14,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
     private Stopwatch stopwatch;
     [HideInInspector] public bool isGrabbed = false;
+    private Vector3 pickupPos = Vector3.zero;
+    private Quaternion pickupRot = Quaternion.identity;
+
+    private List<Tuple<ushort, Vector3>> atomState = new List<Tuple<ushort, Vector3>>();
 
     /// <summary>
     /// This method is triggered when a grab/select gesture is started.
@@ -22,6 +26,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="eventData"></param>
     public void OnPointerDown(MixedRealityPointerEventData eventData)
     {
+        pickupPos = transform.localPosition;
+        pickupRot = transform.localRotation;
+
         isGrabbed = true;
         stopwatch = Stopwatch.StartNew();
         // change material of grabbed object
@@ -66,6 +73,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             {
                 if (stopwatch?.ElapsedMilliseconds < 200)
                 {
+                    transform.localPosition = pickupPos;
+                    transform.localRotation = pickupRot;
+                    EventManager.Singleton.MoveMolecule(m_id, transform.localPosition, transform.localRotation);
                     markMoleculeUI(!isMarked, true);
                 }
                 else
@@ -1141,6 +1151,32 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    #endregion
+
+    #region atom_state
+    public void saveAtomState()
+    {
+        atomState.Clear();
+        foreach (var a in atomList)
+        {
+            atomState.Add(new Tuple<ushort, Vector3>(a.m_id, a.transform.localPosition));
+        }
+    }
+
+    public void popAtomState()
+    {
+        foreach (var s in atomState)
+        {
+            var atom = atomList.Where(a => a.m_id == s.Item1).ToList();
+            if (atom.Count != 1)
+            {
+                UnityEngine.Debug.LogError("[Trying to pop atom state but atoms do not exist]");
+                return;
+            }
+            atom.First().transform.localPosition = s.Item2;
+            EventManager.Singleton.MoveAtom(m_id, s.Item1, s.Item2);
+        }
+    }
     #endregion
 
     #region id_management

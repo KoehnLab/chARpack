@@ -11,7 +11,7 @@ public class SettingsData
     [SerializeField] static public bool handRay = false;
     [SerializeField] static public bool handMenu = true;
     [SerializeField] static public string language = "en";
-    [SerializeField] static public bool gazeHighlighting = true;
+    [SerializeField] static public bool gazeHighlighting = false;
     [SerializeField] static public bool pointerHighlighting = true;
     [SerializeField] static public bool rightHandMenu = false;
     [SerializeField] static public ForceField.Method integrationMethod = ForceField.Method.MidPoint;

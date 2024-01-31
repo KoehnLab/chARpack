@@ -245,6 +245,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         // Handle server GUI interaction
         if (EventSystem.current.IsPointerOverGameObject()) { return; }
 
+        m_molecule.saveAtomState();
+
         mouse_offset = gameObject.transform.position - GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
          new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f));
 
@@ -290,6 +292,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             stopwatch?.Stop();
             if (stopwatch?.ElapsedMilliseconds < 200)
             {
+                m_molecule.popAtomState();
                 if (m_molecule.isMarked)
                 {
                     m_molecule.markMolecule(false);
@@ -302,6 +305,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
             resetMolPositionAfterMove();
             EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
+            EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
 
             // check for potential merge
             if (GlobalCtrl.Singleton.collision)
@@ -339,6 +343,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         if (eventData.Pointer is SpherePointer)
         {
+            m_molecule.saveAtomState();
             // give it a outline
             grabHighlight(true);
 
@@ -480,6 +485,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     currentChain.Clear();
                     resetMolPositionAfterMove();
                     EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
+                    EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
                 }
 
                 if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
@@ -487,6 +493,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     //UnityEngine.Debug.Log($"[Atom] Interaction stopwatch: {stopwatch.ElapsedMilliseconds} [ms]");
                     if (stopwatch?.ElapsedMilliseconds < 200)
                     {
+                        m_molecule.popAtomState();
+                        resetMolPositionAfterMove();
+                        EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
+                        EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
                         if (m_molecule.isMarked)
                         {
                             m_molecule.markMolecule(false);
@@ -498,6 +508,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     }
                     else
                     {
+                        resetMolPositionAfterMove();
+                        EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
+                        EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
                         // check for potential merge
                         if (GlobalCtrl.Singleton.collision)
                         {
@@ -522,8 +535,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                             }
                         }
                     }
-                    resetMolPositionAfterMove();
-                    EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
                 }
 
                 if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)

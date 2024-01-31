@@ -120,6 +120,7 @@ public class SettingsPannel : MonoBehaviour
         SettingsData.integrationMethod = method;
         options = interactionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().options;
         var interactionString = options[interactionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text;
+        interactionString = interactionString.Replace(" ", "_");
         Enum.TryParse(interactionString, ignoreCase:true, out GlobalCtrl.InteractionModes mode);
         SettingsData.interactionMode = mode;
         SettingsData.timeFactors = new float[]{ eulerSlider.GetComponent<Slider>().value, 

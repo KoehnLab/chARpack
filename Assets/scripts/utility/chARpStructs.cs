@@ -176,6 +176,7 @@ namespace chARpStructs
             torsionArray = tor?.ToArray();
         }
     }
+
     /// <summary>
     /// contain the status of each buttons of a controller
     /// </summary>

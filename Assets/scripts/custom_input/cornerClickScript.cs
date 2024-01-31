@@ -16,6 +16,9 @@ public class cornerClickScript : MonoBehaviour
 
     private Molecule mol;
     private myBoundingBox box;
+    private Vector3 pickupPos = Vector3.zero;
+    private Quaternion pickupRot = Quaternion.identity;
+
     private void Start()
     {
         mol = transform.parent.transform.parent.GetComponent<Molecule>();
@@ -29,6 +32,9 @@ public class cornerClickScript : MonoBehaviour
     {
         // Handle server GUI interactions
         if (EventSystem.current.IsPointerOverGameObject()) { return; }
+        
+        pickupPos = mol.transform.localPosition;
+        pickupRot = mol.transform.localRotation;
 
         offset = mol.transform.position -
         GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
@@ -55,6 +61,9 @@ public class cornerClickScript : MonoBehaviour
         stopwatch?.Stop();
         if (stopwatch?.ElapsedMilliseconds < 200)
         {
+            mol.transform.localPosition = pickupPos;
+            mol.transform.localRotation = pickupRot;
+            EventManager.Singleton.MoveMolecule(mol.m_id, mol.transform.localPosition, mol.transform.localRotation);
             mol.markMoleculeUI(!mol.isMarked, true);
         }
         else
