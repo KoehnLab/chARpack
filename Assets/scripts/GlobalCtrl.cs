@@ -1535,6 +1535,11 @@ public class GlobalCtrl : MonoBehaviour
         // TODO differentiate between problematic and not problematic cases
         molInAir.markMolecule(false);
 
+        foreach(Bond bond in molInAir.bondList)
+        {
+            bond.setShaderProperties();
+        }
+
         SaveMolecule(true);
 
         EventManager.Singleton.ChangeMolData(molInAir);
