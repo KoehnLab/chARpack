@@ -350,20 +350,20 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             stopwatch = Stopwatch.StartNew();
             isGrabbed = true;
 
-            // Get the bond that is closest to grab direction
-            var fwd = HandTracking.Singleton.getForward();
-            var con_atoms = connectedAtoms();
-            var dot_products = new List<float>();
-            foreach (var atom in con_atoms)
-            {
-                var dir = atom.transform.position - transform.position;
-                dot_products.Add(Vector3.Dot(fwd, dir));
-            }
-            var start_atom = con_atoms[dot_products.maxElementIndex()];
-
             // go through the chain of connected atoms and add the force there too
             if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
             {
+                // Get the bond that is closest to grab direction
+                var fwd = HandTracking.Singleton.getForward();
+                var con_atoms = connectedAtoms();
+                var dot_products = new List<float>();
+                foreach (var atom in con_atoms)
+                {
+                    var dir = atom.transform.position - transform.position;
+                    dot_products.Add(Vector3.Dot(fwd, dir));
+                }
+                var start_atom = con_atoms[dot_products.maxElementIndex()];
+
                 GetComponent<MoveAxisConstraint>().enabled = true;
 
                 currentChain = start_atom.connectedChain(this);
@@ -402,7 +402,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     public void OnPointerDragged(MixedRealityPointerEventData eventData)
     {
         // position relative to molecule position
-        EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
+        if (!frozen)
+        {
+            EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
+        }
 
         if (m_data.m_abbre != "Dummy" && GlobalCtrl.Singleton.currentInteractionMode != GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
         {
@@ -423,7 +426,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
 
         // if chain interaction send positions of all connected atoms
-        if (currentChain.Any())
+        if (currentChain.Any() && GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
         {
             foreach (var atom in currentChain)
             {

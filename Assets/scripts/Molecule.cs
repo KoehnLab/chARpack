@@ -51,8 +51,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="eventData"></param>
     public void OnPointerDragged(MixedRealityPointerEventData eventData)
     {
-        // keep everything relative to atom world
-        EventManager.Singleton.MoveMolecule(m_id, transform.localPosition, transform.localRotation);
+        if (!frozen)
+        {
+            // keep everything relative to atom world
+            EventManager.Singleton.MoveMolecule(m_id, transform.localPosition, transform.localRotation);
+        }
     }
 
     /// <summary>
