@@ -122,6 +122,7 @@ public class Bond : MonoBehaviour
 
     public void setShaderProperties()
     {
+
         Color color1 = m_molecule.atomList[atomID1].GetComponent<Renderer>().material.color;
         Color color2 = m_molecule.atomList[atomID2].GetComponent<Renderer>().material.color;
 

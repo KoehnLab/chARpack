@@ -1522,14 +1522,13 @@ public class GlobalCtrl : MonoBehaviour
         molInAir.bondList.Remove(bondInHand);
         Destroy(bondInHand.gameObject);
 
-
-        CreateBond(atom1, atom2, molInAir);
-
         // DEBUG
         //Debug.Log($"[GlobalCtrl:MergeMolecule] Atoms in Molecule {molInAir.atomList.Count}, bonds in Molecule {molInAir.bondList.Count}"); 
 
         molInAir.shrinkAtomIDs();
         shrinkMoleculeIDs();
+
+        CreateBond(atom1, atom2, molInAir);
 
         // Clear selection
         // TODO differentiate between problematic and not problematic cases
