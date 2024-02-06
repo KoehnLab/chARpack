@@ -118,6 +118,7 @@ public class Bond : MonoBehaviour
             GetComponent<Outline>().enabled = false;
             GetComponentInChildren<Renderer>().material = GlobalCtrl.Singleton.bondMat;
         }
+        setShaderProperties();
     }
 
     public void setShaderProperties()

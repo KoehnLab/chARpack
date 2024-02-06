@@ -1342,6 +1342,10 @@ public class GlobalCtrl : MonoBehaviour
         tempData.m_bondNum = calcNumBonds(tempData.m_hybridization, tempData.m_bondNum);
 
         chgAtom.f_Modify(tempData);
+        foreach(Bond b in chgAtom.connectedBonds())
+        {
+            b.setShaderProperties();
+        }
 
         SaveMolecule(true);
         EventManager.Singleton.ChangeMolData(List_curMolecules.ElementAtOrDefault(idMol));
@@ -1430,6 +1434,10 @@ public class GlobalCtrl : MonoBehaviour
         tempData.m_bondNum = calcNumBonds(tempData.m_hybridization, tempData.m_bondNum);
 
         chgAtom.f_Modify(tempData);
+        foreach(Bond b in chgAtom.connectedBonds())
+        {
+            b.setShaderProperties();
+        }
         return true;
     }
 
