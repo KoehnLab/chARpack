@@ -43,10 +43,26 @@ public class MRCaptureManager : MonoBehaviour
         }
         else if (!record)
         {
-            m_VideoCapture.StopRecordingAsync(OnStoppedRecordingVideo);
-
+            if (m_VideoCapture != null)
+            {
+                m_VideoCapture.StopRecordingAsync(OnStoppedRecordingVideo);
+            }
         }
     }
+
+    public bool isRecording()
+    {
+        if (m_VideoCapture != null)
+        {
+            return m_VideoCapture.IsRecording;
+        }
+        else
+        {
+            return false;
+        }
+
+    }
+
     public void StartVideoCapture()
     {
 
