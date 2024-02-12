@@ -72,7 +72,8 @@ public enum ServerToClientID : ushort
     bcastFreezeMolecule,
     bcastStopMoveAtom,
     bcastCreateMeasurement,
-    bcastClearMeasurements
+    bcastClearMeasurements,
+    MRCapture
 }
 
 public enum myDeviceType : ushort

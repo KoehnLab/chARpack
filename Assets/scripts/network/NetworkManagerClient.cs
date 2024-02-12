@@ -486,6 +486,19 @@ public class NetworkManagerClient : MonoBehaviour
         NetworkUtils.deserializeCmlData(message, ref cmlTotalBytes, ref cmlWorld, chunkSize);
     }
 
+    [MessageHandler((ushort)ServerToClientID.MRCapture)]
+    private static void listenForMRCapture(Message message)
+    {
+        var client_id = message.GetUShort();
+        var rec = message.GetBool();
+
+        // start/stop recording
+        if (MRCaptureManager.Singleton)
+        {
+            MRCaptureManager.Singleton.setRecording(rec);
+        }
+    }
+
     [MessageHandler((ushort)ServerToClientID.bcastAtomCreated)]
     private static void getAtomCreated(Message message)
     {

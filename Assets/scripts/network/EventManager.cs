@@ -261,6 +261,13 @@ public class EventManager : MonoBehaviour
         OnClearMeasurements?.Invoke();
     }
 
+    public delegate void MRCaptureAction(ushort client_id, bool rec);
+    public event MRCaptureAction OnMRCapture;
+    public void MRCapture(ushort client_id, bool rec)
+    {
+        OnMRCapture?.Invoke(client_id, rec);
+    }
+
     #endregion
 
 

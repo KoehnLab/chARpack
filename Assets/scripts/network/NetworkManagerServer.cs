@@ -78,6 +78,7 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnChangeMoleculeScale += bcastScaleMolecule;
         EventManager.Singleton.OnCreateMeasurement += bcastCreateMeasurement;
         EventManager.Singleton.OnClearMeasurements += bcastClearMeasurements;
+        EventManager.Singleton.OnMRCapture += sendMRCapture;
 
     }
 
@@ -147,6 +148,13 @@ public class NetworkManagerServer : MonoBehaviour
     public void pushLoadMolecule(List<cmlData> molecule)
     {
         NetworkUtils.serializeCmlData((ushort)ServerToClientID.bcastMoleculeLoad, molecule, chunkSize, false);
+    }
+
+    public void sendMRCapture(ushort client_id, bool rec)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.MRCapture);
+        message.AddBool(rec);
+        Server.Send(message, client_id);
     }
 
     public void bcastMoveAtom(ushort mol_id, ushort atom_id, Vector3 pos)

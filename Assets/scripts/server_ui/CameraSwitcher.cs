@@ -86,13 +86,18 @@ public class CameraSwitcher : MonoBehaviour
                 var userPannelEntryPrefab = (GameObject)Resources.Load("prefabs/UserPannelEntryPrefab");
                 var userPannelEntryInstace = Instantiate(userPannelEntryPrefab, UserPannel.Singleton.transform);
                 userPannelEntryInstace.GetComponentInChildren<TextMeshProUGUI>().text = "ServerCamera";
+                var rec_button = userPannelEntryInstace.transform.Find("RecButton");
+                Destroy(rec_button.gameObject);
                 pannel.Add(id, userPannelEntryInstace);
             }
             else
             {
                 var userPannelEntryPrefab = (GameObject)Resources.Load("prefabs/UserPannelEntryPrefab");
                 var userPannelEntryInstace = Instantiate(userPannelEntryPrefab, UserPannel.Singleton.transform);
-                userPannelEntryInstace.GetComponentInChildren<TextMeshProUGUI>().text = UserServer.list[id].deviceName;
+                var user_rec = userPannelEntryInstace.AddComponent<UserRecordButton>();
+                user_rec.client_id = id;
+                var name_label = userPannelEntryInstace.transform.Find("UserName");
+                name_label.GetComponent<TextMeshProUGUI>().text = UserServer.list[id].deviceName;
                 pannel.Add(id, userPannelEntryInstace);
             }
 
