@@ -79,6 +79,9 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnCreateMeasurement += bcastCreateMeasurement;
         EventManager.Singleton.OnClearMeasurements += bcastClearMeasurements;
         EventManager.Singleton.OnMRCapture += sendMRCapture;
+        EventManager.Singleton.OnFreezeAtom += bcastFreezeAtom;
+        EventManager.Singleton.OnFreezeMolecule += bcastFreezeMolecule;
+
 
     }
 
@@ -382,6 +385,25 @@ public class NetworkManagerServer : MonoBehaviour
     {
         Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastClearMeasurements);
         message.AddUShort(0);
+        Server.SendToAll(message);
+    }
+
+    public void bcastFreezeAtom(ushort mol_id, ushort atom_id, bool freeze)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastFreezeAtom);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        message.AddUShort(atom_id);
+        message.AddBool(freeze);
+        Server.SendToAll(message);
+    }
+
+    public void bcastFreezeMolecule(ushort mol_id, bool freeze)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastFreezeMolecule);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        message.AddBool(freeze);
         Server.SendToAll(message);
     }
 
