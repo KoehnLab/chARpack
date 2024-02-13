@@ -35,10 +35,14 @@ public class Bond : MonoBehaviour
         gameObject.tag = "Bond";
         gameObject.layer = 7;
         m_molecule.bondList.Add(this);
-        transform.position = (_atom1.transform.position + _atom2.transform.position) / 2;
+        float offset1 = _atom1.m_data.m_radius * ForceField.scalingfactor/10;
+        float offset2 = _atom2.m_data.m_radius * ForceField.scalingfactor/10;
+        float distance = (Vector3.Distance(_atom1.transform.position, _atom2.transform.position) - offset1 - offset2) / m_molecule.transform.localScale.x;
+        Vector3 pos1 = Vector3.MoveTowards(_atom1.transform.position, _atom2.transform.position, offset1*m_molecule.transform.localScale.x);
+        Vector3 pos2 = Vector3.MoveTowards(_atom2.transform.position, _atom1.transform.position, offset2*m_molecule.transform.localScale.x);
+        transform.position = (pos1 + pos2) / 2;
         transform.LookAt(_atom1.transform);
         transform.parent = inputMole.transform;
-        float distance = Vector3.Distance(_atom1.transform.position, _atom2.transform.position);
         transform.localScale = new Vector3(m_bondOrder, m_bondOrder, distance);
         setShaderProperties();
     }

@@ -1007,9 +1007,13 @@ public class ForceField : MonoBehaviour
             {
                 Atom a1 = mol.atomList.ElementAtOrDefault(bond.atomID1);
                 Atom a2 = mol.atomList.ElementAtOrDefault(bond.atomID2);
-                float distance = Vector3.Distance(a1.transform.position, a2.transform.position) / mol.transform.localScale.x;
+                float offset1 = a1.m_data.m_radius * scalingfactor/10;
+                float offset2 = a2.m_data.m_radius * scalingfactor/10;
+                float distance = (Vector3.Distance(a1.transform.position, a2.transform.position)- offset1 - offset2) / mol.transform.localScale.x;
                 bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
-                bond.transform.position = (a1.transform.position + a2.transform.position) / 2;
+                Vector3 pos1 = Vector3.MoveTowards(a1.transform.position, a2.transform.position, offset1*mol.transform.localScale.x);
+                Vector3 pos2 = Vector3.MoveTowards(a2.transform.position, a1.transform.position, offset2*mol.transform.localScale.x);
+                bond.transform.position = (pos1 + pos2) / 2;
                 bond.transform.LookAt(a2.transform.position);
             }
         }
