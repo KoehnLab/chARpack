@@ -654,6 +654,8 @@ public class GlobalCtrl : MonoBehaviour
             a.m_molecule.shrinkAtomIDs();
         }
 
+        reloadShaders();
+
 
         SaveMolecule(true);
         // invoke data change event for new molecules
@@ -662,6 +664,17 @@ public class GlobalCtrl : MonoBehaviour
             EventManager.Singleton.ChangeMolData(m);
         }
         return true;
+    }
+
+    private void reloadShaders()
+    {
+        foreach(Molecule m in List_curMolecules)
+        {
+            foreach(Bond b in m.bondList)
+            {
+                b.setShaderProperties();
+            }
+        }
     }
 
     public void toggleKeepConfigUI(Molecule to_switch)
@@ -1534,9 +1547,8 @@ public class GlobalCtrl : MonoBehaviour
         //Debug.Log($"[GlobalCtrl:MergeMolecule] Atoms in Molecule {molInAir.atomList.Count}, bonds in Molecule {molInAir.bondList.Count}"); 
 
         molInAir.shrinkAtomIDs();
-        shrinkMoleculeIDs();
-
         CreateBond(atom1, atom2, molInAir);
+        shrinkMoleculeIDs();
 
         // Clear selection
         // TODO differentiate between problematic and not problematic cases

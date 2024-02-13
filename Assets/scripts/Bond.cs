@@ -123,6 +123,7 @@ public class Bond : MonoBehaviour
 
     public void setShaderProperties()
     {
+        if (atomID1 >= m_molecule.atomList.Count || atomID2 >= m_molecule.atomList.Count) { return; }
 
         Color color1 = m_molecule.atomList[atomID1].GetComponent<Renderer>().material.color;
         Color color2 = m_molecule.atomList[atomID2].GetComponent<Renderer>().material.color;
