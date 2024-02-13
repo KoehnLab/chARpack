@@ -820,8 +820,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             Atom a2 = m_molecule.atomList.ElementAtOrDefault(bond.atomID2);
             var a1_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a1.transform.position);
             var a2_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a2.transform.position);
-            float offset1 = a1.m_data.m_radius * ForceField.scalingfactor;
-            float offset2 = a2.m_data.m_radius * ForceField.scalingfactor;
+            float offset1 = a1.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f;
+            float offset2 = a2.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f;
             float distance = (Vector3.Distance(a1_pos, a2_pos) - offset1 - offset2) / m_molecule.transform.localScale.x;
             bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
             Vector3 pos1 = Vector3.MoveTowards(a1_pos, a2_pos, offset1*m_molecule.transform.localScale.x);
