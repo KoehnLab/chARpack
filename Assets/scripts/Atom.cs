@@ -177,13 +177,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         if (SceneManager.GetActiveScene().name == "ServerScene")
         {
-            if (Input.GetMouseButtonDown(1) && mouseOverAtom())
+            if (Input.GetMouseButtonDown(1) && Input.GetKey(KeyCode.LeftShift) && mouseOverAtom())
             {
                 arcball = true; anyArcball = true;
                 oldMousePosition = Input.mousePosition;
                 newMousePosition = Input.mousePosition;
             }
-            if (Input.GetMouseButtonUp(1))
+            if (Input.GetMouseButtonUp(1) || !Input.GetKey(KeyCode.LeftShift))
             {
                 arcball = false; anyArcball = false;
             }
@@ -205,6 +205,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     var axis_world = cameraToObjectMatrix * axis_cam;
 
                     m_molecule.transform.RotateAround(transform.position, axis_world, 2 * Mathf.Rad2Deg * angle);
+                    EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
                 }
             }
         }
