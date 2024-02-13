@@ -782,6 +782,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             numConnected++;
         }
 
+        foreach(Atom a in connectedAtoms())
+        {
+            Bond bond = getBond(a);
+            bond.setShaderProperties();
+        }
+
         m_molecule.shrinkAtomIDs();
 
         // Debug.Log(string.Format("Modified latest {0}:  rad={1}   scale={2} ", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale));

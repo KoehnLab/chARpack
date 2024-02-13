@@ -1342,6 +1342,10 @@ public class GlobalCtrl : MonoBehaviour
         tempData.m_bondNum = calcNumBonds(tempData.m_hybridization, tempData.m_bondNum);
 
         chgAtom.f_Modify(tempData);
+        foreach(Bond b in chgAtom.connectedBonds())
+        {
+            b.setShaderProperties();
+        }
 
         SaveMolecule(true);
         EventManager.Singleton.ChangeMolData(List_curMolecules.ElementAtOrDefault(idMol));
@@ -1430,6 +1434,10 @@ public class GlobalCtrl : MonoBehaviour
         tempData.m_bondNum = calcNumBonds(tempData.m_hybridization, tempData.m_bondNum);
 
         chgAtom.f_Modify(tempData);
+        foreach(Bond b in chgAtom.connectedBonds())
+        {
+            b.setShaderProperties();
+        }
         return true;
     }
 
@@ -1522,18 +1530,22 @@ public class GlobalCtrl : MonoBehaviour
         molInAir.bondList.Remove(bondInHand);
         Destroy(bondInHand.gameObject);
 
-
-        CreateBond(atom1, atom2, molInAir);
-
         // DEBUG
         //Debug.Log($"[GlobalCtrl:MergeMolecule] Atoms in Molecule {molInAir.atomList.Count}, bonds in Molecule {molInAir.bondList.Count}"); 
 
         molInAir.shrinkAtomIDs();
         shrinkMoleculeIDs();
 
+        CreateBond(atom1, atom2, molInAir);
+
         // Clear selection
         // TODO differentiate between problematic and not problematic cases
         molInAir.markMolecule(false);
+
+        foreach(Bond bond in molInAir.bondList)
+        {
+            bond.setShaderProperties();
+        }
 
         SaveMolecule(true);
 

@@ -38,7 +38,7 @@ public class Bond : MonoBehaviour
         transform.parent = inputMole.transform;
         float distance = Vector3.Distance(_atom1.transform.position, _atom2.transform.position);
         transform.localScale = new Vector3(m_bondOrder, m_bondOrder, distance);
-
+        setShaderProperties();
     }
 
     /// <summary>
@@ -118,6 +118,31 @@ public class Bond : MonoBehaviour
             GetComponent<Outline>().enabled = false;
             GetComponentInChildren<Renderer>().material = GlobalCtrl.Singleton.bondMat;
         }
+        setShaderProperties();
+    }
+
+    public void setShaderProperties()
+    {
+
+        Color color1 = m_molecule.atomList[atomID1].GetComponent<Renderer>().material.color;
+        Color color2 = m_molecule.atomList[atomID2].GetComponent<Renderer>().material.color;
+
+        Renderer renderer = gameObject.GetComponentInChildren<Renderer>();
+
+        if (m_molecule.atomList[atomID1].m_data.m_abbre.Equals("Dummy"))
+        {
+            color1 = new Color(0.7f,0.7f,0.7f);
+        }
+        if (m_molecule.atomList[atomID2].m_data.m_abbre.Equals("Dummy"))
+        {
+            color2 = new Color(0.7f, 0.7f, 0.7f);
+        }
+
+        color1.a = 0.5f;
+        color2.a = 0.5f;
+
+        renderer.material.SetVector("_Color1", color1);
+        renderer.material.SetVector("_Color2", color2);
     }
 
 }
