@@ -6,9 +6,6 @@ using UnityEngine.Windows.WebCam;
 
 public class MRCaptureManager : MonoBehaviour
 {
-    static readonly float MaxRecordingTime = 5.0f;
-
-
     private static MRCaptureManager _singleton;
     public static MRCaptureManager Singleton
     {
@@ -30,10 +27,7 @@ public class MRCaptureManager : MonoBehaviour
         Singleton = this;
     }
 
-
     VideoCapture m_VideoCapture = null;
-    float m_stopRecordingTimer = float.MaxValue;
-
 
     public void setRecording(bool record)
     {
