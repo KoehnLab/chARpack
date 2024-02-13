@@ -1547,8 +1547,9 @@ public class GlobalCtrl : MonoBehaviour
         //Debug.Log($"[GlobalCtrl:MergeMolecule] Atoms in Molecule {molInAir.atomList.Count}, bonds in Molecule {molInAir.bondList.Count}"); 
 
         molInAir.shrinkAtomIDs();
-        CreateBond(atom1, atom2, molInAir);
         shrinkMoleculeIDs();
+
+        CreateBond(atom1, atom2, molInAir);
 
         // Clear selection
         // TODO differentiate between problematic and not problematic cases
