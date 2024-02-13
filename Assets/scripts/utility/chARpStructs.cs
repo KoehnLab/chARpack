@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using System.Xml.Serialization;
 using System.ComponentModel;
+using System.Linq;
 
 namespace chARpStructs
 {
@@ -330,5 +331,48 @@ namespace chARpStructs
         {
             return new SaveableQuaternion(q.x, q.y, q.z, q.w);
         }
+    }
+
+    public struct AtomList
+    {
+        private List<Guid> ids;
+        private List<Atom> atoms;
+        private List<bool> in_scene;
+
+        public void Add(Atom a)
+        {
+            var id = Guid.NewGuid();
+            ids.Add(id);
+            atoms.Add(a);
+            in_scene.Add(true);
+        }
+
+        public void Add(Atom a, Guid id)
+        {
+            ids.Add(id);
+            atoms.Add(a);
+            in_scene.Add(true);
+        }
+
+        public Atom GetAtom(Guid id)
+        {
+            var list_id = ids.IndexOf(id);
+            if (in_scene[list_id])
+            {
+                return atoms[list_id];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public List<Atom> GetAtoms()
+        {
+            var local_inscene = in_scene;
+            return atoms.Where((atom, index) => local_inscene[index]).ToList();
+        }
+    
+
     }
 }

@@ -3,6 +3,7 @@ using UnityEngine;
 using chARpStructs;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace Riptide.Utils
 {
@@ -156,6 +157,22 @@ namespace Riptide.Utils
             term.eqAngle = message.GetFloat();
             term.nn = message.GetUShort();
             return term;
+        }
+        #endregion
+
+        #region Guid
+        public static Message AddGuid(this Message message, Guid value) => Add(message, value);
+
+        public static Message Add(this Message message, Guid value)
+        {
+            message.AddBytes(value.ToByteArray());
+            return message;
+        }
+
+        public static Guid GetGuid(this Message message)
+        {
+            var guid_bytes = message.GetBytes();
+            return new Guid(guid_bytes);
         }
         #endregion
     }
