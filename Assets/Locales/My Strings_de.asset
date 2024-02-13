@@ -334,6 +334,14 @@ MonoBehaviour:
     m_Localized: Messungen synchronisieren
     m_Metadata:
       m_Items: []
+  - m_Id: 82701048467668992
+    m_Localized: Visuelle Einstellungen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 82701371655569408
+    m_Localized: Bindungsfarbe interpolieren
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

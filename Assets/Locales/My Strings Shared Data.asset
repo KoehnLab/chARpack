@@ -329,6 +329,14 @@ MonoBehaviour:
     m_Key: Settings/Settings/CoopSettings/ButtonCollection/NetworkMeasurements/IconAndText/TextMeshPro
     m_Metadata:
       m_Items: []
+  - m_Id: 82701048467668992
+    m_Key: VisualSettings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 82701371655569408
+    m_Key: InterpolateBondColors
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
