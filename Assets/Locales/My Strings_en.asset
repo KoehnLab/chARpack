@@ -334,6 +334,14 @@ MonoBehaviour:
     m_Localized: Network Measurements
     m_Metadata:
       m_Items: []
+  - m_Id: 82701048467668992
+    m_Localized: Visual Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 82701371655569408
+    m_Localized: Interpolate Bond Colors
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

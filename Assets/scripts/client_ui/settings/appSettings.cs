@@ -62,6 +62,7 @@ public class appSettings : MonoBehaviour
     public GameObject UserBoxIndicator;
     public GameObject UserRayIndicator;
     public GameObject NetworkMeasurementIndicator;
+    public GameObject ColorInterpolationIndicator;
     // Time factor sliders
     public GameObject EulerTimeFactorSlider;
     public GameObject SVTimeFactorSlider;
@@ -234,7 +235,9 @@ public class appSettings : MonoBehaviour
             LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("en");
         }
     }
+    #endregion
 
+    #region Visual Settings
     /// <summary>
     /// Toggles gaze highlighting of atoms (atoms are marked with a white outline 
     /// when a user looks at them).
@@ -256,7 +259,25 @@ public class appSettings : MonoBehaviour
         SettingsData.pointerHighlighting = !SettingsData.pointerHighlighting;
         updateVisuals();
     }
-#endregion
+
+    /// <summary>
+    /// Toggles whether to interpolate the colors on bonds.
+    /// Interpolation results in a smoother look, no interpolation results in the classic
+    /// image of a bond in two solid colors, separated in the middle.
+    /// </summary>
+    public void toggleColorInterpolation()
+    {
+        Bond.interpolateColors = !Bond.interpolateColors;
+        GlobalCtrl.Singleton.reloadShaders();
+        updateVisuals();
+    }
+
+    public void toggleVisualSettingsMenu()
+    {
+        GameObject visualSettingsMenu = gameObject.transform.Find("VisualSettings").gameObject;
+        visualSettingsMenu.SetActive(!visualSettingsMenu.activeSelf);
+    }
+    #endregion
 
     #region Integration method
     /// <summary>
@@ -516,6 +537,7 @@ public class appSettings : MonoBehaviour
         setVisual(HandRayIndicator, SettingsData.handRay);
         setVisual(ForceFieldIndicator, SettingsData.forceField);
         setVisual(SpatialMeshIndicator, SettingsData.spatialMesh);
+        setVisual(ColorInterpolationIndicator, Bond.interpolateColors);
 
         if (DebugWindow.Singleton == null)
         {

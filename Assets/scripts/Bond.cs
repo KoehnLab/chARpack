@@ -17,6 +17,8 @@ public class Bond : MonoBehaviour
     [HideInInspector] public Molecule m_molecule;
     [HideInInspector] public bool isMarked = false;
 
+    public static bool interpolateColors = true;
+
     /// <summary>
     /// initialises the bond between two atoms
     /// </summary>
@@ -144,6 +146,8 @@ public class Bond : MonoBehaviour
 
         renderer.material.SetVector("_Color1", color1);
         renderer.material.SetVector("_Color2", color2);
+        // Shader graphs don't have setBool, so workaround using floats
+        renderer.material.SetFloat("_InterpolateColors", interpolateColors ? 1.0f : 0.0f);
     }
 
 }

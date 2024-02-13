@@ -666,7 +666,7 @@ public class GlobalCtrl : MonoBehaviour
         return true;
     }
 
-    private void reloadShaders()
+    public void reloadShaders()
     {
         foreach(Molecule m in List_curMolecules)
         {
