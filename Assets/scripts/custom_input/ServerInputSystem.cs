@@ -19,7 +19,7 @@ public class ServerInputSystem : MonoBehaviour
                 doCameraMovement();
             }
         }
-        doManipulation();
+        cameraMouseManipulation();
         createStuff();
         selectWholeMolecule();
     }
@@ -60,7 +60,7 @@ public class ServerInputSystem : MonoBehaviour
         }
     }
 
-    private void doManipulation()
+    private void cameraMouseManipulation()
     {
         if (Input.GetMouseButton(1))
         {
