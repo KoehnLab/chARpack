@@ -322,6 +322,7 @@ public class GlobalCtrl : MonoBehaviour
         mainCamera = Camera.main;
         // for use in mouse events
         currentCamera = mainCamera;
+        Debug.Log($"DEVICE Type: {SystemInfo.deviceType}, Model: {SystemInfo.deviceModel}");
     }
 
     private void Update()

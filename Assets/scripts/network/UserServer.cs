@@ -124,6 +124,7 @@ public class UserServer : MonoBehaviour
 
     private void periodicStatusRequests()
     {
+        // TODO Refine device type checks
         if (deviceType == myDeviceType.AR)
         {
             InvokeRepeating("requestBatteryState", 1.0f, 30.0f);

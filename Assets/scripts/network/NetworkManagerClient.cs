@@ -194,22 +194,18 @@ public class NetworkManagerClient : MonoBehaviour
     /// </summary>
     public ushort getDeviceType()
     {
+        if (SystemInfo.deviceModel.ToLower().Contains("hololens"))
+        {
+            return (ushort)myDeviceType.AR;
+        }
+        if (SystemInfo.deviceModel.ToLower().Contains("quest"))
+        {
+            return (ushort)myDeviceType.XR;
+        }
         if (SystemInfo.deviceType == DeviceType.Desktop)
         {
             return (ushort)myDeviceType.PC;
         }
-        else
-        {
-            if (SystemInfo.deviceModel.ToLower().Contains("hololens"))
-            {
-                return (ushort)myDeviceType.AR;
-            }
-            else if (SystemInfo.deviceModel.ToLower().Contains("oculus"))
-            {
-                return (ushort)myDeviceType.XR;
-            }
-        }
-
         return (ushort)myDeviceType.Unknown;
     }
 
