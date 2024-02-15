@@ -53,10 +53,6 @@ public class UserServer : MonoBehaviour
         } }
 
 
-
-
-
-
     public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_, Vector3 offset_pos, Quaternion offset_rot)
     {
         foreach (UserServer otherUser in list.Values)
@@ -128,7 +124,6 @@ public class UserServer : MonoBehaviour
         if (deviceType == myDeviceType.AR)
         {
             InvokeRepeating("requestBatteryState", 1.0f, 30.0f);
-            InvokeRepeating("requestBatteryLevel", 1.0f, 30.0f);
         }
     }
 
@@ -166,7 +161,7 @@ public class UserServer : MonoBehaviour
 
     public void requestBatteryState()
     {
-        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.requestEyeCalibrationState);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.requestBatteryState);
         NetworkManagerServer.Singleton.Server.Send(message, ID);
     }
 
@@ -178,6 +173,8 @@ public class UserServer : MonoBehaviour
 
         list[fromClientId].batteryStatus = status;
         list[fromClientId].batteryLevel = level;
+
+        Debug.Log($"Battery status: {status}, level: {level}");
 
     }
 

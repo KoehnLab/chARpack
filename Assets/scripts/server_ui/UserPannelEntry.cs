@@ -141,7 +141,7 @@ public class UserPannelEntry : MonoBehaviour
 
     public void updateBatteryLevel(float level)
     {
-        battery_level_label.text = $"{level:0}%";
+        battery_level_label.text = $"{(level*100):0}%";
     }
 
 }
