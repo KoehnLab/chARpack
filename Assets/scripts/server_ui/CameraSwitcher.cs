@@ -91,10 +91,9 @@ public class CameraSwitcher : MonoBehaviour
             {
 
                 user_pannel_entry.user_name_label.text = "ServerCamera";
-                var rec_button = userPannelEntryInstace.transform.Find("RecButton");
-                Destroy(rec_button.gameObject);
-                var eye_cali = userPannelEntryInstace.transform.Find("EyeCalibrationIndicator");
-                Destroy(eye_cali.gameObject);
+                user_pannel_entry.canRecord(false);
+                user_pannel_entry.hasEyeTracking(false);
+                user_pannel_entry.hasBattery(false);
                 pannel.Add(id, userPannelEntryInstace);
             }
             else
@@ -102,15 +101,9 @@ public class CameraSwitcher : MonoBehaviour
                 user_pannel_entry.user_name_label.text= UserServer.list[id].deviceName;
 
                 var eye_cali = userPannelEntryInstace.transform.Find("EyeCalibrationIndicator");
-                if (eye_cali)
-                {
-                    eye_cali.GetComponent<Button>().onClick.AddListener(delegate { UserServer.list[id].requestEyeCalibrationState(); });
-                }
-                else
-                {
-                    Debug.LogError("[CameraSwitcher] Could not find object 'EyeCalibrationIndicator'");
-                }
-                UserServer.list[id].requestEyeCalibrationState();
+                user_pannel_entry.canRecord(true);
+                user_pannel_entry.hasEyeTracking(true);
+                user_pannel_entry.hasBattery(true);
                 pannel.Add(id, userPannelEntryInstace);
             }
 

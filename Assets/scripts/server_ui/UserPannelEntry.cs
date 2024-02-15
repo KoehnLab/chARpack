@@ -35,17 +35,16 @@ public class UserPannelEntry : MonoBehaviour
     public GameObject device_type_visual_go;
     public TextMeshProUGUI device_type_label;
 
-    private void Start()
-    {
-        rec_button.onClick.AddListener(delegate { recPressed(); });
-        eye_calib_visual_go.GetComponent<Button>().onClick.AddListener(delegate { eyeCalibPressed(); });
-    }
 
     public void hasEyeTracking(bool value)
     {
         if (!value)
         {
             Destroy(eye_calib_visual_go);
+        }
+        else
+        {
+            eye_calib_visual_go.GetComponent<Button>().onClick.AddListener(delegate { eyeCalibPressed(); });
         }
     }
 
@@ -55,6 +54,18 @@ public class UserPannelEntry : MonoBehaviour
         {
             Destroy(battery_level_visual_go);
             Destroy(battery_status_visual_go);
+        }
+    }
+
+    public void canRecord(bool value)
+    {
+        if (!value)
+        {
+            Destroy(rec_button_go);
+        }
+        else
+        {
+            rec_button.onClick.AddListener(delegate { recPressed(); });
         }
     }
 
