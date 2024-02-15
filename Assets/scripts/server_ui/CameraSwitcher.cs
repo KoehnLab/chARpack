@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.UI;
 
 public class CameraSwitcher : MonoBehaviour
 {
@@ -31,6 +32,7 @@ public class CameraSwitcher : MonoBehaviour
     private Dictionary<ushort, Camera> cameras = new Dictionary<ushort, Camera>();
 
     public GameObject mainCamGO;
+    private GameObject userPannelEntryPrefab;
 
     private Camera currentCam_;
 
@@ -57,6 +59,7 @@ public class CameraSwitcher : MonoBehaviour
 
     private void Start()
     {
+        userPannelEntryPrefab = (GameObject)Resources.Load("prefabs/UserPannelEntryPrefab");
         currentCam = mainCamGO.GetComponent<Camera>();
         addCamera(0, currentCam);
     }
@@ -80,27 +83,36 @@ public class CameraSwitcher : MonoBehaviour
         }
         if (!cameras.ContainsKey(id))
         {
+            var userPannelEntryInstace = Instantiate(userPannelEntryPrefab, UserPannel.Singleton.transform);
+            var user_pannel_entry = userPannelEntryInstace.AddComponent<UserPannelEntry>();
+            user_pannel_entry.client_id = id;
             // create UI entry
             if (id == 0)
             {
-                var userPannelEntryPrefab = (GameObject)Resources.Load("prefabs/UserPannelEntryPrefab");
-                var userPannelEntryInstace = Instantiate(userPannelEntryPrefab, UserPannel.Singleton.transform);
-                userPannelEntryInstace.GetComponentInChildren<TextMeshProUGUI>().text = "ServerCamera";
+
+                user_pannel_entry.user_name_label.text = "ServerCamera";
                 var rec_button = userPannelEntryInstace.transform.Find("RecButton");
                 Destroy(rec_button.gameObject);
+                var eye_cali = userPannelEntryInstace.transform.Find("EyeCalibrationIndicator");
+                Destroy(eye_cali.gameObject);
                 pannel.Add(id, userPannelEntryInstace);
             }
             else
             {
-                var userPannelEntryPrefab = (GameObject)Resources.Load("prefabs/UserPannelEntryPrefab");
-                var userPannelEntryInstace = Instantiate(userPannelEntryPrefab, UserPannel.Singleton.transform);
-                var user_rec = userPannelEntryInstace.AddComponent<UserRecordButton>();
-                user_rec.client_id = id;
-                var name_label = userPannelEntryInstace.transform.Find("UserName");
-                name_label.GetComponent<TextMeshProUGUI>().text = UserServer.list[id].deviceName;
+                user_pannel_entry.user_name_label.text= UserServer.list[id].deviceName;
+
+                var eye_cali = userPannelEntryInstace.transform.Find("EyeCalibrationIndicator");
+                if (eye_cali)
+                {
+                    eye_cali.GetComponent<Button>().onClick.AddListener(delegate { UserServer.list[id].requestEyeCalibrationState(); });
+                }
+                else
+                {
+                    Debug.LogError("[CameraSwitcher] Could not find object 'EyeCalibrationIndicator'");
+                }
+                UserServer.list[id].requestEyeCalibrationState();
                 pannel.Add(id, userPannelEntryInstace);
             }
-
 
             cameras[id] = cam;
             if (currentCam == cam)

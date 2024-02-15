@@ -73,7 +73,7 @@ public class MRCaptureManager : MonoBehaviour
                 m_VideoCapture = videoCapture;
 
                 CameraParameters cameraParameters = new CameraParameters();
-                cameraParameters.hologramOpacity = 0.7f;
+                cameraParameters.hologramOpacity = 1.0f;
                 cameraParameters.frameRate = cameraFramerate;
                 cameraParameters.cameraResolutionWidth = cameraResolution.width;
                 cameraParameters.cameraResolutionHeight = cameraResolution.height;
