@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UserPannelEntry : MonoBehaviour
+public class UserPanelEntry : MonoBehaviour
 {
 
     private bool recording = false;

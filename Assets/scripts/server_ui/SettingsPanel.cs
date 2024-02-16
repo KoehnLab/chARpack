@@ -7,7 +7,7 @@ using UnityEngine.UI;
 /// <summary>
 /// This class provides the functionality for the server-side settings panel.
 /// </summary>
-public class SettingsPannel : MonoBehaviour
+public class SettingsPanel : MonoBehaviour
 {
 
     public GameObject bondStiffnessSlider;
@@ -139,7 +139,7 @@ public class SettingsPannel : MonoBehaviour
     /// <summary>
     /// Toggles visibility of the settings panel.
     /// </summary>
-    public void togglePannel()
+    public void togglePanel()
     {
         var active = gameObject.activeSelf;
         gameObject.SetActive(!active);

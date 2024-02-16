@@ -20,18 +20,18 @@ public class UserServer : MonoBehaviour
     public bool eyeCalibrationState { get => _eyeCalibrationState; set
         {
             _eyeCalibrationState = value;
-            if (CameraSwitcher.Singleton)
+            if (CameraSwitcher.Singleton && CameraSwitcher.Singleton.panel.ContainsKey(ID))
             {
-                CameraSwitcher.Singleton.pannel[ID].GetComponent<UserPannelEntry>().updateEyeCalibrationState(value);
+                CameraSwitcher.Singleton.panel[ID].GetComponent<UserPanelEntry>().updateEyeCalibrationState(value);
             }
         } 
     }
     private BatteryStatus _batteryStatus = BatteryStatus.Unknown;
     public BatteryStatus batteryStatus { get => _batteryStatus; set { 
             _batteryStatus = value;
-            if (CameraSwitcher.Singleton)
+            if (CameraSwitcher.Singleton && CameraSwitcher.Singleton.panel.ContainsKey(ID))
             {
-                CameraSwitcher.Singleton.pannel[ID].GetComponent<UserPannelEntry>().updateBatteryStaus(value);
+                CameraSwitcher.Singleton.panel[ID].GetComponent<UserPanelEntry>().updateBatteryStaus(value);
             }
         } }
     private float _batteryLevel = -1.0f;
@@ -40,15 +40,18 @@ public class UserServer : MonoBehaviour
             _batteryLevel = value;
             if (CameraSwitcher.Singleton)
             {
-                CameraSwitcher.Singleton.pannel[ID].GetComponent<UserPannelEntry>().updateBatteryLevel(value);
+                if (CameraSwitcher.Singleton.panel.ContainsKey(ID) && CameraSwitcher.Singleton.panel.ContainsKey(ID))
+                {
+                    CameraSwitcher.Singleton.panel[ID].GetComponent<UserPanelEntry>().updateBatteryLevel(value);
+                }
             }
         } }
     private myDeviceType _deviceType;
     public myDeviceType deviceType { get => _deviceType; set { 
             _deviceType = value;
-            if (CameraSwitcher.Singleton)
+            if (CameraSwitcher.Singleton && CameraSwitcher.Singleton.panel.ContainsKey(ID))
             {
-                CameraSwitcher.Singleton.pannel[ID].GetComponent<UserPannelEntry>().updateDeviceType(value);
+                CameraSwitcher.Singleton.panel[ID].GetComponent<UserPanelEntry>().updateDeviceType(value);
             }
         } }
 
@@ -74,6 +77,8 @@ public class UserServer : MonoBehaviour
         user.ID = id_;
         user.offsetPos = offset_pos;
         user.offsetRot = offset_rot;
+        user.deviceType = deviceType_;
+
 
         anchor.name = user.deviceName;
 
@@ -97,9 +102,10 @@ public class UserServer : MonoBehaviour
         user.sendSpawned();
         list.Add(id_, user);
 
-        // add user to pannel
+
+        // add user to panel
         CameraSwitcher.Singleton.addCamera(id_, cubeUser.GetComponent<Camera>());
-        // has to be set after the pannel is created
+        // have to add device again to update visual
         user.deviceType = deviceType_;
 
         // perodically request status from devices

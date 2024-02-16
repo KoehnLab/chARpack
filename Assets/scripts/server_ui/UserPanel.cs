@@ -1,10 +1,10 @@
 using UnityEngine;
 
-public class UserPannel : MonoBehaviour
+public class UserPanel : MonoBehaviour
 {
-    private static UserPannel _singleton;
+    private static UserPanel _singleton;
 
-    public static UserPannel Singleton
+    public static UserPanel Singleton
     {
         get => _singleton;
         private set
@@ -15,7 +15,7 @@ public class UserPannel : MonoBehaviour
             }
             else if (_singleton != value)
             {
-                Debug.Log($"[{nameof(UserPannel)}] Instance already exists, destroying duplicate!");
+                Debug.Log($"[{nameof(UserPanel)}] Instance already exists, destroying duplicate!");
                 Destroy(value);
             }
 

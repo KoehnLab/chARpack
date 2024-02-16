@@ -131,7 +131,7 @@ public class NetworkManagerServer : MonoBehaviour
     private void ClientDisconnected(object sender, ServerDisconnectedEventArgs e)
     {
         Debug.Log($"[NetworkManagerServer] Client {e.Client.Id} disconnected. Cleaning up.");
-        // destroy user gameObject and pannel entry
+        // destroy user gameObject and panel entry
         if (UserServer.list.ContainsKey(e.Client.Id))
         {
             Destroy(UserServer.list[e.Client.Id].gameObject);

@@ -82,10 +82,10 @@ public enum ServerToClientID : ushort
 
 public enum myDeviceType : ushort
 {
+    Unknown = 0,
     AR = 1,
     Mobile = 2,
     PC = 3,
     VR = 4,
-    XR = 5,
-    Unknown = 6
+    XR = 5
 }
