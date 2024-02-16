@@ -90,7 +90,7 @@ public class CameraSwitcher : MonoBehaviour
 
             user_pannel_entry.user_name_label.text = id == 0 ? "ServerCamera" : UserServer.list[id].deviceName;
 
-            if (UserServer.list[id].deviceType == myDeviceType.PC)
+            if (id == 0 || UserServer.list[id].deviceType == myDeviceType.PC)
             {
                 user_pannel_entry.canRecord(false);
                 user_pannel_entry.hasEyeTracking(false);
