@@ -105,7 +105,11 @@ public class UserServer : MonoBehaviour
         // perodically request status from devices
         if (id_ > 0)
         {
-            user.periodicStatusRequests();
+            if (deviceType_ != myDeviceType.PC)
+            {
+                user.requestEyeCalibrationState();
+                user.periodicStatusRequests();
+            }
         }
 
         // TODO: Probably not necessary
@@ -120,11 +124,7 @@ public class UserServer : MonoBehaviour
 
     private void periodicStatusRequests()
     {
-        // TODO Refine device type checks
-        if (deviceType == myDeviceType.AR)
-        {
-            InvokeRepeating("requestBatteryState", 1.0f, 30.0f);
-        }
+        InvokeRepeating("requestBatteryState", 1.0f, 30.0f);
     }
 
     private void OnDestroy()

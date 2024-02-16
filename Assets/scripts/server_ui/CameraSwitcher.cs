@@ -83,26 +83,26 @@ public class CameraSwitcher : MonoBehaviour
         }
         if (!cameras.ContainsKey(id))
         {
+            // create UI entry
             var userPannelEntryInstace = Instantiate(userPannelEntryPrefab, UserPannel.Singleton.transform);
             var user_pannel_entry = userPannelEntryInstace.GetComponent<UserPannelEntry>();
             user_pannel_entry.client_id = id;
-            // create UI entry
-            if (id == 0)
+
+            user_pannel_entry.user_name_label.text = id == 0 ? "ServerCamera" : UserServer.list[id].deviceName;
+
+            if (UserServer.list[id].deviceType == myDeviceType.PC)
             {
-                user_pannel_entry.user_name_label.text = "ServerCamera";
-                // TODO add device type
                 user_pannel_entry.canRecord(false);
                 user_pannel_entry.hasEyeTracking(false);
                 user_pannel_entry.hasBattery(false);
             }
             else
             {
-                user_pannel_entry.user_name_label.text= UserServer.list[id].deviceName;
-                // TODO add device type checks
                 user_pannel_entry.canRecord(true);
                 user_pannel_entry.hasEyeTracking(true);
                 user_pannel_entry.hasBattery(true);
             }
+
             pannel.Add(id, userPannelEntryInstace);
 
             cameras[id] = cam;
