@@ -1,7 +1,7 @@
 using Microsoft.MixedReality.Toolkit.UI;
 using Riptide;
 using Riptide.Utils;
-using chARpStructs;
+using chARpackStructs;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -94,7 +94,7 @@ public class MRCaptureManager : MonoBehaviour
     {
         Debug.Log("[MRCaptureManager] MR Capture Started!");
         string timeStamp = Time.time.ToString().Replace(".", "").Replace(":", "");
-        string filename = string.Format("chARp_capture_{0}.mp4", timeStamp);
+        string filename = string.Format("chARpack_capture_{0}.mp4", timeStamp);
         string filepath = System.IO.Path.Combine(Application.persistentDataPath, filename);
         filepath = filepath.Replace("/", @"\");
         m_VideoCapture.StartRecordingAsync(filepath, OnStartedRecordingVideo);

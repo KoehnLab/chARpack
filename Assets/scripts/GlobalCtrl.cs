@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using chARpStructs;
+using chARpackStructs;
 using System.IO;
 using System;
 using System.Globalization;
@@ -15,9 +15,10 @@ using Microsoft.MixedReality.Toolkit.Input;
 using System.Linq;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using chARpackTypes;
 
 /*! \mainpage 
- * API reference page for chARp Molecular builder
+ * API reference page for chARpack
  */
 
 [Serializable]

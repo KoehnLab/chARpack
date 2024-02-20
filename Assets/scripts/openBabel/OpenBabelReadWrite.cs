@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Diagnostics;
 using System.IO;
-using chARpStructs;
+using chARpackStructs;
 using OpenBabel;
 using System.Collections;
 using System.Threading.Tasks;

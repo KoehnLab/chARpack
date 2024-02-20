@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 using System.ComponentModel;
 using System.Linq;
 
-namespace chARpStructs
+namespace chARpackStructs
 {
     /// <summary>
     /// elements with their order are saved here

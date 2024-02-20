@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using System;
+using chARpackTypes;
 
 /// <summary>
 /// This class provides tools for dynamically measuring the distance between atoms.

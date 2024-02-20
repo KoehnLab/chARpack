@@ -1,6 +1,6 @@
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.UI;
-using chARpStructs;
+using chARpackStructs;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,6 +14,7 @@ using UnityEngine.Events;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using chARpackTypes;
 
 /// <summary>
 /// A class that provides the functionalities of single atoms.

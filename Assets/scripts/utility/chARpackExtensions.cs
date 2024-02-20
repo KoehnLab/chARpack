@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public static class chARpExtensions
+public static class chARpackExtensions
 {
     public static string AsCommaSeparatedString(this string[] list)
     {
