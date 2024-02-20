@@ -539,7 +539,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 9002824700177712316}
         m_TargetAssemblyTypeName: Login, Assembly-CSharp
-        m_MethodName: startScanQR
+        m_MethodName: startQRScanTimer
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2470,7 +2470,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -11465,6 +11465,7 @@ MonoBehaviour:
   stopScanButtonInstance: {fileID: 0}
   anchorPrefab: {fileID: 0}
   toggleDebugButton: {fileID: 1314583798}
+  scanProgressLabel: {fileID: 0}
 --- !u!114 &9002824700177712317
 MonoBehaviour:
   m_ObjectHideFlags: 0

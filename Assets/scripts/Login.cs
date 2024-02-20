@@ -3,6 +3,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Linq;
 using UnityEngine.UI;
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
 
 public class Login : MonoBehaviour
 {
@@ -38,6 +41,10 @@ public class Login : MonoBehaviour
 
     [HideInInspector] public GameObject anchorPrefab;
 
+    [HideInInspector] public GameObject labelPrefab;
+
+    private Transform cam;
+
     public GameObject toggleDebugButton;
 
     private void Awake()
@@ -47,6 +54,9 @@ public class Login : MonoBehaviour
         qrManagerPrefab = (GameObject)Resources.Load("prefabs/QR/QRCodesManager");
         stopScanButtonPrefab = (GameObject)Resources.Load("prefabs/QR/StopScanButton");
         anchorPrefab = (GameObject)Resources.Load("prefabs/QR/QRAnchor");
+        labelPrefab = (GameObject)Resources.Load("prefabs/3DLabelPrefab");
+
+        cam = Camera.main.transform;
 
         GameObject debugWindow = Instantiate((GameObject)Resources.Load("prefabs/DebugWindow"));
         debugWindow.SetActive(false);
@@ -94,6 +104,118 @@ public class Login : MonoBehaviour
             serverListInstance.transform.forward = Camera.main.transform.forward;
             gameObject.SetActive(false);
         }
+    }
+
+    public void startQRScanTimer()
+    {
+        var num_reads = 1000;
+
+        Debug.Log("[Login:QR] Starting scan with timer.");
+        qrManagerInstance = Instantiate(qrManagerPrefab);
+        if (qrManagerInstance == null)
+        {
+            qrManagerInstance = QRTracking.QRCodesManager.Singleton.gameObject;
+        }
+        qrManagerInstance.GetComponent<QRTracking.QRCodesManager>().StartQRTracking();
+        gameObject.SetActive(false);
+        var scanProgressLabel_go = Instantiate(labelPrefab);
+        var scanProgressLabel = scanProgressLabel_go.GetComponent<TextMeshPro>();
+        scanProgressLabel.text = $"0/{num_reads}";
+
+        var pos_list = new List<Vector3>();
+        var quat_list = new List<Quaternion>();
+
+        while (pos_list.Count < num_reads)
+        {
+            var objectList = qrManagerInstance.GetComponent<QRTracking.QRCodesVisualizer>().qrCodesObjectsList;
+            if (objectList == null) continue;
+            if (objectList.Count > 0)
+            {
+                // make it simple if code list is just 1
+                if (objectList.Count == 1)
+                {
+                    var e = objectList.FirstOrDefault().Value;
+                    pos_list.Add(e.transform.position);
+                    quat_list.Add(e.transform.rotation);
+                    Debug.Log("[Login:QR] Only one QR Code in list.");
+                }
+                else
+                {
+                    Debug.Log("[Login:QR] Checking for last updated QR code.");
+                    // lets check for the last updated QR code
+                    var now = System.DateTimeOffset.Now;
+                    GameObject lastObj = null;
+                    var minDiff = System.TimeSpan.MaxValue;
+                    foreach (var obj in objectList.Values)
+                    {
+                        var code = obj.GetComponent<QRTracking.QRCode>().qrCode;
+                        // calc offset
+                        var diff = now.Subtract(code.LastDetectedTime);
+                        if (diff < minDiff)
+                        {
+                            minDiff = diff;
+                            lastObj = obj;
+                        }
+                    }
+                    // position and rotation of QR code object
+                    if (lastObj != null)
+                    {
+                        pos_list.Add(lastObj.transform.position);
+                        quat_list.Add(lastObj.transform.rotation);
+                        Debug.Log("[Login:QR] Taking last updated QR code.");
+                    }
+                    else
+                    {
+                        var e = objectList.LastOrDefault().Value;
+                        pos_list.Add(e.transform.position);
+                        quat_list.Add(e.transform.rotation);
+                        Debug.Log("[Login:QR] Last updated QR code not available. Taking last in list.");
+                    }
+                }
+            }
+
+            // set label
+            if (pos_list.Count > 0)
+            {
+                scanProgressLabel_go.transform.position = pos_list.Last();
+            }
+            scanProgressLabel_go.transform.forward = cam.forward;
+            scanProgressLabel.text = $"{pos_list.Count}/{num_reads}";
+        }
+
+        qrManagerInstance.GetComponent<QRTracking.QRCodesManager>().StopQRTracking();
+
+
+        int num_values = pos_list.Count / 2;
+
+        var final_pos = pos_list[num_values];
+        var final_quat = quat_list[num_values];
+
+        for (int j = num_values + 1; j < pos_list.Count; j++)
+        {
+            final_pos += pos_list[j];
+            final_quat *= quat_list[j];
+        }
+
+        final_pos /= num_values;
+
+        LoginData.offsetPos = final_pos;
+        LoginData.offsetRot = final_quat;
+
+        if (QRAnchor.Singleton == null)
+        {
+            Instantiate(anchorPrefab);
+        }
+        QRAnchor.Singleton.transform.position = LoginData.offsetPos;
+        QRAnchor.Singleton.transform.rotation = LoginData.offsetRot;
+
+
+        // destroy qr code manager
+        Destroy(QRTracking.QRCodesManager.Singleton.gameObject);
+        // destroy progess label
+        Destroy(scanProgressLabel_go);
+        // show login menu
+        gameObject.SetActive(true);
     }
 
     /// <summary>

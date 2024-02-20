@@ -180,7 +180,7 @@ public class UserServer : MonoBehaviour
         list[fromClientId].batteryStatus = status;
         list[fromClientId].batteryLevel = level;
 
-        Debug.Log($"Battery status: {status}, level: {level}");
+        //Debug.Log($"Battery status: {status}, level: {level}");
 
     }
 
