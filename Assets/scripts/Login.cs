@@ -6,6 +6,8 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using chARpackTypes;
+using System;
 
 public class Login : MonoBehaviour
 {
@@ -46,6 +48,11 @@ public class Login : MonoBehaviour
     private Transform cam;
 
     public GameObject toggleDebugButton;
+    private GameObject scanProgressLabel_go;
+
+    Dictionary<Guid, Tuple<List<Vector3>, List<Quaternion>>> pos_rot_dict;
+    bool activate_update = false;
+    int num_reads = 1000;
 
     private void Awake()
     {
@@ -106,10 +113,63 @@ public class Login : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (activate_update)
+        {
+            var objectList = qrManagerInstance.GetComponent<QRTracking.QRCodesVisualizer>().qrCodesObjectsList;
+            if (objectList == null) return;
+            if (objectList.Count > 0)
+            {
+                foreach (var qr in objectList)
+                {
+                    if (!pos_rot_dict.ContainsKey(qr.Key))
+                    {
+                        var pos_list = new List<Vector3>();
+                        pos_list.Add(qr.Value.transform.position);
+                        var quat_list = new List<Quaternion>();
+                        quat_list.Add(qr.Value.transform.rotation);
+
+                        pos_rot_dict[qr.Key] = new Tuple<List<Vector3>, List<Quaternion>>(pos_list, quat_list);
+                    }
+                    else
+                    {
+                        pos_rot_dict[qr.Key].Item1.Add(qr.Value.transform.position);
+                        pos_rot_dict[qr.Key].Item2.Add(qr.Value.transform.rotation);
+                    }
+
+                }
+            }
+
+            // set label
+            int current_highest_count = 0;
+            Guid current_highest_id = System.Guid.NewGuid();
+            foreach (var qr in pos_rot_dict)
+            {
+                if (qr.Value.Item1.Count > current_highest_count)
+                {
+                    current_highest_count = qr.Value.Item1.Count;
+                    current_highest_id = qr.Key;
+                }
+            }
+
+            if (current_highest_count > 0)
+            {
+                scanProgressLabel_go.transform.position = pos_rot_dict[current_highest_id].Item1.Last();
+            }
+            scanProgressLabel_go.transform.forward = cam.forward;
+            scanProgressLabel_go.GetComponent<TextMeshPro>().text = $"{current_highest_count}/{num_reads}";
+
+            // break condition
+            if (current_highest_count == num_reads)
+            {
+                stopQRScanTimer(current_highest_id);
+            }
+        }
+    }
+
     public void startQRScanTimer()
     {
-        var num_reads = 1000;
-
         Debug.Log("[Login:QR] Starting scan with timer.");
         qrManagerInstance = Instantiate(qrManagerPrefab);
         if (qrManagerInstance == null)
@@ -118,83 +178,30 @@ public class Login : MonoBehaviour
         }
         qrManagerInstance.GetComponent<QRTracking.QRCodesManager>().StartQRTracking();
         gameObject.SetActive(false);
-        var scanProgressLabel_go = Instantiate(labelPrefab);
+        scanProgressLabel_go = Instantiate(labelPrefab);
         var scanProgressLabel = scanProgressLabel_go.GetComponent<TextMeshPro>();
         scanProgressLabel.text = $"0/{num_reads}";
 
-        var pos_list = new List<Vector3>();
-        var quat_list = new List<Quaternion>();
+        pos_rot_dict = new Dictionary<Guid, Tuple<List<Vector3>, List<Quaternion>>>();
 
-        while (pos_list.Count < num_reads)
-        {
-            var objectList = qrManagerInstance.GetComponent<QRTracking.QRCodesVisualizer>().qrCodesObjectsList;
-            if (objectList == null) continue;
-            if (objectList.Count > 0)
-            {
-                // make it simple if code list is just 1
-                if (objectList.Count == 1)
-                {
-                    var e = objectList.FirstOrDefault().Value;
-                    pos_list.Add(e.transform.position);
-                    quat_list.Add(e.transform.rotation);
-                    Debug.Log("[Login:QR] Only one QR Code in list.");
-                }
-                else
-                {
-                    Debug.Log("[Login:QR] Checking for last updated QR code.");
-                    // lets check for the last updated QR code
-                    var now = System.DateTimeOffset.Now;
-                    GameObject lastObj = null;
-                    var minDiff = System.TimeSpan.MaxValue;
-                    foreach (var obj in objectList.Values)
-                    {
-                        var code = obj.GetComponent<QRTracking.QRCode>().qrCode;
-                        // calc offset
-                        var diff = now.Subtract(code.LastDetectedTime);
-                        if (diff < minDiff)
-                        {
-                            minDiff = diff;
-                            lastObj = obj;
-                        }
-                    }
-                    // position and rotation of QR code object
-                    if (lastObj != null)
-                    {
-                        pos_list.Add(lastObj.transform.position);
-                        quat_list.Add(lastObj.transform.rotation);
-                        Debug.Log("[Login:QR] Taking last updated QR code.");
-                    }
-                    else
-                    {
-                        var e = objectList.LastOrDefault().Value;
-                        pos_list.Add(e.transform.position);
-                        quat_list.Add(e.transform.rotation);
-                        Debug.Log("[Login:QR] Last updated QR code not available. Taking last in list.");
-                    }
-                }
-            }
+        activate_update = true;
 
-            // set label
-            if (pos_list.Count > 0)
-            {
-                scanProgressLabel_go.transform.position = pos_list.Last();
-            }
-            scanProgressLabel_go.transform.forward = cam.forward;
-            scanProgressLabel.text = $"{pos_list.Count}/{num_reads}";
-        }
+    }
 
+    public void stopQRScanTimer(Guid current_highest_id)
+    {
         qrManagerInstance.GetComponent<QRTracking.QRCodesManager>().StopQRTracking();
 
 
-        int num_values = pos_list.Count / 2;
+        int num_values = num_reads / 2;
 
-        var final_pos = pos_list[num_values];
-        var final_quat = quat_list[num_values];
+        var final_pos = pos_rot_dict[current_highest_id].Item1[num_values];
+        var final_quat = pos_rot_dict[current_highest_id].Item2[num_values];
 
-        for (int j = num_values + 1; j < pos_list.Count; j++)
+        for (int j = num_values + 1; j < num_reads; j++)
         {
-            final_pos += pos_list[j];
-            final_quat *= quat_list[j];
+            final_pos += pos_rot_dict[current_highest_id].Item1[j];
+            final_quat *= pos_rot_dict[current_highest_id].Item2[j];
         }
 
         final_pos /= num_values;
@@ -216,11 +223,13 @@ public class Login : MonoBehaviour
         Destroy(scanProgressLabel_go);
         // show login menu
         gameObject.SetActive(true);
-    }
 
+        activate_update = false;
+    }
+    
     /// <summary>
-    /// Starts scanning of a QR code, spawns stop scan button.
-    /// </summary>
+     /// Starts scanning of a QR code, spawns stop scan button.
+     /// </summary>
     public void startScanQR()
     {
         // initializes singleton
