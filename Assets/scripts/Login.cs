@@ -112,24 +112,23 @@ public class Login : MonoBehaviour
         }
     }
 
-    private void OnQRUpdate(object sender, QRCodeEventArgs<Microsoft.MixedReality.QR.QRCode> e)
+    private void OnQRUpdate(Guid qr_id, Pose pose)
     {
-        SortedDictionary<System.Guid, GameObject> objectList = new SortedDictionary<System.Guid, GameObject>(QRCodesManager.Singleton.gameObject.GetComponent<QRTracking.QRCodesVisualizer>().qrCodesObjectsList);
-        Debug.Log($"[Login:QR] ObjectList: {objectList}, count: {objectList.Count}");
-        var qr = objectList[e.Data.Id];
-        if (!pos_rot_dict.ContainsKey(e.Data.Id))
+        Debug.Log("[Login:QR] Update Event received.");
+
+        if (!pos_rot_dict.ContainsKey(qr_id))
         {
             var pos_list = new List<Vector3>();
-            pos_list.Add(qr.transform.position);
+            pos_list.Add(pose.position);
             var quat_list = new List<Quaternion>();
-            quat_list.Add(qr.transform.rotation);
+            quat_list.Add(pose.rotation);
 
-            pos_rot_dict[e.Data.Id] = new Tuple<List<Vector3>, List<Quaternion>>(pos_list, quat_list);
+            pos_rot_dict[qr_id] = new Tuple<List<Vector3>, List<Quaternion>>(pos_list, quat_list);
         }
         else
         {
-            pos_rot_dict[e.Data.Id].Item1.Add(qr.transform.position);
-            pos_rot_dict[e.Data.Id].Item2.Add(qr.transform.rotation);
+            pos_rot_dict[qr_id].Item1.Add(pose.position);
+            pos_rot_dict[qr_id].Item2.Add(pose.rotation);
         }
 
 
@@ -175,14 +174,15 @@ public class Login : MonoBehaviour
 
         pos_rot_dict = new Dictionary<Guid, Tuple<List<Vector3>, List<Quaternion>>>();
 
-        QRCodesManager.Singleton.QRCodeUpdated += OnQRUpdate;
+        QRCodesManager.Singleton.OnQRPoseUpdate += OnQRUpdate;
 
     }
 
     public void stopQRScanTimer(Guid current_highest_id)
     {
-        QRCodesManager.Singleton.StopQRTracking();
+        Debug.Log("[Login:QR] Stopping scan.");
 
+        QRCodesManager.Singleton.StopQRTracking();
 
         int num_values = num_reads / 2;
 
@@ -209,7 +209,7 @@ public class Login : MonoBehaviour
 
 
         // destroy qr code manager
-        QRCodesManager.Singleton.QRCodeUpdated -= OnQRUpdate;
+        QRCodesManager.Singleton.OnQRPoseUpdate -= OnQRUpdate;
         Destroy(QRTracking.QRCodesManager.Singleton.gameObject);
         // destroy progess label
         Destroy(scanProgressLabel_go);
