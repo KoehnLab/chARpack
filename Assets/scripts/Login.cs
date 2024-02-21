@@ -51,7 +51,6 @@ public class Login : MonoBehaviour
     private GameObject scanProgressLabel_go;
 
     Dictionary<Guid, Tuple<List<Vector3>, List<Quaternion>>> pos_rot_dict;
-    bool activate_update = false;
     int num_reads = 1000;
 
     private void Awake()
@@ -113,58 +112,50 @@ public class Login : MonoBehaviour
         }
     }
 
-    private void Update()
+    private void OnQRUpdate(object sender, QRCodeEventArgs<Microsoft.MixedReality.QR.QRCode> e)
     {
-        if (activate_update)
+        SortedDictionary<System.Guid, GameObject> objectList = new SortedDictionary<System.Guid, GameObject>(QRCodesManager.Singleton.gameObject.GetComponent<QRTracking.QRCodesVisualizer>().qrCodesObjectsList);
+        Debug.Log($"[Login:QR] ObjectList: {objectList}, count: {objectList.Count}");
+        var qr = objectList[e.Data.Id];
+        if (!pos_rot_dict.ContainsKey(e.Data.Id))
         {
-            SortedDictionary<System.Guid, GameObject> objectList = new SortedDictionary<System.Guid, GameObject>(QRCodesManager.Singleton.gameObject.GetComponent<QRTracking.QRCodesVisualizer>().qrCodesObjectsList);
-            Debug.Log($"[Login:QR] ObjectList: {objectList}, count: {objectList.Count}");
-            if (objectList.Count > 0)
+            var pos_list = new List<Vector3>();
+            pos_list.Add(qr.transform.position);
+            var quat_list = new List<Quaternion>();
+            quat_list.Add(qr.transform.rotation);
+
+            pos_rot_dict[e.Data.Id] = new Tuple<List<Vector3>, List<Quaternion>>(pos_list, quat_list);
+        }
+        else
+        {
+            pos_rot_dict[e.Data.Id].Item1.Add(qr.transform.position);
+            pos_rot_dict[e.Data.Id].Item2.Add(qr.transform.rotation);
+        }
+
+
+        // set label
+        int current_highest_count = 0;
+        Guid current_highest_id = System.Guid.NewGuid();
+        foreach (var cqr in pos_rot_dict)
+        {
+            if (cqr.Value.Item1.Count > current_highest_count)
             {
-                foreach (var qr in objectList)
-                {
-                    if (!pos_rot_dict.ContainsKey(qr.Key))
-                    {
-                        var pos_list = new List<Vector3>();
-                        pos_list.Add(qr.Value.transform.position);
-                        var quat_list = new List<Quaternion>();
-                        quat_list.Add(qr.Value.transform.rotation);
-
-                        pos_rot_dict[qr.Key] = new Tuple<List<Vector3>, List<Quaternion>>(pos_list, quat_list);
-                    }
-                    else
-                    {
-                        pos_rot_dict[qr.Key].Item1.Add(qr.Value.transform.position);
-                        pos_rot_dict[qr.Key].Item2.Add(qr.Value.transform.rotation);
-                    }
-
-                }
+                current_highest_count = cqr.Value.Item1.Count;
+                current_highest_id = cqr.Key;
             }
+        }
 
-            // set label
-            int current_highest_count = 0;
-            Guid current_highest_id = System.Guid.NewGuid();
-            foreach (var qr in pos_rot_dict)
-            {
-                if (qr.Value.Item1.Count > current_highest_count)
-                {
-                    current_highest_count = qr.Value.Item1.Count;
-                    current_highest_id = qr.Key;
-                }
-            }
+        if (current_highest_count > 0)
+        {
+            scanProgressLabel_go.transform.position = pos_rot_dict[current_highest_id].Item1.Last();
+        }
+        scanProgressLabel_go.transform.forward = cam.forward;
+        scanProgressLabel_go.GetComponent<TextMeshPro>().text = $"{current_highest_count}/{num_reads}";
 
-            if (current_highest_count > 0)
-            {
-                scanProgressLabel_go.transform.position = pos_rot_dict[current_highest_id].Item1.Last();
-            }
-            scanProgressLabel_go.transform.forward = cam.forward;
-            scanProgressLabel_go.GetComponent<TextMeshPro>().text = $"{current_highest_count}/{num_reads}";
-
-            // break condition
-            if (current_highest_count == num_reads)
-            {
-                stopQRScanTimer(current_highest_id);
-            }
+        // break condition
+        if (current_highest_count == num_reads)
+        {
+            stopQRScanTimer(current_highest_id);
         }
     }
 
@@ -184,7 +175,7 @@ public class Login : MonoBehaviour
 
         pos_rot_dict = new Dictionary<Guid, Tuple<List<Vector3>, List<Quaternion>>>();
 
-        activate_update = true;
+        QRCodesManager.Singleton.QRCodeUpdated += OnQRUpdate;
 
     }
 
@@ -218,13 +209,13 @@ public class Login : MonoBehaviour
 
 
         // destroy qr code manager
+        QRCodesManager.Singleton.QRCodeUpdated -= OnQRUpdate;
         Destroy(QRTracking.QRCodesManager.Singleton.gameObject);
         // destroy progess label
         Destroy(scanProgressLabel_go);
         // show login menu
         gameObject.SetActive(true);
 
-        activate_update = false;
     }
     
     /// <summary>

@@ -11,13 +11,7 @@ namespace QRTracking
     {
         public GameObject qrCodePrefab;
 
-        private System.Collections.Generic.SortedDictionary<System.Guid, GameObject> _qrCodesObjectsList;
-        public SortedDictionary<System.Guid, GameObject> qrCodesObjectsList { get {
-                lock (_qrCodesObjectsList)
-                {
-                    return _qrCodesObjectsList;
-                }
-            } set => _qrCodesObjectsList = value; }
+        public System.Collections.Generic.SortedDictionary<System.Guid, GameObject> qrCodesObjectsList;
 
         private bool clearExisting = false;
 
