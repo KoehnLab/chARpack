@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using TMPro;
 using chARpackTypes;
 using System;
+using QRTracking;
 
 public class Login : MonoBehaviour
 {
@@ -36,7 +37,6 @@ public class Login : MonoBehaviour
     [HideInInspector] public GameObject serverListPrefab;
 
     [HideInInspector] public GameObject qrManagerPrefab;
-    [HideInInspector] public GameObject qrManagerInstance;
 
     [HideInInspector] public GameObject stopScanButtonPrefab;
     [HideInInspector] public GameObject stopScanButtonInstance;
@@ -117,8 +117,8 @@ public class Login : MonoBehaviour
     {
         if (activate_update)
         {
-            var objectList = qrManagerInstance.GetComponent<QRTracking.QRCodesVisualizer>().qrCodesObjectsList;
-            if (objectList == null) return;
+            SortedDictionary<System.Guid, GameObject> objectList = new SortedDictionary<System.Guid, GameObject>(QRCodesManager.Singleton.gameObject.GetComponent<QRTracking.QRCodesVisualizer>().qrCodesObjectsList);
+            Debug.Log($"[Login:QR] ObjectList: {objectList}, count: {objectList.Count}");
             if (objectList.Count > 0)
             {
                 foreach (var qr in objectList)
@@ -171,12 +171,12 @@ public class Login : MonoBehaviour
     public void startQRScanTimer()
     {
         Debug.Log("[Login:QR] Starting scan with timer.");
-        qrManagerInstance = Instantiate(qrManagerPrefab);
-        if (qrManagerInstance == null)
+        
+        if (QRCodesManager.Singleton == null)
         {
-            qrManagerInstance = QRTracking.QRCodesManager.Singleton.gameObject;
+            var qrManagerInstance = Instantiate(qrManagerPrefab);
         }
-        qrManagerInstance.GetComponent<QRTracking.QRCodesManager>().StartQRTracking();
+        QRCodesManager.Singleton.StartQRTracking();
         gameObject.SetActive(false);
         scanProgressLabel_go = Instantiate(labelPrefab);
         var scanProgressLabel = scanProgressLabel_go.GetComponent<TextMeshPro>();
@@ -190,7 +190,7 @@ public class Login : MonoBehaviour
 
     public void stopQRScanTimer(Guid current_highest_id)
     {
-        qrManagerInstance.GetComponent<QRTracking.QRCodesManager>().StopQRTracking();
+        QRCodesManager.Singleton.StopQRTracking();
 
 
         int num_values = num_reads / 2;
@@ -234,12 +234,11 @@ public class Login : MonoBehaviour
     {
         // initializes singleton
         Debug.Log("[Login:QR] Starting scan.");
-        qrManagerInstance = Instantiate(qrManagerPrefab);
-        if (qrManagerInstance == null)
+        if (QRCodesManager.Singleton == null)
         {
-            qrManagerInstance = QRTracking.QRCodesManager.Singleton.gameObject;
+            var qrManagerInstance = Instantiate(qrManagerPrefab);
         }
-        qrManagerInstance.GetComponent<QRTracking.QRCodesManager>().StartQRTracking();
+        QRCodesManager.Singleton.StartQRTracking();
         gameObject.SetActive(false);
         stopScanButtonInstance = Instantiate(stopScanButtonPrefab);
         stopScanButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { stopScanQR(); });
@@ -252,13 +251,12 @@ public class Login : MonoBehaviour
     /// </summary>
     public void stopScanQR()
     {
-        var qrManager = qrManagerInstance.GetComponent<QRTracking.QRCodesManager>();
-        qrManager.StopQRTracking();
+        QRCodesManager.Singleton.StopQRTracking();
         Destroy(stopScanButtonInstance);
         gameObject.SetActive(true);
         // get the code list
         //var codesList = qrManagerInstance.GetComponent<QRTracking.QRCodesManager>().qrCodesList;
-        var objectList = qrManagerInstance.GetComponent<QRTracking.QRCodesVisualizer>().qrCodesObjectsList;
+        var objectList = QRCodesManager.Singleton.gameObject.GetComponent<QRTracking.QRCodesVisualizer>().qrCodesObjectsList;
         if (objectList.Count > 0)
         {
             // make it simple if code list is just 1

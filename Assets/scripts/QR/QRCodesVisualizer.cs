@@ -11,7 +11,14 @@ namespace QRTracking
     {
         public GameObject qrCodePrefab;
 
-        public System.Collections.Generic.SortedDictionary<System.Guid, GameObject> qrCodesObjectsList;
+        private System.Collections.Generic.SortedDictionary<System.Guid, GameObject> _qrCodesObjectsList;
+        public SortedDictionary<System.Guid, GameObject> qrCodesObjectsList { get {
+                lock (_qrCodesObjectsList)
+                {
+                    return _qrCodesObjectsList;
+                }
+            } set => _qrCodesObjectsList = value; }
+
         private bool clearExisting = false;
 
         struct ActionData
@@ -33,6 +40,9 @@ namespace QRTracking
         }
 
         private System.Collections.Generic.Queue<ActionData> pendingActions = new Queue<ActionData>();
+
+
+
         void Awake()
         {
 
