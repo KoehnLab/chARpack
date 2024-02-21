@@ -147,6 +147,7 @@ public class Login : MonoBehaviour
         if (current_highest_count > 0)
         {
             scanProgressLabel_go.transform.position = pos_rot_dict[current_highest_id].Item1.Last();
+            scanProgressLabel_go.transform.position -= 0.1f * cam.forward; // offset it from the wall/code
         }
         scanProgressLabel_go.transform.forward = cam.forward;
         scanProgressLabel_go.GetComponent<TextMeshPro>().text = $"{current_highest_count}/{num_reads}";
@@ -188,11 +189,13 @@ public class Login : MonoBehaviour
 
         var final_pos = pos_rot_dict[current_highest_id].Item1[num_values];
         var final_quat = pos_rot_dict[current_highest_id].Item2[num_values];
-
+        float weight;
         for (int j = num_values + 1; j < num_reads; j++)
         {
+            weight = 1.0f / (float)(j - num_values + 1);
             final_pos += pos_rot_dict[current_highest_id].Item1[j];
-            final_quat *= pos_rot_dict[current_highest_id].Item2[j];
+            // https://forum.unity.com/threads/average-quaternions.86898/
+            final_quat = Quaternion.Slerp(final_quat, pos_rot_dict[current_highest_id].Item2[j], weight);
         }
 
         final_pos /= num_values;
