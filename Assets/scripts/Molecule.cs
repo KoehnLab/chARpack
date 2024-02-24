@@ -236,6 +236,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         m_id = idInScene;
         isMarked = false;
         transform.parent = inputParent;
+        startingScale = transform.localScale;
         atomList = new List<Atom>();
         bondList = new List<Bond>();
         // TODO put collider into a corner
@@ -728,10 +729,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             scalingSliderInstance = Instantiate(scalingSliderPrefab, gameObject.transform.position - 0.17f*GlobalCtrl.Singleton.currentCamera.transform.forward - 0.05f*Vector3.up, GlobalCtrl.Singleton.currentCamera.transform.rotation);
             scalingSliderInstance.GetComponent<mySlider>().maxVal = 2;
             scalingSliderInstance.GetComponent<mySlider>().minVal = 0.1f;
+            var currentScale = transform.localScale.x / startingScale.x;
             // Set effective starting value and default to 1
-            scalingSliderInstance.GetComponent<mySlider>().SliderValue = (1 - scalingSliderInstance.GetComponent<mySlider>().minVal)/ (scalingSliderInstance.GetComponent<mySlider>().maxVal - scalingSliderInstance.GetComponent<mySlider>().minVal);
+            scalingSliderInstance.GetComponent<mySlider>().SliderValue = (currentScale - scalingSliderInstance.GetComponent<mySlider>().minVal)/ (scalingSliderInstance.GetComponent<mySlider>().maxVal - scalingSliderInstance.GetComponent<mySlider>().minVal);
             scalingSliderInstance.GetComponent<mySlider>().defaultVal = (1 - scalingSliderInstance.GetComponent<mySlider>().minVal) / (scalingSliderInstance.GetComponent<mySlider>().maxVal - scalingSliderInstance.GetComponent<mySlider>().minVal);
-            startingScale = gameObject.transform.localScale;
+            //startingScale = gameObject.transform.localScale;
             scalingSliderInstance.GetComponent<mySlider>().OnValueUpdated.AddListener(OnSliderUpdated);
         }
         else
