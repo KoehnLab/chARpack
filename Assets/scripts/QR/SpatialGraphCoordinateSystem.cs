@@ -120,6 +120,8 @@ namespace QRTracking
                         }
 
                         gameObject.transform.SetPositionAndRotation(pose.position, pose.rotation);
+
+                        QRCodesManager.Singleton.QRPoseUpdate(id, pose);
                         //Debug.Log("Id= " + id + " QRPose = " +  pose.position.ToString("F7") + " QRRot = "  +  pose.rotation.ToString("F7"));
                     }
                     else

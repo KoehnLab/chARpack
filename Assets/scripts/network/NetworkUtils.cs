@@ -1,5 +1,5 @@
 using Riptide;
-using StructClass;
+using chARpackStructs;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

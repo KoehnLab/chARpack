@@ -1,6 +1,6 @@
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.UI;
-using StructClass;
+using chARpackStructs;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,6 +15,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private Stopwatch stopwatch;
     [HideInInspector] public bool isGrabbed = false;
     private cmlData before;
+    private Vector3 pickupPos = Vector3.zero;
+    private Quaternion pickupRot = Quaternion.identity;
+
+    private List<Tuple<ushort, Vector3>> atomState = new List<Tuple<ushort, Vector3>>();
 
     /// <summary>
     /// This method is triggered when a grab/select gesture is started.
@@ -23,11 +27,14 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="eventData"></param>
     public void OnPointerDown(MixedRealityPointerEventData eventData)
     {
+        pickupPos = transform.localPosition;
+        pickupRot = transform.localRotation;
+
         isGrabbed = true;
         stopwatch = Stopwatch.StartNew();
         // change material of grabbed object
         if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL ||
-            GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
+            GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
         {
             GetComponent<myBoundingBox>().setGrabbed(true);
         }
@@ -46,8 +53,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="eventData"></param>
     public void OnPointerDragged(MixedRealityPointerEventData eventData)
     {
-        // keep everything relative to atom world
-        EventManager.Singleton.MoveMolecule(m_id, transform.localPosition, transform.localRotation);
+        if (!frozen)
+        {
+            // keep everything relative to atom world
+            EventManager.Singleton.MoveMolecule(m_id, transform.localPosition, transform.localRotation);
+        }
     }
 
     /// <summary>
@@ -64,10 +74,13 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             isGrabbed = false;
             if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL ||
-                GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
+                GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
             {
                 if (stopwatch?.ElapsedMilliseconds < 200)
                 {
+                    transform.localPosition = pickupPos;
+                    transform.localRotation = pickupRot;
+                    EventManager.Singleton.MoveMolecule(m_id, transform.localPosition, transform.localRotation);
                     markMoleculeUI(!isMarked, true);
                 }
                 else
@@ -131,7 +144,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             {
                 string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
                 string[] distance = text[2].Split(": ");
-                double dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurment>().getDistanceInAngstrom();
+                double dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>().getDistanceInAngstrom();
                 string newDistance = string.Concat(distance[0], ": ", $"{dist:0.00}\u00C5");
                 text[2] = newDistance;
 
@@ -142,8 +155,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             {
                 string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
                 string[] ang = text[3].Split(": ");
-                double angle = toolTipInstance.transform.Find("Angle Measurement").GetComponent<AngleMeasurment>().getAngle();
-                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}°");
+                double angle = toolTipInstance.transform.Find("Angle Measurement").GetComponent<AngleMeasurement>().getAngle();
+                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}ï¿½");
                 text[3] = newAng;
 
                 toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
@@ -153,7 +166,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
                 string[] ang = text[2].Split(": ");
                 double angle = toolTipInstance.transform.Find("Dihedral Angle Measurement").GetComponent<DihedralAngleMeasurement>().getAngle();
-                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}°");
+                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}ï¿½");
                 text[2] = newAng;
 
                 toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
@@ -486,7 +499,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private bool snap(ushort otherMolID)
     {
-
         if (!GlobalCtrl.Singleton.Dict_curMolecules.ContainsKey(otherMolID))
         {
             return false;
@@ -773,7 +785,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         distGO.transform.Find("Line").gameObject.SetActive(false);
         var atom1 = atomList.ElementAtOrDefault(term.Atom1);
         var atom2 = atomList.ElementAtOrDefault(term.Atom2);
-        DistanceMeasurment dist = distGO.GetComponent<DistanceMeasurment>();
+        DistanceMeasurement dist = distGO.GetComponent<DistanceMeasurement>();
         dist.StartAtom = atom1;
         dist.EndAtom = atom2;
 
@@ -812,7 +824,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         cb.changeBondParametersBT();
         var bt = cb.bt;
 
-        var dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurment>();
+        var dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>();
         // Update tool tip
         string toolTipText = getBondToolTipText(bt.eqDist, dist.getDistanceInAngstrom(), bt.kBond, bt.order);
         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
@@ -869,7 +881,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.transform.position = ttpos;
         // add atom as connector
         toolTipInstance.GetComponent<myToolTipConnector>().Target = middleAtom.gameObject;
-        AngleMeasurment angle = getMeasurements(term);
+        AngleMeasurement angle = getMeasurements(term);
 
         // show angle term data
         string toolTipText = getAngleToolTipText(term.eqAngle, term.kAngle, angle.getAngle());
@@ -884,7 +896,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
     }
 
-    private AngleMeasurment getMeasurements(ForceField.AngleTerm term)
+    private AngleMeasurement getMeasurements(ForceField.AngleTerm term)
     {
         var dist1 = Instantiate(distanceMeasurementPrefab);
         var dist2 = Instantiate(distanceMeasurementPrefab);
@@ -898,15 +910,15 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         angle.name = "Angle Measurement";
 
-        dist1.GetComponent<DistanceMeasurment>().StartAtom = atomList[term.Atom1];
-        dist1.GetComponent<DistanceMeasurment>().EndAtom = atomList[term.Atom2];
-        dist2.GetComponent<DistanceMeasurment>().StartAtom = atomList[term.Atom2];
-        dist2.GetComponent<DistanceMeasurment>().EndAtom = atomList[term.Atom3];
-        angle.GetComponent<AngleMeasurment>().distMeasurment1 = dist1.GetComponent<DistanceMeasurment>();
-        angle.GetComponent<AngleMeasurment>().distMeasurment2 = dist2.GetComponent<DistanceMeasurment>();
-        angle.GetComponent<AngleMeasurment>().distMeasurment1Sign = -1f;
+        dist1.GetComponent<DistanceMeasurement>().StartAtom = atomList[term.Atom1];
+        dist1.GetComponent<DistanceMeasurement>().EndAtom = atomList[term.Atom2];
+        dist2.GetComponent<DistanceMeasurement>().StartAtom = atomList[term.Atom2];
+        dist2.GetComponent<DistanceMeasurement>().EndAtom = atomList[term.Atom3];
+        angle.GetComponent<AngleMeasurement>().distMeasurement1 = dist1.GetComponent<DistanceMeasurement>();
+        angle.GetComponent<AngleMeasurement>().distMeasurement2 = dist2.GetComponent<DistanceMeasurement>();
+        angle.GetComponent<AngleMeasurement>().distMeasurement1Sign = -1f;
 
-        return angle.GetComponent<AngleMeasurment>();
+        return angle.GetComponent<AngleMeasurement>();
     }
 
     private void createChangeAngleWindow(ForceField.AngleTerm bond)
@@ -1093,7 +1105,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
         string kAngleStr = GlobalCtrl.Singleton.GetLocalizedString("K_ANGLE");
         string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
-        string toolTipText = $"{angleBond}\n{kAngleStr}: {kAngle:0.00}\n{eqAngleStr}: {eqAngle:0.00}°\n{current}: {curAngle:0.00}°";
+        string toolTipText = $"{angleBond}\n{kAngleStr}: {kAngle:0.00}\n{eqAngleStr}: {eqAngle:0.00}ï¿½\n{current}: {curAngle:0.00}ï¿½";
         return toolTipText;
     }
     
@@ -1103,7 +1115,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string torsionBond = GlobalCtrl.Singleton.GetLocalizedString("TORSION_BOND");
         string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
         string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
-        string toolTipText = $"{torsionBond}\n{eqAngleStr}: {eqAngle:0.00}°\n{current}: {curAngle:0.00}°\nvk: {vk:0.00}\nnn: {nn:0.00}";
+        string toolTipText = $"{torsionBond}\n{eqAngleStr}: {eqAngle:0.00}ï¿½\n{current}: {curAngle:0.00}ï¿½\nvk: {vk:0.00}\nnn: {nn:0.00}";
         return toolTipText;
     }
 
@@ -1154,6 +1166,32 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    #endregion
+
+    #region atom_state
+    public void saveAtomState()
+    {
+        atomState.Clear();
+        foreach (var a in atomList)
+        {
+            atomState.Add(new Tuple<ushort, Vector3>(a.m_id, a.transform.localPosition));
+        }
+    }
+
+    public void popAtomState()
+    {
+        foreach (var s in atomState)
+        {
+            var atom = atomList.Where(a => a.m_id == s.Item1).ToList();
+            if (atom.Count != 1)
+            {
+                UnityEngine.Debug.LogError("[Trying to pop atom state but atoms do not exist]");
+                return;
+            }
+            atom.First().transform.localPosition = s.Item2;
+            EventManager.Singleton.MoveAtom(m_id, s.Item1, s.Item2);
+        }
+    }
     #endregion
 
     #region id_management

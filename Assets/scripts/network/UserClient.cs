@@ -1,3 +1,4 @@
+using Microsoft.MixedReality.Toolkit;
 using Riptide;
 using Riptide.Utils;
 using System.Collections;
@@ -106,6 +107,28 @@ public class UserClient : MonoBehaviour
         NetworkManagerClient.Singleton.Client.Send(message);
     }
 
+    [MessageHandler((ushort)ServerToClientID.requestEyeCalibrationState)]
+    private static void getEyeCalibrationRequest(Message message)
+    {
+        var calibrationStatus = CoreServices.InputSystem?.EyeGazeProvider?.IsEyeCalibrationValid;
+
+        var out_message = Message.Create(MessageSendMode.Reliable, ClientToServerID.eyeCalibrationState);
+        out_message.AddBool(calibrationStatus.Value);
+        NetworkManagerClient.Singleton.Client.Send(out_message);
+    }
+
+    [MessageHandler((ushort)ServerToClientID.requestBatteryState)]
+    private static void getBatteryStateRequest(Message message)
+    {
+        var status = (ushort)SystemInfo.batteryStatus;
+        var level = SystemInfo.batteryLevel;
+
+        var out_message = Message.Create(MessageSendMode.Reliable, ClientToServerID.batteryState);
+        out_message.AddUShort(status);
+        out_message.AddFloat(level);
+        NetworkManagerClient.Singleton.Client.Send(out_message);
+    }
+
     [MessageHandler((ushort)ServerToClientID.bcastPositionAndRotation)]
     private static void getPositionAndRotation(Message message)
     {
@@ -120,6 +143,6 @@ public class UserClient : MonoBehaviour
         }
     }
 
-    #endregion
+#endregion
 
 }

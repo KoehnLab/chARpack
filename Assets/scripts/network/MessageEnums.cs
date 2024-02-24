@@ -34,7 +34,11 @@ public enum ClientToServerID : ushort
     scaleMolecule,
     freezeAtom,
     freezeMolecule,
-    stopMoveAtom
+    stopMoveAtom,
+    createMeasurement,
+    clearMeasurements,
+    eyeCalibrationState,
+    batteryState
 }
 
 public enum ServerToClientID : ushort
@@ -68,12 +72,20 @@ public enum ServerToClientID : ushort
     bcastScaleMolecule,
     bcastFreezeAtom,
     bcastFreezeMolecule,
-    bcastStopMoveAtom
+    bcastStopMoveAtom,
+    bcastCreateMeasurement,
+    bcastClearMeasurements,
+    MRCapture,
+    requestEyeCalibrationState,
+    requestBatteryState
 }
 
 public enum myDeviceType : ushort
 {
-    HoloLens = 1,
+    Unknown = 0,
+    AR = 1,
     Mobile = 2,
-    PC = 3
+    PC = 3,
+    VR = 4,
+    XR = 5
 }

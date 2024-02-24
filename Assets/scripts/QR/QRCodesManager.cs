@@ -31,6 +31,13 @@ namespace QRTracking
     public class QRCodesManager : MonoBehaviour
     {
 
+        public delegate void QRPoseUpdateAction(Guid qr_id, Pose pose);
+        public event QRPoseUpdateAction OnQRPoseUpdate;
+        public void QRPoseUpdate(Guid qr_id, Pose pose)
+        {
+            OnQRPoseUpdate?.Invoke(qr_id, pose);
+        }
+
         private static QRCodesManager _singleton;
 
         public static QRCodesManager Singleton

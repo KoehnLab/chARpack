@@ -247,6 +247,27 @@ public class EventManager : MonoBehaviour
         OnFreezeMolecule?.Invoke(mol_id, value);
     }
 
+    public delegate void CreateMeasurementAction(ushort mol1_id, ushort atom1_id, ushort mol2_id, ushort atom2_id);
+    public event CreateMeasurementAction OnCreateMeasurement;
+    public void CreateMeasurement(ushort mol1_id, ushort atom1_id, ushort mol2_id, ushort atom2_id)
+    {
+        OnCreateMeasurement?.Invoke(mol1_id, atom1_id, mol2_id, atom2_id);
+    }
+
+    public delegate void ClearMeasurementsAction();
+    public event ClearMeasurementsAction OnClearMeasurements;
+    public void ClearMeasurements()
+    {
+        OnClearMeasurements?.Invoke();
+    }
+
+    public delegate void MRCaptureAction(ushort client_id, bool rec);
+    public event MRCaptureAction OnMRCapture;
+    public void MRCapture(ushort client_id, bool rec)
+    {
+        OnMRCapture?.Invoke(client_id, rec);
+    }
+
     #endregion
 
 

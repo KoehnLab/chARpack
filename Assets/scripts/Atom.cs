@@ -1,6 +1,6 @@
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.UI;
-using StructClass;
+using chARpackStructs;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,6 +14,7 @@ using UnityEngine.Events;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using chARpackTypes;
 
 /// <summary>
 /// A class that provides the functionalities of single atoms.
@@ -23,8 +24,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 {
     // prefabs initialized in GlobalCtrl
     [HideInInspector] public static GameObject myAtomToolTipPrefab;
-    [HideInInspector] public static GameObject distMeasurmentPrefab;
-    [HideInInspector] public static GameObject angleMeasurmentPrefab;
+    [HideInInspector] public static GameObject distMeasurementPrefab;
+    [HideInInspector] public static GameObject angleMeasurementPrefab;
     [HideInInspector] public static GameObject deleteMeButtonPrefab;
     [HideInInspector] public static GameObject closeMeButtonPrefab;
     [HideInInspector] public static GameObject modifyMeButtonPrefab;
@@ -178,13 +179,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         if (SceneManager.GetActiveScene().name == "ServerScene")
         {
-            if (Input.GetMouseButtonDown(1) && mouseOverAtom())
+            if (Input.GetMouseButtonDown(1) && Input.GetKey(KeyCode.LeftShift) && mouseOverAtom())
             {
                 arcball = true; anyArcball = true;
                 oldMousePosition = Input.mousePosition;
                 newMousePosition = Input.mousePosition;
             }
-            if (Input.GetMouseButtonUp(1))
+            if (Input.GetMouseButtonUp(1) || !Input.GetKey(KeyCode.LeftShift))
             {
                 arcball = false; anyArcball = false;
             }
@@ -206,6 +207,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     var axis_world = cameraToObjectMatrix * axis_cam;
 
                     m_molecule.transform.RotateAround(transform.position, axis_world, 2 * Mathf.Rad2Deg * angle);
+                    EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
                 }
             }
         }
@@ -240,17 +242,19 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     }
 
     // offset for mouse interaction
-    private Vector3 offset = Vector3.zero;
+    public Vector3 mouse_offset = Vector3.zero;
     void OnMouseDown()
     {
         // Handle server GUI interaction
         if (EventSystem.current.IsPointerOverGameObject()) { return; }
 
+        m_molecule.saveAtomState();
+
+        mouse_offset = gameObject.transform.position - GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
+         new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f));
+
         if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
         {
-            offset = gameObject.transform.position - GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
-                     new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f));
-
             stopwatch = Stopwatch.StartNew();
             grabHighlight(true);
             isGrabbed = true;
@@ -269,7 +273,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         if (!frozen && GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
         {
             Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f);
-            transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + offset;
+            transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + mouse_offset;
             // position relative to molecule position
             EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
         }
@@ -292,6 +296,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             stopwatch?.Stop();
             if (stopwatch?.ElapsedMilliseconds < 200)
             {
+                m_molecule.popAtomState();
                 if (m_molecule.isMarked)
                 {
                     m_molecule.markMolecule(false);
@@ -301,7 +306,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     markAtomUI(!isMarked);
                 }
             }
-            else
+
+            resetMolPositionAfterMove();
+            EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
+            EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
+
+            // check for potential merge
+            if (GlobalCtrl.Singleton.collision)
             {
                 resetMolPositionAfterMove();
                 cmlData after = m_molecule.AsCML();
@@ -345,6 +356,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         if (eventData.Pointer is SpherePointer)
         {
+            m_molecule.saveAtomState();
             // give it a outline
             grabHighlight(true);
 
@@ -352,20 +364,20 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             isGrabbed = true;
             before = m_molecule.AsCML();
 
-            // Get the bond that is closest to grab direction
-            var fwd = HandTracking.Singleton.getForward();
-            var con_atoms = connectedAtoms();
-            var dot_products = new List<float>();
-            foreach (var atom in con_atoms)
-            {
-                var dir = atom.transform.position - transform.position;
-                dot_products.Add(Vector3.Dot(fwd, dir));
-            }
-            var start_atom = con_atoms[dot_products.maxElementIndex()];
-
             // go through the chain of connected atoms and add the force there too
-            if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
+            if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
             {
+                // Get the bond that is closest to grab direction
+                var fwd = HandTracking.Singleton.getForward();
+                var con_atoms = connectedAtoms();
+                var dot_products = new List<float>();
+                foreach (var atom in con_atoms)
+                {
+                    var dir = atom.transform.position - transform.position;
+                    dot_products.Add(Vector3.Dot(fwd, dir));
+                }
+                var start_atom = con_atoms[dot_products.maxElementIndex()];
+
                 GetComponent<MoveAxisConstraint>().enabled = true;
 
                 currentChain = start_atom.connectedChain(this);
@@ -404,9 +416,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     public void OnPointerDragged(MixedRealityPointerEventData eventData)
     {
         // position relative to molecule position
-        EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
+        if (!frozen)
+        {
+            EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
+        }
 
-        if (m_data.m_abbre != "Dummy" && GlobalCtrl.Singleton.currentInteractionMode != GlobalCtrl.InteractionModes.CHAIN)
+        if (m_data.m_abbre != "Dummy" && GlobalCtrl.Singleton.currentInteractionMode != GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
         {
             var con_atoms = connectedAtoms();
             foreach (var atom in con_atoms)
@@ -425,7 +440,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
 
         // if chain interaction send positions of all connected atoms
-        if (currentChain.Any())
+        if (currentChain.Any() && GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
         {
             foreach (var atom in currentChain)
             {
@@ -474,7 +489,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 // measure convergence
                 ForceField.Singleton.resetMeasurment();
 
-                if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.CHAIN)
+                if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
                 {
                     GetComponent<MoveAxisConstraint>().enabled = false;
                     foreach (var atom in currentChain)
@@ -489,6 +504,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     cmlData after = m_molecule.AsCML();
                     GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
                     EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
+                    EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
                 }
 
                 if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
@@ -496,6 +512,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     //UnityEngine.Debug.Log($"[Atom] Interaction stopwatch: {stopwatch.ElapsedMilliseconds} [ms]");
                     if (stopwatch?.ElapsedMilliseconds < 200)
                     {
+                        m_molecule.popAtomState();
+                        resetMolPositionAfterMove();
+                        EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
+                        EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
                         if (m_molecule.isMarked)
                         {
                             m_molecule.markMolecule(false);
@@ -509,6 +529,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     {
                         resetMolPositionAfterMove();
                         EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
+                        EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
                         // check for potential merge
                         if (GlobalCtrl.Singleton.collision)
                         {
@@ -564,53 +585,58 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         if (GlobalCtrl.Singleton.measurmentInHand == null)
         {
-            var distMeasurementGO = Instantiate(distMeasurmentPrefab);
-            var distMeasurement = distMeasurementGO.GetComponent<DistanceMeasurment>();
+            var distMeasurementGO = Instantiate(distMeasurementPrefab);
+            var distMeasurement = distMeasurementGO.GetComponent<DistanceMeasurement>();
             distMeasurement.StartAtom = this;
             GlobalCtrl.Singleton.measurmentInHand = distMeasurementGO;
             var otherDistanceMeasurments = GlobalCtrl.Singleton.getDistanceMeasurmentsOf(this); // order is important here
-            GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement] = new Tuple<Atom, Atom>(this, null);
+            GlobalCtrl.Singleton.distMeasurementDict[distMeasurement] = new Tuple<Atom, Atom>(this, null);
             if (otherDistanceMeasurments.Count > 0)
             {
                 foreach (var m in otherDistanceMeasurments)
                 {
-                    var angleMeasurementGO = Instantiate(angleMeasurmentPrefab);
-                    var angleMeasurement = angleMeasurementGO.GetComponent<AngleMeasurment>();
+                    var angleMeasurementGO = Instantiate(angleMeasurementPrefab);
+                    var angleMeasurement = angleMeasurementGO.GetComponent<AngleMeasurement>();
                     angleMeasurement.originAtom = this;
-                    angleMeasurement.distMeasurment1 = m;
+                    angleMeasurement.distMeasurement1 = m;
                     if (m.StartAtom != this)
                     {
-                        angleMeasurement.distMeasurment1Sign = -1f;
+                        angleMeasurement.distMeasurement1Sign = -1f;
                     }
-                    angleMeasurement.distMeasurment2 = distMeasurement;
-                    GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(this, m, distMeasurement);
+                    angleMeasurement.distMeasurement2 = distMeasurement;
+                    GlobalCtrl.Singleton.angleMeasurementDict[angleMeasurement] = new Triple<Atom, DistanceMeasurement, DistanceMeasurement>(this, m, distMeasurement);
                 }
             }
         }
         else
         {
-            var distMeasurement = GlobalCtrl.Singleton.measurmentInHand.GetComponent<DistanceMeasurment>();
+            var distMeasurement = GlobalCtrl.Singleton.measurmentInHand.GetComponent<DistanceMeasurement>();
+            if (distMeasurement.StartAtom == this) return;
             distMeasurement.EndAtom = this;
-            var startAtom = GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement].Item1;
-            GlobalCtrl.Singleton.distMeasurmentDict[distMeasurement] = new Tuple<Atom, Atom>(startAtom, this);
+            var startAtom = GlobalCtrl.Singleton.distMeasurementDict[distMeasurement].Item1;
+            GlobalCtrl.Singleton.distMeasurementDict[distMeasurement] = new Tuple<Atom, Atom>(startAtom, this);
             GlobalCtrl.Singleton.measurmentInHand = null;
+            if (SettingsData.networkMeasurements)
+            {
+                EventManager.Singleton.CreateMeasurement(distMeasurement.StartAtom.m_molecule.m_id, distMeasurement.StartAtom.m_id, distMeasurement.EndAtom.m_molecule.m_id, distMeasurement.EndAtom.m_id);
+            }
             var otherDistanceMeasurments = GlobalCtrl.Singleton.getDistanceMeasurmentsOf(this);
             if (otherDistanceMeasurments.Count > 1)
             {
                 foreach (var m in otherDistanceMeasurments)
                 {
                     if (m == distMeasurement) continue;
-                    var angleMeasurementGO = Instantiate(angleMeasurmentPrefab);
-                    var angleMeasurement = angleMeasurementGO.GetComponent<AngleMeasurment>();
+                    var angleMeasurementGO = Instantiate(angleMeasurementPrefab);
+                    var angleMeasurement = angleMeasurementGO.GetComponent<AngleMeasurement>();
                     angleMeasurement.originAtom = this;
-                    angleMeasurement.distMeasurment1 = m;
+                    angleMeasurement.distMeasurement1 = m;
                     if (m.StartAtom != this)
                     {
-                        angleMeasurement.distMeasurment1Sign = -1f;
+                        angleMeasurement.distMeasurement1Sign = -1f;
                     }
-                    angleMeasurement.distMeasurment2 = distMeasurement;
-                    angleMeasurement.distMeasurment2Sign = -1f;
-                    GlobalCtrl.Singleton.angleMeasurmentDict[angleMeasurement] = new Triple<Atom, DistanceMeasurment, DistanceMeasurment>(this, m, distMeasurement);
+                    angleMeasurement.distMeasurement2 = distMeasurement;
+                    angleMeasurement.distMeasurement2Sign = -1f;
+                    GlobalCtrl.Singleton.angleMeasurementDict[angleMeasurement] = new Triple<Atom, DistanceMeasurement, DistanceMeasurement>(this, m, distMeasurement);
                 }
             }
         }
@@ -778,6 +804,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
         m_molecule.shrinkAtomIDs();
 
+        foreach (Atom a in connectedAtoms())
+        {
+            Bond bond = getBond(a);
+            bond.setShaderProperties();
+        }
+
         // Debug.Log(string.Format("Modified latest {0}:  rad={1}   scale={2} ", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale));
     }
 
@@ -808,9 +840,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             Atom a2 = m_molecule.atomList.ElementAtOrDefault(bond.atomID2);
             var a1_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a1.transform.position);
             var a2_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a2.transform.position);
-            float distance = Vector3.Distance(a1_pos, a2_pos) / m_molecule.transform.localScale.x;
+            float offset1 = a1.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f;
+            float offset2 = a2.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f;
+            float distance = (Vector3.Distance(a1_pos, a2_pos) - offset1 - offset2) / m_molecule.transform.localScale.x;
             bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
-            bond.transform.position = (a1.transform.position + a2.transform.position) / 2;
+            Vector3 pos1 = Vector3.MoveTowards(a1_pos, a2_pos, offset1*m_molecule.transform.localScale.x);
+            Vector3 pos2 = Vector3.MoveTowards(a2_pos, a1_pos, offset2*m_molecule.transform.localScale.x);
+            bond.transform.position = (pos1 + pos2) / 2;
             bond.transform.LookAt(a2.transform.position);
         }
     }
@@ -1456,7 +1492,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         string massStr = GlobalCtrl.Singleton.GetLocalizedString("MASS");
         string nameStr = GlobalCtrl.Singleton.GetLocalizedString("NAME");
         name = GetLocalizedElementName(name);
-        string toolTipText = $"{nameStr}: {name}\n{massStr}: {mass:0.00}\n{rad}: {radius:0.00}\n{numBonds}: {bondNum}";
+        double radius_in_angstrom = radius * 0.01f;
+        string toolTipText = $"{nameStr}: {name}\n{massStr}: {mass:0.00}u\n{rad}: {radius_in_angstrom:0.00}\u00C5\n{numBonds}: {bondNum}";
         return toolTipText;
     }
 

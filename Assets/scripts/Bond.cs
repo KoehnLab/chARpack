@@ -17,6 +17,8 @@ public class Bond : MonoBehaviour
     [HideInInspector] public Molecule m_molecule;
     [HideInInspector] public bool isMarked = false;
 
+    public static bool interpolateColors = true;
+
     /// <summary>
     /// initialises the bond between two atoms
     /// </summary>
@@ -33,12 +35,16 @@ public class Bond : MonoBehaviour
         gameObject.tag = "Bond";
         gameObject.layer = 7;
         m_molecule.bondList.Add(this);
-        transform.position = (_atom1.transform.position + _atom2.transform.position) / 2;
+        float offset1 = _atom1.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f;
+        float offset2 = _atom2.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f;
+        float distance = (Vector3.Distance(_atom1.transform.position, _atom2.transform.position) - offset1 - offset2) / m_molecule.transform.localScale.x;
+        Vector3 pos1 = Vector3.MoveTowards(_atom1.transform.position, _atom2.transform.position, offset1*m_molecule.transform.localScale.x);
+        Vector3 pos2 = Vector3.MoveTowards(_atom2.transform.position, _atom1.transform.position, offset2*m_molecule.transform.localScale.x);
+        transform.position = (pos1 + pos2) / 2;
         transform.LookAt(_atom1.transform);
         transform.parent = inputMole.transform;
-        float distance = Vector3.Distance(_atom1.transform.position, _atom2.transform.position);
         transform.localScale = new Vector3(m_bondOrder, m_bondOrder, distance);
-
+        setShaderProperties();
     }
 
     /// <summary>
@@ -118,6 +124,34 @@ public class Bond : MonoBehaviour
             GetComponent<Outline>().enabled = false;
             GetComponentInChildren<Renderer>().material = GlobalCtrl.Singleton.bondMat;
         }
+        setShaderProperties();
+    }
+
+    public void setShaderProperties()
+    {
+        if (atomID1 >= m_molecule.atomList.Count || atomID2 >= m_molecule.atomList.Count) { return; }
+
+        Color color1 = m_molecule.atomList[atomID1].GetComponent<Renderer>().material.color;
+        Color color2 = m_molecule.atomList[atomID2].GetComponent<Renderer>().material.color;
+
+        Renderer renderer = gameObject.GetComponentInChildren<Renderer>();
+
+        if (m_molecule.atomList[atomID1].m_data.m_abbre.Equals("Dummy"))
+        {
+            color1 = new Color(0.7f,0.7f,0.7f);
+        }
+        if (m_molecule.atomList[atomID2].m_data.m_abbre.Equals("Dummy"))
+        {
+            color2 = new Color(0.7f, 0.7f, 0.7f);
+        }
+
+        color1.a = 0.5f;
+        color2.a = 0.5f;
+
+        renderer.material.SetVector("_Color1", color1);
+        renderer.material.SetVector("_Color2", color2);
+        // Shader graphs don't have setBool, so workaround using floats
+        renderer.material.SetFloat("_InterpolateColors", interpolateColors ? 1.0f : 0.0f);
     }
 
 }

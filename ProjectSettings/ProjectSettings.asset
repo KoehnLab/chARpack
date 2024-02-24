@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: ITheoC
-  productName: chARpMolecularBuilder
+  productName: chARpack
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -715,14 +715,14 @@ PlayerSettings:
   apiCompatibilityLevelPerPlatform: {}
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: chARpMolecularBuilder
+  metroPackageName: chARpack
   metroPackageVersion: 1.0.0.0
   metroCertificatePath: Assets\WSATestCertificate.pfx
   metroCertificatePassword: 
-  metroCertificateSubject: ITheoC
-  metroCertificateIssuer: ITheoC
-  metroCertificateNotAfter: 80cee0eff06cdb01
-  metroApplicationDescription: Chemisty AR Package - Molecular Builder
+  metroCertificateSubject: DefaultCompany
+  metroCertificateIssuer: DefaultCompany
+  metroCertificateNotAfter: 006403a4911dda01
+  metroApplicationDescription: Chemisty AR Package
   wsaImages:
     65636: Assets/Logo/charp_icon_50.png
     65661: Assets/Logo/charp_icon_63.png
@@ -743,7 +743,7 @@ PlayerSettings:
     2228324: Assets/Logo/charp_icon_310.png
     2293860: Assets/Logo/charp_icon_wide_310x150.png
     2293960: Assets/Logo/charp_icon_wide_620x300.png
-  metroTileShortName: chARp
+  metroTileShortName: chARpack
   metroTileShowName: 0
   metroMediumTileShowName: 1
   metroLargeTileShowName: 1

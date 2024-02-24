@@ -4913,10 +4913,10 @@ MonoBehaviour:
   OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5663318901659678014}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 5246511756089076801}
+        m_TargetAssemblyTypeName: destroyMe, Assembly-CSharp
+        m_MethodName: destroyGameObject
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -5675,6 +5675,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5663318901659678013}
   - component: {fileID: 5663318901659678012}
+  - component: {fileID: 5246511756089076801}
   m_Layer: 0
   m_Name: LoadSaveList
   m_TagString: Untagged
@@ -5714,8 +5715,18 @@ MonoBehaviour:
   scrollParent: {fileID: 891634457765048768}
   scrollingObjectCollection: {fileID: 1229252682355326249}
   clippingBox: {fileID: 1229252682712657206}
-  saveDialogPrefab: {fileID: 6325399774208577938, guid: e55edcb953dd36340964fc44dbb4d285, type: 3}
-  loadEntryPrefab: {fileID: 4051095202787358939, guid: f24fc62056cb4344a9e5684000f0604d, type: 3}
+--- !u!114 &5246511756089076801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5663318901659678014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c47159e90e218544690c72d7d979b90a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5768489783647512746
 GameObject:
   m_ObjectHideFlags: 0

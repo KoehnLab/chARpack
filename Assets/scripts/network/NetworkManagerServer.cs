@@ -1,6 +1,6 @@
 using Riptide;
 using Riptide.Utils;
-using StructClass;
+using chARpackStructs;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -76,6 +76,12 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnDeleteBond +=  bcastDeleteBond;
         EventManager.Singleton.OnUpdateSettings += bcastSettings;
         EventManager.Singleton.OnChangeMoleculeScale += bcastScaleMolecule;
+        EventManager.Singleton.OnCreateMeasurement += bcastCreateMeasurement;
+        EventManager.Singleton.OnClearMeasurements += bcastClearMeasurements;
+        EventManager.Singleton.OnMRCapture += sendMRCapture;
+        EventManager.Singleton.OnFreezeAtom += bcastFreezeAtom;
+        EventManager.Singleton.OnFreezeMolecule += bcastFreezeMolecule;
+
 
     }
 
@@ -125,7 +131,7 @@ public class NetworkManagerServer : MonoBehaviour
     private void ClientDisconnected(object sender, ServerDisconnectedEventArgs e)
     {
         Debug.Log($"[NetworkManagerServer] Client {e.Client.Id} disconnected. Cleaning up.");
-        // destroy user gameObject and pannel entry
+        // destroy user gameObject and panel entry
         if (UserServer.list.ContainsKey(e.Client.Id))
         {
             Destroy(UserServer.list[e.Client.Id].gameObject);
@@ -146,6 +152,14 @@ public class NetworkManagerServer : MonoBehaviour
     {
         NetworkUtils.serializeCmlData((ushort)ServerToClientID.bcastMoleculeLoad, molecule, chunkSize, false);
     }
+
+    public void sendMRCapture(ushort client_id, bool rec)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.MRCapture);
+        message.AddBool(rec);
+        Server.Send(message, client_id);
+    }
+
     public void bcastMoveAtom(ushort mol_id, ushort atom_id, Vector3 pos)
     {
         // Broadcast to other clients
@@ -343,6 +357,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddFloats(SettingsData.timeFactors);
         message.AddString(SettingsData.interactionMode.ToString());
         message.AddBools(SettingsData.coop);
+        message.AddBool(SettingsData.networkMeasurements);
         Server.SendToAll(message);
     }
 
@@ -352,6 +367,43 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddUShort(0);
         message.AddUShort(mol_id);
         message.AddFloat(scale);
+        Server.SendToAll(message);
+    }
+
+    public void bcastCreateMeasurement(ushort mol1_id, ushort atom1_id, ushort mol2_id, ushort atom2_id)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastCreateMeasurement);
+        message.AddUShort(0);
+        message.AddUShort(mol1_id);
+        message.AddUShort(atom1_id);
+        message.AddUShort(mol2_id);
+        message.AddUShort(atom2_id);
+        Server.SendToAll(message);
+    }
+
+    public void bcastClearMeasurements()
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastClearMeasurements);
+        message.AddUShort(0);
+        Server.SendToAll(message);
+    }
+
+    public void bcastFreezeAtom(ushort mol_id, ushort atom_id, bool freeze)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastFreezeAtom);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        message.AddUShort(atom_id);
+        message.AddBool(freeze);
+        Server.SendToAll(message);
+    }
+
+    public void bcastFreezeMolecule(ushort mol_id, bool freeze)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastFreezeMolecule);
+        message.AddUShort(0);
+        message.AddUShort(mol_id);
+        message.AddBool(freeze);
         Server.SendToAll(message);
     }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.UI;
 
 public class CameraSwitcher : MonoBehaviour
 {
@@ -26,11 +27,12 @@ public class CameraSwitcher : MonoBehaviour
         }
     }
 
-    public Dictionary<ushort, GameObject> pannel = new Dictionary<ushort, GameObject>();
+    public Dictionary<ushort, GameObject> panel = new Dictionary<ushort, GameObject>();
     public Canvas canvas;
     private Dictionary<ushort, Camera> cameras = new Dictionary<ushort, Camera>();
 
     public GameObject mainCamGO;
+    private GameObject userPanelEntryPrefab;
 
     private Camera currentCam_;
 
@@ -57,6 +59,7 @@ public class CameraSwitcher : MonoBehaviour
 
     private void Start()
     {
+        userPanelEntryPrefab = (GameObject)Resources.Load("prefabs/UserPanelEntryPrefab");
         currentCam = mainCamGO.GetComponent<Camera>();
         addCamera(0, currentCam);
     }
@@ -81,26 +84,33 @@ public class CameraSwitcher : MonoBehaviour
         if (!cameras.ContainsKey(id))
         {
             // create UI entry
-            if (id == 0)
+            var userPanelEntryInstace = Instantiate(userPanelEntryPrefab, UserPanel.Singleton.transform);
+            var user_panel_entry = userPanelEntryInstace.GetComponent<UserPanelEntry>();
+            user_panel_entry.client_id = id;
+
+            user_panel_entry.user_name_label.text = id == 0 ? "ServerCamera" : UserServer.list[id].deviceName;
+
+            var device_type = id == 0 ? myDeviceType.PC : UserServer.list[id].deviceType;
+
+            if (device_type == myDeviceType.PC)
             {
-                var userPannelEntryPrefab = (GameObject)Resources.Load("prefabs/UserPannelEntryPrefab");
-                var userPannelEntryInstace = Instantiate(userPannelEntryPrefab, UserPannel.Singleton.transform);
-                userPannelEntryInstace.GetComponentInChildren<TextMeshProUGUI>().text = "ServerCamera";
-                pannel.Add(id, userPannelEntryInstace);
+                user_panel_entry.canRecord(false);
+                user_panel_entry.hasEyeTracking(false);
+                user_panel_entry.hasBattery(false);
             }
             else
             {
-                var userPannelEntryPrefab = (GameObject)Resources.Load("prefabs/UserPannelEntryPrefab");
-                var userPannelEntryInstace = Instantiate(userPannelEntryPrefab, UserPannel.Singleton.transform);
-                userPannelEntryInstace.GetComponentInChildren<TextMeshProUGUI>().text = UserServer.list[id].deviceName;
-                pannel.Add(id, userPannelEntryInstace);
+                user_panel_entry.canRecord(true);
+                user_panel_entry.hasEyeTracking(true);
+                user_panel_entry.hasBattery(true);
             }
 
+            panel.Add(id, userPanelEntryInstace);
 
             cameras[id] = cam;
             if (currentCam == cam)
             {
-                pannel[id].transform.Find("Background").gameObject.SetActive(true);
+                panel[id].transform.Find("Background").gameObject.SetActive(true);
             }
         }
         GlobalCtrl.Singleton.currentCamera = currentCam;
@@ -114,8 +124,8 @@ public class CameraSwitcher : MonoBehaviour
     {
         if (cameras.ContainsKey(id))
         {
-            var to_destroy = pannel[id];
-            pannel.Remove(id);
+            var to_destroy = panel[id];
+            panel.Remove(id);
             Destroy(to_destroy);
 
             cameras.Remove(id);
@@ -130,7 +140,7 @@ public class CameraSwitcher : MonoBehaviour
                 {
                     if (cam.Value == null) continue;
                     currentCam = cam.Value;
-                    pannel[cam.Key]?.transform.Find("Background").gameObject.SetActive(true);
+                    panel[cam.Key]?.transform.Find("Background").gameObject.SetActive(true);
                     break;
                 }
             }
@@ -153,14 +163,14 @@ public class CameraSwitcher : MonoBehaviour
             return;
         }
         var user_id = cameras.FirstOrDefault(x => x.Value == currentCam).Key;
-        pannel[user_id].transform.Find("Background").gameObject.SetActive(false);
+        panel[user_id].transform.Find("Background").gameObject.SetActive(false);
 
         var cams_as_list = cameras.Values.ToList();
         var id_in_list = cams_as_list.IndexOf(currentCam);
         currentCam = cameras.Values.ToList().getWrapElement(id_in_list+1);
 
         var new_user_id = cameras.FirstOrDefault(x => x.Value == currentCam).Key;
-        pannel[new_user_id].transform.Find("Background").gameObject.SetActive(true);
+        panel[new_user_id].transform.Find("Background").gameObject.SetActive(true);
         GlobalCtrl.Singleton.currentCamera = currentCam;
     }
 
@@ -175,14 +185,14 @@ public class CameraSwitcher : MonoBehaviour
             return;
         }
         var user_id = cameras.FirstOrDefault(x => x.Value == currentCam).Key;
-        pannel[user_id].transform.Find("Background").gameObject.SetActive(false);
+        panel[user_id].transform.Find("Background").gameObject.SetActive(false);
 
         var cams_as_list = cameras.Values.ToList();
         var id_in_list = cams_as_list.IndexOf(currentCam);
         currentCam = cameras.Values.ToList().getWrapElement(id_in_list - 1);
 
         var new_user_id = cameras.FirstOrDefault(x => x.Value == currentCam).Key;
-        pannel[new_user_id].transform.Find("Background").gameObject.SetActive(true);
+        panel[new_user_id].transform.Find("Background").gameObject.SetActive(true);
         GlobalCtrl.Singleton.currentCamera = currentCam;
     }
 
