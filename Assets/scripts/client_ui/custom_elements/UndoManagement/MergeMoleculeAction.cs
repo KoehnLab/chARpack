@@ -22,20 +22,20 @@ public class MergeMoleculeAction : IUndoableAction
 
     public void Undo()
     {
-        var meanPos = Vector3.zero;
-        foreach(var molecule in before)
-        {
-            meanPos += molecule.molePos;
-        }
-        meanPos /= before.Count;
-        // Adapt position
-        for (int i = 0; i < before.Count; i++)
-        {
-            cmlData molecule = before[i];
-            var offset = molecule.molePos - meanPos;
-            molecule.molePos = GlobalCtrl.Singleton.Dict_curMolecules[after.moleID].transform.localPosition + offset;
-            before[i] = molecule;
-        }
+        //var meanPos = Vector3.zero;
+        //foreach(var molecule in before)
+        //{
+        //    meanPos += molecule.molePos;
+        //}
+        //meanPos /= before.Count;
+        //// Adapt position
+        //for (int i = 0; i < before.Count; i++)
+        //{
+        //    cmlData molecule = before[i];
+        //    var offset = molecule.molePos - meanPos;
+        //    molecule.molePos = GlobalCtrl.Singleton.Dict_curMolecules[after.moleID].transform.localPosition + offset;
+        //    before[i] = molecule;
+        //}
         GlobalCtrl.Singleton.deleteMolecule(after.moleID, false);
         foreach(cmlData molecule in before)
         {

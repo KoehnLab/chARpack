@@ -23,12 +23,10 @@ public class DeleteAtomAction : IUndoableAction
     {
         // Set position to that of one of the resulting molecules since
         // they might have been moved anywhere separately
-        var newPos = GlobalCtrl.Singleton.Dict_curMolecules[after[0].moleID].transform.localPosition;
         foreach (cmlData molecule in after)
         {
             GlobalCtrl.Singleton.deleteMolecule(molecule.moleID, false);
         }
-        before.molePos = newPos;
         GlobalCtrl.Singleton.BuildMoleculeFromCML(before, before.moleID);
     }
 }
