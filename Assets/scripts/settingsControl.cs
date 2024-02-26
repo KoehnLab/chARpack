@@ -61,7 +61,7 @@ public class settingsControl : MonoBehaviour
         setTimeFactors(SettingsData.timeFactors);
         setCoopSettings(SettingsData.coop);
         setInteractionMode(SettingsData.interactionMode);
-        // gaze and pointer highlighting are handled by checking the value in SettingsData directly in the script
+        // gaze and pointer highlighting and color interpolation are handled by checking the value in SettingsData directly in the script
     }
 
     public void setForceField(bool value)

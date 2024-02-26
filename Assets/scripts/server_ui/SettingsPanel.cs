@@ -21,6 +21,7 @@ public class SettingsPanel : MonoBehaviour
     public GameObject languageDropdown;
     public GameObject gazeHighlightingToggle;
     public GameObject pointerHighlightingToggle;
+    public GameObject bondColorInterpolationToggle;
     public GameObject integrationMethodDropdown;
     public GameObject interactionModeDropdown;
     public GameObject eulerSlider;
@@ -67,6 +68,8 @@ public class SettingsPanel : MonoBehaviour
         gazeHighlightingToggle.GetComponent<Toggle>().isOn = SettingsData.gazeHighlighting;
 
         pointerHighlightingToggle.GetComponent<Toggle>().isOn = SettingsData.pointerHighlighting;
+
+        bondColorInterpolationToggle.GetComponent<Toggle>().isOn = SettingsData.interpolateColors;
 
         int langValue = 0;
         if (SettingsData.language == "de")
@@ -129,6 +132,7 @@ public class SettingsPanel : MonoBehaviour
                                                 mpSlider.GetComponent<Slider>().value };
         SettingsData.coop = new bool[] { userBoxToggle.GetComponent<Toggle>().isOn, userRayToggle.GetComponent<Toggle>().isOn };
         SettingsData.networkMeasurements = networkMeasurementsToggle.GetComponent<Toggle>().isOn;
+        SettingsData.interpolateColors = bondColorInterpolationToggle.GetComponent<Toggle>().isOn;
 
         settingsControl.Singleton.updateSettings();
         EventManager.Singleton.UpdateSettings();
