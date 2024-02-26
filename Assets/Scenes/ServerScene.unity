@@ -7029,8 +7029,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1915393805}
-        m_TargetAssemblyTypeName: SettingsPannel, Assembly-CSharp
-        m_MethodName: togglePannel
+        m_TargetAssemblyTypeName: SettingsPanel, Assembly-CSharp
+        m_MethodName: togglePanel
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8682,8 +8682,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canvas: {fileID: 605924874}
   mainCamGO: {fileID: 445067727}
-  eyeCalibIcon: {fileID: 21300000, guid: 2049b348e8c534049b16da91104ac238, type: 3}
-  noEyeCalibIcon: {fileID: 21300000, guid: 8e2f22ce46e0922418a29b54ca6d114f, type: 3}
 --- !u!4 &1049399385
 Transform:
   m_ObjectHideFlags: 0
