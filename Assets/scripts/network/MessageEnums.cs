@@ -4,7 +4,7 @@ using UnityEngine;
 
 public enum ClientToServerID : ushort
 {
-    deviceNameAndType = 1,
+    deviceNameAndType = 1000,
     positionAndRotation,
     atomCreated,
     moleculeMoved,
@@ -43,14 +43,14 @@ public enum ClientToServerID : ushort
 
 public enum ServerToClientID : ushort
 {
-    userSpawned = 1,
+    userSpawned = 2000,
     bcastPositionAndRotation,
     bcastAtomCreated,
     bcastMoleculeMoved,
     bcastAtomMoved,
-    sendAtomWorld,
+    sendAtomWorld = 2005,
     bcastMoleculeMerged,
-    bcastMoleculeLoad,
+    bcastMoleculeLoad = 2007,
     bcastDeleteEverything,
     bcastDeleteAtom,
     bcastDeleteBond,
@@ -67,7 +67,7 @@ public enum ServerToClientID : ushort
     bcastModifyHyb,
     bcastKeepConfig,
     bcastReplaceDummies,
-    bcastSettings,
+    bcastSettings = 2024,
     bcastFocusHighlight,
     bcastScaleMolecule,
     bcastFreezeAtom,
@@ -78,6 +78,19 @@ public enum ServerToClientID : ushort
     MRCapture,
     requestEyeCalibrationState,
     requestBatteryState
+}
+
+public enum SimToServerID : ushort
+{
+    sendInit = 3000,
+    sendMolecule = 3001,
+    sendMoleculeUpdate = 3002,
+}
+
+public enum ServerToSimID : ushort
+{
+    pauseSim = 4000,
+    stopSim
 }
 
 public enum myDeviceType : ushort
