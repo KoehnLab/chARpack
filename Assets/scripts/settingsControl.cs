@@ -61,6 +61,7 @@ public class settingsControl : MonoBehaviour
         setTimeFactors(SettingsData.timeFactors);
         setCoopSettings(SettingsData.coop);
         setInteractionMode(SettingsData.interactionMode);
+        GlobalCtrl.Singleton.reloadShaders();
         // gaze and pointer highlighting and color interpolation are handled by checking the value in SettingsData directly in the script
     }
 

@@ -7110,8 +7110,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1915393805}
-        m_TargetAssemblyTypeName: SettingsPannel, Assembly-CSharp
-        m_MethodName: togglePannel
+        m_TargetAssemblyTypeName: SettingsPanel, Assembly-CSharp
+        m_MethodName: togglePanel
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
