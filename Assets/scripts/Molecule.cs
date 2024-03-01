@@ -550,6 +550,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// </summary>
     public void toggleDummies()
     {
+        cmlData before_ = this.AsCML();
         var dummyCount = countAtoms("Dummy");
         var hydrogenCount = countAtoms("H");
         if (dummyCount >= hydrogenCount)
@@ -572,6 +573,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 }
             }
         }
+        cmlData after = this.AsCML();
+        GlobalCtrl.Singleton.undoStack.AddChange(new ToggleDummiesAction(before_, after));
         GlobalCtrl.Singleton.SaveMolecule(true);
     }
 
