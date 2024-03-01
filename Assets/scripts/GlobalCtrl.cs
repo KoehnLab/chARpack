@@ -1545,7 +1545,7 @@ public class GlobalCtrl : MonoBehaviour
         Molecule molInAir = dummyInAir.m_molecule;
 
         before.Add(molInHand.AsCML());
-        before.Add(molInAir.AsCML());
+        if (molInAir.m_id != molInHand.m_id) { before.Add(molInAir.AsCML()); }
         // scale before merge
         molInHand.transform.localScale = molInAir.transform.localScale;
         Bond bondInHand = molInHand.bondList.Find(p=>p.atomID1 == dummyInHand.m_id || p.atomID2 == dummyInHand.m_id);
