@@ -17,8 +17,6 @@ public class Bond : MonoBehaviour
     [HideInInspector] public Molecule m_molecule;
     [HideInInspector] public bool isMarked = false;
 
-    public static bool interpolateColors = true;
-
     /// <summary>
     /// initialises the bond between two atoms
     /// </summary>
@@ -35,11 +33,11 @@ public class Bond : MonoBehaviour
         gameObject.tag = "Bond";
         gameObject.layer = 7;
         m_molecule.bondList.Add(this);
-        float offset1 = _atom1.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f;
-        float offset2 = _atom2.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f;
+        float offset1 = _atom1.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f *m_molecule.transform.localScale.x;
+        float offset2 = _atom2.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f * m_molecule.transform.localScale.x;
         float distance = (Vector3.Distance(_atom1.transform.position, _atom2.transform.position) - offset1 - offset2) / m_molecule.transform.localScale.x;
-        Vector3 pos1 = Vector3.MoveTowards(_atom1.transform.position, _atom2.transform.position, offset1*m_molecule.transform.localScale.x);
-        Vector3 pos2 = Vector3.MoveTowards(_atom2.transform.position, _atom1.transform.position, offset2*m_molecule.transform.localScale.x);
+        Vector3 pos1 = Vector3.MoveTowards(_atom1.transform.position, _atom2.transform.position, offset1);
+        Vector3 pos2 = Vector3.MoveTowards(_atom2.transform.position, _atom1.transform.position, offset2);
         transform.position = (pos1 + pos2) / 2;
         transform.LookAt(_atom1.transform);
         transform.parent = inputMole.transform;
@@ -151,7 +149,7 @@ public class Bond : MonoBehaviour
         renderer.material.SetVector("_Color1", color1);
         renderer.material.SetVector("_Color2", color2);
         // Shader graphs don't have setBool, so workaround using floats
-        renderer.material.SetFloat("_InterpolateColors", interpolateColors ? 1.0f : 0.0f);
+        renderer.material.SetFloat("_InterpolateColors", SettingsData.interpolateColors ? 1.0f : 0.0f);
     }
 
 }

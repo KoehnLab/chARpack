@@ -835,12 +835,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             Atom a2 = m_molecule.atomList.ElementAtOrDefault(bond.atomID2);
             var a1_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a1.transform.position);
             var a2_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a2.transform.position);
-            float offset1 = a1.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f;
-            float offset2 = a2.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f;
+            float offset1 = a1.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f * m_molecule.transform.localScale.x;
+            float offset2 = a2.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f * m_molecule.transform.localScale.x;
             float distance = (Vector3.Distance(a1_pos, a2_pos) - offset1 - offset2) / m_molecule.transform.localScale.x;
             bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
-            Vector3 pos1 = Vector3.MoveTowards(a1_pos, a2_pos, offset1*m_molecule.transform.localScale.x);
-            Vector3 pos2 = Vector3.MoveTowards(a2_pos, a1_pos, offset2*m_molecule.transform.localScale.x);
+            Vector3 pos1 = Vector3.MoveTowards(a1_pos, a2_pos, offset1);
+            Vector3 pos2 = Vector3.MoveTowards(a2_pos, a1_pos, offset2);
             bond.transform.position = (pos1 + pos2) / 2;
             bond.transform.LookAt(a2.transform.position);
         }

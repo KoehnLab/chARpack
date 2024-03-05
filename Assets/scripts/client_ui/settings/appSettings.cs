@@ -267,7 +267,7 @@ public class appSettings : MonoBehaviour
     /// </summary>
     public void toggleColorInterpolation()
     {
-        Bond.interpolateColors = !Bond.interpolateColors;
+        SettingsData.interpolateColors = !SettingsData.interpolateColors;
         GlobalCtrl.Singleton.reloadShaders();
         updateVisuals();
     }
@@ -537,7 +537,7 @@ public class appSettings : MonoBehaviour
         setVisual(HandRayIndicator, SettingsData.handRay);
         setVisual(ForceFieldIndicator, SettingsData.forceField);
         setVisual(SpatialMeshIndicator, SettingsData.spatialMesh);
-        setVisual(ColorInterpolationIndicator, Bond.interpolateColors);
+        setVisual(ColorInterpolationIndicator, SettingsData.interpolateColors);
 
         if (DebugWindow.Singleton == null)
         {
