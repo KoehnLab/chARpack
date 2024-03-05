@@ -1088,7 +1088,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             }
             currentLayer = nextLayer;
         }
-        chainAtomList.RemoveAll(item => item == this);
         return new List<Atom>(new HashSet<Atom>(chainAtomList));
     }
 
