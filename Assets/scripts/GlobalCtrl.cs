@@ -1711,6 +1711,7 @@ public class GlobalCtrl : MonoBehaviour
         moveMolecule(freshMoleculeID, moleData.molePos + Vector3.up*0.05f, moleData.moleQuat);
         EventManager.Singleton.MoveMolecule(freshMoleculeID, moleData.molePos + Vector3.up * 0.05f, moleData.moleQuat);
         EventManager.Singleton.ChangeMolData(tempMolecule);
+        undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id,tempMolecule.AsCML()));
     }
     #endregion
 
