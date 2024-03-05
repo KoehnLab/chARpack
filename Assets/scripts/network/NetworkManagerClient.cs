@@ -944,6 +944,8 @@ public class NetworkManagerClient : MonoBehaviour
         var timeFactors = message.GetFloats();
         var interactionModeString = message.GetString();
         var coop = message.GetBools();
+        var networkMeasurements = message.GetBool();
+        var interpolateColors = message.GetBool();
 
         // Get enum entries from strings
         Enum.TryParse(integrationMethodString, ignoreCase: true, out ForceField.Method integrationMethod);
@@ -967,6 +969,8 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.timeFactors = timeFactors;
             SettingsData.interactionMode = interactionMode;
             SettingsData.coop = coop;
+            SettingsData.networkMeasurements = networkMeasurements;
+            SettingsData.interpolateColors = interpolateColors;
             settingsControl.Singleton.updateSettings();
             if (appSettings.Singleton != null)
             {
