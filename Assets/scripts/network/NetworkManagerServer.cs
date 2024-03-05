@@ -359,6 +359,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddString(SettingsData.interactionMode.ToString());
         message.AddBools(SettingsData.coop);
         message.AddBool(SettingsData.networkMeasurements);
+        message.AddBool(SettingsData.interpolateColors);
         Server.SendToAll(message);
     }
 

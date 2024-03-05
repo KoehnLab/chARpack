@@ -19,4 +19,5 @@ public class SettingsData
     [SerializeField] static public GlobalCtrl.InteractionModes interactionMode = GlobalCtrl.InteractionModes.NORMAL;
     [SerializeField] static public bool[] coop = new bool[] { /*User box*/true, /*User ray*/true };
     [SerializeField] static public bool networkMeasurements = true;
+    [SerializeField] static public bool interpolateColors = true;
 }
