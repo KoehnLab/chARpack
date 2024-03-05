@@ -528,10 +528,6 @@ public class GlobalCtrl : MonoBehaviour
         {
             EventManager.Singleton.ChangeMolData(m);
         }
-
-        // Reset maximum molecule ID after deleting atom world
-        // TODO: Do we need to do this?
-        if (deleteAll) curMaxMolId = 0;
     }
 
     /// <summary>

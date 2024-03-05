@@ -19,6 +19,6 @@ public class DeleteAllAction : IUndoableAction
     public void Undo()
     {
         // Preserve previous IDs
-        GlobalCtrl.Singleton.rebuildAtomWorld(atomWorld, true);
+        GlobalCtrl.Singleton.rebuildAtomWorld(atomWorld);
     }
 }
