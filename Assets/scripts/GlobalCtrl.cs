@@ -1779,6 +1779,7 @@ public class GlobalCtrl : MonoBehaviour
         loadData = (List<cmlData>)XMLFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
         if (loadData != null)
         {
+            undoStack.AddChange(new LoadMoleculeAction(loadData));
             int nMol = 0;
             foreach (cmlData molecule in loadData)
             {
