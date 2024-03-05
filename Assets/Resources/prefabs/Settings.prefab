@@ -21986,7 +21986,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 124748820260027915}
         m_TargetAssemblyTypeName: appSettings, Assembly-CSharp
-        m_MethodName: toggleCoopSettings
+        m_MethodName: toggleVisualSettingsMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
