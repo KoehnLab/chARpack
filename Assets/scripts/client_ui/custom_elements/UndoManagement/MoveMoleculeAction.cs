@@ -27,7 +27,6 @@ public class MoveMoleculeAction : IUndoableAction
 
     public void Undo()
     {
-        GlobalCtrl.Singleton.deleteMolecule(after.moleID, false);
-        GlobalCtrl.Singleton.BuildMoleculeFromCML(before, before.moleID);
+        GlobalCtrl.Singleton.Dict_curMolecules[after.moleID].transform.localPosition = before.molePos;
     }
 }
