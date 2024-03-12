@@ -1271,9 +1271,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     public List<Vector3> FFlastlastPosition = new List<Vector3>();
     public List<Vector3> FFvelocity = new List<Vector3>();
     public List<Vector3> FFforces = new List<Vector3>();
+    public List<Vector3> FFlastForces = new List<Vector3>();
     public List<Vector3> FFforces_pass2 = new List<Vector3>();
     public List<Vector3> FFmovement = new List<Vector3>();
     public List<Vector3> FFtimeStep = new List<Vector3>();
+    public List<float> FFlambda = new List<float>();
 
     public List<ForceField.BondTerm> bondTerms = new List<ForceField.BondTerm>();
     public List<ForceField.AngleTerm> angleTerms = new List<ForceField.AngleTerm>();
@@ -1302,17 +1304,21 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             mol.FFlastlastPosition.Clear();
             mol.FFvelocity.Clear();
             mol.FFforces.Clear();
+            mol.FFlastForces.Clear();
             mol.FFforces_pass2.Clear();
             mol.FFmovement.Clear();
             mol.FFtimeStep.Clear();
+            mol.FFlambda.Clear();
             foreach (var a in mol.atomList)
             {
                 mol.FFposition.Add(a.transform.position * (1f / ForceField.scalingfactor));
                 mol.FFvelocity.Add(Vector3.zero);
                 mol.FFforces.Add(Vector3.zero);
+                mol.FFlastForces.Add(Vector3.zero);
                 mol.FFforces_pass2.Add(Vector3.zero);
                 mol.FFmovement.Add(Vector3.zero);
                 mol.FFtimeStep.Add(Vector3.one * ForceField.Singleton.RKtimeFactor);
+                mol.FFlambda.Add(ForceField.SDdefaultLambda);
             }
             mol.FFlastPosition = mol.FFposition;
             mol.FFlastlastPosition = mol.FFposition;

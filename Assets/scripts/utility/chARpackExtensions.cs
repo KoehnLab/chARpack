@@ -168,4 +168,14 @@ public static class chARpackExtensions
         }
         return list;
     }
+
+    public static float CalculateCosineSimilarity(Vector3 vecA, Vector3 vecB)
+    {
+        var dotProduct = Vector3.Dot(vecA, vecB);
+        var magnitudeOfA = vecA.magnitude;
+        var magnitudeOfB = vecB.magnitude;
+
+        return dotProduct / (magnitudeOfA * magnitudeOfB);
+    }
+
 }

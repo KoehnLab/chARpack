@@ -66,6 +66,12 @@ public class ForceField : MonoBehaviour
     float RKstepMax = 0.25f;
     float RKc = 0.1f;
     private float alpha = 0.5f;
+    public static float SDepsilon = 0.0001f;
+    public static float SDdefaultLambda = 1f;
+    public static float SDsimilarity = 0.9f;
+    public static float SDstepReduction = 0.75f;
+    public static float SDstepIncrease = 1.1f;
+
 
     // Stiffness of molecules/bonds
     ushort _stiffness;
@@ -84,7 +90,8 @@ public class ForceField : MonoBehaviour
         RungeKutta,
         Heun,
         Ralston,
-        MidPoint
+        MidPoint,
+        SteepestDecent
     }
     public Method _currentMethod;
 
@@ -220,6 +227,9 @@ public class ForceField : MonoBehaviour
                 currentMethod = Method.Ralston;
                 break;
             case Method.Ralston:
+                currentMethod = Method.SteepestDecent;
+                break;
+            case Method.SteepestDecent:
                 currentMethod = Method.MidPoint;
                 break;
             default:
@@ -246,8 +256,11 @@ public class ForceField : MonoBehaviour
             case Method.Ralston:
                 currentMethod = Method.Heun;
                 break;
-            default:
+            case Method.SteepestDecent:
                 currentMethod = Method.Ralston;
+                break;
+            default:
+                currentMethod = Method.SteepestDecent;
                 break;
         }
     }
@@ -265,7 +278,7 @@ public class ForceField : MonoBehaviour
         }
         // init integration variables
         stiffness = SettingsData.bondStiffness;
-        currentMethod = Method.MidPoint;
+        currentMethod = SettingsData.integrationMethod;
 
         Dictionary<string, ElementData> element_dict = GlobalCtrl.Singleton.Dic_ElementData;
         if ( element_dict == null)
@@ -467,6 +480,9 @@ public class ForceField : MonoBehaviour
                     break;
                 case Method.MidPoint:
                     midpointIntegration();
+                    break;
+                case Method.SteepestDecent:
+                    steepestDecent();
                     break;
             }
             applyMovements();
@@ -884,9 +900,44 @@ public class ForceField : MonoBehaviour
                     mol.FFlastlastPosition[iAtom] = mol.FFlastPosition[iAtom];
                     mol.FFlastPosition[iAtom] = current_pos;
                 }
-                    else
+                else
                 {
                     mol.FFmovement[iAtom] = Vector3.zero;
+                }
+            }
+        }
+    }
+
+    void steepestDecent()
+    {
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        {
+
+            // update position and total movement:
+            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            {
+                // negative masses flag a fixed atom
+                if (!mol.atomList[iAtom].isGrabbed && mol.atomList[iAtom].m_data.m_mass > 0 && mol.FFforces[iAtom].magnitude > SDepsilon)
+                {
+                    if (Vector3.Dot(mol.FFforces[iAtom], mol.FFlastForces[iAtom]) < 0)
+                    {
+                        mol.FFlambda[iAtom] *= SDstepReduction;
+                    }
+                    if (chARpackExtensions.CalculateCosineSimilarity( mol.FFforces[iAtom], mol.FFlastForces[iAtom]) > SDsimilarity)
+                    {
+                        mol.FFlambda[iAtom] *= SDstepIncrease;
+                    }
+                    var current_pos = mol.FFposition[iAtom];
+
+                    mol.FFposition[iAtom] = current_pos + mol.FFlambda[iAtom] * mol.FFforces[iAtom];
+
+                    mol.FFmovement[iAtom] += mol.FFposition[iAtom] - current_pos;
+                    mol.FFlastForces[iAtom] = mol.FFforces[iAtom];
+                }
+                else
+                {
+                    mol.FFmovement[iAtom] = Vector3.zero;
+                    mol.FFlambda[iAtom] = SDdefaultLambda;
                 }
             }
         }
