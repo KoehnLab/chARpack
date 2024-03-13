@@ -337,6 +337,10 @@ MonoBehaviour:
     m_Key: InterpolateBondColors
     m_Metadata:
       m_Items: []
+  - m_Id: 93217280147619840
+    m_Key: SteepestDescent
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
