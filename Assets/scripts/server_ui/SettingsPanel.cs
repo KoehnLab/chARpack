@@ -24,6 +24,7 @@ public class SettingsPanel : MonoBehaviour
     public GameObject bondColorInterpolationToggle;
     public GameObject integrationMethodDropdown;
     public GameObject interactionModeDropdown;
+    public GameObject lengthUnitDropdown;
     public GameObject eulerSlider;
     public GameObject svSlider;
     public GameObject rkSlider;
@@ -84,6 +85,8 @@ public class SettingsPanel : MonoBehaviour
         int interactionModeValue = (int)SettingsData.interactionMode;
         interactionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().value = interactionModeValue;
 
+        lengthUnitDropdown.GetComponent<TMPro.TMP_Dropdown>().value = SettingsData.useAngstrom ? 0 : 1;
+
         eulerSlider.GetComponent<Slider>().value = SettingsData.timeFactors[0];
         eulerSlider.GetComponent<UpdateSliderLabel>().updateLabel();
 
@@ -126,6 +129,7 @@ public class SettingsPanel : MonoBehaviour
         interactionString = interactionString.Replace(" ", "_");
         Enum.TryParse(interactionString, ignoreCase:true, out GlobalCtrl.InteractionModes mode);
         SettingsData.interactionMode = mode;
+        SettingsData.useAngstrom = lengthUnitDropdown.GetComponent<TMPro.TMP_Dropdown>().value == 0;
         SettingsData.timeFactors = new float[]{ eulerSlider.GetComponent<Slider>().value, 
                                                 svSlider.GetComponent<Slider>().value, 
                                                 rkSlider.GetComponent<Slider>().value, 
