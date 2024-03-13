@@ -337,6 +337,14 @@ MonoBehaviour:
     m_Key: InterpolateBondColors
     m_Metadata:
       m_Items: []
+  - m_Id: 93195326913019904
+    m_Key: EquilibriumDistance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 93203354865401856
+    m_Key: Settings/Settings/ButtonCollection/ToggleLengthUnit/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

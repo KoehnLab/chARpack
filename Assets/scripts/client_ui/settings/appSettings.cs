@@ -69,6 +69,8 @@ public class appSettings : MonoBehaviour
     public GameObject RKTimeFactorSlider;
     public GameObject MPTimeFactorSlider;
 
+    public GameObject LengthUnitLabel;
+
     private Color orange = new Color(1.0f, 0.5f, 0.0f);
 
     private void Start()
@@ -234,6 +236,18 @@ public class appSettings : MonoBehaviour
         {
             LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("en");
         }
+    }
+
+    /// <summary>
+    /// Toggles the unit of length used for displaying and entering distances.
+    /// The button switches between Angstrom and picometers, Angstrom being the default.
+    /// </summary>
+    public void toggleLengthUnit()
+    {
+        SettingsData.useAngstrom = !SettingsData.useAngstrom;
+        LengthUnitLabel.GetComponent<TextMeshPro>().text = SettingsData.useAngstrom ? "\u00C5" : "pm";
+        GlobalCtrl.Singleton.regenerateSingleBondTooltips();
+
     }
     #endregion
 
