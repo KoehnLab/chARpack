@@ -245,8 +245,7 @@ public class appSettings : MonoBehaviour
     public void toggleLengthUnit()
     {
         SettingsData.useAngstrom = !SettingsData.useAngstrom;
-        LengthUnitLabel.GetComponent<TextMeshPro>().text = SettingsData.useAngstrom ? "\u00C5" : "pm";
-        GlobalCtrl.Singleton.regenerateSingleBondTooltips();
+        updateVisuals();
 
     }
     #endregion
@@ -573,6 +572,9 @@ public class appSettings : MonoBehaviour
             setVisual(UserRayIndicator, SettingsData.coop[1]);
         }
         setVisual(NetworkMeasurementIndicator, SettingsData.networkMeasurements);
+
+        LengthUnitLabel.GetComponent<TextMeshPro>().text = SettingsData.useAngstrom ? "\u00C5" : "pm";
+        GlobalCtrl.Singleton.regenerateSingleBondTooltips();
     }
 
     /// <summary>
