@@ -23,6 +23,12 @@ public class ChangeBond : MonoBehaviour
     public ForceField.AngleTerm at { get => at_; set { at_ = value; initTextFieldsAT(); } }
     public ForceField.TorsionTerm tt { get => tt_; set { tt_ = value; initTextFieldsTT(); } }
 
+    public void reloadTextFieldsBT()
+    {
+        angleOrDistLabel.GetComponent<TextMeshProUGUI>().text = angleOrDistLabel.GetComponent<TextMeshProUGUI>().text.TrimEnd(new char[] { ' ', '(', ')', '\u00C5', 'p', 'm' });
+        initTextFieldsBT();
+    }
+
     private void initTextFieldsBT()
     {
         angleOrDistLabel.GetComponent<TextMeshProUGUI>().text += SettingsData.useAngstrom ? " (\u00C5)" : " (pm)";

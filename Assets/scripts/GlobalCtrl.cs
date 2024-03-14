@@ -2200,6 +2200,14 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    public void regenerateChangeBondWindows()
+    {
+        foreach(var cb in FindObjectsOfType<ChangeBond>())
+        {
+            cb.reloadTextFieldsBT();
+        }
+    }
+
     private Atom findAtomById(Molecule m, ushort id)
     {
         foreach (Atom a in m.atomList)

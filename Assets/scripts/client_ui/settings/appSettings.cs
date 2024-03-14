@@ -573,8 +573,14 @@ public class appSettings : MonoBehaviour
         }
         setVisual(NetworkMeasurementIndicator, SettingsData.networkMeasurements);
 
-        LengthUnitLabel.GetComponent<TextMeshPro>().text = SettingsData.useAngstrom ? "\u00C5" : "pm";
+        setLengthUnitVisuals(SettingsData.useAngstrom);
+    }
+
+    public void setLengthUnitVisuals(bool useAngstrom)
+    {
+        LengthUnitLabel.GetComponent<TextMeshPro>().text = useAngstrom ? "\u00C5" : "pm";
         GlobalCtrl.Singleton.regenerateSingleBondTooltips();
+        GlobalCtrl.Singleton.regenerateChangeBondWindows();
     }
 
     /// <summary>
