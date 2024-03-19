@@ -134,7 +134,13 @@ public class DistanceMeasurement : MonoBehaviour
             Label.transform.position = (endAtom.transform.position - startAtom.transform.position) / 2f + startAtom.transform.position;
             wDirection = endAtom.transform.position - startAtom.transform.position;
         }
-        Label.text = (dist * (1f/ForceField.scalingfactor) * 0.01f * (1f/startAtom.m_molecule.transform.localScale.x)).ToString("F2") + " \u00C5"; // conversion to Angstrom
+        if (SettingsData.useAngstrom)
+        {
+            Label.text = (dist * (1f / ForceField.scalingfactor) * 0.01f * (1f / startAtom.m_molecule.transform.localScale.x)).ToString("F2") + " \u00C5"; // conversion to Angstrom
+        } else
+        {
+            Label.text = (dist * (1f / ForceField.scalingfactor) * (1f / startAtom.m_molecule.transform.localScale.x)).ToString() + " pm";
+        }
         Label.transform.forward = GlobalCtrl.Singleton.currentCamera.transform.forward;
     }
 

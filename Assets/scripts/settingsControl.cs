@@ -62,6 +62,7 @@ public class settingsControl : MonoBehaviour
         setCoopSettings(SettingsData.coop);
         setInteractionMode(SettingsData.interactionMode);
         GlobalCtrl.Singleton.reloadShaders();
+        GlobalCtrl.Singleton.regenerateSingleBondTooltips(); // Regenerate in case length unit was changed
         // gaze and pointer highlighting and color interpolation are handled by checking the value in SettingsData directly in the script
     }
 

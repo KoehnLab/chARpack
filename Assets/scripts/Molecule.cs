@@ -132,8 +132,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             {
                 string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
                 string[] distance = text[2].Split(": ");
-                double dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>().getDistanceInAngstrom();
-                string newDistance = string.Concat(distance[0], ": ", $"{dist:0.00}\u00C5");
+                double dist = SettingsData.useAngstrom ? toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>().getDistanceInAngstrom()
+                    : toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>().getDistanceInAngstrom()*100;
+                string distanceString = SettingsData.useAngstrom ? $"{dist:0.00}\u00C5" : $"{dist:0}pm";
+                string newDistance = string.Concat(distance[0], ": ", distanceString);
                 text[2] = newDistance;
 
                 toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
@@ -1085,7 +1087,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string singleBond = GlobalCtrl.Singleton.GetLocalizedString("SINGLE_BOND");
         string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
         string ord = GlobalCtrl.Singleton.GetLocalizedString("ORDER");
-        string toolTipText = $"{singleBond}\n{dist}: {eqDist:0.00}\u00C5\n{current}: {curDist:0.00}\u00C5\nk: {kBond:0.00}\n{ord}: {order:0.00}";
+        string distanceInCorrectUnit = SettingsData.useAngstrom ? $"{ dist}: { eqDist: 0.00}\u00C5" : $"{dist}: {eqDist*100:0}pm";
+        string curDistanceInCorrectUnit = SettingsData.useAngstrom ? $"{ current}: { curDist: 0.00}\u00C5" : $"{current}: {curDist*100:0}pm";
+        string toolTipText = $"{singleBond}\n{distanceInCorrectUnit}\n{curDistanceInCorrectUnit}\nk: {kBond:0.00}\n{ord}: {order:0.00}";
         return toolTipText;
     }
 
