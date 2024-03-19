@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using chARpackColorPalette;
 
 /// <summary>
 /// This class provides functionalities for a server device.
@@ -11,8 +12,10 @@ using UnityEngine;
 public class UserServer : MonoBehaviour
 {
     public static Dictionary<ushort, UserServer> list = new Dictionary<ushort, UserServer>();
+
     public ushort ID;
     public string deviceName;
+    public Color focusColor;
     private GameObject head;
     private Vector3 offsetPos;
     private Quaternion offsetRot;
@@ -56,7 +59,7 @@ public class UserServer : MonoBehaviour
         } }
 
 
-    public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_, Vector3 offset_pos, Quaternion offset_rot)
+    public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_, Vector3 offset_pos, Quaternion offset_rot, Color focus_color)
     {
         foreach (UserServer otherUser in list.Values)
         {
@@ -78,6 +81,7 @@ public class UserServer : MonoBehaviour
         user.offsetPos = offset_pos;
         user.offsetRot = offset_rot;
         user.deviceType = deviceType_;
+        user.focusColor = focus_color;
 
 
         anchor.name = user.deviceName;
@@ -192,7 +196,8 @@ public class UserServer : MonoBehaviour
         var offset_pos = message.GetVector3();
         var offset_rot = message.GetQuaternion();
         Debug.Log($"[UserServer] Got name {name}, and device type {type} from client {fromClientId}");
-        spawn(fromClientId, name, type, offset_pos, offset_rot);
+        var focus_color = FocusColors.getNext();
+        spawn(fromClientId, name, type, offset_pos, offset_rot, focus_color);
     }
 
     private void sendSpawned()
@@ -206,7 +211,7 @@ public class UserServer : MonoBehaviour
     {
         Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.userSpawned);
 
-        NetworkManagerServer.Singleton.Server.Send(addSpawnData(message),toClientID);
+        NetworkManagerServer.Singleton.Server.Send(addSpawnData(message), toClientID);
     }
 
     private Message addSpawnData(Message message)
@@ -214,6 +219,7 @@ public class UserServer : MonoBehaviour
         message.AddUShort(ID);
         message.AddString(deviceName);
         message.AddUShort((ushort)deviceType);
+        message.AddColor(focusColor);
 
         return message;
     }

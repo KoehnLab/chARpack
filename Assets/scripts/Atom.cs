@@ -15,6 +15,7 @@ using Microsoft.MixedReality.Toolkit.Utilities;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using chARpackTypes;
+using chARpackColorPalette;
 
 /// <summary>
 /// A class that provides the functionalities of single atoms.
@@ -35,47 +36,23 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private Stopwatch stopwatch;
     [HideInInspector] public GameObject toolTipInstance = null;
     private GameObject freezeButton;
-    private float toolTipDistanceWeight = 2.5f;
-    private Color notEnabledColor = Color.black;
-    private Color grabColor = Color.blue;
-    private Color focusColor = Color.white;
-    public Color currentOutlineColor = Color.black;
+    private static float toolTipDistanceWeight = 2.5f;
+    private static Color notEnabledColor = chARpackColors.black;
+    private static Color grabColor = chARpackColors.blue;
+    private static Color defaultFocusColor = chARpackColors.white;
+    public static Color currentOutlineColor = chARpackColors.black;
     public bool keepConfig = false;
     public bool frozen = false;
     private bool focused = false;
-
-    private Color orange = new Color(1.0f, 0.5f, 0.0f);
+    private float focus_alpha = 0f;
+    private float focus_ramping_constant = 1f/(3f*40f);
+    private float outline_radius_min = 5f;
+    private float outline_radius_max = 8f;
+    private float outline_radius_current = 5f;
 
     private List<Atom> currentChain = new List<Atom>();
 
     public static List<Atom> markedAtoms = new List<Atom>();
-
-    private void Start()
-    {
-        var et = GetComponent<EyeTrackingTarget>();
-        et.OnLookAtStart.AddListener(delegate { onLookStart(); });
-        et.OnLookAway.AddListener(delegate { onLookAway(); });
-    }
-
-    private void onLookStart()
-    {
-        if (!focused && SettingsData.gazeHighlighting)
-        {
-            focusHighlight(true);
-            focused = true;
-            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, true);
-        }
-    }
-
-    private void onLookAway()
-    {
-        if (focused && SettingsData.gazeHighlighting)
-        {
-            focusHighlight(false);
-            focused = false;
-           EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
-        }
-    }
 
     /// <summary>
     /// Outlines the current atom in grabColor; is used upon grabbing an atom.
@@ -87,7 +64,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             if (GetComponent<Outline>().enabled)
             {
-                if (GetComponent<Outline>().OutlineColor != focusColor && GetComponent<Outline>().OutlineColor != grabColor)
+                if ((GetComponent<Outline>().OutlineColor.r != defaultFocusColor.r && 
+                    GetComponent<Outline>().OutlineColor.g != defaultFocusColor.g && 
+                    GetComponent<Outline>().OutlineColor.b != defaultFocusColor.b)
+                    && GetComponent<Outline>().OutlineColor != grabColor)
                 {
                     currentOutlineColor = GetComponent<Outline>().OutlineColor;
                 }
@@ -112,62 +92,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
     }
 
-    /// <summary>
-    /// Outlines the current atom in focusColor; is used when a pointer from the index finger gets close to the atom.
-    /// </summary>
-    /// <param name="active">Whether to activate or deactivate the focusColor outline</param>
-    public void focusHighlight(bool active)
-    {
-        if (active)
-        {
-            if (GetComponent<Outline>().enabled)
-            {
-                if (GetComponent<Outline>().OutlineColor == grabColor) return;
-                if (GetComponent<Outline>().OutlineColor != focusColor && GetComponent<Outline>().OutlineColor != grabColor)
-                {
-                    currentOutlineColor = GetComponent<Outline>().OutlineColor;
-                }
-            }
-            else
-            {
-                GetComponent<Outline>().enabled = true;
-                currentOutlineColor = notEnabledColor;
-            }
-            GetComponent<Outline>().OutlineColor = focusColor;
-        }
-        else
-        {
-            if (GetComponent<Outline>().OutlineColor == grabColor) return;
-            if (currentOutlineColor == notEnabledColor)
-            {
-                GetComponent<Outline>().enabled = false;
-            }
-            else
-            {
-                GetComponent<Outline>().OutlineColor = currentOutlineColor;
-            }
-        }
-    }
-
-    private void OnFocusEnter(FocusEventData eventData)
-    {
-        if(!focused && SettingsData.pointerHighlighting)
-        {
-            focusHighlight(true);
-            focused = true;
-            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, true);
-        }
-    }
-
-    void OnFocusExit(FocusEventData eventData)
-    {
-        if (focused && SettingsData.pointerHighlighting)
-        {
-            focusHighlight(false);
-            focused = false;
-            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
-        }
-    }
+    #region mouse_interaction
 
 #if !WINDOWS_UWP
     public static bool anyArcball;
@@ -239,6 +164,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
         return vector;
     }
+
 
     // offset for mouse interaction
     public Vector3 mouse_offset = Vector3.zero;
@@ -334,7 +260,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             }
         }
     }
-#endif
+    #endif
+    #endregion
+
+    #region hand_interaction
 
     /// <summary>
     /// Handles the start of a grab gesture.
@@ -553,6 +482,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             }
         }
     }
+    #endregion
 
     /// <summary>
     /// This method is used in measurement mode to start, end and document distance and angle measurements.
@@ -639,6 +569,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     [HideInInspector] public bool isMarked = false;
 
     [HideInInspector] public GameObject m_ActiveHand = null;
+
+    #region manipulation
 
     /// <summary>
     /// initialises the atom with all it's attributes
@@ -905,8 +837,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             // single component
             //GetComponent<Renderer>().material = GlobalCtrl.Singleton.markedMat;
             GetComponent<Outline>().enabled = true;
-            GetComponent<Outline>().OutlineColor = Color.yellow;
-            currentOutlineColor = Color.yellow;
+            GetComponent<Outline>().OutlineColor = chARpackColors.yellow;
+            currentOutlineColor = chARpackColors.yellow;
         }
         else if (col == 3)
         {
@@ -919,15 +851,15 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             // as part of angle bond
             GetComponent<Outline>().enabled = true;
-            GetComponent<Outline>().OutlineColor = Color.red;
-            currentOutlineColor = Color.red;
+            GetComponent<Outline>().OutlineColor = chARpackColors.red;
+            currentOutlineColor = chARpackColors.red;
         }
         else if (col == 5)
         {
             // as part of angle bond
             GetComponent<Outline>().enabled = true;
-            GetComponent<Outline>().OutlineColor = Color.green;
-            currentOutlineColor = Color.green;
+            GetComponent<Outline>().OutlineColor = chARpackColors.green;
+            currentOutlineColor = chARpackColors.green;
         }
         else
         {
@@ -944,6 +876,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
 
     }
+
+    #endregion
 
     private void OnTriggerEnter(Collider collider)
     {
@@ -976,6 +910,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             GlobalCtrl.Singleton.collision = false;
         }
     }
+
+    #region queries
 
     /// <summary>
     /// this method calculates a list of all connected atoms for a given atom
@@ -1195,6 +1131,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         return false;
     }
 
+    #endregion
+
+    #region marking
     private void markConnectedBonds(bool mark)
     {
         foreach (var bond in connectedBonds())
@@ -1354,6 +1293,26 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     }
 
     /// <summary>
+    /// Helper method to find out if atom is part of angle bond (for tool tip regeneration)
+    /// </summary>
+    public bool anyConnectedAtomsMarked()
+    {
+        var conAtoms = connectedAtoms();
+        foreach (Atom a in conAtoms)
+        {
+            if (a.isMarked)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    #endregion
+
+    #region tooltip
+
+    /// <summary>
     /// Creates a tool tip for a single atom.
     /// This includes a localized tool tip text with data about the atom as 
     /// well as multiple buttons for different user interactions 
@@ -1436,22 +1395,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         markAtomUI(false);
     }
 
-    /// <summary>
-    /// Helper method to find out if atom is part of angle bond (for tool tip regeneration)
-    /// </summary>
-    public bool anyConnectedAtomsMarked()
-    {
-        var conAtoms = connectedAtoms();
-        foreach (Atom a in conAtoms)
-        {
-            if (a.isMarked)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
 
     public void OnDestroy()
     {
@@ -1487,6 +1430,37 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         return LocalizationSettings.StringDatabase.GetLocalizedString("Elements", text);
     }
 
+    #endregion
+
+    #region focus_highlight
+
+    private void Start()
+    {
+        var et = GetComponent<EyeTrackingTarget>();
+        et.OnLookAtStart.AddListener(delegate { onLookStart(); });
+        et.OnLookAway.AddListener(delegate { onLookAway(); });
+    }
+
+    private void onLookStart()
+    {
+        if (!focused && SettingsData.gazeHighlighting)
+        {
+            focusHighlight(true);
+            focused = true;
+            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, true);
+        }
+    }
+
+    private void onLookAway()
+    {
+        if (focused && SettingsData.gazeHighlighting)
+        {
+            focusHighlight(false);
+            focused = false;
+            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
+        }
+    }
+
     void IMixedRealityFocusHandler.OnFocusEnter(FocusEventData eventData)
     {
         OnFocusEnter(eventData);
@@ -1496,6 +1470,104 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         OnFocusExit(eventData);
     }
+
+
+    /// <summary>
+    /// Outlines the current atom in focusColor; is used when a pointer from the index finger gets close to the atom.
+    /// </summary>
+    /// <param name="active">Whether to activate or deactivate the focusColor outline</param>
+    public void focusHighlight(bool active, Color? overrideCol = null)
+    {
+        var focus_color = overrideCol.GetValueOrDefault(defaultFocusColor);
+        if (active)
+        {
+            if (GetComponent<Outline>().enabled)
+            {
+                if (GetComponent<Outline>().OutlineColor == grabColor) return;
+                if ((GetComponent<Outline>().OutlineColor.r != focus_color.r &&
+                    GetComponent<Outline>().OutlineColor.g != focus_color.g && 
+                    GetComponent<Outline>().OutlineColor.b != focus_color.b)
+                    && GetComponent<Outline>().OutlineColor != grabColor)
+                {
+                    currentOutlineColor = GetComponent<Outline>().OutlineColor;
+                }
+            }
+            else
+            {
+                GetComponent<Outline>().enabled = true;
+                currentOutlineColor = notEnabledColor;
+            }
+            var col = focus_color;
+            col.a = focus_alpha;
+            GetComponent<Outline>().OutlineColor = col;
+            GetComponent<Outline>().OutlineWidth = outline_radius_current;
+        }
+        else
+        {
+            if (GetComponent<Outline>().OutlineColor == grabColor) return;
+            if (currentOutlineColor == notEnabledColor)
+            {
+                GetComponent<Outline>().enabled = false;
+            }
+            else
+            {
+                GetComponent<Outline>().OutlineColor = currentOutlineColor;
+                GetComponent<Outline>().OutlineWidth = outline_radius_min;
+            }
+        }
+    }
+
+    private void OnFocusEnter(FocusEventData eventData)
+    {
+        if (!focused && SettingsData.pointerHighlighting)
+        {
+            focused = true;
+            focusHighlight(true);
+            outline_radius_current = outline_radius_min;
+            focus_alpha = 0f;
+            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, true);
+        }
+    }
+
+    void OnFocusExit(FocusEventData eventData)
+    {
+        if (focused && SettingsData.pointerHighlighting)
+        {
+            focused = false;
+            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (focused)
+        {
+            focus_alpha += focus_ramping_constant;
+            outline_radius_current += 3 * focus_ramping_constant;
+            if (focus_alpha > 1f) focus_alpha = 1f;
+            if (outline_radius_current > outline_radius_max) outline_radius_current = outline_radius_max;
+            focusHighlight(true);
+        }
+        else if (focus_alpha != 0f)
+        {
+            focus_alpha -= focus_ramping_constant;
+            outline_radius_current -= 3 * focus_ramping_constant;
+            if (focus_alpha <= 0f)
+            {
+                outline_radius_current = outline_radius_min;
+                focus_alpha = 0f;
+                focusHighlight(false);
+            }
+            else
+            {
+                focusHighlight(true);
+            }
+        }
+    }
+
+    #endregion
+
+    #region freezing
 
     /// <summary>
     /// Freezes/unfreezes the current atom and triggers
@@ -1551,12 +1623,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         var FrozenIndicator = freezeButton.transform.Find("IconAndText").gameObject.transform.Find("Indicator").gameObject;
         if (value)
         {
-            FrozenIndicator.GetComponent<MeshRenderer>().material.color = orange;
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.orange;
         }
         else
         {
-            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.gray;
         }
     }
+    #endregion
 
 }

@@ -1276,6 +1276,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     public List<Vector3> FFmovement = new List<Vector3>();
     public List<Vector3> FFtimeStep = new List<Vector3>();
     public List<float> FFlambda = new List<float>();
+    public List<Vector3> FFposDiff = new List<Vector3>();
 
     public List<ForceField.BondTerm> bondTerms = new List<ForceField.BondTerm>();
     public List<ForceField.AngleTerm> angleTerms = new List<ForceField.AngleTerm>();
@@ -1309,6 +1310,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             mol.FFmovement.Clear();
             mol.FFtimeStep.Clear();
             mol.FFlambda.Clear();
+            mol.FFposDiff.Clear();
             foreach (var a in mol.atomList)
             {
                 mol.FFposition.Add(a.transform.position * (1f / ForceField.scalingfactor));
@@ -1319,6 +1321,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 mol.FFmovement.Add(Vector3.zero);
                 mol.FFtimeStep.Add(Vector3.one * ForceField.Singleton.RKtimeFactor);
                 mol.FFlambda.Add(ForceField.SDdefaultLambda);
+                mol.FFposDiff.Add(Vector3.zero);
             }
             mol.FFlastPosition = mol.FFposition;
             mol.FFlastlastPosition = mol.FFposition;
@@ -1673,6 +1676,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                             }
                             else if (atomList[jdx].m_data.m_hybridization == 2)
                             {
+                                newTorsion.nn = 2;
                                 newTorsion.eqAngle = 180f;
                             }
                             else

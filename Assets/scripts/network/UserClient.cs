@@ -15,6 +15,7 @@ public class UserClient : MonoBehaviour
     public string deviceName { get; private set; }
     public myDeviceType deviceType { get; private set; }
     public bool isLocal;
+    public Color focusColor;
 
     private void OnDestroy()
     {
@@ -29,7 +30,7 @@ public class UserClient : MonoBehaviour
     /// <param name="id_"></param>
     /// <param name="deviceName_"></param>
     /// <param name="deviceType_"></param>
-    public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_)
+    public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_, Color focus_color)
     {
         Debug.Log($"[UserClient:spawn] Id from function call {id_}, id from NetworkManager {NetworkManagerClient.Singleton.Client.Id}");
         UserClient user;
@@ -64,6 +65,7 @@ public class UserClient : MonoBehaviour
         user.name = user.isLocal ? "Me" : user.deviceName;
         user.ID = id_;
         user.deviceType = deviceType_;
+        user.focusColor = focus_color;
 
         user.transform.parent = NetworkManagerClient.Singleton.userWorld.transform;
 
@@ -94,8 +96,9 @@ public class UserClient : MonoBehaviour
         var id = message.GetUShort();
         var name = message.GetString();
         var type = (myDeviceType)message.GetUShort();
+        var focus_color = message.GetColor();
 
-        spawn(id,name,type);
+        spawn(id, name, type, focus_color);
     }
 
     private void sendPositionAndRotation()

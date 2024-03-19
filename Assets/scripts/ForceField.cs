@@ -914,63 +914,25 @@ public class ForceField : MonoBehaviour
         {
 
             //    // update position and total movement:
-            //    for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
-            //    {
-            //        // negative masses flag a fixed atom
-            //        if (!mol.atomList[iAtom].isGrabbed && mol.atomList[iAtom].m_data.m_mass > 0 && mol.FFforces[iAtom].magnitude > SDepsilon)
-            //        {
-            //            if (Vector3.Dot(mol.FFforces[iAtom], mol.FFlastForces[iAtom]) < 0)
-            //            {
-            //                mol.FFlambda[iAtom] *= SDstepReduction;
-            //            }
-            //            if (chARpackExtensions.CalculateCosineSimilarity( mol.FFforces[iAtom], mol.FFlastForces[iAtom]) > SDsimilarity)
-            //            {
-            //                mol.FFlambda[iAtom] *= SDstepIncrease;
-            //            }
-            //            var current_pos = mol.FFposition[iAtom];
-
-            //            mol.FFposition[iAtom] = current_pos + mol.FFlambda[iAtom] * mol.FFforces[iAtom];
-
-            //            mol.FFmovement[iAtom] += mol.FFposition[iAtom] - current_pos;
-            //            mol.FFlastForces[iAtom] = mol.FFforces[iAtom];
-            //        }
-            //        else
-            //        {
-            //            mol.FFmovement[iAtom] = Vector3.zero;
-            //            mol.FFlambda[iAtom] = SDdefaultLambda;
-            //        }
-            //    }
-            //}
-
-            // update position and total movement:
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
             {
                 // negative masses flag a fixed atom
                 if (!mol.atomList[iAtom].isGrabbed && mol.atomList[iAtom].m_data.m_mass > 0 && mol.FFforces[iAtom].magnitude > SDepsilon)
                 {
+                    if (Vector3.Dot(mol.FFforces[iAtom], mol.FFlastForces[iAtom]) < 0)
+                    {
+                        mol.FFlambda[iAtom] *= SDstepReduction;
+                    }
+                    if (chARpackExtensions.CalculateCosineSimilarity(mol.FFforces[iAtom], mol.FFlastForces[iAtom]) > SDsimilarity)
+                    {
+                        mol.FFlambda[iAtom] *= SDstepIncrease;
+                    }
                     var current_pos = mol.FFposition[iAtom];
 
-                    var pos_diff = mol.FFposDiff[iAtom];
-                    var f_diff = mol.FFforces[iAtom] - mol.FFlastForces[iAtom];
-
-                    UnityEngine.Debug.Log($"pos_diff: {pos_diff.ToString()}");
-
-                    UnityEngine.Debug.Log($"pos_diff mag: {Mathf.Sqrt(pos_diff.x*pos_diff.x + pos_diff.y*pos_diff.y + pos_diff.z*pos_diff.z)}");
-
-                    var lambda = 0.001f* 0.5f * (Vector3.Dot(pos_diff, f_diff) / f_diff.magnitude + pos_diff.magnitude / Vector3.Dot(pos_diff, f_diff));
-
-                    if (float.IsNaN(lambda)) lambda = 0.001f;
-                    UnityEngine.Debug.Log($"lambda: {lambda}");
-                    //var lambda = Vector3.Dot(pos_diff, f_diff) / Vector3.Dot(f_diff, f_diff);
-                    //var lambda = Vector3.Dot(pos_diff, pos_diff) / Vector3.Dot(pos_diff, f_diff);
-
-
-                    mol.FFposition[iAtom] = current_pos - lambda * mol.FFforces[iAtom];
-                    UnityEngine.Debug.Log($"new_pos: {mol.FFposition[iAtom]}");
+                    mol.FFposition[iAtom] = current_pos + mol.FFlambda[iAtom] * mol.FFforces[iAtom];
 
                     mol.FFmovement[iAtom] += mol.FFposition[iAtom] - current_pos;
                     mol.FFlastForces[iAtom] = mol.FFforces[iAtom];
-                    mol.FFposDiff[iAtom] = mol.FFposition[iAtom] - current_pos;
                 }
                 else
                 {
@@ -978,6 +940,36 @@ public class ForceField : MonoBehaviour
                     mol.FFlambda[iAtom] = SDdefaultLambda;
                 }
             }
+
+        // update position and total movement:
+        //for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+        //{
+        //    // negative masses flag a fixed atom
+        //    if (!mol.atomList[iAtom].isGrabbed && mol.atomList[iAtom].m_data.m_mass > 0 && mol.FFforces[iAtom].magnitude > SDepsilon)
+        //    {
+        //        var current_pos = mol.FFposition[iAtom];
+
+        //        var pos_diff = mol.FFposDiff[iAtom];
+        //        var f_diff = mol.FFforces[iAtom] - mol.FFlastForces[iAtom];
+
+        //        var lambda = 0.001f* 0.5f * (Vector3.Dot(pos_diff, f_diff) / f_diff.magnitude + pos_diff.magnitude / Vector3.Dot(pos_diff, f_diff));
+
+        //        if (float.IsNaN(lambda)) lambda = 0.001f;
+        //        //var lambda = Vector3.Dot(pos_diff, f_diff) / Vector3.Dot(f_diff, f_diff);
+        //        //var lambda = Vector3.Dot(pos_diff, pos_diff) / Vector3.Dot(pos_diff, f_diff);
+
+        //        mol.FFposition[iAtom] = current_pos - lambda * mol.FFforces[iAtom];
+
+        //        mol.FFmovement[iAtom] += mol.FFposition[iAtom] - current_pos;
+        //        mol.FFlastForces[iAtom] = mol.FFforces[iAtom];
+        //        mol.FFposDiff[iAtom] = mol.FFposition[iAtom] - current_pos;
+        //    }
+        //    else
+        //    {
+        //        mol.FFmovement[iAtom] = Vector3.zero;
+        //        mol.FFlambda[iAtom] = SDdefaultLambda;
+        //    }
+        //}
         }
     }
 

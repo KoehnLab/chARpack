@@ -986,7 +986,7 @@ public class NetworkManagerServer : MonoBehaviour
             Debug.LogError($"[NetworkManagerServer:getFocusHighlight] Molecule with id {mol_id} or atom with id {atom_id} do not exist. Abort\n");
             return;
         }
-        atom.focusHighlight(active);
+        atom.focusHighlight(active, UserServer.list[fromClientId].focusColor);
 
         // Broadcast to other clients
         Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastFocusHighlight);
