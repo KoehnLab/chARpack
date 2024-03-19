@@ -46,6 +46,7 @@ public class UserClient : MonoBehaviour
             var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cubeUser.transform.localScale = Vector3.one * 0.2f;
             cubeUser.GetComponent<Renderer>().material = (Material)Resources.Load("materials/UserMaterial");
+            cubeUser.GetComponent<Renderer>().material.color = new Color(focus_color.r, focus_color.g, focus_color.b, 0.5f);
             cubeUser.tag = "User Box";
             user = cubeUser.AddComponent<UserClient>();
             
@@ -59,6 +60,7 @@ public class UserClient : MonoBehaviour
             lineRenderer.endWidth = 0.005f;
             var line_material = (Material)Resources.Load("prefabs/QR/yellow");
             lineRenderer.material = line_material;
+            lineRenderer.material.color = focus_color;
         }
 
         user.deviceName = string.IsNullOrEmpty(deviceName_) ? $"Unknown{id_}" : deviceName_;

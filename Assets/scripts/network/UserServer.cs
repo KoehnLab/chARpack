@@ -89,6 +89,7 @@ public class UserServer : MonoBehaviour
         // head
         var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cubeUser.GetComponent<Renderer>().material = (Material)Resources.Load("materials/UserMaterial");
+        cubeUser.GetComponent<Renderer>().material.color = focus_color;
         cubeUser.transform.localScale = Vector3.one * 0.2f;
         cubeUser.AddComponent<Camera>();
 
@@ -99,6 +100,7 @@ public class UserServer : MonoBehaviour
         lineRenderer.endWidth = 0.005f;
         var line_material = (Material)Resources.Load("prefabs/QR/yellow");
         lineRenderer.material = line_material;
+        lineRenderer.material.color = focus_color;
 
         cubeUser.transform.parent = anchor.transform;
         user.head = cubeUser;
