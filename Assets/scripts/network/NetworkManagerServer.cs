@@ -360,6 +360,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddBools(SettingsData.coop);
         message.AddBool(SettingsData.networkMeasurements);
         message.AddBool(SettingsData.interpolateColors);
+        message.AddBool(SettingsData.useAngstrom);
         Server.SendToAll(message);
     }
 

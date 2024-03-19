@@ -342,6 +342,14 @@ MonoBehaviour:
     m_Localized: Interpolate Bond Colors
     m_Metadata:
       m_Items: []
+  - m_Id: 93195326913019904
+    m_Localized: Equilibrium Distance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 93203354865401856
+    m_Localized: Length Unit
+    m_Metadata:
+      m_Items: []
   - m_Id: 93217280147619840
     m_Localized: Steepest Descent
     m_Metadata:

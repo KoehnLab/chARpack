@@ -2183,6 +2183,31 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    public void regenerateSingleBondTooltips()
+    {
+        foreach(Molecule mol in List_curMolecules)
+        {
+            if (mol.toolTipInstance)
+            {
+                Molecule.toolTipType type = mol.type;
+                if (type != Molecule.toolTipType.SINGLE) return;
+                var target = mol.toolTipInstance.GetComponent<myToolTipConnector>().Target;
+                Destroy(mol.toolTipInstance);
+                ushort id = target.GetComponent<Bond>().atomID1;
+                Atom a = mol.atomList[id];
+                a.markConnections(true);
+            }
+        }
+    }
+
+    public void regenerateChangeBondWindows()
+    {
+        foreach(var cb in FindObjectsOfType<ChangeBond>())
+        {
+            cb.reloadTextFieldsBT();
+        }
+    }
+
     private Atom findAtomById(Molecule m, ushort id)
     {
         foreach (Atom a in m.atomList)

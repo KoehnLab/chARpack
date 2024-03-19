@@ -342,6 +342,14 @@ MonoBehaviour:
     m_Localized: Bindungsfarbe interpolieren
     m_Metadata:
       m_Items: []
+  - m_Id: 93195326913019904
+    m_Localized: Gleichgewichtsabstand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 93203354865401856
+    m_Localized: "L\xE4ngeneinheit"
+    m_Metadata:
+      m_Items: []
   - m_Id: 93217280147619840
     m_Localized: Steepest Descent
     m_Metadata:
