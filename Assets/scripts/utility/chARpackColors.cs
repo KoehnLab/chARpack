@@ -41,7 +41,6 @@ namespace chARpackColorPalette
                 if (ColorUtility.TryParseHtmlString(col, out newCol))
                 {
                     availableColors.Add(newCol);
-                    UnityEngine.Debug.Log($"[FocusColors] Added {newCol.ToString()}");
                 }
             }
 

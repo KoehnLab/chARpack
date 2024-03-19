@@ -40,6 +40,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private static Color notEnabledColor = chARpackColors.black;
     private static Color grabColor = chARpackColors.blue;
     private static Color defaultFocusColor = chARpackColors.white;
+    private Color currentFocusColor = chARpackColors.white;
     public static Color currentOutlineColor = chARpackColors.black;
     public bool keepConfig = false;
     public bool frozen = false;
@@ -64,9 +65,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             if (GetComponent<Outline>().enabled)
             {
-                if ((GetComponent<Outline>().OutlineColor.r != defaultFocusColor.r && 
-                    GetComponent<Outline>().OutlineColor.g != defaultFocusColor.g && 
-                    GetComponent<Outline>().OutlineColor.b != defaultFocusColor.b)
+                if ((GetComponent<Outline>().OutlineColor.r != currentFocusColor.r && 
+                    GetComponent<Outline>().OutlineColor.g != currentFocusColor.g && 
+                    GetComponent<Outline>().OutlineColor.b != currentFocusColor.b)
                     && GetComponent<Outline>().OutlineColor != grabColor)
                 {
                     currentOutlineColor = GetComponent<Outline>().OutlineColor;
@@ -1476,17 +1477,16 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     /// Outlines the current atom in focusColor; is used when a pointer from the index finger gets close to the atom.
     /// </summary>
     /// <param name="active">Whether to activate or deactivate the focusColor outline</param>
-    public void focusHighlight(bool active, Color? overrideCol = null)
+    public void focusHighlight(bool active)
     {
-        var focus_color = overrideCol.GetValueOrDefault(defaultFocusColor);
         if (active)
         {
             if (GetComponent<Outline>().enabled)
             {
                 if (GetComponent<Outline>().OutlineColor == grabColor) return;
-                if ((GetComponent<Outline>().OutlineColor.r != focus_color.r &&
-                    GetComponent<Outline>().OutlineColor.g != focus_color.g && 
-                    GetComponent<Outline>().OutlineColor.b != focus_color.b)
+                if ((GetComponent<Outline>().OutlineColor.r != currentFocusColor.r &&
+                    GetComponent<Outline>().OutlineColor.g != currentFocusColor.g && 
+                    GetComponent<Outline>().OutlineColor.b != currentFocusColor.b)
                     && GetComponent<Outline>().OutlineColor != grabColor)
                 {
                     currentOutlineColor = GetComponent<Outline>().OutlineColor;
@@ -1497,7 +1497,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 GetComponent<Outline>().enabled = true;
                 currentOutlineColor = notEnabledColor;
             }
-            var col = focus_color;
+            var col = currentFocusColor;
             col.a = focus_alpha;
             GetComponent<Outline>().OutlineColor = col;
             GetComponent<Outline>().OutlineWidth = outline_radius_current;
@@ -1523,8 +1523,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             focused = true;
             focusHighlight(true);
-            outline_radius_current = outline_radius_min;
-            focus_alpha = 0f;
             EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, true);
         }
     }
@@ -1536,6 +1534,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             focused = false;
             EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
         }
+    }
+
+    public void networkSetFocus(bool focus, Color? overrideCol = null)
+    {
+        focused = focus;
+        currentFocusColor = overrideCol.GetValueOrDefault(defaultFocusColor);
     }
 
     private void FixedUpdate()

@@ -1003,7 +1003,7 @@ public class NetworkManagerClient : MonoBehaviour
                 Debug.LogError($"[NetworkManagerClient:getFocusHighlight] Molecule {mol_id} or atom {atom_id} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
-            atom.focusHighlight(active, UserClient.list[client_id].focusColor);
+            atom.networkSetFocus(active, UserClient.list[client_id].focusColor);
         }
     }
 
