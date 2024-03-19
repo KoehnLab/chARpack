@@ -91,7 +91,7 @@ public class ForceField : MonoBehaviour
         Heun,
         Ralston,
         MidPoint,
-        SteepestDecent
+        SteepestDescent
     }
     public Method _currentMethod;
 
@@ -227,9 +227,9 @@ public class ForceField : MonoBehaviour
                 currentMethod = Method.Ralston;
                 break;
             case Method.Ralston:
-                currentMethod = Method.SteepestDecent;
+                currentMethod = Method.SteepestDescent;
                 break;
-            case Method.SteepestDecent:
+            case Method.SteepestDescent:
                 currentMethod = Method.MidPoint;
                 break;
             default:
@@ -256,11 +256,11 @@ public class ForceField : MonoBehaviour
             case Method.Ralston:
                 currentMethod = Method.Heun;
                 break;
-            case Method.SteepestDecent:
+            case Method.SteepestDescent:
                 currentMethod = Method.Ralston;
                 break;
             default:
-                currentMethod = Method.SteepestDecent;
+                currentMethod = Method.SteepestDescent;
                 break;
         }
     }
@@ -481,7 +481,7 @@ public class ForceField : MonoBehaviour
                 case Method.MidPoint:
                     midpointIntegration();
                     break;
-                case Method.SteepestDecent:
+                case Method.SteepestDescent:
                     steepestDecent();
                     break;
             }
