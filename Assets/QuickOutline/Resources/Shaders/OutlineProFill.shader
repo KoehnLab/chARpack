@@ -51,7 +51,7 @@
             uniform int _NumOutlines;
             uniform fixed4 _OutlineColor[4];
             uniform float _OutlineWidth[4];
-            const float pi = 3.141592653589793238462f;
+            static const float pi = 3.141592653589793238462f;
 
             v2f vert(appdata input) {
               v2f output;
@@ -76,27 +76,19 @@
                       }
                   }
                   else if (_NumOutlines == 3) {
-                      float3 up = { 0.f,-1.f,0.f };
-                      float angle = acos(mul(viewNormal, up));
-                      if (viewNormal.x > 0.f) {
-                          if (angle < 2.f * pi / 3.f) {
-                              output.position = UnityViewToClipPos(viewPosition + viewNormal * -viewPosition.z * _OutlineWidth[0] / 1000.0);
-                              output.color = _OutlineColor[0];
-                          }
-                          else {
-                              output.position = UnityViewToClipPos(viewPosition + viewNormal * -viewPosition.z * _OutlineWidth[1] / 1000.0);
-                              output.color = _OutlineColor[1];
-                          }
+                      float3 up = { 0.f, -1.f, 0.f };
+                      float angle = atan2(viewNormal.y, viewNormal.x) + pi;
+                      if (angle < (2.f * pi / 3.f)) {
+                          output.position = UnityViewToClipPos(viewPosition + viewNormal * -viewPosition.z * _OutlineWidth[1] / 1000.0);
+                          output.color = _OutlineColor[1];
+                      }
+                      else if (angle > (2.f * pi / 3.f) && angle < 2.f* (2.f * pi / 3.f)) {
+                          output.position = UnityViewToClipPos(viewPosition + viewNormal * -viewPosition.z * _OutlineWidth[0] / 1000.0);
+                          output.color = _OutlineColor[0];
                       }
                       else {
-                          if (angle < 2.f * pi / 3.f) {
-                              output.position = UnityViewToClipPos(viewPosition + viewNormal * -viewPosition.z * _OutlineWidth[2] / 1000.0);
-                              output.color = _OutlineColor[2];
-                          }
-                          else {
-                              output.position = UnityViewToClipPos(viewPosition + viewNormal * -viewPosition.z * _OutlineWidth[1] / 1000.0);
-                              output.color = _OutlineColor[1];
-                          }
+                          output.position = UnityViewToClipPos(viewPosition + viewNormal * -viewPosition.z * _OutlineWidth[2] / 1000.0);
+                          output.color = _OutlineColor[2];
                       }
                   }
                   else if (_NumOutlines == 4) {
@@ -108,11 +100,11 @@
                           output.position = UnityViewToClipPos(viewPosition + viewNormal * -viewPosition.z * _OutlineWidth[1] / 1000.0);
                           output.color = _OutlineColor[1];
                       }
-                      else if (viewNormal.x < 0.f && viewNormal.y >= 0.f) {
+                      else if (viewNormal.x < 0.f && viewNormal.y < 0.f) {
                           output.position = UnityViewToClipPos(viewPosition + viewNormal * -viewPosition.z * _OutlineWidth[2] / 1000.0);
                           output.color = _OutlineColor[2];
                       }
-                      else if (viewNormal.x < 0.f && viewNormal.y < 0.f) {
+                      else if (viewNormal.x < 0.f && viewNormal.y >= 0.f) {
                           output.position = UnityViewToClipPos(viewPosition + viewNormal * -viewPosition.z * _OutlineWidth[3] / 1000.0);
                           output.color = _OutlineColor[3];
                       }

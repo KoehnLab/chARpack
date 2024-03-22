@@ -63,13 +63,18 @@ public class OutlinePro : MonoBehaviour
         }
     }
 
-    public int NumOutlines
+    public static int NumOutlines
     { 
         get { return numOutlines; } 
         set
         {
+            if (value > 4 || value < 1)
+            {
+                Debug.LogError("[OutlinePro:NumOutlines] Minimum: 1, Maximum: 4.");
+                return;
+            }
             numOutlines = value;
-            needsUpdate = true;
+            needsGlobalUpdate = true;
         }
     }
 
@@ -80,7 +85,7 @@ public class OutlinePro : MonoBehaviour
     }
 
     [SerializeField]
-    private int numOutlines = 1;
+    private static int numOutlines = 1;
     [SerializeField]
     private Mode outlineMode;
     [SerializeField]
@@ -109,6 +114,12 @@ public class OutlinePro : MonoBehaviour
     private Material outlineFillMaterial;
 
     private bool needsUpdate;
+    private static bool needsGlobalUpdate;
+
+    public static void StopGlobalUpdate()
+    {
+        needsGlobalUpdate = false;
+    }
 
     public void NeedsUpdate()
     {
@@ -172,7 +183,7 @@ public class OutlinePro : MonoBehaviour
 
     void Update()
     {
-        if (needsUpdate)
+        if (needsUpdate || needsGlobalUpdate)
         {
             needsUpdate = false;
 

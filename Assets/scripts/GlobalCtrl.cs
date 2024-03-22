@@ -1692,6 +1692,25 @@ public class GlobalCtrl : MonoBehaviour
     }
     #endregion
 
+    #region atom appearance
+    [SerializeField]
+    private int currentNumOutlines_ = 1;
+    public int currentNumOutlines { get => currentNumOutlines_; set { currentNumOutlines_ = value; changeNumOutlines(value); } }
+
+    public void changeNumOutlines(int num)
+    {
+        StartCoroutine(changeAndWait(num));
+    }
+
+    private IEnumerator changeAndWait(int num)
+    {
+        OutlinePro.NumOutlines = num;
+        yield return new WaitForEndOfFrame();
+        OutlinePro.StopGlobalUpdate();
+    }
+
+    #endregion
+
     #region export import
 
     /// <summary>

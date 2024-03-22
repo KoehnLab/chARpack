@@ -55,6 +55,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     public static List<Atom> markedAtoms = new List<Atom>();
 
+
+
     /// <summary>
     /// Outlines the current atom in grabColor; is used upon grabbing an atom.
     /// </summary>
