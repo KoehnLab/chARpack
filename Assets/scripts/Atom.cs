@@ -61,34 +61,37 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     /// <param name="active">Whether to activate or deactivate the grabColor outline</param>
     public void grabHighlight(bool active)
     {
+        var outline_component = GetComponent<OutlinePro>();
         if (active)
         {
-            if (GetComponent<Outline>().enabled)
+            if (outline_component.enabled)
             {
-                if ((GetComponent<Outline>().OutlineColor.r != currentFocusColor.r && 
-                    GetComponent<Outline>().OutlineColor.g != currentFocusColor.g && 
-                    GetComponent<Outline>().OutlineColor.b != currentFocusColor.b)
-                    && GetComponent<Outline>().OutlineColor != grabColor)
+                if ((outline_component.OutlineColor[0].r != currentFocusColor.r && 
+                    outline_component.OutlineColor[0].g != currentFocusColor.g && 
+                    outline_component.OutlineColor[0].b != currentFocusColor.b)
+                    && outline_component.OutlineColor[0] != grabColor)
                 {
-                    currentOutlineColor = GetComponent<Outline>().OutlineColor;
+                    currentOutlineColor = outline_component.OutlineColor[0];
                 }
             }
             else
             {
-                GetComponent<Outline>().enabled = true;
+                outline_component.enabled = true;
                 currentOutlineColor = notEnabledColor;
             }
-            GetComponent<Outline>().OutlineColor = grabColor;
+            outline_component.OutlineColor[0] = grabColor;
+            outline_component.NeedsUpdate();
         }
         else
         {
             if (currentOutlineColor == notEnabledColor)
             {
-                GetComponent<Outline>().enabled = false;
+                outline_component.enabled = false;
             }
             else
             {
-                GetComponent<Outline>().OutlineColor = currentOutlineColor;
+                outline_component.OutlineColor[0] = currentOutlineColor;
+                outline_component.NeedsUpdate();
             }
         }
     }
@@ -828,6 +831,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     /// <param name="isOn">if this atom is selected</param>
     public void colorSwapSelect(int col)
     {
+        var outline_component = GetComponent<OutlinePro>();
         if (col == 1)
         {
             // merging
@@ -837,35 +841,35 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             // single component
             //GetComponent<Renderer>().material = GlobalCtrl.Singleton.markedMat;
-            GetComponent<Outline>().enabled = true;
-            GetComponent<Outline>().OutlineColor = chARpackColors.yellow;
+            outline_component.enabled = true;
+            outline_component.OutlineColor[0] = chARpackColors.yellow;
             currentOutlineColor = chARpackColors.yellow;
         }
         else if (col == 3)
         {
             // as part of single bond
-            GetComponent<Outline>().enabled = true;
-            GetComponent<Outline>().OutlineColor = new Color(1.0f, 0.5f, 0.0f); //orange
-            currentOutlineColor = new Color(1.0f, 0.5f, 0.0f);
+            outline_component.enabled = true;
+            outline_component.OutlineColor[0] = chARpackColors.orange; //orange
+            currentOutlineColor = chARpackColors.orange;
         }
         else if (col == 4)
         {
             // as part of angle bond
-            GetComponent<Outline>().enabled = true;
-            GetComponent<Outline>().OutlineColor = chARpackColors.red;
+            outline_component.enabled = true;
+            outline_component.OutlineColor[0] = chARpackColors.red;
             currentOutlineColor = chARpackColors.red;
         }
         else if (col == 5)
         {
             // as part of angle bond
-            GetComponent<Outline>().enabled = true;
-            GetComponent<Outline>().OutlineColor = chARpackColors.green;
+            outline_component.enabled = true;
+            outline_component.OutlineColor[0] = chARpackColors.green;
             currentOutlineColor = chARpackColors.green;
         }
         else
         {
             // reset or nothing
-            GetComponent<Outline>().enabled = false;
+            outline_component.enabled = false;
             if (m_data.m_abbre.ToLower() == "dummy")
             {
                 GetComponent<Renderer>().material = GlobalCtrl.Singleton.dummyMatPrefab;
@@ -875,6 +879,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 GetComponent<Renderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
             }
         }
+        outline_component.NeedsUpdate();
 
     }
 
@@ -1479,40 +1484,43 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     /// <param name="active">Whether to activate or deactivate the focusColor outline</param>
     public void focusHighlight(bool active)
     {
+        var outline_component = GetComponent<OutlinePro>();
         if (active)
         {
-            if (GetComponent<Outline>().enabled)
+            if (outline_component.enabled)
             {
-                if (GetComponent<Outline>().OutlineColor == grabColor) return;
-                if ((GetComponent<Outline>().OutlineColor.r != currentFocusColor.r &&
-                    GetComponent<Outline>().OutlineColor.g != currentFocusColor.g && 
-                    GetComponent<Outline>().OutlineColor.b != currentFocusColor.b)
-                    && GetComponent<Outline>().OutlineColor != grabColor)
+                if (outline_component.OutlineColor[0] == grabColor) return;
+                if ((outline_component.OutlineColor[0].r != currentFocusColor.r &&
+                    outline_component.OutlineColor[0].g != currentFocusColor.g && 
+                    outline_component.OutlineColor[0].b != currentFocusColor.b)
+                    && outline_component.OutlineColor[0] != grabColor)
                 {
-                    currentOutlineColor = GetComponent<Outline>().OutlineColor;
+                    currentOutlineColor = outline_component.OutlineColor[0];
                 }
             }
             else
             {
-                GetComponent<Outline>().enabled = true;
+                outline_component.enabled = true;
                 currentOutlineColor = notEnabledColor;
             }
             var col = currentFocusColor;
             col.a = focus_alpha;
-            GetComponent<Outline>().OutlineColor = col;
-            GetComponent<Outline>().OutlineWidth = outline_radius_current;
+            outline_component.OutlineColor[0] = col;
+            outline_component.OutlineWidth[0] = outline_radius_current;
+            outline_component.NeedsUpdate();
         }
         else
         {
-            if (GetComponent<Outline>().OutlineColor == grabColor) return;
+            if (outline_component.OutlineColor[0] == grabColor) return;
             if (currentOutlineColor == notEnabledColor)
             {
-                GetComponent<Outline>().enabled = false;
+                outline_component.enabled = false;
             }
             else
             {
-                GetComponent<Outline>().OutlineColor = currentOutlineColor;
-                GetComponent<Outline>().OutlineWidth = outline_radius_min;
+                outline_component.OutlineColor[0] = currentOutlineColor;
+                outline_component.OutlineWidth[0] = outline_radius_min;
+                outline_component.NeedsUpdate();
             }
         }
     }

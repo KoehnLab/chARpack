@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using chARpackColorPalette;
 
 public class tabButton : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, IPointerExitHandler
 {
@@ -27,7 +28,7 @@ public class tabButton : MonoBehaviour, IPointerEnterHandler, IPointerClickHandl
     void Start()
     {
         text = GetComponent<TextMeshProUGUI>();
-        text.color = Color.gray;
+        text.color = chARpackColors.gray;
         group.Subscribe(this);
     }
 }

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using chARpackColorPalette;
 
 public class Bond : MonoBehaviour
 {
@@ -96,25 +97,25 @@ public class Bond : MonoBehaviour
             // single component
             //GetComponent<Renderer>().material = GlobalCtrl.Singleton.markedMat;
             GetComponent<Outline>().enabled = true;
-            GetComponent<Outline>().OutlineColor = Color.yellow;
+            GetComponent<Outline>().OutlineColor = chARpackColors.yellow;
         }
         else if (col == 3)
         {
             // as part of single bond
             GetComponent<Outline>().enabled = true;
-            GetComponent<Outline>().OutlineColor = new Color(1.0f, 0.5f, 0.0f); //orange
+            GetComponent<Outline>().OutlineColor = chARpackColors.orange;
         }
         else if (col == 4)
         {
             // as part of angle bond
             GetComponent<Outline>().enabled = true;
-            GetComponent<Outline>().OutlineColor = Color.red;
+            GetComponent<Outline>().OutlineColor = chARpackColors.red;
         }
         else if (col == 5)
         {
             // as part of angle bond
             GetComponent<Outline>().enabled = true;
-            GetComponent<Outline>().OutlineColor = Color.green;
+            GetComponent<Outline>().OutlineColor = chARpackColors.green;
         }
         else
         {

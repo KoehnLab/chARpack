@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using chARpackColorPalette;
 
 public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
@@ -208,8 +209,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         TORSION
     }
     public toolTipType type;
-
-    private Color orange = new Color(1.0f, 0.5f, 0.0f);
 
     /// <summary>
     /// molecule id
@@ -1152,11 +1151,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var FrozenIndicator = freezeButton.transform.Find("IconAndText").gameObject.transform.Find("Indicator").gameObject;
         if (value)
         {
-            FrozenIndicator.GetComponent<MeshRenderer>().material.color = orange;
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.orange;
         }
         else
         {
-            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.gray;
         }
     }
 

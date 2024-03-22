@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using chARpackColorPalette;
 
 public class UserPanelEntry : MonoBehaviour
 {
@@ -73,14 +74,14 @@ public class UserPanelEntry : MonoBehaviour
     {
         if (!recording)
         {
-            rec_button_label.color = Color.red;
+            rec_button_label.color = chARpackColors.red;
             // networking
             EventManager.Singleton.MRCapture(client_id, true);
             recording = true;
         }
         else
         {
-            rec_button_label.color = Color.black;
+            rec_button_label.color = chARpackColors.black;
             // networking
             EventManager.Singleton.MRCapture(client_id, false);
             recording = false;
