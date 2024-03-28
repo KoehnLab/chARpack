@@ -823,6 +823,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void changeBondParametersUI(GameObject windowInstance, int id)
     {
+        cmlData before = this.AsCML();
         var cb = windowInstance.GetComponent<ChangeBond>();
         cb.changeBondParametersBT();
         var bt = cb.bt;
@@ -834,6 +835,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         changeBondParameters(bt, id);
         EventManager.Singleton.ChangeBondTerm(bt, m_id, (ushort)id);
+
+        cmlData after = this.AsCML();
+        GlobalCtrl.Singleton.undoStack.AddChange(new ChangeBondAction(before, after));
 
         Destroy(windowInstance);
 
@@ -935,6 +939,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void changeAngleParametersUI(GameObject windowInstance, int id)
     {
+        cmlData before = this.AsCML();
         var cb = windowInstance.GetComponent<ChangeBond>();
         cb.changeBondParametersAT();
         var at = cb.at;
@@ -944,6 +949,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         changeAngleParameters(at, id);
         EventManager.Singleton.ChangeAngleTerm(at, m_id, (ushort)id);
+
+        cmlData after = this.AsCML();
+        GlobalCtrl.Singleton.undoStack.AddChange(new ChangeBondAction(before, after));
 
         Destroy(windowInstance);
 
@@ -1038,6 +1046,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void changeTorsionParametersUI(GameObject windowInstance, int id)
     {
+        cmlData before = this.AsCML();
         var cb = windowInstance.GetComponent<ChangeBond>();
         cb.changeBondParametersTT();
         var tt = cb.tt;
@@ -1047,6 +1056,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         changeTorsionParameters(tt, id);
         EventManager.Singleton.ChangeTorsionTerm(tt, m_id, (ushort)id);
+
+        cmlData after = this.AsCML();
+        GlobalCtrl.Singleton.undoStack.AddChange(new ChangeBondAction(before, after));
 
         Destroy(windowInstance);
     }
