@@ -7,22 +7,23 @@ using UnityEngine;
 
 public static class chARpackExtensions
 {
-    public static string AsCommaSeparatedString(this string[] list)
+    public static string AsCommaSeparatedString<T>(this T[] list)
     {
         var output = "";
         for (int i = 0; i < list.Length; i++)
         {
             if (i == list.Length - 1)
             {
-                output += list[i];
+                output += $"{list[i]}";
             }
             else
             {
-                output += list[i] + ",";
+                output += $"{list[i]},";
             }
         }
         return output;
     }
+
 
     public static bool Contains(this ForceField.BondTerm term, ushort id)
     {
@@ -167,4 +168,14 @@ public static class chARpackExtensions
         }
         return list;
     }
+
+    public static float CalculateCosineSimilarity(Vector3 vecA, Vector3 vecB)
+    {
+        var dotProduct = Vector3.Dot(vecA, vecB);
+        var magnitudeOfA = vecA.magnitude;
+        var magnitudeOfB = vecB.magnitude;
+
+        return dotProduct / (magnitudeOfA * magnitudeOfB);
+    }
+
 }

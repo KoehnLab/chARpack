@@ -13,11 +13,30 @@ using SimpleFileBrowser;
 /// </summary>
 public class OpenBabelReadWrite : MonoBehaviour
 {
+    private static OpenBabelReadWrite _singleton;
+    public static OpenBabelReadWrite Singleton
+    {
+        get => _singleton;
+        private set
+
+        {
+            if (_singleton == null)
+                _singleton = value;
+            else if (_singleton != null)
+            {
+                UnityEngine.Debug.Log($"{nameof(OpenBabelReadWrite)} instance already exists, destroying duplicate!");
+                Destroy(value);
+            }
+        }
+    }
+
     private string[] supportedInputFormats = null;
     private string[] supportedOutputFormats = null;
 
     private void Awake()
     {
+        Singleton = this;
+
         // set babel data dir environment variable
         var path_to_plugins = Path.Combine(Application.dataPath, "plugins");
         System.Environment.SetEnvironmentVariable("BABEL_DATADIR", path_to_plugins);
@@ -108,7 +127,7 @@ public class OpenBabelReadWrite : MonoBehaviour
                 UnityEngine.Debug.LogError("[ReadMoleculeFile] Something went wrong during path conversion. Abort.");
                 yield break;
             }
-            yield return loadMolecule(fi);
+            yield return loadMoleculeUI(fi);
         }
     }
 
@@ -235,7 +254,7 @@ public class OpenBabelReadWrite : MonoBehaviour
         return supported;
     }
 
-    private IEnumerator loadMolecule(FileInfo fi)
+    public List<cmlData> loadMolecule(FileInfo fi)
     {
 
         if (!checkInputSupported(fi.Name))
@@ -353,20 +372,25 @@ public class OpenBabelReadWrite : MonoBehaviour
             return null;
         }
 
-        GlobalCtrl.Singleton.rebuildAtomWorld(saveData, true);
-        NetworkManagerServer.Singleton.pushLoadMolecule(saveData);
-
-        return null;
+        return saveData;
     }
 
-    /// <summary>
-    /// Saves a molecule to the specified file, either in XML format
-    /// or a format supported by OpenBabel.
-    /// </summary>
-    /// <param name="mol"></param>
-    /// <param name="fi"></param>
-    /// <returns></returns>
-    public IEnumerator saveMolecule(Molecule mol, FileInfo fi)
+    public IEnumerator loadMoleculeUI(FileInfo fi)
+    {
+        var mol = loadMolecule(fi);
+        if (mol == null) yield break;
+        GlobalCtrl.Singleton.rebuildAtomWorld(mol, true);
+        NetworkManagerServer.Singleton.pushLoadMolecule(mol);
+    }
+
+        /// <summary>
+        /// Saves a molecule to the specified file, either in XML format
+        /// or a format supported by OpenBabel.
+        /// </summary>
+        /// <param name="mol"></param>
+        /// <param name="fi"></param>
+        /// <returns></returns>
+        public IEnumerator saveMolecule(Molecule mol, FileInfo fi)
     {
         UnityEngine.Debug.Log($"[ReadMoleculeFile] Saving Molecule {fi.FullName}");
         if (fi.Extension.ToLower() == ".xml")

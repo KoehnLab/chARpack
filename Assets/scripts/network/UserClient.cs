@@ -15,6 +15,7 @@ public class UserClient : MonoBehaviour
     public string deviceName { get; private set; }
     public myDeviceType deviceType { get; private set; }
     public bool isLocal;
+    public Color focusColor;
 
     private void OnDestroy()
     {
@@ -29,7 +30,7 @@ public class UserClient : MonoBehaviour
     /// <param name="id_"></param>
     /// <param name="deviceName_"></param>
     /// <param name="deviceType_"></param>
-    public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_)
+    public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_, Color focus_color)
     {
         Debug.Log($"[UserClient:spawn] Id from function call {id_}, id from NetworkManager {NetworkManagerClient.Singleton.Client.Id}");
         UserClient user;
@@ -45,6 +46,7 @@ public class UserClient : MonoBehaviour
             var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
             cubeUser.transform.localScale = Vector3.one * 0.2f;
             cubeUser.GetComponent<Renderer>().material = (Material)Resources.Load("materials/UserMaterial");
+            cubeUser.GetComponent<Renderer>().material.color = new Color(focus_color.r, focus_color.g, focus_color.b, 0.5f);
             cubeUser.tag = "User Box";
             user = cubeUser.AddComponent<UserClient>();
             
@@ -58,12 +60,14 @@ public class UserClient : MonoBehaviour
             lineRenderer.endWidth = 0.005f;
             var line_material = (Material)Resources.Load("prefabs/QR/yellow");
             lineRenderer.material = line_material;
+            lineRenderer.material.color = focus_color;
         }
 
         user.deviceName = string.IsNullOrEmpty(deviceName_) ? $"Unknown{id_}" : deviceName_;
         user.name = user.isLocal ? "Me" : user.deviceName;
         user.ID = id_;
         user.deviceType = deviceType_;
+        user.focusColor = focus_color;
 
         user.transform.parent = NetworkManagerClient.Singleton.userWorld.transform;
 
@@ -94,8 +98,9 @@ public class UserClient : MonoBehaviour
         var id = message.GetUShort();
         var name = message.GetString();
         var type = (myDeviceType)message.GetUShort();
+        var focus_color = message.GetColor();
 
-        spawn(id,name,type);
+        spawn(id, name, type, focus_color);
     }
 
     private void sendPositionAndRotation()

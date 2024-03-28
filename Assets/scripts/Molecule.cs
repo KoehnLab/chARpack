@@ -144,8 +144,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             {
                 string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
                 string[] distance = text[2].Split(": ");
-                double dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>().getDistanceInAngstrom();
-                string newDistance = string.Concat(distance[0], ": ", $"{dist:0.00}\u00C5");
+                double dist = SettingsData.useAngstrom ? toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>().getDistanceInAngstrom()
+                    : toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>().getDistanceInAngstrom()*100;
+                string distanceString = SettingsData.useAngstrom ? $"{dist:0.00}\u00C5" : $"{dist:0}pm";
+                string newDistance = string.Concat(distance[0], ": ", distanceString);
                 text[2] = newDistance;
 
                 toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
@@ -248,6 +250,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         m_id = idInScene;
         isMarked = false;
         transform.parent = inputParent;
+        startingScale = transform.localScale;
         atomList = new List<Atom>();
         bondList = new List<Bond>();
         // TODO put collider into a corner
@@ -743,10 +746,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             scalingSliderInstance = Instantiate(scalingSliderPrefab, gameObject.transform.position - 0.17f*GlobalCtrl.Singleton.currentCamera.transform.forward - 0.05f*Vector3.up, GlobalCtrl.Singleton.currentCamera.transform.rotation);
             scalingSliderInstance.GetComponent<mySlider>().maxVal = 2;
             scalingSliderInstance.GetComponent<mySlider>().minVal = 0.1f;
+            var currentScale = transform.localScale.x / startingScale.x;
             // Set effective starting value and default to 1
-            scalingSliderInstance.GetComponent<mySlider>().SliderValue = (1 - scalingSliderInstance.GetComponent<mySlider>().minVal)/ (scalingSliderInstance.GetComponent<mySlider>().maxVal - scalingSliderInstance.GetComponent<mySlider>().minVal);
+            scalingSliderInstance.GetComponent<mySlider>().SliderValue = (currentScale - scalingSliderInstance.GetComponent<mySlider>().minVal)/ (scalingSliderInstance.GetComponent<mySlider>().maxVal - scalingSliderInstance.GetComponent<mySlider>().minVal);
             scalingSliderInstance.GetComponent<mySlider>().defaultVal = (1 - scalingSliderInstance.GetComponent<mySlider>().minVal) / (scalingSliderInstance.GetComponent<mySlider>().maxVal - scalingSliderInstance.GetComponent<mySlider>().minVal);
-            startingScale = gameObject.transform.localScale;
+            //startingScale = gameObject.transform.localScale;
             scalingSliderInstance.GetComponent<mySlider>().OnValueUpdated.AddListener(OnSliderUpdated);
         }
         else
@@ -1110,7 +1114,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string singleBond = GlobalCtrl.Singleton.GetLocalizedString("SINGLE_BOND");
         string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
         string ord = GlobalCtrl.Singleton.GetLocalizedString("ORDER");
-        string toolTipText = $"{singleBond}\n{dist}: {eqDist:0.00}\u00C5\n{current}: {curDist:0.00}\u00C5\nk: {kBond:0.00}\n{ord}: {order:0.00}";
+        string distanceInCorrectUnit = SettingsData.useAngstrom ? $"{ dist}: { eqDist: 0.00}\u00C5" : $"{dist}: {eqDist*100:0}pm";
+        string curDistanceInCorrectUnit = SettingsData.useAngstrom ? $"{ current}: { curDist: 0.00}\u00C5" : $"{current}: {curDist*100:0}pm";
+        string toolTipText = $"{singleBond}\n{distanceInCorrectUnit}\n{curDistanceInCorrectUnit}\nk: {kBond:0.00}\n{ord}: {order:0.00}";
         return toolTipText;
     }
 
@@ -1296,9 +1302,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     public List<Vector3> FFlastlastPosition = new List<Vector3>();
     public List<Vector3> FFvelocity = new List<Vector3>();
     public List<Vector3> FFforces = new List<Vector3>();
+    public List<Vector3> FFlastForces = new List<Vector3>();
     public List<Vector3> FFforces_pass2 = new List<Vector3>();
     public List<Vector3> FFmovement = new List<Vector3>();
     public List<Vector3> FFtimeStep = new List<Vector3>();
+    public List<float> FFlambda = new List<float>();
+    public List<Vector3> FFposDiff = new List<Vector3>();
 
     public List<ForceField.BondTerm> bondTerms = new List<ForceField.BondTerm>();
     public List<ForceField.AngleTerm> angleTerms = new List<ForceField.AngleTerm>();
@@ -1327,17 +1336,23 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             mol.FFlastlastPosition.Clear();
             mol.FFvelocity.Clear();
             mol.FFforces.Clear();
+            mol.FFlastForces.Clear();
             mol.FFforces_pass2.Clear();
             mol.FFmovement.Clear();
             mol.FFtimeStep.Clear();
+            mol.FFlambda.Clear();
+            mol.FFposDiff.Clear();
             foreach (var a in mol.atomList)
             {
                 mol.FFposition.Add(a.transform.position * (1f / ForceField.scalingfactor));
                 mol.FFvelocity.Add(Vector3.zero);
                 mol.FFforces.Add(Vector3.zero);
+                mol.FFlastForces.Add(Vector3.zero);
                 mol.FFforces_pass2.Add(Vector3.zero);
                 mol.FFmovement.Add(Vector3.zero);
                 mol.FFtimeStep.Add(Vector3.one * ForceField.Singleton.RKtimeFactor);
+                mol.FFlambda.Add(ForceField.SDdefaultLambda);
+                mol.FFposDiff.Add(Vector3.zero);
             }
             mol.FFlastPosition = mol.FFposition;
             mol.FFlastlastPosition = mol.FFposition;
@@ -1692,6 +1707,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                             }
                             else if (atomList[jdx].m_data.m_hybridization == 2)
                             {
+                                newTorsion.nn = 2;
                                 newTorsion.eqAngle = 180f;
                             }
                             else

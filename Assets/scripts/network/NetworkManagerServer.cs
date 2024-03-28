@@ -4,6 +4,7 @@ using chARpackStructs;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System.IO;
 
 public class NetworkManagerServer : MonoBehaviour
 {
@@ -141,7 +142,7 @@ public class NetworkManagerServer : MonoBehaviour
     private void ClientConnected(object sender, ServerConnectedEventArgs e)
     {
         // send current atom world
-        Debug.Log($"[NetworkManagerServer] Client {e.Client.Id} connected. Sending current world.");
+        Debug.Log($"[NetworkManagerServer] Client {e.Client.Id} connected. Sending current world and settings.");
         var atomWorld = GlobalCtrl.Singleton.saveAtomWorld();
         sendAtomWorld(atomWorld, e.Client.Id);
         bcastSettings();
@@ -359,6 +360,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddBools(SettingsData.coop);
         message.AddBool(SettingsData.networkMeasurements);
         message.AddBool(SettingsData.interpolateColors);
+        message.AddBool(SettingsData.useAngstrom);
         Server.SendToAll(message);
     }
 
@@ -975,7 +977,7 @@ public class NetworkManagerServer : MonoBehaviour
             Debug.LogError($"[NetworkManagerServer:getFocusHighlight] Molecule with id {mol_id} or atom with id {atom_id} do not exist. Abort\n");
             return;
         }
-        atom.focusHighlight(active);
+        atom.networkSetFocus(active, UserServer.list[fromClientId].focusColor);
 
         // Broadcast to other clients
         Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastFocusHighlight);
@@ -1056,6 +1058,74 @@ public class NetworkManagerServer : MonoBehaviour
         outMessage.AddUShort(mol_id);
         outMessage.AddBool(freeze);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
+
+    #endregion
+
+    #region SimMessages
+
+    [MessageHandler((ushort)SimToServerID.sendInit)]
+    private static void getInit(ushort fromClientId, Message message)
+    {
+        Debug.Log($"[SimToServer] Simulation Connected. ID: {fromClientId}");
+        SettingsData.forceField = false;
+        settingsControl.Singleton.updateSettings();
+    }
+
+    [MessageHandler((ushort)SimToServerID.sendMolecule)]
+    private static void getMoleculeCreated(ushort fromClientId, Message message)
+    {
+        Debug.Log("[SimToServer] got molecule");
+        var mol_id = message.GetUShort();
+        var num_atoms = message.GetUShort();
+        ushort[] ids = new ushort[num_atoms];
+        string[] symbols = new string[num_atoms];
+        Vector3[] positions = new Vector3[num_atoms];
+        for (int i = 0; i < num_atoms; i++)
+        {
+            ids[i] = message.GetUShort();
+            symbols[i] = message.GetString();
+            positions[i] = message.GetVector3();
+        }
+
+        Debug.Log($"[SimToServer] Num Atoms {num_atoms}, Molecule ids {ids.AsCommaSeparatedString()} symbols {symbols.AsCommaSeparatedString()} positions {positions.AsCommaSeparatedString()}");
+
+        string filename = $"{mol_id}.xyz";
+        //string path = Path.Combine(Application.persistentDataPath, filename);
+        string path = Path.Combine(Application.streamingAssetsPath, filename);
+        var fi = new FileInfo(path);
+        if (fi.Exists) fi.Delete();
+
+        StreamWriter writer = new StreamWriter(path, true);
+        writer.WriteLine($"{num_atoms}");
+        writer.WriteLine("");
+        for (int i = 0; i < num_atoms; i++)
+        {
+            writer.WriteLine($"{symbols[i]}    {positions[i].x}    {positions[i].y}    {positions[i].z}");
+        }
+        writer.WriteLine("");
+        writer.Flush();
+        writer.Close();
+
+        var cml_mol = OpenBabelReadWrite.Singleton.loadMolecule(fi);
+        GlobalCtrl.Singleton.rebuildAtomWorld(cml_mol, true);
+    }
+
+
+    [MessageHandler((ushort)SimToServerID.sendMoleculeUpdate)]
+    private static void getMoleculeUpdate(ushort fromClientId, Message message)
+    {
+        var mol_id = message.GetUShort();
+        var num_atoms = message.GetUShort();
+        ushort id;
+        Vector3 pos;
+        for (int i = 0; i < num_atoms; i++)
+        {
+            id = message.GetUShort();
+            pos = message.GetVector3();
+            GlobalCtrl.Singleton.moveAtom(mol_id, id, pos * GlobalCtrl.scale / GlobalCtrl.u2aa);
+        }
+
     }
 
     #endregion

@@ -23,9 +23,17 @@ public class ChangeBond : MonoBehaviour
     public ForceField.AngleTerm at { get => at_; set { at_ = value; initTextFieldsAT(); } }
     public ForceField.TorsionTerm tt { get => tt_; set { tt_ = value; initTextFieldsTT(); } }
 
+    public void reloadTextFieldsBT()
+    {
+        angleOrDistLabel.GetComponent<TextMeshProUGUI>().text = angleOrDistLabel.GetComponent<TextMeshProUGUI>().text.TrimEnd(new char[] { ' ', '(', ')', '\u00C5', 'p', 'm' });
+        initTextFieldsBT();
+    }
+
     private void initTextFieldsBT()
     {
-        distInputField.GetComponent<MRTKTMPInputField>().text = bt.eqDist.ToString();
+        angleOrDistLabel.GetComponent<TextMeshProUGUI>().text += SettingsData.useAngstrom ? " (\u00C5)" : " (pm)";
+        var text = SettingsData.useAngstrom ? (bt.eqDist * 0.01f).ToString() : bt.eqDist.ToString();
+        distInputField.GetComponent<MRTKTMPInputField>().text = text;
         kInputField.GetComponent<MRTKTMPInputField>().text = bt.kBond.ToString();
     }
 
@@ -51,7 +59,7 @@ public class ChangeBond : MonoBehaviour
     /// </summary>
     public void changeBondParametersBT()
     {
-        bt_.eqDist = float.Parse(distInputField.GetComponent<MRTKTMPInputField>().text);
+        bt_.eqDist = SettingsData.useAngstrom ? float.Parse(distInputField.GetComponent<MRTKTMPInputField>().text)*100 : float.Parse(distInputField.GetComponent<MRTKTMPInputField>().text);
         bt_.kBond = float.Parse(kInputField.GetComponent<MRTKTMPInputField>().text);
     }
 
