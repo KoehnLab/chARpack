@@ -13,7 +13,6 @@ public class UndoStack
 
     public void AddChange(IUndoableAction lastChange)
     {
-        Debug.Log(lastChange.GetType());
         undoStack.Push(lastChange);
         if (lastChange.GetType().Equals(typeof(ScaleMoleculeAction)) || lastChange.GetType().Equals(typeof(MoveMoleculeAction)))
         {

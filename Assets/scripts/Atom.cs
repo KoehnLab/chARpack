@@ -307,35 +307,39 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 }
             }
 
-            resetMolPositionAfterMove();
-            cmlData after = m_molecule.AsCML();
-            GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
-            EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
-            EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
-
-
-            // check for potential merge
-            if (GlobalCtrl.Singleton.collision)
+            else
             {
-                Atom d1 = GlobalCtrl.Singleton.collider1;
-                Atom d2 = GlobalCtrl.Singleton.collider2;
+                resetMolPositionAfterMove();
+                cmlData after = m_molecule.AsCML();
+                GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
+                EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
+                EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
 
-                Atom a1 = d1.dummyFindMain();
-                Atom a2 = d2.dummyFindMain();
 
-                if (!a1.alreadyConnected(a2))
+                // check for potential merge
+                if (GlobalCtrl.Singleton.collision)
                 {
-                    if (a1 == this)
+                    Atom d1 = GlobalCtrl.Singleton.collider1;
+                    Atom d2 = GlobalCtrl.Singleton.collider2;
+
+                    Atom a1 = d1.dummyFindMain();
+                    Atom a2 = d2.dummyFindMain();
+
+                    if (!a1.alreadyConnected(a2))
                     {
-                        EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
-                        GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
-                    }
-                    else
-                    {
-                        EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id, GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id);
-                        GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2, GlobalCtrl.Singleton.collider1);
+                        if (a1 == this)
+                        {
+                            EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
+                            GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
+                        }
+                        else
+                        {
+                            EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id, GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id);
+                            GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2, GlobalCtrl.Singleton.collider1);
+                        }
                     }
                 }
+
             }
             
         }
