@@ -1779,7 +1779,7 @@ public class GlobalCtrl : MonoBehaviour
         loadData = (List<cmlData>)XMLFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
         if (loadData != null)
         {
-            undoStack.AddChange(new LoadMoleculeAction(loadData));
+            var loadDataWithCorrectedIDs = new List<cmlData>();
             int nMol = 0;
             foreach (cmlData molecule in loadData)
             {
@@ -1820,7 +1820,11 @@ public class GlobalCtrl : MonoBehaviour
                 moveMolecule(freshMoleculeID, molecule.molePos + meanPos, molecule.moleQuat);
                 EventManager.Singleton.MoveMolecule(freshMoleculeID, molecule.molePos + meanPos, molecule.moleQuat);
                 EventManager.Singleton.ChangeMolData(tempMolecule);
+
+                loadDataWithCorrectedIDs.Add(tempMolecule.AsCML());
             }
+
+            undoStack.AddChange(new LoadMoleculeAction(loadDataWithCorrectedIDs));
         }
     }
 
