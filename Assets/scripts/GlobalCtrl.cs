@@ -2210,7 +2210,7 @@ public class GlobalCtrl : MonoBehaviour
 
     public void regenerateSingleBondTooltips()
     {
-        foreach(Molecule mol in List_curMolecules)
+        foreach(Molecule mol in Dict_curMolecules.Values)
         {
             if (mol.toolTipInstance)
             {

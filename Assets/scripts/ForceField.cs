@@ -910,7 +910,7 @@ public class ForceField : MonoBehaviour
 
     void steepestDecent()
     {
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach (var mol in GlobalCtrl.Singleton.Dict_curMolecules.Values)
         {
 
             //    // update position and total movement:
