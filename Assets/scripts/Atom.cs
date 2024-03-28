@@ -527,6 +527,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     else
                     {
                         resetMolPositionAfterMove();
+                        cmlData after = m_molecule.AsCML();
+                        GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
                         EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
                         EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
                         // check for potential merge
@@ -551,11 +553,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                                     GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2, GlobalCtrl.Singleton.collider1);
                                 }
                             }
-                        }
-                        else
-                        {
-                            cmlData after = m_molecule.AsCML();
-                            GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
                         }
                     }
                 }
