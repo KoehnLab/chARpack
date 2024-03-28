@@ -581,6 +581,7 @@ public class appSettings : MonoBehaviour
         LengthUnitLabel.GetComponent<TextMeshPro>().text = useAngstrom ? "\u00C5" : "pm";
         GlobalCtrl.Singleton.regenerateSingleBondTooltips();
         GlobalCtrl.Singleton.regenerateChangeBondWindows();
+        GlobalCtrl.Singleton.regenerateAtomTooltips();
     }
 
     /// <summary>

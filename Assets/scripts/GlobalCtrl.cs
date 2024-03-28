@@ -2200,6 +2200,21 @@ public class GlobalCtrl : MonoBehaviour
         }
     }
 
+    public void regenerateAtomTooltips()
+    {
+        foreach(Molecule mol in List_curMolecules)
+        {
+            foreach(Atom a in mol.atomList)
+            {
+                if (a.toolTipInstance)
+                {
+                    Destroy(a.toolTipInstance);
+                    a.createToolTip();
+                }
+            }
+        }
+    }
+
     public void regenerateChangeBondWindows()
     {
         foreach(var cb in FindObjectsOfType<ChangeBond>())
