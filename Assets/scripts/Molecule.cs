@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using MathNet.Numerics.LinearAlgebra.Factorization;
+using MathNet.Numerics.LinearAlgebra;
 
 public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
@@ -495,15 +497,64 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             return false;
         }
+        // Kabsch algorithm
+        //TODO: what if different numbers of atoms?
+
         // apply transformation
+        
         transform.localPosition = otherMol.transform.localPosition;
-        transform.localRotation = otherMol.transform.localRotation;
+        var rotationMatrix = kabschRotationMatrix(atomPositions(this), atomPositions(otherMol));
+        transform.localRotation = Quaternion.LookRotation(rotationMatrix.GetColumn(2), rotationMatrix.GetColumn(1)) * transform.localRotation;
         // TODO: Add advanced alignment mode
         // add coloring
-        addSnapColor(ref compMaterialA);
-        otherMol.addSnapColor(ref compMaterialB);
+        setSnapColors(otherMol);
 
         return true;
+    }
+
+    private Vector3[] atomPositions(Molecule mol)
+    {
+        var positions = new Vector3[mol.atomList.Count()];
+        for(var i=0; i<mol.atomList.Count(); i++) { positions[i] = mol.atomList[i].transform.localPosition; }
+        return positions;
+    }
+
+    private Matrix<float> covariance(float[,] P, float[,] Q)
+    {
+        // Assuming the same number of positions/atoms for both molecules
+        Matrix<float> P_Matrix = CreateMatrix.DenseOfArray(P);
+        Matrix<float> Q_Matrix = CreateMatrix.DenseOfArray(Q);
+        var cov = P_Matrix.TransposeThisAndMultiply(Q_Matrix);
+        return cov;
+    }
+
+    private Matrix<float> optimalRotation(Matrix<float> covariance)
+    {
+        Svd<float> svd = covariance.Svd();
+        var d = Math.Sign(svd.U.Determinant() * svd.VT.Transpose().Determinant());
+        var reflected = CreateMatrix.DenseOfDiagonalArray(new float[] { 1, 1, d });
+        var rotation = svd.U.Multiply(reflected.Multiply(svd.VT));
+        return rotation;
+    }
+
+    private Matrix4x4 kabschRotationMatrix(Vector3[] positions1, Vector3[] positions2)
+    {
+        // Translate positions to origin (center of second molecule)
+        var sum = new Vector3();
+        foreach (var pos in positions2) { sum += pos; }
+        var meanPos = sum / (positions2.Count());
+        for(var i=0; i<positions1.Count(); i++) positions1[i] -= meanPos;
+
+        // Convert positions to array
+        var P = new float[positions1.Count(), 3];
+        var Q = new float[positions2.Count(), 3];
+        for(var i=0; i<positions1.Count(); i++) { P[i, 0] = positions1[i][0]; P[i, 1] = positions1[i][1]; P[i, 2] = positions1[i][2]; }
+        for (var i = 0; i < positions2.Count(); i++) { Q[i, 0] = positions2[i][0]; Q[i, 1] = positions2[i][1]; Q[i, 2] = positions2[i][2]; }
+        var cov = covariance(P,Q);
+        var rotation = optimalRotation(cov);
+        var matrix = Matrix4x4.identity;
+        for(var i=0; i<3; i++) { matrix[i,0] = rotation[i,0]; matrix[i, 1] = rotation[i, 1]; matrix[i, 2] = rotation[i, 2]; }
+        return matrix;
     }
 
     private void addSnapColor(ref Material mat)
@@ -520,6 +571,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             Material[] comp = bond.GetComponentInChildren<MeshRenderer>().sharedMaterials.ToList().Append(mat).ToArray();
             bond.GetComponentInChildren<MeshRenderer>().sharedMaterials = comp;
         }
+    }
+
+    public void setSnapColors(Molecule otherMol)
+    {
+        addSnapColor(ref compMaterialA);
+        otherMol.addSnapColor(ref compMaterialB);
     }
 
     private void closeSnapUI(ushort otherMolID)
