@@ -405,4 +405,33 @@ public class OpenBabelReadWrite : MonoBehaviour
         return null;
     }
 
+
+    public bool createSmiles(string smiles)
+    {
+        try
+        {
+            var conv = new OBConversion();
+            conv.SetInFormat(OBFormat.FindType("smiles"));
+            var obmol = new OBMol();
+            conv.ReadString(obmol, smiles);
+            if (obmol == null) return false;
+
+            obmol.AddHydrogens();
+            var builder = new OBBuilder();
+            builder.Build(obmol);
+
+
+            List<cmlData> mol = new List<cmlData>();
+            mol.Add(obmol.AsCML());
+            GlobalCtrl.Singleton.rebuildAtomWorld(mol, true);
+            NetworkManagerServer.Singleton.pushLoadMolecule(mol);
+        }
+        catch
+        {
+            UnityEngine.Debug.LogError("Invalid SMILES string.");
+            return false;
+        }
+        return true;
+    }
+
 }

@@ -1659,7 +1659,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
                             //newTorsion.vk = 2 * kim;
                             newTorsion.nn = 1;
-                            if (atomList[jdx].m_data.m_hybridization == 3)
+                            if (atomList[jdx].m_data.m_hybridization == 3) // tetraeder term
                             {
                                 newTorsion.nn = 3; // TRY:
                                                    // if (phi > 0f)
