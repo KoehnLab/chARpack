@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class InfoButton : MonoBehaviour
+public class InfoButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public GameObject infoPanel;
     public void OnPointerEnter(PointerEventData eventData)
