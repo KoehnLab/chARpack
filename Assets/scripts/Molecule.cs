@@ -486,6 +486,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         EventManager.Singleton.MoveMolecule(m_id, otherMol.transform.localPosition, otherMol.transform.localRotation);
         EventManager.Singleton.SelectMolecule(m_id, false);
         EventManager.Singleton.SelectMolecule(otherMolID, false);
+        EventManager.Singleton.SetSnapColors(m_id, otherMolID);
     }
 
     private bool snap(ushort otherMolID)
@@ -500,8 +501,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         transform.localRotation = otherMol.transform.localRotation;
         // TODO: Add advanced alignment mode
         // add coloring
-        addSnapColor(ref compMaterialA);
-        otherMol.addSnapColor(ref compMaterialB);
+        setSnapColors(otherMol);
 
         return true;
     }
@@ -520,6 +520,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             Material[] comp = bond.GetComponentInChildren<MeshRenderer>().sharedMaterials.ToList().Append(mat).ToArray();
             bond.GetComponentInChildren<MeshRenderer>().sharedMaterials = comp;
         }
+    }
+
+    public void setSnapColors(Molecule otherMol)
+    {
+        addSnapColor(ref compMaterialA);
+        otherMol.addSnapColor(ref compMaterialB);
     }
 
     private void closeSnapUI(ushort otherMolID)

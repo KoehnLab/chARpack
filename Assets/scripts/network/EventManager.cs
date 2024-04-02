@@ -268,6 +268,13 @@ public class EventManager : MonoBehaviour
         OnMRCapture?.Invoke(client_id, rec);
     }
 
+    public delegate void SetSnapColorsAction(ushort mol1_id, ushort mol2_id);
+    public event SetSnapColorsAction OnSetSnapColors;
+    public void SetSnapColors(ushort mol1_id, ushort mol2_id)
+    {
+        OnSetSnapColors?.Invoke(mol1_id, mol2_id);
+    }
+
     #endregion
 
 
