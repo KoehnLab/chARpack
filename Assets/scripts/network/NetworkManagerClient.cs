@@ -93,6 +93,7 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnChangeMoleculeScale += sendScaleMolecue;
         EventManager.Singleton.OnFreezeAtom += sendFreezeAtom;
         EventManager.Singleton.OnFreezeMolecule += sendFreezeMolecule;
+        EventManager.Singleton.OnSetSnapColors += sendSetSnapColor;
         EventManager.Singleton.OnCreateMeasurement += sendCreateMeasurement;
         EventManager.Singleton.OnClearMeasurements += sendClearMeasurements;
     }
@@ -456,6 +457,14 @@ public class NetworkManagerClient : MonoBehaviour
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.freezeMolecule);
         message.AddUShort(mol_id);
         message.AddBool(value);
+        Client.Send(message);
+    }
+
+    public void sendSetSnapColor(ushort mol1_id, ushort mol2_id)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.snapMolecules);
+        message.AddUShort(mol1_id);
+        message.AddUShort(mol2_id);
         Client.Send(message);
     }
 
@@ -950,6 +959,7 @@ public class NetworkManagerClient : MonoBehaviour
         var coop = message.GetBools();
         var networkMeasurements = message.GetBool();
         var interpolateColors = message.GetBool();
+        var useAngstrom = message.GetBool();
 
         // Get enum entries from strings
         Enum.TryParse(integrationMethodString, ignoreCase: true, out ForceField.Method integrationMethod);
@@ -975,6 +985,7 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.coop = coop;
             SettingsData.networkMeasurements = networkMeasurements;
             SettingsData.interpolateColors = interpolateColors;
+            SettingsData.useAngstrom = useAngstrom;
             settingsControl.Singleton.updateSettings();
             if (appSettings.Singleton != null)
             {
@@ -1001,7 +1012,7 @@ public class NetworkManagerClient : MonoBehaviour
                 Debug.LogError($"[NetworkManagerClient:getFocusHighlight] Molecule {mol_id} or atom {atom_id} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
-            atom.focusHighlight(active);
+            atom.networkSetFocus(active, UserClient.list[client_id].focusColor);
         }
     }
 
@@ -1060,10 +1071,32 @@ public class NetworkManagerClient : MonoBehaviour
             var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol_id);
             if (mol == default)
             {
-                Debug.LogError($"[NetworkManagerClient:getFreezeMolecule] Molecule {mol_id} does not exists.\nRequesing world sync.");
+                Debug.LogError($"[NetworkManagerClient:getFreezeMolecule] Molecule {mol_id} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
             mol.freeze(freeze);
+        }
+    }
+
+
+    [MessageHandler((ushort)ServerToClientID.bcastSnapMolecules)]
+    private static void getSnapMolecules(Message message)
+    {
+        var client_id = message.GetUShort();
+        var mol1_id = message.GetUShort();
+        var mol2_id = message.GetUShort();
+
+        // do the change
+        if (client_id != NetworkManagerClient.Singleton.Client.Id)
+        {
+            var mol1 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol1_id);
+            var mol2 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol2_id);
+            if (mol1 == default)
+            {
+                Debug.LogError($"[NetworkManagerClient:getSnapMolecules] Molecule {mol1_id} or {mol2_id} does not exist.\nRequesting world sync.");
+                NetworkManagerClient.Singleton.sendSyncRequest();
+            }
+            mol1.setSnapColors(mol2);
         }
     }
 

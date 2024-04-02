@@ -175,5 +175,28 @@ namespace Riptide.Utils
             return new Guid(guid_bytes);
         }
         #endregion
+
+        #region Color
+        public static Message AddColor(this Message message, Color value) => Add(message, value);
+
+        public static Message Add(this Message message, Color value)
+        {
+            message.AddFloat(value.r);
+            message.AddFloat(value.g);
+            message.AddFloat(value.b);
+            message.AddFloat(value.a);
+            return message;
+        }
+
+        public static Color GetColor(this Message message)
+        {
+            var r = message.GetFloat();
+            var g = message.GetFloat();
+            var b  = message.GetFloat();
+            var a = message.GetFloat();
+
+            return new Color(r,g,b,a);
+        }
+        #endregion
     }
 }

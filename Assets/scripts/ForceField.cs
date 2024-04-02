@@ -91,7 +91,7 @@ public class ForceField : MonoBehaviour
         Heun,
         Ralston,
         MidPoint,
-        SteepestDecent
+        SteepestDescent
     }
     public Method _currentMethod;
 
@@ -227,9 +227,9 @@ public class ForceField : MonoBehaviour
                 currentMethod = Method.Ralston;
                 break;
             case Method.Ralston:
-                currentMethod = Method.SteepestDecent;
+                currentMethod = Method.SteepestDescent;
                 break;
-            case Method.SteepestDecent:
+            case Method.SteepestDescent:
                 currentMethod = Method.MidPoint;
                 break;
             default:
@@ -256,11 +256,11 @@ public class ForceField : MonoBehaviour
             case Method.Ralston:
                 currentMethod = Method.Heun;
                 break;
-            case Method.SteepestDecent:
+            case Method.SteepestDescent:
                 currentMethod = Method.Ralston;
                 break;
             default:
-                currentMethod = Method.SteepestDecent;
+                currentMethod = Method.SteepestDescent;
                 break;
         }
     }
@@ -481,7 +481,7 @@ public class ForceField : MonoBehaviour
                 case Method.MidPoint:
                     midpointIntegration();
                     break;
-                case Method.SteepestDecent:
+                case Method.SteepestDescent:
                     steepestDecent();
                     break;
             }
@@ -913,7 +913,7 @@ public class ForceField : MonoBehaviour
         foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
         {
 
-            // update position and total movement:
+            //    // update position and total movement:
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
             {
                 // negative masses flag a fixed atom
@@ -923,7 +923,7 @@ public class ForceField : MonoBehaviour
                     {
                         mol.FFlambda[iAtom] *= SDstepReduction;
                     }
-                    if (chARpackExtensions.CalculateCosineSimilarity( mol.FFforces[iAtom], mol.FFlastForces[iAtom]) > SDsimilarity)
+                    if (chARpackExtensions.CalculateCosineSimilarity(mol.FFforces[iAtom], mol.FFlastForces[iAtom]) > SDsimilarity)
                     {
                         mol.FFlambda[iAtom] *= SDstepIncrease;
                     }
@@ -940,6 +940,36 @@ public class ForceField : MonoBehaviour
                     mol.FFlambda[iAtom] = SDdefaultLambda;
                 }
             }
+
+        // update position and total movement:
+        //for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+        //{
+        //    // negative masses flag a fixed atom
+        //    if (!mol.atomList[iAtom].isGrabbed && mol.atomList[iAtom].m_data.m_mass > 0 && mol.FFforces[iAtom].magnitude > SDepsilon)
+        //    {
+        //        var current_pos = mol.FFposition[iAtom];
+
+        //        var pos_diff = mol.FFposDiff[iAtom];
+        //        var f_diff = mol.FFforces[iAtom] - mol.FFlastForces[iAtom];
+
+        //        var lambda = 0.001f* 0.5f * (Vector3.Dot(pos_diff, f_diff) / f_diff.magnitude + pos_diff.magnitude / Vector3.Dot(pos_diff, f_diff));
+
+        //        if (float.IsNaN(lambda)) lambda = 0.001f;
+        //        //var lambda = Vector3.Dot(pos_diff, f_diff) / Vector3.Dot(f_diff, f_diff);
+        //        //var lambda = Vector3.Dot(pos_diff, pos_diff) / Vector3.Dot(pos_diff, f_diff);
+
+        //        mol.FFposition[iAtom] = current_pos - lambda * mol.FFforces[iAtom];
+
+        //        mol.FFmovement[iAtom] += mol.FFposition[iAtom] - current_pos;
+        //        mol.FFlastForces[iAtom] = mol.FFforces[iAtom];
+        //        mol.FFposDiff[iAtom] = mol.FFposition[iAtom] - current_pos;
+        //    }
+        //    else
+        //    {
+        //        mol.FFmovement[iAtom] = Vector3.zero;
+        //        mol.FFlambda[iAtom] = SDdefaultLambda;
+        //    }
+        //}
         }
     }
 
