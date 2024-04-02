@@ -268,6 +268,13 @@ public class EventManager : MonoBehaviour
         OnMRCapture?.Invoke(client_id, rec);
     }
 
+    public delegate void SnapMoleculesAction(ushort mol1_id, ushort mol2_id);
+    public event SnapMoleculesAction OnSnapMolecules;
+    public void SnapMolecules(ushort mol1_id, ushort mol2_id)
+    {
+        OnSnapMolecules?.Invoke(mol1_id, mol2_id);
+    }
+
     #endregion
 
 
