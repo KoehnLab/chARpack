@@ -1099,7 +1099,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
         string kAngleStr = GlobalCtrl.Singleton.GetLocalizedString("K_ANGLE");
         string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
-        string toolTipText = $"{angleBond}\n{kAngleStr}: {kAngle:0.00}\n{eqAngleStr}: {eqAngle:0.00}°\n{current}: {curAngle:0.00}°";
+        string toolTipText = $"{angleBond}\n{kAngleStr}: {kAngle:0.00}\n{eqAngleStr}: {eqAngle:0.00}\u00B0\n{current}: {curAngle:0.00}\u00B0";
         return toolTipText;
     }
     
@@ -1109,7 +1109,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string torsionBond = GlobalCtrl.Singleton.GetLocalizedString("TORSION_BOND");
         string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
         string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
-        string toolTipText = $"{torsionBond}\n{eqAngleStr}: {eqAngle:0.00}°\n{current}: {curAngle:0.00}°\nvk: {vk:0.00}\nnn: {nn:0.00}";
+        string toolTipText = $"{torsionBond}\n{eqAngleStr}: {eqAngle:0.00}\u00B0\n{current}: {curAngle:0.00}\u00B0\nvk: {vk:0.00}\nnn: {nn:0.00}";
         return toolTipText;
     }
 
