@@ -419,6 +419,7 @@ public class OpenBabelReadWrite : MonoBehaviour
             obmol.AddHydrogens();
             var builder = new OBBuilder();
             builder.Build(obmol);
+            OpenBabelForceField.MinimiseStructure(obmol, 500);
 
 
             List<cmlData> mol = new List<cmlData>();
