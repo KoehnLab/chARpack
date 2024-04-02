@@ -82,7 +82,7 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnMRCapture += sendMRCapture;
         EventManager.Singleton.OnFreezeAtom += bcastFreezeAtom;
         EventManager.Singleton.OnFreezeMolecule += bcastFreezeMolecule;
-        EventManager.Singleton.OnSnapMolecules += bcastSnapMolecules;
+        EventManager.Singleton.OnSetSnapColors += bcastSetSnapColors;
 
     }
 
@@ -410,7 +410,7 @@ public class NetworkManagerServer : MonoBehaviour
         Server.SendToAll(message);
     }
 
-    public void bcastSnapMolecules(ushort mol1_id, ushort mol2_id)
+    public void bcastSetSnapColors(ushort mol1_id, ushort mol2_id)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSnapMolecules);
         message.AddUShort(0);
@@ -1083,7 +1083,7 @@ public class NetworkManagerServer : MonoBehaviour
     }
 
     [MessageHandler((ushort)ClientToServerID.snapMolecules)]
-    private static void getSnapMolecules(ushort fromClientId, Message message)
+    private static void getSnapColors(ushort fromClientId, Message message)
     {
         var mol1_id = message.GetUShort();
         var mol2_id = message.GetUShort();
@@ -1097,7 +1097,7 @@ public class NetworkManagerServer : MonoBehaviour
             NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
             return;
         }
-        mol1.snap(mol2_id);
+        mol1.setSnapColors(mol2);
 
         // Broadcast to other clients
         Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSnapMolecules);

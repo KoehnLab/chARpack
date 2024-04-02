@@ -93,7 +93,7 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnChangeMoleculeScale += sendScaleMolecue;
         EventManager.Singleton.OnFreezeAtom += sendFreezeAtom;
         EventManager.Singleton.OnFreezeMolecule += sendFreezeMolecule;
-        EventManager.Singleton.OnSnapMolecules += sendSnapMolecules;
+        EventManager.Singleton.OnSetSnapColors += sendSetSnapColor;
         EventManager.Singleton.OnCreateMeasurement += sendCreateMeasurement;
         EventManager.Singleton.OnClearMeasurements += sendClearMeasurements;
     }
@@ -460,7 +460,7 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
-    public void sendSnapMolecules(ushort mol1_id, ushort mol2_id)
+    public void sendSetSnapColor(ushort mol1_id, ushort mol2_id)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.snapMolecules);
         message.AddUShort(mol1_id);
@@ -1096,7 +1096,7 @@ public class NetworkManagerClient : MonoBehaviour
                 Debug.LogError($"[NetworkManagerClient:getSnapMolecules] Molecule {mol1_id} or {mol2_id} does not exist.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
             }
-            mol1.snap(mol2_id);
+            mol1.setSnapColors(mol2);
         }
     }
 

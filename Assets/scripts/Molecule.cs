@@ -481,28 +481,27 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             return;
         }
         snap(otherMolID);
-        //EventManager.Singleton.MoveMolecule(m_id, otherMol.transform.localPosition, otherMol.transform.localRotation);
-        //EventManager.Singleton.SelectMolecule(m_id, false);
-        //EventManager.Singleton.SelectMolecule(otherMolID, false);
-        EventManager.Singleton.SnapMolecules(m_id, otherMolID);
+        markMolecule(false);
+        otherMol.markMolecule(false);
+        EventManager.Singleton.MoveMolecule(m_id, otherMol.transform.localPosition, otherMol.transform.localRotation);
+        EventManager.Singleton.SelectMolecule(m_id, false);
+        EventManager.Singleton.SelectMolecule(otherMolID, false);
+        EventManager.Singleton.SetSnapColors(m_id, otherMolID);
     }
 
-    public bool snap(ushort otherMolID)
+    private bool snap(ushort otherMolID)
     {
         var otherMol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(otherMolID);
         if (otherMol == default)
         {
             return false;
         }
-        markMolecule(false);
-        otherMol.markMolecule(false);
         // apply transformation
         transform.localPosition = otherMol.transform.localPosition;
         transform.localRotation = otherMol.transform.localRotation;
         // TODO: Add advanced alignment mode
         // add coloring
-        addSnapColor(ref compMaterialA);
-        otherMol.addSnapColor(ref compMaterialB);
+        setSnapColors(otherMol);
 
         return true;
     }
@@ -521,6 +520,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             Material[] comp = bond.GetComponentInChildren<MeshRenderer>().sharedMaterials.ToList().Append(mat).ToArray();
             bond.GetComponentInChildren<MeshRenderer>().sharedMaterials = comp;
         }
+    }
+
+    public void setSnapColors(Molecule otherMol)
+    {
+        addSnapColor(ref compMaterialA);
+        otherMol.addSnapColor(ref compMaterialB);
     }
 
     private void closeSnapUI(ushort otherMolID)
