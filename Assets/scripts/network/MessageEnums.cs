@@ -85,12 +85,25 @@ public enum SimToServerID : ushort
     sendInit = 3000,
     sendMolecule = 3001,
     sendMoleculeUpdate = 3002,
+    sendStructureFormula = 3003,
 }
 
 public enum ServerToSimID : ushort
 {
     pauseSim = 4000,
-    stopSim
+    stopSim = 4001,
+    requestStrucutreFormula = 4002
+}
+
+public enum StructureToServerID : ushort
+{
+    sendInit = 5000,
+    sendStructureFormula = 5001,
+}
+
+public enum ServerToStructureID : ushort
+{
+    requestStrucutreFormula = 6000
 }
 
 public enum myDeviceType : ushort

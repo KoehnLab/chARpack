@@ -1693,9 +1693,19 @@ public class GlobalCtrl : MonoBehaviour
     #endregion
 
     #region atom appearance
-    [SerializeField]
     private int currentNumOutlines_ = 1;
     public int currentNumOutlines { get => currentNumOutlines_; set { currentNumOutlines_ = value; changeNumOutlines(value); } }
+
+
+    public void increaseNumOutlines()
+    {
+        currentNumOutlines = currentNumOutlines + 1;
+    }
+
+    public void decreaseNumOutlines()
+    {
+        currentNumOutlines = currentNumOutlines - 1;
+    }
 
     public void changeNumOutlines(int num)
     {

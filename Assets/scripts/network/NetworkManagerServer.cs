@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System.IO;
+using Unity.VectorGraphics;
 
 public class NetworkManagerServer : MonoBehaviour
 {
@@ -33,10 +34,15 @@ public class NetworkManagerServer : MonoBehaviour
 
     private bool ServerStarted = false;
 
+    // CML deserialize memory
     private static byte[] cmlTotalBytes;
     private static List<cmlData> cmlWorld;
     private static ushort chunkSize = 255;
     private static bool receiveComplete = false;
+
+    // Structure deserialize memory
+    private static string svg_content;
+    private static List<Vector2> svg_coords;
 
     private GameObject _userWorld;
     public GameObject UserWorld { get => _userWorld; private set => _userWorld = value; }
@@ -57,6 +63,7 @@ public class NetworkManagerServer : MonoBehaviour
         StartServer();
 
         EventManager.Singleton.OnCmlReceiveCompleted += flagReceiveComplete;
+        EventManager.Singleton.OnStructureReceiveCompleted += structureReceiveComplete;
         EventManager.Singleton.OnMoveAtom += bcastMoveAtom;
         EventManager.Singleton.OnStopMoveAtom += bcastStopMoveAtom;
         EventManager.Singleton.OnMergeMolecule += bcastMergeMolecule;
@@ -341,7 +348,8 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastSettings()
     {
-        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSettings);
+        // Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSettings);
+        Message message = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastSettings);
         message.AddUShort(0);
         message.AddUShort(SettingsData.bondStiffness);
         message.AddFloat(SettingsData.repulsionScale);
@@ -1111,13 +1119,94 @@ public class NetworkManagerServer : MonoBehaviour
 
     #region SimMessages
 
+
+    public void requestStructureFormula()
+    {
+        // Pack molecule
+        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(0, null);
+        if (mol == null)
+        {
+            Debug.LogError("[SimToServer:requestStructureFormula] No molecules in scene!");
+            return;
+        }
+
+        Message message = Message.Create(MessageSendMode.Unreliable, ServerToStructureID.requestStrucutreFormula);
+        message.AddUShort(mol.m_id);
+        message.AddUShort((ushort)mol.atomList.Count);
+
+        foreach (var atom in mol.atomList)
+        {
+            var pos = atom.transform.localPosition * GlobalCtrl.u2aa / GlobalCtrl.scale;
+            message.AddFloat(pos.x);
+            message.AddFloat(pos.y);
+            message.AddFloat(pos.z);
+        }
+
+        foreach (var atom in mol.atomList)
+        {
+            message.AddString(atom.m_data.m_abbre);
+        }
+
+        Server.Send(message, UserServer.structureID);
+    }
+
+    [MessageHandler((ushort)StructureToServerID.sendStructureFormula)]
+    private static void getStructureFormula(ushort fromClientId, Message message)
+    {
+        Debug.Log($"[SimToServer:getStructureFormula] Received Structure Formula.");
+
+        // unpack message
+        NetworkUtils.deserializeStructureData(message, ref svg_content, ref svg_coords);
+
+    }
+
+    private void structureReceiveComplete(ushort mol_id)
+    {
+        var canvas = GameObject.Find("UICanvas");
+        GameObject svg_canvas = new GameObject();
+        svg_canvas.AddComponent<CanvasRenderer>();
+        var rect = svg_canvas.AddComponent<RectTransform>();
+        var svg_component = svg_canvas.AddComponent<SVGImage>();
+
+        var sceneInfo = SVGParser.ImportSVG(new StringReader(svg_content));
+        rect.sizeDelta = 2 * new Vector2(sceneInfo.SceneViewport.width, sceneInfo.SceneViewport.height);
+        // Tessellate
+        //var geoms = VectorUtils.TessellateScene(sceneInfo.Scene, new VectorUtils.TessellationOptions());
+        var geometries = VectorUtils.TessellateScene(sceneInfo.Scene, new VectorUtils.TessellationOptions
+        {
+            StepDistance = 10,
+            SamplingStepSize = 100,
+            MaxCordDeviation = 0.5f,
+            MaxTanAngleDeviation = 0.1f
+        });
+
+
+        // Build a sprite
+        var sprite = VectorUtils.BuildSprite(geometries, 100.0f, VectorUtils.Alignment.Center, Vector2.zero, 128, true);
+        svg_component.sprite = sprite;
+
+        svg_canvas.transform.SetParent(canvas.transform, true);
+
+        // TODO add data to molecule
+    }
+
+
     [MessageHandler((ushort)SimToServerID.sendInit)]
-    private static void getInit(ushort fromClientId, Message message)
+    private static void getSimInit(ushort fromClientId, Message message)
     {
         Debug.Log($"[SimToServer] Simulation Connected. ID: {fromClientId}");
+        UserServer.simID = fromClientId;
         SettingsData.forceField = false;
         settingsControl.Singleton.updateSettings();
     }
+
+    [MessageHandler((ushort)StructureToServerID.sendInit)]
+    private static void getStructureInit(ushort fromClientId, Message message)
+    {
+        Debug.Log($"[StructureToServer] Structure Generator Connected. ID: {fromClientId}");
+        UserServer.structureID = fromClientId;
+    }
+
 
     [MessageHandler((ushort)SimToServerID.sendMolecule)]
     private static void getMoleculeCreated(ushort fromClientId, Message message)
@@ -1136,6 +1225,8 @@ public class NetworkManagerServer : MonoBehaviour
         }
 
         Debug.Log($"[SimToServer] Num Atoms {num_atoms}, Molecule ids {ids.AsCommaSeparatedString()} symbols {symbols.AsCommaSeparatedString()} positions {positions.AsCommaSeparatedString()}");
+
+        // TODO change this to not write a file
 
         string filename = $"{mol_id}.xyz";
         //string path = Path.Combine(Application.persistentDataPath, filename);

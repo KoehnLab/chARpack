@@ -91,6 +91,12 @@ public class EventManager : MonoBehaviour
         OnCmlReceiveCompleted?.Invoke();
     }
 
+    public delegate void StructureReceiveCompletedAction(ushort mol_id);
+    public event StructureReceiveCompletedAction OnStructureReceiveCompleted;
+    public void StructureReceiveCompleted(ushort mol_id)
+    {
+        OnStructureReceiveCompleted?.Invoke(mol_id);
+    }
 
     public delegate void DeleteEverythingAction();
     public event DeleteEverythingAction OnDeleteEverything;

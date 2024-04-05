@@ -405,4 +405,84 @@ public class OpenBabelReadWrite : MonoBehaviour
         return null;
     }
 
+    public void generateSVG()
+    {
+        var mols = new List<Molecule>();
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        {
+            if (mol.isMarked)
+            {
+                mols.Add(mol);
+            }
+        }
+        if (mols.Count < 1)
+        {
+            mols.Add(GlobalCtrl.Singleton.List_curMolecules[0]);
+        }
+
+        var obmol = mols[0].AsCML().AsOBMol();
+
+        // convert to xyz
+        var convXYZ = new OBConversion();
+        convXYZ.SetOutFormat(OBFormat.FindType("xyz"));
+        var xyz = convXYZ.WriteString(obmol);
+
+        // read back for unbiased obmol
+        var newobmol = new OBMol();
+        var conv_ = new OBConversion();
+        conv_.SetInFormat(OBFormat.FindType("xyz"));
+        conv_.ReadString(newobmol, xyz);
+        
+        // create bonds etc.
+        var builder = new OBBuilder();
+        builder.Build(newobmol);
+
+        // convert to smiles
+        var conv = new OBConversion();
+        conv.SetOutFormat(OBFormat.FindType("smiles"));
+        UnityEngine.Debug.Log(conv.WriteString(newobmol));
+
+        conv.SetOutFormat(OBFormat.FindType("svg"));
+        conv.WriteFile(newobmol, $"{Application.streamingAssetsPath}/SavedMolecules/blub.svg");
+
+        UnityEngine.Debug.Log($"Has 2D information: {newobmol.Has2D()}");
+
+
+        float min_x = 0f;
+        float max_x = 0f;
+        float min_y = 0f;
+        float max_y = 0f;
+        float min_z = 0f;
+        float max_z = 0f;
+        var atom0 = newobmol.GetFirstAtom();
+        if (atom0 != null)
+        {
+            min_x = max_x = (float)atom0.GetVector().GetX();
+            min_y = max_y = (float)atom0.GetVector().GetY();
+            min_z = max_z = (float)atom0.GetVector().GetZ();
+            foreach (var atom in newobmol.Atoms())
+            {
+                min_x = Mathf.Min(min_x, (float)atom.GetVector().GetX());
+                max_x = Mathf.Max(max_x, (float)atom.GetVector().GetX());
+                min_y = Mathf.Min(min_y, (float)atom.GetVector().GetY());
+                max_y = Mathf.Max(max_y, (float)atom.GetVector().GetY());
+                min_z = Mathf.Min(min_z, (float)atom.GetVector().GetZ());
+                max_z = Mathf.Max(max_z, (float)atom.GetVector().GetZ());
+            }
+        }
+
+        UnityEngine.Debug.Log($"minX: {min_x}, minY: {min_y}, minZ: {min_z}");
+
+
+        var margin = 40f;
+
+        foreach (var atom in newobmol.Atoms())
+        {
+            UnityEngine.Debug.Log($"vector: {(atom.GetVector().GetX() - min_x) + margin} {(atom.GetVector().GetY() - min_y) + margin} {(atom.GetVector().GetZ() - min_z) + margin}");
+        }
+
+
+    }
+
+
 }

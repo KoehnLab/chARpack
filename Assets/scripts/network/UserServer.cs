@@ -13,6 +13,9 @@ public class UserServer : MonoBehaviour
 {
     public static Dictionary<ushort, UserServer> list = new Dictionary<ushort, UserServer>();
 
+    public static ushort simID;
+    public static ushort structureID;
+
     public ushort ID;
     public string deviceName;
     public Color focusColor;

@@ -58,7 +58,8 @@ public static class NetworkUtils
     public static void serializeCmlData(ushort messageSignature, List<cmlData> data, ushort chunkSize_, bool toServer = false, int toClientID = -1)
     {
         // prepare clients for the messages'
-        Message startMessage = Message.Create(MessageSendMode.Reliable, messageSignature);
+        // Message startMessage = Message.Create(MessageSendMode.Reliable, messageSignature);
+        Message startMessage = Message.Create(MessageSendMode.Unreliable, messageSignature);
         startMessage.AddString("start");
         if (toServer)
         {
@@ -106,7 +107,8 @@ public static class NetworkUtils
                 var currentPieceID = j; // third
                 var piece = totalBytes[..bytesPerPiece[j]]; // forth
                 totalBytes = totalBytes[bytesPerPiece[j]..];
-                Message message = Message.Create(MessageSendMode.Reliable, messageSignature);
+                // Message message = Message.Create(MessageSendMode.Reliable, messageSignature);
+                Message message = Message.Create(MessageSendMode.Unreliable, messageSignature);
                 message.AddString("data");
                 message.AddUInt(totalLength);
                 message.AddUShort(numPieces);
@@ -129,7 +131,8 @@ public static class NetworkUtils
                 }
             }
         }
-        Message endMessage = Message.Create(MessageSendMode.Reliable, messageSignature);
+        // Message endMessage = Message.Create(MessageSendMode.Reliable, messageSignature);
+        Message endMessage = Message.Create(MessageSendMode.Unreliable, messageSignature);
         endMessage.AddString("end");
         if (toServer)
         {
@@ -147,6 +150,39 @@ public static class NetworkUtils
             }
         }
     }
+
+    public static void deserializeStructureData(Message message, ref string svg_content, ref List<Vector2> svg_coords)
+    {
+        var state = message.GetString();
+        if (state == "start")
+        {
+            Debug.Log("[NetworkManagerClient] Receiving Structure data");
+            svg_content = "";
+            svg_coords = new List<Vector2>();
+        }
+        else if (state == "end")
+        {
+            var mol_id = message.GetUShort();
+            EventManager.Singleton.StructureReceiveCompleted(mol_id);
+        }
+        else if (state == "svg")
+        {
+            var line = message.GetString();
+            svg_content += line + "\n";
+        }
+        else // pos
+        {
+            var num_atoms = message.GetUShort();
+            for (int i = 0; i < num_atoms; i++)
+            {
+                var x = message.GetFloat();
+                var y = message.GetFloat();
+                svg_coords.Add(new Vector2(x, y));
+            }
+        }
+    }
+
+
 
     #endregion
 }
