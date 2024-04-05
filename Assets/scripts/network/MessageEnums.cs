@@ -34,6 +34,7 @@ public enum ClientToServerID : ushort
     scaleMolecule,
     freezeAtom,
     freezeMolecule,
+    snapMolecules,
     stopMoveAtom,
     createMeasurement,
     clearMeasurements,
@@ -76,6 +77,7 @@ public enum ServerToClientID : ushort
     bcastCreateMeasurement,
     bcastClearMeasurements,
     MRCapture,
+    bcastSnapMolecules,
     requestEyeCalibrationState,
     requestBatteryState
 }

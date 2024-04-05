@@ -89,7 +89,7 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnMRCapture += sendMRCapture;
         EventManager.Singleton.OnFreezeAtom += bcastFreezeAtom;
         EventManager.Singleton.OnFreezeMolecule += bcastFreezeMolecule;
-
+        EventManager.Singleton.OnSetSnapColors += bcastSetSnapColors;
 
     }
 
@@ -415,6 +415,15 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddUShort(0);
         message.AddUShort(mol_id);
         message.AddBool(freeze);
+        Server.SendToAll(message);
+    }
+
+    public void bcastSetSnapColors(ushort mol1_id, ushort mol2_id)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSnapMolecules);
+        message.AddUShort(0);
+        message.AddUShort(mol1_id);
+        message.AddUShort(mol2_id);
         Server.SendToAll(message);
     }
 
@@ -1081,6 +1090,31 @@ public class NetworkManagerServer : MonoBehaviour
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
 
+    [MessageHandler((ushort)ClientToServerID.snapMolecules)]
+    private static void getSnapColors(ushort fromClientId, Message message)
+    {
+        var mol1_id = message.GetUShort();
+        var mol2_id = message.GetUShort();
+
+        // do the move on the server
+        var mol1 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol1_id);
+        var mol2 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol2_id);
+        if (mol1 == default || mol2 == default)
+        {
+            Debug.LogError($"[NetworkManagerServer:getSnapMolecules] Molecule with id {mol1_id} or {mol2_id} does not exist.\nSynchronizing world with client {fromClientId}.");
+            NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
+            return;
+        }
+        mol1.setSnapColors(mol2);
+
+        // Broadcast to other clients
+        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSnapMolecules);
+        outMessage.AddUShort(fromClientId);
+        outMessage.AddUShort(mol1_id);
+        outMessage.AddUShort(mol2_id);
+        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
+
     [MessageHandler((ushort)ClientToServerID.createMeasurement)]
     private static void getCreateMeasurement(ushort fromClientId, Message message)
     {
@@ -1092,7 +1126,7 @@ public class NetworkManagerServer : MonoBehaviour
         // do the create
         if (!DistanceMeasurement.Create(mol1ID, atom1ID, mol2ID, atom2ID))
         {
-            Debug.LogError($"[NetworkManagerClient] Create measuurement cannot be executed. Atom IDs do not exist (Atom1: {atom1ID}, Atom2 {atom2ID}).\nRequesing world sync.");
+            Debug.LogError($"[NetworkManagerClient] Create measuurement cannot be executed. Atom IDs do not exist (Atom1: {atom1ID}, Atom2 {atom2ID}).\nRequesting world sync.");
             NetworkManagerClient.Singleton.sendSyncRequest();
             return;
         }

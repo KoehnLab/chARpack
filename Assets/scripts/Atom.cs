@@ -1424,7 +1424,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         string nameStr = GlobalCtrl.Singleton.GetLocalizedString("NAME");
         name = GetLocalizedElementName(name);
         double radius_in_angstrom = radius * 0.01f;
-        string toolTipText = $"{nameStr}: {name}\n{massStr}: {mass:0.00}u\n{rad}: {radius_in_angstrom:0.00}\u00C5\n{numBonds}: {bondNum}";
+        string radiusInCorrectUnit = SettingsData.useAngstrom ? $"{radius_in_angstrom:0.00}" : $"{radius:0}";
+        string unit = SettingsData.useAngstrom ? "\u00C5" : "pm";
+        string toolTipText = $"{nameStr}: {name}\n{massStr}: {mass:0.00}u\n{rad}: {radiusInCorrectUnit}{unit}\n{numBonds}: {bondNum}";
         return toolTipText;
     }
 

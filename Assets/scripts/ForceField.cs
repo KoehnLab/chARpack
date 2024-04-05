@@ -123,7 +123,7 @@ public class ForceField : MonoBehaviour
     public static float k0 = 3000f;               //between 100 - 5000
     public static float ka = 3f*k0;               //angle force constant
     public static float kb = 7f * k0 / 10000f;    //bond force constant, "/ 10000f" because of caculating A^2 to pm^2
-    public static float kim = 0.02f * k0;         //improper torsion force constant 0.45 ; 0.045
+    public static float kim = 0.45f * k0;         //improper torsion force constant 0.45 ; 0.045
 
     //float standardDistance = 154f; // integrate into new bondList
     public static float alphaNull = 109.4712f; // integrate into new angleList

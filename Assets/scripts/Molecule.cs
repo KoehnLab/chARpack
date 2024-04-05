@@ -485,6 +485,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         EventManager.Singleton.MoveMolecule(m_id, otherMol.transform.localPosition, otherMol.transform.localRotation);
         EventManager.Singleton.SelectMolecule(m_id, false);
         EventManager.Singleton.SelectMolecule(otherMolID, false);
+        EventManager.Singleton.SetSnapColors(m_id, otherMolID);
     }
 
     private bool snap(ushort otherMolID)
@@ -499,8 +500,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         transform.localRotation = otherMol.transform.localRotation;
         // TODO: Add advanced alignment mode
         // add coloring
-        addSnapColor(ref compMaterialA);
-        otherMol.addSnapColor(ref compMaterialB);
+        setSnapColors(otherMol);
 
         return true;
     }
@@ -519,6 +519,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             Material[] comp = bond.GetComponentInChildren<MeshRenderer>().sharedMaterials.ToList().Append(mat).ToArray();
             bond.GetComponentInChildren<MeshRenderer>().sharedMaterials = comp;
         }
+    }
+
+    public void setSnapColors(Molecule otherMol)
+    {
+        addSnapColor(ref compMaterialA);
+        otherMol.addSnapColor(ref compMaterialB);
     }
 
     private void closeSnapUI(ushort otherMolID)
@@ -1098,7 +1104,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
         string kAngleStr = GlobalCtrl.Singleton.GetLocalizedString("K_ANGLE");
         string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
-        string toolTipText = $"{angleBond}\n{kAngleStr}: {kAngle:0.00}\n{eqAngleStr}: {eqAngle:0.00}°\n{current}: {curAngle:0.00}°";
+        string toolTipText = $"{angleBond}\n{kAngleStr}: {kAngle:0.00}\n{eqAngleStr}: {eqAngle:0.00}\u00B0\n{current}: {curAngle:0.00}\u00B0";
         return toolTipText;
     }
     
@@ -1108,7 +1114,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         string torsionBond = GlobalCtrl.Singleton.GetLocalizedString("TORSION_BOND");
         string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
         string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
-        string toolTipText = $"{torsionBond}\n{eqAngleStr}: {eqAngle:0.00}°\n{current}: {curAngle:0.00}°\nvk: {vk:0.00}\nnn: {nn:0.00}";
+        string toolTipText = $"{torsionBond}\n{eqAngleStr}: {eqAngle:0.00}\u00B0\n{current}: {curAngle:0.00}\u00B0\nvk: {vk:0.00}\nnn: {nn:0.00}";
         return toolTipText;
     }
 
@@ -1665,7 +1671,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
                             //newTorsion.vk = 2 * kim;
                             newTorsion.nn = 1;
-                            if (atomList[jdx].m_data.m_hybridization == 3)
+                            if (atomList[jdx].m_data.m_hybridization == 3) // tetraeder term
                             {
                                 newTorsion.nn = 3; // TRY:
                                                    // if (phi > 0f)
