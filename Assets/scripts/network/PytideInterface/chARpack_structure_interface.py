@@ -102,7 +102,7 @@ class chARpackStructureInterface():
         return_msg.putString("pos")
         return_msg.putUInt16(len(svg_coordinates))
         for i in range(len(svg_coordinates)):
-            for coord in atom_positions[i]:
+            for coord in svg_coordinates[i]:
                 return_msg.putFloat(coord)
 
         self.client.send(return_msg)

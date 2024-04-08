@@ -32,7 +32,16 @@ class StructureFormulaGenerator:
 
         raw_mol = Chem.MolFromXYZBlock(xyz)
         mol = Chem.Mol(raw_mol)
-        rdDetermineBonds.DetermineBonds(mol,charge=0)
+
+        for i in [0,-1,1,-2,2,-3,3]:
+            try:
+                rdDetermineBonds.DetermineBonds(mol, charge=i)
+                break
+            except:
+                print(f"Determining bonds with charge {i} failed.")
+        
+        
+        rdDepictor.Compute2DCoords(mol)
         #mol = Chem.AddHs(mol)
         d = rdMolDraw2D.MolDraw2DSVG(-1, -1)
         #rdMolDraw2D.SetDarkMode(d)
@@ -47,7 +56,7 @@ class StructureFormulaGenerator:
         #     f.write(svg_content)
 
         coords_on_svg = self.__calc_2d_atom_positions(mol, svg_content)
-        #new_svg_content = add_circles_to_svg(svg_content, transformed_coords)
+        #svg_content = self.__add_circles_to_svg(svg_content, coords_on_svg)
 
         return svg_content, coords_on_svg
 

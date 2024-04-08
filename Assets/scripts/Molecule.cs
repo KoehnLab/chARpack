@@ -1271,9 +1271,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             return (ushort)(getMaxAtomID() + 1);
         }
     }
-#endregion
+    #endregion
 
-#region ForceField
+    #region ForceField
 
     public List<Vector3> FFposition = new List<Vector3>();
     public List<Vector3> FFlastPosition = new List<Vector3>();

@@ -17,6 +17,9 @@ namespace chARpackColorPalette
         public static Color white = Color.white;
         public static Color blue = Color.blue;
         public static Color green = Color.green;
+        public static Color structureFormulaNormal = new Color(0.5f, 0.5f, 0.5f, 0.6f);
+        public static Color structureFormulaSelect = new Color(1f, 1f, 0f, 0.6f);
+        public static Color structureFormulaInvis = new Color(0.5f, 0.5f, 0.5f, 0f);
     }
 
     public class FocusColors

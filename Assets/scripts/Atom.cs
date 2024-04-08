@@ -44,7 +44,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     public static Color currentOutlineColor = chARpackColors.black;
     public bool keepConfig = false;
     public bool frozen = false;
-    private bool focused = false;
+    public bool focused = false;
     private float focus_alpha = 0f;
     private float focus_ramping_constant = 1f/(3f*40f);
     private float outline_radius_min = 5f;
@@ -54,6 +54,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private List<Atom> currentChain = new List<Atom>();
 
     public static List<Atom> markedAtoms = new List<Atom>();
+
+    public Vector2 structure_coords;
+    public GameObject structure_interactible;
 
 
 
@@ -98,6 +101,18 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
     }
 
+    #region StructureFormula
+    public void focusHighlightInFormula(bool value, float alpha)
+    {
+        StructureFormulaManager.Singleton.addFocusHighlight(m_molecule.m_id, this, value, alpha);
+    }
+
+    public void selectHighlightInFormula(bool value)
+    {
+        StructureFormulaManager.Singleton.addSelectHighlight(m_molecule.m_id, this, value);
+    }
+    #endregion
+
     #region mouse_interaction
 
 #if !WINDOWS_UWP
@@ -109,6 +124,14 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         if (SceneManager.GetActiveScene().name == "ServerScene")
         {
+            if (mouseOverAtom() && Input.GetKey(KeyCode.LeftControl))
+            {
+                focused = true;
+            }
+            else
+            {
+                focused = false;
+            }
             if (Input.GetMouseButtonDown(1) && Input.GetKey(KeyCode.LeftShift) && mouseOverAtom())
             {
                 arcball = true; anyArcball = true;
@@ -1158,6 +1181,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
 
         isMarked = mark;
+        selectHighlightInFormula(isMarked);
 
         if (isMarked)
         {
@@ -1529,7 +1553,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
     }
 
-    private void OnFocusEnter(FocusEventData eventData)
+    public void OnFocusEnter(FocusEventData eventData)
     {
         if (!focused && SettingsData.pointerHighlighting)
         {
@@ -1539,7 +1563,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
     }
 
-    void OnFocusExit(FocusEventData eventData)
+    public void OnFocusExit(FocusEventData eventData)
     {
         if (focused && SettingsData.pointerHighlighting)
         {
@@ -1563,6 +1587,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             if (focus_alpha > 1f) focus_alpha = 1f;
             if (outline_radius_current > outline_radius_max) outline_radius_current = outline_radius_max;
             focusHighlight(true);
+            focusHighlightInFormula(true, focus_alpha * 0.8f);
         }
         else if (focus_alpha != 0f)
         {
@@ -1573,10 +1598,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 outline_radius_current = outline_radius_min;
                 focus_alpha = 0f;
                 focusHighlight(false);
+                focusHighlightInFormula(false, 0f);
             }
             else
             {
                 focusHighlight(true);
+                focusHighlightInFormula(true, focus_alpha * 0.8f);
             }
         }
     }

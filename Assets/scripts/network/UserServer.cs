@@ -13,8 +13,8 @@ public class UserServer : MonoBehaviour
 {
     public static Dictionary<ushort, UserServer> list = new Dictionary<ushort, UserServer>();
 
-    public static ushort simID;
-    public static ushort structureID;
+    public static ushort simID = 0;
+    public static ushort structureID = 0;
 
     public ushort ID;
     public string deviceName;

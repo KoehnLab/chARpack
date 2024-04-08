@@ -178,6 +178,7 @@ public static class NetworkUtils
                 var x = message.GetFloat();
                 var y = message.GetFloat();
                 svg_coords.Add(new Vector2(x, y));
+                //Debug.Log($"x:{x}   y:{y}");
             }
         }
     }

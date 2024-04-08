@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System.IO;
-using Unity.VectorGraphics;
 
 public class NetworkManagerServer : MonoBehaviour
 {
@@ -1097,9 +1096,9 @@ public class NetworkManagerServer : MonoBehaviour
         var mol2_id = message.GetUShort();
 
         // do the move on the server
-        var mol1 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol1_id);
-        var mol2 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(mol2_id);
-        if (mol1 == default || mol2 == default)
+        var mol1 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol1_id, null);
+        var mol2 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol2_id, null);
+        if (!mol1 || !mol2)
         {
             Debug.LogError($"[NetworkManagerServer:getSnapMolecules] Molecule with id {mol1_id} or {mol2_id} does not exist.\nSynchronizing world with client {fromClientId}.");
             NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
@@ -1178,7 +1177,15 @@ public class NetworkManagerServer : MonoBehaviour
 
         foreach (var atom in mol.atomList)
         {
-            message.AddString(atom.m_data.m_abbre);
+            if (atom.m_data.m_abbre.ToLower() == "dummy")
+            {
+                message.AddString("H");
+            }
+            else
+            {
+                message.AddString(atom.m_data.m_abbre);
+            }
+
         }
 
         Server.Send(message, UserServer.structureID);
@@ -1196,32 +1203,28 @@ public class NetworkManagerServer : MonoBehaviour
 
     private void structureReceiveComplete(ushort mol_id)
     {
-        var canvas = GameObject.Find("UICanvas");
-        GameObject svg_canvas = new GameObject();
-        svg_canvas.AddComponent<CanvasRenderer>();
-        var rect = svg_canvas.AddComponent<RectTransform>();
-        var svg_component = svg_canvas.AddComponent<SVGImage>();
-
-        var sceneInfo = SVGParser.ImportSVG(new StringReader(svg_content));
-        rect.sizeDelta = 2 * new Vector2(sceneInfo.SceneViewport.width, sceneInfo.SceneViewport.height);
-        // Tessellate
-        //var geoms = VectorUtils.TessellateScene(sceneInfo.Scene, new VectorUtils.TessellationOptions());
-        var geometries = VectorUtils.TessellateScene(sceneInfo.Scene, new VectorUtils.TessellationOptions
+        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        if (!mol)
         {
-            StepDistance = 10,
-            SamplingStepSize = 100,
-            MaxCordDeviation = 0.5f,
-            MaxTanAngleDeviation = 0.1f
-        });
+            Debug.LogError($"[structureReceiveComplete] Molecule with ID {mol_id} does not exist.\nRequesting world sync.");
+            NetworkManagerClient.Singleton.sendSyncRequest();
+            return;
+        }
 
-
-        // Build a sprite
-        var sprite = VectorUtils.BuildSprite(geometries, 100.0f, VectorUtils.Alignment.Center, Vector2.zero, 128, true);
-        svg_component.sprite = sprite;
-
-        svg_canvas.transform.SetParent(canvas.transform, true);
-
-        // TODO add data to molecule
+        for (int i = 0; i < svg_coords.Count; i++)
+        {
+            mol.atomList[i].structure_coords = svg_coords[i];
+        }
+        
+        if (StructureFormulaManager.Singleton)
+        {
+            StructureFormulaManager.Singleton.pushContent(mol_id, svg_content);
+        }
+        else
+        {
+            Debug.LogError("[structureReceiveComplete] Could not find StructureFormulaManager");
+            return;
+        }
     }
 
 
