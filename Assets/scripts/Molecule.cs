@@ -503,8 +503,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         // apply transformation
         
         transform.localPosition = otherMol.transform.localPosition;
-        var rotationMatrix = kabschRotationMatrix(atomPositions(this), atomPositions(otherMol));
-        transform.localRotation = Quaternion.LookRotation(rotationMatrix.GetColumn(2), rotationMatrix.GetColumn(1)) * transform.localRotation;
+        var rotationMatrix = kabschRotationMatrix(atomPositions(), otherMol.atomPositions());
+        transform.localRotation = Quaternion.LookRotation(rotationMatrix.GetRow(2), rotationMatrix.GetRow(1)) * transform.localRotation;
         // TODO: Add advanced alignment mode
         // add coloring
         setSnapColors(otherMol);
@@ -512,10 +512,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         return true;
     }
 
-    private Vector3[] atomPositions(Molecule mol)
+    private Vector3[] atomPositions()
     {
-        var positions = new Vector3[mol.atomList.Count()];
-        for(var i=0; i<mol.atomList.Count(); i++) { positions[i] = mol.atomList[i].transform.localPosition; }
+        var positions = new Vector3[atomList.Count()];
+        for(var i=0; i<atomList.Count(); i++) { positions[i] = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(atomList[i].transform.position); }
         return positions;
     }
 
@@ -544,6 +544,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         foreach (var pos in positions2) { sum += pos; }
         var meanPos = sum / (positions2.Count());
         for(var i=0; i<positions1.Count(); i++) positions1[i] -= meanPos;
+        for (var i = 0; i < positions2.Count(); i++) positions2[i] -= meanPos;
 
         // Convert positions to array
         var P = new float[positions1.Count(), 3];
@@ -555,6 +556,14 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var matrix = Matrix4x4.identity;
         for(var i=0; i<3; i++) { matrix[i,0] = rotation[i,0]; matrix[i, 1] = rotation[i, 1]; matrix[i, 2] = rotation[i, 2]; }
         return matrix;
+    }
+
+    private void rotateAtomsByMatrix(Matrix4x4 rotationMatrix)
+    {
+        var quat = Quaternion.LookRotation(rotationMatrix.GetRow(2), rotationMatrix.GetRow(1));
+        var angle = 0.0f; var axis = Vector3.zero;
+        quat.ToAngleAxis(out angle, out axis);
+        foreach(var atom in atomList) { atom.transform.RotateAround(getCenter(),axis,angle); }
     }
 
     private void addSnapColor(ref Material mat)
