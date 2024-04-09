@@ -37,12 +37,14 @@ public class StructureFormulaManager : MonoBehaviour
 
     private Dictionary<ushort, Tuple<GameObject, string>> svg_instances;
     private GameObject interactiblePrefab;
+    private GameObject structureFormulaPrefab;
     private static float scaleFactor = 4f;
     private GameObject UICanvas;
 
     private void Start()
     {
         svg_instances = new Dictionary<ushort, Tuple<GameObject, string>>();
+        structureFormulaPrefab = (GameObject)Resources.Load("prefabs/StructureFormulaPrefab");
         interactiblePrefab = (GameObject)Resources.Load("prefabs/2DAtom");
         selectionBoxPrefab = (GameObject)Resources.Load("prefabs/2DSelectionBox");
         UICanvas = GameObject.Find("UICanvas");
@@ -70,20 +72,21 @@ public class StructureFormulaManager : MonoBehaviour
 
             // push image
             svg_component.sprite = sprite;
+            var sf = svg_component.GetComponentInParent<StructureFormula>();
+            sf.newImageResize();
 
             svg_instances[mol_id] = new Tuple<GameObject, string>(svg_instances[mol_id].Item1, svg_content);
         }
         else
         {
-            GameObject svg_canvas = new GameObject();
-            svg_canvas.transform.SetParent(UICanvas.transform);
+            GameObject sf_object = Instantiate(structureFormulaPrefab, UICanvas.transform);
+            sf_object.transform.localScale = Vector3.one;
+            var sf = sf_object.GetComponent<StructureFormula>();
 
-            svg_canvas.name = $"StructureFormula_{mol_id}";
-            svg_canvas.AddComponent<CanvasRenderer>();
-            var rect = svg_canvas.AddComponent<RectTransform>();
+            sf.label.text = $"StructureFormula_{mol_id}";
+            var rect = sf.image.transform as RectTransform;
             rect.transform.localScale = Vector2.one;
 
-            var svg_component = svg_canvas.AddComponent<SVGImage>();
             var sceneInfo = SVGParser.ImportSVG(new StringReader(svg_content));
 
             rect.anchorMin = new Vector2(1f, 0.5f);
@@ -102,12 +105,12 @@ public class StructureFormulaManager : MonoBehaviour
                 MaxTanAngleDeviation = 0.1f
             });
 
-
             // Build a sprite
             var sprite = VectorUtils.BuildSprite(geometries, 1, VectorUtils.Alignment.Center, Vector2.zero, 128, true);
-            svg_component.sprite = sprite;
+            sf.image.sprite = sprite;
+            sf.newImageResize();
 
-            svg_instances[mol_id] = new Tuple<GameObject, string>(svg_canvas, svg_content);
+            svg_instances[mol_id] = new Tuple<GameObject, string>(sf.image.gameObject, svg_content);
 
             createInteractibles(mol_id);
         }
