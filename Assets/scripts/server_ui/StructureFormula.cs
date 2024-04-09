@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class StructureFormula : Draggable
+public class StructureFormula : MonoBehaviour
 {
     public SVGImage image;
     public Button collapse_button;
@@ -15,6 +15,8 @@ public class StructureFormula : Draggable
     private void Start()
     {
         collapse_button.onClick.AddListener(delegate { toggleImage(); });
+        var drag = label.gameObject.AddComponent<Draggable>();
+        drag.target = transform;
     }
 
     public void newImageResize()

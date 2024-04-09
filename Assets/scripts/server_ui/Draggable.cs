@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 
 public class Draggable : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
+    public Transform target;
     private bool isMouseDown = false;
     private Vector3 startMousePosition;
     private Vector3 startPosition;
@@ -13,7 +14,7 @@ public class Draggable : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         isMouseDown = true;
 
-        startPosition = transform.position;
+        startPosition = target.position;
         startMousePosition = Input.mousePosition;
     }
 
@@ -23,7 +24,7 @@ public class Draggable : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
         if (shouldReturn)
         {
-            transform.position = startPosition;
+            target.position = startPosition;
         }
     }
 
@@ -37,7 +38,7 @@ public class Draggable : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
             Vector3 pos = startPosition + diff;
 
-            transform.position = pos;
+            target.position = pos;
         }
     }
 }
