@@ -38,7 +38,6 @@ public class StructureFormulaManager : MonoBehaviour
     private Dictionary<ushort, Tuple<GameObject, string>> svg_instances;
     private GameObject interactiblePrefab;
     private GameObject structureFormulaPrefab;
-    private static float scaleFactor = 4f;
     private GameObject UICanvas;
     System.Diagnostics.Process python_process = null;
 
@@ -68,8 +67,10 @@ public class StructureFormulaManager : MonoBehaviour
         if (svg_instances.ContainsKey(mol_id))
         {
             var sceneInfo = SVGParser.ImportSVG(new StringReader(svg_content));
-            var rect = svg_instances[mol_id].Item1.GetComponent<RectTransform>();
-            rect.sizeDelta = scaleFactor * new Vector2(sceneInfo.SceneViewport.width, sceneInfo.SceneViewport.height);
+            var rect = svg_instances[mol_id].Item1.transform as RectTransform;
+            var ui_rect = UICanvas.transform as RectTransform;
+            float scaling_factor = (ui_rect.sizeDelta.x * 0.3f) / sceneInfo.SceneViewport.width;
+            rect.sizeDelta = scaling_factor * new Vector2(sceneInfo.SceneViewport.width, sceneInfo.SceneViewport.height);
 
             var svg_component = svg_instances[mol_id].Item1.GetComponent<SVGImage>();
             // Tessellate
@@ -86,6 +87,7 @@ public class StructureFormulaManager : MonoBehaviour
             // push image
             svg_component.sprite = sprite;
             var sf = svg_component.GetComponentInParent<StructureFormula>();
+            sf.scaleFactor = scaling_factor;
             sf.newImageResize();
 
             svg_instances[mol_id] = new Tuple<GameObject, string>(svg_instances[mol_id].Item1, svg_content);
@@ -105,11 +107,14 @@ public class StructureFormulaManager : MonoBehaviour
 
             var sceneInfo = SVGParser.ImportSVG(new StringReader(svg_content));
 
+            var ui_rect = UICanvas.transform as RectTransform;
+            float scaling_factor = (ui_rect.sizeDelta.x * 0.3f) / sceneInfo.SceneViewport.width;
+
             rect.anchorMin = new Vector2(1f, 0.5f);
             rect.anchorMax = new Vector2(1f, 0.5f);
             rect.pivot = new Vector2(1f, 0.5f);
             rect.anchoredPosition = new Vector2(-0.5f * sceneInfo.SceneViewport.width, 0f);
-            rect.sizeDelta = scaleFactor * new Vector2(sceneInfo.SceneViewport.width, sceneInfo.SceneViewport.height);
+            rect.sizeDelta = scaling_factor * new Vector2(sceneInfo.SceneViewport.width, sceneInfo.SceneViewport.height);
 
 
             // Tessellate
@@ -124,6 +129,7 @@ public class StructureFormulaManager : MonoBehaviour
             // Build a sprite
             var sprite = VectorUtils.BuildSprite(geometries, 1, VectorUtils.Alignment.Center, Vector2.zero, 128, true);
             sf.image.sprite = sprite;
+            sf.scaleFactor = scaling_factor;
             sf.newImageResize();
 
             svg_instances[mol_id] = new Tuple<GameObject, string>(sf.image.gameObject, svg_content);
@@ -186,6 +192,7 @@ public class StructureFormulaManager : MonoBehaviour
             return;
         }
 
+        var sf = svg_instances[mol_id].Item1.GetComponentInParent<StructureFormula>();
         foreach (var atom in mol.atomList)
         {
             if (!atom.structure_interactible)
@@ -200,9 +207,9 @@ public class StructureFormulaManager : MonoBehaviour
 
             var rect = svg_instances[mol_id].Item1.transform as RectTransform;
             var atom_rect = atom.structure_interactible.transform as RectTransform;
-            atom_rect.sizeDelta = 60f * Vector2.one;
+            atom_rect.sizeDelta = 15f * sf.scaleFactor * Vector2.one;
 
-            var offset = new Vector2(-rect.sizeDelta.x, 0.5f * rect.sizeDelta.y) + scaleFactor * new Vector2(atom.structure_coords.x, -atom.structure_coords.y) + 0.5f * new Vector2(-atom_rect.sizeDelta.x, atom_rect.sizeDelta.y);
+            var offset = new Vector2(-rect.sizeDelta.x, 0.5f * rect.sizeDelta.y) + sf.scaleFactor * new Vector2(atom.structure_coords.x, -atom.structure_coords.y) + 0.5f * new Vector2(-atom_rect.sizeDelta.x, atom_rect.sizeDelta.y);
             atom_rect.localPosition = offset;
         }
 
@@ -392,16 +399,30 @@ public class StructureFormulaManager : MonoBehaviour
 
     private int getMolIDFromRaycastResult(List<RaycastResult> eventSystemRaysastResults)
     {
-        foreach(var sf in svg_instances)
+        foreach (var sf in svg_instances)
         {
-            foreach (var rr in eventSystemRaysastResults)
+            // only if its in front of the list (or blocked by interactivble)
+            // TODO does not work for overlayed heatmap anymore
+            if (eventSystemRaysastResults[0].gameObject == sf.Value.Item1)
             {
-                if (sf.Value.Item1 == rr.gameObject)
-                {
-                    return sf.Key;
-                }
+                return sf.Key;
+            }
+            if (eventSystemRaysastResults[1].gameObject == sf.Value.Item1)
+            {
+                return sf.Key;
             }
         }
+
+        //foreach (var sf in svg_instances)
+        //{
+        //    foreach (var rr in eventSystemRaysastResults)
+        //    {
+        //        if (sf.Value.Item1 == rr.gameObject)
+        //        {
+        //            return sf.Key;
+        //        }
+        //    }
+        //}
         return -1;
     }
 

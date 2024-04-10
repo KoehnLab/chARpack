@@ -124,14 +124,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         if (SceneManager.GetActiveScene().name == "ServerScene")
         {
-            if (mouseOverAtom() && Input.GetKey(KeyCode.LeftControl))
-            {
-                focused = true;
-            }
-            else
-            {
-                focused = false;
-            }
             if (Input.GetMouseButtonDown(1) && Input.GetKey(KeyCode.LeftShift) && mouseOverAtom())
             {
                 arcball = true; anyArcball = true;
@@ -164,6 +156,24 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 }
             }
         }
+    }
+
+    private bool isBlockedByUI()
+    {
+        PointerEventData eventData = new PointerEventData(EventSystem.current);
+        eventData.position = Input.mousePosition;
+
+        List<RaycastResult> raysastResults = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, raysastResults);
+
+        if (raysastResults.Count > 0)
+        {
+            if (raysastResults[0].gameObject.layer == LayerMask.NameToLayer("UI"))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private bool mouseOverAtom()
@@ -289,7 +299,25 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             }
         }
     }
-    #endif
+
+    private void OnMouseOver()
+    {
+        if (Input.GetKey(KeyCode.LeftControl))
+        {
+            focused = true;
+        }
+        if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            focused = false;
+        }
+    }
+
+    private void OnMouseExit()
+    {
+        focused = false;
+    }
+
+#endif
     #endregion
 
     #region hand_interaction
@@ -1555,6 +1583,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     public void OnFocusEnter(FocusEventData eventData)
     {
+        UnityEngine.Debug.Log("[Atom] OnFocusEnter");
         if (!focused && SettingsData.pointerHighlighting)
         {
             focused = true;

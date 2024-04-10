@@ -11,6 +11,7 @@ public class StructureFormula : MonoBehaviour
     public Button collapse_button;
     public TextMeshProUGUI collapse_button_label;
     public TextMeshProUGUI label;
+    public float scaleFactor = 1.0f;
 
     private void Start()
     {
