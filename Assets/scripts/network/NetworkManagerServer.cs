@@ -1150,13 +1150,12 @@ public class NetworkManagerServer : MonoBehaviour
     }
     #endregion
 
-    #region SimMessages
+    #region StructureMessages
 
 
-    public void requestStructureFormula()
+    public void requestStructureFormula(Molecule mol)
     {
         // Pack molecule
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(0, null);
         if (mol == null)
         {
             Debug.LogError("[SimToServer:requestStructureFormula] No molecules in scene!");
@@ -1227,6 +1226,9 @@ public class NetworkManagerServer : MonoBehaviour
         }
     }
 
+#endregion
+
+    #region SimMessages
 
     [MessageHandler((ushort)SimToServerID.sendInit)]
     private static void getSimInit(ushort fromClientId, Message message)

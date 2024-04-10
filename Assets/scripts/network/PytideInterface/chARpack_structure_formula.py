@@ -31,7 +31,11 @@ class StructureFormulaGenerator:
         rdDepictor.SetPreferCoordGen(True)
 
         raw_mol = Chem.MolFromXYZBlock(xyz)
-        mol = Chem.Mol(raw_mol)
+        try:
+            mol = Chem.Mol(raw_mol)
+        except:
+            print("[Warning] Could not create Molecule. Skip.")
+            return None, None
 
         for i in [0,-1,1,-2,2,-3,3]:
             try:

@@ -40,6 +40,7 @@ public class StructureFormulaManager : MonoBehaviour
     private GameObject structureFormulaPrefab;
     private static float scaleFactor = 4f;
     private GameObject UICanvas;
+    System.Diagnostics.Process python_process = null;
 
     private void Start()
     {
@@ -48,6 +49,18 @@ public class StructureFormulaManager : MonoBehaviour
         interactiblePrefab = (GameObject)Resources.Load("prefabs/2DAtom");
         selectionBoxPrefab = (GameObject)Resources.Load("prefabs/2DSelectionBox");
         UICanvas = GameObject.Find("UICanvas");
+
+        // Startup structure provider in python
+        StartCoroutine(waitAndInitialize());
+    }
+
+    private IEnumerator waitAndInitialize()
+    {
+        yield return new WaitForSeconds(1f);
+        var pythonArgs = Path.Combine(Application.dataPath, "scripts/network/PytideInterface/chARpack_run_structrure_provider.py");
+        var psi = new System.Diagnostics.ProcessStartInfo("python", pythonArgs);
+        psi.WindowStyle = System.Diagnostics.ProcessWindowStyle.Minimized;
+        python_process = System.Diagnostics.Process.Start(psi);
     }
 
     public void pushContent(ushort mol_id, string svg_content)
@@ -76,6 +89,9 @@ public class StructureFormulaManager : MonoBehaviour
             sf.newImageResize();
 
             svg_instances[mol_id] = new Tuple<GameObject, string>(svg_instances[mol_id].Item1, svg_content);
+
+            removeInteractibles(mol_id);
+            createInteractibles(mol_id);
         }
         else
         {
@@ -116,6 +132,46 @@ public class StructureFormulaManager : MonoBehaviour
         }
     }
 
+    public void removeContent(ushort mol_id)
+    {
+        if (!svg_instances.ContainsKey(mol_id))
+        {
+            return;
+        }
+
+        Destroy(svg_instances[mol_id].Item1.transform.parent.gameObject);
+        svg_instances.Remove(mol_id);
+    }
+
+    private void removeInteractibles(ushort mol_id)
+    {
+        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        if (!mol)
+        {
+            Debug.LogError("[removeInteractibles] Invalid Molecule ID.");
+            return;
+        }
+        if (!svg_instances.ContainsKey(mol_id))
+        {
+            Debug.LogError("[removeInteractibles] No structure formula found.");
+            return;
+        }
+
+        var interactible_instances = svg_instances[mol_id].Item1.GetComponentsInChildren<Atom2D>();
+        foreach (var inter in interactible_instances)
+        {
+            Destroy(inter.gameObject);
+        }
+
+        foreach (var atom in mol.atomList)
+        {
+            if (atom.structure_interactible)
+            {
+                atom.structure_interactible = null;
+            }
+        }
+    }
+
     public void createInteractibles(ushort mol_id)
     {
         var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
@@ -129,7 +185,6 @@ public class StructureFormulaManager : MonoBehaviour
             Debug.LogError("[createInteractibles] No structure formula found.");
             return;
         }
-
 
         foreach (var atom in mol.atomList)
         {
@@ -366,7 +421,15 @@ public class StructureFormulaManager : MonoBehaviour
         return null;
     }
 
-
+    private void OnDestroy()
+    {
+        if (python_process != null)
+        {
+            python_process.Kill();
+            python_process.WaitForExit();
+            python_process.Dispose();
+        }
+    }
 
 }
 

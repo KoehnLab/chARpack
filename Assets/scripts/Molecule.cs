@@ -299,6 +299,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         EventManager.Singleton.OnMolDataChanged += triggerGenerateFF;
         EventManager.Singleton.OnMolDataChanged += adjustBBox;
+#if !WINDOWS_UWP
+        EventManager.Singleton.OnMolDataChanged += NetworkManagerServer.Singleton.requestStructureFormula;
+#endif
     }
 
     private void adjustBBox(Molecule mol)
@@ -1740,5 +1743,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
         EventManager.Singleton.OnMolDataChanged -= triggerGenerateFF;
         EventManager.Singleton.OnMolDataChanged -= adjustBBox;
+#if !WINDOWS_UWP
+        EventManager.Singleton.OnMolDataChanged -= NetworkManagerServer.Singleton.requestStructureFormula;
+        StructureFormulaManager.Singleton.removeContent(m_id);
+#endif
     }
 }

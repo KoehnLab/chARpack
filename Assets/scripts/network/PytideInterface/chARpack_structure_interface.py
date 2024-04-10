@@ -78,6 +78,8 @@ class chARpackStructureInterface():
         ## Generate structure formula
         sfg = StructureFormulaGenerator()
         svg_content, svg_coordinates = sfg.get_structure_formula(atom_positions, symbols)
+        if svg_content == None:
+            return
 
         ## Send structure and 2D positions back
         return_msg = createMessage(MessageSendMode.Unreliable, self.MESSAGE_SEND_STRUCTURE_FORMULA)
