@@ -93,9 +93,7 @@ public class GlobalCtrl : MonoBehaviour
 
     private bool bondsInForeground = false;
 
-    [HideInInspector] public bool collision = false;
-    [HideInInspector] public Atom collider1;
-    [HideInInspector] public Atom collider2;
+    [HideInInspector] public Dictionary<Atom, Atom> collisions = new Dictionary<Atom, Atom>();
 
     [HideInInspector] public ushort curHybrid = 3;
 
@@ -1513,7 +1511,6 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="dummyInAir">the dummy of the molecule which is in the air</param>
     public void MergeMolecule(Atom dummyInHand, Atom dummyInAir)
     {
-        collision = false;
         dummyInHand.dummyFindMain().keepConfig = false;
 
         //Debug.Log($"[MergeMolecule] Mol in hand num_atoms {dummyInHand.m_molecule.atomList.Count}");
@@ -1565,6 +1562,8 @@ public class GlobalCtrl : MonoBehaviour
         SaveMolecule(true);
 
         EventManager.Singleton.ChangeMolData(molInAir);
+
+        Debug.Log(GlobalCtrl.Singleton.collisions.Keys);
 
     }
 
