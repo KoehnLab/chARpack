@@ -4,6 +4,8 @@ using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
+using System.Diagnostics;
 
 public class StructureFormula : MonoBehaviour
 {
@@ -11,14 +13,43 @@ public class StructureFormula : MonoBehaviour
     public Button collapse_button;
     public TextMeshProUGUI collapse_button_label;
     public TextMeshProUGUI label;
+    public HeatMap2D.HeatMap2D heatMap;
     public float scaleFactor = 1.0f;
+
+    private GameObject heatmapPrefab;
 
     private void Start()
     {
         collapse_button.onClick.AddListener(delegate { toggleImage(); });
         var drag = label.gameObject.AddComponent<Draggable>();
         drag.target = transform;
-    }
+
+        //heatmapPrefab = (GameObject)Resources.Load("prefabs/HeatMap2D");
+
+        //var inter = Instantiate(heatmapPrefab);
+        //inter.transform.SetParent(image.transform, true);
+        //inter.transform.localScale = Vector3.one;
+        //var heatmap = inter.GetComponent<HeatMap2D.HeatMap2D>();
+
+
+        //heatmap.Intensity = 10;
+        //heatmap.Radius = 1;
+
+        var image_rect = image.transform as RectTransform;
+
+        List<Vector4> _points = new List<Vector4>();
+
+        Vector4 point = Vector4.zero;
+        while (_points.Count < 1000)
+        {
+            point.Set(UnityEngine.Random.Range(0, image_rect.sizeDelta.x), UnityEngine.Random.Range(0, image_rect.sizeDelta.y), 1.0f, 0.0f);
+            UnityEngine.Debug.Log(point);
+            _points.Add(point);
+        }
+
+        heatMap.SetPoints(_points);
+    }  
+
 
     public void newImageResize()
     {
@@ -69,8 +100,4 @@ public class StructureFormula : MonoBehaviour
             collapse_button_label.text = "\u25BA";
         }
     }
-
-
-
-
 }
