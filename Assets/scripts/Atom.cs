@@ -257,6 +257,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                         EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id, GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id);
                         GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2, GlobalCtrl.Singleton.collider1);
                     }
+                    resetMolPositionAfterMove();
                 }
             }
         }
@@ -467,6 +468,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                                     EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id, GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id);
                                     GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2, GlobalCtrl.Singleton.collider1);
                                 }
+                                resetMolPositionAfterMove();
                             }
                         }
                     }
@@ -764,7 +766,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             bond.transform.LookAt(a2.transform.position);
         }
     }
-
     /// <summary>
     /// Adds a dummy to the current atom.
     /// </summary>

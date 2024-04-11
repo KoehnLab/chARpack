@@ -503,8 +503,17 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         // apply transformation
         
         transform.localPosition = otherMol.transform.localPosition;
-        var rotationMatrix = kabschRotationMatrix(atomPositions(), otherMol.atomPositions());
-        transform.localRotation = Quaternion.LookRotation(rotationMatrix.GetRow(2), rotationMatrix.GetRow(1)) * transform.localRotation;
+        atomList[0].resetMolPositionAfterMove();
+        otherMol.atomList[0].resetMolPositionAfterMove();
+        try
+        {
+            var rotationMatrix = kabschRotationMatrix(atomPositions(), otherMol.atomPositions());
+            transform.localRotation = Quaternion.LookRotation(rotationMatrix.GetRow(2), rotationMatrix.GetRow(1)) * transform.localRotation;
+        } catch(Exception e)
+        {
+            // keep rotation if algorithm doesn't converge
+            UnityEngine.Debug.Log(e.Message);
+        }
         // TODO: Add advanced alignment mode
         // add coloring
         setSnapColors(otherMol);
