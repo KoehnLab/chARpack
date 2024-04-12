@@ -2912,6 +2912,8 @@ MonoBehaviour:
   atomMatPrefab: {fileID: 2100000, guid: dd67eb41edbb382408bf29f1931d50ac, type: 2}
   dummyMatPrefab: {fileID: 2100000, guid: 7a003db23242c1f4d8f446c31444ccd2, type: 2}
   HolographicBackplateMaterial: {fileID: 2100000, guid: 520e17e033728f4478d0b55b11d27c64, type: 2}
+  HolographicBackplateMaterialGrabbed: {fileID: 2100000, guid: a6f1ddfd0011c7d44a905b58fca7ef93, type: 2}
+  HolographicBackplateMaterialToggle: {fileID: 2100000, guid: 5c41eda31091c494abecc9eb2cc65bba, type: 2}
   list_ElementData: []
   atomWorld: {fileID: 690894127}
   bondPrefab: {fileID: 6023341437175460837, guid: a6ff830e30b8fae40abd9ac1c7189f08, type: 3}
@@ -7629,7 +7631,7 @@ MonoBehaviour:
         m_MethodName: set_material
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 2100000, guid: 16526572b35ecaa4ba781a0bff18ab12, type: 2}
+          m_ObjectArgument: {fileID: 2100000, guid: a6f1ddfd0011c7d44a905b58fca7ef93, type: 2}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Material, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
@@ -7680,7 +7682,7 @@ MonoBehaviour:
         m_MethodName: set_material
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 2100000, guid: ec72a3a105768f746b556a8dfdae61a8, type: 2}
+          m_ObjectArgument: {fileID: 2100000, guid: 520e17e033728f4478d0b55b11d27c64, type: 2}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Material, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
@@ -11741,7 +11743,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 552f1a3245d3edc4a96fe296c950532a, type: 2}
+  - {fileID: 2100000, guid: 5c41eda31091c494abecc9eb2cc65bba, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

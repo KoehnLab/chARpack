@@ -52,6 +52,8 @@ public class GlobalCtrl : MonoBehaviour
     public Material dummyMatPrefab;
 
     public Material HolographicBackplateMaterial;
+    public Material HolographicBackplateMaterialGrabbed;
+    public Material HolographicBackplateMaterialToggle;
 
     /// <summary>
     /// all data of element
@@ -2178,13 +2180,12 @@ public class GlobalCtrl : MonoBehaviour
         rainbowSpectrum = (Texture)Resources.Load("textures/RainbowGradient");
         violetSpectrum = (Texture)Resources.Load("textures/VioletGradient");
 
-        lightBlueColorPalette.menuBackground = chARpackColors.cyan; 
         lightBlueColorPalette.atomSelectionColor = chARpackColors.cyan; 
         lightBlueColorPalette.singleBondSelectionColor = chARpackColors.lightblue; 
         lightBlueColorPalette.angleBondSelectionColor = chARpackColors.blue; 
         lightBlueColorPalette.torsionBondSelectionColor = chARpackColors.violet;
 
-        goldColorPalette.menuBackground = chARpackColors.gold;
+        setColorPalette(currentColorEnum);
     }
 
     public void setColorPalette(ColorSchemes color)
@@ -2194,27 +2195,42 @@ public class GlobalCtrl : MonoBehaviour
             case ColorSchemes.DARKBLUE:
                 currentColorEnum = ColorSchemes.DARKBLUE;
                 currentColorPalette = darkBlueColorPalette;
-                HolographicBackplateMaterial.SetTexture("_IridescentSpectrumMap", darkBlueSpectrum);
+                foreach(Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
+                {
+                    m.SetTexture("_IridescentSpectrumMap", darkBlueSpectrum);
+                }
                 break;
             case ColorSchemes.LIGHTBLUE:
                 currentColorEnum = ColorSchemes.LIGHTBLUE;
                 currentColorPalette = lightBlueColorPalette;
-                HolographicBackplateMaterial.SetTexture("_IridescentSpectrumMap", lightBlueSpectrum);
+                foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
+                {
+                    m.SetTexture("_IridescentSpectrumMap", lightBlueSpectrum);
+                }
                 break;
             case ColorSchemes.GOLD:
                 currentColorEnum = ColorSchemes.GOLD;
                 currentColorPalette = goldColorPalette;
-                HolographicBackplateMaterial.SetTexture("_IridescentSpectrumMap", goldSpectrum);
+                foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
+                {
+                    m.SetTexture("_IridescentSpectrumMap", goldSpectrum);
+                }
                 break;
             case ColorSchemes.RAINBOW:
                 currentColorEnum = ColorSchemes.RAINBOW;
                 currentColorPalette = rainbowColorPalette;
-                HolographicBackplateMaterial.SetTexture("_IridescentSpectrumMap", rainbowSpectrum);
+                foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
+                {
+                    m.SetTexture("_IridescentSpectrumMap", rainbowSpectrum);
+                }
                 break;
             case ColorSchemes.VIOLET:
                 currentColorEnum = ColorSchemes.VIOLET;
                 currentColorPalette = violetColorPalette;
-                HolographicBackplateMaterial.SetTexture("_IridescentSpectrumMap", violetSpectrum);
+                foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
+                {
+                    m.SetTexture("_IridescentSpectrumMap", violetSpectrum);
+                }
                 break;
         }
     }

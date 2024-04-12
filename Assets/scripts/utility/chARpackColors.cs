@@ -25,7 +25,6 @@ namespace chARpackColorPalette
 
     public class ColorPalette
     {
-        public Color menuBackground = chARpackColors.blue;
         public Color atomSelectionColor = chARpackColors.yellow;
         public Color singleBondSelectionColor = chARpackColors.orange;
         public Color angleBondSelectionColor = chARpackColors.red;

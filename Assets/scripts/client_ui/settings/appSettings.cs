@@ -296,6 +296,7 @@ public class appSettings : MonoBehaviour
     {
         int currentScheme = Array.IndexOf(Enum.GetValues(typeof(GlobalCtrl.ColorSchemes)), GlobalCtrl.Singleton.currentColorEnum);
         int newIndex = (currentScheme + howfar) % GlobalCtrl.Singleton.numberOfColorSchemes;
+        while (newIndex < 0) newIndex = GlobalCtrl.Singleton.numberOfColorSchemes + newIndex;
         GlobalCtrl.Singleton.setColorPalette((GlobalCtrl.ColorSchemes)(Enum.GetValues(typeof(GlobalCtrl.ColorSchemes))).GetValue(newIndex));
         updateVisuals();
     }
