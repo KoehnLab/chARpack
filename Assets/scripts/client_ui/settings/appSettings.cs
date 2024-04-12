@@ -290,6 +290,12 @@ public class appSettings : MonoBehaviour
         GameObject visualSettingsMenu = gameObject.transform.Find("VisualSettings").gameObject;
         visualSettingsMenu.SetActive(!visualSettingsMenu.activeSelf);
     }
+
+    public void setColorPalette(GlobalCtrl.ColorSchemes color)
+    {
+        GlobalCtrl.Singleton.setColorPalette(color);
+        updateVisuals();
+    }
     #endregion
 
     #region Integration method

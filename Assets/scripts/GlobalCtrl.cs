@@ -125,12 +125,14 @@ public class GlobalCtrl : MonoBehaviour
         DARKBLUE,
         LIGHTBLUE,
         GOLD,
-        RAINBOW
+        RAINBOW,
+        VIOLET
     }
     private Texture darkBlueSpectrum;
     private Texture lightBlueSpectrum;
     private Texture rainbowSpectrum;
     private Texture goldSpectrum;
+    private Texture violetSpectrum;
 
     [HideInInspector] public int numAtoms = 0;
 
@@ -2164,12 +2166,15 @@ public class GlobalCtrl : MonoBehaviour
     private ColorPalette lightBlueColorPalette = new ColorPalette();
     private ColorPalette goldColorPalette = new ColorPalette();
     private ColorPalette rainbowColorPalette = new ColorPalette();
+    private ColorPalette violetColorPalette = new ColorPalette();
 
     private void initColorPalettes()
     {
         darkBlueSpectrum = (Texture)Resources.Load("textures/DarkBlueGradient");
-        lightBlueSpectrum = (Texture)Resources.Load("textures/VioletBlueGradient");
+        lightBlueSpectrum = (Texture)Resources.Load("textures/BlueVioletGradient");
         goldSpectrum = (Texture)Resources.Load("textures/GoldGradient");
+        rainbowSpectrum = (Texture)Resources.Load("textures/RainbowGradient");
+        violetSpectrum = (Texture)Resources.Load("textures/VioletGradient");
 
         lightBlueColorPalette.menuBackground = chARpackColors.cyan; 
         lightBlueColorPalette.atomSelectionColor = chARpackColors.cyan; 
@@ -2190,12 +2195,19 @@ public class GlobalCtrl : MonoBehaviour
                 break;
             case ColorSchemes.LIGHTBLUE:
                 currentColorPalette = lightBlueColorPalette;
+                HolographicBackplateMaterial.SetTexture("_SpectrumMap", lightBlueSpectrum);
                 break;
             case ColorSchemes.GOLD:
                 currentColorPalette = goldColorPalette;
+                HolographicBackplateMaterial.SetTexture("_SpectrumMap", goldSpectrum);
                 break;
             case ColorSchemes.RAINBOW:
                 currentColorPalette = rainbowColorPalette;
+                HolographicBackplateMaterial.SetTexture("_SpectrumMap", rainbowSpectrum);
+                break;
+            case ColorSchemes.VIOLET:
+                currentColorPalette = violetColorPalette;
+                HolographicBackplateMaterial.SetTexture("_SpectrumMap", violetSpectrum);
                 break;
         }
     }
