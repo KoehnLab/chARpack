@@ -381,6 +381,10 @@ MonoBehaviour:
     m_Key: SILVER
     m_Metadata:
       m_Items: []
+  - m_Id: 104086272925483008
+    m_Key: GREEN
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

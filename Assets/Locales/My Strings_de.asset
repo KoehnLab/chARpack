@@ -386,6 +386,10 @@ MonoBehaviour:
     m_Localized: Silber
     m_Metadata:
       m_Items: []
+  - m_Id: 104086272925483008
+    m_Localized: "Gr\xFCn"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
