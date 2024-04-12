@@ -845,8 +845,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             // as part of single bond
             GetComponent<Outline>().enabled = true;
-            GetComponent<Outline>().OutlineColor = new Color(1.0f, 0.5f, 0.0f); //orange
-            currentOutlineColor = new Color(1.0f, 0.5f, 0.0f);
+            GetComponent<Outline>().OutlineColor = chARpackColors.orange; //orange
+            currentOutlineColor = chARpackColors.orange;
         }
         else if (col == 4)
         {

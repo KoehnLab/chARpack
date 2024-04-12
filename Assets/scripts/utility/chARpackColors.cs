@@ -17,6 +17,19 @@ namespace chARpackColorPalette
         public static Color white = Color.white;
         public static Color blue = Color.blue;
         public static Color green = Color.green;
+        public static Color lightblue = new Color(0.4f, 0.6f, 1.0f);
+        public static Color violet = new Color(0.4f, 0.0f, 0.8f);
+        public static Color darkblue = new Color(0.0f, 0.2f, 0.8f);
+        public static Color gold = new Color(1.0f, 0.9f, 0.4f);
+    }
+
+    public class ColorPalette
+    {
+        public Color menuBackground = chARpackColors.blue;
+        public Color atomSelectionColor = chARpackColors.yellow;
+        public Color singleBondSelectionColor = chARpackColors.orange;
+        public Color angleBondSelectionColor = chARpackColors.red;
+        public Color torsionBondSelectionColor = chARpackColors.green;
     }
 
     public class FocusColors

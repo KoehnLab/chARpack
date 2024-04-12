@@ -2911,6 +2911,7 @@ MonoBehaviour:
   myAtomPrefab: {fileID: 7377244445179915796, guid: bf048a9970cb97f44a46f7c758da93a0, type: 3}
   atomMatPrefab: {fileID: 2100000, guid: dd67eb41edbb382408bf29f1931d50ac, type: 2}
   dummyMatPrefab: {fileID: 2100000, guid: 7a003db23242c1f4d8f446c31444ccd2, type: 2}
+  HolographicBackplateMaterial: {fileID: 2100000, guid: 520e17e033728f4478d0b55b11d27c64, type: 2}
   list_ElementData: []
   atomWorld: {fileID: 690894127}
   bondPrefab: {fileID: 6023341437175460837, guid: a6ff830e30b8fae40abd9ac1c7189f08, type: 3}

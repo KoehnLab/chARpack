@@ -16,6 +16,7 @@ using System.Linq;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using chARpackTypes;
+using chARpackColorPalette;
 
 /*! \mainpage 
  * API reference page for chARpack
@@ -49,6 +50,8 @@ public class GlobalCtrl : MonoBehaviour
 
     public Material atomMatPrefab;
     public Material dummyMatPrefab;
+
+    public Material HolographicBackplateMaterial;
 
     /// <summary>
     /// all data of element
@@ -114,6 +117,20 @@ public class GlobalCtrl : MonoBehaviour
     private string lastAtom = "C";
 
     private Locale currentLocale;
+
+    [HideInInspector] public ColorPalette currentColorPalette = new ColorPalette();
+
+    public enum ColorSchemes
+    {
+        DARKBLUE,
+        LIGHTBLUE,
+        GOLD,
+        RAINBOW
+    }
+    private Texture darkBlueSpectrum;
+    private Texture lightBlueSpectrum;
+    private Texture rainbowSpectrum;
+    private Texture goldSpectrum;
 
     [HideInInspector] public int numAtoms = 0;
 
@@ -240,6 +257,8 @@ public class GlobalCtrl : MonoBehaviour
         CultureInfo.CurrentUICulture = new CultureInfo("en-US", false);
 
         currentLocale = LocalizationSettings.SelectedLocale;
+
+        initColorPalettes();
 
         // check if file is found otherwise throw error
         string element_file_path = Path.Combine(Application.streamingAssetsPath, "ElementData.xml");
@@ -2137,6 +2156,48 @@ public class GlobalCtrl : MonoBehaviour
     public void toggleHandMenu()
     {
         handMenu.Singleton.toggleVisible();
+    }
+    #endregion
+
+    #region Color palettes
+    private ColorPalette darkBlueColorPalette = new ColorPalette();
+    private ColorPalette lightBlueColorPalette = new ColorPalette();
+    private ColorPalette goldColorPalette = new ColorPalette();
+    private ColorPalette rainbowColorPalette = new ColorPalette();
+
+    private void initColorPalettes()
+    {
+        darkBlueSpectrum = (Texture)Resources.Load("textures/DarkBlueGradient");
+        lightBlueSpectrum = (Texture)Resources.Load("textures/VioletBlueGradient");
+        goldSpectrum = (Texture)Resources.Load("textures/GoldGradient");
+
+        lightBlueColorPalette.menuBackground = chARpackColors.cyan; 
+        lightBlueColorPalette.atomSelectionColor = chARpackColors.cyan; 
+        lightBlueColorPalette.singleBondSelectionColor = chARpackColors.lightblue; 
+        lightBlueColorPalette.angleBondSelectionColor = chARpackColors.blue; 
+        lightBlueColorPalette.torsionBondSelectionColor = chARpackColors.violet;
+
+        goldColorPalette.menuBackground = chARpackColors.gold;
+    }
+
+    public void setColorPalette(ColorSchemes color)
+    {
+        switch (color)
+        {
+            case ColorSchemes.DARKBLUE:
+                currentColorPalette = darkBlueColorPalette;
+                HolographicBackplateMaterial.SetTexture("_SpectrumMap", darkBlueSpectrum);
+                break;
+            case ColorSchemes.LIGHTBLUE:
+                currentColorPalette = lightBlueColorPalette;
+                break;
+            case ColorSchemes.GOLD:
+                currentColorPalette = goldColorPalette;
+                break;
+            case ColorSchemes.RAINBOW:
+                currentColorPalette = rainbowColorPalette;
+                break;
+        }
     }
     #endregion
 
