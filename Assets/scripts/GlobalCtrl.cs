@@ -128,15 +128,19 @@ public class GlobalCtrl : MonoBehaviour
         DARKBLUE,
         LIGHTBLUE,
         GOLD,
+        SILVER,
         RAINBOW,
+        HEAT,
         VIOLET
     }
-    [HideInInspector] public int numberOfColorSchemes = Enum.GetNames(typeof(ColorSchemes)).Length; // Needed to switch forward and backward
+    [HideInInspector] public int numberOfColorSchemes; // Needed to switch forward and backward
     private Texture darkBlueSpectrum;
     private Texture lightBlueSpectrum;
     private Texture rainbowSpectrum;
     private Texture goldSpectrum;
+    private Texture silverSpectrum;
     private Texture violetSpectrum;
+    private Texture heatSpectrum;
 
     [HideInInspector] public int numAtoms = 0;
 
@@ -2171,14 +2175,18 @@ public class GlobalCtrl : MonoBehaviour
     private ColorPalette goldColorPalette = new ColorPalette();
     private ColorPalette rainbowColorPalette = new ColorPalette();
     private ColorPalette violetColorPalette = new ColorPalette();
+    private ColorPalette heatColorPalette = new ColorPalette();
 
     private void initColorPalettes()
     {
+        numberOfColorSchemes = Enum.GetNames(typeof(ColorSchemes)).Length;
         darkBlueSpectrum = (Texture)Resources.Load("textures/DarkBlueGradient");
         lightBlueSpectrum = (Texture)Resources.Load("textures/BlueVioletGradient");
         goldSpectrum = (Texture)Resources.Load("textures/GoldGradient");
+        silverSpectrum = (Texture)Resources.Load("textures/SilverGradient");
         rainbowSpectrum = (Texture)Resources.Load("textures/RainbowGradient");
         violetSpectrum = (Texture)Resources.Load("textures/VioletGradient");
+        heatSpectrum = (Texture)Resources.Load("textures/HeatGradient");
 
         lightBlueColorPalette.atomSelectionColor = chARpackColors.cyan; 
         lightBlueColorPalette.singleBondSelectionColor = chARpackColors.lightblue; 
@@ -2190,10 +2198,10 @@ public class GlobalCtrl : MonoBehaviour
 
     public void setColorPalette(ColorSchemes color)
     {
+        currentColorEnum = color;
         switch (color)
         {
             case ColorSchemes.DARKBLUE:
-                currentColorEnum = ColorSchemes.DARKBLUE;
                 currentColorPalette = darkBlueColorPalette;
                 foreach(Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
@@ -2201,7 +2209,6 @@ public class GlobalCtrl : MonoBehaviour
                 }
                 break;
             case ColorSchemes.LIGHTBLUE:
-                currentColorEnum = ColorSchemes.LIGHTBLUE;
                 currentColorPalette = lightBlueColorPalette;
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
@@ -2209,15 +2216,19 @@ public class GlobalCtrl : MonoBehaviour
                 }
                 break;
             case ColorSchemes.GOLD:
-                currentColorEnum = ColorSchemes.GOLD;
                 currentColorPalette = goldColorPalette;
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
                     m.SetTexture("_IridescentSpectrumMap", goldSpectrum);
                 }
                 break;
+            case ColorSchemes.SILVER:
+                foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
+                {
+                    m.SetTexture("_IridescentSpectrumMap", silverSpectrum);
+                }
+                break;
             case ColorSchemes.RAINBOW:
-                currentColorEnum = ColorSchemes.RAINBOW;
                 currentColorPalette = rainbowColorPalette;
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
@@ -2225,11 +2236,17 @@ public class GlobalCtrl : MonoBehaviour
                 }
                 break;
             case ColorSchemes.VIOLET:
-                currentColorEnum = ColorSchemes.VIOLET;
                 currentColorPalette = violetColorPalette;
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
                     m.SetTexture("_IridescentSpectrumMap", violetSpectrum);
+                }
+                break;
+            case ColorSchemes.HEAT:
+                currentColorPalette = heatColorPalette;
+                foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
+                {
+                    m.SetTexture("_IridescentSpectrumMap", heatSpectrum);
                 }
                 break;
         }

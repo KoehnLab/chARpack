@@ -373,6 +373,14 @@ MonoBehaviour:
     m_Key: RAINBOW
     m_Metadata:
       m_Items: []
+  - m_Id: 104077707544346624
+    m_Key: HEAT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104082784506068992
+    m_Key: SILVER
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

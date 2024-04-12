@@ -378,6 +378,14 @@ MonoBehaviour:
     m_Localized: Rainbow
     m_Metadata:
       m_Items: []
+  - m_Id: 104077707544346624
+    m_Localized: Heat
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104082784506068992
+    m_Localized: Silver
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
