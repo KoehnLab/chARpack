@@ -2921,6 +2921,8 @@ MonoBehaviour:
   collider1: {fileID: 0}
   collider2: {fileID: 0}
   curHybrid: 3
+  currentColorEnum: 0
+  numberOfColorSchemes: 5
   numAtoms: 0
   measurmentInHand: {fileID: 0}
   mainCamera: {fileID: 0}
@@ -5818,6 +5820,10 @@ PrefabInstance:
       propertyPath: m_HorizontalAlignment
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 7373914489409523349, guid: 3f1f46cbecbe08e46a303ccfdb5b498a, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 520e17e033728f4478d0b55b11d27c64, type: 2}
     - target: {fileID: 8405082116546204954, guid: 3f1f46cbecbe08e46a303ccfdb5b498a, type: 3}
       propertyPath: iconSet
       value: 

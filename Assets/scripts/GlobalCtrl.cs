@@ -119,6 +119,7 @@ public class GlobalCtrl : MonoBehaviour
     private Locale currentLocale;
 
     [HideInInspector] public ColorPalette currentColorPalette = new ColorPalette();
+    [HideInInspector] public ColorSchemes currentColorEnum = ColorSchemes.DARKBLUE;
 
     public enum ColorSchemes
     {
@@ -128,6 +129,7 @@ public class GlobalCtrl : MonoBehaviour
         RAINBOW,
         VIOLET
     }
+    [HideInInspector] public int numberOfColorSchemes = Enum.GetNames(typeof(ColorSchemes)).Length; // Needed to switch forward and backward
     private Texture darkBlueSpectrum;
     private Texture lightBlueSpectrum;
     private Texture rainbowSpectrum;
@@ -2190,24 +2192,29 @@ public class GlobalCtrl : MonoBehaviour
         switch (color)
         {
             case ColorSchemes.DARKBLUE:
+                currentColorEnum = ColorSchemes.DARKBLUE;
                 currentColorPalette = darkBlueColorPalette;
-                HolographicBackplateMaterial.SetTexture("_SpectrumMap", darkBlueSpectrum);
+                HolographicBackplateMaterial.SetTexture("_IridescentSpectrumMap", darkBlueSpectrum);
                 break;
             case ColorSchemes.LIGHTBLUE:
+                currentColorEnum = ColorSchemes.LIGHTBLUE;
                 currentColorPalette = lightBlueColorPalette;
-                HolographicBackplateMaterial.SetTexture("_SpectrumMap", lightBlueSpectrum);
+                HolographicBackplateMaterial.SetTexture("_IridescentSpectrumMap", lightBlueSpectrum);
                 break;
             case ColorSchemes.GOLD:
+                currentColorEnum = ColorSchemes.GOLD;
                 currentColorPalette = goldColorPalette;
-                HolographicBackplateMaterial.SetTexture("_SpectrumMap", goldSpectrum);
+                HolographicBackplateMaterial.SetTexture("_IridescentSpectrumMap", goldSpectrum);
                 break;
             case ColorSchemes.RAINBOW:
+                currentColorEnum = ColorSchemes.RAINBOW;
                 currentColorPalette = rainbowColorPalette;
-                HolographicBackplateMaterial.SetTexture("_SpectrumMap", rainbowSpectrum);
+                HolographicBackplateMaterial.SetTexture("_IridescentSpectrumMap", rainbowSpectrum);
                 break;
             case ColorSchemes.VIOLET:
+                currentColorEnum = ColorSchemes.VIOLET;
                 currentColorPalette = violetColorPalette;
-                HolographicBackplateMaterial.SetTexture("_SpectrumMap", violetSpectrum);
+                HolographicBackplateMaterial.SetTexture("_IridescentSpectrumMap", violetSpectrum);
                 break;
         }
     }

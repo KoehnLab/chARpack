@@ -374,6 +374,10 @@ MonoBehaviour:
     m_Localized: Gold
     m_Metadata:
       m_Items: []
+  - m_Id: 104063444926840832
+    m_Localized: Rainbow
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

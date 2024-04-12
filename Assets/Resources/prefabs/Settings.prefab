@@ -1211,12 +1211,12 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 124748820260027915}
         m_TargetAssemblyTypeName: appSettings, Assembly-CSharp
-        m_MethodName: switchIntegrationMethodBackward
-        m_Mode: 1
+        m_MethodName: switchColorPalette
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
+          m_IntArgument: -1
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -5461,6 +5461,7 @@ MonoBehaviour:
   bondStiffnessValueGO: {fileID: 2891008810879714376}
   repuslionScaleValueGO: {fileID: 3662610140462370799}
   integrationMethodGO: {fileID: 8338009250370080351}
+  colorPaletteGO: {fileID: 2967298015261808221}
   ForceFieldIndicator: {fileID: 3070965138799741801}
   HandJointIndicator: {fileID: 8123853611204848099}
   HandMenuIndicator: {fileID: 1369194214617206633}
@@ -11733,7 +11734,7 @@ GameObject:
   - component: {fileID: 8378771567322830002}
   - component: {fileID: 4101660696940213871}
   m_Layer: 0
-  m_Name: int_method
+  m_Name: color_palette
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17508,12 +17509,12 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 124748820260027915}
         m_TargetAssemblyTypeName: appSettings, Assembly-CSharp
-        m_MethodName: switchIntegrationMethodForward
-        m_Mode: 1
+        m_MethodName: switchColorPalette
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
+          m_IntArgument: 1
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0

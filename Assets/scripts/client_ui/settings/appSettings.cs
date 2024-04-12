@@ -48,6 +48,7 @@ public class appSettings : MonoBehaviour
     public GameObject bondStiffnessValueGO;
     public GameObject repuslionScaleValueGO;
     public GameObject integrationMethodGO;
+    public GameObject colorPaletteGO;
     // Indicators
     public GameObject ForceFieldIndicator;
     public GameObject HandJointIndicator;
@@ -291,9 +292,11 @@ public class appSettings : MonoBehaviour
         visualSettingsMenu.SetActive(!visualSettingsMenu.activeSelf);
     }
 
-    public void setColorPalette(GlobalCtrl.ColorSchemes color)
+    public void switchColorPalette(int howfar)
     {
-        GlobalCtrl.Singleton.setColorPalette(color);
+        int currentScheme = Array.IndexOf(Enum.GetValues(typeof(GlobalCtrl.ColorSchemes)), GlobalCtrl.Singleton.currentColorEnum);
+        int newIndex = (currentScheme + howfar) % GlobalCtrl.Singleton.numberOfColorSchemes;
+        GlobalCtrl.Singleton.setColorPalette((GlobalCtrl.ColorSchemes)(Enum.GetValues(typeof(GlobalCtrl.ColorSchemes))).GetValue(newIndex));
         updateVisuals();
     }
     #endregion
@@ -549,6 +552,7 @@ public class appSettings : MonoBehaviour
         setBondStiffnessVisual(SettingsData.bondStiffness);
         setRepulsionScaleVisual(SettingsData.repulsionScale);
         setIntegrationMethodVisual(ForceField.Singleton.currentMethod);
+        setColorPaletteVisual(GlobalCtrl.Singleton.currentColorEnum);
 
         setVisual(HandJointIndicator, SettingsData.handJoints);
         setVisual(HandMenuIndicator, SettingsData.handMenu);
@@ -628,6 +632,11 @@ public class appSettings : MonoBehaviour
     public void setIntegrationMethodVisual(ForceField.Method method)
     {
         integrationMethodGO.GetComponent<TextMeshPro>().text = GlobalCtrl.Singleton.GetLocalizedString(method.ToString());
+    }
+
+    public void setColorPaletteVisual(GlobalCtrl.ColorSchemes colorScheme)
+    {
+        colorPaletteGO.GetComponent<TextMeshPro>().text = GlobalCtrl.Singleton.GetLocalizedString(colorScheme.ToString());
     }
 
     public void setTimeFactorVisuals(float[] timeFactors)

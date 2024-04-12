@@ -369,6 +369,10 @@ MonoBehaviour:
     m_Key: GOLD
     m_Metadata:
       m_Items: []
+  - m_Id: 104063444926840832
+    m_Key: RAINBOW
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
