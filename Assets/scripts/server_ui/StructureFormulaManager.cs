@@ -69,20 +69,22 @@ public class StructureFormulaManager : MonoBehaviour
             var sceneInfo = SVGParser.ImportSVG(new StringReader(svg_content));
             var rect = svg_instances[mol_id].Item1.transform as RectTransform;
             var ui_rect = UICanvas.transform as RectTransform;
-            float scaling_factor = (ui_rect.sizeDelta.x * 0.3f) / sceneInfo.SceneViewport.width;
+            float scaling_factor_w = (ui_rect.sizeDelta.x * 0.3f) / sceneInfo.SceneViewport.width;
+            float scaling_factor_h = (ui_rect.sizeDelta.y * 0.5f) / sceneInfo.SceneViewport.height;
+            var scaling_factor = scaling_factor_w < scaling_factor_h ? scaling_factor_w : scaling_factor_h;
             rect.sizeDelta = scaling_factor * new Vector2(sceneInfo.SceneViewport.width, sceneInfo.SceneViewport.height);
 
             var svg_component = svg_instances[mol_id].Item1.GetComponent<SVGImage>();
             // Tessellate
             var geometries = VectorUtils.TessellateScene(sceneInfo.Scene, new VectorUtils.TessellationOptions
             {
-                StepDistance = 1,
+                StepDistance = 0.1f,
                 SamplingStepSize = 50,
                 MaxCordDeviation = 0.5f,
                 MaxTanAngleDeviation = 0.1f
             });
             // Build a sprite
-            var sprite = VectorUtils.BuildSprite(geometries, 100.0f, VectorUtils.Alignment.Center, Vector2.zero, 128, true);
+            var sprite = VectorUtils.BuildSprite(geometries, 100, VectorUtils.Alignment.Center, Vector2.zero, 128, true);
 
             // push image
             svg_component.sprite = sprite;
@@ -108,7 +110,9 @@ public class StructureFormulaManager : MonoBehaviour
             var sceneInfo = SVGParser.ImportSVG(new StringReader(svg_content));
 
             var ui_rect = UICanvas.transform as RectTransform;
-            float scaling_factor = (ui_rect.sizeDelta.x * 0.3f) / sceneInfo.SceneViewport.width;
+            float scaling_factor_w = (ui_rect.sizeDelta.x * 0.3f) / sceneInfo.SceneViewport.width;
+            float scaling_factor_h = (ui_rect.sizeDelta.y * 0.5f) / sceneInfo.SceneViewport.height;
+            var scaling_factor = scaling_factor_w < scaling_factor_h ? scaling_factor_w : scaling_factor_h;
 
             rect.anchorMin = new Vector2(1f, 0.5f);
             rect.anchorMax = new Vector2(1f, 0.5f);
@@ -120,14 +124,14 @@ public class StructureFormulaManager : MonoBehaviour
             // Tessellate
             var geometries = VectorUtils.TessellateScene(sceneInfo.Scene, new VectorUtils.TessellationOptions
             {
-                StepDistance = 1,
+                StepDistance = 0.1f,
                 SamplingStepSize = 50,
                 MaxCordDeviation = 0.5f,
                 MaxTanAngleDeviation = 0.1f
             });
 
             // Build a sprite
-            var sprite = VectorUtils.BuildSprite(geometries, 1, VectorUtils.Alignment.Center, Vector2.zero, 128, true);
+            var sprite = VectorUtils.BuildSprite(geometries, 100, VectorUtils.Alignment.Center, Vector2.zero, 128, true);
             sf.image.sprite = sprite;
             sf.scaleFactor = scaling_factor;
             sf.newImageResize();
@@ -403,10 +407,12 @@ public class StructureFormulaManager : MonoBehaviour
         {
             // only if its in front of the list (or blocked by interactivble)
             // TODO does not work for overlayed heatmap anymore
+            if (eventSystemRaysastResults.Count < 1) return -1;
             if (eventSystemRaysastResults[0].gameObject == sf.Value.Item1)
             {
                 return sf.Key;
             }
+            if (eventSystemRaysastResults.Count < 2) return -1;
             if (eventSystemRaysastResults[1].gameObject == sf.Value.Item1)
             {
                 return sf.Key;
