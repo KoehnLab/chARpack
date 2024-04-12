@@ -227,6 +227,13 @@ SubShader
             float4 _ClipRect;
             float4 _MainTex_ST;
 
+            uniform float4 _Points[1023];
+    		uniform float _Intensity = 100.0f;
+            uniform float _Radius = 1.0f;
+            uniform float _ImgWidth = 1.0f;
+            uniform float _ImgHeight = 1.0f;
+    		uniform int _Count = 0;
+
             v2f vert(appdata_t v)
             {
                 v2f OUT;
@@ -253,18 +260,29 @@ SubShader
                 clip(color.a - 0.001);
                 #endif
 
-			    float heat = 0.0f, dist;
+                float heat = 0.0f;
+                float dist;
 			    float2 vec;
-			    for (int i = 0; i < 100; ++i)
-			    {
-				    vec = IN.texcoord - float2(0.5f, 0.5f);
-				    dist = sqrt(vec.x * vec.x + vec.y * vec.y);
-				    heat += (1.0f - saturate(dist * 10.0f)) * 0.1f * 1.0f;
-			    }
-			    float4 outc = tex2D(_HeatTex, float2(saturate(heat), 0.5f));
+                
+                float2 inv_aspect = float2(_ImgWidth / _ImgHeight, 1);
+                float2 normalization = float2(1.0f / _ImgWidth, 1.0f / _ImgHeight);
 
+                for (int i = 0; i < _Count; ++i)
+                {
+                 	vec = IN.texcoord - (_Points[i].xy * normalization);
+                    vec = vec * inv_aspect;
+
+                	//dist = sqrt(vec.x * vec.x + vec.y * vec.y);
+               		//heat += (1.0f - saturate(dist * _InvRadius)) * _Intensity * _Points[i].z;
+
+                    //dist = vec.x * vec.x + vec.y * vec.y;
+                    //heat += saturate(exp(-dist / (1e-15f + _Points[i].z * _Intensity)));
+
+                    dist = vec.x * vec.x + vec.y * vec.y;
+                    heat += saturate(_Points[i].z * _Intensity * exp(-dist / _Radius));
+                }
+			    return tex2D(_HeatTex, float2(saturate(heat), 0.5f));
                 //return float4(1.0f,0.0f,0.0f,1.0f);
-                return outc;
             }
         ENDCG
         }
