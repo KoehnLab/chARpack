@@ -22,147 +22,138 @@ using UnityEngine.UI;
 using System.Linq;
 
 
-	/// <summary>
-	/// This script draw a heatmap on a mesh in XZ plane.
-	/// This class cannot render more than MAX_POINTS_COUNT points on a mesh because of shader performance limitation.
-	/// But you can draw much more points than this limit by first reducing your set of points using the provided reduction methods,
-	/// and then sending the reduced set of points to the shader using SetPoints().
-	/// </summary>
-	public class HeatMap2D : MonoBehaviour
-	{
-		// Unity maximum allowed array size for shaders.
-		// We can use ComputeBuffer to overpass this limit,
-		// but anyway shader performance drops too much beyond this limit.
-		public const int MAX_POINTS_COUNT = 1023;
+public class HeatMap2D : MonoBehaviour
+{
+    // Unity maximum allowed array size for shaders.
+    // We can use ComputeBuffer to overpass this limit,
+    // but anyway shader performance drops too much beyond this limit.
+    public const int MAX_POINTS_COUNT = 1023;
 
-		private Material heatmapMaterial;
+    private Material heatmapMaterial;
 
-		private float decayDeltaSeconds = 0.05f;
+    private float decayDeltaSeconds = 0.05f;
 
-		private float decayDeltaStep = 0.001f;
+    private float decayDeltaStep = 0.001f;
 
-		private float gainDeltaStep = 0.005f;
+    private float gainDeltaStep = 0.005f;
 
-		private float _intensity = 0.1f;
+    private float _intensity = 0.1f;
 
-		private float _radius = 0.1f;
+    private float _radius = 0.1f;
 
-		private float _canvasWidth = 1.0f;
+    private float _canvasWidth = 1.0f;
 
-		private float _canvasHeight = 1.0f;
+    private float _canvasHeight = 1.0f;
 
-		private float timer = 0;
+    private float timer = 0;
 
-		private Dictionary<Atom, System.Tuple<bool, float>> focusedAtoms = new Dictionary<Atom, System.Tuple<bool, float>>();
+    private Dictionary<Atom, System.Tuple<bool, float>> focusedAtoms = new Dictionary<Atom, System.Tuple<bool, float>>();
 
-		public float CanvasWidth
-		{
-			get { return _canvasWidth; }
-			set
-			{
-				_canvasWidth = value;
-				heatmapMaterial.SetFloat("_ImgWidth", _canvasWidth);
-			}
-		}
+    public float CanvasWidth
+    {
+        get { return _canvasWidth; }
+        set
+        {
+            _canvasWidth = value;
+            heatmapMaterial.SetFloat("_ImgWidth", _canvasWidth);
+        }
+    }
 
-		public float CanvasHeight
-		{
-			get { return _canvasHeight; }
-			set
-			{
-				_canvasHeight = value;
-				heatmapMaterial.SetFloat("_ImgHeight", _canvasHeight);
-			}
-		}
+    public float CanvasHeight
+    {
+        get { return _canvasHeight; }
+        set
+        {
+            _canvasHeight = value;
+            heatmapMaterial.SetFloat("_ImgHeight", _canvasHeight);
+        }
+    }
 
-		public float Intensity
-		{
-			get { return _intensity; }
-			set
-			{
-				_intensity = value;
-				heatmapMaterial.SetFloat("_Intensity", _intensity);
-			}
-		}
+    public float Intensity
+    {
+        get { return _intensity; }
+        set
+        {
+            _intensity = value;
+            heatmapMaterial.SetFloat("_Intensity", _intensity);
+        }
+    }
 
-		public float Radius
-		{
-			get { return _intensity; }
-			set
-			{
-				_radius = value;
-				heatmapMaterial.SetFloat("_Radius", _radius);
-			}
-		}
+    public float Radius
+    {
+        get { return _intensity; }
+        set
+        {
+            _radius = value;
+            heatmapMaterial.SetFloat("_Radius", _radius);
+        }
+    }
 
-		private void Awake()
-		{
-			// Initialize shader variables.
-			//heatmapMaterial = gameObject.GetComponent<RawImage>().material;
-			//heatmapMaterial = new Material(Shader.Find("shaders/Texture"));
+    private void Awake()
+    {
+        // Initialize shader variables.
+        //heatmapMaterial = gameObject.GetComponent<RawImage>().material;
+        //heatmapMaterial = new Material(Shader.Find("shaders/Texture"));
 
-			heatmapMaterial = Instantiate(gameObject.GetComponent<RawImage>().material);
-			gameObject.GetComponent<RawImage>().material = heatmapMaterial;
+        heatmapMaterial = Instantiate(gameObject.GetComponent<RawImage>().material);
+        gameObject.GetComponent<RawImage>().material = heatmapMaterial;
 
-			heatmapMaterial.SetFloat("_Intensity", _intensity);
-			heatmapMaterial.SetFloat("_Radius", _radius);
-			heatmapMaterial.SetFloat("_ImgHeight", _canvasHeight);
-			heatmapMaterial.SetFloat("_ImgWidth", _canvasWidth);
-			heatmapMaterial.SetInt("_Count", 0);
-			heatmapMaterial.SetVectorArray("_Points", new Vector4[MAX_POINTS_COUNT]);
+        heatmapMaterial.SetFloat("_Intensity", _intensity);
+        heatmapMaterial.SetFloat("_Radius", _radius);
+        heatmapMaterial.SetFloat("_ImgHeight", _canvasHeight);
+        heatmapMaterial.SetFloat("_ImgWidth", _canvasWidth);
+        heatmapMaterial.SetInt("_Count", 0);
+        heatmapMaterial.SetVectorArray("_Points", new Vector4[MAX_POINTS_COUNT]);
 
-		}
+    }
 
 
-		public void SetPoints(List<Vector4> points)
-		{
-			if ((points == null) || (points.Count == 0))
-			{
-				// clear heatmap.
-				heatmapMaterial.SetInt("_Count", 0);
-				return;
-			}
+    public void SetPoints(List<Vector4> points)
+    {
+        if ((points == null) || (points.Count == 0))
+        {
+            heatmapMaterial.SetInt("_Count", 0);
+            return;
+        }
 
-			if (points.Count > MAX_POINTS_COUNT)
-			{
-				Debug.LogError("[HeatMap2D] #points (" + points.Count + ") exceeds maximum (" + MAX_POINTS_COUNT + ") !");
-				return;
-			}
+        if (points.Count > MAX_POINTS_COUNT)
+        {
+            Debug.LogError("[HeatMap2D] #points (" + points.Count + ") exceeds maximum (" + MAX_POINTS_COUNT + ") !");
+            return;
+        }
 
-			heatmapMaterial.SetInt("_Count", points.Count);
-			heatmapMaterial.SetVectorArray("_Points", points);
-		}
+        heatmapMaterial.SetInt("_Count", points.Count);
+        heatmapMaterial.SetVectorArray("_Points", points);
+    }
 
 
-		public void SetAtomFocus(Atom atom, bool focused)
-		{
-			float weight = focusedAtoms.ContainsKey(atom) ? focusedAtoms[atom].Item2 : 0;
-			focusedAtoms[atom] = System.Tuple.Create<bool, float>(focused, weight);
-		}
+    public void SetAtomFocus(Atom atom, bool focused)
+    {
+        float weight = focusedAtoms.ContainsKey(atom) ? focusedAtoms[atom].Item2 : 0;
+        focusedAtoms[atom] = System.Tuple.Create<bool, float>(focused, weight);
+    }
 
-		private void Update()
-		{
-			timer += Time.deltaTime;
+    private void Update()
+    {
+        timer += Time.deltaTime;
 
-			if (timer >= decayDeltaSeconds)
-			{
-				List<Vector4> _points = new List<Vector4>();
-				foreach (Atom atom in focusedAtoms.Keys.ToList())
-				{
-					bool isFocused = focusedAtoms[atom].Item1;
-					float weight = focusedAtoms[atom].Item2;
+        if (timer >= decayDeltaSeconds)
+        {
+            List<Vector4> _points = new List<Vector4>();
+            foreach (Atom atom in focusedAtoms.Keys.ToList())
+            {
+                bool isFocused = focusedAtoms[atom].Item1;
+                float weight = focusedAtoms[atom].Item2;
 
-					weight += (isFocused ? gainDeltaStep : -decayDeltaStep);
-					weight = Mathf.Clamp(weight, 0, 1);
+                weight += isFocused ? gainDeltaStep : -decayDeltaStep;
+                weight = Mathf.Clamp(weight, 0, 1);
 
-					focusedAtoms[atom] = System.Tuple.Create<bool, float>(isFocused, weight);
-					//Debug.Log(weight);
+                focusedAtoms[atom] = System.Tuple.Create<bool, float>(isFocused, weight);
+                _points.Add(new Vector4(atom.structure_coords.x, _canvasHeight - atom.structure_coords.y, weight));
+            }
 
-					_points.Add(new Vector4(atom.structure_coords.x, _canvasHeight - atom.structure_coords.y, weight));
-				}
-
-				SetPoints(_points);
-				timer = 0;
-			}
-		}
-	}
+            SetPoints(_points);
+            timer = 0;
+        }
+    }
+}
