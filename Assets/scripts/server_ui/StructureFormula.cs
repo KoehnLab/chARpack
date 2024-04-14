@@ -4,13 +4,17 @@ using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
+using System.Diagnostics;
 
 public class StructureFormula : MonoBehaviour
 {
     public SVGImage image;
+    public Vector2 originalSize;
     public Button collapse_button;
     public TextMeshProUGUI collapse_button_label;
     public TextMeshProUGUI label;
+    public HeatMap2D heatMap;
     public float scaleFactor = 1.0f;
 
     private void Start()
@@ -18,7 +22,13 @@ public class StructureFormula : MonoBehaviour
         collapse_button.onClick.AddListener(delegate { toggleImage(); });
         var drag = label.gameObject.AddComponent<Draggable>();
         drag.target = transform;
-    }
+
+        heatMap.Intensity = 1.0f;
+        heatMap.Radius = 0.0025f * scaleFactor;
+        heatMap.CanvasWidth = originalSize.x;
+        heatMap.CanvasHeight = originalSize.y;
+    }  
+
 
     public void newImageResize()
     {
@@ -69,8 +79,4 @@ public class StructureFormula : MonoBehaviour
             collapse_button_label.text = "\u25BA";
         }
     }
-
-
-
-
 }

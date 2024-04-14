@@ -40,6 +40,7 @@ public class StructureFormulaManager : MonoBehaviour
     private GameObject structureFormulaPrefab;
     private GameObject UICanvas;
     System.Diagnostics.Process python_process = null;
+    private int highlightingChoice = 0;
 
     private void Start()
     {
@@ -52,6 +53,13 @@ public class StructureFormulaManager : MonoBehaviour
         // Startup structure provider in python
         StartCoroutine(waitAndInitialize());
     }
+
+
+    public void setHighlightOption(Int32 choice)
+    {
+        highlightingChoice = choice;
+    }
+
 
     private IEnumerator waitAndInitialize()
     {
@@ -89,6 +97,7 @@ public class StructureFormulaManager : MonoBehaviour
             // push image
             svg_component.sprite = sprite;
             var sf = svg_component.GetComponentInParent<StructureFormula>();
+            sf.originalSize = new Vector2(sceneInfo.SceneViewport.width, sceneInfo.SceneViewport.height);
             sf.scaleFactor = scaling_factor;
             sf.newImageResize();
 
@@ -133,6 +142,7 @@ public class StructureFormulaManager : MonoBehaviour
             // Build a sprite
             var sprite = VectorUtils.BuildSprite(geometries, 100, VectorUtils.Alignment.Center, Vector2.zero, 128, true);
             sf.image.sprite = sprite;
+            sf.originalSize = new Vector2(sceneInfo.SceneViewport.width, sceneInfo.SceneViewport.height);
             sf.scaleFactor = scaling_factor;
             sf.newImageResize();
 
@@ -262,17 +272,25 @@ public class StructureFormulaManager : MonoBehaviour
         if (atom.isMarked) return;
         if (svg_instances.ContainsKey(mol_id))
         {
-            if (value)
+            if (highlightingChoice == 0)
             {
-                var col = atom.structure_interactible.GetComponent<Image>().color;
-                col.a = alpha;
-                atom.structure_interactible.GetComponent<Image>().color = col;
+                if (value)
+                {
+                    var col = atom.structure_interactible.GetComponent<Image>().color;
+                    col.a = alpha;
+                    atom.structure_interactible.GetComponent<Image>().color = col;
+                }
+                else
+                {
+                    var col = atom.structure_interactible.GetComponent<Image>().color;
+                    col.a = 0f;
+                    atom.structure_interactible.GetComponent<Image>().color = col;
+                }
             }
-            else
+            else if (highlightingChoice == 1)
             {
-                var col = atom.structure_interactible.GetComponent<Image>().color;
-                col.a = 0f;
-                atom.structure_interactible.GetComponent<Image>().color = col;
+                var heat = svg_instances[mol_id].Item1.GetComponentInChildren<HeatMap2D>();
+                heat.SetAtomFocus(atom, value);
             }
         }
         else
@@ -284,6 +302,7 @@ public class StructureFormulaManager : MonoBehaviour
 
     public void addSelectHighlight(ushort mol_id, Atom atom, bool value)
     {
+
         if (svg_instances.ContainsKey(mol_id))
         {
             if (value)
