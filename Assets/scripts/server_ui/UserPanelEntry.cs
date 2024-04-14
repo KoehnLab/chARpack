@@ -36,6 +36,8 @@ public class UserPanelEntry : MonoBehaviour
     public GameObject device_type_visual_go;
     public TextMeshProUGUI device_type_label;
 
+    public Image focusColorImage;
+
 
     public void hasEyeTracking(bool value)
     {
@@ -143,6 +145,11 @@ public class UserPanelEntry : MonoBehaviour
     public void updateBatteryLevel(float level)
     {
         battery_level_label.text = $"{(level*100):0}%";
+    }
+
+    public void setFocusColor(Color col)
+    {
+        focusColorImage.color = col;
     }
 
 }

@@ -18,11 +18,20 @@ public class UserServer : MonoBehaviour
 
     public ushort ID;
     public string deviceName;
-    public Color focusColor;
     private GameObject head;
     private Vector3 offsetPos;
     private Quaternion offsetRot;
     private bool _eyeCalibrationState = false;
+    private int _highlightFocusID = -1;
+    public int highlightFocusID { get => _highlightFocusID; set
+        {
+            _highlightFocusID = value;
+            if (CameraSwitcher.Singleton && CameraSwitcher.Singleton.panel.ContainsKey(ID))
+            {
+                CameraSwitcher.Singleton.panel[ID].GetComponent<UserPanelEntry>().setFocusColor(FocusColors.getColor(value));
+            }
+        }
+    }
     public bool eyeCalibrationState { get => _eyeCalibrationState; set
         {
             _eyeCalibrationState = value;
@@ -61,8 +70,7 @@ public class UserServer : MonoBehaviour
             }
         } }
 
-
-    public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_, Vector3 offset_pos, Quaternion offset_rot, Color focus_color)
+    public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_, Vector3 offset_pos, Quaternion offset_rot)
     {
         foreach (UserServer otherUser in list.Values)
         {
@@ -84,15 +92,14 @@ public class UserServer : MonoBehaviour
         user.offsetPos = offset_pos;
         user.offsetRot = offset_rot;
         user.deviceType = deviceType_;
-        user.focusColor = focus_color;
-
+        var focus_id = FocusManager.addClient(id_);
 
         anchor.name = user.deviceName;
 
         // head
         var cubeUser = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cubeUser.GetComponent<Renderer>().material = (Material)Resources.Load("materials/UserMaterial");
-        cubeUser.GetComponent<Renderer>().material.color = focus_color;
+        cubeUser.GetComponent<Renderer>().material.color = FocusColors.getColor(focus_id);
         cubeUser.transform.localScale = Vector3.one * 0.2f;
         cubeUser.AddComponent<Camera>();
 
@@ -103,7 +110,7 @@ public class UserServer : MonoBehaviour
         lineRenderer.endWidth = 0.005f;
         var line_material = (Material)Resources.Load("prefabs/QR/yellow");
         lineRenderer.material = line_material;
-        lineRenderer.material.color = focus_color;
+        lineRenderer.material.color = FocusColors.getColor(focus_id);
 
         cubeUser.transform.parent = anchor.transform;
         user.head = cubeUser;
@@ -116,6 +123,7 @@ public class UserServer : MonoBehaviour
         CameraSwitcher.Singleton.addCamera(id_, cubeUser.GetComponent<Camera>());
         // have to add device again to update visual
         user.deviceType = deviceType_;
+        user.highlightFocusID = focus_id;
 
         // perodically request status from devices
         if (id_ > 0)
@@ -144,6 +152,7 @@ public class UserServer : MonoBehaviour
 
     private void OnDestroy()
     {
+        FocusManager.removeClient(ID);
         CameraSwitcher.Singleton.removeCamera(ID);
         list.Remove(ID);
     }
@@ -201,8 +210,7 @@ public class UserServer : MonoBehaviour
         var offset_pos = message.GetVector3();
         var offset_rot = message.GetQuaternion();
         Debug.Log($"[UserServer] Got name {name}, and device type {type} from client {fromClientId}");
-        var focus_color = FocusColors.getNext();
-        spawn(fromClientId, name, type, offset_pos, offset_rot, focus_color);
+        spawn(fromClientId, name, type, offset_pos, offset_rot);
     }
 
     private void sendSpawned()
@@ -224,7 +232,7 @@ public class UserServer : MonoBehaviour
         message.AddUShort(ID);
         message.AddString(deviceName);
         message.AddUShort((ushort)deviceType);
-        message.AddColor(focusColor);
+        message.AddInt(highlightFocusID);
 
         return message;
     }

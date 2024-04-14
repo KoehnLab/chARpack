@@ -24,44 +24,35 @@ namespace chARpackColorPalette
 
     public class FocusColors
     {
-        private static List<Color> availableColors;
+        private static List<string> availableColors = new List<string> { "#3BBCD9", "#88E8F2", "#F2B705", "#BF9075", "#F24141" };
         private static int current = 0;
 
 
-        private static void genColors()
+        private static Color getNext()
         {
-            var input = new List<string>();
-            input.Add("#3BBCD9");
-            input.Add("#88E8F2");
-            input.Add("#F2B705");
-            input.Add("#BF9075");
-            input.Add("#F24141");
-
-            availableColors = new List<Color>();
-            foreach (var col in input)
-            {
-                Color newCol;
-                if (ColorUtility.TryParseHtmlString(col, out newCol))
-                {
-                    availableColors.Add(newCol);
-                }
-            }
-
-        }
-
-        public static Color getNext()
-        {
-            genColors();
             if (current == availableColors.Count)
             {
                 current = 0;
             }
 
-            var col = availableColors[current];
-            current++;
+            Color col;
+            ColorUtility.TryParseHtmlString(availableColors[current], out col);
 
             return col;
         }
 
+        public static Color getColor(int id)
+        {
+            if (id < 0 || id >= availableColors.Count)
+            {
+                return Color.white;
+            }
+            else
+            {
+                Color col;
+                ColorUtility.TryParseHtmlString(availableColors[id], out col);
+                return col;
+            }
+        }
     }
 }

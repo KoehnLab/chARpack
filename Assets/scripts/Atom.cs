@@ -40,8 +40,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private static Color notEnabledColor = chARpackColors.black;
     private static Color grabColor = chARpackColors.blue;
     private static Color defaultFocusColor = chARpackColors.white;
-    private Color currentFocusColor = chARpackColors.white;
-    public static Color currentOutlineColor = chARpackColors.black;
+    public static Color[] currentOutlineColor = new Color[4] { chARpackColors.black, chARpackColors.black, chARpackColors.black, chARpackColors.black };
     public bool keepConfig = false;
     public bool frozen = false;
     public bool focused = false;
@@ -50,6 +49,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private float outline_radius_min = 5f;
     private float outline_radius_max = 8f;
     private float outline_radius_current = 5f;
+    private FocusManager.HighlightType currentHighlightType = FocusManager.HighlightType.None;
+    private FocusManager.HighlightType previousHighlightType = FocusManager.HighlightType.None;
+
 
     private List<Atom> currentChain = new List<Atom>();
 
@@ -69,33 +71,48 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         var outline_component = GetComponent<OutlinePro>();
         if (active)
         {
-            if (outline_component.enabled)
+            if (currentHighlightType != FocusManager.HighlightType.None)
             {
-                if ((outline_component.OutlineColor[0].r != currentFocusColor.r && 
-                    outline_component.OutlineColor[0].g != currentFocusColor.g && 
-                    outline_component.OutlineColor[0].b != currentFocusColor.b)
-                    && outline_component.OutlineColor[0] != grabColor)
+                if (currentHighlightType == FocusManager.HighlightType.Select)
                 {
-                    currentOutlineColor = outline_component.OutlineColor[0];
+                    for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+                    {
+                        currentOutlineColor[i] = outline_component.OutlineColor[i];
+                    }
                 }
             }
             else
             {
                 outline_component.enabled = true;
-                currentOutlineColor = notEnabledColor;
+                for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+                {
+                    currentOutlineColor[i] = notEnabledColor;
+                }
             }
-            outline_component.OutlineColor[0] = grabColor;
+            for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+            {
+                outline_component.OutlineColor[i] = grabColor;
+            }
+            previousHighlightType = currentHighlightType;
+            currentHighlightType = FocusManager.HighlightType.Grab;
             outline_component.NeedsUpdate();
         }
         else
         {
-            if (currentOutlineColor == notEnabledColor)
+            if (previousHighlightType == FocusManager.HighlightType.None)
             {
+                previousHighlightType = currentHighlightType;
+                currentHighlightType = FocusManager.HighlightType.None;
                 outline_component.enabled = false;
             }
             else
             {
-                outline_component.OutlineColor[0] = currentOutlineColor;
+                for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+                {
+                    outline_component.OutlineColor[i] = currentOutlineColor[i];
+                }
+                currentHighlightType = previousHighlightType;
+                previousHighlightType = FocusManager.HighlightType.Grab;
                 outline_component.NeedsUpdate();
             }
         }
@@ -457,7 +474,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             if (eventData.Pointer is SpherePointer)
             {
                 // reset outline
-                focusHighlight(false);
+                focusHighlight(false, );
                 grabHighlight(false);
 
                 // measure convergence
@@ -1538,7 +1555,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     /// Outlines the current atom in focusColor; is used when a pointer from the index finger gets close to the atom.
     /// </summary>
     /// <param name="active">Whether to activate or deactivate the focusColor outline</param>
-    public void focusHighlight(bool active)
+    public void focusHighlight(bool active, int focus_id)
     {
         var outline_component = GetComponent<OutlinePro>();
         if (active)
@@ -1583,7 +1600,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     public void OnFocusEnter(FocusEventData eventData)
     {
-        UnityEngine.Debug.Log("[Atom] OnFocusEnter");
         if (!focused && SettingsData.pointerHighlighting)
         {
             focused = true;
@@ -1601,7 +1617,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
     }
 
-    public void networkSetFocus(bool focus, Color? overrideCol = null)
+    public void networkSetFocus(bool focus, int focus_id)
     {
         focused = focus;
         currentFocusColor = overrideCol.GetValueOrDefault(defaultFocusColor);
