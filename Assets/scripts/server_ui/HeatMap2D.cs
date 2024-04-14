@@ -127,6 +127,11 @@ public class HeatMap2D : MonoBehaviour
     }
 
 
+    public void UpdateTexture(Texture2D inTex)
+    {
+        heatmapMaterial.SetTexture("_HeatTex", inTex);
+    }
+
     public void SetAtomFocus(Atom atom, bool focused)
     {
         float weight = focusedAtoms.ContainsKey(atom) ? focusedAtoms[atom].Item2 : 0;

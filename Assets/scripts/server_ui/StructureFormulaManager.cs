@@ -40,7 +40,8 @@ public class StructureFormulaManager : MonoBehaviour
     private GameObject structureFormulaPrefab;
     private GameObject UICanvas;
     System.Diagnostics.Process python_process = null;
-    private int highlightingChoice = 0;
+    private List<Texture2D> heatMapTextures;
+    private List<string> heatMapNames = new List<string> { "HeatTexture_Cool", "HeatTexture_Inferno", "HeatTexture_Magma", "HeatTexture_Plasma", "HeatTexture_Viridis", "HeatTexture_Warm" };
 
     private void Start()
     {
@@ -50,14 +51,24 @@ public class StructureFormulaManager : MonoBehaviour
         selectionBoxPrefab = (GameObject)Resources.Load("prefabs/2DSelectionBox");
         UICanvas = GameObject.Find("UICanvas");
 
+        heatMapTextures = new List<Texture2D>();
+        foreach (var name in heatMapNames)
+        {
+            heatMapTextures.Add((Texture2D)Resources.Load($"materials/{name}"));
+        }
+
         // Startup structure provider in python
         StartCoroutine(waitAndInitialize());
     }
 
-
-    public void setHighlightOption(Int32 choice)
+    public void setColorMap(int id)
     {
-        highlightingChoice = choice;
+        if (id >= heatMapNames.Count) return;
+
+        foreach (var svg in svg_instances.Values)
+        {
+            svg.Item1.GetComponentInChildren<HeatMap2D>().UpdateTexture(heatMapTextures[id]);
+        }
     }
 
 
@@ -272,7 +283,8 @@ public class StructureFormulaManager : MonoBehaviour
         if (atom.isMarked) return;
         if (svg_instances.ContainsKey(mol_id))
         {
-            if (highlightingChoice == 0)
+            var hc = svg_instances[mol_id].Item1.GetComponentInParent<StructureFormula>().current_highlight_choice;
+            if (hc == 0)
             {
                 if (value)
                 {
@@ -287,7 +299,7 @@ public class StructureFormulaManager : MonoBehaviour
                     atom.structure_interactible.GetComponent<Image>().color = col;
                 }
             }
-            else if (highlightingChoice == 1)
+            else if (hc == 1)
             {
                 var heat = svg_instances[mol_id].Item1.GetComponentInChildren<HeatMap2D>();
                 heat.SetAtomFocus(atom, value);

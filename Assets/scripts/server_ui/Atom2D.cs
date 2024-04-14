@@ -18,13 +18,11 @@ public class Atom2D : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     public void OnPointerEnter(PointerEventData eventData)
     {
         atom.OnFocusEnter(null);
-        Debug.Log("[Atom2D] OnPointerEnter");
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         atom.OnFocusExit(null);
-        Debug.Log("[Atom2D] OnPointerExit");
     }
 
     private void selectOnClick()

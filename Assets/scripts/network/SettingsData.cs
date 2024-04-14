@@ -13,6 +13,7 @@ public class SettingsData
     [SerializeField] static public string language = "en";
     [SerializeField] static public bool gazeHighlighting = false;
     [SerializeField] static public bool pointerHighlighting = true;
+    [SerializeField] private static int _highlightColorMap = 0;
     [SerializeField] static public bool rightHandMenu = false;
     [SerializeField] static public ForceField.Method integrationMethod = ForceField.Method.SteepestDescent;
     [SerializeField] static public float[] timeFactors = new float[] { /*Euler*/0.6f, /*SV*/0.75f, /*RK*/0.25f, /*MP*/0.2f };
@@ -21,4 +22,17 @@ public class SettingsData
     [SerializeField] static public bool networkMeasurements = true;
     [SerializeField] static public bool interpolateColors = true;
     [SerializeField] static public bool useAngstrom = true;
+
+
+    
+    public static int highlightColorMap { get => _highlightColorMap; set
+        {
+
+            if (StructureFormulaManager.Singleton)
+            {
+                StructureFormulaManager.Singleton.setColorMap(value);
+            }
+            _highlightColorMap = value;
+        }
+    }
 }
