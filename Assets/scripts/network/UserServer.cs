@@ -93,6 +93,7 @@ public class UserServer : MonoBehaviour
         user.offsetRot = offset_rot;
         user.deviceType = deviceType_;
         var focus_id = FocusManager.addClient(id_);
+        Debug.Log($"[UserServer] focus_id {focus_id}");
 
         anchor.name = user.deviceName;
 
@@ -114,6 +115,7 @@ public class UserServer : MonoBehaviour
 
         cubeUser.transform.parent = anchor.transform;
         user.head = cubeUser;
+        user.highlightFocusID = focus_id;
 
         user.sendSpawned();
         list.Add(id_, user);
@@ -121,7 +123,7 @@ public class UserServer : MonoBehaviour
 
         // add user to panel
         CameraSwitcher.Singleton.addCamera(id_, cubeUser.GetComponent<Camera>());
-        // have to add device again to update visual
+        // have to add device and focus again to update visual
         user.deviceType = deviceType_;
         user.highlightFocusID = focus_id;
 

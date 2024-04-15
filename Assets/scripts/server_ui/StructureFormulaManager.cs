@@ -406,7 +406,7 @@ public class StructureFormulaManager : MonoBehaviour
                         }
                         else
                         {
-                            if (!atom.serverFocus) atom.serverFocusHighlight(true);
+                            if (!atom.serverFocus) atom.serverFocusHighlightUI(true);
                         }
                     }
                     else
@@ -417,7 +417,7 @@ public class StructureFormulaManager : MonoBehaviour
                         }
                         else
                         {
-                            if (atom.serverFocus) atom.serverFocusHighlight(false);
+                            if (atom.serverFocus) atom.serverFocusHighlightUI(false);
                         }
                     }
                 }

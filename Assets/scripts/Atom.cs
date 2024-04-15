@@ -38,7 +38,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private GameObject freezeButton;
     private static float toolTipDistanceWeight = 2.5f;
     private static Color grabColor = chARpackColors.blue;
-    private static Color defaultFocusColor = chARpackColors.white;
     public Color[] backupOutlineColor = new Color[4] { chARpackColors.notEnabledColor, chARpackColors.notEnabledColor, chARpackColors.notEnabledColor, chARpackColors.notEnabledColor };
     public bool keepConfig = false;
     public bool frozen = false;
@@ -131,7 +130,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     public void selectHighlightInFormula(Color[] selCol)
     {
-        StructureFormulaManager.Singleton.addSelectHighlight(m_molecule.m_id, this, selCol);
+        StructureFormulaManager.Singleton?.addSelectHighlight(m_molecule.m_id, this, selCol);
     }
     #endregion
 
@@ -1596,65 +1595,49 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     /// <param name="active">Whether to activate or deactivate the focusColor outline</param>
     public void updateFocusHighlight()
     {
-        var outline_component = GetComponent<OutlinePro>();
-        // if(active) { 
-        if (currentHighlightType == FocusManager.HighlightType.Grab || currentHighlightType == FocusManager.HighlightType.Select)
+        if (!focus_alpha.AllZero())
         {
-            return;
-        }
-        else if (currentHighlightType == FocusManager.HighlightType.None)
-        {
+            var outline_component = GetComponent<OutlinePro>();
+            // if(active) { 
+            if (currentHighlightType == FocusManager.HighlightType.Grab ||
+                currentHighlightType == FocusManager.HighlightType.Select ||
+                currentHighlightType == FocusManager.HighlightType.ServerFocus)
+            {
+                return;
+            }
+            else if (currentHighlightType == FocusManager.HighlightType.None)
+            {
+                for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+                {
+                    backupOutlineColor[i] = outline_component.OutlineColor[i];
+                }
+                previousHighlightType = currentHighlightType;
+                currentHighlightType = FocusManager.HighlightType.Focus;
+                outline_component.enabled = true;
+            }
+
+
             for (int i = 0; i < FocusManager.currentNumOutlines; i++)
             {
-                backupOutlineColor[i] = outline_component.OutlineColor[i];
+                var col = FocusColors.getColor(i);
+                col.a = focus_alpha[i];
+                outline_component.OutlineColor[i] = col;
+                outline_component.OutlineWidth[i] = outline_radius_current[i];
             }
-            previousHighlightType = currentHighlightType;
-            currentHighlightType = FocusManager.HighlightType.Focus;
+            focusHighlightInFormula(focused, outline_component.OutlineColor);
+            outline_component.NeedsUpdate();
         }
-
-        for (int i = 0; i < FocusManager.currentNumOutlines; i++)
-        {
-            var col = FocusColors.getColor(i);
-            col.a = focus_alpha[i];
-            outline_component.OutlineColor[i] = col;
-            outline_component.OutlineWidth[i] = outline_radius_current[i];
-        }
-        focusHighlightInFormula(focused, outline_component.OutlineColor);
-        outline_component.NeedsUpdate();
-
-        // }
-        //else
-        //{
-        //    if (previousHighlightType == FocusManager.HighlightType.None)
-        //    {
-
-        //        previousHighlightType = currentHighlightType;
-        //        currentHighlightType = FocusManager.HighlightType.None;
-        //        focusHighlightInFormula(active, outline_component.OutlineColor);
-        //    }
-        //    else
-        //    {
-        //        for (int i = 0; i < FocusManager.currentNumOutlines; i++)
-        //        {
-        //            outline_component.OutlineColor[i] = backupOutlineColor[i];
-        //            outline_component.OutlineWidth[i] = outline_radius_min;
-        //        }
-        //        currentHighlightType = previousHighlightType;
-        //        previousHighlightType = FocusManager.HighlightType.Focus;
-        //        outline_component.NeedsUpdate();
-        //    }
-        //}
     }
 
     private void proccessFocusUI(bool value, int? f_id = null)
     {
         var focus_id = f_id.HasValue ? f_id.Value : FocusManager.getMyFocusID();
-        if (focus_id > 0)
+        if (focus_id >= 0)
         {
-            if (focused[focus_id] && SettingsData.pointerHighlighting)
+            if (focused[focus_id] != value && SettingsData.pointerHighlighting)
             {
                 focused[focus_id] = value;
-                EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
+                EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, value);
             }
         }
         else
@@ -1666,9 +1649,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private void proccessFocus(bool value, int? f_id = null)
     {
         var focus_id = f_id.HasValue ? f_id.Value : FocusManager.getMyFocusID();
-        if (focus_id > 0)
+        if (focus_id >= 0)
         {
-            if (focused[focus_id] && SettingsData.pointerHighlighting)
+            if (focused[focus_id] != value && SettingsData.pointerHighlighting)
             {
                 focused[focus_id] = value;
             }
@@ -1687,7 +1670,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     public void serverFocusHighlight(bool active)
     {
-        UnityEngine.Debug.Log($"[Atom] serverFocusHighlight called. {active}");
+        UnityEngine.Debug.Log($"serverFocusHighlight called.");
         serverFocus = active;
         var outline_component = GetComponent<OutlinePro>();
         if (active)
@@ -1704,10 +1687,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     backupOutlineColor[i] = outline_component.OutlineColor[i];
                 }
                 previousHighlightType = currentHighlightType;
-                currentHighlightType = FocusManager.HighlightType.Focus;
+                currentHighlightType = FocusManager.HighlightType.ServerFocus;
             }
 
-            UnityEngine.Debug.Log($"[Atom] serverFocusHighlight setting color.");
             for (int i = 0; i < FocusManager.currentNumOutlines; i++)
             {
                 outline_component.OutlineColor[i] = FocusColors.getColor(-1);
@@ -1731,7 +1713,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     outline_component.OutlineColor[i] = backupOutlineColor[i];
                 }
                 currentHighlightType = previousHighlightType;
-                previousHighlightType = FocusManager.HighlightType.Focus;
+                previousHighlightType = FocusManager.HighlightType.ServerFocus;
                 serverFocusHighlightInFormula(backupOutlineColor);
                 outline_component.NeedsUpdate();
             }
@@ -1740,6 +1722,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     public void networkSetFocus(bool focus, int focus_id)
     {
+        UnityEngine.Debug.Log($"[networkSetFocus] focus {focus}; focus_id {focus_id}");
         proccessFocus(focus, focus_id);
     }
 

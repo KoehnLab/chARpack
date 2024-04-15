@@ -300,7 +300,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         EventManager.Singleton.OnMolDataChanged += triggerGenerateFF;
         EventManager.Singleton.OnMolDataChanged += adjustBBox;
 #if !WINDOWS_UWP
-        EventManager.Singleton.OnMolDataChanged += NetworkManagerServer.Singleton.requestStructureFormula;
+        if (NetworkManagerServer.Singleton)
+        {
+            EventManager.Singleton.OnMolDataChanged += NetworkManagerServer.Singleton.requestStructureFormula;
+        }
 #endif
     }
 
@@ -1744,8 +1747,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         EventManager.Singleton.OnMolDataChanged -= triggerGenerateFF;
         EventManager.Singleton.OnMolDataChanged -= adjustBBox;
 #if !WINDOWS_UWP
-        EventManager.Singleton.OnMolDataChanged -= NetworkManagerServer.Singleton.requestStructureFormula;
-        StructureFormulaManager.Singleton.removeContent(m_id);
+        if (NetworkManagerServer.Singleton)
+        {
+            EventManager.Singleton.OnMolDataChanged -= NetworkManagerServer.Singleton.requestStructureFormula;
+            StructureFormulaManager.Singleton.removeContent(m_id);
+        }
 #endif
     }
 }

@@ -20,7 +20,10 @@ public class UserClient : MonoBehaviour
 
     private void OnDestroy()
     {
-        FocusManager.decreaseNumOutlines();
+        if (list.Count > 1)
+        {
+            FocusManager.decreaseNumOutlines();
+        }
         list.Remove(ID);
     }
 
@@ -36,11 +39,13 @@ public class UserClient : MonoBehaviour
     {
         Debug.Log($"[UserClient:spawn] Id from function call {id_}, id from NetworkManager {NetworkManagerClient.Singleton.Client.Id}");
         UserClient user;
+        Debug.Log($"[UserClient:spawn] focus_id {focus_id}");
         if (id_ == NetworkManagerClient.Singleton.Client.Id)
         {
             user = new GameObject().AddComponent<UserClient>();
 
             user.isLocal = true;
+            user.highlightFocusID = focus_id;
         }
         else
         {
@@ -74,7 +79,10 @@ public class UserClient : MonoBehaviour
         user.transform.parent = NetworkManagerClient.Singleton.userWorld.transform;
 
         list.Add(id_, user);
-        FocusManager.increaseNumOutlines();
+        if(list.Count > 1)
+        {
+            FocusManager.increaseNumOutlines();
+        }
     }
 
     private void FixedUpdate()

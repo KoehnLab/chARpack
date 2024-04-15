@@ -4,14 +4,14 @@ using UnityEngine;
 
 public static class FocusManager
 {
-
+    private static int maxFocusIDs = 4;
     private static Dictionary<ushort, int> focus_ids = new Dictionary<ushort, int>();
     private static List<int> available_ids = new List<int> { 0, 1, 2, 3 };
-    public enum HighlightType { None = 0, Focus = 1, Grab = 2, Select = 3};
+    public enum HighlightType { None = 0, Focus = 1, Grab = 2, Select = 3, ServerFocus = 4 };
 
     public static int addClient(ushort client_id)
     {
-        if (focus_ids.Count > 4)
+        if (focus_ids.Count > maxFocusIDs)
         {
             Debug.Log("[FocusManager:addClient] Only 4 clients are allowed.");
             return -1;
@@ -20,7 +20,8 @@ public static class FocusManager
         {
             focus_ids[client_id] = available_ids[0];
             available_ids.Remove(available_ids[0]);
-            increaseNumOutlines();
+            if ((maxFocusIDs - available_ids.Count) > 1) increaseNumOutlines();
+
         }
         return getFocusID(client_id);
     }
@@ -35,7 +36,7 @@ public static class FocusManager
         {
             available_ids.Add(focus_ids[client_id]);
             focus_ids.Remove(client_id);
-            decreaseNumOutlines();
+            if ((maxFocusIDs - available_ids.Count) > 1) decreaseNumOutlines();
         }
     }
 
@@ -101,7 +102,14 @@ public static class FocusManager
         }
         else
         {
-            return -1;
+            if (NetworkManagerClient.Singleton)
+            {
+                return -1;
+            }
+            else
+            {
+                return 0;
+            }
         }
     }
 

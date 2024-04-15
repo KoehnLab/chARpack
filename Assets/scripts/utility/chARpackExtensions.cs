@@ -178,4 +178,22 @@ public static class chARpackExtensions
         return dotProduct / (magnitudeOfA * magnitudeOfB);
     }
 
+    public static bool AnyTrue(this bool[] list)
+    {
+        foreach (var entry in list)
+        {
+            if (entry) return true;
+        }
+        return false;
+    }
+
+    public static bool AllZero(this float[] list)
+    {
+        foreach (var entry in list)
+        {
+            if (entry != 0f) return false;
+        }
+        return true;
+    }
+
 }

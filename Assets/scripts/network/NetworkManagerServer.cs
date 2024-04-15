@@ -348,8 +348,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastSettings()
     {
-        // Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSettings);
-        Message message = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastSettings);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSettings);
         message.AddUShort(0);
         message.AddUShort(SettingsData.bondStiffness);
         message.AddFloat(SettingsData.repulsionScale);
@@ -1203,8 +1202,6 @@ public class NetworkManagerServer : MonoBehaviour
     [MessageHandler((ushort)StructureToServerID.sendStructureFormula)]
     private static void getStructureFormula(ushort fromClientId, Message message)
     {
-        Debug.Log($"[SimToServer:getStructureFormula] Received Structure Formula.");
-
         // unpack message
         NetworkUtils.deserializeStructureData(message, ref svg_content, ref svg_coords);
 
