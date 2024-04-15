@@ -79,7 +79,8 @@ public enum ServerToClientID : ushort
     MRCapture,
     bcastSnapMolecules,
     requestEyeCalibrationState,
-    requestBatteryState
+    requestBatteryState,
+    bcastServerFocusHighlight
 }
 
 public enum SimToServerID : ushort

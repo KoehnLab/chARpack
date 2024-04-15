@@ -93,6 +93,18 @@ public static class FocusManager
         return -1;
     }
 
+    public static int getMyFocusID()
+    {
+        if (NetworkManagerClient.Singleton)
+        {
+            return UserClient.list[NetworkManagerClient.Singleton.Client.Id].highlightFocusID;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
     #endregion
 
 

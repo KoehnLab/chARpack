@@ -232,6 +232,13 @@ public class EventManager : MonoBehaviour
         OnFocusHighlight?.Invoke(mol_id, atom_id, active);
     }
 
+    public delegate void ServerFocusHighlightAction(ushort mol_id, ushort atom_id, bool active);
+    public event ServerFocusHighlightAction OnServerFocusHighlight;
+    public void ServerFocusHighlight(ushort mol_id, ushort atom_id, bool active)
+    {
+        OnServerFocusHighlight?.Invoke(mol_id, atom_id, active);
+    }
+
     public delegate void ChangeMoleculeScaleAction(ushort mol_id, float scale);
     public event ChangeMoleculeScaleAction OnChangeMoleculeScale;
     public void ChangeMoleculeScale(ushort mol_id, float scale)

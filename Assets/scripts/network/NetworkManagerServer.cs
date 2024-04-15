@@ -89,6 +89,7 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnFreezeAtom += bcastFreezeAtom;
         EventManager.Singleton.OnFreezeMolecule += bcastFreezeMolecule;
         EventManager.Singleton.OnSetSnapColors += bcastSetSnapColors;
+        EventManager.Singleton.OnServerFocusHighlight += bcastServerFocusHighlight;
 
     }
 
@@ -423,6 +424,15 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddUShort(0);
         message.AddUShort(mol1_id);
         message.AddUShort(mol2_id);
+        Server.SendToAll(message);
+    }
+
+    public void bcastServerFocusHighlight(ushort mol_id, ushort atom_id, bool active)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastServerFocusHighlight);
+        message.AddUShort(mol_id);
+        message.AddUShort(atom_id);
+        message.AddBool(active);
         Server.SendToAll(message);
     }
 

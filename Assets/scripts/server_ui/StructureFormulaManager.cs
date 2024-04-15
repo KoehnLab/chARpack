@@ -278,7 +278,7 @@ public class StructureFormulaManager : MonoBehaviour
     //    }
     //}
 
-    public void addFocusHighlight(ushort mol_id, Atom atom, bool value, float alpha)
+    public void addFocusHighlight(ushort mol_id, Atom atom, bool[] values, Color[] cols)
     {
         if (atom.isMarked) return;
         if (svg_instances.ContainsKey(mol_id))
@@ -286,23 +286,13 @@ public class StructureFormulaManager : MonoBehaviour
             var hc = svg_instances[mol_id].Item1.GetComponentInParent<StructureFormula>().current_highlight_choice;
             if (hc == 0)
             {
-                if (value)
-                {
-                    var col = atom.structure_interactible.GetComponent<Image>().color;
-                    col.a = alpha;
-                    atom.structure_interactible.GetComponent<Image>().color = col;
-                }
-                else
-                {
-                    var col = atom.structure_interactible.GetComponent<Image>().color;
-                    col.a = 0f;
-                    atom.structure_interactible.GetComponent<Image>().color = col;
-                }
+                var atom2d = atom.structure_interactible.GetComponent<Atom2D>();
+                atom2d.FociColors = cols; // set full array to trigger set function
             }
             else if (hc == 1)
             {
                 var heat = svg_instances[mol_id].Item1.GetComponentInChildren<HeatMap2D>();
-                heat.SetAtomFocus(atom, value);
+                heat.SetAtomFocus(atom, values[0]); // TODO value filter
             }
         }
         else
@@ -312,19 +302,22 @@ public class StructureFormulaManager : MonoBehaviour
         }
     }
 
-    public void addSelectHighlight(ushort mol_id, Atom atom, bool value)
+    public void addServerFocusHighlight(ushort mol_id, Atom atom, Color[] col)
+    {
+        if (svg_instances.ContainsKey(mol_id))
+        {
+            var atom2d = atom.structure_interactible.GetComponent<Atom2D>();
+            atom2d.FociColors = col; // set full array to trigger set function
+        }
+    }
+
+    public void addSelectHighlight(ushort mol_id, Atom atom, Color[] selCol)
     {
 
         if (svg_instances.ContainsKey(mol_id))
         {
-            if (value)
-            {
-                atom.structure_interactible.GetComponent<Image>().color = chARpackColors.structureFormulaSelect;
-            }
-            else
-            {
-                atom.structure_interactible.GetComponent<Image>().color = chARpackColors.structureFormulaInvis;
-            }
+            var atom2d = atom.structure_interactible.GetComponent<Atom2D>();
+            atom2d.FociColors = selCol; // set full array to trigger set function
         }
         else
         {
@@ -407,11 +400,25 @@ public class StructureFormulaManager : MonoBehaviour
                         atom_rect.localPosition.y >= bot &&
                         atom_rect.localPosition.y <= top)
                     {
-                        if (!atom.isMarked) atom.markAtomUI(true);
+                        if (Input.GetKey(KeyCode.LeftControl))
+                        {
+                            if (!atom.isMarked) atom.markAtomUI(true);
+                        }
+                        else
+                        {
+                            if (!atom.serverFocus) atom.serverFocusHighlight(true);
+                        }
                     }
                     else
                     {
-                        if (atom.isMarked) atom.markAtomUI(false);
+                        if (Input.GetKey(KeyCode.LeftControl))
+                        {
+                            if (atom.isMarked) atom.markAtomUI(false);
+                        }
+                        else
+                        {
+                            if (atom.serverFocus) atom.serverFocusHighlight(false);
+                        }
                     }
                 }
 

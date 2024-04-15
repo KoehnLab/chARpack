@@ -23,9 +23,13 @@ public class GazeHighlightAtoms : MonoBehaviour
                 {
                     if (atom != lastAtom)
                     {
-                        lastAtom.focusHighlight(false);
-                        atom.focusHighlight(true);
-                        lastAtom = atom;
+                        var focus_id = FocusManager.getMyFocusID();
+                        if (focus_id > 0)
+                        {
+                            lastAtom.focused[focus_id] = false;
+                            atom.focused[focus_id] = true;
+                            lastAtom = atom;
+                        }
                     }
                 }
             }

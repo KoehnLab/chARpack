@@ -19,13 +19,15 @@ namespace chARpackColorPalette
         public static Color green = Color.green;
         public static Color structureFormulaNormal = new Color(0.5f, 0.5f, 0.5f, 0.6f);
         public static Color structureFormulaSelect = new Color(1f, 1f, 0f, 0.6f);
-        public static Color structureFormulaInvis = new Color(0.5f, 0.5f, 0.5f, 0f);
+        public static Color notEnabledColor = new Color(0.5f, 0.5f, 0.5f, 0f);
     }
 
     public class FocusColors
     {
         private static List<string> availableColors = new List<string> { "#3BBCD9", "#88E8F2", "#F2B705", "#BF9075", "#F24141" };
         private static int current = 0;
+
+        private static Color serverFocusColor = Color.cyan;
 
 
         private static Color getNext()
@@ -43,7 +45,11 @@ namespace chARpackColorPalette
 
         public static Color getColor(int id)
         {
-            if (id < 0 || id >= availableColors.Count)
+            if (id < 0)
+            {
+                return serverFocusColor;
+            }
+            else if (id >= availableColors.Count)
             {
                 return Color.white;
             }

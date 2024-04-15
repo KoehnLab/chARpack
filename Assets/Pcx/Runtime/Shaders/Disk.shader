@@ -13,7 +13,7 @@ Shader "Point Cloud/Disk"
                 "Queue" = "Transparent"
             }
             Cull Off
-            ZWrite Off
+            ZWrite On
             Blend SrcAlpha OneMinusSrcAlpha
 
             Pass

@@ -1701,8 +1701,10 @@ public class GlobalCtrl : MonoBehaviour
     private IEnumerator changeAndWait(int num)
     {
         OutlinePro.NumOutlines = num;
+        Atom2D.NumFoci = num;
         yield return new WaitForEndOfFrame();
         OutlinePro.StopGlobalUpdate();
+        Atom2D.StopGlobalUpdate();
     }
     #endregion
 
