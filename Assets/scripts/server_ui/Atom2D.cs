@@ -81,6 +81,7 @@ public class Atom2D : MonoBehaviour
     {
         focus2Dmaterial.SetInt("NumFoci", numFoci);
         focus2Dmaterial.SetColorArray("_FociColors", fociColors);
+        focus2Dmaterial.SetFloatArray("_FociIDArray", FocusManager.getFocusIDArrayForShader());
     }
 }
 

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public static class FocusManager
 {
@@ -20,8 +21,11 @@ public static class FocusManager
         {
             focus_ids[client_id] = available_ids[0];
             available_ids.Remove(available_ids[0]);
-            if ((maxFocusIDs - available_ids.Count) > 1) increaseNumOutlines();
-
+            if (focus_ids.Count > 1)
+            {
+                increaseNumOutlines();
+                EventManager.Singleton.SetNumOutlines(currentNumOutlines);
+            }
         }
         return getFocusID(client_id);
     }
@@ -34,9 +38,14 @@ public static class FocusManager
         }
         else
         {
+            if (focus_ids.Count > 1)
+            {
+                decreaseNumOutlines();
+                EventManager.Singleton.SetNumOutlines(currentNumOutlines);
+            }
             available_ids.Add(focus_ids[client_id]);
+            available_ids.Sort();
             focus_ids.Remove(client_id);
-            if ((maxFocusIDs - available_ids.Count) > 1) decreaseNumOutlines();
         }
     }
 
@@ -51,6 +60,22 @@ public static class FocusManager
         {
             return focus_ids[client_id];
         }
+    }
+
+    public static int[] getFocusIDArray()
+    {
+        return focus_ids.Values.ToArray();
+    }
+
+    public static float[] getFocusIDArrayForShader()
+    {
+        float[] float_array = new float[4];
+        var id_list = focus_ids.Values.ToList();
+        for (int i = 0; i < id_list.Count; i++)
+        {
+            float_array[i] = (float)id_list[i];
+        }
+        return float_array;
     }
 
     private static int getNumClients()

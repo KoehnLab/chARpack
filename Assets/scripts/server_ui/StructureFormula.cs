@@ -19,6 +19,7 @@ public class StructureFormula : MonoBehaviour
     public float scaleFactor = 1.0f;
     public int current_highlight_choice = 0;
     private static int _numFocusRegions = 1;
+    public int onlyUser = -1;
 
     public static int numFocusRegions { get => _numFocusRegions; 
         set

@@ -28,7 +28,7 @@ public class UserServer : MonoBehaviour
             _highlightFocusID = value;
             if (CameraSwitcher.Singleton && CameraSwitcher.Singleton.panel.ContainsKey(ID))
             {
-                CameraSwitcher.Singleton.panel[ID].GetComponent<UserPanelEntry>().setFocusColor(FocusColors.getColor(value));
+                CameraSwitcher.Singleton.panel[ID].GetComponent<UserPanelEntry>().setFocusColor(value);
             }
         }
     }

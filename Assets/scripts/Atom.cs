@@ -334,6 +334,18 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             serverFocusHighlightUI(false);
         }
+        // For debugging
+        if (Input.GetKey(KeyCode.LeftAlt))
+        {
+            if (!focused[0])
+            {
+                focused[0] = true;
+            }
+        }
+        if (Input.GetKeyUp(KeyCode.LeftAlt))
+        {
+            focused[0] = false;
+        }
     }
 
     private void OnMouseExit()
@@ -341,6 +353,11 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         if (serverFocus)
         {
             serverFocusHighlightUI(false);
+        }
+        // for debugging
+        if(focused[0])
+        {
+            focused[0] = false;
         }
     }
 
@@ -563,7 +580,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                         handleMeasurements();
                     }
                 }
-
             }
         }
     }
@@ -1637,8 +1653,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             if (focused[focus_id] != value && SettingsData.pointerHighlighting)
             {
                 focused[focus_id] = value;
-                EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, value);
             }
+            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, value);
         }
         else
         {

@@ -350,6 +350,7 @@ public class OutlinePro : MonoBehaviour
 
         // Apply properties according to mode
         outlineFillMaterial.SetColorArray("_OutlineColor", outlineColor);
+        outlineFillMaterial.SetFloatArray("_OutlineIDs", FocusManager.getFocusIDArrayForShader());
 
         switch (outlineMode)
         {

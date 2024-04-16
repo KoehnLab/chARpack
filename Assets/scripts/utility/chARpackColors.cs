@@ -24,10 +24,10 @@ namespace chARpackColorPalette
 
     public class FocusColors
     {
-        private static List<string> availableColors = new List<string> { "#3BBCD9", "#88E8F2", "#F2B705", "#BF9075", "#F24141" };
+        private static List<string> availableColors = new List<string> { "#fc8d62", "#8da0cb", "#e78ac3", "#e5c494" };
         private static int current = 0;
 
-        private static Color serverFocusColor = Color.cyan;
+        private static string serverFocusColor = "#66c2a5";
 
 
         private static Color getNext()
@@ -47,7 +47,9 @@ namespace chARpackColorPalette
         {
             if (id < 0)
             {
-                return serverFocusColor;
+                Color col;
+                ColorUtility.TryParseHtmlString(serverFocusColor, out col);
+                return col;
             }
             else if (id >= availableColors.Count)
             {

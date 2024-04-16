@@ -1163,6 +1163,14 @@ public class NetworkManagerClient : MonoBehaviour
         }
         atom.serverFocusHighlight(value);
     }
+
+    [MessageHandler((ushort)ServerToClientID.bcastNumOutlines)]
+    private static void getNumOutlines(Message message)
+    {
+        var num_outlines = message.GetInt();
+        GlobalCtrl.Singleton.changeNumOutlines(num_outlines);
+    }
+    
     #endregion
 
-}
+    }

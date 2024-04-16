@@ -147,9 +147,20 @@ public class UserPanelEntry : MonoBehaviour
         battery_level_label.text = $"{(level*100):0}%";
     }
 
-    public void setFocusColor(Color col)
+    public void setFocusColor(int focus_id)
     {
-        focusColorImage.color = col;
+        focusColorImage.color = FocusColors.getColor(focus_id);
+        focusColorImage.gameObject.GetComponent<Button>().onClick.AddListener(delegate { forcusColorPressed(focus_id); });
+    }
+
+    private GameObject secondaryStructureDialogInstance;
+    private void forcusColorPressed(int focus_id)
+    {
+        if (!secondaryStructureDialogInstance)
+        {
+            secondaryStructureDialogInstance = Instantiate(StructureFormulaManager.Singleton.secondaryStructureDialogPrefab, StructureFormulaManager.Singleton.UICanvas.transform);
+            secondaryStructureDialogInstance.GetComponent<SecondaryStructureFormula>().focus_id = focus_id;
+        }
     }
 
 }

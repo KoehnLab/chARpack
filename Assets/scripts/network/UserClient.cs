@@ -20,10 +20,6 @@ public class UserClient : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (list.Count > 1)
-        {
-            FocusManager.decreaseNumOutlines();
-        }
         list.Remove(ID);
     }
 
@@ -79,10 +75,6 @@ public class UserClient : MonoBehaviour
         user.transform.parent = NetworkManagerClient.Singleton.userWorld.transform;
 
         list.Add(id_, user);
-        if(list.Count > 1)
-        {
-            FocusManager.increaseNumOutlines();
-        }
     }
 
     private void FixedUpdate()

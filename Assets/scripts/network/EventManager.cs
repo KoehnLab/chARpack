@@ -288,6 +288,13 @@ public class EventManager : MonoBehaviour
         OnSetSnapColors?.Invoke(mol1_id, mol2_id);
     }
 
+    public delegate void SetNumOutlinesAction(int num_outlines);
+    public event SetNumOutlinesAction OnSetNumOutlines;
+    public void SetNumOutlines(int num_outlines)
+    {
+        OnSetNumOutlines?.Invoke(num_outlines);
+    }
+
     #endregion
 
 

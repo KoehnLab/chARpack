@@ -80,7 +80,8 @@ public enum ServerToClientID : ushort
     bcastSnapMolecules,
     requestEyeCalibrationState,
     requestBatteryState,
-    bcastServerFocusHighlight
+    bcastServerFocusHighlight,
+    bcastNumOutlines
 }
 
 public enum SimToServerID : ushort

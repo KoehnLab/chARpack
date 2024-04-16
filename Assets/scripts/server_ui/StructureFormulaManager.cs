@@ -1,4 +1,5 @@
 using chARpackColorPalette;
+using chARpackTypes;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -30,25 +31,38 @@ public class StructureFormulaManager : MonoBehaviour
         }
     }
 
+    public List<ushort> getMolIDs()
+    {
+        List<ushort> mol_ids = new List<ushort>();
+        foreach (var id in svg_instances.Keys)
+        {
+            mol_ids.Add(id);
+        }
+        return mol_ids;
+    }
+
     private void Awake()
     {
         Singleton = this;
     }
 
-    private Dictionary<ushort, Tuple<GameObject, string>> svg_instances;
+    private Dictionary<ushort, Triple<GameObject, string, List<GameObject>>> svg_instances;
     private GameObject interactiblePrefab;
     private GameObject structureFormulaPrefab;
-    private GameObject UICanvas;
+    public GameObject UICanvas;
     System.Diagnostics.Process python_process = null;
     private List<Texture2D> heatMapTextures;
     private List<string> heatMapNames = new List<string> { "HeatTexture_Cool", "HeatTexture_Inferno", "HeatTexture_Magma", "HeatTexture_Plasma", "HeatTexture_Viridis", "HeatTexture_Warm" };
+    [HideInInspector]
+    public GameObject secondaryStructureDialogPrefab;
 
     private void Start()
     {
-        svg_instances = new Dictionary<ushort, Tuple<GameObject, string>>();
+        svg_instances = new Dictionary<ushort, Triple<GameObject, string, List<GameObject>>>();
         structureFormulaPrefab = (GameObject)Resources.Load("prefabs/StructureFormulaPrefab");
         interactiblePrefab = (GameObject)Resources.Load("prefabs/2DAtom");
         selectionBoxPrefab = (GameObject)Resources.Load("prefabs/2DSelectionBox");
+        secondaryStructureDialogPrefab = (GameObject)Resources.Load("prefabs/SecondaryStructureFormulaDialog");
         UICanvas = GameObject.Find("UICanvas");
 
         heatMapTextures = new List<Texture2D>();
@@ -79,6 +93,51 @@ public class StructureFormulaManager : MonoBehaviour
         var psi = new System.Diagnostics.ProcessStartInfo("python", pythonArgs);
         psi.WindowStyle = System.Diagnostics.ProcessWindowStyle.Minimized;
         python_process = System.Diagnostics.Process.Start(psi);
+    }
+
+    public void pushSecondaryContent(ushort mol_id, int focus_id)
+    {
+        if (!svg_instances.ContainsKey(mol_id))
+        {
+            Debug.LogError($"[StructureFormulaManager] Not able to generate secondary content for Molecule {mol_id}.");
+            return;
+        }
+        var sf = svg_instances[mol_id].Item1.GetComponentInParent<StructureFormula>();
+        var new_go = Instantiate(sf.gameObject, UICanvas.transform);
+        new_go.transform.localScale = 0.8f * new_go.transform.localScale;
+        var new_sf = new_go.GetComponent<StructureFormula>();
+        new_sf.label.text = $"{sf.label.text} Focus: {focus_id}";
+        new_sf.onlyUser = focus_id;
+        // Deactivate interactibles
+        var interactibles = new_go.GetComponentInChildren<SVGImage>().gameObject.GetComponentsInChildren<Atom2D>();
+        foreach (var inter in interactibles)
+        {
+            inter.GetComponent<Button>().interactable = false;
+        }
+
+        svg_instances[mol_id].Item3.Add(new_go.GetComponentInChildren<SVGImage>().gameObject);
+    }
+
+    public void updateSecondaryContent(ushort mol_id, GameObject old_go)
+    {
+        svg_instances[mol_id].Item3.Remove(old_go);
+        var old_sf = old_go.GetComponentInParent<StructureFormula>();
+        var sf = svg_instances[mol_id].Item1.GetComponentInParent<StructureFormula>();
+        var new_go = Instantiate(sf.gameObject, UICanvas.transform);
+        new_go.transform.localScale = old_sf.transform.localScale;
+        new_go.transform.localPosition = old_sf.transform.localPosition;
+        var new_sf = new_go.GetComponentInChildren<StructureFormula>();
+        new_sf.label.text = old_sf.label.text;
+        new_sf.onlyUser = old_sf.onlyUser;
+        // Deactivate interactibles
+        var interactibles = new_go.GetComponentInChildren<SVGImage>().gameObject.GetComponentsInChildren<Atom2D>();
+        foreach (var inter in interactibles)
+        {
+            inter.GetComponent<Button>().interactable = false;
+        }
+
+        Destroy(old_sf.gameObject);
+        svg_instances[mol_id].Item3.Add(new_go.GetComponentInChildren<SVGImage>().gameObject);
     }
 
     public void pushContent(ushort mol_id, string svg_content)
@@ -112,10 +171,17 @@ public class StructureFormulaManager : MonoBehaviour
             sf.scaleFactor = scaling_factor;
             sf.newImageResize();
 
-            svg_instances[mol_id] = new Tuple<GameObject, string>(svg_instances[mol_id].Item1, svg_content);
+            svg_instances[mol_id] = new Triple<GameObject, string, List<GameObject>>(svg_instances[mol_id].Item1, svg_content, new List<GameObject>());
 
             removeInteractibles(mol_id);
             createInteractibles(mol_id);
+            if (svg_instances[mol_id].Item3.Count > 0)
+            {
+                foreach (var secondary_sf in svg_instances[mol_id].Item3)
+                {
+                    updateSecondaryContent(mol_id, secondary_sf);
+                }
+            }
         }
         else
         {
@@ -157,7 +223,7 @@ public class StructureFormulaManager : MonoBehaviour
             sf.scaleFactor = scaling_factor;
             sf.newImageResize();
 
-            svg_instances[mol_id] = new Tuple<GameObject, string>(sf.image.gameObject, svg_content);
+            svg_instances[mol_id] = new Triple<GameObject, string, List<GameObject>>(sf.image.gameObject, svg_content, new List<GameObject>());
 
             createInteractibles(mol_id);
         }
@@ -182,6 +248,7 @@ public class StructureFormulaManager : MonoBehaviour
             Debug.LogError("[removeInteractibles] Invalid Molecule ID.");
             return;
         }
+
         if (!svg_instances.ContainsKey(mol_id))
         {
             Debug.LogError("[removeInteractibles] No structure formula found.");
@@ -189,17 +256,11 @@ public class StructureFormulaManager : MonoBehaviour
         }
 
         var interactible_instances = svg_instances[mol_id].Item1.GetComponentsInChildren<Atom2D>();
+
         foreach (var inter in interactible_instances)
         {
+            inter.atom.structure_interactible = null;
             Destroy(inter.gameObject);
-        }
-
-        foreach (var atom in mol.atomList)
-        {
-            if (atom.structure_interactible)
-            {
-                atom.structure_interactible = null;
-            }
         }
     }
 
@@ -211,33 +272,36 @@ public class StructureFormulaManager : MonoBehaviour
             Debug.LogError("[createInteractibles] Invalid Molecule ID.");
             return;
         }
+
         if (!svg_instances.ContainsKey(mol_id))
         {
             Debug.LogError("[createInteractibles] No structure formula found.");
             return;
         }
 
-        var sf = svg_instances[mol_id].Item1.GetComponentInParent<StructureFormula>();
+        var sf_go = svg_instances[mol_id].Item1;
+        var sf = sf_go.GetComponentInParent<StructureFormula>();
+
+
         foreach (var atom in mol.atomList)
         {
             if (!atom.structure_interactible)
             {
                 var inter = Instantiate(interactiblePrefab);
-                inter.transform.SetParent(svg_instances[mol_id].Item1.transform, true);
+                inter.transform.SetParent(sf_go.transform, true);
                 inter.transform.localScale = Vector3.one;
                 atom.structure_interactible = inter;
                 inter.GetComponent<Atom2D>().atom = atom;
             }
 
 
-            var rect = svg_instances[mol_id].Item1.transform as RectTransform;
+            var rect = sf_go.transform as RectTransform;
             var atom_rect = atom.structure_interactible.transform as RectTransform;
             atom_rect.sizeDelta = 15f * sf.scaleFactor * Vector2.one;
 
             var offset = new Vector2(-rect.sizeDelta.x, 0.5f * rect.sizeDelta.y) + sf.scaleFactor * new Vector2(atom.structure_coords.x, -atom.structure_coords.y) + 0.5f * new Vector2(-atom_rect.sizeDelta.x, atom_rect.sizeDelta.y);
             atom_rect.localPosition = offset;
         }
-
     }
 
 
@@ -283,16 +347,57 @@ public class StructureFormulaManager : MonoBehaviour
         if (atom.isMarked) return;
         if (svg_instances.ContainsKey(mol_id))
         {
-            var hc = svg_instances[mol_id].Item1.GetComponentInParent<StructureFormula>().current_highlight_choice;
-            if (hc == 0)
+            List<StructureFormula> sf_list = new List<StructureFormula>();
+            sf_list.Add(svg_instances[mol_id].Item1.GetComponentInParent<StructureFormula>());
+            if (svg_instances[mol_id].Item3.Count > 0)
             {
-                var atom2d = atom.structure_interactible.GetComponent<Atom2D>();
-                atom2d.FociColors = cols; // set full array to trigger set function
+                foreach (var item in svg_instances[mol_id].Item3)
+                {
+                    sf_list.Add(item.GetComponentInParent<StructureFormula>());
+                }
             }
-            else if (hc == 1)
+            foreach (var sf in sf_list)
             {
-                var heat = svg_instances[mol_id].Item1.GetComponentInChildren<HeatMap2D>();
-                heat.SetAtomFocus(atom, values[0]); // TODO value filter
+                if (sf.current_highlight_choice == 0)
+                {
+                    //var atom2d = atom.structure_interactible.GetComponent<Atom2D>();
+                    Atom2D atom2d = null;
+                    foreach (var inter in sf.gameObject.GetComponentsInChildren<Atom2D>())
+                    {
+                        if (inter.atom == atom)
+                        {
+                            atom2d = inter;
+                            break;
+                        }
+                    }
+                    if (sf.onlyUser >= 0)
+                    {
+                        for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+                        {
+                            cols[i] = cols[sf.onlyUser];
+                        }
+                    }
+                    atom2d.FociColors = cols; // set full array to trigger set function
+                }
+                else if (sf.current_highlight_choice == 1)
+                {
+                    var heat = sf.gameObject.GetComponentInChildren<HeatMap2D>();
+                    if (sf.onlyUser >= 0)
+                    {
+                        heat.SetAtomFocus(atom, values[sf.onlyUser]);
+                    }
+                    else
+                    {
+                        if (values.AnyTrue())
+                        {
+                            heat.SetAtomFocus(atom, true);
+                        }
+                        else
+                        {
+                            heat.SetAtomFocus(atom, false);
+                        }
+                    }
+                }
             }
         }
         else
