@@ -13,6 +13,7 @@ public class SettingsData
     [SerializeField] static public string language = "en";
     [SerializeField] static public bool gazeHighlighting = false;
     [SerializeField] static public bool pointerHighlighting = true;
+    [SerializeField] static public bool showAllHighlightsOnClients = true;
     [SerializeField] private static int _highlightColorMap = 0;
     [SerializeField] static public bool rightHandMenu = false;
     [SerializeField] static public ForceField.Method integrationMethod = ForceField.Method.SteepestDescent;

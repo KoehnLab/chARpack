@@ -361,6 +361,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddString(SettingsData.language);
         message.AddBool(SettingsData.gazeHighlighting);
         message.AddBool(SettingsData.pointerHighlighting);
+        message.AddBool(SettingsData.showAllHighlightsOnClients);
         message.AddString(SettingsData.integrationMethod.ToString());
         message.AddFloats(SettingsData.timeFactors);
         message.AddString(SettingsData.interactionMode.ToString());

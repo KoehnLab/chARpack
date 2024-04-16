@@ -959,6 +959,7 @@ public class NetworkManagerClient : MonoBehaviour
         var language = message.GetString();
         var gazeHighlighting = message.GetBool();
         var pointerHighlighting = message.GetBool();
+        var showAllHighlightsOnClients = message.GetBool();
         var integrationMethodString = message.GetString();
         var timeFactors = message.GetFloats();
         var interactionModeString = message.GetString();
@@ -985,6 +986,7 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.language = language;
             SettingsData.gazeHighlighting = gazeHighlighting;
             SettingsData.pointerHighlighting = pointerHighlighting;
+            SettingsData.showAllHighlightsOnClients = showAllHighlightsOnClients;
             SettingsData.integrationMethod = integrationMethod;
             SettingsData.timeFactors = timeFactors;
             SettingsData.interactionMode = interactionMode;
