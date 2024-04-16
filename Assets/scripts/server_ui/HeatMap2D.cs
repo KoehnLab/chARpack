@@ -33,9 +33,9 @@ public class HeatMap2D : MonoBehaviour
 
     private float decayDeltaSeconds = 0.05f;
 
-    private float decayDeltaStep = 0.001f;
+    private float decayDeltaStep = 0.0005f;
 
-    private float gainDeltaStep = 0.005f;
+    private float gainDeltaStep = 0.01f;
 
     private float _intensity = 0.1f;
 
