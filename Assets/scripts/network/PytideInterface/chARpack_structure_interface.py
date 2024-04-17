@@ -59,7 +59,7 @@ class chARpackStructureInterface():
 
     def sendStructureFormula(self, message: Message):
         ## Unpack Message
-        mol_id = message.getUInt16()
+        mol_id = message.getInt8Array()
         num_atoms = message.getUInt16()
         atom_positions = []
         for i in range(num_atoms):
@@ -111,7 +111,7 @@ class chARpackStructureInterface():
             
         return_msg = createMessage(MessageSendMode.Unreliable, self.MESSAGE_SEND_STRUCTURE_FORMULA)
         return_msg.putString("end")
-        return_msg.putUInt16(mol_id)
+        return_msg.putInt8Array(mol_id)
         self.client.send(return_msg)
         print("Data sent!")
 

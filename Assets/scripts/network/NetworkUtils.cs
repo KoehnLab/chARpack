@@ -3,7 +3,7 @@ using chARpackStructs;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using Riptide.Utils;
 
 public static class NetworkUtils
 {
@@ -159,7 +159,7 @@ public static class NetworkUtils
         }
         else if (state == "end")
         {
-            var mol_id = message.GetUShort();
+            var mol_id = message.GetGuid();
             EventManager.Singleton.StructureReceiveCompleted(mol_id);
         }
         else if (state == "svg")

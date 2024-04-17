@@ -106,6 +106,7 @@ public static class FocusManager
     public static int getPosInArray(int focus_id)
     {
         var list = focus_ids.Values.ToList();
+        if (list.Count < 1) return 0;
         return list.IndexOf(focus_id);
     }
 

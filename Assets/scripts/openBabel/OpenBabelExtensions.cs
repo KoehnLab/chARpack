@@ -4,6 +4,7 @@ using UnityEngine;
 using OpenBabel;
 using chARpackStructs;
 using System.Linq;
+using System;
 
 public static class OpenBabelExtensions
 {
@@ -37,7 +38,7 @@ public static class OpenBabelExtensions
             list_bond.Add(new cmlBond(a, b, order));
         }
 
-        var mol_id = GlobalCtrl.Singleton.getFreshMoleculeID();
+        var mol_id = Guid.NewGuid();
 
         List<cmlAtom> list_atom = new List<cmlAtom>();
         for (ushort i = 0; i < num_atoms; i++)

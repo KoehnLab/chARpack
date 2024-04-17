@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System;
 
 public class SecondaryStructureFormula : MonoBehaviour
 {
@@ -28,7 +29,8 @@ public class SecondaryStructureFormula : MonoBehaviour
 
     private void onOK()
     {
-        var mol_id = (ushort)int.Parse(mol_dropdown.options[mol_dropdown.value].text);
+        
+        var mol_id = Guid.Parse(mol_dropdown.options[mol_dropdown.value].text);
         StructureFormulaManager.Singleton.pushSecondaryContent(mol_id, focus_id);
         Destroy(gameObject);
     }

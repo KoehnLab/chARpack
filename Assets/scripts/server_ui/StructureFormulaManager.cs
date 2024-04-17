@@ -31,9 +31,9 @@ public class StructureFormulaManager : MonoBehaviour
         }
     }
 
-    public List<ushort> getMolIDs()
+    public List<Guid> getMolIDs()
     {
-        List<ushort> mol_ids = new List<ushort>();
+        List<Guid> mol_ids = new List<Guid>();
         foreach (var id in svg_instances.Keys)
         {
             mol_ids.Add(id);
@@ -46,7 +46,7 @@ public class StructureFormulaManager : MonoBehaviour
         Singleton = this;
     }
 
-    private Dictionary<ushort, Triple<GameObject, string, List<GameObject>>> svg_instances;
+    private Dictionary<Guid, Triple<GameObject, string, List<GameObject>>> svg_instances;
     private GameObject interactiblePrefab;
     private GameObject structureFormulaPrefab;
     public GameObject UICanvas;
@@ -58,7 +58,7 @@ public class StructureFormulaManager : MonoBehaviour
 
     private void Start()
     {
-        svg_instances = new Dictionary<ushort, Triple<GameObject, string, List<GameObject>>>();
+        svg_instances = new Dictionary<Guid, Triple<GameObject, string, List<GameObject>>>();
         structureFormulaPrefab = (GameObject)Resources.Load("prefabs/StructureFormulaPrefab");
         interactiblePrefab = (GameObject)Resources.Load("prefabs/2DAtom");
         selectionBoxPrefab = (GameObject)Resources.Load("prefabs/2DSelectionBox");
@@ -95,7 +95,7 @@ public class StructureFormulaManager : MonoBehaviour
         python_process = System.Diagnostics.Process.Start(psi);
     }
 
-    public void pushSecondaryContent(ushort mol_id, int focus_id)
+    public void pushSecondaryContent(Guid mol_id, int focus_id)
     {
         if (!svg_instances.ContainsKey(mol_id))
         {
@@ -119,7 +119,7 @@ public class StructureFormulaManager : MonoBehaviour
         svg_instances[mol_id].Item3.Add(new_go.GetComponentInChildren<SVGImage>().gameObject);
     }
 
-    public void updateSecondaryContent(ushort mol_id, GameObject old_go)
+    public void updateSecondaryContent(Guid mol_id, GameObject old_go)
     {
         var old_sf = old_go.GetComponentInParent<StructureFormula>();
         var sf = svg_instances[mol_id].Item1.GetComponentInParent<StructureFormula>();
@@ -141,7 +141,7 @@ public class StructureFormulaManager : MonoBehaviour
         svg_instances[mol_id].Item3.Add(new_go.GetComponentInChildren<SVGImage>().gameObject);
     }
 
-    public void pushContent(ushort mol_id, string svg_content)
+    public void pushContent(Guid mol_id, string svg_content)
     {
         if (svg_instances.ContainsKey(mol_id)) // UPDATE
         {
@@ -193,7 +193,7 @@ public class StructureFormulaManager : MonoBehaviour
             sf_object.transform.localScale = Vector3.one;
             var sf = sf_object.GetComponent<StructureFormula>();
 
-            sf.label.text = $"StructureFormula_{mol_id}";
+            sf.label.text = $"StructureFormula_{mol_id.ToString().Substring(0, 5)}";
             var rect = sf.image.transform as RectTransform;
             rect.transform.localScale = Vector2.one;
 
@@ -233,7 +233,7 @@ public class StructureFormulaManager : MonoBehaviour
         }
     }
 
-    public void removeContent(ushort mol_id)
+    public void removeContent(Guid mol_id)
     {
         if (!svg_instances.ContainsKey(mol_id))
         {
@@ -248,10 +248,9 @@ public class StructureFormulaManager : MonoBehaviour
         svg_instances.Remove(mol_id);
     }
 
-    private void removeInteractibles(ushort mol_id)
+    private void removeInteractibles(Guid mol_id)
     {
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
-        if (!mol)
+        if (!GlobalCtrl.Singleton.List_curMolecules.ContainsKey(mol_id))
         {
             Debug.LogError("[removeInteractibles] Invalid Molecule ID.");
             return;
@@ -272,15 +271,14 @@ public class StructureFormulaManager : MonoBehaviour
         }
     }
 
-    public void createInteractibles(ushort mol_id)
+    public void createInteractibles(Guid mol_id)
     {
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
-        if (!mol)
+        if (!GlobalCtrl.Singleton.List_curMolecules.ContainsKey(mol_id))
         {
             Debug.LogError("[createInteractibles] Invalid Molecule ID.");
             return;
         }
-
+        var mol = GlobalCtrl.Singleton.List_curMolecules[mol_id];
         if (!svg_instances.ContainsKey(mol_id))
         {
             Debug.LogError("[createInteractibles] No structure formula found.");
@@ -350,7 +348,7 @@ public class StructureFormulaManager : MonoBehaviour
     //    }
     //}
 
-    public void addFocusHighlight(ushort mol_id, Atom atom, bool[] values, Color[] cols)
+    public void addFocusHighlight(Guid mol_id, Atom atom, bool[] values, Color[] cols)
     {
         if (atom.isMarked) return;
         if (svg_instances.ContainsKey(mol_id))
@@ -419,7 +417,7 @@ public class StructureFormulaManager : MonoBehaviour
         }
     }
 
-    public void addServerFocusHighlight(ushort mol_id, Atom atom, Color[] col)
+    public void addServerFocusHighlight(Guid mol_id, Atom atom, Color[] col)
     {
         if (svg_instances.ContainsKey(mol_id))
         {
@@ -428,7 +426,7 @@ public class StructureFormulaManager : MonoBehaviour
         }
     }
 
-    public void addSelectHighlight(ushort mol_id, Atom atom, Color[] selCol)
+    public void addSelectHighlight(Guid mol_id, Atom atom, Color[] selCol)
     {
 
         if (svg_instances.ContainsKey(mol_id))
@@ -446,7 +444,7 @@ public class StructureFormulaManager : MonoBehaviour
     Vector2 selectionStartPos = Vector2.zero;
     bool isSelecting = false;
     bool needsInitialization = false;
-    int currentMol = -1;
+    Guid currentMol = Guid.Empty;
     GameObject currentStructureFormula;
     GameObject selectionBoxPrefab;
     GameObject selectionBoxInstance;
@@ -459,9 +457,9 @@ public class StructureFormulaManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             currentMol = getMolIDFromRaycastResult(rayCastResults);
-            if (currentMol >= 0)
+            if (currentMol != Guid.Empty)
             {
-                currentStructureFormula = svg_instances[(ushort)currentMol].Item1;
+                currentStructureFormula = svg_instances[currentMol].Item1;
                 selectionStartPos = currentStructureFormula.transform.InverseTransformPoint(Mouse.current.position.ReadValue());
                 isSelecting = true;
                 needsInitialization = true;
@@ -471,7 +469,7 @@ public class StructureFormulaManager : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
         {
             isSelecting = false;
-            currentMol = -1;
+            currentMol = Guid.Empty;
             if (selectionBoxInstance)
             {
                 Destroy(selectionBoxInstance);
@@ -575,18 +573,18 @@ public class StructureFormulaManager : MonoBehaviour
         return raysastResults;
     }
 
-    private int getMolIDFromRaycastResult(List<RaycastResult> eventSystemRaysastResults)
+    private Guid getMolIDFromRaycastResult(List<RaycastResult> eventSystemRaysastResults)
     {
         foreach (var sf in svg_instances)
         {
             // only if its in front of the list (or blocked by interactivble)
             // TODO does not work for overlayed heatmap anymore
-            if (eventSystemRaysastResults.Count < 1) return -1;
+            if (eventSystemRaysastResults.Count < 1) return Guid.Empty;
             if (eventSystemRaysastResults[0].gameObject == sf.Value.Item1)
             {
                 return sf.Key;
             }
-            if (eventSystemRaysastResults.Count < 2) return -1;
+            if (eventSystemRaysastResults.Count < 2) return Guid.Empty;
             if (eventSystemRaysastResults[1].gameObject == sf.Value.Item1)
             {
                 return sf.Key;
@@ -603,13 +601,13 @@ public class StructureFormulaManager : MonoBehaviour
         //        }
         //    }
         //}
-        return -1;
+        return Guid.Empty;
     }
 
     private Atom2D getInteractibleFromRaycastResult(List<RaycastResult> eventSystemRaysastResults)
     {
         var mol_id = getMolIDFromRaycastResult(eventSystemRaysastResults);
-        if (mol_id >= 0)
+        if (mol_id != Guid.Empty)
         {
             foreach (var rr in eventSystemRaysastResults)
             {

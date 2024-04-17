@@ -156,7 +156,7 @@ namespace chARpackStructs
     {
         public SaveableVector3 molePos;
         public SaveableQuaternion moleQuat;
-        public ushort moleID;
+        public Guid moleID;
         public bool keepConfig;
         public cmlAtom[] atomArray;
         public cmlBond[] bondArray;
@@ -165,7 +165,7 @@ namespace chARpackStructs
         [XmlArray, DefaultValue(null)]
         public cmlTorsion[] torsionArray;
 
-        public cmlData(SaveableVector3 pos, SaveableQuaternion quat, ushort id, List<cmlAtom> a, List<cmlBond> b, List<cmlAngle> ang = null, List<cmlTorsion> tor = null, bool keepConfig_ = false)
+        public cmlData(SaveableVector3 pos, SaveableQuaternion quat, Guid id, List<cmlAtom> a, List<cmlBond> b, List<cmlAngle> ang = null, List<cmlTorsion> tor = null, bool keepConfig_ = false)
         {
             molePos = pos;
             moleQuat = quat;

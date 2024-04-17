@@ -192,7 +192,7 @@ public class OpenBabelReadWrite : MonoBehaviour
             }
 
             var mols = new List<Molecule>();
-            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
             {
                 if (mol.isMarked)
                 {
@@ -201,7 +201,7 @@ public class OpenBabelReadWrite : MonoBehaviour
             }
             if (mols.Count < 1)
             {
-                mols.Add(GlobalCtrl.Singleton.List_curMolecules[0]);
+                mols.Add(GlobalCtrl.Singleton.List_curMolecules.GetFirst());
             }
 
             foreach (var mol in mols)
@@ -408,7 +408,7 @@ public class OpenBabelReadWrite : MonoBehaviour
     public void generateSVG()
     {
         var mols = new List<Molecule>();
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
             if (mol.isMarked)
             {
@@ -417,7 +417,7 @@ public class OpenBabelReadWrite : MonoBehaviour
         }
         if (mols.Count < 1)
         {
-            mols.Add(GlobalCtrl.Singleton.List_curMolecules[0]);
+            mols.Add(GlobalCtrl.Singleton.List_curMolecules.GetFirst());
         }
 
         var obmol = mols[0].AsCML().AsOBMol();

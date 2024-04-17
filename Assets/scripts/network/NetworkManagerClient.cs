@@ -230,48 +230,48 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
-    public void sendAtomCreated(ushort id, string abbre, Vector3 pos, ushort hyb)
+    public void sendAtomCreated(Guid mol_id, string abbre, Vector3 pos, ushort hyb)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.atomCreated);
-        message.AddUShort(id);
+        message.AddGuid(mol_id);
         message.AddString(abbre);
         message.AddVector3(pos);
         message.AddUShort(hyb);
         Client.Send(message);
     }
 
-    public void sendMoleculeMoved(ushort id, Vector3 pos, Quaternion quat)
+    public void sendMoleculeMoved(Guid mol_id, Vector3 pos, Quaternion quat)
     {
         Message message = Message.Create(MessageSendMode.Unreliable, ClientToServerID.moleculeMoved);
-        message.AddUShort(id);
+        message.AddGuid(mol_id);
         message.AddVector3(pos);
         message.AddQuaternion(quat);
         Client.Send(message);
     }
 
-    public void sendAtomMoved(ushort mol_id, ushort atom_id, Vector3 pos)
+    public void sendAtomMoved(Guid mol_id, ushort atom_id, Vector3 pos)
     {
         Message message = Message.Create(MessageSendMode.Unreliable, ClientToServerID.atomMoved);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         message.AddUShort(atom_id);
         message.AddVector3(pos);
         Client.Send(message);
     }
 
-    public void sendStopMoveAtom(ushort mol_id, ushort atom_id)
+    public void sendStopMoveAtom(Guid mol_id, ushort atom_id)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.stopMoveAtom);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         message.AddUShort(atom_id);
         Client.Send(message);
     }
 
-    public void sendMoleculeMerged(ushort mol1ID, ushort atom1ID, ushort mol2ID, ushort atom2ID)
+    public void sendMoleculeMerged(Guid mol1ID, ushort atom1ID, Guid mol2ID, ushort atom2ID)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.moleculeMerged);
-        message.AddUShort(mol1ID);
+        message.AddGuid(mol1ID);
         message.AddUShort(atom1ID);
-        message.AddUShort(mol2ID);
+        message.AddGuid(mol2ID);
         message.AddUShort(atom2ID);
         Client.Send(message);
     }
@@ -288,62 +288,62 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
     
-    public void sendSelectAtom(ushort mol_id, ushort atom_id, bool selected)
+    public void sendSelectAtom(Guid mol_id, ushort atom_id, bool selected)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.selectAtom);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         message.AddUShort(atom_id);
         message.AddBool(selected);
         Client.Send(message);
     }
 
-    public void sendSelectMolecule(ushort id, bool selected)
+    public void sendSelectMolecule(Guid mol_id, bool selected)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.selectMolecule);
-        message.AddUShort(id);
+        message.AddGuid(mol_id);
         message.AddBool(selected);
         Client.Send(message);
     }
 
-    public void sendSelectBond(ushort bond_id, ushort mol_id, bool selected)
+    public void sendSelectBond(ushort bond_id, Guid mol_id, bool selected)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.selectBond);
         message.AddUShort(bond_id);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         message.AddBool(selected);
         Client.Send(message);
     }
 
-    public void sendDeleteAtom(ushort mol_id, ushort atom_id)
+    public void sendDeleteAtom(Guid mol_id, ushort atom_id)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.deleteAtom);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         message.AddUShort(atom_id);
         Client.Send(message);
         UnityEngine.Debug.Log("[NetworkManagerClient] Sent delete atom");
     }
 
-    public void sendDeleteMolecule(ushort id)
+    public void sendDeleteMolecule(Guid mol_id)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.deleteMolecule);
-        message.AddUShort(id);
+        message.AddGuid(mol_id);
         Client.Send(message);
         UnityEngine.Debug.Log("[NetworkManagerClient] Sent delete molecule");
     }
 
-    public void sendDeleteBond(ushort bond_id, ushort mol_id)
+    public void sendDeleteBond(ushort bond_id, Guid mol_id)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.deleteBond);
         message.AddUShort(bond_id);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         Client.Send(message);
         UnityEngine.Debug.Log("[NetworkManagerClient] Sent delete bond");
     }
 
-    public void sendChangeAtom(ushort mol_id, ushort atom_id, string chemAbbre)
+    public void sendChangeAtom(Guid mol_id, ushort atom_id, string chemAbbre)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.changeAtom);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         message.AddUShort(atom_id);
         message.AddString(chemAbbre);
         Client.Send(message);
@@ -364,116 +364,116 @@ public class NetworkManagerClient : MonoBehaviour
     }
 
 
-    public void sendChangeBondTerm(ForceField.BondTerm term, ushort mol_id, ushort term_id)
+    public void sendChangeBondTerm(ForceField.BondTerm term, Guid mol_id, ushort term_id)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.changeBondTerm);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         message.AddUShort(term_id);
         message.AddBondTerm(term);
         Client.Send(message);
     }
 
-    public void sendChangeAngleTerm(ForceField.AngleTerm term, ushort mol_id, ushort term_id)
+    public void sendChangeAngleTerm(ForceField.AngleTerm term, Guid mol_id, ushort term_id)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.changeAngleTerm);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         message.AddUShort(term_id);
         message.AddAngleTerm(term);
         Client.Send(message);
     }
 
-    public void sendChangeTorsionTerm(ForceField.TorsionTerm term, ushort mol_id, ushort term_id)
+    public void sendChangeTorsionTerm(ForceField.TorsionTerm term, Guid mol_id, ushort term_id)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.changeTorsionTerm);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         message.AddUShort(term_id);
         message.AddTorsionTerm(term);
         Client.Send(message);
     }
 
-    public void sendMarkTerm(ushort term_type, ushort mol_id, ushort term_id, bool marked)
+    public void sendMarkTerm(ushort term_type, Guid mol_id, ushort term_id, bool marked)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.markTerm);
         message.AddUShort(term_type);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         message.AddUShort(term_id);
         message.AddBool(marked);
         Client.Send(message);
     }
 
-    public void sendModifyHyb(ushort mol_id, ushort atom_id, ushort hyb)
+    public void sendModifyHyb(Guid mol_id, ushort atom_id, ushort hyb)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.modifyHyb);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         message.AddUShort(atom_id);
         message.AddUShort(hyb);
         Client.Send(message);
     }
 
-    public void sendKeepConfig(ushort mol_id, bool keep_config)
+    public void sendKeepConfig(Guid mol_id, bool keep_config)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.keepConfig);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         message.AddBool(keep_config);
         Client.Send(message);
     }
 
 
-    public void sendReplaceDummies(ushort mol_id)
+    public void sendReplaceDummies(Guid mol_id)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.replaceDummies);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         Client.Send(message);
     }
 
-    public void sendFocusHighlight(ushort mol_id, ushort atom_id, bool active)
+    public void sendFocusHighlight(Guid mol_id, ushort atom_id, bool active)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.focusHighlight);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         message.AddUShort(atom_id);
         message.AddBool(active);
         Client.Send(message);
     }
 
-    public void sendScaleMolecue(ushort mol_id, float scale)
+    public void sendScaleMolecue(Guid mol_id, float scale)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.scaleMolecule);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         message.AddFloat(scale);
         Client.Send(message);
     }
 
-    public void sendFreezeAtom(ushort mol_id, ushort atom_id, bool value)
+    public void sendFreezeAtom(Guid mol_id, ushort atom_id, bool value)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.freezeAtom);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         message.AddUShort(atom_id);
         message.AddBool(value);
         Client.Send(message);
     }
 
-    public void sendFreezeMolecule(ushort mol_id, bool value)
+    public void sendFreezeMolecule(Guid mol_id, bool value)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.freezeMolecule);
-        message.AddUShort(mol_id);
+        message.AddGuid(mol_id);
         message.AddBool(value);
         Client.Send(message);
     }
 
-    public void sendSetSnapColor(ushort mol1_id, ushort mol2_id)
+    public void sendSetSnapColor(Guid mol1_id, Guid mol2_id)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.snapMolecules);
-        message.AddUShort(mol1_id);
-        message.AddUShort(mol2_id);
+        message.AddGuid(mol1_id);
+        message.AddGuid(mol2_id);
         Client.Send(message);
     }
 
-    public void sendCreateMeasurement(ushort mol1_id, ushort atom1_id, ushort mol2_id, ushort atom2_id)
+    public void sendCreateMeasurement(Guid mol1_id, ushort atom1_id, Guid mol2_id, ushort atom2_id)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.createMeasurement);
-        message.AddUShort(mol1_id);
+        message.AddGuid(mol1_id);
         message.AddUShort(atom1_id);
-        message.AddUShort(mol2_id);
+        message.AddGuid(mol2_id);
         message.AddUShort(atom2_id);
         Client.Send(message);
     }
@@ -510,7 +510,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getAtomCreated(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var abbre = message.GetString();
         var pos = message.GetVector3();
         var hyb = message.GetUShort();
@@ -518,7 +518,7 @@ public class NetworkManagerClient : MonoBehaviour
         // do the create
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            if (GlobalCtrl.Singleton.List_curMolecules.Find(x => mol_id == x.m_id) != null)
+            if (GlobalCtrl.Singleton.List_curMolecules.ContainsKey(mol_id))
             {
                 Debug.LogError($"[NetworkManagerClient:getAtomCreated] Molecule with new creation id {mol_id} already exists.\nRequesting world sync.");
                 NetworkManagerClient.Singleton.sendSyncRequest();
@@ -532,7 +532,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getMoleculeMoved(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var pos = message.GetVector3();
         var quat = message.GetQuaternion();
 
@@ -552,7 +552,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getAtomMoved(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var atom_id = message.GetUShort();
         var pos = message.GetVector3();
 
@@ -571,7 +571,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getStopMoveAtom(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var atom_id = message.GetUShort();
 
         // do the move
@@ -589,17 +589,17 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getMoleculeMerged(Message message)
     {
         var client_id = message.GetUShort();
-        var mol1ID = message.GetUShort();
+        var mol1ID = message.GetGuid();
         var atom1ID = message.GetUShort();
-        var mol2ID = message.GetUShort();
+        var mol2ID = message.GetGuid();
         var atom2ID = message.GetUShort();
 
         // do the merge
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var mol1 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol1ID, null);
+            var mol1 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol1ID);
             var atom1 = mol1?.atomList.ElementAtOrNull(atom1ID, null);
-            var mol2 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol2ID, null);
+            var mol2 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol2ID);
             var atom2 = mol2?.atomList.ElementAtOrNull(atom2ID, null);
             if (mol1 == null || atom1 == null || mol2 == null || atom2 == null )
             {
@@ -633,7 +633,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getAtomSelected(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var atom_id = message.GetUShort();
         var selected = message.GetBool();
         // do the select
@@ -659,7 +659,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getMoleculeSelected(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var selected = message.GetBool();
         // do the select
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
@@ -680,7 +680,7 @@ public class NetworkManagerClient : MonoBehaviour
     {
         var client_id = message.GetUShort();
         var bond_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var selected = message.GetBool();
         // do the select
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
@@ -701,7 +701,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getAtomDeleted(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var atom_id = message.GetUShort();
         // do the delete
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
@@ -722,7 +722,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getMoleculeDeleted(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         // do the delete
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
@@ -742,7 +742,7 @@ public class NetworkManagerClient : MonoBehaviour
     {
         var client_id = message.GetUShort();
         var bond_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         // do the delete
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
@@ -762,7 +762,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getAtomChanged(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var atom_id = message.GetUShort();
         var chemAbbre = message.GetString();
 
@@ -794,7 +794,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getBondTermChanged(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var term_id = message.GetUShort();
         var term = message.GetBondTerm();
 
@@ -813,7 +813,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getAngleTermChanged(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var term_id = message.GetUShort();
         var term = message.GetAngleTerm();
 
@@ -832,7 +832,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getTorsionTermChanged(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var term_id = message.GetUShort();
         var term = message.GetTorsionTerm();
 
@@ -853,7 +853,7 @@ public class NetworkManagerClient : MonoBehaviour
         var client_id = message.GetUShort();
         // process message
         var term_type = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var term_id = message.GetUShort();
         var marked = message.GetBool();
 
@@ -891,7 +891,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getModifyHyb(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var atom_id = message.GetUShort();
         var hyb = message.GetUShort();
 
@@ -910,7 +910,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getKeepConfig(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var keep_config = message.GetBool();
 
         // do the change
@@ -928,7 +928,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getReplaceDummies(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
 
         // do the change
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
@@ -1006,7 +1006,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getFocusHighlight(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var atom_id = message.GetUShort();
         var active = message.GetBool();
 
@@ -1029,7 +1029,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getScaleMolecule(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var scale = message.GetFloat();
 
         // do the change
@@ -1050,7 +1050,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getFreezeAtom(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var atom_id = message.GetUShort();
         var freeze = message.GetBool();
 
@@ -1073,7 +1073,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getFreezeMolecule(Message message)
     {
         var client_id = message.GetUShort();
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var freeze = message.GetBool();
 
         // do the change
@@ -1095,14 +1095,14 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getSnapMolecules(Message message)
     {
         var client_id = message.GetUShort();
-        var mol1_id = message.GetUShort();
-        var mol2_id = message.GetUShort();
+        var mol1_id = message.GetGuid();
+        var mol2_id = message.GetGuid();
 
         // do the change
         if (client_id != NetworkManagerClient.Singleton.Client.Id)
         {
-            var mol1 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol1_id, null);
-            var mol2 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol2_id, null);
+            var mol1 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol1_id);
+            var mol2 = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol2_id);
             if (mol1 == null || mol2 == null)
             {
                 Debug.LogError($"[NetworkManagerClient:getSnapMolecules] Molecule {mol1_id} or {mol2_id} does not exist.\nRequesting world sync.");
@@ -1117,9 +1117,9 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getCreateMeasurement(Message message)
     {
         var client_id = message.GetUShort();
-        var mol1ID = message.GetUShort();
+        var mol1ID = message.GetGuid();
         var atom1ID = message.GetUShort();
-        var mol2ID = message.GetUShort();
+        var mol2ID = message.GetGuid();
         var atom2ID = message.GetUShort();
 
         // do the merge
@@ -1149,7 +1149,7 @@ public class NetworkManagerClient : MonoBehaviour
     [MessageHandler((ushort)ServerToClientID.bcastServerFocusHighlight)]
     private static void getSeverFocusHighlight(Message message)
     {
-        var mol_id = message.GetUShort();
+        var mol_id = message.GetGuid();
         var atom_id = message.GetUShort();
         var value = message.GetBool();
 
