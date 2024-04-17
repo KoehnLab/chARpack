@@ -126,7 +126,7 @@ public class GlobalCtrl : MonoBehaviour
     public enum ColorScheme
     {
         DARKBLUE,
-        LIGHTBLUE,
+        TURQUOISE,
         GOLD,
         MONOCHROME,
         RAINBOW,
@@ -2164,7 +2164,7 @@ public class GlobalCtrl : MonoBehaviour
 
     #region Color palettes
     private Texture darkBlueSpectrum;
-    private Texture lightBlueSpectrum;
+    private Texture turquoiseSpectrum;
     private Texture rainbowSpectrum;
     private Texture goldSpectrum;
     private Texture monochromeSpectrum;
@@ -2178,7 +2178,7 @@ public class GlobalCtrl : MonoBehaviour
 
         numberOfColorSchemes = Enum.GetNames(typeof(ColorScheme)).Length;
         darkBlueSpectrum = (Texture)Resources.Load("textures/DarkBlueGradient");
-        lightBlueSpectrum = (Texture)Resources.Load("textures/BlueVioletGradient");
+        turquoiseSpectrum = (Texture)Resources.Load("textures/TurquoiseGradient");
         goldSpectrum = (Texture)Resources.Load("textures/GoldGradient");
         monochromeSpectrum = (Texture)Resources.Load("textures/MonochromeGradient");
         rainbowSpectrum = (Texture)Resources.Load("textures/RainbowGradient");
@@ -2205,10 +2205,10 @@ public class GlobalCtrl : MonoBehaviour
                     m.SetTexture("_IridescentSpectrumMap", darkBlueSpectrum);
                 }
                 break;
-            case ColorScheme.LIGHTBLUE:
+            case ColorScheme.TURQUOISE:
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
-                    m.SetTexture("_IridescentSpectrumMap", lightBlueSpectrum);
+                    m.SetTexture("_IridescentSpectrumMap", turquoiseSpectrum);
                 }
                 break;
             case ColorScheme.GOLD:

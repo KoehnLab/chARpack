@@ -389,6 +389,10 @@ MonoBehaviour:
     m_Key: MONOCHROME
     m_Metadata:
       m_Items: []
+  - m_Id: 105938896715546624
+    m_Key: TURQUOISE
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

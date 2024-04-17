@@ -394,6 +394,10 @@ MonoBehaviour:
     m_Localized: Monochrom
     m_Metadata:
       m_Items: []
+  - m_Id: 105938896715546624
+    m_Localized: "T\xFCrkis"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
