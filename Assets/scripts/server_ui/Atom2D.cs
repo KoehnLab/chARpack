@@ -10,29 +10,15 @@ public class Atom2D : MonoBehaviour
     [HideInInspector]
     public Atom atom;
     private Material focus2Dmaterial;
+    private static HashSet<Atom2D> registeredFocusComponents = new HashSet<Atom2D>();
+
     private static int numFoci = 1;
 
-    public static int NumFoci
-    {
-        get => numFoci;
-        set
-        {
-            if (value > 4 || value < 1)
-            {
-                Debug.LogError("[Atom2D:NumFoci] Minimum: 1, Maximum: 4.");
-                return;
-            }
-            numFoci = value;
-            needsGlobalUpdate = true;
-        }
-    }
-
     private bool needsUpdate;
-    private static bool needsGlobalUpdate;
 
-    public static void StopGlobalUpdate()
+    public void NeedsUpdate()
     {
-        needsGlobalUpdate = false;
+        needsUpdate = true;
     }
 
     [SerializeField]
@@ -53,16 +39,36 @@ public class Atom2D : MonoBehaviour
         btn.onClick.AddListener(delegate { selectOnClick(); });
         focus2Dmaterial = Instantiate(Resources.Load<Material>("materials/Focus2DMaterial"));
         GetComponent<Image>().material = focus2Dmaterial;
+        registeredFocusComponents.Add(this);
     }
 
     void Update()
     {
-        if (needsUpdate || needsGlobalUpdate)
+        if (needsUpdate)
         {
             needsUpdate = false;
 
             UpdateMaterialProperties();
         }
+    }
+
+    public static void setNumFoci(int num)
+    {
+        if (num > 4 || num < 1)
+        {
+            Debug.LogError("[Atom2D:setNumFoci] Minimum: 1, Maximum: 4.");
+            return;
+        }
+        numFoci = num;
+        foreach (var comp in registeredFocusComponents)
+        {
+            comp.NeedsUpdate();
+        }
+    }
+
+    public static int getNumFoci()
+    {
+        return numFoci;
     }
 
     private void selectOnClick()
@@ -79,9 +85,14 @@ public class Atom2D : MonoBehaviour
 
     private void UpdateMaterialProperties()
     {
-        focus2Dmaterial.SetInt("NumFoci", numFoci);
+        Debug.Log($"[Atom2D] numFoci {numFoci}, colors {fociColors[0]}, {fociColors[1]}, {fociColors[2]}, {fociColors[3]}");
+        focus2Dmaterial.SetInt("_NumFoci", numFoci);
         focus2Dmaterial.SetColorArray("_FociColors", fociColors);
-        focus2Dmaterial.SetFloatArray("_FociIDArray", FocusManager.getFocusIDArrayForShader());
+    }
+
+    private void OnDestroy()
+    {
+        registeredFocusComponents.Remove(this);
     }
 }
 

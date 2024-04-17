@@ -1168,6 +1168,7 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getNumOutlines(Message message)
     {
         var num_outlines = message.GetInt();
+        Debug.Log($"[NetworkManagerClient] Got num_outlines {num_outlines}");
         GlobalCtrl.Singleton.changeNumOutlines(num_outlines);
     }
     

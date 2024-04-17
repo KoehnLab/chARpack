@@ -74,7 +74,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             {
                 if (currentHighlightType == FocusManager.HighlightType.Select)
                 {
-                    for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+                    for (int i = 0; i < FocusManager.maxNumOutlines; i++)
                     {
                         backupOutlineColor[i] = outline_component.OutlineColor[i];
                     }
@@ -83,12 +83,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             else
             {
                 outline_component.enabled = true;
-                for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+                for (int i = 0; i < FocusManager.maxNumOutlines; i++)
                 {
                     backupOutlineColor[i] = chARpackColors.notEnabledColor;
                 }
             }
-            for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+            for (int i = 0; i < FocusManager.maxNumOutlines; i++)
             {
                 outline_component.OutlineColor[i] = grabColor;
             }
@@ -106,7 +106,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             }
             else
             {
-                for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+                for (int i = 0; i < FocusManager.maxNumOutlines; i++)
                 {
                     outline_component.OutlineColor[i] = backupOutlineColor[i];
                 }
@@ -502,7 +502,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             {
                 // reset outline
                 var focus_id = FocusManager.getMyFocusID() < 0 ? 0 : FocusManager.getMyFocusID();
-                focused[focus_id] = false;
+                var pos = FocusManager.getPosInArray(focus_id);
+                focused[pos] = false;
                 grabHighlight(false);
 
                 // measure convergence
@@ -939,7 +940,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             // single component
             //GetComponent<Renderer>().material = GlobalCtrl.Singleton.markedMat;
             outline_component.enabled = true;
-            for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+            for (int i = 0; i < FocusManager.maxNumOutlines; i++)
             {
                 outline_component.OutlineColor[i] = chARpackColors.yellow;
                 backupOutlineColor[i] = chARpackColors.yellow;
@@ -952,7 +953,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             // as part of single bond
             outline_component.enabled = true;
-            for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+            for (int i = 0; i < FocusManager.maxNumOutlines; i++)
             {
                 outline_component.OutlineColor[i] = chARpackColors.orange; //orange
                 backupOutlineColor[i] = chARpackColors.orange;
@@ -965,7 +966,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             // as part of angle bond
             outline_component.enabled = true;
-            for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+            for (int i = 0; i < FocusManager.maxNumOutlines; i++)
             {
                 outline_component.OutlineColor[i] = chARpackColors.red;
                 backupOutlineColor[i] = chARpackColors.red;
@@ -978,7 +979,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             // as part of angle bond
             outline_component.enabled = true;
-            for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+            for (int i = 0; i < FocusManager.maxNumOutlines; i++)
             {
                 outline_component.OutlineColor[i] = chARpackColors.green;
                 backupOutlineColor[i] = chARpackColors.green;
@@ -1626,7 +1627,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             }
             else if (currentHighlightType == FocusManager.HighlightType.None)
             {
-                for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+                for (int i = 0; i < FocusManager.maxNumOutlines; i++)
                 {
                     backupOutlineColor[i] = outline_component.OutlineColor[i];
                 }
@@ -1635,13 +1636,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 outline_component.enabled = true;
             }
 
-
-            for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+            foreach (var focus_id in FocusManager.getForcusIDsInUse())
             {
-                var col = FocusColors.getColor(i);
-                col.a = focus_alpha[i];
-                outline_component.OutlineColor[i] = col;
-                outline_component.OutlineWidth[i] = outline_radius_current[i];
+                var pos = FocusManager.getPosInArray(focus_id);
+                var col = FocusColors.getColor(focus_id);
+                col.a = focus_alpha[pos];
+                outline_component.OutlineColor[pos] = col;
+                outline_component.OutlineWidth[pos] = outline_radius_current[pos];
             }
             focusHighlightInFormula(focused, outline_component.OutlineColor);
             outline_component.NeedsUpdate();
@@ -1651,11 +1652,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private void proccessFocusUI(bool value, int? f_id = null)
     {
         var focus_id = f_id.HasValue ? f_id.Value : FocusManager.getMyFocusID();
+        UnityEngine.Debug.Log($"[Ato:updateFocusHighlight] focus_ids {FocusManager.getForcusIDsInUse()} current focus_id {focus_id}");
         if (focus_id >= 0)
         {
-            if (focused[focus_id] != value && SettingsData.pointerHighlighting)
+            var pos = FocusManager.getPosInArray(focus_id);
+            if (focused[pos] != value && SettingsData.pointerHighlighting)
             {
-                focused[focus_id] = value;
+                focused[pos] = value;
             }
             EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, value);
         }
@@ -1668,12 +1671,15 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private void proccessFocus(bool value, int? f_id = null)
     {
         var focus_id = f_id.HasValue ? f_id.Value : FocusManager.getMyFocusID();
+        UnityEngine.Debug.Log($"[Atom:proccessFocus] focus_ids {FocusManager.getForcusIDsInUse().ToString()} current focus_id {focus_id}");
         if (focus_id >= 0)
         {
-            if (focused[focus_id] != value && SettingsData.pointerHighlighting)
-            {
-                focused[focus_id] = value;
-            }
+            //if (focused[focus_id] != value && SettingsData.pointerHighlighting)
+            //{
+            //    focused[focus_id] = value;
+            //}
+            var pos = FocusManager.getPosInArray(focus_id);
+            focused[pos] = value;
         }
         else
         {
@@ -1701,7 +1707,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             else if (currentHighlightType == FocusManager.HighlightType.None || currentHighlightType == FocusManager.HighlightType.Select)
             {
                 outline_component.enabled = true;
-                for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+                for (int i = 0; i < FocusManager.maxNumOutlines; i++)
                 {
                     backupOutlineColor[i] = outline_component.OutlineColor[i];
                 }
@@ -1709,7 +1715,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 currentHighlightType = FocusManager.HighlightType.ServerFocus;
             }
 
-            for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+            for (int i = 0; i < FocusManager.maxNumOutlines; i++)
             {
                 outline_component.OutlineColor[i] = FocusColors.getColor(-1);
             }
@@ -1727,7 +1733,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             }
             else
             {
-                for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+                for (int i = 0; i < FocusManager.maxNumOutlines; i++)
                 {
                     outline_component.OutlineColor[i] = backupOutlineColor[i];
                 }
@@ -1741,7 +1747,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     public void networkSetFocus(bool focus, int focus_id)
     {
-        UnityEngine.Debug.Log($"[networkSetFocus] focus {focus}; focus_id {focus_id}");
+        UnityEngine.Debug.Log($"[networkSetFocus] focus {focus}; focus_id {focus_id} num_outlines {OutlinePro.getNumOutlines()}");
         proccessFocus(focus, focus_id);
     }
 
@@ -1749,23 +1755,24 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         if (!serverFocus)
         {
-            for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+            foreach (var focus_id in FocusManager.getForcusIDsInUse())
             {
-                if (focused[i])
+                var pos = FocusManager.getPosInArray(focus_id);
+                if (focused[pos])
                 {
-                    focus_alpha[i] += focus_ramping_constant;
-                    outline_radius_current[i] += 3 * focus_ramping_constant;
-                    if (focus_alpha[i] > 1f) focus_alpha[i] = 1f;
-                    if (outline_radius_current[i] > outline_radius_max) outline_radius_current[i] = outline_radius_max;
+                    focus_alpha[pos] += focus_ramping_constant;
+                    outline_radius_current[pos] += 3 * focus_ramping_constant;
+                    if (focus_alpha[pos] > 1f) focus_alpha[pos] = 1f;
+                    if (outline_radius_current[pos] > outline_radius_max) outline_radius_current[pos] = outline_radius_max;
                 }
-                else if (focus_alpha[i] != 0f)
+                else if (focus_alpha[pos] != 0f)
                 {
-                    focus_alpha[i] -= focus_ramping_constant;
-                    outline_radius_current[i] -= 3 * focus_ramping_constant;
-                    if (focus_alpha[i] <= 0f)
+                    focus_alpha[pos] -= focus_ramping_constant;
+                    outline_radius_current[pos] -= 3 * focus_ramping_constant;
+                    if (focus_alpha[pos] <= 0f)
                     {
-                        outline_radius_current[i] = outline_radius_min;
-                        focus_alpha[i] = 0f;
+                        outline_radius_current[pos] = outline_radius_min;
+                        focus_alpha[pos] = 0f;
                     }
                 }
             }

@@ -30,6 +30,12 @@ public static class FocusManager
         return getFocusID(client_id);
     }
 
+    public static void silentAddClient(ushort client_id, int focus_id)
+    {
+        focus_ids[client_id] = focus_id;
+        available_ids.Remove(focus_id);
+    }
+
     public static void removeClient(ushort client_id)
     {
         if (!focus_ids.ContainsKey(client_id))
@@ -49,6 +55,13 @@ public static class FocusManager
         }
     }
 
+    public static void silentRemoveClient(ushort client_id)
+    {
+        focus_ids.Remove(client_id);
+        available_ids.Add(focus_ids[client_id]);
+        available_ids.Sort();
+    }
+
     private static int getFocusID(ushort client_id)
     {
         if (!focus_ids.ContainsKey(client_id))
@@ -62,20 +75,9 @@ public static class FocusManager
         }
     }
 
-    public static int[] getFocusIDArray()
+    public static List<int> getForcusIDsInUse()
     {
-        return focus_ids.Values.ToArray();
-    }
-
-    public static float[] getFocusIDArrayForShader()
-    {
-        float[] float_array = new float[4];
-        var id_list = focus_ids.Values.ToList();
-        for (int i = 0; i < id_list.Count; i++)
-        {
-            float_array[i] = (float)id_list[i];
-        }
-        return float_array;
+        return focus_ids.Values.ToList();
     }
 
     private static int getNumClients()
@@ -88,6 +90,8 @@ public static class FocusManager
     private static int currentNumOutlines_ = 1;
     public static int currentNumOutlines { get => currentNumOutlines_; set { currentNumOutlines_ = value; GlobalCtrl.Singleton.changeNumOutlines(value); } }
 
+    private static int _maxNumOutlines = 4;
+    public static int maxNumOutlines { get => _maxNumOutlines; }
 
     public static void increaseNumOutlines()
     {
@@ -99,24 +103,10 @@ public static class FocusManager
         currentNumOutlines = currentNumOutlines - 1;
     }
 
-    public static int getOutlinePosition(int focus_id)
+    public static int getPosInArray(int focus_id)
     {
-        if (available_ids.Count == 4 - getNumClients())
-        {
-            return focus_id;
-        }
-        if (focus_id >= getNumClients())
-        {
-            if (focus_id + 1 - getNumClients() == 2)
-            {
-                return focus_id - 2;
-            }
-            if (focus_id + 1 - getNumClients() == 1)
-            {
-                return focus_id - 1;
-            }
-        }
-        return -1;
+        var list = focus_ids.Values.ToList();
+        return list.IndexOf(focus_id);
     }
 
     public static int getMyFocusID()

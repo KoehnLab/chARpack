@@ -107,6 +107,7 @@ public class StructureFormulaManager : MonoBehaviour
         new_go.transform.localScale = 0.8f * new_go.transform.localScale;
         var new_sf = new_go.GetComponent<StructureFormula>();
         new_sf.label.text = $"{sf.label.text} Focus: {focus_id}";
+        new_sf.label.transform.parent.GetComponent<Image>().color = FocusColors.getColor(focus_id);
         new_sf.onlyUser = focus_id;
         // Deactivate interactibles
         var interactibles = new_go.GetComponentInChildren<SVGImage>().gameObject.GetComponentsInChildren<Atom2D>();
@@ -127,6 +128,7 @@ public class StructureFormulaManager : MonoBehaviour
         new_go.transform.localPosition = old_sf.transform.localPosition;
         var new_sf = new_go.GetComponentInChildren<StructureFormula>();
         new_sf.label.text = old_sf.label.text;
+        new_sf.label.transform.parent.GetComponent<Image>().color = FocusColors.getColor(old_sf.onlyUser);
         new_sf.onlyUser = old_sf.onlyUser;
         // Deactivate interactibles
         var interactibles = new_go.GetComponentInChildren<SVGImage>().gameObject.GetComponentsInChildren<Atom2D>();
@@ -237,7 +239,11 @@ public class StructureFormulaManager : MonoBehaviour
         {
             return;
         }
-
+        foreach (var ssf_img in svg_instances[mol_id].Item3)
+        {
+            var ssf = ssf_img.GetComponentInParent<StructureFormula>();
+            Destroy(ssf.gameObject);
+        }
         Destroy(svg_instances[mol_id].Item1.transform.parent.gameObject);
         svg_instances.Remove(mol_id);
     }
@@ -351,7 +357,6 @@ public class StructureFormulaManager : MonoBehaviour
         {
             List<StructureFormula> sf_list = new List<StructureFormula>();
             sf_list.Add(svg_instances[mol_id].Item1.GetComponentInParent<StructureFormula>());
-            Debug.Log($"[addFocusHighlight] List: {sf_list}");
             if (svg_instances[mol_id].Item3.Count > 0)
             {
                 foreach (var item in svg_instances[mol_id].Item3)
@@ -361,6 +366,7 @@ public class StructureFormulaManager : MonoBehaviour
             }
             foreach (var sf in sf_list)
             {
+                var col_copy = new Color[4] { cols[0], cols[1], cols[2], cols[3] };
                 if (sf.current_highlight_choice == 0)
                 {
                     //var atom2d = atom.structure_interactible.GetComponent<Atom2D>();
@@ -375,19 +381,22 @@ public class StructureFormulaManager : MonoBehaviour
                     }
                     if (sf.onlyUser >= 0)
                     {
-                        for (int i = 0; i < FocusManager.currentNumOutlines; i++)
+                        Debug.Log($"[StructureManager] focus_id per sf {sf.onlyUser}");
+                        var pos = FocusManager.getPosInArray(sf.onlyUser);
+                        for (int i = 0; i < FocusManager.maxNumOutlines; i++)
                         {
-                            cols[i] = cols[sf.onlyUser];
+                            col_copy[i] = cols[pos];
                         }
                     }
-                    atom2d.FociColors = cols; // set full array to trigger set function
+                    atom2d.FociColors = col_copy; // set full array to trigger set function
                 }
                 else if (sf.current_highlight_choice == 1)
                 {
                     var heat = sf.gameObject.GetComponentInChildren<HeatMap2D>();
                     if (sf.onlyUser >= 0)
                     {
-                        heat.SetAtomFocus(atom, values[sf.onlyUser]);
+                        var pos = FocusManager.getPosInArray(sf.onlyUser);
+                        heat.SetAtomFocus(atom, values[pos]);
                     }
                     else
                     {
@@ -531,7 +540,27 @@ public class StructureFormulaManager : MonoBehaviour
                 }
             }
         }
+    }
 
+    public void removeSubstrcutures(int focus_id)
+    {
+        foreach (var structure in svg_instances.Values)
+        {
+            List<GameObject> for_delete = new List<GameObject>();
+            foreach (var img_obj in structure.Item3)
+            {
+                var ssf = img_obj.GetComponentInParent<StructureFormula>();
+                if (ssf.onlyUser == focus_id)
+                {
+                    for_delete.Add(img_obj);
+                    Destroy(ssf.gameObject);
+                }
+            }
+            foreach (var del in for_delete)
+            {
+                structure.Item3.Remove(del);
+            }
+        }
     }
 
     ///Gets all event systen raycast results of current mouse or touch position.

@@ -20,6 +20,7 @@ public class UserClient : MonoBehaviour
 
     private void OnDestroy()
     {
+        FocusManager.silentRemoveClient(ID);
         list.Remove(ID);
     }
 
@@ -75,6 +76,7 @@ public class UserClient : MonoBehaviour
         user.transform.parent = NetworkManagerClient.Singleton.userWorld.transform;
 
         list.Add(id_, user);
+        FocusManager.silentAddClient(id_, focus_id);
     }
 
     private void FixedUpdate()

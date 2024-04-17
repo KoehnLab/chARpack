@@ -720,6 +720,10 @@ public class GlobalCtrl : MonoBehaviour
         {
             deleteMolecule(to_delete);
             EventManager.Singleton.DeleteMolecule(mol_id);
+            if (NetworkManagerServer.Singleton)
+            {
+                StructureFormulaManager.Singleton.removeContent(mol_id);
+            }
         }
         catch (Exception e)
         {
@@ -1695,16 +1699,8 @@ public class GlobalCtrl : MonoBehaviour
     #region atom appearance
     public void changeNumOutlines(int num)
     {
-        StartCoroutine(changeAndWait(num));
-    }
-
-    private IEnumerator changeAndWait(int num)
-    {
-        OutlinePro.NumOutlines = num;
-        Atom2D.NumFoci = num;
-        yield return new WaitForEndOfFrame();
-        OutlinePro.StopGlobalUpdate();
-        Atom2D.StopGlobalUpdate();
+        OutlinePro.setNumOutlines(num);
+        Atom2D.setNumFoci(num);
     }
     #endregion
 

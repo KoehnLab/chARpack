@@ -9,20 +9,7 @@ public class OutlinePro : MonoBehaviour
 {
     private static HashSet<Mesh> registeredMeshes = new HashSet<Mesh>();
 
-    public enum MultiMode
-    {
-        Angle = 0,
-        None = 1
-    }
-    public MultiMode MultiOutlineMode
-    {
-        get { return multiOutlineMode; }
-        set
-        {
-            multiOutlineMode = value;
-            needsUpdate = true;
-        }
-    }
+    private static HashSet<OutlinePro> registeredOutlineComponents = new HashSet<OutlinePro>();
 
     public enum Mode
     {
@@ -63,21 +50,6 @@ public class OutlinePro : MonoBehaviour
         }
     }
 
-    public static int NumOutlines
-    { 
-        get { return numOutlines; } 
-        set
-        {
-            if (value > 4 || value < 1)
-            {
-                Debug.LogError("[OutlinePro:NumOutlines] Minimum: 1, Maximum: 4.");
-                return;
-            }
-            numOutlines = value;
-            needsGlobalUpdate = true;
-        }
-    }
-
     [Serializable]
     private class ListVector3
     {
@@ -88,8 +60,6 @@ public class OutlinePro : MonoBehaviour
     private static int numOutlines = 1;
     [SerializeField]
     private Mode outlineMode;
-    [SerializeField]
-    private MultiMode multiOutlineMode;
 
     [SerializeField]
     private Color[] outlineColor = new Color[4] {Color.white, Color.red, Color.blue, Color.green };
@@ -114,12 +84,6 @@ public class OutlinePro : MonoBehaviour
     private Material outlineFillMaterial;
 
     private bool needsUpdate;
-    private static bool needsGlobalUpdate;
-
-    public static void StopGlobalUpdate()
-    {
-        needsGlobalUpdate = false;
-    }
 
     public void NeedsUpdate()
     {
@@ -144,6 +108,11 @@ public class OutlinePro : MonoBehaviour
 
         // Apply material properties immediately
         needsUpdate = true;
+    }
+
+    private void Start()
+    {
+        registeredOutlineComponents.Add(this);
     }
 
     void OnEnable()
@@ -183,7 +152,7 @@ public class OutlinePro : MonoBehaviour
 
     void Update()
     {
-        if (needsUpdate || needsGlobalUpdate)
+        if (needsUpdate)
         {
             needsUpdate = false;
 
@@ -212,6 +181,7 @@ public class OutlinePro : MonoBehaviour
         // Destroy material instances
         Destroy(outlineMaskMaterial);
         Destroy(outlineFillMaterial);
+        registeredOutlineComponents.Remove(this);
     }
 
     void Bake()
@@ -343,14 +313,32 @@ public class OutlinePro : MonoBehaviour
         mesh.SetTriangles(mesh.triangles, mesh.subMeshCount - 1);
     }
 
+
+    public static void setNumOutlines(int num)
+    {
+        if (num > 4 || num < 1)
+        {
+            Debug.LogError("[OutlinePro:setNumFoci] Minimum: 1, Maximum: 4.");
+            return;
+        }
+        numOutlines = num;
+        foreach (var comp in registeredOutlineComponents)
+        {
+            comp.NeedsUpdate();
+        }
+    }
+
+    public static int getNumOutlines()
+    {
+        return numOutlines;
+    }
+
     void UpdateMaterialProperties()
     {
         outlineFillMaterial.SetInt("_NumOutlines", numOutlines);
-        outlineFillMaterial.SetInt("_MultiMode", ((int)multiOutlineMode));
 
         // Apply properties according to mode
         outlineFillMaterial.SetColorArray("_OutlineColor", outlineColor);
-        outlineFillMaterial.SetFloatArray("_OutlineIDs", FocusManager.getFocusIDArrayForShader());
 
         switch (outlineMode)
         {

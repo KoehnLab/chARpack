@@ -85,7 +85,6 @@ Shader "Focus2D"
                 //
                 uniform float _NumFoci;
                 uniform fixed4 _FociColors[4];
-                uniform int _FociIDArray[4];
                 static const float pi = 3.141592653589793238462f;
 
 
@@ -114,15 +113,15 @@ Shader "Focus2D"
                     //#ifdef UNITY_UI_ALPHACLIP
                     //clip(color.a - 0.001);
                     //#endif
-                    
+
                     float4 outColor;
 
                     if (_NumFoci == 2) {
                         if (IN.texcoord.x > 0.5f) {
-                            outColor = _FociColors[_FociIDArray[0]];
+                            outColor = _FociColors[0];
                         }
                         else {
-                            outColor = _FociColors[_FociIDArray[1]];
+                            outColor = _FociColors[1];
                         }
                     }
                     else if (_NumFoci == 3) {
@@ -130,31 +129,31 @@ Shader "Focus2D"
                         float y_norm = 2.0f * IN.texcoord.y - 1.0f;
                         float angle = atan2(y_norm, x_norm) + pi;
                         if (angle < (2.f * pi / 3.f)) {
-                            outColor = _FociColors[_FociIDArray[1]];
+                            outColor = _FociColors[1];
                         }
                         else if (angle > (2.f * pi / 3.f) && angle < 2.f * (2.f * pi / 3.f)) {
-                            outColor = _FociColors[_FociIDArray[0]];
+                            outColor = _FociColors[0];
                         }
                         else {
-                            outColor = _FociColors[_FociIDArray[2]];
+                            outColor = _FociColors[2];
                         }
                     }
                     else if (_NumFoci == 4) {
                         if (IN.texcoord.x >= 0.5f && IN.texcoord.y >= 0.5f) {
-                            outColor = _FociColors[_FociIDArray[0]];
+                            outColor = _FociColors[0];
                         }
                         else if (IN.texcoord.x >= 0.5f && IN.texcoord.y < 0.5f) {
-                            outColor = _FociColors[_FociIDArray[1]];
+                            outColor = _FociColors[1];
                         }
                         else if (IN.texcoord.x < 0.5f && IN.texcoord.y < 0.5f) {
-                            outColor = _FociColors[_FociIDArray[2]];
+                            outColor = _FociColors[2];
                         }
                         else if (IN.texcoord.x < 0.5f && IN.texcoord.y >= 0.5f) {
-                            outColor = _FociColors[_FociIDArray[3]];
+                            outColor = _FociColors[3];
                         }
                     }
                     else {
-                        outColor = _FociColors[_FociIDArray[0]];
+                        outColor = _FociColors[0];
                     }
 
                     float alpha = clamp(0.0f, 0.8f, outColor.a);

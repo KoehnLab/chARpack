@@ -1750,7 +1750,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         if (NetworkManagerServer.Singleton)
         {
             EventManager.Singleton.OnMolDataChanged -= NetworkManagerServer.Singleton.requestStructureFormula;
-            StructureFormulaManager.Singleton.removeContent(m_id);
         }
 #endif
     }

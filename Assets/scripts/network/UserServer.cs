@@ -154,6 +154,7 @@ public class UserServer : MonoBehaviour
 
     private void OnDestroy()
     {
+        StructureFormulaManager.Singleton.removeSubstrcutures(highlightFocusID);
         FocusManager.removeClient(ID);
         CameraSwitcher.Singleton.removeCamera(ID);
         list.Remove(ID);
