@@ -46,6 +46,14 @@ public class StructureFormula : MonoBehaviour
     public void setHighlightOption(Int32 choice)
     {
         current_highlight_choice = choice;
+        if (choice == 0)
+        {
+            heatMap.gameObject.SetActive(false);
+        }
+        else
+        {
+            heatMap.gameObject.SetActive(true);
+        }
     }
 
 
