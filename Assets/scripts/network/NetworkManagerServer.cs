@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System.IO;
+using System.Collections;
 
 public class NetworkManagerServer : MonoBehaviour
 {
@@ -1173,11 +1174,17 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void requestStructureFormula(Molecule mol)
     {
+        StartCoroutine(delayedRequestStructureFormula(mol));
+    }
+
+    private IEnumerator delayedRequestStructureFormula(Molecule mol)
+    {
+        yield return new WaitForSeconds(1f);
         // Pack molecule
         if (mol == null)
         {
             Debug.LogError("[SimToServer:requestStructureFormula] No molecules in scene!");
-            return;
+            yield break;
         }
 
         Message message = Message.Create(MessageSendMode.Unreliable, ServerToStructureID.requestStrucutreFormula);

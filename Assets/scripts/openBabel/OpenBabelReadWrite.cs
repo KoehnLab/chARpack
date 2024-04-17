@@ -382,14 +382,14 @@ public class OpenBabelReadWrite : MonoBehaviour
         NetworkManagerServer.Singleton.pushLoadMolecule(mol);
     }
 
-        /// <summary>
-        /// Saves a molecule to the specified file, either in XML format
-        /// or a format supported by OpenBabel.
-        /// </summary>
-        /// <param name="mol"></param>
-        /// <param name="fi"></param>
-        /// <returns></returns>
-        public IEnumerator saveMolecule(Molecule mol, FileInfo fi)
+    /// <summary>
+    /// Saves a molecule to the specified file, either in XML format
+    /// or a format supported by OpenBabel.
+    /// </summary>
+    /// <param name="mol"></param>
+    /// <param name="fi"></param>
+    /// <returns></returns>
+    public IEnumerator saveMolecule(Molecule mol, FileInfo fi)
     {
         UnityEngine.Debug.Log($"[ReadMoleculeFile] Saving Molecule {fi.FullName}");
         if (fi.Extension.ToLower() == ".xml")

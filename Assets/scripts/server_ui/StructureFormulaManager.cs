@@ -526,7 +526,6 @@ public class StructureFormulaManager : MonoBehaviour
                         }
                     }
                 }
-
             }
         }
 

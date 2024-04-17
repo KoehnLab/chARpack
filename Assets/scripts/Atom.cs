@@ -993,7 +993,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             outline_component.enabled = false;
             previousHighlightType = currentHighlightType;
             currentHighlightType = FocusManager.HighlightType.None;
-            selectHighlightInFormula(new Color[4] { chARpackColors.notEnabledColor, chARpackColors.notEnabledColor, chARpackColors.notEnabledColor, chARpackColors.notEnabledColor });
+            if (previousHighlightType == FocusManager.HighlightType.Select)
+            {
+                selectHighlightInFormula(new Color[4] { chARpackColors.notEnabledColor, chARpackColors.notEnabledColor, chARpackColors.notEnabledColor, chARpackColors.notEnabledColor });
+            }
             if (m_data.m_abbre.ToLower() == "dummy")
             {
                 GetComponent<Renderer>().material = GlobalCtrl.Singleton.dummyMatPrefab;
