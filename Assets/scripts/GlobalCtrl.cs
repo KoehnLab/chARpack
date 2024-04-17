@@ -120,10 +120,10 @@ public class GlobalCtrl : MonoBehaviour
 
     private Locale currentLocale;
 
-    [HideInInspector] public ColorPalette currentColorPalette = new ColorPalette();
-    [HideInInspector] public ColorSchemes currentColorEnum = ColorSchemes.DARKBLUE;
+    [HideInInspector] public ColorScheme defaultColor = ColorScheme.VIOLET;
+    [HideInInspector] public ColorScheme currentColor = ColorScheme.VIOLET;
 
-    public enum ColorSchemes
+    public enum ColorScheme
     {
         DARKBLUE,
         LIGHTBLUE,
@@ -361,7 +361,6 @@ public class GlobalCtrl : MonoBehaviour
             }
         }
     }
-
 
     // on mol data changed (replacement for update loop checks)
     //void onMolDataChanged()
@@ -2175,7 +2174,9 @@ public class GlobalCtrl : MonoBehaviour
 
     private void initColorPalettes()
     {
-        numberOfColorSchemes = Enum.GetNames(typeof(ColorSchemes)).Length;
+        currentColor = defaultColor;
+
+        numberOfColorSchemes = Enum.GetNames(typeof(ColorScheme)).Length;
         darkBlueSpectrum = (Texture)Resources.Load("textures/DarkBlueGradient");
         lightBlueSpectrum = (Texture)Resources.Load("textures/BlueVioletGradient");
         goldSpectrum = (Texture)Resources.Load("textures/GoldGradient");
@@ -2190,57 +2191,57 @@ public class GlobalCtrl : MonoBehaviour
         //lightBlueColorPalette.angleBondSelectionColor = chARpackColors.blue; 
         //lightBlueColorPalette.torsionBondSelectionColor = chARpackColors.violet;
 
-        setColorPalette(currentColorEnum);
+        setColorPalette(defaultColor);
     }
 
-    public void setColorPalette(ColorSchemes color)
+    public void setColorPalette(ColorScheme color)
     {
-        currentColorEnum = color;
+        currentColor = color;
         switch (color)
         {
-            case ColorSchemes.DARKBLUE:
+            case ColorScheme.DARKBLUE:
                 foreach(Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
                     m.SetTexture("_IridescentSpectrumMap", darkBlueSpectrum);
                 }
                 break;
-            case ColorSchemes.LIGHTBLUE:
+            case ColorScheme.LIGHTBLUE:
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
                     m.SetTexture("_IridescentSpectrumMap", lightBlueSpectrum);
                 }
                 break;
-            case ColorSchemes.GOLD:
+            case ColorScheme.GOLD:
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
                     m.SetTexture("_IridescentSpectrumMap", goldSpectrum);
                 }
                 break;
-            case ColorSchemes.SILVER:
+            case ColorScheme.SILVER:
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
                     m.SetTexture("_IridescentSpectrumMap", silverSpectrum);
                 }
                 break;
-            case ColorSchemes.RAINBOW:
+            case ColorScheme.RAINBOW:
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
                     m.SetTexture("_IridescentSpectrumMap", rainbowSpectrum);
                 }
                 break;
-            case ColorSchemes.VIOLET:
+            case ColorScheme.VIOLET:
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
                     m.SetTexture("_IridescentSpectrumMap", violetSpectrum);
                 }
                 break;
-            case ColorSchemes.HEAT:
+            case ColorScheme.HEAT:
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
                     m.SetTexture("_IridescentSpectrumMap", heatSpectrum);
                 }
                 break;
-            case ColorSchemes.GREEN:
+            case ColorScheme.GREEN:
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
                     m.SetTexture("_IridescentSpectrumMap", greenSpectrum);
@@ -2380,12 +2381,15 @@ public class GlobalCtrl : MonoBehaviour
     }
 
     /// <summary>
-    /// when the application quits and there are unsaved changes to any molecule, these will be saved to an XML file
+    /// when the application quits, reset color scheme to default (for visual consistency in editor)
     /// </summary>
     private void OnApplicationQuit()
     {
+        // when the application quits and there are unsaved changes to any molecule, these will be saved to an XML file
         //if (isAnyAtomChanged)
         //    CFileHelper.SaveData(Application.streamingAssetsPath + "/MoleculeFolder/ElementData.xml", list_ElementData);
+        setColorPalette(defaultColor);
+
     }
 
     /// <summary>

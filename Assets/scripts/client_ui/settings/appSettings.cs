@@ -294,10 +294,10 @@ public class appSettings : MonoBehaviour
 
     public void switchColorPalette(int howfar)
     {
-        int currentScheme = Array.IndexOf(Enum.GetValues(typeof(GlobalCtrl.ColorSchemes)), GlobalCtrl.Singleton.currentColorEnum);
+        int currentScheme = Array.IndexOf(Enum.GetValues(typeof(GlobalCtrl.ColorScheme)), GlobalCtrl.Singleton.currentColor);
         int newIndex = (currentScheme + howfar) % GlobalCtrl.Singleton.numberOfColorSchemes;
         while (newIndex < 0) newIndex = GlobalCtrl.Singleton.numberOfColorSchemes + newIndex;
-        GlobalCtrl.Singleton.setColorPalette((GlobalCtrl.ColorSchemes)(Enum.GetValues(typeof(GlobalCtrl.ColorSchemes))).GetValue(newIndex));
+        GlobalCtrl.Singleton.setColorPalette((GlobalCtrl.ColorScheme)(Enum.GetValues(typeof(GlobalCtrl.ColorScheme))).GetValue(newIndex));
         updateVisuals();
     }
     #endregion
@@ -553,7 +553,7 @@ public class appSettings : MonoBehaviour
         setBondStiffnessVisual(SettingsData.bondStiffness);
         setRepulsionScaleVisual(SettingsData.repulsionScale);
         setIntegrationMethodVisual(ForceField.Singleton.currentMethod);
-        setColorPaletteVisual(GlobalCtrl.Singleton.currentColorEnum);
+        setColorPaletteVisual(GlobalCtrl.Singleton.currentColor);
 
         setVisual(HandJointIndicator, SettingsData.handJoints);
         setVisual(HandMenuIndicator, SettingsData.handMenu);
@@ -635,7 +635,7 @@ public class appSettings : MonoBehaviour
         integrationMethodGO.GetComponent<TextMeshPro>().text = GlobalCtrl.Singleton.GetLocalizedString(method.ToString());
     }
 
-    public void setColorPaletteVisual(GlobalCtrl.ColorSchemes colorScheme)
+    public void setColorPaletteVisual(GlobalCtrl.ColorScheme colorScheme)
     {
         colorPaletteGO.GetComponent<TextMeshPro>().text = GlobalCtrl.Singleton.GetLocalizedString(colorScheme.ToString());
     }
