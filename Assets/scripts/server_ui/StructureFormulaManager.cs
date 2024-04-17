@@ -120,7 +120,6 @@ public class StructureFormulaManager : MonoBehaviour
 
     public void updateSecondaryContent(ushort mol_id, GameObject old_go)
     {
-        svg_instances[mol_id].Item3.Remove(old_go);
         var old_sf = old_go.GetComponentInParent<StructureFormula>();
         var sf = svg_instances[mol_id].Item1.GetComponentInParent<StructureFormula>();
         var new_go = Instantiate(sf.gameObject, UICanvas.transform);
@@ -142,7 +141,7 @@ public class StructureFormulaManager : MonoBehaviour
 
     public void pushContent(ushort mol_id, string svg_content)
     {
-        if (svg_instances.ContainsKey(mol_id))
+        if (svg_instances.ContainsKey(mol_id)) // UPDATE
         {
             var sceneInfo = SVGParser.ImportSVG(new StringReader(svg_content));
             var rect = svg_instances[mol_id].Item1.transform as RectTransform;
@@ -171,19 +170,22 @@ public class StructureFormulaManager : MonoBehaviour
             sf.scaleFactor = scaling_factor;
             sf.newImageResize();
 
+            var old_secondary_structures = svg_instances[mol_id].Item3;
+
             svg_instances[mol_id] = new Triple<GameObject, string, List<GameObject>>(svg_instances[mol_id].Item1, svg_content, new List<GameObject>());
 
             removeInteractibles(mol_id);
             createInteractibles(mol_id);
-            if (svg_instances[mol_id].Item3.Count > 0)
+
+            if (old_secondary_structures.Count > 0)
             {
-                foreach (var secondary_sf in svg_instances[mol_id].Item3)
+                foreach (var secondary_sf in old_secondary_structures)
                 {
                     updateSecondaryContent(mol_id, secondary_sf);
                 }
             }
         }
-        else
+        else // New Content
         {
             GameObject sf_object = Instantiate(structureFormulaPrefab, UICanvas.transform);
             sf_object.transform.localScale = Vector3.one;
@@ -349,6 +351,7 @@ public class StructureFormulaManager : MonoBehaviour
         {
             List<StructureFormula> sf_list = new List<StructureFormula>();
             sf_list.Add(svg_instances[mol_id].Item1.GetComponentInParent<StructureFormula>());
+            Debug.Log($"[addFocusHighlight] List: {sf_list}");
             if (svg_instances[mol_id].Item3.Count > 0)
             {
                 foreach (var item in svg_instances[mol_id].Item3)

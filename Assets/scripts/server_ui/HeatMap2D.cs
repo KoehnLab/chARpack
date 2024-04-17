@@ -107,6 +107,11 @@ public class HeatMap2D : MonoBehaviour
 
     }
 
+    public void ResetCurrentHeatMap()
+    {
+        SetPoints(null);
+        focusedAtoms.Clear();
+    }
 
     public void SetPoints(List<Vector4> points)
     {

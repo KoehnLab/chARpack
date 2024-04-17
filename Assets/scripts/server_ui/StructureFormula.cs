@@ -75,6 +75,9 @@ public class StructureFormula : MonoBehaviour
         {
             resizeCollapse(true);
         }
+        heatMap.CanvasWidth = originalSize.x;
+        heatMap.CanvasHeight = originalSize.y;
+        heatMap.ResetCurrentHeatMap();
     }
 
     public void resizeCollapse(bool value)
