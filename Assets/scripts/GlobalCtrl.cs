@@ -121,14 +121,14 @@ public class GlobalCtrl : MonoBehaviour
     private Locale currentLocale;
 
     [HideInInspector] public ColorScheme defaultColor = ColorScheme.VIOLET;
-    [HideInInspector] public ColorScheme currentColor = ColorScheme.VIOLET;
+    [HideInInspector] public ColorScheme currentColor;
 
     public enum ColorScheme
     {
         DARKBLUE,
         LIGHTBLUE,
         GOLD,
-        SILVER,
+        MONOCHROME,
         RAINBOW,
         HEAT,
         VIOLET,
@@ -2167,7 +2167,7 @@ public class GlobalCtrl : MonoBehaviour
     private Texture lightBlueSpectrum;
     private Texture rainbowSpectrum;
     private Texture goldSpectrum;
-    private Texture silverSpectrum;
+    private Texture monochromeSpectrum;
     private Texture violetSpectrum;
     private Texture heatSpectrum;
     private Texture greenSpectrum;
@@ -2180,7 +2180,7 @@ public class GlobalCtrl : MonoBehaviour
         darkBlueSpectrum = (Texture)Resources.Load("textures/DarkBlueGradient");
         lightBlueSpectrum = (Texture)Resources.Load("textures/BlueVioletGradient");
         goldSpectrum = (Texture)Resources.Load("textures/GoldGradient");
-        silverSpectrum = (Texture)Resources.Load("textures/SilverGradient");
+        monochromeSpectrum = (Texture)Resources.Load("textures/MonochromeGradient");
         rainbowSpectrum = (Texture)Resources.Load("textures/RainbowGradient");
         violetSpectrum = (Texture)Resources.Load("textures/VioletGradient");
         heatSpectrum = (Texture)Resources.Load("textures/HeatGradient");
@@ -2217,10 +2217,10 @@ public class GlobalCtrl : MonoBehaviour
                     m.SetTexture("_IridescentSpectrumMap", goldSpectrum);
                 }
                 break;
-            case ColorScheme.SILVER:
+            case ColorScheme.MONOCHROME:
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
-                    m.SetTexture("_IridescentSpectrumMap", silverSpectrum);
+                    m.SetTexture("_IridescentSpectrumMap", monochromeSpectrum);
                 }
                 break;
             case ColorScheme.RAINBOW:
