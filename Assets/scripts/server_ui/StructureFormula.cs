@@ -49,10 +49,12 @@ public class StructureFormula : MonoBehaviour
         if (choice == 0)
         {
             heatMap.gameObject.SetActive(false);
+            if (highlight_choice_dropdown.value != choice) highlight_choice_dropdown.value = choice;
         }
         else
         {
             heatMap.gameObject.SetActive(true);
+            if (highlight_choice_dropdown.value != choice) highlight_choice_dropdown.value = choice;
         }
     }
 

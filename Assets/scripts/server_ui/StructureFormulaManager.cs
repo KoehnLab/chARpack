@@ -130,6 +130,7 @@ public class StructureFormulaManager : MonoBehaviour
         new_sf.label.text = old_sf.label.text;
         new_sf.label.transform.parent.GetComponent<Image>().color = FocusColors.getColor(old_sf.onlyUser);
         new_sf.onlyUser = old_sf.onlyUser;
+        new_sf.setHighlightOption(old_sf.current_highlight_choice); 
         // Deactivate interactibles
         var interactibles = new_go.GetComponentInChildren<SVGImage>().gameObject.GetComponentsInChildren<Atom2D>();
         foreach (var inter in interactibles)
