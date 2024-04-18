@@ -1567,6 +1567,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             proccessFocusUI(true);
         }
+        else
+        {
+            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, true);
+        }
     }
 
     private void onLookAway()
@@ -1574,6 +1578,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         if (SettingsData.gazeHighlighting)
         {
             proccessFocusUI(false);
+        }
+        else
+        {
+            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
         }
     }
 
@@ -1594,6 +1602,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             proccessFocusUI(true);
         }
+        else
+        {
+            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, true);
+        }
     }
 
     public void OnFocusExit(FocusEventData eventData)
@@ -1601,6 +1613,18 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         if (SettingsData.pointerHighlighting)
         {
             proccessFocusUI(false);
+        }
+        else
+        {
+            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
+        }
+    }
+
+    public void networkSetFocus(bool focus, int focus_id)
+    {
+        if (NetworkManagerServer.Singleton != null || SettingsData.showAllHighlightsOnClients)
+        {
+            proccessFocus(focus, focus_id);
         }
     }
 
@@ -1734,14 +1758,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 serverFocusHighlightInFormula(backupOutlineColor);
                 outline_component.NeedsUpdate();
             }
-        }
-    }
-
-    public void networkSetFocus(bool focus, int focus_id)
-    {
-        if (SettingsData.showAllHighlightsOnClients)
-        {
-            proccessFocus(focus, focus_id);
         }
     }
 
