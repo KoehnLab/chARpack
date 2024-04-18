@@ -377,9 +377,9 @@ public class StructureFormulaManager : MonoBehaviour
                             break;
                         }
                     }
+                    if (atom2d == null) return;
                     if (sf.onlyUser >= 0)
                     {
-                        Debug.Log($"[StructureManager] focus_id per sf {sf.onlyUser}");
                         var pos = FocusManager.getPosInArray(sf.onlyUser);
                         for (int i = 0; i < FocusManager.maxNumOutlines; i++)
                         {
@@ -410,11 +410,6 @@ public class StructureFormulaManager : MonoBehaviour
                 }
             }
         }
-        else
-        {
-            Debug.LogError($"[StructureFormulaManager] Tying to add content to non existent structure formula.");
-            return;
-        }
     }
 
     public void addServerFocusHighlight(Guid mol_id, Atom atom, Color[] col)
@@ -433,11 +428,6 @@ public class StructureFormulaManager : MonoBehaviour
         {
             var atom2d = atom.structure_interactible.GetComponent<Atom2D>();
             atom2d.FociColors = selCol; // set full array to trigger set function
-        }
-        else
-        {
-            Debug.LogError($"[StructureFormulaManager] Tying to add content to non existent structure formula.");
-            return;
         }
     }
 

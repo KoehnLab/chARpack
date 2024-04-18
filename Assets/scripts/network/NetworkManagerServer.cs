@@ -256,11 +256,12 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastDeleteAtom(Guid mol_id, ushort atom_id)
     {
-        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteAtom);
-        message.AddUShort(0);
-        message.AddGuid(mol_id);
-        message.AddUShort(atom_id);
-        Server.SendToAll(message);
+        //Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteAtom);
+        //message.AddUShort(0);
+        //message.AddGuid(mol_id);
+        //message.AddUShort(atom_id);
+        //Server.SendToAll(message);
+        NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld());
     }
 
     public void bcastDeleteMolecule(Guid mol_id)
@@ -342,11 +343,12 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void bcastDeleteBond(ushort bond_id, Guid mol_id)
     {
-        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteBond);
-        message.AddUShort(0);
-        message.AddUShort(bond_id);
-        message.AddGuid(mol_id);
-        Server.SendToAll(message);
+        //Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteBond);
+        //message.AddUShort(0);
+        //message.AddUShort(bond_id);
+        //message.AddGuid(mol_id);
+        //Server.SendToAll(message);
+        NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld());
     }
 
     public void bcastSettings()
@@ -703,7 +705,7 @@ public class NetworkManagerServer : MonoBehaviour
         var mol_id = message.GetGuid();
         var atom_id = message.GetUShort();
         // do the delete on the server
-        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id, null);
+        var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id);
         var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
         if (mol == null || atom == null)
         {
@@ -714,11 +716,12 @@ public class NetworkManagerServer : MonoBehaviour
         GlobalCtrl.Singleton.deleteAtom(atom);
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteAtom);
-        outMessage.AddUShort(fromClientId);
-        outMessage.AddGuid(mol_id);
-        outMessage.AddUShort(atom_id);
-        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+        //Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteAtom);
+        //outMessage.AddUShort(fromClientId);
+        //outMessage.AddGuid(mol_id);
+        //outMessage.AddUShort(atom_id);
+        //NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+        NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld());
     }
 
     [MessageHandler((ushort)ClientToServerID.deleteMolecule)]
@@ -761,11 +764,12 @@ public class NetworkManagerServer : MonoBehaviour
         GlobalCtrl.Singleton.deleteBond(bond);
 
         // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteBond);
-        outMessage.AddUShort(fromClientId);
-        outMessage.AddUShort(bond_id);
-        outMessage.AddGuid(mol_id);
-        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+        //Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteBond);
+        //outMessage.AddUShort(fromClientId);
+        //outMessage.AddUShort(bond_id);
+        //outMessage.AddGuid(mol_id);
+        //NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+        NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld());
     }
 
     [MessageHandler((ushort)ClientToServerID.syncMe)]
@@ -1020,7 +1024,7 @@ public class NetworkManagerServer : MonoBehaviour
         var atom = mol?.atomList.ElementAtOrNull(atom_id, null);
         if (mol == null || atom == null)
         {
-            Debug.LogError($"[NetworkManagerServer:getFocusHighlight] Molecule with id {mol_id} or atom with id {atom_id} do not exist. Abort\n");
+            Debug.LogWarning($"[NetworkManagerServer:getFocusHighlight] Molecule with id {mol_id} or atom with id {atom_id} do not exist. Abort\n");
             return;
         }
         atom.networkSetFocus(active, UserServer.list[fromClientId].highlightFocusID);
@@ -1313,7 +1317,7 @@ public class NetworkManagerServer : MonoBehaviour
         writer.Close();
 
         var cml_mol = OpenBabelReadWrite.Singleton.loadMolecule(fi);
-        GlobalCtrl.Singleton.rebuildAtomWorld(cml_mol, true);
+        GlobalCtrl.Singleton.createFromCML(cml_mol);
     }
 
 

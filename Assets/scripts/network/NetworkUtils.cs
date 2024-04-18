@@ -23,12 +23,8 @@ public static class NetworkUtils
             if (clearScene)
             {
                 GlobalCtrl.Singleton.DeleteAll();
-                GlobalCtrl.Singleton.rebuildAtomWorld(cmlWorld_);
             }
-            else
-            {
-                GlobalCtrl.Singleton.rebuildAtomWorld(cmlWorld_, true);
-            }
+            GlobalCtrl.Singleton.createFromCML(cmlWorld_);
             EventManager.Singleton.CmlReceiveCompleted();
         }
         else
@@ -153,7 +149,6 @@ public static class NetworkUtils
         var state = message.GetString();
         if (state == "start")
         {
-            Debug.Log("[NetworkManagerClient] Receiving Structure data");
             svg_content = "";
             svg_coords = new List<Vector2>();
         }

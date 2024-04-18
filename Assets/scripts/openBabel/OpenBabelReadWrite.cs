@@ -7,6 +7,7 @@ using OpenBabel;
 using System.Collections;
 using System.Threading.Tasks;
 using SimpleFileBrowser;
+using System;
 
 /// <summary>
 /// This class provides methods to read molecule data from files using OpenBabel.
@@ -345,15 +346,15 @@ public class OpenBabelReadWrite : MonoBehaviour
                         float new_z;
                         if (all_not_finite)
                         {
-                            new_x = Random.Range(-1.0f, 1.0f);
-                            new_y = Random.Range(-1.0f, 1.0f);
-                            new_z = Random.Range(-1.0f, 1.0f);
+                            new_x = UnityEngine.Random.Range(-1.0f, 1.0f);
+                            new_y = UnityEngine.Random.Range(-1.0f, 1.0f);
+                            new_z = UnityEngine.Random.Range(-1.0f, 1.0f);
                         }
                         else
                         {
-                            new_x = Random.Range(minmax_x[0], minmax_x[1]);
-                            new_y = Random.Range(minmax_y[0], minmax_y[1]);
-                            new_z = Random.Range(minmax_z[0], minmax_z[1]);
+                            new_x = UnityEngine.Random.Range(minmax_x[0], minmax_x[1]);
+                            new_y = UnityEngine.Random.Range(minmax_y[0], minmax_y[1]);
+                            new_z = UnityEngine.Random.Range(minmax_z[0], minmax_z[1]);
                         }
 
                         var new_pos = new OBVector3(new_x, new_y, new_z);
@@ -361,8 +362,8 @@ public class OpenBabelReadWrite : MonoBehaviour
                     }
                 }
             }
-
-            saveData.Add(obmol.AsCML());
+            var mol_id = Guid.NewGuid();
+            saveData.Add(new Tuple<Guid, OBMol>(mol_id, obmol).AsCML());
         }
 
         if (saveData == null || saveData.Count == 0)
@@ -378,7 +379,7 @@ public class OpenBabelReadWrite : MonoBehaviour
     {
         var mol = loadMolecule(fi);
         if (mol == null) yield break;
-        GlobalCtrl.Singleton.rebuildAtomWorld(mol, true);
+        GlobalCtrl.Singleton.createFromCML(mol);
         NetworkManagerServer.Singleton.pushLoadMolecule(mol);
     }
 
@@ -501,10 +502,10 @@ public class OpenBabelReadWrite : MonoBehaviour
             builder.Build(obmol);
             OpenBabelForceField.MinimiseStructure(obmol, 500);
 
-
+            var mol_id = Guid.NewGuid();
             List<cmlData> mol = new List<cmlData>();
-            mol.Add(obmol.AsCML());
-            GlobalCtrl.Singleton.rebuildAtomWorld(mol, true);
+            mol.Add(new Tuple<Guid, OBMol>(mol_id, obmol).AsCML());
+            GlobalCtrl.Singleton.createFromCML(mol);
             NetworkManagerServer.Singleton.pushLoadMolecule(mol);
         }
         catch

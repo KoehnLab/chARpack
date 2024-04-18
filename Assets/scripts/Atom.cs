@@ -1652,7 +1652,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private void proccessFocusUI(bool value, int? f_id = null)
     {
         var focus_id = f_id.HasValue ? f_id.Value : FocusManager.getMyFocusID();
-        UnityEngine.Debug.Log($"[Ato:updateFocusHighlight] focus_ids {FocusManager.getForcusIDsInUse()} current focus_id {focus_id}");
         if (focus_id >= 0)
         {
             var pos = FocusManager.getPosInArray(focus_id);
@@ -1671,7 +1670,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private void proccessFocus(bool value, int? f_id = null)
     {
         var focus_id = f_id.HasValue ? f_id.Value : FocusManager.getMyFocusID();
-        UnityEngine.Debug.Log($"[Atom:proccessFocus] focus_ids {FocusManager.getForcusIDsInUse().ToString()} current focus_id {focus_id}");
         if (focus_id >= 0)
         {
             //if (focused[focus_id] != value && SettingsData.pointerHighlighting)
@@ -1695,7 +1693,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     public void serverFocusHighlight(bool active)
     {
-        UnityEngine.Debug.Log($"serverFocusHighlight called.");
         serverFocus = active;
         var outline_component = GetComponent<OutlinePro>();
         if (active)
@@ -1747,7 +1744,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     public void networkSetFocus(bool focus, int focus_id)
     {
-        UnityEngine.Debug.Log($"[networkSetFocus] focus {focus}; focus_id {focus_id} num_outlines {OutlinePro.getNumOutlines()}");
         proccessFocus(focus, focus_id);
     }
 

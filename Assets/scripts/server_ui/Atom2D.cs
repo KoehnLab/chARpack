@@ -85,7 +85,6 @@ public class Atom2D : MonoBehaviour
 
     private void UpdateMaterialProperties()
     {
-        Debug.Log($"[Atom2D] numFoci {numFoci}, colors {fociColors[0]}, {fociColors[1]}, {fociColors[2]}, {fociColors[3]}");
         focus2Dmaterial.SetInt("_NumFoci", numFoci);
         focus2Dmaterial.SetColorArray("_FociColors", fociColors);
     }

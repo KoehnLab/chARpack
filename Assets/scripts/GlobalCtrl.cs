@@ -545,9 +545,16 @@ public class GlobalCtrl : MonoBehaviour
 
         try
         {
-            if (!deleteBond(to_delete))
+            var atom1 = to_delete.m_molecule.atomList[to_delete.atomID1];
+            var atom2 = to_delete.m_molecule.atomList[to_delete.atomID2];
+            if (atom1.isMarked) atom1.markAtomUI(false);
+            if (atom2.isMarked) atom2.markAtomUI(false);
+            if (!NetworkManagerClient.Singleton)
             {
-                return;
+                if (!deleteBond(to_delete))
+                {
+                    return;
+                }
             }
             EventManager.Singleton.DeleteBond((ushort)bond_id, mol_id);
         }
@@ -762,7 +769,11 @@ public class GlobalCtrl : MonoBehaviour
         var id = to_delete.m_id;
         try
         {
-            deleteAtom(to_delete);
+            if (to_delete.isMarked) to_delete.markAtomUI(false);
+            if (!NetworkManagerClient.Singleton)
+            {
+                deleteAtom(to_delete);
+            }
             EventManager.Singleton.DeleteAtom(mol_id, id);
         }
         catch (Exception e)
@@ -1878,21 +1889,18 @@ public class GlobalCtrl : MonoBehaviour
     }
 
     /// <summary>
-    /// Rebuilds the atom world.
+    /// Creates molecules from cmlData
     /// </summary>
     /// <param name="data">list of cmlData that represents the world state to rebuild</param>
-    /// <param name="add">whether to add to an existing atom world</param>
-    public void rebuildAtomWorld(List<cmlData> data, bool add = false)
+    public void createFromCML(List<cmlData> data)
     {
         // this method preserves the ids of all objects
         if (data != null)
         {
             foreach (cmlData molecule in data)
             {
-                var freshMoleculeID = Guid.NewGuid();
-
                 Molecule tempMolecule = Instantiate(myBoundingBoxPrefab).AddComponent<Molecule>();
-                tempMolecule.f_Init(add == true ? freshMoleculeID : molecule.moleID, atomWorld.transform, molecule);
+                tempMolecule.f_Init(molecule.moleID, atomWorld.transform, molecule);
                 tempMolecule.transform.localPosition = molecule.molePos;
                 tempMolecule.transform.localRotation = molecule.moleQuat;
                 List_curMolecules[tempMolecule.m_id] = tempMolecule;
@@ -1909,7 +1917,10 @@ public class GlobalCtrl : MonoBehaviour
                 {
                     foreach (var atom in tempMolecule.atomList)
                     {
-                        atom.keepConfig = true;
+                        if (atom.m_data.m_abbre.ToLower() != "dummy")
+                        {
+                            atom.keepConfig = true;
+                        }
                     }
                 }
                 EventManager.Singleton.ChangeMolData(tempMolecule);
@@ -1955,7 +1966,7 @@ public class GlobalCtrl : MonoBehaviour
         if (loadData != null)
         {
             DeleteAll();
-            rebuildAtomWorld(loadData);
+            createFromCML(loadData);
         }
     }
 
