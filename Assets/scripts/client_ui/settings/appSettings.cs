@@ -604,11 +604,11 @@ public class appSettings : MonoBehaviour
     {
         if (value)
         {
-            indicator.GetComponent<MeshRenderer>().material.color = orange;
+            indicator.GetComponent<MeshRenderer>().material.color = GlobalCtrl.Singleton.activeIndicatorColor;
         }
         else
         {
-            indicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+            indicator.GetComponent<MeshRenderer>().material.color =  GlobalCtrl.Singleton.currentColor!=GlobalCtrl.ColorScheme.MONOCHROME ? chARpackColorPalette.chARpackColors.grey : chARpackColorPalette.chARpackColors.darkgrey;
         }
     }
 

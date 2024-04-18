@@ -2172,9 +2172,12 @@ public class GlobalCtrl : MonoBehaviour
     private Texture heatSpectrum;
     private Texture greenSpectrum;
 
+    public Color activeIndicatorColor;
+
     private void initColorPalettes()
     {
         currentColor = defaultColor;
+        activeIndicatorColor = chARpackColors.orange;
 
         numberOfColorSchemes = Enum.GetNames(typeof(ColorScheme)).Length;
         darkBlueSpectrum = (Texture)Resources.Load("textures/DarkBlueGradient");
@@ -2204,48 +2207,56 @@ public class GlobalCtrl : MonoBehaviour
                 {
                     m.SetTexture("_IridescentSpectrumMap", darkBlueSpectrum);
                 }
+                activeIndicatorColor = chARpackColors.orange;
                 break;
             case ColorScheme.TURQUOISE:
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
                     m.SetTexture("_IridescentSpectrumMap", turquoiseSpectrum);
                 }
+                activeIndicatorColor = chARpackColors.orangered;
                 break;
             case ColorScheme.GOLD:
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
                     m.SetTexture("_IridescentSpectrumMap", goldSpectrum);
                 }
+                activeIndicatorColor = chARpackColors.lightblue;
                 break;
             case ColorScheme.MONOCHROME:
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
                     m.SetTexture("_IridescentSpectrumMap", monochromeSpectrum);
                 }
+                activeIndicatorColor = chARpackColors.white;
                 break;
             case ColorScheme.RAINBOW:
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
                     m.SetTexture("_IridescentSpectrumMap", rainbowSpectrum);
                 }
+                activeIndicatorColor = chARpackColors.orange;
                 break;
             case ColorScheme.VIOLET:
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
                     m.SetTexture("_IridescentSpectrumMap", violetSpectrum);
                 }
+                activeIndicatorColor = chARpackColors.yelloworange;
                 break;
             case ColorScheme.HEAT:
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
                     m.SetTexture("_IridescentSpectrumMap", heatSpectrum);
                 }
+                activeIndicatorColor = chARpackColors.yelloworange;
                 break;
             case ColorScheme.GREEN:
                 foreach (Material m in new Material[] { HolographicBackplateMaterial, HolographicBackplateMaterialGrabbed, HolographicBackplateMaterialToggle })
                 {
                     m.SetTexture("_IridescentSpectrumMap", greenSpectrum);
                 }
+                activeIndicatorColor = chARpackColors.gold;
                 break;
         }
     }

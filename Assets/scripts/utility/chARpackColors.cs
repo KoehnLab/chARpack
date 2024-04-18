@@ -17,10 +17,14 @@ namespace chARpackColorPalette
         public static Color white = Color.white;
         public static Color blue = Color.blue;
         public static Color green = Color.green;
-        public static Color lightblue = new Color(0.4f, 0.6f, 1.0f);
+        public static Color lightblue = new Color(0.3f, 0.7f, 1.0f);
         public static Color violet = new Color(0.4f, 0.0f, 0.8f);
         public static Color darkblue = new Color(0.0f, 0.2f, 0.8f);
         public static Color gold = new Color(1.0f, 0.9f, 0.4f);
+        public static Color darkgrey = new Color(0.2f, 0.2f, 0.2f);
+        public static Color orangered = new Color(0.9f, 0.3f, 0.1f);
+        public static Color yelloworange = new Color(1.0f, 0.7f, 0.0f);
+        public static Color lilac = new Color(0.8f, 0.4f, 1.0f);
     }
 
     public class ColorPalette

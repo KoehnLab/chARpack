@@ -117,20 +117,21 @@ public class handMenu : myScrollObject
     /// </summary>
     public void setVisuals()
     {
+        Color inactive = GlobalCtrl.Singleton.currentColor == GlobalCtrl.ColorScheme.MONOCHROME ? chARpackColorPalette.chARpackColors.darkgrey : chARpackColorPalette.chARpackColors.gray;
         if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
         {
-            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = orange;
-            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = GlobalCtrl.Singleton.activeIndicatorColor;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = inactive;
         }
         else if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)
         {
-            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = orange;
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = inactive;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = GlobalCtrl.Singleton.activeIndicatorColor;
         }
         else
         {
-            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = inactive;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = inactive;
         }
     }
 
