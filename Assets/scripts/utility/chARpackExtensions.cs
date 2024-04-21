@@ -214,4 +214,14 @@ TKey mol_id, params object[] argList)
         var keys = dictionary.Keys.ToList();
         return dictionary[keys.First()];
     }
+
+    public static string Print<T>(this T[] list)
+    {
+        string print = "";
+        foreach (var entry in list)
+        {
+            print += $"{entry} ";
+        }
+        return print;
+    }
 }

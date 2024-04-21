@@ -80,6 +80,11 @@ public static class FocusManager
         return focus_ids.Values.ToList();
     }
 
+    public static List<ushort> getClientIDsInUse()
+    {
+        return focus_ids.Keys.ToList();
+    }
+
     private static int getNumClients()
     {
         return focus_ids.Count;

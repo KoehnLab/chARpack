@@ -16,6 +16,8 @@ public class StructureFormula : MonoBehaviour
     public TextMeshProUGUI label;
     public HeatMap2D heatMap;
     public TMP_Dropdown highlight_choice_dropdown;
+    [HideInInspector]
+    public Atom2D[] interactables;
     public float scaleFactor = 1.0f;
     public int current_highlight_choice = 0;
     private static int _numFocusRegions = 1;
@@ -50,11 +52,21 @@ public class StructureFormula : MonoBehaviour
         {
             heatMap.gameObject.SetActive(false);
             if (highlight_choice_dropdown.value != choice) highlight_choice_dropdown.value = choice;
+
+            foreach (var inter in interactables)
+            {
+                inter.gameObject.SetActive(true);
+            }
         }
         else
         {
             heatMap.gameObject.SetActive(true);
             if (highlight_choice_dropdown.value != choice) highlight_choice_dropdown.value = choice;
+
+            foreach (var inter in interactables)
+            {
+                inter.gameObject.SetActive(false);
+            }
         }
     }
 

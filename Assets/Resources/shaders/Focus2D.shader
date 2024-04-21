@@ -156,7 +156,7 @@ Shader "Focus2D"
                         outColor = _FociColors[0];
                     }
 
-                    float alpha = clamp(0.0f, 0.8f, outColor.a);
+                    float alpha = clamp(0.0f, 0.9f, outColor.a);
                     if (sqrt(x_norm * x_norm + y_norm * y_norm) > 1.0f) {
                         alpha = 0.0f;
                     }

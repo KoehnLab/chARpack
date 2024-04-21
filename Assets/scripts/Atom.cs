@@ -1663,8 +1663,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 outline_component.OutlineColor[pos] = col;
                 outline_component.OutlineWidth[pos] = outline_radius_current[pos];
             }
-            focusHighlightInFormula(focused, outline_component.OutlineColor);
             outline_component.NeedsUpdate();
+            focusHighlightInFormula(focused, GetComponent<OutlinePro>().OutlineColor);
         }
     }
 
@@ -1674,10 +1674,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         if (focus_id >= 0)
         {
             var pos = FocusManager.getPosInArray(focus_id);
-            if (focused[pos] != value && SettingsData.pointerHighlighting)
-            {
-                focused[pos] = value;
-            }
+            focused[pos] = value;
+            focusHighlightInFormula(focused, null);
             EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, value);
         }
         else
@@ -1691,12 +1689,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         var focus_id = f_id.HasValue ? f_id.Value : FocusManager.getMyFocusID();
         if (focus_id >= 0)
         {
-            //if (focused[focus_id] != value && SettingsData.pointerHighlighting)
-            //{
-            //    focused[focus_id] = value;
-            //}
             var pos = FocusManager.getPosInArray(focus_id);
             focused[pos] = value;
+            focusHighlightInFormula(focused, null);
         }
         else
         {

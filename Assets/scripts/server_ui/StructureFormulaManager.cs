@@ -110,8 +110,9 @@ public class StructureFormulaManager : MonoBehaviour
         new_sf.label.transform.parent.GetComponent<Image>().color = FocusColors.getColor(focus_id);
         new_sf.onlyUser = focus_id;
         // Deactivate interactibles
-        var interactibles = new_go.GetComponentInChildren<SVGImage>().gameObject.GetComponentsInChildren<Atom2D>();
-        foreach (var inter in interactibles)
+        var interactables = new_go.GetComponentInChildren<SVGImage>().gameObject.GetComponentsInChildren<Atom2D>();
+        new_sf.interactables = interactables;
+        foreach (var inter in new_sf.interactables)
         {
             inter.GetComponent<Button>().interactable = false;
         }
@@ -130,10 +131,11 @@ public class StructureFormulaManager : MonoBehaviour
         new_sf.label.text = old_sf.label.text;
         new_sf.label.transform.parent.GetComponent<Image>().color = FocusColors.getColor(old_sf.onlyUser);
         new_sf.onlyUser = old_sf.onlyUser;
-        new_sf.setHighlightOption(old_sf.current_highlight_choice); 
+        new_sf.setHighlightOption(old_sf.current_highlight_choice);
         // Deactivate interactibles
-        var interactibles = new_go.GetComponentInChildren<SVGImage>().gameObject.GetComponentsInChildren<Atom2D>();
-        foreach (var inter in interactibles)
+        var interactables = new_go.GetComponentInChildren<SVGImage>().gameObject.GetComponentsInChildren<Atom2D>();
+        new_sf.interactables = interactables;
+        foreach (var inter in new_sf.interactables)
         {
             inter.GetComponent<Button>().interactable = false;
         }
@@ -177,8 +179,8 @@ public class StructureFormulaManager : MonoBehaviour
 
             svg_instances[mol_id] = new Triple<GameObject, string, List<GameObject>>(svg_instances[mol_id].Item1, svg_content, new List<GameObject>());
 
-            removeInteractibles(mol_id);
-            createInteractibles(mol_id);
+            removeInteractables(mol_id);
+            createInteractables(mol_id);
 
             if (old_secondary_structures.Count > 0)
             {
@@ -230,7 +232,7 @@ public class StructureFormulaManager : MonoBehaviour
 
             svg_instances[mol_id] = new Triple<GameObject, string, List<GameObject>>(sf.image.gameObject, svg_content, new List<GameObject>());
 
-            createInteractibles(mol_id);
+            createInteractables(mol_id);
         }
     }
 
@@ -249,46 +251,49 @@ public class StructureFormulaManager : MonoBehaviour
         svg_instances.Remove(mol_id);
     }
 
-    private void removeInteractibles(Guid mol_id)
+    private void removeInteractables(Guid mol_id)
     {
         if (!GlobalCtrl.Singleton.List_curMolecules.ContainsKey(mol_id))
         {
-            Debug.LogError("[removeInteractibles] Invalid Molecule ID.");
+            Debug.LogError("[removeInteractables] Invalid Molecule ID.");
             return;
         }
 
         if (!svg_instances.ContainsKey(mol_id))
         {
-            Debug.LogError("[removeInteractibles] No structure formula found.");
+            Debug.LogError("[removeInteractables] No structure formula found.");
             return;
         }
 
-        var interactible_instances = svg_instances[mol_id].Item1.GetComponentsInChildren<Atom2D>();
+        var sf = svg_instances[mol_id].Item1.GetComponentInParent<StructureFormula>();
+        //var interactible_instances = svg_instances[mol_id].Item1.GetComponentsInChildren<Atom2D>();
 
-        foreach (var inter in interactible_instances)
+        foreach (var inter in sf.interactables)
         {
             inter.atom.structure_interactible = null;
             Destroy(inter.gameObject);
         }
+        sf.interactables = null;
     }
 
-    public void createInteractibles(Guid mol_id)
+    public void createInteractables(Guid mol_id)
     {
         if (!GlobalCtrl.Singleton.List_curMolecules.ContainsKey(mol_id))
         {
-            Debug.LogError("[createInteractibles] Invalid Molecule ID.");
+            Debug.LogError("[createInteractables] Invalid Molecule ID.");
             return;
         }
         var mol = GlobalCtrl.Singleton.List_curMolecules[mol_id];
         if (!svg_instances.ContainsKey(mol_id))
         {
-            Debug.LogError("[createInteractibles] No structure formula found.");
+            Debug.LogError("[createInteractables] No structure formula found.");
             return;
         }
 
         var sf_go = svg_instances[mol_id].Item1;
         var sf = sf_go.GetComponentInParent<StructureFormula>();
 
+        List<Atom2D> inter_list = new List<Atom2D>();
 
         foreach (var atom in mol.atomList)
         {
@@ -299,6 +304,7 @@ public class StructureFormulaManager : MonoBehaviour
                 inter.transform.localScale = Vector3.one;
                 atom.structure_interactible = inter;
                 inter.GetComponent<Atom2D>().atom = atom;
+                inter_list.Add(inter.GetComponent<Atom2D>());
             }
 
 
@@ -309,45 +315,8 @@ public class StructureFormulaManager : MonoBehaviour
             var offset = new Vector2(-rect.sizeDelta.x, 0.5f * rect.sizeDelta.y) + sf.scaleFactor * new Vector2(atom.structure_coords.x, -atom.structure_coords.y) + 0.5f * new Vector2(-atom_rect.sizeDelta.x, atom_rect.sizeDelta.y);
             atom_rect.localPosition = offset;
         }
+        sf.interactables = inter_list.ToArray();
     }
-
-
-    //public void addHighlight(ushort mol_id, Vector2 coord, bool value)
-    //{
-    //    if (svg_instances.ContainsKey(mol_id))
-    //    {
-    //        var radius = 6f;
-    //        var fill = "blue";
-    //        var alpha = 0.6f;
-
-    //        var svg_content = svg_instances[mol_id].Item2;
-    //        var circle = $"<circle cx=\"{coord.x}\" cy=\"{coord.y}\" r=\"{radius}\" fill=\"{fill}\" fill-opacity=\"{alpha}\"/>";
-    //        var test = $"<circle cx=\"{coord.x}\" cy=\"{coord.y}\"";
-
-    //        if (value)
-    //        {
-    //            if (!svg_content.Contains(test))
-    //            {
-    //                svg_content = svg_content.Replace("</svg>", $"\n{circle}\n</svg>");
-    //                pushContent(mol_id, svg_content);
-    //                //Debug.Log(svg_content);
-    //            }
-    //        }
-    //        else
-    //        {
-    //            if (svg_content.Contains(test))
-    //            {
-    //                svg_content = svg_content.Replace($"{circle}\n", "");
-    //                pushContent(mol_id, svg_content);
-    //            }
-    //        }
-    //    }
-    //    else
-    //    {
-    //        Debug.LogError($"[StructureFormulaManager] Tying to add content to non existent structure formula.");
-    //        return;
-    //    }
-    //}
 
     public void addFocusHighlight(Guid mol_id, Atom atom, bool[] values, Color[] cols)
     {
@@ -365,8 +334,8 @@ public class StructureFormulaManager : MonoBehaviour
             }
             foreach (var sf in sf_list)
             {
-                var col_copy = new Color[4] { cols[0], cols[1], cols[2], cols[3] };
-                if (sf.current_highlight_choice == 0)
+                var col_copy = cols != null ? new Color[4] { cols[0], cols[1], cols[2], cols[3] } : null;
+                if (sf.current_highlight_choice == 0 && cols != null)
                 {
                     //var atom2d = atom.structure_interactible.GetComponent<Atom2D>();
                     Atom2D atom2d = null;

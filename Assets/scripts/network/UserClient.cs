@@ -20,8 +20,14 @@ public class UserClient : MonoBehaviour
 
     private void OnDestroy()
     {
-        FocusManager.silentRemoveClient(ID);
-        list.Remove(ID);
+        if (FocusManager.getClientIDsInUse().Contains(ID))
+        {
+            FocusManager.silentRemoveClient(ID);
+        }
+        if (list.ContainsKey(ID))
+        {
+            list.Remove(ID);
+        }
     }
 
     /// <summary>
