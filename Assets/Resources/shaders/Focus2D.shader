@@ -116,6 +116,8 @@ Shader "Focus2D"
 
                     float4 outColor;
 
+                    float x_norm = 2.0f * IN.texcoord.x - 1.0f;
+                    float y_norm = 2.0f * IN.texcoord.y - 1.0f;
                     if (_NumFoci == 2) {
                         if (IN.texcoord.x > 0.5f) {
                             outColor = _FociColors[0];
@@ -125,8 +127,6 @@ Shader "Focus2D"
                         }
                     }
                     else if (_NumFoci == 3) {
-                        float x_norm = 2.0f * IN.texcoord.x - 1.0f;
-                        float y_norm = 2.0f * IN.texcoord.y - 1.0f;
                         float angle = atan2(y_norm, x_norm) + pi;
                         if (angle < (2.f * pi / 3.f)) {
                             outColor = _FociColors[1];
@@ -157,6 +157,11 @@ Shader "Focus2D"
                     }
 
                     float alpha = clamp(0.0f, 0.8f, outColor.a);
+                    if (sqrt(x_norm * x_norm + y_norm * y_norm) > 1.0f) {
+                        alpha = 0.0f;
+                    }
+
+
                     return float4(outColor.rgb, alpha);
                 }
             ENDCG

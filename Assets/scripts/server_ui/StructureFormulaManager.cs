@@ -303,7 +303,7 @@ public class StructureFormulaManager : MonoBehaviour
 
             var rect = sf_go.transform as RectTransform;
             var atom_rect = atom.structure_interactible.transform as RectTransform;
-            atom_rect.sizeDelta = 15f * sf.scaleFactor * Vector2.one;
+            atom_rect.sizeDelta = 17.5f * sf.scaleFactor * Vector2.one;
 
             var offset = new Vector2(-rect.sizeDelta.x, 0.5f * rect.sizeDelta.y) + sf.scaleFactor * new Vector2(atom.structure_coords.x, -atom.structure_coords.y) + 0.5f * new Vector2(-atom_rect.sizeDelta.x, atom_rect.sizeDelta.y);
             atom_rect.localPosition = offset;
