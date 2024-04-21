@@ -334,18 +334,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             serverFocusHighlightUI(false);
         }
-        // For debugging
-        if (Input.GetKey(KeyCode.LeftAlt))
-        {
-            if (!focused[0])
-            {
-                focused[0] = true;
-            }
-        }
-        if (Input.GetKeyUp(KeyCode.LeftAlt))
-        {
-            focused[0] = false;
-        }
     }
 
     private void OnMouseExit()
@@ -353,11 +341,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         if (serverFocus)
         {
             serverFocusHighlightUI(false);
-        }
-        // for debugging
-        if(focused[0])
-        {
-            focused[0] = false;
         }
     }
 
@@ -1580,12 +1563,26 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     // Handle Gaze events
     private void onLookStart()
     {
-        proccessFocusUI(true);
+        if (SettingsData.gazeHighlighting)
+        {
+            proccessFocusUI(true);
+        }
+        else
+        {
+            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, true);
+        }
     }
 
     private void onLookAway()
     {
-        proccessFocusUI(false);
+        if (SettingsData.gazeHighlighting)
+        {
+            proccessFocusUI(false);
+        }
+        else
+        {
+            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
+        }
     }
 
     // Handle mrtk focus events
@@ -1601,12 +1598,34 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     public void OnFocusEnter(FocusEventData eventData)
     {
-        proccessFocusUI(true);
+        if (SettingsData.pointerHighlighting)
+        {
+            proccessFocusUI(true);
+        }
+        else
+        {
+            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, true);
+        }
     }
 
     public void OnFocusExit(FocusEventData eventData)
     {
-        proccessFocusUI(false);
+        if (SettingsData.pointerHighlighting)
+        {
+            proccessFocusUI(false);
+        }
+        else
+        {
+            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
+        }
+    }
+
+    public void networkSetFocus(bool focus, int focus_id)
+    {
+        if (NetworkManagerServer.Singleton != null || SettingsData.showAllHighlightsOnClients)
+        {
+            proccessFocus(focus, focus_id);
+        }
     }
 
     /// <summary>
@@ -1649,7 +1668,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
     }
 
-    private void proccessFocusUI(bool value, int? f_id = null)
+    public void proccessFocusUI(bool value, int? f_id = null)
     {
         var focus_id = f_id.HasValue ? f_id.Value : FocusManager.getMyFocusID();
         if (focus_id >= 0)
@@ -1740,11 +1759,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 outline_component.NeedsUpdate();
             }
         }
-    }
-
-    public void networkSetFocus(bool focus, int focus_id)
-    {
-        proccessFocus(focus, focus_id);
     }
 
     private void FixedUpdate()
