@@ -118,6 +118,7 @@ public class GlobalCtrl : MonoBehaviour
     [HideInInspector] public int numAtoms = 0;
 
     public Stack<List<cmlData>> systemState = new Stack<List<cmlData>>();
+    public UndoStack undoStack = new UndoStack();
 
     // tooltips to connect two molecules
     [HideInInspector] public Dictionary<Tuple<Guid, Guid>, GameObject> snapToolTipInstances = new Dictionary<Tuple<Guid, Guid>, GameObject>();
@@ -412,7 +413,9 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     public void DeleteAllUI()
     {
+        List<cmlData> atomWorld = saveAtomWorld();
         DeleteAll();
+        undoStack.AddChange(new DeleteAllAction(atomWorld));
         SaveMolecule(true);
         EventManager.Singleton.DeleteEverything();
     }
@@ -576,6 +579,8 @@ public class GlobalCtrl : MonoBehaviour
         {
             b.markBond(false);
         }
+        cmlData before = b.m_molecule.AsCML();
+        List<cmlData> after = new List<cmlData>();
 
         // add to delete List
         List<Bond> delBondList = new List<Bond>();
@@ -646,6 +651,7 @@ public class GlobalCtrl : MonoBehaviour
         foreach (Molecule m in addMoleculeList)
         {
             List_curMolecules[m.m_id] = m;
+            after.Add(m.AsCML());
         }
 
         foreach (var entry in numConnectedAtoms)
@@ -660,6 +666,7 @@ public class GlobalCtrl : MonoBehaviour
             a.m_molecule.shrinkAtomIDs();
         }
 
+        undoStack.AddChange(new DeleteBondAction(before, after));
         reloadShaders();
 
 
@@ -736,8 +743,9 @@ public class GlobalCtrl : MonoBehaviour
     /// atoms and bonds contained in the molecule;
     /// </summary>
     /// <param name="m"></param>
-    public void deleteMolecule(Molecule m)
+    public void deleteMolecule(Molecule m, bool addToUndoStack = true)
     {
+        if (addToUndoStack) undoStack.AddChange(new DeleteMoleculeAction(m.AsCML()));
         if (m.isMarked)
         {
             m.markMolecule(false);
@@ -757,6 +765,11 @@ public class GlobalCtrl : MonoBehaviour
         Destroy(m.gameObject);
         SaveMolecule(true);
         // no need to invoke change event
+    }
+
+    public void deleteMolecule(Guid m_id, bool addToUndoStack = true)
+    {
+        deleteMolecule(List_curMolecules[m_id], addToUndoStack);
     }
 
     /// <summary>
@@ -789,6 +802,7 @@ public class GlobalCtrl : MonoBehaviour
             Debug.LogError($"[GlobalCtrl:deleteAtom] Atom with ID {atom_id} of molecule {mol_id} does not exist. Cannot delete.");
             return;
         }
+
         var atom = List_curMolecules[mol_id].atomList.ElementAtOrDefault(atom_id);
         if (atom != default)
         {
@@ -806,6 +820,9 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="to_delete"></param>
     public void deleteAtom(Atom to_delete)
     {
+        cmlData before = to_delete.m_molecule.AsCML();
+        List<cmlData> after = new List<cmlData>();
+
         Dictionary<Atom, List<Vector3>> positionsRestore = new Dictionary<Atom, List<Vector3>>();
         List<Atom> delAtomList = new List<Atom>();
         List<Bond> delBondList = new List<Bond>();
@@ -858,6 +875,7 @@ public class GlobalCtrl : MonoBehaviour
         foreach (Molecule m in addMoleculeList)
         {
             List_curMolecules[m.m_id] = m;
+            after.Add(m.AsCML());
         }
 
         foreach (var entry in numConnectedAtoms)
@@ -872,6 +890,7 @@ public class GlobalCtrl : MonoBehaviour
             a.m_molecule.shrinkAtomIDs();
         }
 
+        undoStack.AddChange(new DeleteAtomAction(before, after));
         SaveMolecule(true);
         // invoke data change event for new molecules
         foreach (Molecule m in addMoleculeList)
@@ -1320,12 +1339,13 @@ public class GlobalCtrl : MonoBehaviour
 
         List_curMolecules[tempMolecule.m_id] = tempMolecule;
 
-        if(currentInteractionMode == InteractionModes.MEASUREMENT)
+        if (currentInteractionMode == InteractionModes.MEASUREMENT)
         {
             tempMolecule.freezeUI(true);
         }
 
         SaveMolecule(true);
+        undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id,tempMolecule.AsCML()));
 
         EventManager.Singleton.ChangeMolData(tempMolecule);
     }
@@ -1370,6 +1390,7 @@ public class GlobalCtrl : MonoBehaviour
             Debug.LogError($"[GlobalCtrl:changeAtom] Trying to change Atom {atom_id} of molecule {mol_id}, but it does not exist.");
             return false;
         }
+        cmlData before = List_curMolecules[mol_id].AsCML();
 
 
         ElementData tempData = Dic_ElementData[ChemicalAbbre];
@@ -1381,6 +1402,9 @@ public class GlobalCtrl : MonoBehaviour
         {
             b.setShaderProperties();
         }
+
+        cmlData after = List_curMolecules[mol_id].AsCML();
+        undoStack.AddChange(new ChangeAtomAction(before, after));
 
         SaveMolecule(true);
         EventManager.Singleton.ChangeMolData(List_curMolecules[mol_id]);
@@ -1471,7 +1495,6 @@ public class GlobalCtrl : MonoBehaviour
         {
             return false;
         }
-
         String type = isDummy ? "H" : "Dummy";
 
         ElementData tempData = Dic_ElementData[type];
@@ -1543,6 +1566,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <param name="dummyInAir">the dummy of the molecule which is in the air</param>
     public void MergeMolecule(Atom dummyInHand, Atom dummyInAir)
     {
+        List<cmlData> before = new List<cmlData>();
         collision = false;
         dummyInHand.dummyFindMain().keepConfig = false;
 
@@ -1551,6 +1575,9 @@ public class GlobalCtrl : MonoBehaviour
 
         Molecule molInHand = dummyInHand.m_molecule;
         Molecule molInAir = dummyInAir.m_molecule;
+
+        before.Add(molInHand.AsCML());
+        if (molInAir.m_id != molInHand.m_id) { before.Add(molInAir.AsCML()); }
         // scale before merge
         molInHand.transform.localScale = molInAir.transform.localScale;
         Bond bondInHand = molInHand.bondList.Find(p=>p.atomID1 == dummyInHand.m_id || p.atomID2 == dummyInHand.m_id);
@@ -1592,6 +1619,8 @@ public class GlobalCtrl : MonoBehaviour
         }
 
         SaveMolecule(true);
+        cmlData after = molInAir.AsCML();
+        undoStack.AddChange(new MergeMoleculeAction(before, after));
 
         EventManager.Singleton.ChangeMolData(molInAir);
 
@@ -1629,7 +1658,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the change was successful</returns>
     public bool changeBondTerm(Guid mol_id, ushort term_id, ForceField.BondTerm new_term)
     {
-        if (term_id >= List_curMolecules[mol_id].bondTerms.Count)
+        if (!List_curMolecules.ContainsKey(mol_id) || term_id >= List_curMolecules[mol_id].bondTerms.Count)
         {
             return false;
         }
@@ -1647,7 +1676,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the change was successful</returns>
     public bool changeAngleTerm(Guid mol_id, ushort term_id, ForceField.AngleTerm new_term)
     {
-        if (term_id >= List_curMolecules[mol_id].angleTerms.Count)
+        if (!List_curMolecules.ContainsKey(mol_id) || term_id >= List_curMolecules[mol_id].angleTerms.Count)
         {
             return false;
         }
@@ -1665,7 +1694,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>whether the change was successful</returns>
     public bool changeTorsionTerm(Guid mol_id, ushort term_id, ForceField.TorsionTerm new_term)
     {
-        if (term_id >= List_curMolecules[mol_id].torsionTerms.Count)
+        if (!List_curMolecules.ContainsKey(mol_id) || term_id >= List_curMolecules[mol_id].torsionTerms.Count)
         {
             return false;
         }
@@ -1695,7 +1724,7 @@ public class GlobalCtrl : MonoBehaviour
         {
             list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
         }
-        cmlData moleData = new cmlData(molePos, molecule.transform.rotation, molecule.m_id, list_atom, list_bond);
+        cmlData moleData = new cmlData(molePos, molecule.transform.localScale, molecule.transform.rotation, molecule.m_id, list_atom, list_bond);
 
 
         // Create new molecule
@@ -1718,6 +1747,7 @@ public class GlobalCtrl : MonoBehaviour
         moveMolecule(freshMoleculeID, moleData.molePos + Vector3.up*0.05f, moleData.moleQuat);
         EventManager.Singleton.MoveMolecule(freshMoleculeID, moleData.molePos + Vector3.up * 0.05f, moleData.moleQuat);
         EventManager.Singleton.ChangeMolData(tempMolecule);
+        undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id,tempMolecule.AsCML()));
     }
     #endregion
 
@@ -1765,7 +1795,7 @@ public class GlobalCtrl : MonoBehaviour
             {
                 list_bond.Add(new cmlBond(b.atomID1, b.atomID2, b.m_bondOrder));
             }
-            cmlData tempData = new cmlData(molePos, inputMole.transform.rotation, inputMole.m_id, list_atom, list_bond);
+            cmlData tempData = new cmlData(molePos, inputMole.transform.localScale, inputMole.transform.rotation, inputMole.m_id, list_atom, list_bond);
             saveData.Add(tempData);
         }
 
@@ -1793,6 +1823,7 @@ public class GlobalCtrl : MonoBehaviour
         loadData = (List<cmlData>)XMLFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
         if (loadData != null)
         {
+            var loadDataWithCorrectedIDs = new List<cmlData>();
             int nMol = 0;
             foreach (cmlData molecule in loadData)
             {
@@ -1815,6 +1846,7 @@ public class GlobalCtrl : MonoBehaviour
                 var freshMoleculeID = Guid.NewGuid();
 
                 Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos, Quaternion.identity).AddComponent<Molecule>();
+                tempMolecule.gameObject.transform.localScale = molecule.moleScale;
                 tempMolecule.f_Init(freshMoleculeID, atomWorld.transform, molecule);
                 List_curMolecules[freshMoleculeID] = tempMolecule;
 
@@ -1832,8 +1864,39 @@ public class GlobalCtrl : MonoBehaviour
                 moveMolecule(freshMoleculeID, molecule.molePos + meanPos, molecule.moleQuat);
                 EventManager.Singleton.MoveMolecule(freshMoleculeID, molecule.molePos + meanPos, molecule.moleQuat);
                 EventManager.Singleton.ChangeMolData(tempMolecule);
+
+                loadDataWithCorrectedIDs.Add(tempMolecule.AsCML());
             }
+
+            undoStack.AddChange(new LoadMoleculeAction(loadDataWithCorrectedIDs));
         }
+    }
+
+    public Guid BuildMoleculeFromCML(cmlData molecule, Guid? id = null)
+    {
+        var freshMoleculeID = id.HasValue ? Guid.NewGuid() : id.Value;
+
+        Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos, Quaternion.identity).AddComponent<Molecule>();
+        tempMolecule.gameObject.transform.localScale = molecule.moleScale;
+        tempMolecule.f_Init(freshMoleculeID, atomWorld.transform, molecule);
+        List_curMolecules.Add(freshMoleculeID,tempMolecule);
+
+
+        //LOAD STRUCTURE CHECK LIST / DICTIONNARY
+
+        for (int i = 0; i < molecule.atomArray.Length; i++)
+        {
+            RebuildAtom(molecule.atomArray[i].id, molecule.atomArray[i].abbre, molecule.atomArray[i].hybrid, molecule.atomArray[i].pos, tempMolecule);
+        }
+        for (int i = 0; i < molecule.bondArray.Length; i++)
+        {
+            CreateBond(tempMolecule.atomList.ElementAtOrDefault(molecule.bondArray[i].id1), tempMolecule.atomList.ElementAtOrDefault(molecule.bondArray[i].id2), tempMolecule);
+        }
+        moveMolecule(freshMoleculeID, molecule.molePos, molecule.moleQuat);
+        EventManager.Singleton.MoveMolecule(freshMoleculeID, molecule.molePos, molecule.moleQuat);
+        EventManager.Singleton.ChangeMolData(tempMolecule);
+
+        return tempMolecule.m_id;
     }
 
     /// <summary>
@@ -1852,12 +1915,10 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>list of cmlData representing the entire atom world</returns>
     public List<cmlData> saveAtomWorld()
     {
-        // flatten IDs first
         // this method preserves the position of the molecules and atoms (and rotation)
         List<cmlData> saveData = new List<cmlData>();
         foreach (Molecule inputMole in List_curMolecules.Values)
         {
-            inputMole.shrinkAtomIDs();
             List<cmlAtom> list_atom = new List<cmlAtom>();
             foreach (Atom a in inputMole.atomList)
             {
@@ -1881,7 +1942,7 @@ public class GlobalCtrl : MonoBehaviour
                 list_torsion.Add(new cmlTorsion(b.Atom1, b.Atom2, b.Atom3, b.Atom4, b.eqAngle, b.vk, b.nn));
             }
 
-            tempData = new cmlData(inputMole.transform.localPosition, inputMole.transform.localRotation, inputMole.m_id, list_atom, list_bond, list_angle, list_torsion, true);
+            tempData = new cmlData(inputMole.transform.localPosition, inputMole.transform.localScale, inputMole.transform.localRotation, inputMole.m_id, list_atom, list_bond, list_angle, list_torsion, true);
             saveData.Add(tempData);
         }
 
@@ -1900,6 +1961,7 @@ public class GlobalCtrl : MonoBehaviour
             foreach (cmlData molecule in data)
             {
                 Molecule tempMolecule = Instantiate(myBoundingBoxPrefab).AddComponent<Molecule>();
+                tempMolecule.gameObject.transform.localScale = molecule.moleScale;
                 tempMolecule.f_Init(molecule.moleID, atomWorld.transform, molecule);
                 tempMolecule.transform.localPosition = molecule.molePos;
                 tempMolecule.transform.localRotation = molecule.moleQuat;
@@ -1949,25 +2011,19 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     public void undo()
     {
-        Debug.Log($"[GlobalCrtl:undo] Stack size: {systemState.Count}.");
-        List<cmlData> loadData = null;
-        for (int i = 0; i < 2; i++)
-        {
-            if (systemState.Count > 0)
-            {
-                loadData = systemState.Pop();
-            }
-            else
-            {
-                loadData = null;
-            }
-        }
+        undoStack.Undo();
+        // Necessary to network like this?
+        EventManager.Singleton.Undo();
+    }
 
-        if (loadData != null)
-        {
-            DeleteAll();
-            createFromCML(loadData);
-        }
+    /// <summary>
+    /// This method is called when a scaling operation is undone.
+    /// It removes the last change (caused by resetting the scale) in order
+    /// to avoid an infinite undo loop.
+    /// </summary>
+    public void SignalUndoScaling()
+    {
+        undoStack.SignalUndoSlider();
     }
 
 

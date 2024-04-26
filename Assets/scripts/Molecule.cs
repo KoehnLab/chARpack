@@ -15,6 +15,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
     private Stopwatch stopwatch;
     [HideInInspector] public bool isGrabbed = false;
+    private cmlData before;
     private Vector3 pickupPos = Vector3.zero;
     private Quaternion pickupRot = Quaternion.identity;
 
@@ -38,6 +39,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             GetComponent<myBoundingBox>().setGrabbed(true);
         }
+        before = this.AsCML();
     }
 
     public void OnPointerClicked(MixedRealityPointerEventData eventData)
@@ -105,6 +107,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                                 GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2, GlobalCtrl.Singleton.collider1);
                             }
                         }
+                    } else
+                    {
+                        cmlData after = this.AsCML();
+                        GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
                     }
                 }
                 // change material back to normal
@@ -120,6 +126,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="eventData"></param>
     public void OnSliderUpdated(mySliderEventData eventData)
     {
+        if (eventData.Pointer != null) // exclude slider update on startup
+        {
+            cmlData before = this.AsCML();
+            before.moleScale = eventData.OldValue * gameObject.transform.localScale / eventData.NewValue;
+            GlobalCtrl.Singleton.undoStack.AddChange(new ScaleMoleculeAction(before, this.AsCML()));
+        }
         gameObject.transform.localScale = eventData.NewValue * startingScale;
         // networking
         EventManager.Singleton.ChangeMoleculeScale(m_id, gameObject.transform.localScale.x);
@@ -147,7 +159,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
                 string[] ang = text[3].Split(": ");
                 double angle = toolTipInstance.transform.Find("Angle Measurement").GetComponent<AngleMeasurement>().getAngle();
-                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}°");
+                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}ï¿½");
                 text[3] = newAng;
 
                 toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
@@ -157,7 +169,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
                 string[] ang = text[2].Split(": ");
                 double angle = toolTipInstance.transform.Find("Dihedral Angle Measurement").GetComponent<DihedralAngleMeasurement>().getAngle();
-                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}°");
+                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}ï¿½");
                 text[2] = newAng;
 
                 toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
@@ -553,6 +565,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// </summary>
     public void toggleDummies()
     {
+        cmlData before_ = this.AsCML();
         var dummyCount = countAtoms("Dummy");
         var hydrogenCount = countAtoms("H");
         if (dummyCount >= hydrogenCount)
@@ -575,6 +588,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 }
             }
         }
+        cmlData after = this.AsCML();
+        GlobalCtrl.Singleton.undoStack.AddChange(new ToggleDummiesAction(before_, after));
         GlobalCtrl.Singleton.SaveMolecule(true);
     }
 
@@ -824,6 +839,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void changeBondParametersUI(GameObject windowInstance, int id)
     {
+        cmlData before = this.AsCML();
         var cb = windowInstance.GetComponent<ChangeBond>();
         cb.changeBondParametersBT();
         var bt = cb.bt;
@@ -835,6 +851,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         changeBondParameters(bt, id);
         EventManager.Singleton.ChangeBondTerm(bt, m_id, (ushort)id);
+
+        cmlData after = this.AsCML();
+        GlobalCtrl.Singleton.undoStack.AddChange(new ChangeBondAction(before, after));
 
         Destroy(windowInstance);
 
@@ -936,6 +955,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void changeAngleParametersUI(GameObject windowInstance, int id)
     {
+        cmlData before = this.AsCML();
         var cb = windowInstance.GetComponent<ChangeBond>();
         cb.changeBondParametersAT();
         var at = cb.at;
@@ -945,6 +965,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         changeAngleParameters(at, id);
         EventManager.Singleton.ChangeAngleTerm(at, m_id, (ushort)id);
+
+        cmlData after = this.AsCML();
+        GlobalCtrl.Singleton.undoStack.AddChange(new ChangeBondAction(before, after));
 
         Destroy(windowInstance);
 
@@ -1039,6 +1062,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void changeTorsionParametersUI(GameObject windowInstance, int id)
     {
+        cmlData before = this.AsCML();
         var cb = windowInstance.GetComponent<ChangeBond>();
         cb.changeBondParametersTT();
         var tt = cb.tt;
@@ -1048,6 +1072,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         changeTorsionParameters(tt, id);
         EventManager.Singleton.ChangeTorsionTerm(tt, m_id, (ushort)id);
+
+        cmlData after = this.AsCML();
+        GlobalCtrl.Singleton.undoStack.AddChange(new ChangeBondAction(before, after));
 
         Destroy(windowInstance);
     }
