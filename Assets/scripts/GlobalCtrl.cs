@@ -291,6 +291,7 @@ public class GlobalCtrl : MonoBehaviour
         Atom.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
         Atom.modifyHybridizationPrefab = (GameObject)Resources.Load("prefabs/modifyHybridization");
         Atom.freezeMePrefab = (GameObject)Resources.Load("prefabs/FreezeMeButton");
+        Atom.serverTooltipPrefab = (GameObject)Resources.Load("prefabs/ServerTooltipPrefab");
 
         // Molecule
         Molecule.myToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKMoleculeTooltip");

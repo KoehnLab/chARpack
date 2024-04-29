@@ -16,6 +16,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using chARpackTypes;
 using chARpackColorPalette;
+using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// A class that provides the functionalities of single atoms.
@@ -32,6 +34,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     [HideInInspector] public static GameObject modifyMeButtonPrefab;
     [HideInInspector] public static GameObject modifyHybridizationPrefab;
     [HideInInspector] public static GameObject freezeMePrefab;
+    [HideInInspector] public static GameObject serverTooltipPrefab;
 
     private Stopwatch stopwatch;
     [HideInInspector] public GameObject toolTipInstance = null;
@@ -59,7 +62,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     public Vector2 structure_coords;
     public GameObject structure_interactible;
-
 
 
     /// <summary>
@@ -1288,7 +1290,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             colorSwapSelect(mark_case);
             if (!toolTipInstance && toolTip)
             {
-                createToolTip();
+                if (SceneManager.GetActiveScene().name.Equals("ServerScene")) 
+                { createServerToolTip(); }
+                else { createToolTip(); }
+                
             }
             if (!m_molecule.isMarked)
             {
@@ -1563,12 +1568,28 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         return LocalizationSettings.StringDatabase.GetLocalizedString("Elements", text);
     }
+    public void createServerToolTip()
+    {
+        if (toolTipInstance)
+        {
+            Destroy(toolTipInstance);
+        }
+        toolTipInstance = Instantiate(serverTooltipPrefab);
+        toolTipInstance.GetComponent<collapseButton>().closeButton.onClick.AddListener(delegate { markAtomUI(false);  });
+        var con_atoms = connectedAtoms();
+        toolTipInstance.GetComponent<collapseButton>().TooltipText.text = getToolTipText(m_data.m_name, m_data.m_mass, m_data.m_radius, con_atoms.Count);
+        toolTipInstance.GetComponent<collapseButton>().deleteButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.deleteAtomUI(this); });
+        toolTipInstance.GetComponent<collapseButton>().freezeButton.onClick.AddListener(delegate { freezeUI(!frozen); });
+        
 
-    #endregion
 
-    #region focus_highlight
+    }
 
-    private void Start()
+        #endregion
+
+        #region focus_highlight
+
+        private void Start()
     {
         var et = GetComponent<EyeTrackingTarget>();
         et.OnLookAtStart.AddListener(delegate { onLookStart(); });
