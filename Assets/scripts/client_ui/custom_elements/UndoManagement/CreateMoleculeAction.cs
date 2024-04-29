@@ -1,4 +1,5 @@
 using chARpackStructs;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,9 +7,9 @@ using UnityEngine;
 public class CreateMoleculeAction : IUndoableAction
 {
     private cmlData cmlData;
-    private ushort m_id;
+    private Guid m_id;
 
-    public CreateMoleculeAction(ushort m_id,cmlData cmlData)
+    public CreateMoleculeAction(Guid m_id,cmlData cmlData)
     {
         this.m_id = m_id;
         this.cmlData = cmlData;

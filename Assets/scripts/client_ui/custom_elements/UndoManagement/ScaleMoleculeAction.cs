@@ -30,17 +30,17 @@ public class ScaleMoleculeAction : IUndoableAction
     {
         bool hasSlider = false;
         var ratio = 1.0f;
-        if (GlobalCtrl.Singleton.Dict_curMolecules[after.moleID].scalingSliderInstance)
+        if (GlobalCtrl.Singleton.List_curMolecules[after.moleID].scalingSliderInstance)
         {
-            ratio = after.moleScale.x / GlobalCtrl.Singleton.Dict_curMolecules[after.moleID].scalingSliderInstance.GetComponent<mySlider>().SliderValue;
+            ratio = after.moleScale.x / GlobalCtrl.Singleton.List_curMolecules[after.moleID].scalingSliderInstance.GetComponent<mySlider>().SliderValue;
             hasSlider = true;
         }
         GlobalCtrl.Singleton.deleteMolecule(after.moleID, false);
         GlobalCtrl.Singleton.BuildMoleculeFromCML(before, before.moleID);
         if (hasSlider)
         {
-            GlobalCtrl.Singleton.Dict_curMolecules[before.moleID].toggleScalingSlider();
-            GlobalCtrl.Singleton.Dict_curMolecules[before.moleID].scalingSliderInstance.GetComponent<mySlider>().StartSliderValue = before.moleScale.x / ratio;
+            GlobalCtrl.Singleton.List_curMolecules[before.moleID].toggleScalingSlider();
+            GlobalCtrl.Singleton.List_curMolecules[before.moleID].scalingSliderInstance.GetComponent<mySlider>().StartSliderValue = before.moleScale.x / ratio;
         }
         GlobalCtrl.Singleton.SignalUndoScaling();
     }

@@ -27,7 +27,7 @@ public class MoveMoleculeAction : IUndoableAction
 
     public void Undo()
     {
-        GlobalCtrl.Singleton.Dict_curMolecules[after.moleID].transform.localPosition = before.molePos;
-        GlobalCtrl.Singleton.Dict_curMolecules[after.moleID].transform.localRotation = before.moleQuat;
+        GlobalCtrl.Singleton.List_curMolecules[after.moleID].transform.localPosition = before.molePos;
+        GlobalCtrl.Singleton.List_curMolecules[after.moleID].transform.localRotation = before.moleQuat;
     }
 }

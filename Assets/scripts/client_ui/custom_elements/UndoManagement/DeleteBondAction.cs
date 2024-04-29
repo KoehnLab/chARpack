@@ -21,7 +21,7 @@ public class DeleteBondAction : IUndoableAction
 
     public void Undo()
     {
-        var newPos = GlobalCtrl.Singleton.Dict_curMolecules[after[0].moleID].transform.localPosition;
+        var newPos = GlobalCtrl.Singleton.List_curMolecules[after[0].moleID].transform.localPosition;
         foreach(cmlData molecule in after)
         {
             GlobalCtrl.Singleton.deleteMolecule(molecule.moleID, false);
