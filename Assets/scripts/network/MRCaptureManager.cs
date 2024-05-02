@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+#if WINDOWS_UWP
 using UnityEngine.Windows.WebCam;
+#endif
 
 public class MRCaptureManager : MonoBehaviour
 {
@@ -27,10 +29,13 @@ public class MRCaptureManager : MonoBehaviour
         Singleton = this;
     }
 
+#if WINDOWS_UWP
     VideoCapture m_VideoCapture = null;
+#endif
 
     public void setRecording(bool record)
     {
+#if WINDOWS_UWP
         if (record)
         {
             StartVideoCapture();
@@ -42,24 +47,23 @@ public class MRCaptureManager : MonoBehaviour
                 m_VideoCapture.StopRecordingAsync(OnStoppedRecordingVideo);
             }
         }
+#endif
     }
 
     public bool isRecording()
     {
+#if WINDOWS_UWP
         if (m_VideoCapture != null)
         {
             return m_VideoCapture.IsRecording;
         }
-        else
-        {
-            return false;
-        }
-
+#endif
+        return false;
     }
 
     public void StartVideoCapture()
     {
-
+#if WINDOWS_UWP
         Resolution cameraResolution = VideoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).First();
         Debug.Log(cameraResolution);
 
@@ -88,7 +92,10 @@ public class MRCaptureManager : MonoBehaviour
                 Debug.LogError("[MRCaptureManager] Failed to create VideoCapture Instance!");
             }
         });
+#endif
     }
+
+#if WINDOWS_UWP
 
     void OnStartedVideoCaptureMode(VideoCapture.VideoCaptureResult result)
     {
@@ -116,4 +123,5 @@ public class MRCaptureManager : MonoBehaviour
         m_VideoCapture.StopVideoModeAsync(OnStoppedVideoCaptureMode);
     }
 
+#endif
 }
