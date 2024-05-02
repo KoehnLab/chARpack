@@ -772,7 +772,8 @@ Shader "Mixed Reality Toolkit/Standard"
                 return o;
             }
 
-            fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
+            //fixed4 frag(v2f i, fixed facing : VFACE) : SV_Target
+            fixed4 frag(v2f i, bool facing : SV_IsFrontFace) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(i);
 
@@ -953,10 +954,12 @@ Shader "Mixed Reality Toolkit/Standard"
                 worldNormal.x = dot(i.tangentX, tangentNormal);
                 worldNormal.y = dot(i.tangentY, tangentNormal);
                 worldNormal.z = dot(i.tangentZ, tangentNormal);
-                worldNormal = normalize(worldNormal) * facing;
+                //worldNormal = normalize(worldNormal) * facing;
+                worldNormal = normalize(worldNormal) * (facing ? 1.0 : -1.0);
 #endif
 #else
-                worldNormal = normalize(i.worldNormal) * facing;
+                //worldNormal = normalize(i.worldNormal) * facing;
+                worldNormal = normalize(i.worldNormal) * (facing ? 1.0 : -1.0);
 #endif
 #endif
 

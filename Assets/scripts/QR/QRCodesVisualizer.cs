@@ -1,12 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Microsoft.MixedReality.QR;
 
+#if WINDOWS_UWP
+using Microsoft.MixedReality.QR;
+#endif
 namespace QRTracking
 {
     public class QRCodesVisualizer : MonoBehaviour
     {
+#if WINDOWS_UWP
         public GameObject qrCodePrefab;
 
         public System.Collections.Generic.SortedDictionary<System.Guid, GameObject> qrCodesObjectsList;
@@ -153,6 +156,6 @@ namespace QRTracking
         {
             HandleEvents();
         }
+#endif
     }
-
 }
