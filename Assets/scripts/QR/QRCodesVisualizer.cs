@@ -9,7 +9,7 @@ namespace QRTracking
 {
     public class QRCodesVisualizer : MonoBehaviour
     {
-#if WINDOWS_UWP
+
         public GameObject qrCodePrefab;
 
         public System.Collections.Generic.SortedDictionary<System.Guid, GameObject> qrCodesObjectsList;
@@ -42,7 +42,7 @@ namespace QRTracking
         {
 
         }
-
+#if WINDOWS_UWP
         // Use this for initialization
         void Start()
         {

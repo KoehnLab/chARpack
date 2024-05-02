@@ -103,4 +103,34 @@ public class XMLFileHelper
         return null;
 
     }
+
+    /// <summary>
+    /// It reads from a XML file into the specified type class.
+    /// </summary>
+    public static object LoadFromString(string content, Type type)
+    {
+        try
+        {
+            // convert string to stream
+            byte[] byteArray = Encoding.UTF8.GetBytes(content);
+            //byte[] byteArray = Encoding.ASCII.GetBytes(contents);
+            MemoryStream stream = new MemoryStream(byteArray);
+
+            // convert stream to string
+            // StreamReader reader = new StreamReader(stream);
+
+            XmlSerializer serializer = new XmlSerializer(type);
+
+            object obj = serializer.Deserialize(stream);
+
+            stream.Close();
+            return obj;
+        }
+        catch (Exception ex)
+        {
+            Debug.Log("2:" + ex.GetBaseException());
+        }
+        return null;
+    }
+
 }

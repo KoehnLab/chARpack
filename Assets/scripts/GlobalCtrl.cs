@@ -16,6 +16,7 @@ using System.Linq;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using chARpackTypes;
+using System.Text;
 
 /*! \mainpage 
  * API reference page for chARpack
@@ -243,13 +244,14 @@ public class GlobalCtrl : MonoBehaviour
         currentLocale = LocalizationSettings.SelectedLocale;
 
         // check if file is found otherwise throw error
-        string element_file_path = Path.Combine(Application.streamingAssetsPath, "ElementData.xml");
-        if (!System.IO.File.Exists(element_file_path))
+        var textFile = Resources.Load<TextAsset>("element_data/ElementData");
+        //string element_file_path = Path.Combine(Application.resources, "ElementData.xml");
+        if (!textFile)
         {
             Debug.LogError("[GlobalCtrl] ElementData.xml not found.");
         }
 
-        list_ElementData = (List<ElementData>)XMLFileHelper.LoadData(element_file_path, typeof(List<ElementData>));
+        list_ElementData = (List<ElementData>)XMLFileHelper.LoadFromString(textFile.text, typeof(List<ElementData>));
         if (!(list_ElementData.Count > 0))
         {
             Debug.LogError("[GlobalCtrl] list_ElementData is empty.");
