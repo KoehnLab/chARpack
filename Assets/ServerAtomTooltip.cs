@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class collapseButton : MonoBehaviour
+public class ServerAtomTooltip : MonoBehaviour
 {
     public Button collapse_button;
     public TMP_Text TooltipText;
@@ -20,6 +20,8 @@ public class collapseButton : MonoBehaviour
     public GameObject infobox;
     public GameObject hybrid;
     public Canvas UI;
+    public Atom linkedAtom;
+    public RectTransform rect;
 
 
     private ushort _hyb;
@@ -27,8 +29,8 @@ public class collapseButton : MonoBehaviour
 
     public ushort hyb { get => _hyb; set { _hyb = value; currentHybrid.text = _hyb.ToString(); } }
 
-    private Atom _currentAtom;
-    public Atom currentAtom { get => _currentAtom; set { _currentAtom = value; hyb = _currentAtom.m_data.m_hybridization; } }
+
+    public Atom currentAtom { get => linkedAtom; set { linkedAtom = value; hyb = linkedAtom.m_data.m_hybridization; } }
 
     public void increase()
     {
@@ -63,6 +65,13 @@ public class collapseButton : MonoBehaviour
         drag.target = transform;
         hybridUp.onClick.AddListener(delegate { increase(); });
         hybridDown.onClick.AddListener(delegate {  decrease(); });
+        rect = transform as RectTransform;
+        RectTransform canvasRectTransform = UI.GetComponent<RectTransform>();
+        rect.anchorMin= new Vector2(1,0.5f);
+        rect.anchorMax = new Vector2(1, 0.5f);
+        rect.pivot = new Vector2(1, 0.5f);
+        rect.anchoredPosition = new Vector2(0, 0);
+        this.transform.localScale = new Vector2(1, 1);
         
     }
 
@@ -70,11 +79,21 @@ public class collapseButton : MonoBehaviour
     {
         if (isSmall) 
         {
-        
+        isSmall = false;
+        deleteButton.gameObject.SetActive(true);
+        freezeButton.gameObject.SetActive(true);
+        hybrid.SetActive(true);
+        infobox.SetActive(true);
+        rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y -230);
         }
         else 
         {
-        
+        isSmall = true;
+        deleteButton.gameObject.SetActive(false);
+        freezeButton.gameObject.SetActive(false);
+        hybrid.SetActive(false);
+        infobox.SetActive(false);
+        rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y +230);
         }
     }
 

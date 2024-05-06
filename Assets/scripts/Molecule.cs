@@ -10,6 +10,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using chARpackColorPalette;
+using UnityEngine.SceneManagement;
 
 public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
@@ -141,6 +142,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         if (toolTipInstance)
         {
+            if(!SceneManager.GetActiveScene().name.Equals("ServerScene")){
             if(type == toolTipType.SINGLE)
             {
                 string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
@@ -174,6 +176,43 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
                 toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
             }
+            }
+            else
+            {               
+            if(type == toolTipType.SINGLE)
+            {
+                string[] text = toolTipInstance.GetComponent<ServerBondTooltip>().ToolTipText.text.Split("\n");
+                string[] distance = text[2].Split(": ");
+                double dist = SettingsData.useAngstrom ? toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>().getDistanceInAngstrom()
+                    : toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>().getDistanceInAngstrom()*100;
+                string distanceString = SettingsData.useAngstrom ? $"{dist:0.00}\u00C5" : $"{dist:0}pm";
+                string newDistance = string.Concat(distance[0], ": ", distanceString);
+                text[2] = newDistance;
+
+                toolTipInstance.GetComponent<ServerBondTooltip>().ToolTipText.text = string.Join("\n", text);
+
+            }
+            else if(type == toolTipType.ANGLE)
+            {
+                string[] text = toolTipInstance.GetComponent<ServerAngleTooltip>().ToolTipText.text.Split("\n");
+                string[] ang = text[3].Split(": ");
+                double angle = toolTipInstance.transform.Find("Angle Measurement").GetComponent<AngleMeasurement>().getAngle();
+                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}�");
+                text[3] = newAng;
+
+                toolTipInstance.GetComponent<ServerAngleTooltip>().ToolTipText.text = string.Join("\n", text);
+            }
+            else if(type == toolTipType.TORSION)
+            {
+                string[] text = toolTipInstance.GetComponent<ServerTorsionTooltip>().ToolTipText.text.Split("\n");
+                string[] ang = text[2].Split(": ");
+                double angle = toolTipInstance.transform.Find("Dihedral Angle Measurement").GetComponent<DihedralAngleMeasurement>().getAngle();
+                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}�");
+                text[2] = newAng;
+
+                toolTipInstance.GetComponent<ServerTorsionTooltip>().ToolTipText.text = string.Join("\n", text);
+            } 
+            }
         }
     }
 
@@ -202,6 +241,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject snapMeButtonPrefab;
     [HideInInspector] public static GameObject distanceMeasurementPrefab;
     [HideInInspector] public static GameObject angleMeasurementPrefab;
+    [HideInInspector] public static GameObject serverMoleculeTooltipPrefab;
+    [HideInInspector] public static GameObject serverBondTooltipPrefab;
+    [HideInInspector] public static GameObject serverAngleTooltipPrefab;
+    [HideInInspector] public static GameObject serverTorsionTooltipPrefab;
 
     [HideInInspector] public static Material compMaterialA;
     [HideInInspector] public static Material compMaterialB;
@@ -414,7 +457,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             if (!toolTipInstance && showToolTip)
             {
+                if (SceneManager.GetActiveScene().name.Equals("ServerScene")) 
+                { createServerToolTip(); }
+                else{
                 createToolTip();
+                }
             }
         }
 
@@ -723,9 +770,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var toggleDummiesButtonInstance = Instantiate(toggleDummiesButtonPrefab);
         toggleDummiesButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { toggleDummiesUI(); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(toggleDummiesButtonInstance);
+
         var copyButtonInstance = Instantiate(copyButtonPrefab);
         copyButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.copyMolecule(this); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(copyButtonInstance);
+
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
         closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markMoleculeUI(false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
@@ -747,6 +796,25 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(delButtonInstance);
 
         // Starting color for indicators
+        setFrozenVisual(frozen);
+    }
+
+    public void createServerToolTip()
+    {
+        
+        toolTipInstance = Instantiate(serverMoleculeTooltipPrefab);
+        type = toolTipType.MOLECULE;
+        float tot_mass = 0.0f;
+        calcMetaData(ref tot_mass);
+        var mol_center = getCenter();
+        var max_dist = getMaxDistFromCenter(mol_center);
+        string toolTipText = getAtomToolTipText(tot_mass,max_dist);
+        toolTipInstance.GetComponent<ServerMoleculeTooltip>().ToolTipText.text = toolTipText;
+        toolTipInstance.GetComponent<ServerMoleculeTooltip>().closeButton.onClick.AddListener(delegate { markMoleculeUI(false);  });
+        toolTipInstance.GetComponent<ServerMoleculeTooltip>().freezeButton.onClick.AddListener(delegate { freezeUI(!frozen); });
+        toolTipInstance.GetComponent<ServerMoleculeTooltip>().deleteButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.deleteMoleculeUI(this); });
+        toolTipInstance.GetComponent<ServerMoleculeTooltip>().scaleButton.onClick.AddListener(delegate { toggleScalingSlider(); });
+        toolTipInstance.GetComponent<ServerMoleculeTooltip>().copyButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.copyMolecule(this); });
         setFrozenVisual(frozen);
     }
 
@@ -828,6 +896,28 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
     }
 
+    public void createServerBondToolTip(ForceField.BondTerm term)
+    {
+        toolTipInstance = Instantiate(serverBondTooltipPrefab);
+        type = toolTipType.SINGLE;
+
+        var distGO = Instantiate(distanceMeasurementPrefab);
+        distGO.transform.parent = toolTipInstance.transform;
+        distGO.name = "Distance Measurement";
+        distGO.transform.Find("Line").gameObject.SetActive(false);
+        var atom1 = atomList.ElementAtOrDefault(term.Atom1);
+        var atom2 = atomList.ElementAtOrDefault(term.Atom2);
+        DistanceMeasurement dist = distGO.GetComponent<DistanceMeasurement>();
+        dist.StartAtom = atom1;
+        dist.EndAtom = atom2;
+
+        string toolTipText = getBondToolTipText(term.eqDist/100, dist.getDistanceInAngstrom(), term.kBond, term.order);
+        toolTipInstance.GetComponent<ServerBondTooltip>().ToolTipText.text = toolTipText;
+        toolTipInstance.GetComponent<ServerBondTooltip>().closeButton.onClick.AddListener(delegate { markMoleculeUI(false);  });
+        toolTipInstance.GetComponent<ServerBondTooltip>().deleteButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.deleteMoleculeUI(this); });
+        toolTipInstance.GetComponent<ServerBondTooltip>().modifyButton.onClick.AddListener(delegate { createChangeBondWindow(term); });
+
+    }
     private void createChangeBondWindow(ForceField.BondTerm bond)
     {
         var changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
@@ -847,7 +937,14 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>();
         // Update tool tip
         string toolTipText = getBondToolTipText(bt.eqDist, dist.getDistanceInAngstrom(), bt.kBond, bt.order);
-        toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        if(!SceneManager.GetActiveScene().name.Equals("ServerScene"))
+        {        
+            toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        }
+        else
+        {
+            toolTipInstance.GetComponent<ServerBondTooltip>().ToolTipText.text = toolTipText;
+        }
 
         changeBondParameters(bt, id);
         EventManager.Singleton.ChangeBondTerm(bt, m_id, (ushort)id);
@@ -917,6 +1014,17 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var closeButtonInstance = Instantiate(closeMeButtonPrefab);
         closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markAngleTermUI(term, false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
+    }
+
+    public void createServerAngleToolTip(ForceField.AngleTerm term)
+    {
+        toolTipInstance = Instantiate(serverAngleTooltipPrefab);
+        type = toolTipType.ANGLE;
+        AngleMeasurement angle = getMeasurements(term);
+        string toolTipText = getAngleToolTipText(term.eqAngle, term.kAngle, angle.getAngle());
+        toolTipInstance.GetComponent<ServerAngleTooltip>().ToolTipText.text = toolTipText;
+        toolTipInstance.GetComponent<ServerAngleTooltip>().closeButton.onClick.AddListener(delegate { markMoleculeUI(false);  });
+        toolTipInstance.GetComponent<ServerAngleTooltip>().modifyButton.onClick.AddListener(delegate { createChangeAngleWindow(term); });
     }
 
     private AngleMeasurement getMeasurements(ForceField.AngleTerm term)
@@ -1034,6 +1142,17 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markTorsionTermUI(term, false); });
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
 
+    }
+
+    public void createServerTorsionToolTip(ForceField.TorsionTerm term)
+    {
+        toolTipInstance = Instantiate(serverTorsionTooltipPrefab);
+        type = toolTipType.TORSION;
+        var curAngle = getDihedralAngle(term.Atom1, term.Atom2, term.Atom3, term.Atom4);
+        string toolTipText = getTorsionToolTipText(term.eqAngle, term.vk, term.nn, curAngle);
+        toolTipInstance.GetComponent<ServerTorsionTooltip>().ToolTipText.text = toolTipText;
+        toolTipInstance.GetComponent<ServerTorsionTooltip>().closeButton.onClick.AddListener(delegate { markMoleculeUI(false);  });
+        toolTipInstance.GetComponent<ServerTorsionTooltip>().modifyButton.onClick.AddListener(delegate { createChangeTorsionWindow(term); });
     }
 
     private double getDihedralAngle(ushort atom1, ushort atom2, ushort atom3, ushort atom4)

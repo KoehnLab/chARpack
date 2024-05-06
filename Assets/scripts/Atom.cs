@@ -1291,7 +1291,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             if (!toolTipInstance && toolTip)
             {
                 if (SceneManager.GetActiveScene().name.Equals("ServerScene")) 
-                { createServerToolTip(); }
+                { createServerToolTip(this); }
                 else { createToolTip(); }
                 
             }
@@ -1354,7 +1354,14 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 {
                     if (toolTip)
                     {
-                        m_molecule.createBondToolTip(bond);
+                        if(SceneManager.GetActiveScene().name == "ServerScene")
+                        {
+                            m_molecule.createServerBondToolTip(bond);
+                        }                        
+                        else
+                        {
+                            m_molecule.createBondToolTip(bond);
+                        }
                     }
                     else
                     {
@@ -1568,18 +1575,20 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         return LocalizationSettings.StringDatabase.GetLocalizedString("Elements", text);
     }
-    public void createServerToolTip()
+    public void createServerToolTip(Atom thisAtom)
     {
         if (toolTipInstance)
         {
             Destroy(toolTipInstance);
         }
         toolTipInstance = Instantiate(serverTooltipPrefab);
-        toolTipInstance.GetComponent<collapseButton>().closeButton.onClick.AddListener(delegate { markAtomUI(false);  });
+        toolTipInstance.GetComponent<ServerAtomTooltip>().closeButton.onClick.AddListener(delegate { markAtomUI(false);  });
         var con_atoms = connectedAtoms();
-        toolTipInstance.GetComponent<collapseButton>().TooltipText.text = getToolTipText(m_data.m_name, m_data.m_mass, m_data.m_radius, con_atoms.Count);
-        toolTipInstance.GetComponent<collapseButton>().deleteButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.deleteAtomUI(this); });
-        toolTipInstance.GetComponent<collapseButton>().freezeButton.onClick.AddListener(delegate { freezeUI(!frozen); });
+        toolTipInstance.GetComponent<ServerAtomTooltip>().TooltipText.text = getToolTipText(m_data.m_name, m_data.m_mass, m_data.m_radius, con_atoms.Count);
+        toolTipInstance.GetComponent<ServerAtomTooltip>().deleteButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.deleteAtomUI(this); });
+        toolTipInstance.GetComponent<ServerAtomTooltip>().freezeButton.onClick.AddListener(delegate { freezeUI(!frozen); });
+        toolTipInstance.GetComponent<ServerAtomTooltip>().linkedAtom = thisAtom;
+        
         
 
 
