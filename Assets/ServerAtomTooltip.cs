@@ -22,6 +22,7 @@ public class ServerAtomTooltip : MonoBehaviour
     public Canvas UI;
     public Atom linkedAtom;
     public RectTransform rect;
+    public Vector3 localPosition = new Vector3(0,0,0);
 
 
     private ushort _hyb;
@@ -72,6 +73,10 @@ public class ServerAtomTooltip : MonoBehaviour
         rect.pivot = new Vector2(1, 0.5f);
         rect.anchoredPosition = new Vector2(0, 0);
         this.transform.localScale = new Vector2(1, 1);
+        if(localPosition != new Vector3 (0,0,0))
+        {
+            rect.localPosition = localPosition;
+        }
         
     }
 

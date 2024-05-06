@@ -4,6 +4,8 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System;
+using Microsoft.MixedReality.Toolkit;
+
 public class ServerTorsionTooltip : MonoBehaviour
 {
     public Button collapse_button;
@@ -11,6 +13,7 @@ public class ServerTorsionTooltip : MonoBehaviour
     public Button closeButton;
     public Button modifyButton;
     public RectTransform rect;
+    public Vector3 localPosition = new Vector3 (0,0,0);
     
 
     public Boolean isSmall = false;
@@ -33,6 +36,12 @@ public class ServerTorsionTooltip : MonoBehaviour
         rect.pivot = new Vector2(1, 0.5f);
         rect.anchoredPosition = new Vector2(0, 0);
         this.transform.localScale = new Vector2(1, 1);
+        UnityEngine.Debug.Log(localPosition.x);
+        UnityEngine.Debug.Log(localPosition.y);
+        if(localPosition != new Vector3 (0,0,0))
+        {
+            rect.localPosition = localPosition;
+        }        
     }
 
     // Update is called once per frame

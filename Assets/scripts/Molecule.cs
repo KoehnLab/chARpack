@@ -898,6 +898,23 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void createServerBondToolTip(ForceField.BondTerm term)
     {
+        Vector3 rectSave = new Vector3(0,0,0);    
+        foreach (var atom in atomList)
+        {
+            if (atom.toolTipInstance != null)
+            {
+                rectSave = atom.toolTipInstance.GetComponent<RectTransform>().localPosition;
+                Destroy(atom.toolTipInstance);
+                atom.toolTipInstance = null;
+            }
+        }        
+        if(toolTipInstance!= null){
+        if(toolTipInstance.activeInHierarchy)
+        {
+            rectSave = toolTipInstance.GetComponent<RectTransform>().localPosition;
+            Destroy(toolTipInstance);
+        }
+        }
         toolTipInstance = Instantiate(serverBondTooltipPrefab);
         type = toolTipType.SINGLE;
 
@@ -916,6 +933,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<ServerBondTooltip>().closeButton.onClick.AddListener(delegate { markMoleculeUI(false);  });
         toolTipInstance.GetComponent<ServerBondTooltip>().deleteButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.deleteMoleculeUI(this); });
         toolTipInstance.GetComponent<ServerBondTooltip>().modifyButton.onClick.AddListener(delegate { createChangeBondWindow(term); });
+        toolTipInstance.GetComponent<ServerBondTooltip>().localPosition = rectSave;
+
 
     }
     private void createChangeBondWindow(ForceField.BondTerm bond)
@@ -1018,6 +1037,21 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void createServerAngleToolTip(ForceField.AngleTerm term)
     {
+        Vector3 rectSave = new Vector3(0,0,0);
+        foreach (var atom in atomList)
+        {
+            if (atom.toolTipInstance != null)
+            {
+                rectSave = atom.toolTipInstance.GetComponent<RectTransform>().localPosition;
+                Destroy(atom.toolTipInstance);
+                atom.toolTipInstance = null;
+            }
+        }     
+        if(toolTipInstance != null)
+        {
+            rectSave = toolTipInstance.GetComponent<RectTransform>().localPosition;
+            Destroy(toolTipInstance);
+        }
         toolTipInstance = Instantiate(serverAngleTooltipPrefab);
         type = toolTipType.ANGLE;
         AngleMeasurement angle = getMeasurements(term);
@@ -1025,6 +1059,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<ServerAngleTooltip>().ToolTipText.text = toolTipText;
         toolTipInstance.GetComponent<ServerAngleTooltip>().closeButton.onClick.AddListener(delegate { markMoleculeUI(false);  });
         toolTipInstance.GetComponent<ServerAngleTooltip>().modifyButton.onClick.AddListener(delegate { createChangeAngleWindow(term); });
+        toolTipInstance.GetComponent<ServerAngleTooltip>().localPosition = rectSave;
     }
 
     private AngleMeasurement getMeasurements(ForceField.AngleTerm term)
@@ -1069,7 +1104,13 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var at = cb.at;
         // Update tool tip
         string toolTipText = getAngleToolTipText(at.eqAngle, at.kAngle);
-        toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        if(!SceneManager.GetActiveScene().name.Equals("ServerScene")){
+            toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        }
+        else
+        {
+            toolTipInstance.GetComponent<ServerAngleTooltip>().ToolTipText.text = toolTipText;
+        }
 
         changeAngleParameters(at, id);
         EventManager.Singleton.ChangeAngleTerm(at, m_id, (ushort)id);
@@ -1146,13 +1187,36 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void createServerTorsionToolTip(ForceField.TorsionTerm term)
     {
-        toolTipInstance = Instantiate(serverTorsionTooltipPrefab);
-        type = toolTipType.TORSION;
+        Vector3 rectSave = new Vector3(0,0,0);
+        
+        if(type == toolTipType.ANGLE)
+        {
+            foreach (var atom in atomList)
+            {
+            if (atom.toolTipInstance != null)
+            {
+                    rectSave = atom.toolTipInstance.GetComponent<RectTransform>().localPosition;
+                    Destroy(atom.toolTipInstance);
+                    atom.toolTipInstance = null;
+            }
+            }     
+            type = toolTipType.TORSION;
+            rectSave = toolTipInstance.GetComponent<RectTransform>().localPosition;
+            //UnityEngine.Debug.Log(rectSave.x + " og");
+            //UnityEngine.Debug.Log(rectSave.y + " og");
+            Destroy(toolTipInstance);
+            toolTipInstance = Instantiate(serverTorsionTooltipPrefab);
+        
         var curAngle = getDihedralAngle(term.Atom1, term.Atom2, term.Atom3, term.Atom4);
         string toolTipText = getTorsionToolTipText(term.eqAngle, term.vk, term.nn, curAngle);
         toolTipInstance.GetComponent<ServerTorsionTooltip>().ToolTipText.text = toolTipText;
         toolTipInstance.GetComponent<ServerTorsionTooltip>().closeButton.onClick.AddListener(delegate { markMoleculeUI(false);  });
         toolTipInstance.GetComponent<ServerTorsionTooltip>().modifyButton.onClick.AddListener(delegate { createChangeTorsionWindow(term); });
+        //UnityEngine.Debug.Log(rectSave.x + " before");
+        //UnityEngine.Debug.Log(rectSave.y + " before");
+        toolTipInstance.GetComponent<ServerTorsionTooltip>().localPosition = rectSave;
+        }
+        
     }
 
     private double getDihedralAngle(ushort atom1, ushort atom2, ushort atom3, ushort atom4)
@@ -1187,7 +1251,14 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var tt = cb.tt;
         // Update tool tip
         string toolTipText = getTorsionToolTipText(tt.eqAngle, tt.vk, tt.nn);
-        toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        
+        if(!SceneManager.GetActiveScene().name.Equals("ServerScene")){
+            toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        }
+        else
+        {
+            toolTipInstance.GetComponent<ServerTorsionTooltip>().ToolTipText.text = toolTipText;
+        }
 
         changeTorsionParameters(tt, id);
         EventManager.Singleton.ChangeTorsionTerm(tt, m_id, (ushort)id);

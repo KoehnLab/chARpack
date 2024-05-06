@@ -18,6 +18,7 @@ using chARpackTypes;
 using chARpackColorPalette;
 using UnityEngine.UI;
 using TMPro;
+using Unity.VisualScripting;
 
 /// <summary>
 /// A class that provides the functionalities of single atoms.
@@ -37,7 +38,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     [HideInInspector] public static GameObject serverTooltipPrefab;
 
     private Stopwatch stopwatch;
-    [HideInInspector] public GameObject toolTipInstance = null;
+    public GameObject toolTipInstance = null;
     private GameObject freezeButton;
     private static float toolTipDistanceWeight = 2.5f;
     private static Color grabColor = chARpackColors.blue;
@@ -1291,8 +1292,16 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             if (!toolTipInstance && toolTip)
             {
                 if (SceneManager.GetActiveScene().name.Equals("ServerScene")) 
-                { createServerToolTip(this); }
-                else { createToolTip(); }
+                { 
+                    if(m_molecule.toolTipInstance == null)
+                    {
+                        createServerToolTip(this); 
+                    }                    
+                }
+                else 
+                { 
+                    createToolTip(); 
+                }
                 
             }
             if (!m_molecule.isMarked)
@@ -1338,13 +1347,20 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             if (atom.isMarked)
             {
-                markedList.Add(atom);
+                 markedList.Add(atom);
             }
         }
         if (markedList.Count == 1)
         {
+            Vector3 rectSave = new Vector3(0,0,0);
+            if(m_molecule.toolTipInstance != null)
+            {
+            rectSave = m_molecule.toolTipInstance.GetComponent<RectTransform>().localPosition;
             Destroy(m_molecule.toolTipInstance);
+            m_molecule.toolTipInstance = null;
+            }
             markedList[0].markAtom(true, 2, toolTip);
+            markedList[0].toolTipInstance.GetComponent<ServerAtomTooltip>().localPosition = rectSave;
         }
         else if (markedList.Count == 2)
         {
@@ -1356,6 +1372,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     {
                         if(SceneManager.GetActiveScene().name == "ServerScene")
                         {
+
+                            //UnityEngine.Debug.Log("I called the new server tooltip: ", id);
                             m_molecule.createServerBondToolTip(bond);
                         }                        
                         else
@@ -1381,7 +1399,14 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 {
                     if (toolTip)
                     {
-                        m_molecule.createAngleToolTip(angle);
+                        if(!(SceneManager.GetActiveScene().name == "ServerScene"))
+                        {
+                            m_molecule.createAngleToolTip(angle);
+                        }
+                        else
+                        {
+                            m_molecule.createServerAngleToolTip(angle);
+                        }
                     }
                     else
                     {
@@ -1403,7 +1428,14 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 {
                     if (toolTip)
                     {
-                        m_molecule.createTorsionToolTip(torsion);
+                        if(!(SceneManager.GetActiveScene().name == "ServerScene"))
+                        {
+                            m_molecule.createTorsionToolTip(torsion);
+                        }
+                        else
+                        {
+                            m_molecule.createServerTorsionToolTip(torsion);
+                        }
                     }
                     else
                     {
@@ -1416,6 +1448,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
 
         }
+        if(toolTipInstance == null && m_molecule.toolTipInstance == null){markedList.RemoveRange(0,markedList.Count);}
     }
 
     /// <summary>
