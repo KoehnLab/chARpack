@@ -66,8 +66,6 @@ public class ServerAtomTooltip : MonoBehaviour
         collapse_button.onClick.AddListener(delegate { resize();});
         var drag = title.gameObject.AddComponent<Draggable>();
         drag.target = transform;
-        hybridUp.onClick.AddListener(delegate { increase(); });
-        hybridDown.onClick.AddListener(delegate {  decrease(); });
         rect = transform as RectTransform;
         RectTransform canvasRectTransform = UI.GetComponent<RectTransform>();
         rect.anchorMin= new Vector2(1,0.5f);
