@@ -1614,7 +1614,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             Destroy(toolTipInstance);
         }
+
         toolTipInstance = Instantiate(serverTooltipPrefab);
+        toolTipInstance.GetComponent<ServerAtomTooltip>().hybridUp.onClick.AddListener(delegate { toolTipInstance.GetComponent<ServerAtomTooltip>().increase(); });
+        toolTipInstance.GetComponent<ServerAtomTooltip>().hybridDown.onClick.AddListener(delegate {  toolTipInstance.GetComponent<ServerAtomTooltip>().decrease(); });
         toolTipInstance.GetComponent<ServerAtomTooltip>().closeButton.onClick.AddListener(delegate { markAtomUI(false);  });
         var con_atoms = connectedAtoms();
         toolTipInstance.GetComponent<ServerAtomTooltip>().TooltipText.text = getToolTipText(m_data.m_name, m_data.m_mass, m_data.m_radius, con_atoms.Count);

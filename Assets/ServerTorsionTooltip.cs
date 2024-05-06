@@ -62,4 +62,5 @@ public class ServerTorsionTooltip : MonoBehaviour
         rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y +130);
         }
     }
+    
 }

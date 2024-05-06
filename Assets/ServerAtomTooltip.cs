@@ -58,6 +58,8 @@ public class ServerAtomTooltip : MonoBehaviour
 
     public void Start()
     {
+        hyb = linkedAtom.m_data.m_hybridization;
+        currentHybrid.text = hyb.ToString();
         var UIthing = GameObject.Find("UICanvas");
         UI = UIthing.GetComponent<Canvas>();
         this.transform.SetParent(UI.transform);
@@ -77,6 +79,7 @@ public class ServerAtomTooltip : MonoBehaviour
         {
             rect.localPosition = localPosition;
         }
+
         
     }
 
@@ -101,5 +104,8 @@ public class ServerAtomTooltip : MonoBehaviour
         rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y +230);
         }
     }
-
+    public void assignColour()
+    {
+        title.GetComponent<Image>().color = Color.green;
+    }
 }
