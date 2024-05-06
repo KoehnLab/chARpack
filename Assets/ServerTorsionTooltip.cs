@@ -10,6 +10,7 @@ public class ServerTorsionTooltip : MonoBehaviour
     public TMP_Text ToolTipText;
     public Button closeButton;
     public Button modifyButton;
+    public RectTransform rect;
     
 
     public Boolean isSmall = false;
@@ -25,7 +26,7 @@ public class ServerTorsionTooltip : MonoBehaviour
         collapse_button.onClick.AddListener(delegate { resize();});
         var drag = title.gameObject.AddComponent<Draggable>();
         drag.target = transform;
-        var rect = transform as RectTransform;
+        rect = transform as RectTransform;
         RectTransform canvasRectTransform = UI.GetComponent<RectTransform>();
         rect.anchorMin= new Vector2(1,0.5f);
         rect.anchorMax = new Vector2(1, 0.5f);
@@ -35,15 +36,21 @@ public class ServerTorsionTooltip : MonoBehaviour
     }
 
     // Update is called once per frame
-        public void resize() 
+    public void resize() 
     {
         if (isSmall) 
         {
-        
+        isSmall = false;
+        modifyButton.gameObject.SetActive(true);
+        infobox.SetActive(true);
+        rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y -130);
         }
         else 
         {
-        
+        isSmall = true;
+        modifyButton.gameObject.SetActive(false);
+        infobox.SetActive(false);
+        rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y +130);
         }
     }
 }

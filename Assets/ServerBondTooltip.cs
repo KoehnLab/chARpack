@@ -47,7 +47,7 @@ public class ServerBondTooltip : MonoBehaviour
         deleteButton.gameObject.SetActive(true);
         modifyButton.gameObject.SetActive(true);
         infobox.SetActive(true);
-        rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y -230);
+        rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y -160);
         }
         else 
         {
@@ -55,7 +55,7 @@ public class ServerBondTooltip : MonoBehaviour
         deleteButton.gameObject.SetActive(false);
         modifyButton.gameObject.SetActive(false);
         infobox.SetActive(false);
-        rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y +230);
+        rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y +160);
         }
     }
 }
