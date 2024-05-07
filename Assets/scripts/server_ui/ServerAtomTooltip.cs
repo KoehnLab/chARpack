@@ -79,6 +79,11 @@ public class ServerAtomTooltip : MonoBehaviour
         {
             rect.localPosition = localPosition;
         }
+        else
+        {
+            Debug.Log("got here");
+            SpawnManager.Singleton.GetSpawnLocalPosition(rect);
+        }
         assignColour();        
     }
 
@@ -106,7 +111,7 @@ public class ServerAtomTooltip : MonoBehaviour
     public void assignColour()
     {
         var colorHolder = FocusColors.getColor(linkedAtom.m_molecule.focus_id_tracker);
-        Debug.Log("atom called by: " + linkedAtom.m_molecule.focus_id_tracker);
+        //Debug.Log("atom called by: " + linkedAtom.m_molecule.focus_id_tracker);
         userBox.GetComponent<RawImage>().color = colorHolder;
     }
 }

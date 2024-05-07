@@ -6,7 +6,7 @@ using UnityEngine;
 // This script should be attached to the main camera of the server scene
 public class ServerInputSystem : MonoBehaviour
 {
-    private float moveSpeed = 0.1f;
+    private float moveSpeed = 0.05f;
     private float turnSpeed = 1f;
 
     // Update is called once per frame
@@ -22,6 +22,15 @@ public class ServerInputSystem : MonoBehaviour
         cameraMouseManipulation();
         createStuff();
         selectWholeMolecule();
+
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            moveSpeed = 0.1f;
+        }
+        else
+        {
+            moveSpeed = 0.05f;
+        }
     }
 
     /// <summary>
