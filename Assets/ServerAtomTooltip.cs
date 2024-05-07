@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using chARpackColorPalette;
 
 public class ServerAtomTooltip : MonoBehaviour
 {
@@ -102,8 +103,8 @@ public class ServerAtomTooltip : MonoBehaviour
         rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y +230);
         }
     }
-    public void assignColour()
+    public void assignColour(int focus_id)
     {
-        title.GetComponent<Image>().color = Color.green;
+        title.GetComponent<Image>().color = FocusColors.getColor(focus_id);
     }
 }
