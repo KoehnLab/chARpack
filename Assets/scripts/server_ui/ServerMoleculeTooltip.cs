@@ -15,6 +15,9 @@ public class ServerMoleculeTooltip : MonoBehaviour
     public Button scaleButton;
     public Button copyButton;
     public RectTransform rect;
+    public Molecule linkedMolecule;
+    public GameObject userbox;
+    public Vector3 localPosition = new Vector3 (0,0,0);
 
     public Boolean isSmall = false;
     public GameObject title;
@@ -37,6 +40,11 @@ public class ServerMoleculeTooltip : MonoBehaviour
         rect.pivot = new Vector2(1, 0.5f);
         rect.anchoredPosition = new Vector2(0, 0);
         this.transform.localScale = new Vector2(1, 1);
+        if(localPosition != new Vector3 (0,0,0))
+        {
+            rect.localPosition = localPosition;
+        }
+        assignColour(linkedMolecule.focus_id_tracker);
     }
 
     // Update is called once per frame
@@ -63,8 +71,8 @@ public class ServerMoleculeTooltip : MonoBehaviour
         rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y +250);
         }
     }
-        public void assignColour(int focus_id)
+    public void assignColour(int focus_id)
     {
-        title.GetComponent<Image>().color = FocusColors.getColor(focus_id);
+        userbox.GetComponent<RawImage>().color = FocusColors.getColor(focus_id);
     }
 }

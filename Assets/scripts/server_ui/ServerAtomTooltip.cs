@@ -22,6 +22,7 @@ public class ServerAtomTooltip : MonoBehaviour
     public GameObject hybrid;
     public Canvas UI;
     public Atom linkedAtom;
+    public GameObject userBox;
     public RectTransform rect;
     public Vector3 localPosition = new Vector3(0,0,0);
 
@@ -78,8 +79,7 @@ public class ServerAtomTooltip : MonoBehaviour
         {
             rect.localPosition = localPosition;
         }
-
-        
+        assignColour();        
     }
 
     public void resize() 
@@ -103,8 +103,10 @@ public class ServerAtomTooltip : MonoBehaviour
         rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y +230);
         }
     }
-    public void assignColour(int focus_id)
+    public void assignColour()
     {
-        title.GetComponent<Image>().color = FocusColors.getColor(focus_id);
+        var colorHolder = FocusColors.getColor(linkedAtom.m_molecule.focus_id_tracker);
+        Debug.Log("atom called by: " + linkedAtom.m_molecule.focus_id_tracker);
+        userBox.GetComponent<RawImage>().color = colorHolder;
     }
 }

@@ -63,6 +63,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     public Vector2 structure_coords;
     public GameObject structure_interactible;
+    public int focus_id_tracker = -1;
 
 
     /// <summary>
@@ -285,6 +286,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             stopwatch?.Stop();
             if (stopwatch?.ElapsedMilliseconds < 200)
             {
+                focus_id_tracker = -1;
+                this.m_molecule.focus_id_tracker = -1;
                 m_molecule.popAtomState();
                 if (m_molecule.isMarked)
                 {
@@ -529,6 +532,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     //UnityEngine.Debug.Log($"[Atom] Interaction stopwatch: {stopwatch.ElapsedMilliseconds} [ms]");
                     if (stopwatch?.ElapsedMilliseconds < 200)
                     {
+                        focus_id_tracker = -1;
+                        this.m_molecule.focus_id_tracker = -1;
                         m_molecule.popAtomState();
                         resetMolPositionAfterMove();
                         EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
@@ -1682,6 +1687,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         if (SettingsData.pointerHighlighting)
         {
             proccessFocusUI(true);
+
         }
         else
         {
@@ -1706,6 +1712,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         if (NetworkManagerServer.Singleton != null || SettingsData.showAllHighlightsOnClients)
         {
             proccessFocus(focus, focus_id);
+            focus_id_tracker = focus_id;
+            this.m_molecule.focus_id_tracker = focus_id;
         }
     }
 
@@ -1773,6 +1781,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             var pos = FocusManager.getPosInArray(focus_id);
             focused[pos] = value;
             focusHighlightInFormula(focused, null);
+
         }
         else
         {
@@ -1782,8 +1791,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     public void serverFocusHighlightUI(bool value)
     {
+
         serverFocusHighlight(value);
         EventManager.Singleton.ServerFocusHighlight(m_molecule.m_id, m_id, value);
+
     }
 
     public void serverFocusHighlight(bool active)

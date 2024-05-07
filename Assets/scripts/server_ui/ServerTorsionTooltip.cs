@@ -15,6 +15,8 @@ public class ServerTorsionTooltip : MonoBehaviour
     public Button modifyButton;
     public RectTransform rect;
     public Vector3 localPosition = new Vector3 (0,0,0);
+    public Molecule linkedMolecule;
+    public GameObject userbox;
     
 
     public Boolean isSmall = false;
@@ -42,7 +44,8 @@ public class ServerTorsionTooltip : MonoBehaviour
         if(localPosition != new Vector3 (0,0,0))
         {
             rect.localPosition = localPosition;
-        }        
+        }
+        assignColour(linkedMolecule.focus_id_tracker);        
     }
 
     // Update is called once per frame
@@ -63,9 +66,10 @@ public class ServerTorsionTooltip : MonoBehaviour
         rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y +130);
         }
     }
-        public void assignColour(int focus_id)
+    public void assignColour(int focus_id)
     {
-        title.GetComponent<Image>().color = FocusColors.getColor(focus_id);
+        Debug.Log("torsion called by: " + focus_id);
+        userbox.GetComponent<RawImage>().color = FocusColors.getColor(focus_id);
     }
     
 }

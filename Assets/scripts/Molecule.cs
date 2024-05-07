@@ -256,6 +256,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private Vector3 startingScale;
     public bool frozen = false;
 
+    public int focus_id_tracker = -1;
     public enum toolTipType
     {
         MOLECULE,
@@ -934,6 +935,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<ServerBondTooltip>().deleteButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.deleteMoleculeUI(this); });
         toolTipInstance.GetComponent<ServerBondTooltip>().modifyButton.onClick.AddListener(delegate { createChangeBondWindow(term); });
         toolTipInstance.GetComponent<ServerBondTooltip>().localPosition = rectSave;
+        toolTipInstance.GetComponent<ServerBondTooltip>().linkedMolecule = this;
 
 
     }
@@ -1060,6 +1062,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<ServerAngleTooltip>().closeButton.onClick.AddListener(delegate { markMoleculeUI(false);  });
         toolTipInstance.GetComponent<ServerAngleTooltip>().modifyButton.onClick.AddListener(delegate { createChangeAngleWindow(term); });
         toolTipInstance.GetComponent<ServerAngleTooltip>().localPosition = rectSave;
+        toolTipInstance.GetComponent<ServerAngleTooltip>().linkedMolecule = this;
     }
 
     private AngleMeasurement getMeasurements(ForceField.AngleTerm term)
@@ -1215,6 +1218,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         //UnityEngine.Debug.Log(rectSave.x + " before");
         //UnityEngine.Debug.Log(rectSave.y + " before");
         toolTipInstance.GetComponent<ServerTorsionTooltip>().localPosition = rectSave;
+        toolTipInstance.GetComponent<ServerTorsionTooltip>().linkedMolecule = this;
         }
         
     }

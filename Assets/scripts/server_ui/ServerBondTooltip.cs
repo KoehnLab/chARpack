@@ -14,7 +14,8 @@ public class ServerBondTooltip : MonoBehaviour
     public Button deleteButton;    
     public Button modifyButton;
     public Vector3 localPosition = new Vector3 (0,0,0);
-    
+    public Molecule linkedMolecule;
+    public GameObject userbox;
 
     public Boolean isSmall = false;
     public GameObject title;
@@ -42,6 +43,7 @@ public class ServerBondTooltip : MonoBehaviour
         {
             rect.localPosition = localPosition;
         }
+        assignColour(linkedMolecule.focus_id_tracker);
     }
 
     
@@ -64,8 +66,9 @@ public class ServerBondTooltip : MonoBehaviour
         rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y +160);
         }
     }
-        public void assignColour(int focus_id)
+    public void assignColour(int focus_id)
     {
-        title.GetComponent<Image>().color = FocusColors.getColor(focus_id);
+        Debug.Log("bond called by: " + focus_id);
+        userbox.GetComponent<RawImage>().color = FocusColors.getColor(focus_id);
     }
 }

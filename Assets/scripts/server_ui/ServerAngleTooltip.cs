@@ -14,6 +14,8 @@ public class ServerAngleTooltip : MonoBehaviour
     public Button modifyButton;
     public RectTransform rect;
     public Vector3 localPosition = new Vector3 (0,0,0);
+    public Molecule linkedMolecule;
+    public GameObject userbox;
     
 
     public Boolean isSmall = false;
@@ -40,6 +42,7 @@ public class ServerAngleTooltip : MonoBehaviour
         {
             rect.localPosition = localPosition;
         }
+        assignColour(linkedMolecule.focus_id_tracker);
     }
 
     // Update is called once per frame
@@ -62,6 +65,8 @@ public class ServerAngleTooltip : MonoBehaviour
     }
         public void assignColour(int focus_id)
     {
-        title.GetComponent<Image>().color = FocusColors.getColor(focus_id);
+        Debug.Log("angle called by: " + focus_id);
+        userbox.GetComponent<RawImage>().color = FocusColors.getColor(focus_id);
     }
+
 }
