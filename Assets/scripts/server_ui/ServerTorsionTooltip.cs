@@ -1,3 +1,4 @@
+using chARpackColorPalette;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -61,6 +62,10 @@ public class ServerTorsionTooltip : MonoBehaviour
         infobox.SetActive(false);
         rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y +130);
         }
+    }
+        public void assignColour(int focus_id)
+    {
+        title.GetComponent<Image>().color = FocusColors.getColor(focus_id);
     }
     
 }

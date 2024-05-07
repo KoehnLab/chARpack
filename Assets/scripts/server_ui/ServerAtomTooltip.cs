@@ -1,4 +1,5 @@
 using System;
+using chARpackColorPalette;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -102,8 +103,8 @@ public class ServerAtomTooltip : MonoBehaviour
         rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y +230);
         }
     }
-    public void assignColour()
+    public void assignColour(int focus_id)
     {
-        title.GetComponent<Image>().color = Color.green;
+        title.GetComponent<Image>().color = FocusColors.getColor(focus_id);
     }
 }
