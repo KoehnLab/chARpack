@@ -1,98 +1,111 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class SpawnManager : MonoBehaviour
 {
     public Canvas mainCanvas;
-    public float stepSize = 100f;
-    public int maxIterations = 100;
-    // Start is called before the first frame update
 
     private static SpawnManager _singleton;
     public static SpawnManager Singleton
     {
-        get => _singleton;
-        private set
+        get
         {
             if (_singleton == null)
-                _singleton = value;
-            else if (_singleton != value)
             {
-                Debug.Log($"[{nameof(SpawnManager)}] Instance already exists, destroying duplicate!");
-                Destroy(value);
-            }
-        }
-    }
-
-    private void Awake()
-    {
-        Singleton = this;
-    }
-
-
-     public Vector2 GetSpawnLocalPosition(RectTransform spawnRectTransform)
-    {
-        Vector2 canvasCenter = mainCanvas.pixelRect.size / 2f;
-        Vector2 spawnPosition = Vector2.zero;
-
-        for (int i = 0; i < maxIterations; i++)
-        {
-            spawnPosition = canvasCenter;
-
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(mainCanvas.transform.TransformPoint(spawnPosition), 1f);
-            bool overlap = false;
-            foreach (Collider2D collider in colliders)
-            {
-                overlap = true;
-                break;
-            }
-
-            if (!overlap)
-            {
-                return spawnPosition;
-            }
-
-            // Spiral outwards
-            Vector2 offset = SpiralOut(i);
-            canvasCenter += offset * stepSize;
-        }
-
-        // If entire canvas is cluttered, return random position
-        return new Vector2(0,0);
-    }
-
-    Vector2 SpiralOut(int step)
-    {
-        float x = 0;
-        float y = 0;
-        float dx = 0;
-        float dy = -1;
-        float t = Mathf.Max(mainCanvas.pixelRect.width, mainCanvas.pixelRect.height);
-        float maxI = t * t;
-
-        for (int i = 0; i < maxI; i++)
-        {
-            if ((-mainCanvas.pixelRect.width / 2 <= x) && (x <= mainCanvas.pixelRect.width / 2) && (-mainCanvas.pixelRect.height / 2 <= y) && (y <= mainCanvas.pixelRect.height / 2))
-            {
-                if (i == step)
+                _singleton = FindObjectOfType<SpawnManager>();
+                if (_singleton == null)
                 {
-                    return new Vector2(x, y);
+                    GameObject singleton = new GameObject(typeof(SpawnManager).Name);
+                    _singleton = singleton.AddComponent<SpawnManager>();
                 }
             }
-
-            if ((x == y) || ((x < 0) && (x == -y)) || ((x > 0) && (x == 1 - y)))
-            {
-                t = dx;
-                dx = -dy;
-                dy = t;
-            }
-
-            x += dx;
-            y += dy;
+            return _singleton;
         }
-
-        return Vector2.zero;
     }
+
+    void Awake()
+    {
+        if (_singleton == null)
+        {
+            _singleton = this;
+        }
+        else if (_singleton != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+    }
+
+    public Vector2 GetSpawnLocalPosition(Transform spawnRectTransform)
+{
+    // Get all RectTransforms under the same parent canvas
+    RectTransform[] allRectTransforms = mainCanvas.GetComponentsInChildren<RectTransform>();
+
+    // Exclude the spawnRectTransform from the list
+    allRectTransforms = allRectTransforms.Where(val => val != spawnRectTransform).ToArray();
+    allRectTransforms = allRectTransforms.Where(val => val.transform.parent == spawnRectTransform.parent).ToArray();
+
+    // Set the initial spawn position to (0, 0) in local coordinates
+    spawnRectTransform.localPosition = Vector2.zero;
+
+    Vector2 spawnPosition = spawnRectTransform.localPosition;
+
+    // Convert spawn position to world space
+    Vector3 spawnWorldPosition = spawnRectTransform.TransformPoint(spawnPosition);
+
+    // Adjust the spawn position to the left until it doesn't overlap
+    while (IsOverlap(spawnRectTransform, spawnWorldPosition, allRectTransforms))
+    {
+        spawnPosition.x -= 1f; // Adjust in local coordinates
+        spawnWorldPosition = spawnRectTransform.TransformPoint(spawnPosition); // Convert to world space
+    }
+
+    return spawnPosition;
+}
+
+
+    // Check if the spawn position overlaps with any existing objects
+    private bool IsOverlap(Transform spawnRectTransform, Vector3 spawnPosition, RectTransform[] allRectTransforms)
+{
+    // Convert spawn position to local space of the Canvas
+    Vector2 localSpawnPosition = mainCanvas.transform.InverseTransformPoint(spawnPosition);
+
+    // Calculate the bounds of the spawned rectangle in local space
+    Bounds spawnBounds = new Bounds(localSpawnPosition, spawnRectTransform.GetComponent<RectTransform>().sizeDelta);
+
+    // Check if any part of the spawned rectangle would overlap with any part of another rectangle
+    foreach (RectTransform rectTransform in allRectTransforms)
+    {
+        // Calculate the bounds of the existing rectangle in local space
+        Bounds existingBounds = new Bounds(mainCanvas.transform.InverseTransformPoint(rectTransform.position), rectTransform.sizeDelta);
+
+        // Check if the bounds overlap
+        if (BoundsOverlap(spawnBounds, existingBounds))
+        {
+            Debug.Log("Overlap detected.");
+            return true; // Overlaps
+        }
+    }
+    return false; // No overlap
+}
+
+    // Helper method to check if two bounds overlap
+    private bool BoundsOverlap(Bounds bounds1, Bounds bounds2)
+    {
+    Debug.Log($"Bounds1: Min = {bounds1.min}, Max = {bounds1.max}");
+    Debug.Log($"Bounds2: Min = {bounds2.min}, Max = {bounds2.max}");
+    Debug.Log(bounds1.Contains(new Vector2 (bounds2.min.x,bounds2.min.y)) || 
+           bounds1.Contains(new Vector2 (bounds2.min.x,bounds2.max.y)) ||
+           bounds1.Contains(new Vector2 (bounds2.max.x,bounds2.min.y)) || 
+           bounds1.Contains(new Vector2 (bounds2.max.x,bounds2.max.y)) ||
+           bounds1.Equals(bounds2));
+
+    return bounds1.Contains(new Vector2 (bounds2.min.x,bounds2.min.y)) || 
+           bounds1.Contains(new Vector2 (bounds2.min.x,bounds2.max.y)) ||
+           bounds1.Contains(new Vector2 (bounds2.max.x,bounds2.min.y)) || 
+           bounds1.Contains(new Vector2 (bounds2.max.x,bounds2.max.y)) ||
+           bounds1.Equals(bounds2);
+    }
+
 }

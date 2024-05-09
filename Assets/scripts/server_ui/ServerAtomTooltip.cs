@@ -81,8 +81,10 @@ public class ServerAtomTooltip : MonoBehaviour
         }
         else
         {
-            Debug.Log("got here");
-            SpawnManager.Singleton.GetSpawnLocalPosition(rect);
+            //Debug.Log("got here");
+            Vector2 save = SpawnManager.Singleton.GetSpawnLocalPosition(rect);
+            Debug.Log(save);
+            rect.anchoredPosition = SpawnManager.Singleton.GetSpawnLocalPosition(rect);
         }
         assignColour();        
     }
