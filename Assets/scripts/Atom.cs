@@ -851,15 +851,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         if (collider.name.StartsWith("Dummy") && name.StartsWith("Dummy"))
         {
+            colorSwapSelect(0);
+            collider.GetComponent<Atom>().colorSwapSelect(0);
             if (GlobalCtrl.Singleton.collisions.Count > 0)
             {
-                Atom otherAtom = collider.GetComponent<Atom>();
                 //if(GlobalCtrl.Singleton.collisions.RemoveAll(m => (m.Equals((this, otherAtom)) || m.Equals((this, otherAtom)))) > 0)
-                if (GlobalCtrl.Singleton.collisions.RemoveAll(m => (m.Item1.Equals(this) || m.Item2.Equals(this))) > 0) // Only one collision per dummy allowed anyway
-                    {
-                    colorSwapSelect(0);
-                    otherAtom.colorSwapSelect(0);
-                }
+                GlobalCtrl.Singleton.collisions.RemoveAll(m => (m.Item1.Equals(this) || m.Item2.Equals(this))); // Only one collision per dummy allowed anyway
             }
         }
     }
