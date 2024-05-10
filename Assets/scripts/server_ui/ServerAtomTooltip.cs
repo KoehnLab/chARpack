@@ -79,13 +79,13 @@ public class ServerAtomTooltip : MonoBehaviour
         {
             rect.localPosition = localPosition;
         }
-        else
+/*        else
         {
             //Debug.Log("got here");
             Vector2 save = SpawnManager.Singleton.GetSpawnLocalPosition(rect);
             Debug.Log(save);
-            rect.anchoredPosition = SpawnManager.Singleton.GetSpawnLocalPosition(rect);
-        }
+            rect.anchoredPosition = save;
+        }*/
         assignColour();        
     }
 
