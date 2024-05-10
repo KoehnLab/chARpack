@@ -854,8 +854,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             if (GlobalCtrl.Singleton.collisions.Count > 0)
             {
                 Atom otherAtom = collider.GetComponent<Atom>();
-                if(GlobalCtrl.Singleton.collisions.RemoveAll(m => (m.Item1.Equals(this) && m.Item2.Equals(otherAtom)) || (m.Item1.Equals(otherAtom) && m.Item2.Equals(this))) > 0)
-                {
+                //if(GlobalCtrl.Singleton.collisions.RemoveAll(m => (m.Equals((this, otherAtom)) || m.Equals((this, otherAtom)))) > 0)
+                if (GlobalCtrl.Singleton.collisions.RemoveAll(m => (m.Item1.Equals(this) || m.Item2.Equals(this))) > 0) // Only one collision per dummy allowed anyway
+                    {
                     colorSwapSelect(0);
                     otherAtom.colorSwapSelect(0);
                 }

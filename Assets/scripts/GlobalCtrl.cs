@@ -1502,6 +1502,8 @@ public class GlobalCtrl : MonoBehaviour
     {
         if (collisions.Count() == 0) return;
 
+        Debug.Log(collisions.Count());
+
         var molCollisions = new List<Tuple<Atom, Atom>>();
         foreach (Atom a in mol.atomList)
         {
@@ -1511,6 +1513,8 @@ public class GlobalCtrl : MonoBehaviour
                 foreach (var collision in col) molCollisions.Add(collision); 
             }
         }
+
+        molCollisions = removeDuplicates(molCollisions);
 
         if (molCollisions.Count > 0)
         {
@@ -1556,6 +1560,13 @@ public class GlobalCtrl : MonoBehaviour
                 collisions.RemoveAll(m => (m.Item1.Equals(a) || m.Item2.Equals(a)));
             }
         }
+    }
+
+    private List<Tuple<Atom, Atom>> removeDuplicates(List<Tuple<Atom, Atom>> collisions)
+    {
+         return collisions.Select(x => new[] { x.Item1, x.Item2 }.OrderBy(s => s.m_id).ToArray())
+            .Select(x => Tuple.Create(x[0], x[1]))
+            .Distinct().ToList();
     }
 
     /// <summary>
