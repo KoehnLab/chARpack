@@ -83,39 +83,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 }
                 else
                 {
-                    if (GlobalCtrl.Singleton.collisions.Count() > 0)
-                    {
-                        var collisions = new Dictionary<Atom, Atom>();
-                        foreach (Atom a in atomList)
-                        {
-                            if (GlobalCtrl.Singleton.collisions.ContainsKey(a)) collisions.Add(a, GlobalCtrl.Singleton.collisions[a]);
-                            if (GlobalCtrl.Singleton.collisions.ContainsValue(a)) collisions.Add(GlobalCtrl.Singleton.collisions.First(x => x.Value.Equals(a)).Key, a);
-                        }
-
-                        if (collisions.Count > 0)
-                        {
-                            foreach (Atom d1 in collisions.Keys)
-                            {
-                                Atom d2 = collisions[d1];
-                                Atom a1 = d1.dummyFindMain();
-                                Atom a2 = d2.dummyFindMain();
-
-                                if (!a1.alreadyConnected(a2))
-                                {
-                                    if (atomList.Contains(d1))
-                                    {
-                                        EventManager.Singleton.MergeMolecule(d1.m_molecule.m_id, d1.m_id, d2.m_molecule.m_id, d2.m_id);
-                                        GlobalCtrl.Singleton.MergeMolecule(d1, d2);
-                                    }
-                                    else
-                                    {
-                                        EventManager.Singleton.MergeMolecule(d2.m_molecule.m_id, d2.m_id, d1.m_molecule.m_id, d1.m_id);
-                                        GlobalCtrl.Singleton.MergeMolecule(d2, d1);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    GlobalCtrl.Singleton.checkForCollisionsAndMerge(this);
                 }
                 // change material back to normal
                 GetComponent<myBoundingBox>().setGrabbed(false);
