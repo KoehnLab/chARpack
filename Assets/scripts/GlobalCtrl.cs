@@ -1763,6 +1763,29 @@ public class GlobalCtrl : MonoBehaviour
         OutlinePro.setNumOutlines(num);
         Atom2D.setNumFoci(num);
     }
+
+    public void setLicoriceRendering(bool set)
+    {
+        if (set)
+        {
+            foreach(Molecule mol in List_curMolecules.Values)
+            {
+                foreach(Atom a in mol.atomList)
+                {
+                    a.transform.localScale = 0.01f * Vector3.one;
+                }
+            }
+        } else
+        {
+            foreach (Molecule mol in List_curMolecules.Values)
+            {
+                foreach (Atom a in mol.atomList)
+                {
+                    a.transform.localScale = Vector3.one * a.m_data.m_radius * (GlobalCtrl.scale / GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
+                }
+            }
+        }
+    }
     #endregion
 
     #region export import

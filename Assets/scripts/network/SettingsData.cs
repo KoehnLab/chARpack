@@ -23,6 +23,7 @@ public class SettingsData
     [SerializeField] static public bool networkMeasurements = true;
     [SerializeField] static public bool interpolateColors = true;
     [SerializeField] static public bool useAngstrom = true;
+    [SerializeField] static public bool licoriceRendering = false;
 
 
     
