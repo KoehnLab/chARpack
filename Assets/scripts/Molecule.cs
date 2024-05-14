@@ -1447,7 +1447,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
                     if (atomList[iAtom].keepConfig && atomList[jAtom].keepConfig)
                     {
-                        var currentDist = (FFposition[iAtom] - FFposition[jAtom]).magnitude;
+                        var currentDist = (FFposition[iAtom] - FFposition[jAtom]).magnitude / transform.localScale.x;
                         if (currentDist.approx(0.0f, 0.00001f))
                         {
                             newBond.eqDist = dreiding_eqDist;
