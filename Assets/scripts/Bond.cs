@@ -34,15 +34,15 @@ public class Bond : MonoBehaviour
         gameObject.tag = "Bond";
         gameObject.layer = 7;
         m_molecule.bondList.Add(this);
-        float offset1 = _atom1.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f *m_molecule.transform.localScale.x;
-        float offset2 = _atom2.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f * m_molecule.transform.localScale.x;
+        float offset1 = SettingsData.licoriceRendering ? 0f : _atom1.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f *m_molecule.transform.localScale.x;
+        float offset2 = SettingsData.licoriceRendering ? 0f : _atom2.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f * m_molecule.transform.localScale.x;
         float distance = (Vector3.Distance(_atom1.transform.position, _atom2.transform.position) - offset1 - offset2) / m_molecule.transform.localScale.x;
         Vector3 pos1 = Vector3.MoveTowards(_atom1.transform.position, _atom2.transform.position, offset1);
         Vector3 pos2 = Vector3.MoveTowards(_atom2.transform.position, _atom1.transform.position, offset2);
         transform.position = (pos1 + pos2) / 2;
         transform.LookAt(_atom1.transform);
         transform.parent = inputMole.transform;
-        transform.localScale = new Vector3(m_bondOrder, m_bondOrder, distance);
+        transform.localScale = new Vector3(GlobalCtrl.Singleton.bondRadiusScale * m_bondOrder, GlobalCtrl.Singleton.bondRadiusScale * m_bondOrder, distance);
         setShaderProperties();
     }
 

@@ -1088,8 +1088,8 @@ public class ForceField : MonoBehaviour
             {
                 Atom a1 = mol.atomList.ElementAtOrDefault(bond.atomID1);
                 Atom a2 = mol.atomList.ElementAtOrDefault(bond.atomID2);
-                float offset1 = 0.5f * a1.transform.localScale.x * GlobalCtrl.atomScale * GlobalCtrl.scale * mol.transform.localScale.x;
-                float offset2 = 0.5f * a1.transform.localScale.x * GlobalCtrl.atomScale * GlobalCtrl.scale * mol.transform.localScale.x;
+                float offset1 = 0f;
+                float offset2 = 0f;
                 if (!SettingsData.licoriceRendering)
                 {
                     offset1 = a1.m_data.m_radius * scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * mol.transform.localScale.x;

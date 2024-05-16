@@ -100,6 +100,8 @@ public class GlobalCtrl : MonoBehaviour
 
     [HideInInspector] public ushort curHybrid = 3;
 
+    [HideInInspector] public float bondRadiusScale = 1f;
+
     Dictionary<Atom, List<Atom>> groupedAtoms = new Dictionary<Atom, List<Atom>>();
     //public List<string> favorites = new List<string>(new string[5]);
     //public GameObject fav1;
@@ -1768,11 +1770,16 @@ public class GlobalCtrl : MonoBehaviour
     {
         if (set)
         {
+            bondRadiusScale = 1.5f;
             foreach(Molecule mol in List_curMolecules.Values)
             {
                 foreach(Atom a in mol.atomList)
                 {
-                    a.transform.localScale = 0.01f * Vector3.one;
+                    a.transform.localScale = 0.01f * bondRadiusScale * Vector3.one;
+                }
+                foreach(Bond b in mol.bondList)
+                {
+                    b.transform.localScale = bondRadiusScale * b.transform.localScale;
                 }
             }
         } else
@@ -1781,9 +1788,14 @@ public class GlobalCtrl : MonoBehaviour
             {
                 foreach (Atom a in mol.atomList)
                 {
-                    a.transform.localScale = Vector3.one * a.m_data.m_radius * (GlobalCtrl.scale / GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
+                    a.transform.localScale = Vector3.one * a.m_data.m_radius * (scale / u2pm) * atomScale;
+                }
+                foreach (Bond b in mol.bondList)
+                {
+                    b.transform.localScale = 1/bondRadiusScale * b.transform.localScale;
                 }
             }
+            bondRadiusScale = 1f;
         }
     }
     #endregion

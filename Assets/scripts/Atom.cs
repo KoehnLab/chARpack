@@ -719,7 +719,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
         transform.parent = inputMole.transform;
         transform.localPosition = pos;
-        transform.localScale = SettingsData.licoriceRendering ? Vector3.one * 0.01f : Vector3.one * m_data.m_radius * (GlobalCtrl.scale / GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
+        transform.localScale = SettingsData.licoriceRendering ? Vector3.one * 0.01f * GlobalCtrl.Singleton.bondRadiusScale : Vector3.one * m_data.m_radius * (GlobalCtrl.scale / GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
 
         //Debug.Log(string.Format("Added latest {0}:  rad={1}  scale={2}  hyb={3}  nBonds={4}", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale, m_data.m_hybridization, m_data.m_bondNum));
 
@@ -792,7 +792,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         GetComponent<MeshRenderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
         m_mat = GetComponent<MeshRenderer>().material;
 
-        transform.localScale = SettingsData.licoriceRendering ? Vector3.one * 0.01f : Vector3.one * m_data.m_radius * (GlobalCtrl.scale / GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
+        transform.localScale = SettingsData.licoriceRendering ? Vector3.one * 0.01f * GlobalCtrl.Singleton.bondRadiusScale : Vector3.one * m_data.m_radius * (GlobalCtrl.scale / GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
 
 
         foreach (Atom a in connectedDummys())
