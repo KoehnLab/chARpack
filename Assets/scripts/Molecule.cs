@@ -212,6 +212,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private float toolTipDistanceWeight = 0.01f;
     private Vector3 startingScale;
     public bool frozen = false;
+    private Material frozen_bond_mat;
 
     public enum toolTipType
     {
@@ -264,6 +265,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         compMaterialA = Resources.Load("materials/ComparisonMaterialA") as Material;
         compMaterialB = Resources.Load("materials/ComparisonMaterialB") as Material;
+
+        frozen_bond_mat = Resources.Load("materials/frozenBondMaterial") as Material;
 
         if (mol_data.keepConfig)
         {
@@ -1173,12 +1176,36 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             atom.freeze(value);
         }
+        if (SettingsData.licoriceRendering) // add frozen visual to bonds in licorice mode
+        { 
+            foreach(var bond in bondList)
+            {
+                setFrozenMaterialOnBond(bond, value);
+            }
+        }
         GetComponent<NearInteractionGrabbable>().enabled = !value;
         GetComponent<ObjectManipulator>().enabled = !value;
         frozen = value;
         if (freezeButton)
         {
             setFrozenVisual(frozen);
+        }
+    }
+
+    public void setFrozenMaterialOnBond(Bond bond, bool value)
+    {
+        if (value)
+        {
+            // Append frozen material to end of list
+            Material[] frozen = bond.GetComponentInChildren<MeshRenderer>().sharedMaterials.ToList().Append(frozen_bond_mat).ToArray();
+            bond.GetComponentInChildren<MeshRenderer>().sharedMaterials = frozen;
+        }
+        else
+        {
+            // Remove frozen material
+            List<Material> unfrozen = bond.GetComponentInChildren<MeshRenderer>().sharedMaterials.ToList();
+            unfrozen.Remove(frozen_bond_mat);
+            bond.GetComponentInChildren<MeshRenderer>().sharedMaterials = unfrozen.ToArray();
         }
     }
 

@@ -1780,6 +1780,10 @@ public class GlobalCtrl : MonoBehaviour
                 foreach(Bond b in mol.bondList)
                 {
                     b.transform.localScale = bondRadiusScale * b.transform.localScale;
+                    if (mol.frozen)
+                    {
+                        mol.setFrozenMaterialOnBond(b, true);
+                    }
                 }
             }
         } else
@@ -1793,6 +1797,10 @@ public class GlobalCtrl : MonoBehaviour
                 foreach (Bond b in mol.bondList)
                 {
                     b.transform.localScale = 1/bondRadiusScale * b.transform.localScale;
+                    if (mol.frozen)
+                    {
+                        mol.setFrozenMaterialOnBond(b, false);
+                    }
                 }
             }
             bondRadiusScale = 1f;
