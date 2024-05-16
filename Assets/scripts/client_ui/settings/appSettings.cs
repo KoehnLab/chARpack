@@ -293,7 +293,6 @@ public class appSettings : MonoBehaviour
 
     public void toggleLicoriceRendering()
     {
-        Debug.Log("Set licorice");
         SettingsData.licoriceRendering = !SettingsData.licoriceRendering;
         GlobalCtrl.Singleton.setLicoriceRendering(SettingsData.licoriceRendering);
         updateVisuals();

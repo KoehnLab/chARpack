@@ -9596,7 +9596,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: efecebca686fa4441923973b6bb91f5e, type: 3}
+  m_Texture: {fileID: 2800000, guid: 82b4e63274b0423469913b42b33b19da, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -31064,68 +31064,10 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2204069621426241315, guid: 6e2b4e7c021c4fc479bfb1bf1aec538e, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 7256041674624504494}
     - targetCorrespondingSourceObject: {fileID: 2204069621878992593, guid: 6e2b4e7c021c4fc479bfb1bf1aec538e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 63225068767111429}
   m_SourcePrefab: {fileID: 100100000, guid: 6e2b4e7c021c4fc479bfb1bf1aec538e, type: 3}
---- !u!114 &4098363455464108153 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8779034279059886464, guid: 6e2b4e7c021c4fc479bfb1bf1aec538e, type: 3}
-  m_PrefabInstance: {fileID: 4698708999082009081}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6891430280983338714}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1410eac1ae94b4d4492a09cc368e152c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!1 &6891430280983338714 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2204069621426241315, guid: 6e2b4e7c021c4fc479bfb1bf1aec538e, type: 3}
-  m_PrefabInstance: {fileID: 4698708999082009081}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &7256041674624504494
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6891430280983338714}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69beb381e244f92449b8c4cf954630e9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_TrackedObjects:
-  - rid: 3378074958186938374
-  references:
-    version: 2
-    RefIds:
-    - rid: 3378074958186938374
-      type: {class: TrackedMonoBehaviourObject, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
-      data:
-        m_Target: {fileID: 4098363455464108153}
-        m_TrackedProperties:
-          items:
-          - rid: 3378074958186938375
-        m_UpdateType: 1
-        m_Changed:
-          m_PersistentCalls:
-            m_Calls: []
-    - rid: 3378074958186938375
-      type: {class: ArraySizeTrackedProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
-      data:
-        m_PropertyPath: OnClick.m_PersistentCalls.m_Calls.Array.size
-        m_VariantData:
-        - localeIdentifier:
-            m_Code: en
-          value: 0
-        - localeIdentifier:
-            m_Code: de
-          value: 1
 --- !u!1 &6891430281470103336 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2204069621878992593, guid: 6e2b4e7c021c4fc479bfb1bf1aec538e, type: 3}
