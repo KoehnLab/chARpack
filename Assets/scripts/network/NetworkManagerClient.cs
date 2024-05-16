@@ -966,6 +966,7 @@ public class NetworkManagerClient : MonoBehaviour
         var coop = message.GetBools();
         var networkMeasurements = message.GetBool();
         var interpolateColors = message.GetBool();
+        var licoriceRendering = message.GetBool();
         var useAngstrom = message.GetBool();
 
         // Get enum entries from strings
@@ -993,6 +994,7 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.coop = coop;
             SettingsData.networkMeasurements = networkMeasurements;
             SettingsData.interpolateColors = interpolateColors;
+            SettingsData.licoriceRendering = licoriceRendering;
             SettingsData.useAngstrom = useAngstrom;
             settingsControl.Singleton.updateSettings();
             if (appSettings.Singleton != null)

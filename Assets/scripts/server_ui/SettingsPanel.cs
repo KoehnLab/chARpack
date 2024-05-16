@@ -22,6 +22,7 @@ public class SettingsPanel : MonoBehaviour
     public GameObject gazeHighlightingToggle;
     public GameObject pointerHighlightingToggle;
     public GameObject bondColorInterpolationToggle;
+    public GameObject licoriceRenderingToggle;
     public GameObject integrationMethodDropdown;
     public GameObject interactionModeDropdown;
     public GameObject lengthUnitDropdown;
@@ -78,6 +79,8 @@ public class SettingsPanel : MonoBehaviour
         highlightColorMapDropdown.GetComponent<TMPro.TMP_Dropdown>().value = highlightColorMapValue;
 
         bondColorInterpolationToggle.GetComponent<Toggle>().isOn = SettingsData.interpolateColors;
+
+        licoriceRenderingToggle.GetComponent<Toggle>().isOn = SettingsData.licoriceRendering;
 
         int langValue = 0;
         if (SettingsData.language == "de")
@@ -146,6 +149,7 @@ public class SettingsPanel : MonoBehaviour
         SettingsData.coop = new bool[] { userBoxToggle.GetComponent<Toggle>().isOn, userRayToggle.GetComponent<Toggle>().isOn };
         SettingsData.networkMeasurements = networkMeasurementsToggle.GetComponent<Toggle>().isOn;
         SettingsData.interpolateColors = bondColorInterpolationToggle.GetComponent<Toggle>().isOn;
+        SettingsData.licoriceRendering = licoriceRenderingToggle.GetComponent<Toggle>().isOn;
 
         settingsControl.Singleton.updateSettings();
         EventManager.Singleton.UpdateSettings();
