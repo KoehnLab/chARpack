@@ -137,8 +137,9 @@ public class NetworkManagerClient : MonoBehaviour
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void FailedToConnect(object sender, EventArgs e)
+    private void FailedToConnect(object sender, ConnectionFailedEventArgs e)
     {
+        Debug.LogError($"[NetworkmanagerClient:FailedToConnect] Reason {e.Reason}; Message {e.Message}");
         var myDialog = Dialog.Open(showErrorPrefab, DialogButtonType.OK, "Connection Failed", $"Connection to {LoginData.ip}:{LoginData.port} failed\nGoing back to Login Screen.", true);
         //make sure the dialog is rotated to the camera
         myDialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
