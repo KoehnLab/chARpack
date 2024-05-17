@@ -347,8 +347,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4966719baa26e4b0e8231a24d9bd491a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_FocusMode: 1
-  m_LightEstimationMode: 0
+  m_FocusMode: -1
+  m_LightEstimationMode: -1
   m_AutoFocus: 1
   m_LightEstimation: 0
   m_FacingDirection: 1
@@ -4384,60 +4384,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1175498769}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &1240155038 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2297978557063401266, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-  m_PrefabInstance: {fileID: 5371978316124899573}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1240155041 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4469488691655995652, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-  m_PrefabInstance: {fileID: 5371978316124899573}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1240155038}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9541d86e2fd84c1d9990edf0852d74ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1240155043
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1240155038}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69beb381e244f92449b8c4cf954630e9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_TrackedObjects:
-  - rid: 4178321305477578766
-  references:
-    version: 2
-    RefIds:
-    - rid: 4178321305477578766
-      type: {class: TrackedUGuiGraphic, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
-      data:
-        m_Target: {fileID: 1240155041}
-        m_TrackedProperties:
-          items:
-          - rid: 4178321305477578767
-        m_UpdateType: 0
-    - rid: 4178321305477578767
-      type: {class: LocalizedStringProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
-      data:
-        m_Localized:
-          m_TableReference:
-            m_TableCollectionName: 
-          m_TableEntryReference:
-            m_KeyId: 0
-            m_Key: 
-          m_FallbackState: 0
-          m_WaitForCompletion: 0
-          m_LocalVariables: []
-        m_PropertyPath: m_text
 --- !u!1 &1245187104
 GameObject:
   m_ObjectHideFlags: 0
@@ -10511,49 +10457,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 692946000708069094, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: m_TrackedObjects.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1665666299313617181, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: m_fontSize
-      value: 0.07
-      objectReference: {fileID: 0}
-    - target: {fileID: 1665666299313617181, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: m_fontSizeBase
-      value: 0.07
-      objectReference: {fileID: 0}
-    - target: {fileID: 1665666299313617251, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: m_Mesh
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 2123164476787930189, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 684068572}
-    - target: {fileID: 2123164476787930189, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: toggleMeasurementMode
-      objectReference: {fileID: 0}
-    - target: {fileID: 3537350985816977441, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: useOnPreRender
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4469488691655995652, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: m_text
-      value: Mess-modus
-      objectReference: {fileID: 0}
     - target: {fileID: 5371906901954694233, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
       propertyPath: m_Name
       value: HandMenu
-      objectReference: {fileID: 0}
-    - target: {fileID: 5371906901954694233, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5371906901954694234, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: m_RootOrder
-      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 5371906901954694234, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
       propertyPath: m_LocalPosition.x
@@ -10595,65 +10505,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5371906901954694235, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: useGazeActivation
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5371906901954694236, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: trackedHandedness
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6853844256853982043, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
       propertyPath: cameraMethods
       value: 
       objectReference: {fileID: 91139672}
-    - target: {fileID: 6853844256853982043, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: useOnPreRender
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8097096242911856206, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
       propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 684068572}
-    - target: {fileID: 8097096242911856206, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: toggleFragmentRotationMode
-      objectReference: {fileID: 0}
-    - target: {fileID: 9167512196016673697, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: showScaleHandles
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9167512196016673697, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: proximityEffectActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9167512196016673697, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: showRotationHandleForX
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9167512196016673697, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: showRotationHandleForY
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9167512196016673697, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: showRotationHandleForZ
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9167512196016673697, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      propertyPath: drawTetherWhenManipulating
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 692946000708069094, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1665666299313617183, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 2297978557063401266, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1240155043}
     - targetCorrespondingSourceObject: {fileID: 2297978557063401266, guid: d8d6d12bfbe44d94fa83e7793496a247, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
