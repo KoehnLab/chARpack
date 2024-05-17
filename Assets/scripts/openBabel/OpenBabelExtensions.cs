@@ -4,19 +4,20 @@ using UnityEngine;
 using OpenBabel;
 using chARpackStructs;
 using System.Linq;
+using System;
 
 public static class OpenBabelExtensions
 {
-    public static cmlData AsCML(this OBMol molecule)
+    public static cmlData AsCML(this Tuple<Guid,OBMol> molecule)
     {
-        uint num_atoms = molecule.NumAtoms();
+        uint num_atoms = molecule.Item2.NumAtoms();
         Debug.Log($"[OpenBabelExtensions] Got {num_atoms} atoms.");
 
         List<Vector3> pos_vec = new List<Vector3>();
         Vector3 mean_pos = Vector3.zero;
         List<string> symbols = new List<string>();
         List<ushort> hybridizatons = new List<ushort>();
-        foreach (var atom in molecule.Atoms())
+        foreach (var atom in molecule.Item2.Atoms())
         {
             var current_pos = atom.GetVector().AsVector3() * GlobalCtrl.scale / GlobalCtrl.u2aa;
             pos_vec.Add(current_pos);
@@ -28,7 +29,7 @@ public static class OpenBabelExtensions
         mean_pos /= num_atoms;
 
         List<cmlBond> list_bond = new List<cmlBond>();
-        foreach (var bond in molecule.Bonds())
+        foreach (var bond in molecule.Item2.Bonds())
         {
             var a = (ushort)(bond.GetBeginAtomIdx() - 1);
             var b = (ushort)(bond.GetEndAtomIdx() - 1);
@@ -36,8 +37,6 @@ public static class OpenBabelExtensions
 
             list_bond.Add(new cmlBond(a, b, order));
         }
-
-        var mol_id = GlobalCtrl.Singleton.getFreshMoleculeID();
 
         List<cmlAtom> list_atom = new List<cmlAtom>();
         for (ushort i = 0; i < num_atoms; i++)
@@ -48,7 +47,7 @@ public static class OpenBabelExtensions
 
         // init position is in front of current camera in atom world coordinates
         Vector3 create_position = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(CameraSwitcher.Singleton.currentCam.transform.position + 0.5f * CameraSwitcher.Singleton.currentCam.transform.forward);
-        cmlData tempData = new cmlData(create_position, Quaternion.identity, mol_id, list_atom, list_bond, null, null, true); // TODO maybe get angles and torsions out of OpenBabel
+        cmlData tempData = new cmlData(create_position, Vector3.one, Quaternion.identity, molecule.Item1, list_atom, list_bond, null, null, true); // TODO maybe get angles and torsions out of OpenBabel
 
         return tempData;
     }
@@ -109,7 +108,7 @@ public static class OpenBabelExtensions
             list_torsion.Add(new cmlTorsion(b.Atom1, b.Atom2, b.Atom3, b.Atom4, b.eqAngle, b.vk, b.nn));
         }
 
-        saveData = new cmlData(mol.transform.localPosition, mol.transform.localRotation, mol.m_id, list_atom, list_bond, list_angle, list_torsion, true);
+        saveData = new cmlData(mol.transform.localPosition, mol.transform.localScale, mol.transform.localRotation, mol.m_id, list_atom, list_bond, list_angle, list_torsion, true);
 
 
         return saveData;
@@ -118,11 +117,12 @@ public static class OpenBabelExtensions
     /// <summary>
     /// Convert an OpenBabel <see cref="OBMol"/> to a SMILES string.
     /// </summary>
-    public static string AsSMILES(this OBMol molecule)
+    public static Tuple<Guid,string> AsSMILES(this Tuple<Guid,OBMol> molecule)
     {
         var conv = new OBConversion();
         conv.SetOutFormat("SMI");
-        return conv.WriteString(molecule).Trim();
+        var smiles = conv.WriteString(molecule.Item2).Trim();
+        return new Tuple<Guid, string>(molecule.Item1, smiles);
     }
 
     /// <summary>

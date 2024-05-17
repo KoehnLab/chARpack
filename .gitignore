@@ -10,6 +10,7 @@
 /[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
+/UIElementsSchema
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
@@ -80,3 +81,26 @@ crashlytics-build.properties
 
 # Packed Addressables
 /[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
+
+# __pycache__
+**/__pycache__
+**/__pycache__.meta
+
+# Nuget 
+/Assets/Nuget*
+
+## DLLs in plugins
+/Assets/plugins/*.dll
+
+# backups
+**/*.backup*
+
+# WSATestCertificate
+/Assets/WSATestCertificate*
+
+# Upgrade log
+/UpgradeLog*
+
+# imported examples
+/Assets/Packages
+/Assets/Packages.meta

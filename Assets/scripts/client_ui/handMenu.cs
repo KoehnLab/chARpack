@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using chARpackColorPalette;
 
 /// <summary>
 /// This class provides the functionality of a small scrollable atom menu
@@ -27,7 +28,6 @@ public class handMenu : myScrollObject
 
     public GameObject ChainModeIndicator;
     public GameObject MeasurementModeIndicator;
-    private Color orange = new Color(1.0f, 0.5f, 0.0f);
 
     private static handMenu _singleton;
 
@@ -119,18 +119,18 @@ public class handMenu : myScrollObject
     {
         if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
         {
-            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = orange;
-            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.orange;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.gray;
         }
         else if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)
         {
-            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = orange;
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.gray;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.orange;
         }
         else
         {
-            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.gray;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.gray;
         }
     }
 

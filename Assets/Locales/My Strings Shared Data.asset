@@ -233,14 +233,6 @@ MonoBehaviour:
     m_Key: ScaleMoleculeButton/ScaleMoleculeButton/IconAndText/TextMeshPro
     m_Metadata:
       m_Items: []
-  - m_Id: 22875769976950784
-    m_Key: HandMenu/HandMenu/MenuContent/ToggleMeasurmentModeButton/IconAndText/TextMeshPro
-    m_Metadata:
-      m_Items: []
-  - m_Id: 24331552324354048
-    m_Key: HandMenu/HandMenu/MenuContent/Grid/ToggleMeasurmentModeButton/IconAndText/TextMeshPro
-    m_Metadata:
-      m_Items: []
   - m_Id: 25041727584190464
     m_Key: Snap
     m_Metadata:
@@ -347,6 +339,12 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 93217280147619840
     m_Key: SteepestDescent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 116694264099356672
+    m_Key: MainScene/HandMenu/MenuContent/Grid/ToggleMeasurmentModeButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

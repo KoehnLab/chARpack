@@ -178,4 +178,50 @@ public static class chARpackExtensions
         return dotProduct / (magnitudeOfA * magnitudeOfB);
     }
 
+    public static bool AnyTrue(this bool[] list)
+    {
+        foreach (var entry in list)
+        {
+            if (entry) return true;
+        }
+        return false;
+    }
+
+    public static bool AllZero(this float[] list)
+    {
+        foreach (var entry in list)
+        {
+            if (entry != 0f) return false;
+        }
+        return true;
+    }
+
+    public static void RemoveValue<TKey>(this Dictionary<TKey, Molecule> dictionary,
+    Molecule mol, params object[] argList)
+    {
+        dictionary.Remove(dictionary.FirstOrDefault(x => x.Value == mol).Key);
+    }
+
+    public static Molecule ElementAtOrNull<TKey>(this Dictionary<TKey, Molecule> dictionary,
+TKey mol_id, params object[] argList)
+    {
+        if (!dictionary.ContainsKey(mol_id)) return null;
+        return dictionary[mol_id];
+    }
+
+    public static Molecule GetFirst<TKey>(this Dictionary<TKey, Molecule> dictionary, params object[] argList)
+    {
+        var keys = dictionary.Keys.ToList();
+        return dictionary[keys.First()];
+    }
+
+    public static string Print<T>(this T[] list)
+    {
+        string print = "";
+        foreach (var entry in list)
+        {
+            print += $"{entry} ";
+        }
+        return print;
+    }
 }

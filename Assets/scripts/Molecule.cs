@@ -9,11 +9,13 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using chARpackColorPalette;
 
 public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
     private Stopwatch stopwatch;
     [HideInInspector] public bool isGrabbed = false;
+    private cmlData before;
     private Vector3 pickupPos = Vector3.zero;
     private Quaternion pickupRot = Quaternion.identity;
 
@@ -37,6 +39,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             GetComponent<myBoundingBox>().setGrabbed(true);
         }
+        before = this.AsCML();
     }
 
     public void OnPointerClicked(MixedRealityPointerEventData eventData)
@@ -84,6 +87,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 else
                 {
                     GlobalCtrl.Singleton.checkForCollisionsAndMerge(this);
+                    // TODO
+                    cmlData after = this.AsCML();
+                    GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
                 }
                 // change material back to normal
                 GetComponent<myBoundingBox>().setGrabbed(false);
@@ -98,6 +104,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="eventData"></param>
     public void OnSliderUpdated(mySliderEventData eventData)
     {
+        if (eventData.Pointer != null) // exclude slider update on startup
+        {
+            cmlData before = this.AsCML();
+            before.moleScale = eventData.OldValue * gameObject.transform.localScale / eventData.NewValue;
+            GlobalCtrl.Singleton.undoStack.AddChange(new ScaleMoleculeAction(before, this.AsCML()));
+        }
         gameObject.transform.localScale = eventData.NewValue * startingScale;
         // networking
         EventManager.Singleton.ChangeMoleculeScale(m_id, gameObject.transform.localScale.x);
@@ -125,7 +137,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
                 string[] ang = text[3].Split(": ");
                 double angle = toolTipInstance.transform.Find("Angle Measurement").GetComponent<AngleMeasurement>().getAngle();
-                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}°");
+                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}ï¿½");
                 text[3] = newAng;
 
                 toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
@@ -135,7 +147,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
                 string[] ang = text[2].Split(": ");
                 double angle = toolTipInstance.transform.Find("Dihedral Angle Measurement").GetComponent<DihedralAngleMeasurement>().getAngle();
-                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}°");
+                string newAng = string.Concat(ang[0], ": ", $"{ angle:0.00}ï¿½");
                 text[2] = newAng;
 
                 toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
@@ -188,13 +200,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     }
     public toolTipType type;
 
-    private Color orange = new Color(1.0f, 0.5f, 0.0f);
-
     /// <summary>
     /// molecule id
     /// </summary>
-    private ushort _id;
-    public ushort m_id { get { return _id; } set { _id = value; name = "molecule_" + value; } }
+    private Guid _id;
+    public Guid m_id { get { return _id; } set { _id = value; name = "molecule_" + value.ToString().Substring(0,5); } }
 
 
     public bool isMarked;
@@ -212,7 +222,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// </summary>
     /// <param name="idInScene">the ID in the scene o the molecule</param>
     /// <param name="inputParent"> the parent of the molecule</param>
-    public void f_Init(ushort idInScene, Transform inputParent, cmlData mol_data = new cmlData())
+    public void f_Init(Guid idInScene, Transform inputParent, cmlData mol_data = new cmlData())
     {
         m_id = idInScene;
         isMarked = false;
@@ -279,6 +289,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         EventManager.Singleton.OnMolDataChanged += triggerGenerateFF;
         EventManager.Singleton.OnMolDataChanged += adjustBBox;
+#if !WINDOWS_UWP
+        if (NetworkManagerServer.Singleton)
+        {
+            EventManager.Singleton.OnMolDataChanged += NetworkManagerServer.Singleton.requestStructureFormula;
+        }
+#endif
     }
 
     private void adjustBBox(Molecule mol)
@@ -288,7 +304,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 #else
         if (mol == this)
         {
-            if (GlobalCtrl.Singleton.List_curMolecules.Contains(mol))
+            if (GlobalCtrl.Singleton.List_curMolecules.ContainsValue(mol))
             {
                 StartCoroutine(adjustBBoxCoroutine());
             }
@@ -335,7 +351,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             b.atomID2 += maxID;
             newParent.bondList.Add(b);
         }
-        GlobalCtrl.Singleton.List_curMolecules.Remove(this);
+        
+        GlobalCtrl.Singleton.List_curMolecules.RemoveValue(this);
         Destroy(gameObject);
     }
 
@@ -379,12 +396,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             }
         }
 
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
             if (mol != this && mol.isMarked)
             {
-                if (!GlobalCtrl.Singleton.snapToolTipInstances.ContainsKey(new Tuple<ushort,ushort>(m_id, mol.m_id)) && 
-                    !GlobalCtrl.Singleton.snapToolTipInstances.ContainsKey(new Tuple<ushort, ushort>(mol.m_id, m_id)))
+                if (!GlobalCtrl.Singleton.snapToolTipInstances.ContainsKey(new Tuple<Guid, Guid>(m_id, mol.m_id)) && 
+                    !GlobalCtrl.Singleton.snapToolTipInstances.ContainsKey(new Tuple<Guid, Guid>(mol.m_id, m_id)))
                 {
                     createSnapToolTip(mol.m_id);
                 }
@@ -392,15 +409,15 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 {
                     if (mark == false)
                     {
-                        if (GlobalCtrl.Singleton.snapToolTipInstances.ContainsKey(new Tuple<ushort, ushort>(m_id, mol.m_id)))
+                        if (GlobalCtrl.Singleton.snapToolTipInstances.ContainsKey(new Tuple<Guid, Guid>(m_id, mol.m_id)))
                         {
-                            Destroy(GlobalCtrl.Singleton.snapToolTipInstances[new Tuple<ushort, ushort>(m_id, mol.m_id)]);
-                            GlobalCtrl.Singleton.snapToolTipInstances.Remove(new Tuple<ushort, ushort>(m_id, mol.m_id));
+                            Destroy(GlobalCtrl.Singleton.snapToolTipInstances[new Tuple<Guid, Guid>(m_id, mol.m_id)]);
+                            GlobalCtrl.Singleton.snapToolTipInstances.Remove(new Tuple<Guid, Guid>(m_id, mol.m_id));
                         }
                         else
                         {
-                            Destroy(GlobalCtrl.Singleton.snapToolTipInstances[new Tuple<ushort, ushort>(mol.m_id, m_id)]);
-                            GlobalCtrl.Singleton.snapToolTipInstances.Remove(new Tuple<ushort, ushort>(mol.m_id, m_id));
+                            Destroy(GlobalCtrl.Singleton.snapToolTipInstances[new Tuple<Guid, Guid>(mol.m_id, m_id)]);
+                            GlobalCtrl.Singleton.snapToolTipInstances.Remove(new Tuple<Guid, Guid>(mol.m_id, m_id));
                         }
                     }
                 }
@@ -426,7 +443,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// the option to perform the snap.
     /// </summary>
     /// <param name="otherMolID">ID of the other selected molecule</param>
-    public void createSnapToolTip(ushort otherMolID)
+    public void createSnapToolTip(Guid otherMolID)
     {
         // create tool tip
         var snapToolTip = Instantiate(mySnapToolTipPrefab);
@@ -447,18 +464,18 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         closeSnapButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { closeSnapUI(otherMolID); });
         snapToolTip.GetComponent<DoubleLineDynamicToolTip>().addContent(closeSnapButtonInstance);
 
-        GlobalCtrl.Singleton.snapToolTipInstances[new Tuple<ushort, ushort>(m_id, otherMolID)] = snapToolTip;
+        GlobalCtrl.Singleton.snapToolTipInstances[new Tuple<Guid, Guid>(m_id, otherMolID)] = snapToolTip;
     }
 
-    private void snapUI(ushort otherMolID)
+    private void snapUI(Guid otherMolID)
     {
 
-        var otherMol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(otherMolID);
-        if (otherMol == default)
+        if (!GlobalCtrl.Singleton.List_curMolecules.ContainsKey(otherMolID))
         {
             UnityEngine.Debug.LogError($"[Molecule:snapUI] Could not find Molecule with ID {otherMolID}");
             return;
         }
+        var otherMol = GlobalCtrl.Singleton.List_curMolecules[otherMolID];
         snap(otherMolID);
         markMolecule(false);
         otherMol.markMolecule(false);
@@ -468,13 +485,13 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         EventManager.Singleton.SetSnapColors(m_id, otherMolID);
     }
 
-    private bool snap(ushort otherMolID)
+    private bool snap(Guid otherMolID)
     {
-        var otherMol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(otherMolID);
-        if (otherMol == default)
+        if (!GlobalCtrl.Singleton.List_curMolecules.ContainsKey(otherMolID))
         {
             return false;
         }
+        var otherMol = GlobalCtrl.Singleton.List_curMolecules[otherMolID];
         // apply transformation
         transform.localPosition = otherMol.transform.localPosition;
         transform.localRotation = otherMol.transform.localRotation;
@@ -507,14 +524,14 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         otherMol.addSnapColor(ref compMaterialB);
     }
 
-    private void closeSnapUI(ushort otherMolID)
+    private void closeSnapUI(Guid otherMolID)
     {
-        var otherMol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrDefault(otherMolID);
-        if (otherMol == default)
+        if (!GlobalCtrl.Singleton.List_curMolecules.ContainsKey(otherMolID))
         {
             UnityEngine.Debug.LogError($"[Molecule:closeSnapUI] Could not find Molecule with ID {otherMolID}");
             return;
         }
+        var otherMol = GlobalCtrl.Singleton.List_curMolecules[otherMolID];
         markMolecule(false);
         otherMol.markMolecule(false);
         EventManager.Singleton.SelectMolecule(m_id, false);
@@ -526,6 +543,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// </summary>
     public void toggleDummies()
     {
+        cmlData before_ = this.AsCML();
         var dummyCount = countAtoms("Dummy");
         var hydrogenCount = countAtoms("H");
         if (dummyCount >= hydrogenCount)
@@ -548,6 +566,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 }
             }
         }
+        cmlData after = this.AsCML();
+        GlobalCtrl.Singleton.undoStack.AddChange(new ToggleDummiesAction(before_, after));
         GlobalCtrl.Singleton.SaveMolecule(true);
     }
 
@@ -797,6 +817,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void changeBondParametersUI(GameObject windowInstance, int id)
     {
+        cmlData before = this.AsCML();
         var cb = windowInstance.GetComponent<ChangeBond>();
         cb.changeBondParametersBT();
         var bt = cb.bt;
@@ -808,6 +829,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         changeBondParameters(bt, id);
         EventManager.Singleton.ChangeBondTerm(bt, m_id, (ushort)id);
+
+        cmlData after = this.AsCML();
+        GlobalCtrl.Singleton.undoStack.AddChange(new ChangeBondAction(before, after));
 
         Destroy(windowInstance);
 
@@ -909,6 +933,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void changeAngleParametersUI(GameObject windowInstance, int id)
     {
+        cmlData before = this.AsCML();
         var cb = windowInstance.GetComponent<ChangeBond>();
         cb.changeBondParametersAT();
         var at = cb.at;
@@ -918,6 +943,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         changeAngleParameters(at, id);
         EventManager.Singleton.ChangeAngleTerm(at, m_id, (ushort)id);
+
+        cmlData after = this.AsCML();
+        GlobalCtrl.Singleton.undoStack.AddChange(new ChangeBondAction(before, after));
 
         Destroy(windowInstance);
 
@@ -1012,6 +1040,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void changeTorsionParametersUI(GameObject windowInstance, int id)
     {
+        cmlData before = this.AsCML();
         var cb = windowInstance.GetComponent<ChangeBond>();
         cb.changeBondParametersTT();
         var tt = cb.tt;
@@ -1021,6 +1050,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         changeTorsionParameters(tt, id);
         EventManager.Singleton.ChangeTorsionTerm(tt, m_id, (ushort)id);
+
+        cmlData after = this.AsCML();
+        GlobalCtrl.Singleton.undoStack.AddChange(new ChangeBondAction(before, after));
 
         Destroy(windowInstance);
     }
@@ -1137,11 +1169,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var FrozenIndicator = freezeButton.transform.Find("IconAndText").gameObject.transform.Find("Indicator").gameObject;
         if (value)
         {
-            FrozenIndicator.GetComponent<MeshRenderer>().material.color = orange;
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.orange;
         }
         else
         {
-            FrozenIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+            FrozenIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.gray;
         }
     }
 
@@ -1251,9 +1283,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             return (ushort)(getMaxAtomID() + 1);
         }
     }
-#endregion
+    #endregion
 
-#region ForceField
+    #region ForceField
 
     public List<Vector3> FFposition = new List<Vector3>();
     public List<Vector3> FFlastPosition = new List<Vector3>();
@@ -1287,7 +1319,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
 
         // Clear lists beforehand
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
             mol.FFposition.Clear();
             mol.FFlastPosition.Clear();
@@ -1393,7 +1425,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
                     if (atomList[iAtom].keepConfig && atomList[jAtom].keepConfig)
                     {
-                        var currentDist = (FFposition[iAtom] - FFposition[jAtom]).magnitude;
+                        var currentDist = (FFposition[iAtom] - FFposition[jAtom]).magnitude / transform.localScale.x;
                         if (currentDist.approx(0.0f, 0.00001f))
                         {
                             newBond.eqDist = dreiding_eqDist;
@@ -1720,5 +1752,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
         EventManager.Singleton.OnMolDataChanged -= triggerGenerateFF;
         EventManager.Singleton.OnMolDataChanged -= adjustBBox;
+#if !WINDOWS_UWP
+        if (NetworkManagerServer.Singleton)
+        {
+            EventManager.Singleton.OnMolDataChanged -= NetworkManagerServer.Singleton.requestStructureFormula;
+            StructureFormulaManager.Singleton.removeContent(m_id);
+        }
+#endif
     }
 }

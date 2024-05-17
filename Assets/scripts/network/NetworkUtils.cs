@@ -3,7 +3,7 @@ using chARpackStructs;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using Riptide.Utils;
 
 public static class NetworkUtils
 {
@@ -23,12 +23,8 @@ public static class NetworkUtils
             if (clearScene)
             {
                 GlobalCtrl.Singleton.DeleteAll();
-                GlobalCtrl.Singleton.rebuildAtomWorld(cmlWorld_);
             }
-            else
-            {
-                GlobalCtrl.Singleton.rebuildAtomWorld(cmlWorld_, true);
-            }
+            GlobalCtrl.Singleton.createFromCML(cmlWorld_);
             EventManager.Singleton.CmlReceiveCompleted();
         }
         else
@@ -147,6 +143,39 @@ public static class NetworkUtils
             }
         }
     }
+
+    public static void deserializeStructureData(Message message, ref string svg_content, ref List<Vector2> svg_coords)
+    {
+        var state = message.GetString();
+        if (state == "start")
+        {
+            svg_content = "";
+            svg_coords = new List<Vector2>();
+        }
+        else if (state == "end")
+        {
+            var mol_id = message.GetGuid();
+            EventManager.Singleton.StructureReceiveCompleted(mol_id);
+        }
+        else if (state == "svg")
+        {
+            var line = message.GetString();
+            svg_content += line + "\n";
+        }
+        else // pos
+        {
+            var num_atoms = message.GetUShort();
+            for (int i = 0; i < num_atoms; i++)
+            {
+                var x = message.GetFloat();
+                var y = message.GetFloat();
+                svg_coords.Add(new Vector2(x, y));
+                //Debug.Log($"x:{x}   y:{y}");
+            }
+        }
+    }
+
+
 
     #endregion
 }

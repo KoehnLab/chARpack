@@ -245,6 +245,7 @@ public class Login : MonoBehaviour
     /// </summary>
     public void stopScanQR()
     {
+#if WINDOWS_UWP
         QRCodesManager.Singleton.StopQRTracking();
         Destroy(stopScanButtonInstance);
         gameObject.SetActive(true);
@@ -308,6 +309,7 @@ public class Login : MonoBehaviour
 
         // destroy qr code manager
         Destroy(QRTracking.QRCodesManager.Singleton.gameObject);
+#endif
     }
 
 }

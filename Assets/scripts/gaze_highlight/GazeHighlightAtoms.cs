@@ -9,7 +9,7 @@ public class GazeHighlightAtoms : MonoBehaviour
     private void Update()
     {
         var eyeGazeProvider = CoreServices.InputSystem?.EyeGazeProvider;
-        if (eyeGazeProvider != null)
+        if (eyeGazeProvider != null && SettingsData.gazeHighlighting)
         {
             EyeTrackingTarget lookedAtEyeTarget = EyeTrackingTarget.LookedAtEyeTarget;
 
@@ -23,11 +23,15 @@ public class GazeHighlightAtoms : MonoBehaviour
                 {
                     if (atom != lastAtom)
                     {
-                        lastAtom.focusHighlight(false);
-                        atom.focusHighlight(true);
+                        lastAtom.proccessFocusUI(false);
+                        atom.proccessFocusUI(true);
                         lastAtom = atom;
                     }
                 }
+            }
+            else
+            {
+                lastAtom.proccessFocusUI(false);
             }
         }
     }

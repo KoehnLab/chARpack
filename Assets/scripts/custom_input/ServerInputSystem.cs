@@ -6,7 +6,7 @@ using UnityEngine;
 // This script should be attached to the main camera of the server scene
 public class ServerInputSystem : MonoBehaviour
 {
-    private float moveSpeed = 0.01f;
+    private float moveSpeed = 0.1f;
     private float turnSpeed = 1f;
 
     // Update is called once per frame
@@ -42,20 +42,22 @@ public class ServerInputSystem : MonoBehaviour
             if (Input.GetKey(KeyCode.D))
             {
                 Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
+                rotated.y = 0;
                 transform.position += moveSpeed * rotated;
             }
             if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.RightShift))
             {
                 Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
+                rotated.y = 0f;
                 transform.position -= moveSpeed * rotated;
             }
             if (Input.GetKey(KeyCode.F))
             {
-                transform.position += moveSpeed * transform.up;
+                transform.position += moveSpeed * Vector3.up;
             }
             if (Input.GetKey(KeyCode.C))
             {
-                transform.position -= moveSpeed * transform.up;
+                transform.position -= moveSpeed * Vector3.up;
             }
         }
     }

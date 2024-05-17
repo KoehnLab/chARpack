@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 6109299877718134216}
   - component: {fileID: 4994947135205735893}
   - component: {fileID: -5052192153474105092}
-  - component: {fileID: 7732512597380005716}
+  - component: {fileID: -1385777001425902289}
   - component: {fileID: 371874988673283350}
   - component: {fileID: 2631171340443605462}
   m_Layer: 0
@@ -204,9 +204,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad25123af20a58d45b73d5668055c686, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentOutlineColor: {r: 0, g: 0, b: 0, a: 1}
+  toolTipInstance: {fileID: 0}
   keepConfig: 0
   frozen: 0
+  mouse_offset: {x: 0, y: 0, z: 0}
   m_id: 0
   m_molecule: {fileID: 0}
   m_data:
@@ -220,12 +221,13 @@ MonoBehaviour:
     m_hybridization: 0
     m_color: {r: 0, g: 0, b: 0, a: 0}
   m_mat: {fileID: 0}
+  frozen_mat: {fileID: 0}
   m_rigid: {fileID: 0}
   isGrabbed: 0
   m_posForDummies: []
   isMarked: 0
   m_ActiveHand: {fileID: 0}
---- !u!114 &7732512597380005716
+--- !u!114 &-1385777001425902289
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -234,12 +236,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 7377244445179915796}
   m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Script: {fileID: 11500000, guid: 6ad5169229e40a6428df032e2291b021, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  numOutlines: 1
   outlineMode: 1
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineWidth: 5
+  multiOutlineMode: 0
+  outlineColor:
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 1, g: 0, b: 0, a: 1}
+  - {r: 0, g: 0, b: 1, a: 1}
+  - {r: 0, g: 1, b: 0, a: 1}
+  outlineWidth:
+  - 5
+  - 5
+  - 5
+  - 5
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
