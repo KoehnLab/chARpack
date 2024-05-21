@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.MixedReality.Toolkit;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
@@ -36,120 +37,119 @@ public class SpawnManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        
     }
 
-    public Vector2 GetSpawnLocalPosition(Transform spawnRectTransform)
-{
-    // Get all RectTransforms under the same parent canvas
-    
-    allRectTransforms = mainCanvas.GetComponentsInChildren<RectTransform>();
-    // Exclude the spawnRectTransform from the list
-    allRectTransforms = allRectTransforms.Where(val => val != spawnRectTransform).ToArray();
-    allRectTransforms = allRectTransforms.Where(val => val.transform.parent == spawnRectTransform.parent).ToArray();
-    //allRectTransforms = allRectTransforms.Where(val => val.gameObject.GetComponent<ServerAtomTooltip>()!=null).ToArray();
-
-    Debug.Log($"Transforms Count: {allRectTransforms.Length}");
-
-    // Set the initial spawn position to (0, 0) in local coordinates
-    // spawnRectTransform.localPosition = Vector2.zero;
-    var mainRect = mainCanvas.transform as RectTransform;
-    var offset = 0.05f * mainRect.sizeDelta;
-    spawnRectTransform.localPosition =  mainCanvas.transform.InverseTransformPoint(Input.mousePosition) + new Vector3(offset.x, offset.y, 0f);
-
-    Vector2 spawnPosition = spawnRectTransform.position;
-    var spawnRect = spawnRectTransform.transform as RectTransform;
-
-    // Adjust the spawn position to the left until it doesn't overlap
-    spawnPosition = FindPosition(spawnRectTransform,spawnPosition);
-
-    return spawnPosition;
-}
-
-    private Vector2 FindPosition(Transform spawnRectTransform, Vector2 spawnPosition)
-{
-    var mainRect = mainCanvas.transform as RectTransform;
-    var newRect = spawnRectTransform.transform as RectTransform;
-    Bounds spawnBounds = new Bounds(spawnPosition, spawnRectTransform.GetComponent<RectTransform>().sizeDelta);
-    List<Vector2> positions = new List<Vector2>();
-    positions.Add(spawnPosition);
-
-    // Check if initial position is within canvas and there's no overlap
-    if (IsPositionWithinCanvas(spawnPosition, newRect.sizeDelta, mainRect) && !IsOverlap(spawnRectTransform, spawnPosition))
+    public Vector2 GetSpawnLocalPosition(RectTransform spawnRectTransform)
     {
+        // Get all RectTransforms under the same parent canvas
+        allRectTransforms = mainCanvas.GetComponentsInChildren<RectTransform>();
+        // Exclude the spawnRectTransform from the list
+        allRectTransforms = allRectTransforms.Where(val => val != spawnRectTransform).ToArray();
+        allRectTransforms = allRectTransforms.Where(val => val.transform.parent == spawnRectTransform.parent).ToArray();
+
+        Debug.Log($"Transforms Count: {allRectTransforms.Length}");
+
+        // Set the initial spawn position to the mouse position in world space
+        Vector2 spawnPosition = Input.mousePosition;
+
+        // Adjust the spawn position if it overlaps
+        spawnPosition = FindPosition(spawnRectTransform, spawnPosition);
+
         return spawnPosition;
     }
-    else
+
+    private Vector2 FindPosition(Transform spawnRectTransform, Vector2 spawnPosition)
     {
-        // Check surrounding positions
-        float xOffset = newRect.sizeDelta.x / 2;
-        float yOffset = newRect.sizeDelta.y / 2;
+        var mainRect = mainCanvas.transform as RectTransform;
+        var newRect = spawnRectTransform as RectTransform;
 
-        for (float x = -xOffset; x <= xOffset; x++)
+        // Define grid step size
+        float gridStepSize = Mathf.Min(newRect.sizeDelta.x / 10, newRect.sizeDelta.y / 10);
+
+        // BFS queue
+        Queue<Vector2> positionsToCheck = new Queue<Vector2>();
+        positionsToCheck.Enqueue(spawnPosition);
+
+        // HashSet to track visited positions
+        HashSet<Vector2> visitedPositions = new HashSet<Vector2> { spawnPosition };
+
+        // Directions for BFS: right, up, left, down, and diagonals
+        Vector2[] directions = {
+            new Vector2(gridStepSize, 0), new Vector2(-gridStepSize, 0),
+            new Vector2(0, gridStepSize), new Vector2(0, -gridStepSize),
+            new Vector2(gridStepSize, gridStepSize), new Vector2(gridStepSize, -gridStepSize),
+            new Vector2(-gridStepSize, gridStepSize), new Vector2(-gridStepSize, -gridStepSize),
+            // Additional directions for more exhaustive search
+            new Vector2(gridStepSize * 2, 0), new Vector2(-gridStepSize * 2, 0),
+            new Vector2(0, gridStepSize * 2), new Vector2(0, -gridStepSize * 2),
+            new Vector2(gridStepSize * 2, gridStepSize), new Vector2(-gridStepSize * 2, gridStepSize),
+            new Vector2(gridStepSize * 2, -gridStepSize), new Vector2(-gridStepSize * 2, -gridStepSize),
+            new Vector2(gridStepSize, gridStepSize * 2), new Vector2(-gridStepSize, gridStepSize * 2),
+            new Vector2(gridStepSize, -gridStepSize * 2), new Vector2(-gridStepSize, -gridStepSize * 2),
+            new Vector2(gridStepSize * 2, gridStepSize * 2), new Vector2(gridStepSize * 2, -gridStepSize * 2),
+            new Vector2(-gridStepSize * 2, gridStepSize * 2), new Vector2(-gridStepSize * 2, -gridStepSize * 2)
+        };
+
+        while (positionsToCheck.Count > 0)
         {
-            for (float y = -yOffset; y <= yOffset; y++)
-            {
-                Vector2 newPos = new Vector2(spawnPosition.x + x, spawnPosition.y + y);
+            var current = positionsToCheck.Dequeue();
 
-                // Check if surrounding position is within canvas and there's no overlap
-                if (IsPositionWithinCanvas(newPos, newRect.sizeDelta, mainRect) && !IsOverlap(spawnRectTransform, newPos))
+            if (IsPositionWithinCanvas(current, newRect.sizeDelta, mainRect) && !IsOverlap(newRect, current))
+            {
+                return current;
+            }
+
+            foreach (var direction in directions)
+            {
+                Vector2 newPos = current + direction;
+
+                if (!visitedPositions.Contains(newPos) && IsPositionWithinCanvas(newPos, newRect.sizeDelta, mainRect))
                 {
-                    return newPos; // Found a suitable position
+                    positionsToCheck.Enqueue(newPos);
+                    visitedPositions.Add(newPos);
                 }
             }
         }
+
+        // Fallback to the center of the canvas if no suitable position is found
+        Vector2 canvasCenter = mainCanvas.transform.TransformPoint(mainRect.rect.center);
+        return canvasCenter;
     }
 
-    return new Vector2(0, 0); // Default return if no suitable position found
-}
-
-// Check if a position is within the canvas
-private bool IsPositionWithinCanvas(Vector2 position, Vector2 size, RectTransform canvasRect)
-{
-    return position.x + size.x / 2 <= canvasRect.sizeDelta.x &&
-           position.y + size.y / 2 <= canvasRect.sizeDelta.y &&
-           position.x - size.x / 2 >= 0 &&
-           position.y - size.y / 2 >= 0;
-}
-
-    // Check if the spawn position overlaps with any existing objects
-    private bool IsOverlap(Transform spawnRectTransform, Vector2 spawnPosition)
-{
-    // Calculate the bounds of the spawned rectangle in local space
-    Bounds spawnBounds = new Bounds(spawnPosition, spawnRectTransform.GetComponent<RectTransform>().sizeDelta);
-
-    // Check if any part of the spawned rectangle would overlap with any part of another rectangle
-    foreach (RectTransform rectTransform in allRectTransforms)
+    private bool IsPositionWithinCanvas(Vector2 position, Vector2 size, RectTransform canvasRect)
     {
-        // Calculate the bounds of the existing rectangle in local space
-        Bounds existingBounds = new Bounds(rectTransform.position, rectTransform.sizeDelta);
+        Vector2 worldTopRight = mainCanvas.transform.TransformPoint(canvasRect.rect.max);
+        Vector2 worldBottomLeft = mainCanvas.transform.TransformPoint(canvasRect.rect.min);
 
-        // Check if the bounds overlap
-        if (BoundsOverlap(spawnBounds, existingBounds))
-        {
-            Debug.Log("Overlap detected.");
-            return true; // Overlaps
-        }
+        return position.x + size.x / 2 <= worldTopRight.x &&
+               position.y + size.y / 2 <= worldTopRight.y &&
+               position.x - size.x / 2 >= worldBottomLeft.x &&
+               position.y - size.y / 2 >= worldBottomLeft.y;
     }
-    return false; // No overlap
-}
 
-    // Helper method to check if two bounds overlap
+    private bool IsOverlap(RectTransform spawnRectTransform, Vector2 spawnPosition)
+    {
+        Vector2 size = spawnRectTransform.sizeDelta;
+        Bounds spawnBounds = new Bounds(spawnPosition, size);
+
+        foreach (RectTransform rectTransform in allRectTransforms)
+        {
+            Vector2 existingWorldPosition = rectTransform.TransformPoint(Vector2.zero);
+            Bounds existingBounds = new Bounds(existingWorldPosition, rectTransform.sizeDelta);
+
+            if (BoundsOverlap(spawnBounds, existingBounds))
+            {
+                return true; // Overlaps
+            }
+        }
+        return false; // No overlap
+    }
+
     private bool BoundsOverlap(Bounds bounds1, Bounds bounds2)
     {
-    Debug.Log($"Bounds1: Min = {bounds1.min}, Max = {bounds1.max}");
-    Debug.Log($"Bounds2: Min = {bounds2.min}, Max = {bounds2.max}");
-    Debug.Log(bounds1.Contains(new Vector2 (bounds2.min.x,bounds2.min.y)) || 
-           bounds1.Contains(new Vector2 (bounds2.min.x,bounds2.max.y)) ||
-           bounds1.Contains(new Vector2 (bounds2.max.x,bounds2.min.y)) || 
-           bounds1.Contains(new Vector2 (bounds2.max.x,bounds2.max.y)) ||
-           bounds1.Equals(bounds2));
-
-    return bounds1.Contains(new Vector2 (bounds2.min.x,bounds2.min.y)) || 
-           bounds1.Contains(new Vector2 (bounds2.min.x,bounds2.max.y)) ||
-           bounds1.Contains(new Vector2 (bounds2.max.x,bounds2.min.y)) || 
-           bounds1.Contains(new Vector2 (bounds2.max.x,bounds2.max.y)) ||
-           bounds1.Equals(bounds2);
+        bounds1.size = bounds1.size * 0.75f;
+        bounds2.size = bounds2.size * 0.75f;
+        return bounds1.min.x < bounds2.max.x && bounds1.max.x > bounds2.min.x &&
+               bounds1.min.y < bounds2.max.y && bounds1.max.y > bounds2.min.y;
     }
-
 }
