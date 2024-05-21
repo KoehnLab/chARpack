@@ -311,7 +311,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         EventManager.Singleton.OnMolDataChanged += triggerGenerateFF;
         EventManager.Singleton.OnMolDataChanged += adjustBBox;
-#if !WINDOWS_UWP
+#if !WINDOWS_UWP && !UNITY_ANDROID
         if (NetworkManagerServer.Singleton)
         {
             EventManager.Singleton.OnMolDataChanged += NetworkManagerServer.Singleton.requestStructureFormula;
@@ -321,7 +321,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void adjustBBox(Molecule mol)
     {
-#if !WINDOWS_UWP
+#if !WINDOWS_UWP && !UNITY_ANDROID
         GetComponent<myBoundingBox>().setNormalMaterial(false);
 #else
         if (mol == this)
@@ -1774,7 +1774,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
         EventManager.Singleton.OnMolDataChanged -= triggerGenerateFF;
         EventManager.Singleton.OnMolDataChanged -= adjustBBox;
-#if !WINDOWS_UWP
+#if !WINDOWS_UWP && !UNITY_ANDROID
         if (NetworkManagerServer.Singleton)
         {
             EventManager.Singleton.OnMolDataChanged -= NetworkManagerServer.Singleton.requestStructureFormula;

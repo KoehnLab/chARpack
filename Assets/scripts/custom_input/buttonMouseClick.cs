@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class buttonMouseClick : MonoBehaviour
 {
-#if !WINDOWS_UWP
+#if !WINDOWS_UWP && !UNITY_ANDROID
     private void OnMouseDown()
     {
         if (EventSystem.current.IsPointerOverGameObject()) { return; }

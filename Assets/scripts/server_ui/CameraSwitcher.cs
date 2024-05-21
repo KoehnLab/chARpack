@@ -98,10 +98,16 @@ public class CameraSwitcher : MonoBehaviour
                 user_panel_entry.hasEyeTracking(false);
                 user_panel_entry.hasBattery(false);
             }
-            else
+            else if (device_type == myDeviceType.AR)
             {
                 user_panel_entry.canRecord(true);
                 user_panel_entry.hasEyeTracking(true);
+                user_panel_entry.hasBattery(true);
+            }
+            else if (device_type == myDeviceType.XR)
+            {
+                user_panel_entry.canRecord(false);
+                user_panel_entry.hasEyeTracking(false);
                 user_panel_entry.hasBattery(true);
             }
 

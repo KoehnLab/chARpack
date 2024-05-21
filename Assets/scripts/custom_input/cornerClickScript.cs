@@ -12,7 +12,7 @@ using UnityEngine.EventSystems;
 /// </summary>
 public class cornerClickScript : MonoBehaviour
 {
-#if !WINDOWS_UWP
+#if !WINDOWS_UWP && !UNITY_ANDROID
 
     private Molecule mol;
     private myBoundingBox box;
