@@ -66,7 +66,7 @@ public class ServerInputSystem : MonoBehaviour
     {
         if (Input.GetMouseButton(1))
         {
-#if !WINDOWS_UWP && !UNITY_ANDROID
+#if UNITY_STANDALONE || UNITY_EDITOR
             if (!Atom.anyArcball)
 #endif
             {

@@ -137,7 +137,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     #region mouse_interaction
 
-#if !WINDOWS_UWP && !UNITY_ANDROID
+#if UNITY_STANDALONE || UNITY_EDITOR
     public static bool anyArcball;
     private bool arcball;
     private Vector3 oldMousePosition;

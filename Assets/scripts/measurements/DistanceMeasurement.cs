@@ -115,7 +115,7 @@ public class DistanceMeasurement : MonoBehaviour
             }
             else
             {
-#if !WINDOWS_UWP && !UNITY_ANDROID
+#if UNITY_STANDALONE || UNITY_EDITOR
                 Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f);
                 indexPos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + StartAtom.mouse_offset;
 #endif
