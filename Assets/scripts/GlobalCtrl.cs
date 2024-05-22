@@ -16,6 +16,7 @@ using System.Linq;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using chARpackTypes;
+using System.Text;
 
 /*! \mainpage 
  * API reference page for chARpack
@@ -243,13 +244,14 @@ public class GlobalCtrl : MonoBehaviour
         currentLocale = LocalizationSettings.SelectedLocale;
 
         // check if file is found otherwise throw error
-        string element_file_path = Path.Combine(Application.streamingAssetsPath, "ElementData.xml");
-        if (!System.IO.File.Exists(element_file_path))
+        var textFile = Resources.Load<TextAsset>("element_data/ElementData");
+        //string element_file_path = Path.Combine(Application.resources, "ElementData.xml");
+        if (!textFile)
         {
             Debug.LogError("[GlobalCtrl] ElementData.xml not found.");
         }
 
-        list_ElementData = (List<ElementData>)XMLFileHelper.LoadData(element_file_path, typeof(List<ElementData>));
+        list_ElementData = (List<ElementData>)XMLFileHelper.LoadFromString(textFile.text, typeof(List<ElementData>));
         if (!(list_ElementData.Count > 0))
         {
             Debug.LogError("[GlobalCtrl] list_ElementData is empty.");
@@ -1466,7 +1468,7 @@ public class GlobalCtrl : MonoBehaviour
     {
         if (!List_curMolecules.ContainsKey(mol_id))
         {
-            Debug.LogError($"[GlobalCtrl:changeAtom] Trying to hybridization of Atom {atom_id} of molecule {mol_id}, but it does not exist.");
+            Debug.LogError($"[GlobalCtrl:changeAtom] Trying to change hybridization of Atom {atom_id} of molecule {mol_id}, but it does not exist.");
             return false;
         }
         Atom chgAtom = List_curMolecules[mol_id].atomList.ElementAtOrDefault(atom_id);
@@ -1491,7 +1493,7 @@ public class GlobalCtrl : MonoBehaviour
         // TODO: do not overwrite runtime data
         if (!List_curMolecules.ContainsKey(mol_id))
         {
-            Debug.LogError($"[GlobalCtrl:changeAtom] Trying to hybridization of Atom {atom_id} of molecule {mol_id}, but it does not exist.");
+            Debug.LogError($"[GlobalCtrl:changeAtom] Trying to change hybridization of Atom {atom_id} of molecule {mol_id}, but it does not exist.");
             return false;
         }
 
@@ -1591,6 +1593,10 @@ public class GlobalCtrl : MonoBehaviour
         {
             molInHand.givingOrphans(molInAir);
         }
+
+        List_curMolecules.Remove(molInAir.m_id);
+        molInAir.m_id = Guid.NewGuid();
+        List_curMolecules.Add(molInAir.m_id, molInAir);
 
         //Atom atom1 = List_curAtoms.Find((x) => x == bondInHand.findTheOther(dummyInHand));
         //Atom atom2 = List_curAtoms.Find((x) => x == bondInAir.findTheOther(dummyInAir));
@@ -1879,7 +1885,7 @@ public class GlobalCtrl : MonoBehaviour
 
     public Guid BuildMoleculeFromCML(cmlData molecule, Guid? id = null)
     {
-        var freshMoleculeID = id.HasValue ? Guid.NewGuid() : id.Value;
+        var freshMoleculeID = id.HasValue ? id.Value : Guid.NewGuid();
 
         Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, molecule.molePos, Quaternion.identity).AddComponent<Molecule>();
         tempMolecule.gameObject.transform.localScale = molecule.moleScale;

@@ -103,6 +103,7 @@ public class NetworkManagerServer : MonoBehaviour
     public static void StartServer()
     {
         Singleton.Server = new Server();
+        Singleton.Server.TimeoutTime = 20000;
         Singleton.Server.Start(LoginData.port, LoginData.maxConnections);
         Singleton.Server.ClientDisconnected += Singleton.ClientDisconnected;
         Singleton.Server.ClientConnected += Singleton.ClientConnected; // client invokes sendName
@@ -1251,6 +1252,17 @@ public class NetworkManagerServer : MonoBehaviour
             Debug.LogError("[structureReceiveComplete] Could not find StructureFormulaManager");
             return;
         }
+
+        //write svg to file
+        var file_path = Path.Combine(Application.streamingAssetsPath, $"{svg_content.Length}.svg") ;
+        if (File.Exists(file_path))
+        {
+            Debug.Log(file_path + " already exists.");
+            return;
+        }
+        var sr = File.CreateText(file_path);
+        sr.Write(svg_content);
+        sr.Close();
     }
 
 #endregion

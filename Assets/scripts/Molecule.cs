@@ -355,7 +355,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         EventManager.Singleton.OnMolDataChanged += triggerGenerateFF;
         EventManager.Singleton.OnMolDataChanged += adjustBBox;
-#if !WINDOWS_UWP
+#if UNITY_STANDALONE || UNITY_EDITOR
         if (NetworkManagerServer.Singleton)
         {
             EventManager.Singleton.OnMolDataChanged += NetworkManagerServer.Singleton.requestStructureFormula;
@@ -365,7 +365,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void adjustBBox(Molecule mol)
     {
-#if !WINDOWS_UWP
+#if UNITY_STANDALONE || UNITY_EDITOR
         GetComponent<myBoundingBox>().setNormalMaterial(false);
 #else
         if (mol == this)
@@ -1642,7 +1642,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
                     if (atomList[iAtom].keepConfig && atomList[jAtom].keepConfig)
                     {
-                        var currentDist = (FFposition[iAtom] - FFposition[jAtom]).magnitude;
+                        var currentDist = (FFposition[iAtom] - FFposition[jAtom]).magnitude / transform.localScale.x;
                         if (currentDist.approx(0.0f, 0.00001f))
                         {
                             newBond.eqDist = dreiding_eqDist;
@@ -1969,7 +1969,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
         EventManager.Singleton.OnMolDataChanged -= triggerGenerateFF;
         EventManager.Singleton.OnMolDataChanged -= adjustBBox;
-#if !WINDOWS_UWP
+#if UNITY_STANDALONE || UNITY_EDITOR
         if (NetworkManagerServer.Singleton)
         {
             EventManager.Singleton.OnMolDataChanged -= NetworkManagerServer.Singleton.requestStructureFormula;
