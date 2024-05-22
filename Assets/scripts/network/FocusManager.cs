@@ -123,7 +123,7 @@ public static class FocusManager
         }
         else
         {
-            if (NetworkManagerClient.Singleton)
+            if (NetworkManagerServer.Singleton)
             {
                 return -1;
             }

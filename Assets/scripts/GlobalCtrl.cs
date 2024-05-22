@@ -293,6 +293,7 @@ public class GlobalCtrl : MonoBehaviour
         Atom.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
         Atom.modifyHybridizationPrefab = (GameObject)Resources.Load("prefabs/modifyHybridization");
         Atom.freezeMePrefab = (GameObject)Resources.Load("prefabs/FreezeMeButton");
+        Atom.serverTooltipPrefab = (GameObject)Resources.Load("prefabs/ServerAtomTooltip");
 
         // Molecule
         Molecule.myToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKMoleculeTooltip");
@@ -310,6 +311,10 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.snapMeButtonPrefab = (GameObject)Resources.Load("prefabs/SnapMeButton");
         Molecule.distanceMeasurementPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurementPrefab");
         Molecule.angleMeasurementPrefab = (GameObject)Resources.Load("prefabs/AngleMeasurementPrefab");
+        Molecule.serverMoleculeTooltipPrefab = (GameObject)Resources.Load("prefabs/ServerMoleculeTooltip");
+        Molecule.serverBondTooltipPrefab = (GameObject)Resources.Load("prefabs/ServerBondTooltip");
+        Molecule.serverAngleTooltipPrefab = (GameObject)Resources.Load("prefabs/ServerAngleTooltip");
+        Molecule.serverTorsionTooltipPrefab = (GameObject)Resources.Load("prefabs/ServerTorsionTooltip");
 
         // Measuremet
         DistanceMeasurement.distMeasurementPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurementPrefab");

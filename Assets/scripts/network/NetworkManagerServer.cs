@@ -636,7 +636,7 @@ public class NetworkManagerServer : MonoBehaviour
         {
             atom.m_molecule.markMolecule(false);
         }
-        atom.advancedMarkAtom(selected, true);
+        atom.advancedMarkAtom(selected, true, UserServer.list[fromClientId].highlightFocusID);
 
         // Broadcast to other clients
         Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSelectAtom);
