@@ -1298,10 +1298,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             {
                 if (SceneManager.GetActiveScene().name.Equals("ServerScene")) 
                 { 
-                    if(m_molecule.toolTipInstance == null)
-                    {
-                        createServerToolTip(this); 
-                    }                    
+                    createServerToolTip(this); 
+               
                 }
                 else 
                 { 
@@ -1377,8 +1375,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     {
                         if(SceneManager.GetActiveScene().name == "ServerScene")
                         {
-
-                            //UnityEngine.Debug.Log("I called the new server tooltip: ", id);
                             m_molecule.createServerBondToolTip(bond);
                         }                        
                         else
@@ -1446,6 +1442,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     {
                         m_molecule.markTorsionTerm(torsion, true);
                     }
+                    break; // TODO Delete when double torsion fixed
                 }
             }
         }

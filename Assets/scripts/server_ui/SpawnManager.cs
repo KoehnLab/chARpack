@@ -47,7 +47,7 @@ public class SpawnManager : MonoBehaviour
         allRectTransforms = allRectTransforms.Where(val => val != spawnRectTransform).ToArray();
         allRectTransforms = allRectTransforms.Where(val => val.transform.parent == spawnRectTransform.parent).ToArray();
 
-        Debug.Log($"Transforms Count: {allRectTransforms.Length}");
+        //Debug.Log($"Transforms Count: {allRectTransforms.Length}");
 
         // Set the initial spawn position to the mouse position in world space
         Vector2 spawnPosition = Input.mousePosition;

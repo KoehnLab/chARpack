@@ -34,10 +34,6 @@ public class ServerTorsionTooltip : MonoBehaviour
         drag.target = transform;
         rect = transform as RectTransform;
         RectTransform canvasRectTransform = UI.GetComponent<RectTransform>();
-        /* rect.anchorMin= new Vector2(1,0.5f);
-        rect.anchorMax = new Vector2(1, 0.5f);
-        rect.pivot = new Vector2(1, 0.5f);
-        rect.anchoredPosition = new Vector2(0, 0); */
         this.transform.localScale = new Vector2(1, 1);
         if(localPosition != new Vector3 (0,0,0))
         {
@@ -66,7 +62,6 @@ public class ServerTorsionTooltip : MonoBehaviour
     }
     public void assignColour(int focus_id)
     {
-        Debug.Log("torsion called by: " + focus_id);
         userbox.GetComponent<RawImage>().color = FocusColors.getColor(focus_id);
     }
     

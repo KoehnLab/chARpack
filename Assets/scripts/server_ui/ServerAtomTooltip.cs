@@ -39,7 +39,6 @@ public class ServerAtomTooltip : MonoBehaviour
     {
         if (hyb < 6)
         {
-            Debug.Log("[modifyHybridization:increase] Pressed");
             hyb += 1;
             GlobalCtrl.Singleton.modifyHybridUI(currentAtom, hyb);
         }
@@ -52,7 +51,6 @@ public class ServerAtomTooltip : MonoBehaviour
     {
         if (hyb > 0)
         {
-            Debug.Log("[modifyHybridization:decrease] Pressed");
             hyb -= 1;
             GlobalCtrl.Singleton.modifyHybridUI(currentAtom, hyb);
         }
@@ -70,10 +68,6 @@ public class ServerAtomTooltip : MonoBehaviour
         drag.target = transform;
         rect = transform as RectTransform;
         RectTransform canvasRectTransform = UI.GetComponent<RectTransform>();
-        // rect.anchorMin= new Vector2(1,0.5f);
-        // rect.anchorMax = new Vector2(1, 0.5f);
-        // rect.pivot = new Vector2(1, 0.5f);
-        // rect.anchoredPosition = new Vector2(0, 0);
         this.transform.localScale = new Vector2(1, 1);
         if(localPosition != new Vector3 (0,0,0))
         {
@@ -81,9 +75,7 @@ public class ServerAtomTooltip : MonoBehaviour
         }
         else
         {
-            //Debug.Log("got here");
             Vector2 save = SpawnManager.Singleton.GetSpawnLocalPosition(rect);
-            Debug.Log($"SpawnPosition: {save}");
             rect.position = save;
         }
         assignColour();        
@@ -113,7 +105,6 @@ public class ServerAtomTooltip : MonoBehaviour
     public void assignColour()
     {
         var colorHolder = FocusColors.getColor(linkedAtom.m_molecule.focus_id_tracker);
-        //Debug.Log("atom called by: " + linkedAtom.m_molecule.focus_id_tracker);
         userBox.GetComponent<RawImage>().color = colorHolder;
     }
 }
