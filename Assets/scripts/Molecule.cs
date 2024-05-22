@@ -794,7 +794,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void createServerToolTip(int focus_id = -1)
     {
-
         toolTipInstance = Instantiate(serverMoleculeTooltipPrefab);
         type = toolTipType.MOLECULE;
         float tot_mass = 0.0f;
@@ -810,7 +809,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<ServerMoleculeTooltip>().scaleButton.onClick.AddListener(delegate { toggleScalingSlider(); });
         toolTipInstance.GetComponent<ServerMoleculeTooltip>().copyButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.copyMolecule(this); });
         toolTipInstance.GetComponent<ServerMoleculeTooltip>().linkedMolecule = this;
-        setFrozenVisual(frozen);
     }
 
     public void toggleScalingSlider()
