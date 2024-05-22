@@ -13,10 +13,11 @@ public class ServerAngleTooltip : MonoBehaviour
     public Button closeButton;
     public Button modifyButton;
     public RectTransform rect;
-    public Vector3 localPosition = new Vector3 (0,0,0);
+    public Vector3 localPosition = new Vector3(0, 0, 0);
     public Molecule linkedMolecule;
     public GameObject userbox;
-    
+    public int focus_id = -1;
+
 
     public Boolean isSmall = false;
     public GameObject title;
@@ -28,7 +29,7 @@ public class ServerAngleTooltip : MonoBehaviour
         var UIthing = GameObject.Find("UICanvas");
         UI = UIthing.GetComponent<Canvas>();
         this.transform.SetParent(UI.transform);
-        collapse_button.onClick.AddListener(delegate { resize();});
+        collapse_button.onClick.AddListener(delegate { resize(); });
         var drag = title.gameObject.AddComponent<Draggable>();
         drag.target = transform;
         rect = transform as RectTransform;
@@ -36,34 +37,34 @@ public class ServerAngleTooltip : MonoBehaviour
         /* rect.anchorMin= new Vector2(1,0.5f);
         rect.anchorMax = new Vector2(1, 0.5f);
         rect.pivot = new Vector2(1, 0.5f);
-        rect.anchoredPosition = new Vector2(0, 0);   */      
+        rect.anchoredPosition = new Vector2(0, 0);   */
         this.transform.localScale = new Vector2(1, 1);
-        if(localPosition != new Vector3 (0,0,0))
+        if (localPosition != new Vector3(0, 0, 0))
         {
             rect.localPosition = localPosition;
         }
-        assignColour(linkedMolecule.focus_id_tracker);
+        assignColour(focus_id);
     }
 
     // Update is called once per frame
-    public void resize() 
+    public void resize()
     {
-        if (isSmall) 
+        if (isSmall)
         {
-        isSmall = false;
-        modifyButton.gameObject.SetActive(true);
-        infobox.SetActive(true);
-        rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y -130);
+            isSmall = false;
+            modifyButton.gameObject.SetActive(true);
+            infobox.SetActive(true);
+            rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y - 130);
         }
-        else 
+        else
         {
-        isSmall = true;
-        modifyButton.gameObject.SetActive(false);
-        infobox.SetActive(false);
-        rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y +130);
+            isSmall = true;
+            modifyButton.gameObject.SetActive(false);
+            infobox.SetActive(false);
+            rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y + 130);
         }
     }
-        public void assignColour(int focus_id)
+    public void assignColour(int focus_id)
     {
         Debug.Log("angle called by: " + focus_id);
         userbox.GetComponent<RawImage>().color = FocusColors.getColor(focus_id);
