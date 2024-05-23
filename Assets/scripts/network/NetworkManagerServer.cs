@@ -1188,7 +1188,7 @@ public class NetworkManagerServer : MonoBehaviour
             yield break;
         }
 
-        Message message = Message.Create(MessageSendMode.Unreliable, ServerToStructureID.requestStrucutreFormula);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToStructureID.requestStrucutreFormula);
         message.AddGuid(mol.m_id);
         message.AddUShort((ushort)mol.atomList.Count);
 

@@ -349,7 +349,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 #if UNITY_STANDALONE || UNITY_EDITOR
         if (NetworkManagerServer.Singleton)
         {
-            EventManager.Singleton.OnMolDataChanged += NetworkManagerServer.Singleton.requestStructureFormula;
+            //EventManager.Singleton.OnMolDataChanged += NetworkManagerServer.Singleton.requestStructureFormula;
+            EventManager.Singleton.OnMolDataChanged += StructureFormulaGenerator.Singleton.requestStructureFormula;
         }
 #endif
     }
@@ -2001,7 +2002,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 #if UNITY_STANDALONE || UNITY_EDITOR
         if (NetworkManagerServer.Singleton)
         {
-            EventManager.Singleton.OnMolDataChanged -= NetworkManagerServer.Singleton.requestStructureFormula;
+            //EventManager.Singleton.OnMolDataChanged -= NetworkManagerServer.Singleton.requestStructureFormula;
+            EventManager.Singleton.OnMolDataChanged -= StructureFormulaGenerator.Singleton.requestStructureFormula;
             StructureFormulaManager.Singleton.removeContent(m_id);
         }
 #endif
