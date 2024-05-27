@@ -65,6 +65,7 @@ public class appSettings : MonoBehaviour
     public GameObject UserRayIndicator;
     public GameObject NetworkMeasurementIndicator;
     public GameObject ColorInterpolationIndicator;
+    public GameObject LicoriceRenderingIndicator;
     // Time factor sliders
     public GameObject EulerTimeFactorSlider;
     public GameObject SVTimeFactorSlider;
@@ -308,6 +309,13 @@ public class appSettings : MonoBehaviour
     {
         GameObject visualSettingsMenu = gameObject.transform.Find("VisualSettings").gameObject;
         visualSettingsMenu.SetActive(!visualSettingsMenu.activeSelf);
+    }
+
+    public void toggleLicoriceRendering()
+    {
+        SettingsData.licoriceRendering = !SettingsData.licoriceRendering;
+        GlobalCtrl.Singleton?.setLicoriceRendering(SettingsData.licoriceRendering);
+        updateVisuals();
     }
 
     public void switchColorPalette(int howfar)
@@ -646,6 +654,7 @@ public class appSettings : MonoBehaviour
             setVisual(UserRayIndicator, SettingsData.coop[1]);
         }
         setVisual(NetworkMeasurementIndicator, SettingsData.networkMeasurements);
+        setVisual(LicoriceRenderingIndicator, SettingsData.licoriceRendering);
 
         setLengthUnitVisuals(SettingsData.useAngstrom);
     }

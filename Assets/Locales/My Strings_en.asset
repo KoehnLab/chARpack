@@ -350,6 +350,10 @@ MonoBehaviour:
     m_Localized: Steepest Descent
     m_Metadata:
       m_Items: []
+  - m_Id: 115292427869732864
+    m_Localized: Licorice (Stick) Rendering
+    m_Metadata:
+      m_Items: []
   - m_Id: 104054137766264832
     m_Localized: Color Palette
     m_Metadata:

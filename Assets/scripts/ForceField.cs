@@ -1032,8 +1032,13 @@ public class ForceField : MonoBehaviour
             {
                 Atom a1 = mol.atomList.ElementAtOrDefault(bond.atomID1);
                 Atom a2 = mol.atomList.ElementAtOrDefault(bond.atomID2);
-                float offset1 = a1.m_data.m_radius * scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f * mol.transform.localScale.x;
-                float offset2 = a2.m_data.m_radius * scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f * mol.transform.localScale.x;
+                float offset1 = 0f;
+                float offset2 = 0f;
+                if (!SettingsData.licoriceRendering)
+                {
+                    offset1 = a1.m_data.m_radius * scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * mol.transform.localScale.x;
+                    offset2 = a2.m_data.m_radius * scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * mol.transform.localScale.x;
+                }
                 float distance = (Vector3.Distance(a1.transform.position, a2.transform.position)- offset1 - offset2) / mol.transform.localScale.x;
                 bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
                 Vector3 pos1 = Vector3.MoveTowards(a1.transform.position, a2.transform.position, offset1);
