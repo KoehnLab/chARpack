@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using chARpackColorPalette;
 
 public class UserPanelEntry : MonoBehaviour
 {
@@ -34,6 +35,8 @@ public class UserPanelEntry : MonoBehaviour
 
     public GameObject device_type_visual_go;
     public TextMeshProUGUI device_type_label;
+
+    public Image focusColorImage;
 
 
     public void hasEyeTracking(bool value)
@@ -73,14 +76,14 @@ public class UserPanelEntry : MonoBehaviour
     {
         if (!recording)
         {
-            rec_button_label.color = Color.red;
+            rec_button_label.color = chARpackColors.red;
             // networking
             EventManager.Singleton.MRCapture(client_id, true);
             recording = true;
         }
         else
         {
-            rec_button_label.color = Color.black;
+            rec_button_label.color = chARpackColors.black;
             // networking
             EventManager.Singleton.MRCapture(client_id, false);
             recording = false;
@@ -142,6 +145,22 @@ public class UserPanelEntry : MonoBehaviour
     public void updateBatteryLevel(float level)
     {
         battery_level_label.text = $"{(level*100):0}%";
+    }
+
+    public void setFocusColor(int focus_id)
+    {
+        focusColorImage.color = FocusColors.getColor(focus_id);
+        focusColorImage.gameObject.GetComponent<Button>().onClick.AddListener(delegate { forcusColorPressed(focus_id); });
+    }
+
+    private GameObject secondaryStructureDialogInstance;
+    private void forcusColorPressed(int focus_id)
+    {
+        if (!secondaryStructureDialogInstance)
+        {
+            secondaryStructureDialogInstance = Instantiate(StructureFormulaManager.Singleton.secondaryStructureDialogPrefab, StructureFormulaManager.Singleton.UICanvas.transform);
+            secondaryStructureDialogInstance.GetComponent<SecondaryStructureFormula>().focus_id = focus_id;
+        }
     }
 
 }

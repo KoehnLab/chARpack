@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class buttonMouseClick : MonoBehaviour
 {
-#if !WINDOWS_UWP
+#if UNITY_STANDALONE || UNITY_EDITOR
     private void OnMouseDown()
     {
         if (EventSystem.current.IsPointerOverGameObject()) { return; }

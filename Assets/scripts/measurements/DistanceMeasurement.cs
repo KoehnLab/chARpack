@@ -41,10 +41,10 @@ public class DistanceMeasurement : MonoBehaviour
         }
     }
 
-    public static bool Create(ushort mol1_id, ushort atom1_id, ushort mol2_id, ushort atom2_id)
+    public static bool Create(Guid mol1_id, ushort atom1_id, Guid mol2_id, ushort atom2_id)
     {
-        var startMol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol1_id, null);
-        var endMol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol2_id, null);
+        var startMol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol1_id);
+        var endMol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol2_id);
         if (startMol == null || endMol == null) return false;
         var startAtom = startMol.atomList.ElementAtOrNull(atom1_id, null);
         var endAtom = endMol.atomList.ElementAtOrNull(atom2_id, null);
@@ -115,7 +115,7 @@ public class DistanceMeasurement : MonoBehaviour
             }
             else
             {
-#if !WINDOWS_UWP
+#if UNITY_STANDALONE || UNITY_EDITOR
                 Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f);
                 indexPos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + StartAtom.mouse_offset;
 #endif

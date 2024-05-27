@@ -13,7 +13,9 @@ namespace QRTracking
     [RequireComponent(typeof(QRTracking.SpatialGraphCoordinateSystem))]
     public class QRCode : MonoBehaviour
     {
+#if WINDOWS_UWP
         public Microsoft.MixedReality.QR.QRCode qrCode;
+#endif
         private GameObject qrCodeCube;
 
         public float PhysicalSize { get; private set; }
@@ -34,6 +36,7 @@ namespace QRTracking
         // Use this for initialization
         void Start()
         {
+#if WINDOWS_UWP
             PhysicalSize = 0.1f;
             CodeText = "Dummy";
             if (qrCode == null)
@@ -68,10 +71,12 @@ namespace QRTracking
             QRTimeStamp.text = "Time:" + qrCode.LastDetectedTime.ToString("MM/dd/yyyy HH:mm:ss.fff");
             QRTimeStamp.color = Color.yellow;
             //Debug.Log("Id= " + qrCode.Id + "NodeId= " + qrCode.SpatialGraphNodeId + " PhysicalSize = " + PhysicalSize + " TimeStamp = " + qrCode.SystemRelativeLastDetectedTime.Ticks + " QRVersion = " + qrCode.Version + " QRData = " + CodeText);
+#endif
         }
 
         void UpdatePropertiesDisplay()
         {
+#if WINDOWS_UWP
             // Update properties that change
             if (qrCode != null && lastTimeStamp != qrCode.SystemRelativeLastDetectedTime.Ticks)
             {
@@ -87,6 +92,7 @@ namespace QRTracking
                 lastTimeStamp = qrCode.SystemRelativeLastDetectedTime.Ticks;
                 QRInfo.transform.localScale = new Vector3(PhysicalSize/0.2f, PhysicalSize / 0.2f, PhysicalSize / 0.2f);
             }
+#endif
         }
 
         // Update is called once per frame

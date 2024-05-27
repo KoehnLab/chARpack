@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using chARpackColorPalette;
+using Unity.VisualScripting;
 
 /// <summary>
 /// This class contains the functionality for an MRTK window showing the application's debug log.
@@ -61,9 +63,6 @@ public class DebugWindow : myScrollObject
     private bool showStackTrace = false;
 
     private List<LogStack> logStack = new List<LogStack>();
-    private UnityEngine.Color orange = new UnityEngine.Color(1.0f, 0.5f, 0.0f);
-
-    private enum Color { red, green, blue, black, white, yellow, orange };
 
     void Awake()
     {
@@ -103,15 +102,15 @@ public class DebugWindow : myScrollObject
         string colored_message;
         if (type == LogType.Error)
         {
-            colored_message = String.Format("{0}{1}{2}{3}{4}", "<color=", (Color.red).ToString(), ">", message, "</color>");
+            colored_message = $"<color=#{chARpackColors.red.ToHexString().Substring(0, 6).ToLower()}>{message}</color>";
         }
         else if (type == LogType.Warning)
         {
-            colored_message = String.Format("{0}{1}{2}{3}{4}", "<color=", (Color.orange).ToString(), ">", message, "</color>");
+            colored_message = $"<color=#{chARpackColors.orange.ToHexString().Substring(0, 6).ToLower()}>{message}</color>";
         }
         else
         {
-            colored_message = String.Format("{0}{1}{2}{3}{4}", "<color=", (Color.white).ToString(), ">", message, "</color>");
+            colored_message = $"<color=#{chARpackColors.white.ToHexString().Substring(0,6).ToLower()}>{message}</color>";
         }
 
 
@@ -173,13 +172,14 @@ public class DebugWindow : myScrollObject
     /// <param name="value"></param>
     public void setVisual(GameObject indicator, bool value)
     {
+        Color inactive = GlobalCtrl.Singleton.currentColor == GlobalCtrl.ColorScheme.MONOCHROME ? chARpackColorPalette.chARpackColors.darkgrey : chARpackColorPalette.chARpackColors.gray;
         if (value)
         {
             indicator.GetComponent<MeshRenderer>().material.color = chARpackColorPalette.chARpackColors.defaultIndicatorColor;
         }
         else
         {
-            indicator.GetComponent<MeshRenderer>().material.color = chARpackColorPalette.chARpackColors.gray;
+            indicator.GetComponent<MeshRenderer>().material.color = inactive;
         }
     }
 

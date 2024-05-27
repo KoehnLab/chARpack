@@ -32,6 +32,8 @@ public class SettingsPanel : MonoBehaviour
     public GameObject userBoxToggle;
     public GameObject userRayToggle;
     public GameObject networkMeasurementsToggle;
+    public GameObject highlightColorMapDropdown;
+    public GameObject showAllHighlightsToggle;
 
     private void Start()
     {
@@ -69,6 +71,11 @@ public class SettingsPanel : MonoBehaviour
         gazeHighlightingToggle.GetComponent<Toggle>().isOn = SettingsData.gazeHighlighting;
 
         pointerHighlightingToggle.GetComponent<Toggle>().isOn = SettingsData.pointerHighlighting;
+
+        showAllHighlightsToggle.GetComponent<Toggle>().isOn = SettingsData.showAllHighlightsOnClients;
+
+        int highlightColorMapValue = (int)SettingsData.highlightColorMap;
+        highlightColorMapDropdown.GetComponent<TMPro.TMP_Dropdown>().value = highlightColorMapValue;
 
         bondColorInterpolationToggle.GetComponent<Toggle>().isOn = SettingsData.interpolateColors;
 
@@ -117,6 +124,8 @@ public class SettingsPanel : MonoBehaviour
         SettingsData.handMenu = handMenuToggle.GetComponent<Toggle>().isOn;
         SettingsData.gazeHighlighting = gazeHighlightingToggle.GetComponent<Toggle>().isOn;
         SettingsData.pointerHighlighting = pointerHighlightingToggle.GetComponent<Toggle>().isOn;
+        SettingsData.showAllHighlightsOnClients = showAllHighlightsToggle.GetComponent<Toggle>().isOn;
+        SettingsData.highlightColorMap = highlightColorMapDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
         var options = languageDropdown.GetComponent<TMPro.TMP_Dropdown>().options;
         var lang = options[languageDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text;
         SettingsData.language = lang;

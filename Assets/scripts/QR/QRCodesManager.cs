@@ -5,7 +5,9 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
+#if WINDOWS_UWP
 using Microsoft.MixedReality.QR;
+#endif
 
 namespace QRTracking
 {
@@ -65,7 +67,7 @@ namespace QRTracking
         public bool IsTrackerRunning { get; private set; }
 
         public bool IsSupported { get; private set; }
-
+#if WINDOWS_UWP
         public event EventHandler<bool> QRCodesTrackingStateChanged;
         public event EventHandler<QRCodeEventArgs<Microsoft.MixedReality.QR.QRCode>> QRCodeAdded;
         public event EventHandler<QRCodeEventArgs<Microsoft.MixedReality.QR.QRCode>> QRCodeUpdated;
@@ -105,6 +107,7 @@ namespace QRTracking
             Singleton = this;
         }
 
+
         // Use this for initialization
         async protected virtual void Start()
         {
@@ -114,9 +117,10 @@ namespace QRTracking
             capabilityInitialized = true;
             Debug.Log($"[QRCodesManager] capabilityInitialized {capabilityInitialized}; IsSupported {IsSupported}");
         }
-
+#endif
         private void SetupQRTracking()
         {
+#if WINDOWS_UWP
             try
             {
                 qrTracker = new QRCodeWatcher();
@@ -137,10 +141,12 @@ namespace QRTracking
                 Debug.Log("[QRCodesManager] Auto starting.");
                 StartQRTracking();
             }
+#endif
         }
 
         public void StartQRTracking()
         {
+#if WINDOWS_UWP
             if (qrTracker != null && !IsTrackerRunning)
             {
                 Debug.Log("[QRCodesManager] Starting QRCodeWatcher");
@@ -155,10 +161,12 @@ namespace QRTracking
                     Debug.LogWarning("[QRCodesManager] Starting QRCodeWatcher Exception:" + ex.ToString());
                 }
             }
+#endif
         }
 
         public void StopQRTracking()
         {
+#if WINDOWS_UWP
             if (IsTrackerRunning)
             {
                 IsTrackerRunning = false;
@@ -174,8 +182,9 @@ namespace QRTracking
                     handlers(this, false);
                 }
             }
+#endif
         }
-
+#if WINDOWS_UWP
         private void QRCodeWatcher_Removed(object sender, QRCodeRemovedEventArgs args)
         {
             Debug.Log("[QRCodesManager] QRCodeWatcher_Removed");
@@ -256,6 +265,6 @@ namespace QRTracking
                 }
             }
         }
+#endif
     }
-
 }

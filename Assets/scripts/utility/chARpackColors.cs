@@ -25,9 +25,7 @@ namespace chARpackColorPalette
         public static Color orangered = new Color(0.9f, 0.3f, 0.1f);
         public static Color yelloworange = new Color(1.0f, 0.7f, 0.0f);
         public static Color lilac = new Color(0.8f, 0.4f, 1.0f);
-
-        public static Color defaultIndicatorColor = yelloworange; // Needed for use in login menu
-    }
+     }
 
     public class ColorPalette
     {
@@ -35,48 +33,51 @@ namespace chARpackColorPalette
         public Color singleBondSelectionColor = chARpackColors.orange;
         public Color angleBondSelectionColor = chARpackColors.red;
         public Color torsionBondSelectionColor = chARpackColors.green;
+        public Color structureFormulaNormal = new Color(0.5f, 0.5f, 0.5f, 0.6f);
+        public Color structureFormulaSelect = new Color(1f, 1f, 0f, 0.6f);
+        public Color notEnabledColor = new Color(0.5f, 0.5f, 0.5f, 0f);
+        public static Color defaultIndicatorColor = chARpackColors.yelloworange; // Needed for use in login menu
     }
 
     public class FocusColors
     {
-        private static List<Color> availableColors;
+        private static List<string> availableColors = new List<string> { "#fc8d62", "#8da0cb", "#e78ac3", "#e5c494" };
         private static int current = 0;
 
+        private static string serverFocusColor = "#66c2a5";
 
-        private static void genColors()
+
+        private static Color getNext()
         {
-            var input = new List<string>();
-            input.Add("#3BBCD9");
-            input.Add("#88E8F2");
-            input.Add("#F2B705");
-            input.Add("#BF9075");
-            input.Add("#F24141");
-
-            availableColors = new List<Color>();
-            foreach (var col in input)
-            {
-                Color newCol;
-                if (ColorUtility.TryParseHtmlString(col, out newCol))
-                {
-                    availableColors.Add(newCol);
-                }
-            }
-
-        }
-
-        public static Color getNext()
-        {
-            genColors();
             if (current == availableColors.Count)
             {
                 current = 0;
             }
 
-            var col = availableColors[current];
-            current++;
+            Color col;
+            ColorUtility.TryParseHtmlString(availableColors[current], out col);
 
             return col;
         }
 
+        public static Color getColor(int id)
+        {
+            if (id < 0)
+            {
+                Color col;
+                ColorUtility.TryParseHtmlString(serverFocusColor, out col);
+                return col;
+            }
+            else if (id >= availableColors.Count)
+            {
+                return Color.white;
+            }
+            else
+            {
+                Color col;
+                ColorUtility.TryParseHtmlString(availableColors[id], out col);
+                return col;
+            }
+        }
     }
 }

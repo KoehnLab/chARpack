@@ -11,6 +11,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using chARpackColorPalette;
 
 /// <summary>
 /// This class contains the implementation of all functions of the settings menu.
@@ -71,8 +72,6 @@ public class appSettings : MonoBehaviour
     public GameObject MPTimeFactorSlider;
 
     public GameObject LengthUnitLabel;
-
-    private Color orange = new Color(1.0f, 0.5f, 0.0f);
 
     private void Start()
     {

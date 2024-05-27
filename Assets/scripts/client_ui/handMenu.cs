@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using chARpackColorPalette;
 
 /// <summary>
 /// This class provides the functionality of a small scrollable atom menu
@@ -27,7 +28,6 @@ public class handMenu : myScrollObject
 
     public GameObject ChainModeIndicator;
     public GameObject MeasurementModeIndicator;
-    private Color orange = new Color(1.0f, 0.5f, 0.0f);
 
     private static handMenu _singleton;
 
