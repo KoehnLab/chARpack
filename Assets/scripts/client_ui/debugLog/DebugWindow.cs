@@ -172,14 +172,13 @@ public class DebugWindow : myScrollObject
     /// <param name="value"></param>
     public void setVisual(GameObject indicator, bool value)
     {
-        Color inactive = GlobalCtrl.Singleton.currentColor == GlobalCtrl.ColorScheme.MONOCHROME ? chARpackColorPalette.chARpackColors.darkgrey : chARpackColorPalette.chARpackColors.gray;
         if (value)
         {
-            indicator.GetComponent<MeshRenderer>().material.color = chARpackColorPalette.chARpackColors.defaultIndicatorColor;
+            indicator.GetComponent<MeshRenderer>().material.color = chARpackColorPalette.ColorPalette.activeIndicatorColor;
         }
         else
         {
-            indicator.GetComponent<MeshRenderer>().material.color = inactive;
+            indicator.GetComponent<MeshRenderer>().material.color = chARpackColorPalette.ColorPalette.inactiveIndicatorColor;
         }
     }
 

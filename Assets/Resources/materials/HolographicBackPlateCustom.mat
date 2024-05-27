@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: HolographicBackPlateCustom
   m_Shader: {fileID: 4800000, guid: 5bdea20278144b11916d77503ba1467a, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _BORDER_LIGHT
   - _BORDER_LIGHT_REPLACES_ALBEDO
@@ -24,6 +26,7 @@ Material:
   stringTagMap:
     RenderType: Opaque
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -52,7 +55,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _IridescentSpectrumMap:
-        m_Texture: {fileID: 2800000, guid: a4be391792f3a0846909902d6f7275a9, type: 3}
+        m_Texture: {fileID: 2800000, guid: acad6c80f37e2434aba04de47766b8d3, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _LightMapTex:

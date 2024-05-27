@@ -123,7 +123,14 @@ public class appSettings : MonoBehaviour
     /// </summary>
     public void toggleForceField()
     {
-        ForceField.Singleton.toggleForceFieldUI();
+        if (ForceField.Singleton != null)
+        {
+            ForceField.Singleton.toggleForceFieldUI();
+        }
+        else
+        {
+            SettingsData.forceField = !SettingsData.forceField;
+        }
         updateVisuals();
     }
 
@@ -133,7 +140,7 @@ public class appSettings : MonoBehaviour
     /// </summary>
     public void toggleDebugWindow()
     {
-        GlobalCtrl.Singleton.toggleDebugWindow();
+        DebugWindow.Singleton.toggleVisible();
         updateVisuals();
     }
 
@@ -144,10 +151,13 @@ public class appSettings : MonoBehaviour
     /// </summary>
     public void increaseBondStiffness()
     {
-        if (ForceField.Singleton.stiffness < 4)
+        if (SettingsData.bondStiffness < 4)
         {
-            ForceField.Singleton.stiffness += 1;
-            SettingsData.bondStiffness = ForceField.Singleton.stiffness;
+            SettingsData.bondStiffness += 1;
+            if (ForceField.Singleton != null)
+            {
+                ForceField.Singleton.stiffness = SettingsData.bondStiffness;
+            }
             updateVisuals();
         }
     }
@@ -159,10 +169,13 @@ public class appSettings : MonoBehaviour
     /// </summary>
     public void decreaseBondStiffness()
     {
-        if (ForceField.Singleton.stiffness > 0)
+        if (SettingsData.bondStiffness > 0)
         {
-            ForceField.Singleton.stiffness -= 1;
-            SettingsData.bondStiffness = ForceField.Singleton.stiffness;
+            SettingsData.bondStiffness -= 1;
+            if (ForceField.Singleton != null)
+            {
+                ForceField.Singleton.stiffness = SettingsData.bondStiffness;
+            }
             updateVisuals();
         }
     }
@@ -174,10 +187,13 @@ public class appSettings : MonoBehaviour
     /// </summary>
     public void increaseRepusionScale()
     {
-        if (ForceField.Singleton.repulsionScale < 0.9f)
+        if (SettingsData.repulsionScale < 0.9f)
         {
-            ForceField.Singleton.repulsionScale += 0.1f;
-            SettingsData.repulsionScale = ForceField.Singleton.repulsionScale;
+            SettingsData.repulsionScale += 0.1f;
+            if (ForceField.Singleton != null)
+            {
+                ForceField.Singleton.repulsionScale = SettingsData.repulsionScale;
+            }
             updateVisuals();
         }
     }
@@ -189,10 +205,13 @@ public class appSettings : MonoBehaviour
     /// </summary>
     public void decreaseRepusionScale()
     {
-        if (ForceField.Singleton.repulsionScale > 0.1f)
+        if (SettingsData.repulsionScale > 0.1f)
         {
-            ForceField.Singleton.repulsionScale -= 0.1f;
-            SettingsData.repulsionScale = ForceField.Singleton.repulsionScale;
+            SettingsData.repulsionScale -= 0.1f;
+            if (ForceField.Singleton != null)
+            {
+                ForceField.Singleton.repulsionScale = SettingsData.repulsionScale;
+            }
             updateVisuals();
         }
     }
@@ -281,7 +300,7 @@ public class appSettings : MonoBehaviour
     public void toggleColorInterpolation()
     {
         SettingsData.interpolateColors = !SettingsData.interpolateColors;
-        GlobalCtrl.Singleton.reloadShaders();
+        GlobalCtrl.Singleton?.reloadShaders();
         updateVisuals();
     }
 
@@ -293,10 +312,10 @@ public class appSettings : MonoBehaviour
 
     public void switchColorPalette(int howfar)
     {
-        int currentScheme = Array.IndexOf(Enum.GetValues(typeof(GlobalCtrl.ColorScheme)), GlobalCtrl.Singleton.currentColor);
-        int newIndex = (currentScheme + howfar) % GlobalCtrl.Singleton.numberOfColorSchemes;
-        while (newIndex < 0) newIndex = GlobalCtrl.Singleton.numberOfColorSchemes + newIndex;
-        GlobalCtrl.Singleton.setColorPalette((GlobalCtrl.ColorScheme)(Enum.GetValues(typeof(GlobalCtrl.ColorScheme))).GetValue(newIndex));
+        int currentScheme = Array.IndexOf(Enum.GetValues(typeof(ColorScheme)), SettingsData.colorScheme);
+        int newIndex = (currentScheme + howfar) % chARpackColorSchemes.numberOfColorSchemes;
+        while (newIndex < 0) newIndex = chARpackColorSchemes.numberOfColorSchemes + newIndex;
+        colorSchemeManager.Singleton.setColorPalette((ColorScheme)(Enum.GetValues(typeof(ColorScheme))).GetValue(newIndex));
         updateVisuals();
     }
     #endregion
@@ -316,7 +335,8 @@ public class appSettings : MonoBehaviour
     /// </summary>
     public void switchIntegrationMethodForward()
     {
-        ForceField.Singleton.switchIntegrationMethodForward();
+        SettingsData.switchIntegrationMethodForward();
+        if (ForceField.Singleton != null) ForceField.Singleton.currentMethod = SettingsData.integrationMethod;
         updateVisuals();
     }
 
@@ -325,7 +345,8 @@ public class appSettings : MonoBehaviour
     /// </summary>
     public void switchIntegrationMethodBackward()
     {
-        ForceField.Singleton.switchIntegrationMethodBackward();
+        SettingsData.switchIntegrationMethodBackward();
+        if (ForceField.Singleton != null) ForceField.Singleton.currentMethod = SettingsData.integrationMethod;
         updateVisuals();
     }
 
@@ -354,25 +375,37 @@ public class appSettings : MonoBehaviour
     public void OnEulerUpdated(mySliderEventData eventData)
     {
         SettingsData.timeFactors[0] = eventData.NewValue;
-        ForceField.Singleton.EulerTimeFactor = eventData.NewValue;
+        if (ForceField.Singleton != null)
+        {
+            ForceField.Singleton.EulerTimeFactor = eventData.NewValue;
+        }
     }
 
     public void OnSVUpdated(mySliderEventData eventData)
     {
         SettingsData.timeFactors[1] = eventData.NewValue;
-        ForceField.Singleton.SVtimeFactor = eventData.NewValue;
+        if (ForceField.Singleton != null)
+        {
+            ForceField.Singleton.SVtimeFactor = eventData.NewValue;
+        }
     }
 
     public void OnRKUpdated(mySliderEventData eventData)
     {
         SettingsData.timeFactors[2] = eventData.NewValue;
-        ForceField.Singleton.RKtimeFactor = eventData.NewValue;
+        if (ForceField.Singleton != null)
+        {
+            ForceField.Singleton.RKtimeFactor = eventData.NewValue;
+        }
     }
 
     public void OnMPUpdated(mySliderEventData eventData)
     {
         SettingsData.timeFactors[3] = eventData.NewValue;
-        ForceField.Singleton.MPtimeFactor = eventData.NewValue;
+        if (ForceField.Singleton != null)
+        {
+            ForceField.Singleton.MPtimeFactor = eventData.NewValue;
+        }
     }
 
     #endregion
@@ -447,7 +480,15 @@ public class appSettings : MonoBehaviour
     /// </summary>
     public void toggleHandMenu()
     {
-        GlobalCtrl.Singleton.toggleHandMenu();
+        if (GlobalCtrl.Singleton != null)
+        {
+            GlobalCtrl.Singleton.toggleHandMenu();
+        }
+        else
+        {
+            SettingsData.handMenu = !SettingsData.handMenu;
+        }
+
         updateVisuals();
     }
 
@@ -458,17 +499,24 @@ public class appSettings : MonoBehaviour
     /// </summary>
     public void toggleMenuHandedness()
     {
-        if (handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness == Handedness.Left)
+        if (handMenu.Singleton != null)
         {
-            handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness = Handedness.Right;
-            handMenu.Singleton.setButtonPosition(Handedness.Right);
-            SettingsData.rightHandMenu = true;
+            if (handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness == Handedness.Left)
+            {
+                handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness = Handedness.Right;
+                handMenu.Singleton.setButtonPosition(Handedness.Right);
+                SettingsData.rightHandMenu = true;
+            }
+            else if (handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness == Handedness.Right)
+            {
+                handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness = Handedness.Left;
+                handMenu.Singleton.setButtonPosition(Handedness.Left);
+                SettingsData.rightHandMenu = false;
+            }
         }
-        else if (handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness == Handedness.Right)
+        else
         {
-            handMenu.Singleton.GetComponent<SolverHandler>().TrackedHandedness = Handedness.Left;
-            handMenu.Singleton.setButtonPosition(Handedness.Left);
-            SettingsData.rightHandMenu = false;
+            SettingsData.rightHandMenu = !SettingsData.rightHandMenu;
         }
         updateVisuals();
     }
@@ -496,13 +544,21 @@ public class appSettings : MonoBehaviour
         try
         {
             var userBoxes = GameObject.FindGameObjectsWithTag("User Box");
-            bool active = userBoxes[0].GetComponent<MeshRenderer>().enabled;
-            foreach (GameObject userBox in userBoxes)
+            if (userBoxes.Length > 0)
             {
-                userBox.GetComponent<MeshRenderer>().enabled = !active;
+                bool active = userBoxes[0].GetComponent<MeshRenderer>().enabled;
+                foreach (GameObject userBox in userBoxes)
+                {
+                    userBox.GetComponent<MeshRenderer>().enabled = !active;
+                }
+                SettingsData.coop[0] = !active;
+                setVisual(UserBoxIndicator, !active);
             }
-            SettingsData.coop[0] = !active;
-            setVisual(UserBoxIndicator, !active);
+            else
+            {
+                SettingsData.coop[0] = !SettingsData.coop[0];
+                setVisual(UserBoxIndicator, SettingsData.coop[0]);
+            }
         }
         catch 
         {
@@ -520,13 +576,21 @@ public class appSettings : MonoBehaviour
         try
         {
             var userRays = GameObject.FindGameObjectsWithTag("User Box");
-            bool active = userRays[0].GetComponent<LineRenderer>().enabled;
-            foreach (GameObject userRay in userRays)
+            if (userRays.Length > 0)
             {
-                userRay.GetComponent<LineRenderer>().enabled = !active;
+                bool active = userRays[0].GetComponent<LineRenderer>().enabled;
+                foreach (GameObject userRay in userRays)
+                {
+                    userRay.GetComponent<LineRenderer>().enabled = !active;
+                }
+                SettingsData.coop[1] = !active;
+                setVisual(UserRayIndicator, !active);
             }
-            SettingsData.coop[1] = !active;
-            setVisual(UserRayIndicator, !active);
+            else
+            {
+                SettingsData.coop[1] = !SettingsData.coop[1];
+                setVisual(UserRayIndicator, !SettingsData.coop[1]);
+            }
         } catch
         {
             setVisual(UserRayIndicator, false);
@@ -551,8 +615,8 @@ public class appSettings : MonoBehaviour
     {
         setBondStiffnessVisual(SettingsData.bondStiffness);
         setRepulsionScaleVisual(SettingsData.repulsionScale);
-        setIntegrationMethodVisual(ForceField.Singleton.currentMethod);
-        setColorPaletteVisual(GlobalCtrl.Singleton.currentColor);
+        setIntegrationMethodVisual(SettingsData.integrationMethod);
+        setColorPaletteVisual(SettingsData.colorScheme);
 
         setVisual(HandJointIndicator, SettingsData.handJoints);
         setVisual(HandMenuIndicator, SettingsData.handMenu);
@@ -589,9 +653,12 @@ public class appSettings : MonoBehaviour
     public void setLengthUnitVisuals(bool useAngstrom)
     {
         LengthUnitLabel.GetComponent<TextMeshPro>().text = useAngstrom ? "\u00C5" : "pm";
-        GlobalCtrl.Singleton.regenerateSingleBondTooltips();
-        GlobalCtrl.Singleton.regenerateChangeBondWindows();
-        GlobalCtrl.Singleton.regenerateAtomTooltips();
+        if (GlobalCtrl.Singleton != null)
+        {
+            GlobalCtrl.Singleton.regenerateSingleBondTooltips();
+            GlobalCtrl.Singleton.regenerateChangeBondWindows();
+            GlobalCtrl.Singleton.regenerateAtomTooltips();
+        }
     }
 
     /// <summary>
@@ -603,11 +670,11 @@ public class appSettings : MonoBehaviour
     {
         if (value)
         {
-            indicator.GetComponent<MeshRenderer>().material.color = GlobalCtrl.Singleton.activeIndicatorColor;
+            indicator.GetComponent<MeshRenderer>().material.color = ColorPalette.activeIndicatorColor;
         }
         else
         {
-            indicator.GetComponent<MeshRenderer>().material.color =  GlobalCtrl.Singleton.currentColor!=GlobalCtrl.ColorScheme.MONOCHROME ? chARpackColorPalette.chARpackColors.grey : chARpackColorPalette.chARpackColors.darkgrey;
+            indicator.GetComponent<MeshRenderer>().material.color = ColorPalette.inactiveIndicatorColor;
         }
     }
 
@@ -631,12 +698,22 @@ public class appSettings : MonoBehaviour
 
     public void setIntegrationMethodVisual(ForceField.Method method)
     {
-        integrationMethodGO.GetComponent<TextMeshPro>().text = GlobalCtrl.Singleton.GetLocalizedString(method.ToString());
+        var text = method.ToString();
+        if (localizationManager.Singleton != null)
+        {
+            text = localizationManager.Singleton.GetLocalizedString(method.ToString());
+        }
+        integrationMethodGO.GetComponent<TextMeshPro>().text = text;
     }
 
-    public void setColorPaletteVisual(GlobalCtrl.ColorScheme colorScheme)
+    public void setColorPaletteVisual(ColorScheme colorScheme)
     {
-        colorPaletteGO.GetComponent<TextMeshPro>().text = GlobalCtrl.Singleton.GetLocalizedString(colorScheme.ToString());
+        var text = colorScheme.ToString();
+        if (localizationManager.Singleton != null)
+        {
+            text = localizationManager.Singleton.GetLocalizedString(colorScheme.ToString());
+        }
+        colorPaletteGO.GetComponent<TextMeshPro>().text = text;
     }
 
     public void setTimeFactorVisuals(float[] timeFactors)

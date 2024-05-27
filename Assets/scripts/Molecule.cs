@@ -1342,19 +1342,19 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     // Helper methods to generate localized tool tip text
     private string getAtomToolTipText(double totMass, double maxDist)
     {
-        string numAtoms = GlobalCtrl.Singleton.GetLocalizedString("NUM_ATOMS");
-        string numBonds = GlobalCtrl.Singleton.GetLocalizedString("NUM_BONDS");
-        string mass = GlobalCtrl.Singleton.GetLocalizedString("TOT_MASS");
+        string numAtoms = localizationManager.Singleton.GetLocalizedString("NUM_ATOMS");
+        string numBonds = localizationManager.Singleton.GetLocalizedString("NUM_BONDS");
+        string mass = localizationManager.Singleton.GetLocalizedString("TOT_MASS");
         string toolTipText = $"{numAtoms}: {atomList.Count}\n{numBonds}: {bondList.Count}\n{mass}: {totMass:0.00}\nMaxRadius: {maxDist:0.00}";
         return toolTipText;
     }
 
     private string getBondToolTipText(double eqDist, double curDist, double kBond, double order)
     {
-        string dist = GlobalCtrl.Singleton.GetLocalizedString("EQ_DIST");
-        string singleBond = GlobalCtrl.Singleton.GetLocalizedString("SINGLE_BOND");
-        string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
-        string ord = GlobalCtrl.Singleton.GetLocalizedString("ORDER");
+        string dist = localizationManager.Singleton.GetLocalizedString("EQ_DIST");
+        string singleBond = localizationManager.Singleton.GetLocalizedString("SINGLE_BOND");
+        string current = localizationManager.Singleton.GetLocalizedString("CURRENT");
+        string ord = localizationManager.Singleton.GetLocalizedString("ORDER");
         string distanceInCorrectUnit = SettingsData.useAngstrom ? $"{dist}: {eqDist: 0.00}\u00C5" : $"{dist}: {eqDist * 100:0}pm";
         string curDistanceInCorrectUnit = SettingsData.useAngstrom ? $"{current}: {curDist: 0.00}\u00C5" : $"{current}: {curDist * 100:0}pm";
         string toolTipText = $"{singleBond}\n{distanceInCorrectUnit}\n{curDistanceInCorrectUnit}\nk: {kBond:0.00}\n{ord}: {order:0.00}";
@@ -1363,10 +1363,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private string getAngleToolTipText(double eqAngle, double kAngle, double curAngle = 0)
     {
-        string angleBond = GlobalCtrl.Singleton.GetLocalizedString("ANGLE_BOND");
-        string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
-        string kAngleStr = GlobalCtrl.Singleton.GetLocalizedString("K_ANGLE");
-        string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
+        string angleBond = localizationManager.Singleton.GetLocalizedString("ANGLE_BOND");
+        string eqAngleStr = localizationManager.Singleton.GetLocalizedString("EQUI_ANGLE");
+        string kAngleStr = localizationManager.Singleton.GetLocalizedString("K_ANGLE");
+        string current = localizationManager.Singleton.GetLocalizedString("CURRENT");
         string toolTipText = $"{angleBond}\n{kAngleStr}: {kAngle:0.00}\n{eqAngleStr}: {eqAngle:0.00}\u00B0\n{current}: {curAngle:0.00}\u00B0";
         return toolTipText;
     }
@@ -1374,9 +1374,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private string getTorsionToolTipText(double eqAngle, double vk, double nn, double curAngle = 0f)
     {
         //$"Torsion Bond\nEqui. Angle: {term.eqAngle}\nvk: {term.vk}\nnn: {term.nn}"
-        string torsionBond = GlobalCtrl.Singleton.GetLocalizedString("TORSION_BOND");
-        string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
-        string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
+        string torsionBond = localizationManager.Singleton.GetLocalizedString("TORSION_BOND");
+        string eqAngleStr = localizationManager.Singleton.GetLocalizedString("EQUI_ANGLE");
+        string current = localizationManager.Singleton.GetLocalizedString("CURRENT");
         string toolTipText = $"{torsionBond}\n{eqAngleStr}: {eqAngle:0.00}\u00B0\n{current}: {curAngle:0.00}\u00B0\nvk: {vk:0.00}\nnn: {nn:0.00}";
         return toolTipText;
     }

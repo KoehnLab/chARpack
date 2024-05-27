@@ -2759,6 +2759,53 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &500748612
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 500748613}
+  - component: {fileID: 500748614}
+  m_Layer: 0
+  m_Name: colorSchemeManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &500748613
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 500748612}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1947685334}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &500748614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 500748612}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9aa03433e434a6e408f5890190d1a17e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HolographicBackplateMaterial: {fileID: 2100000, guid: 520e17e033728f4478d0b55b11d27c64, type: 2}
+  HolographicBackplateMaterialGrabbed: {fileID: 2100000, guid: a6f1ddfd0011c7d44a905b58fca7ef93, type: 2}
+  HolographicBackplateMaterialToggle: {fileID: 2100000, guid: 5c41eda31091c494abecc9eb2cc65bba, type: 2}
 --- !u!1 &515315609
 GameObject:
   m_ObjectHideFlags: 0
@@ -2971,9 +3018,6 @@ MonoBehaviour:
   myAtomPrefab: {fileID: 7377244445179915796, guid: bf048a9970cb97f44a46f7c758da93a0, type: 3}
   atomMatPrefab: {fileID: 2100000, guid: dd67eb41edbb382408bf29f1931d50ac, type: 2}
   dummyMatPrefab: {fileID: 2100000, guid: 7a003db23242c1f4d8f446c31444ccd2, type: 2}
-  HolographicBackplateMaterial: {fileID: 2100000, guid: 520e17e033728f4478d0b55b11d27c64, type: 2}
-  HolographicBackplateMaterialGrabbed: {fileID: 2100000, guid: a6f1ddfd0011c7d44a905b58fca7ef93, type: 2}
-  HolographicBackplateMaterialToggle: {fileID: 2100000, guid: 5c41eda31091c494abecc9eb2cc65bba, type: 2}
   list_ElementData: []
   atomWorld: {fileID: 690894127}
   bondPrefab: {fileID: 6023341437175460837, guid: a6ff830e30b8fae40abd9ac1c7189f08, type: 3}
@@ -2983,8 +3027,6 @@ MonoBehaviour:
   collider1: {fileID: 0}
   collider2: {fileID: 0}
   curHybrid: 3
-  currentColorEnum: 0
-  numberOfColorSchemes: 5
   numAtoms: 0
   measurmentInHand: {fileID: 0}
   mainCamera: {fileID: 0}
@@ -6236,6 +6278,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92f2f0266e4524a45aaf395af6b05777, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1706125279
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1706125280}
+  - component: {fileID: 1706125281}
+  m_Layer: 0
+  m_Name: localizationManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1706125280
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1706125279}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1947685334}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1706125281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1706125279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4fbefcf311b55240810871e5847a0df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1717291222
 GameObject:
   m_ObjectHideFlags: 0
@@ -7378,6 +7464,8 @@ Transform:
   - {fileID: 1583930218}
   - {fileID: 1601631982}
   - {fileID: 1702401830}
+  - {fileID: 500748613}
+  - {fileID: 1706125280}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2012462669
