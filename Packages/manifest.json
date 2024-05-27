@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.microsoft.mixedreality.openxr": "file:MixedReality/com.microsoft.mixedreality.openxr-1.8.1.tgz",
+    "com.microsoft.mixedreality.openxr": "file:MixedReality/com.microsoft.mixedreality.openxr-1.10.1.tgz",
     "com.microsoft.mixedreality.toolkit.examples": "file:MixedReality/com.microsoft.mixedreality.toolkit.examples-2.8.3.tgz",
     "com.microsoft.mixedreality.toolkit.extensions": "file:MixedReality/com.microsoft.mixedreality.toolkit.extensions-2.8.3.tgz",
     "com.microsoft.mixedreality.toolkit.foundation": "file:MixedReality/com.microsoft.mixedreality.toolkit.foundation-2.8.3.tgz",
@@ -21,7 +21,10 @@
     "com.unity.ugui": "1.0.0",
     "com.unity.vectorgraphics": "2.0.0-preview.24",
     "com.unity.visualscripting": "1.9.4",
-    "com.unity.xr.management": "4.4.0",
+    "com.unity.xr.hands": "1.4.1",
+    "com.unity.xr.interaction.toolkit": "2.5.4",
+    "com.unity.xr.management": "4.4.1",
+    "com.unity.xr.meta-openxr": "1.0.1",
     "com.unity.xr.oculus": "4.2.0",
     "com.unity.xr.openxr": "1.10.0",
     "com.unity.modules.ai": "1.0.0",

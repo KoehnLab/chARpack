@@ -10,7 +10,7 @@ from chARpack_structure_formula import StructureFormulaGenerator
 
 class chARpackStructureInterface():
 
-    PORT = 9050
+    PORT = 7777
 
     DEVICE_TYPE = 6
 

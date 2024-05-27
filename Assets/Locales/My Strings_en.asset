@@ -246,7 +246,7 @@ MonoBehaviour:
     m_Localized: Freeze
     m_Metadata:
       m_Items: []
-  - m_Id: 24331552324354048
+  - m_Id: 116694264099356672
     m_Localized: Measurement
     m_Metadata:
       m_Items: []
@@ -352,6 +352,50 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 115292427869732864
     m_Localized: Licorice (Stick) Rendering
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104054137766264832
+    m_Localized: Color Palette
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104054415286583296
+    m_Localized: Dark Blue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104054531082928128
+    m_Localized: Light Blue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104054582219882496
+    m_Localized: Violet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104054650805141504
+    m_Localized: Gold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104063444926840832
+    m_Localized: Rainbow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104077707544346624
+    m_Localized: Heat
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104082784506068992
+    m_Localized: Silver
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104086272925483008
+    m_Localized: Green
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105933965497499648
+    m_Localized: Monochrome
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105938896715546624
+    m_Localized: Turquoise
     m_Metadata:
       m_Items: []
   references:
