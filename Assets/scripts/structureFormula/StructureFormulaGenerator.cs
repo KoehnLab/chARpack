@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using UnityEngine;
-using UnityEditor.Scripting.Python;
 using Python.Runtime;
 using System.Collections.Generic;
 
@@ -41,107 +40,102 @@ public class StructureFormulaGenerator : MonoBehaviour
     void Start()
     {
         //// Set the path to the embedded Python environment
-        //pythonHome = Path.Combine(Application.dataPath, "PythonEnv");
-        //pythonPath = Path.Combine(pythonHome, "Lib");
-        //pythonScriptPath = Path.Combine(Path.Combine(Application.dataPath, "scripts"), "structureFormula");
+        pythonHome = Path.Combine(Application.dataPath, "PythonEnv");
+        pythonPath = Path.Combine(pythonHome, "Lib");
 
         //Environment.SetEnvironmentVariable("PYTHONHOME", pythonHome);
         //Environment.SetEnvironmentVariable("PYTHONPATH", pythonPath + ";" + Path.Combine(pythonPath, "site-packages"));
 
+        // Initialize the Python runtime
+        Runtime.PythonDLL = Application.dataPath + "/PythonEnv/python312.dll";
+
+        // Initialize the Python engine with the embedded Python environment
+        PythonEngine.PythonHome = pythonHome;
+        PythonEngine.PythonPath = pythonPath + ";" + Path.Combine(pythonPath, "site-packages");
+        PythonEngine.Initialize();
     }
 
     public void requestStructureFormula(Molecule mol)
     {
 
-
-
-        PythonRunner.EnsureInitialized();
-        using (Py.GIL())
+        // Prepare lists
+        float[] posList = new float[mol.atomList.Count * 3];
+        for (int i = 0; i < mol.atomList.Count; i++)
         {
-            try
+            var atom = mol.atomList[i];
+            var pos = atom.transform.localPosition * GlobalCtrl.u2aa / GlobalCtrl.scale;
+            posList[3 * i + 0] = pos.x;
+            posList[3 * i + 1] = pos.y;
+            posList[3 * i + 2] = pos.z;
+        }
+
+        string[] symbolList = new string[mol.atomList.Count];
+        for (int i = 0; i < mol.atomList.Count; i++)
+        {
+            var atom = mol.atomList[i];
+            if (atom.m_data.m_abbre.ToLower() == "dummy")
             {
-                dynamic sys = Py.Import("sys");
-                UnityEngine.Debug.Log($"python version: {sys.version}");
+                symbolList[i] = "H";
             }
-            catch (PythonException e)
+            else
             {
-                UnityEngine.Debug.LogException(e);
+                symbolList[i] = atom.m_data.m_abbre;
             }
         }
 
+        // define outputs
+        string svgContent = "";
+        var coordsArray = new List<Vector2>();
 
-        //// Prepare lists
-        //float[] posList = new float[mol.atomList.Count * 3];
-        //for (int i = 0; i < mol.atomList.Count; i++)
-        //{
-        //    var atom = mol.atomList[i];
-        //    var pos = atom.transform.localPosition * GlobalCtrl.u2aa / GlobalCtrl.scale;
-        //    posList[3 * i + 0] = pos.x;
-        //    posList[3 * i + 1] = pos.y;
-        //    posList[3 * i + 2] = pos.z;
-        //}
+        // Acquire the GIL before using any Python APIs
+        using (Py.GIL())
+        {
+            // Convert the C# float array to a Python list
+            var pyPosList = new PyList();
+            foreach (var f in posList)
+            {
+                pyPosList.Append(new PyFloat(f));
+            }
 
-        //string[] symbolList = new string[mol.atomList.Count];
-        //for (int i = 0; i < mol.atomList.Count; i++)
-        //{
-        //    var atom = mol.atomList[i];
-        //    if (atom.m_data.m_abbre.ToLower() == "dummy")
-        //    {
-        //        symbolList[i] = "H";
-        //    }
-        //    else
-        //    {
-        //        symbolList[i] = atom.m_data.m_abbre;
-        //    }
-        //}
+            var pySymbolList = new PyList();
+            foreach (var s in symbolList)
+            {
+                pySymbolList.Append(new PyString(s));
+            }
 
-        //// Initialize the Python engine with the embedded Python environment
-        //PythonEngine.PythonHome = pythonHome;
-        //PythonEngine.PythonPath = pythonPath + ";" + Path.Combine(pythonPath, "site-packages") + ";" + pythonScriptPath;
-        //PythonEngine.Initialize();
+            // Import and run the Python script
+            dynamic sys = Py.Import("sys");
+            sys.path.append(Application.dataPath + "/scripts/structureFormula/");
 
-        //// define outputs
-        //string svgContent = "";
-        //var coordsArray = new List<Vector2>();
+            // Import the built-in module
+            dynamic builtins = Py.Import("builtins");
 
-        //// Acquire the GIL before using any Python APIs
-        //using (Py.GIL())
-        //{
+            // Import your Python script
+            dynamic script = Py.Import("StructureFormulaPythonBackend");
 
-        //    // Convert the C# float array to a Python list
-        //    var pyPosList = new PyList();
-        //    foreach (var f in posList)
-        //    {
-        //        pyPosList.Append(new PyFloat(f));
-        //    }
+            // Print the attributes of the imported module
+            Debug.Log("Attributes of the imported module:");
+            foreach (string key in builtins.dir(script))
+            {
+                Debug.Log(key);
+            }
 
-        //    var pySymbolList = new PyList();
-        //    foreach (var s in symbolList)
-        //    {
-        //        pySymbolList.Append(new PyString(s));
-        //    }
+            // Call the function from the Python script
+            dynamic myClass = script.MyClass("hallo");
+            string greeting = myClass.greet();
+            Debug.Log(greeting);
 
-        //    //// Import your Python script
-        //    dynamic script = Py.Import("StructureFormulaPythonBackend");
+            //// Extract values from the returned tuple
+            //svgContent = result.Item1.ToString();
+            //dynamic coordsList = result.Item2;
 
-        //    dynamic structureFormulaGenerator = script.StructureFormulaGenerator();
-
-        //    //// Call the function from the Python script
-        //    dynamic result = structureFormulaGenerator.get_structure_formula(pyPosList, pySymbolList);
-
-        //    // Extract values from the returned tuple
-        //    svgContent = result.Item1.ToString();
-        //    dynamic coordsList = result.Item2;
-
-        //    // Convert the Python list of coordinates to a C# array
-        //    for (int i = 0; i < coordsList.Length(); i++)
-        //    {
-        //        var coord = coordsList[i];
-        //        coordsArray.Add(new Vector2(coord[0].As<float>(), coord[1].As<float>()));
-        //    }
-        //}
-        //// Shutdown the Python engine
-        //PythonEngine.Shutdown();
+            //// Convert the Python list of coordinates to a C# array
+            //for (int i = 0; i < coordsList.Length(); i++)
+            //{
+            //    var coord = coordsList[i];
+            //    coordsArray.Add(new Vector2(coord[0].As<float>(), coord[1].As<float>()));
+            //}
+        }
 
         //// push content
         //for (int i = 0; i < coordsArray.Count; i++)
@@ -170,5 +164,11 @@ public class StructureFormulaGenerator : MonoBehaviour
         //sr.Write(svgContent);
         //sr.Close();
 
+    }
+
+    private void OnDestroy()
+    {
+        // Shutdown the Python engine
+        PythonEngine.Shutdown();
     }
 }
