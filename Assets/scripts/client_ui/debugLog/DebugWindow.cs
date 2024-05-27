@@ -174,11 +174,11 @@ public class DebugWindow : myScrollObject
     {
         if (value)
         {
-            indicator.GetComponent<MeshRenderer>().material.color = chARpackColors.orange;
+            indicator.GetComponent<MeshRenderer>().material.color = chARpackColorPalette.ColorPalette.activeIndicatorColor;
         }
         else
         {
-            indicator.GetComponent<MeshRenderer>().material.color = chARpackColors.gray;
+            indicator.GetComponent<MeshRenderer>().material.color = chARpackColorPalette.ColorPalette.inactiveIndicatorColor;
         }
     }
 

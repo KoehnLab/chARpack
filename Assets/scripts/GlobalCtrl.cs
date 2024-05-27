@@ -13,10 +13,8 @@ using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Reflection;
 using Microsoft.MixedReality.Toolkit.Input;
 using System.Linq;
-using UnityEngine.Localization;
-using UnityEngine.Localization.Settings;
 using chARpackTypes;
-using System.Text;
+using chARpackColorPalette;
 
 /*! \mainpage 
  * API reference page for chARpack
@@ -113,8 +111,6 @@ public class GlobalCtrl : MonoBehaviour
     /// the last created atom, init to default "C"
     /// </summary>
     private string lastAtom = "C";
-
-    private Locale currentLocale;
 
     [HideInInspector] public int numAtoms = 0;
 
@@ -237,11 +233,6 @@ public class GlobalCtrl : MonoBehaviour
     {
         // create singleton
         Singleton = this;
-        // make sure that numbers are printed with a dot as required by any post-processing with standard software
-        CultureInfo.CurrentCulture = new CultureInfo("en-US", false);
-        CultureInfo.CurrentUICulture = new CultureInfo("en-US", false);
-
-        currentLocale = LocalizationSettings.SelectedLocale;
 
         // check if file is found otherwise throw error
         var textFile = Resources.Load<TextAsset>("element_data/ElementData");
@@ -333,20 +324,6 @@ public class GlobalCtrl : MonoBehaviour
         currentCamera = mainCamera;
         Debug.Log($"DEVICE Type: {SystemInfo.deviceType}, Model: {SystemInfo.deviceModel}");
     }
-
-    private void Update()
-    {
-        if(currentLocale != LocalizationSettings.SelectedLocale)
-        {
-            regenerateTooltips();
-            currentLocale = LocalizationSettings.SelectedLocale;
-            if (SceneManager.GetActiveScene().name.Equals("MainScene"))
-            {
-                appSettings.Singleton.updateVisuals();
-            }
-        }
-    }
-
 
     // on mol data changed (replacement for update loop checks)
     //void onMolDataChanged()
@@ -2196,11 +2173,12 @@ public class GlobalCtrl : MonoBehaviour
     }
     #endregion
 
+
     /// <summary>
     /// Destroys and regenerates all tool tips in the scene.
     /// This is used when changing the locale to properly update the tool tip text.
     /// </summary>
-    private void regenerateTooltips()
+    public void regenerateTooltips()
     {
         foreach(Molecule mol in List_curMolecules.Values)
         {
@@ -2326,22 +2304,17 @@ public class GlobalCtrl : MonoBehaviour
     }
 
     /// <summary>
-    /// when the application quits and there are unsaved changes to any molecule, these will be saved to an XML file
+    /// when the application quits, reset color scheme to default (for visual consistency in editor)
     /// </summary>
     private void OnApplicationQuit()
     {
+        // when the application quits and there are unsaved changes to any molecule, these will be saved to an XML file
         //if (isAnyAtomChanged)
         //    CFileHelper.SaveData(Application.streamingAssetsPath + "/MoleculeFolder/ElementData.xml", list_ElementData);
+        //setColorPalette(defaultColor);
+
     }
 
-    /// <summary>
-    /// Gets the appropriate version of given text for the current loacle.
-    /// </summary>
-    /// <param name="text"></param>
-    /// <returns>a localized version of the given text</returns>
-    public string GetLocalizedString(string text)
-    {
-        return LocalizationSettings.StringDatabase.GetLocalizedString("My Strings", text);
-    }
+
 
 }

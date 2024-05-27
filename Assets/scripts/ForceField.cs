@@ -209,62 +209,6 @@ public class ForceField : MonoBehaviour
         SettingsData.forceField = enableForceField;
     }
 
-    //TODO: This can probably be implemented more elegantly
-    public void switchIntegrationMethodForward()
-    {
-        switch (currentMethod)
-        {
-            case Method.Euler: 
-                currentMethod = Method.Verlet; 
-                break;
-            case Method.Verlet:
-                currentMethod = Method.RungeKutta;
-                break;
-            case Method.RungeKutta:
-                currentMethod = Method.Heun;
-                break;
-            case Method.Heun:
-                currentMethod = Method.Ralston;
-                break;
-            case Method.Ralston:
-                currentMethod = Method.SteepestDescent;
-                break;
-            case Method.SteepestDescent:
-                currentMethod = Method.MidPoint;
-                break;
-            default:
-                currentMethod = Method.Euler;
-                break;
-        }
-    }
-    public void switchIntegrationMethodBackward()
-    {
-        switch (currentMethod)
-        {
-            case Method.Euler:
-                currentMethod = Method.MidPoint;
-                break;
-            case Method.Verlet:
-                currentMethod = Method.Euler;
-                break;
-            case Method.RungeKutta:
-                currentMethod = Method.Verlet;
-                break;
-            case Method.Heun:
-                currentMethod = Method.RungeKutta;
-                break;
-            case Method.Ralston:
-                currentMethod = Method.Heun;
-                break;
-            case Method.SteepestDescent:
-                currentMethod = Method.Ralston;
-                break;
-            default:
-                currentMethod = Method.SteepestDescent;
-                break;
-        }
-    }
-
     // Start is called before the first frame update
     void Start()
     {

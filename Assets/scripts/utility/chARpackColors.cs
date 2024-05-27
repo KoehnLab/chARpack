@@ -17,9 +17,45 @@ namespace chARpackColorPalette
         public static Color white = Color.white;
         public static Color blue = Color.blue;
         public static Color green = Color.green;
+        public static Color lightblue = new Color(0.3f, 0.7f, 1.0f);
+        public static Color violet = new Color(0.4f, 0.0f, 0.8f);
+        public static Color darkblue = new Color(0.0f, 0.2f, 0.8f);
+        public static Color gold = new Color(1.0f, 0.9f, 0.4f);
+        public static Color darkgrey = new Color(0.2f, 0.2f, 0.2f);
+        public static Color orangered = new Color(0.9f, 0.3f, 0.1f);
+        public static Color yelloworange = new Color(1.0f, 0.7f, 0.0f);
+        public static Color lilac = new Color(0.8f, 0.4f, 1.0f);
+    }
+
+    public struct ColorPalette
+    {
+        public static Color atomSelectionColor = chARpackColors.yellow;
+        public static Color singleBondSelectionColor = chARpackColors.orange;
+        public static Color angleBondSelectionColor = chARpackColors.red;
+        public static Color torsionBondSelectionColor = chARpackColors.green;
         public static Color structureFormulaNormal = new Color(0.5f, 0.5f, 0.5f, 0.6f);
         public static Color structureFormulaSelect = new Color(1f, 1f, 0f, 0.6f);
         public static Color notEnabledColor = new Color(0.5f, 0.5f, 0.5f, 0f);
+        public static Color defaultIndicatorColor = chARpackColors.yelloworange; // Needed for use in login menu
+        public static Color atomGrabColor = chARpackColors.blue;
+        public static Color inactiveIndicatorColor = SettingsData.colorScheme == ColorScheme.MONOCHROME ? chARpackColors.darkgrey : chARpackColors.gray;
+        public static Color activeIndicatorColor = chARpackColors.yelloworange;
+    }
+
+    public enum ColorScheme
+    {
+        DARKBLUE,
+        TURQUOISE,
+        GOLD,
+        MONOCHROME,
+        RAINBOW,
+        HEAT,
+        VIOLET,
+        GREEN
+    }
+    public struct chARpackColorSchemes
+    {
+        public static int numberOfColorSchemes = 8; // Needed to switch forward and backward
     }
 
     public class FocusColors
