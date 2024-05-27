@@ -1750,6 +1750,8 @@ public class GlobalCtrl : MonoBehaviour
 
     public void setLicoriceRendering(bool set)
     {
+        var bond_scale_lic = new Vector3(1.5f, 1.5f, 0.5f);
+        var bond_scale_normal = new Vector3(1f, 1f, 0.3f);
         if (set)
         {
             bondRadiusScale = 1.5f;
@@ -1761,7 +1763,8 @@ public class GlobalCtrl : MonoBehaviour
                 }
                 foreach(Bond b in mol.bondList)
                 {
-                    b.transform.localScale = bondRadiusScale * b.transform.localScale;
+                    b.transform.localScale = bond_scale_lic;
+                    // b.transform.localScale = bondRadiusScale * b.transform.localScale; // causes growing for multiple calls
                     if (mol.frozen)
                     {
                         mol.setFrozenMaterialOnBond(b, true);
@@ -1778,7 +1781,8 @@ public class GlobalCtrl : MonoBehaviour
                 }
                 foreach (Bond b in mol.bondList)
                 {
-                    b.transform.localScale = 1/bondRadiusScale * b.transform.localScale;
+                    b.transform.localScale = bond_scale_normal;
+                    // b.transform.localScale = 1 / bondRadiusScale * b.transform.localScale; // causes shrinking for multiple calls
                     if (mol.frozen)
                     {
                         mol.setFrozenMaterialOnBond(b, false);
