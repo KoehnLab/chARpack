@@ -2,7 +2,7 @@ from rdkit import Chem
 from rdkit.Chem import rdDetermineBonds
 from rdkit.Chem.Draw import rdMolDraw2D, rdDepictor
 import numpy as np
-from xml.dom import minidom
+import re
 
 
 class MyClass:
@@ -137,14 +137,33 @@ def __transform_coordinates(atom_coords, svg_width, svg_height):
     return transformed_coords
 
 
-def __get_svg_dimensions(svg_content):
-    #svg_doc = minidom.parse(svg_file)
-    svg_doc = minidom.parseString(svg_content)
-    svg_element = svg_doc.getElementsByTagName('svg')[0]
-    width = float(svg_element.getAttribute('width').replace('px', ''))
-    height = float(svg_element.getAttribute('height').replace('px', ''))
-    return width, height
+# def __get_svg_dimensions(svg_content):
+#     from xml.dom import minidom
+#     #svg_doc = minidom.parse(svg_file)
+#     svg_doc = minidom.parseString(svg_content)
+#     svg_element = svg_doc.getElementsByTagName('svg')[0]
+#     width = float(svg_element.getAttribute('width').replace('px', ''))
+#     height = float(svg_element.getAttribute('height').replace('px', ''))
+#     return width, height
 
+# def __get_svg_dimensions(svg_content):
+#     import xml.etree.ElementTree as ET
+#     root = ET.fromstring(svg_content)
+#     svg_element = root
+#     width = float(svg_element.get('width').replace('px', ''))
+#     height = float(svg_element.get('height').replace('px', ''))
+#     return width, height
+
+def __get_svg_dimensions(svg_content):
+    width_match = re.search(r'width\s*=\s*["\'](\d+\.?\d*)\s*px?["\']', svg_content)
+    height_match = re.search(r'height\s*=\s*["\'](\d+\.?\d*)\s*px?["\']', svg_content)
+    
+    if width_match and height_match:
+        width = float(width_match.group(1))
+        height = float(height_match.group(1))
+        return width, height
+    else:
+        raise ValueError("SVG dimensions not found")
 
 def __add_circles_to_svg(svg_content, transformed_coords, radius=2, fill='blue'):
     circle_template = '<circle cx="{0}" cy="{1}" r="{2}" fill="{3}" />'
