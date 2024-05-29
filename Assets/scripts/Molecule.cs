@@ -247,6 +247,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private float toolTipDistanceWeight = 0.01f;
     private Vector3 startingScale;
     public bool frozen = false;
+    private Material frozen_bond_mat;
 
     public enum toolTipType
     {
@@ -299,6 +300,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         compMaterialA = Resources.Load("materials/ComparisonMaterialA") as Material;
         compMaterialB = Resources.Load("materials/ComparisonMaterialB") as Material;
+
+        frozen_bond_mat = Resources.Load("materials/frozenBondMaterial") as Material;
 
         if (mol_data.keepConfig)
         {
@@ -1343,19 +1346,19 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     // Helper methods to generate localized tool tip text
     private string getAtomToolTipText(double totMass, double maxDist)
     {
-        string numAtoms = GlobalCtrl.Singleton.GetLocalizedString("NUM_ATOMS");
-        string numBonds = GlobalCtrl.Singleton.GetLocalizedString("NUM_BONDS");
-        string mass = GlobalCtrl.Singleton.GetLocalizedString("TOT_MASS");
+        string numAtoms = localizationManager.Singleton.GetLocalizedString("NUM_ATOMS");
+        string numBonds = localizationManager.Singleton.GetLocalizedString("NUM_BONDS");
+        string mass = localizationManager.Singleton.GetLocalizedString("TOT_MASS");
         string toolTipText = $"{numAtoms}: {atomList.Count}\n{numBonds}: {bondList.Count}\n{mass}: {totMass:0.00}\nMaxRadius: {maxDist:0.00}";
         return toolTipText;
     }
 
     private string getBondToolTipText(double eqDist, double curDist, double kBond, double order)
     {
-        string dist = GlobalCtrl.Singleton.GetLocalizedString("EQ_DIST");
-        string singleBond = GlobalCtrl.Singleton.GetLocalizedString("SINGLE_BOND");
-        string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
-        string ord = GlobalCtrl.Singleton.GetLocalizedString("ORDER");
+        string dist = localizationManager.Singleton.GetLocalizedString("EQ_DIST");
+        string singleBond = localizationManager.Singleton.GetLocalizedString("SINGLE_BOND");
+        string current = localizationManager.Singleton.GetLocalizedString("CURRENT");
+        string ord = localizationManager.Singleton.GetLocalizedString("ORDER");
         string distanceInCorrectUnit = SettingsData.useAngstrom ? $"{dist}: {eqDist: 0.00}\u00C5" : $"{dist}: {eqDist * 100:0}pm";
         string curDistanceInCorrectUnit = SettingsData.useAngstrom ? $"{current}: {curDist: 0.00}\u00C5" : $"{current}: {curDist * 100:0}pm";
         string toolTipText = $"{singleBond}\n{distanceInCorrectUnit}\n{curDistanceInCorrectUnit}\nk: {kBond:0.00}\n{ord}: {order:0.00}";
@@ -1364,10 +1367,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private string getAngleToolTipText(double eqAngle, double kAngle, double curAngle = 0)
     {
-        string angleBond = GlobalCtrl.Singleton.GetLocalizedString("ANGLE_BOND");
-        string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
-        string kAngleStr = GlobalCtrl.Singleton.GetLocalizedString("K_ANGLE");
-        string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
+        string angleBond = localizationManager.Singleton.GetLocalizedString("ANGLE_BOND");
+        string eqAngleStr = localizationManager.Singleton.GetLocalizedString("EQUI_ANGLE");
+        string kAngleStr = localizationManager.Singleton.GetLocalizedString("K_ANGLE");
+        string current = localizationManager.Singleton.GetLocalizedString("CURRENT");
         string toolTipText = $"{angleBond}\n{kAngleStr}: {kAngle:0.00}\n{eqAngleStr}: {eqAngle:0.00}\u00B0\n{current}: {curAngle:0.00}\u00B0";
         return toolTipText;
     }
@@ -1375,9 +1378,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private string getTorsionToolTipText(double eqAngle, double vk, double nn, double curAngle = 0f)
     {
         //$"Torsion Bond\nEqui. Angle: {term.eqAngle}\nvk: {term.vk}\nnn: {term.nn}"
-        string torsionBond = GlobalCtrl.Singleton.GetLocalizedString("TORSION_BOND");
-        string eqAngleStr = GlobalCtrl.Singleton.GetLocalizedString("EQUI_ANGLE");
-        string current = GlobalCtrl.Singleton.GetLocalizedString("CURRENT");
+        string torsionBond = localizationManager.Singleton.GetLocalizedString("TORSION_BOND");
+        string eqAngleStr = localizationManager.Singleton.GetLocalizedString("EQUI_ANGLE");
+        string current = localizationManager.Singleton.GetLocalizedString("CURRENT");
         string toolTipText = $"{torsionBond}\n{eqAngleStr}: {eqAngle:0.00}\u00B0\n{current}: {curAngle:0.00}\u00B0\nvk: {vk:0.00}\nnn: {nn:0.00}";
         return toolTipText;
     }
@@ -1403,12 +1406,36 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             atom.freeze(value);
         }
+        if (SettingsData.licoriceRendering) // add frozen visual to bonds in licorice mode
+        { 
+            foreach(var bond in bondList)
+            {
+                setFrozenMaterialOnBond(bond, value);
+            }
+        }
         GetComponent<NearInteractionGrabbable>().enabled = !value;
         GetComponent<ObjectManipulator>().enabled = !value;
         frozen = value;
         if (freezeButton)
         {
             setFrozenVisual(frozen);
+        }
+    }
+
+    public void setFrozenMaterialOnBond(Bond bond, bool value)
+    {
+        if (value)
+        {
+            // Append frozen material to end of list
+            Material[] frozen = bond.GetComponentInChildren<MeshRenderer>().sharedMaterials.ToList().Append(frozen_bond_mat).ToArray();
+            bond.GetComponentInChildren<MeshRenderer>().sharedMaterials = frozen;
+        }
+        else
+        {
+            // Remove frozen material
+            List<Material> unfrozen = bond.GetComponentInChildren<MeshRenderer>().sharedMaterials.ToList();
+            unfrozen.Remove(frozen_bond_mat);
+            bond.GetComponentInChildren<MeshRenderer>().sharedMaterials = unfrozen.ToArray();
         }
     }
 

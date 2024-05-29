@@ -15,15 +15,33 @@ namespace Microsoft.MixedReality.Toolkit.UI
 
         public void OnMouseDown()
         {
-            distToCamera = Vector3.Dot(GlobalCtrl.Singleton.currentCamera.transform.forward, transform.position - GlobalCtrl.Singleton.currentCamera.transform.position);
-            startingPosition = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
+            Camera currentCam;
+            if (GlobalCtrl.Singleton != null)
+            {
+                currentCam = GlobalCtrl.Singleton.currentCamera;
+            }
+            else
+            {
+                currentCam = Camera.main;
+            }
+            distToCamera = Vector3.Dot(currentCam.transform.forward, transform.position - currentCam.transform.position);
+            startingPosition = currentCam.ScreenToWorldPoint(
                 new Vector3(UnityEngine.Input.mousePosition.x, UnityEngine.Input.mousePosition.y, distToCamera));
             slider.StartSliderValue = slider.SliderValue;
         }
 
         public void OnMouseDrag()
         {
-            Vector3 newPosition = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
+            Camera currentCam;
+            if (GlobalCtrl.Singleton != null)
+            {
+                currentCam = GlobalCtrl.Singleton.currentCamera;
+            }
+            else
+            {
+                currentCam = Camera.main;
+            }
+            Vector3 newPosition = currentCam.ScreenToWorldPoint(
                 new Vector3(UnityEngine.Input.mousePosition.x, UnityEngine.Input.mousePosition.y, distToCamera));
             var delta = newPosition - startingPosition;
             var mouseDelta = Vector3.Dot(slider.SliderTrackDirection.normalized, delta);

@@ -35,8 +35,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     public GameObject toolTipInstance = null;
     private GameObject freezeButton;
     private static float toolTipDistanceWeight = 2.5f;
-    private static Color grabColor = chARpackColors.blue;
-    public Color[] backupOutlineColor = new Color[4] { chARpackColors.notEnabledColor, chARpackColors.notEnabledColor, chARpackColors.notEnabledColor, chARpackColors.notEnabledColor };
+    private static Color grabColor = ColorPalette.atomGrabColor;
+    public Color[] backupOutlineColor = new Color[4] { ColorPalette.notEnabledColor, ColorPalette.notEnabledColor, ColorPalette.notEnabledColor, ColorPalette.notEnabledColor };
     public bool keepConfig = false;
     public bool frozen = false;
     public bool[] focused = new bool[4] { false, false, false, false };
@@ -83,7 +83,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 outline_component.enabled = true;
                 for (int i = 0; i < FocusManager.maxNumOutlines; i++)
                 {
-                    backupOutlineColor[i] = chARpackColors.notEnabledColor;
+                    backupOutlineColor[i] = ColorPalette.notEnabledColor;
                 }
             }
             for (int i = 0; i < FocusManager.maxNumOutlines; i++)
@@ -716,7 +716,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
         transform.parent = inputMole.transform;
         transform.localPosition = pos;
-        transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.scale / GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
+        transform.localScale = SettingsData.licoriceRendering ? Vector3.one * 0.01f * GlobalCtrl.Singleton.bondRadiusScale : Vector3.one * m_data.m_radius * (GlobalCtrl.scale / GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
 
         //Debug.Log(string.Format("Added latest {0}:  rad={1}  scale={2}  hyb={3}  nBonds={4}", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale, m_data.m_hybridization, m_data.m_bondNum));
 
@@ -789,7 +789,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         GetComponent<MeshRenderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
         m_mat = GetComponent<MeshRenderer>().material;
 
-        transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.scale / GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
+        transform.localScale = SettingsData.licoriceRendering ? Vector3.one * 0.01f * GlobalCtrl.Singleton.bondRadiusScale : Vector3.one * m_data.m_radius * (GlobalCtrl.scale / GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
 
 
         foreach (Atom a in connectedDummys())
@@ -937,8 +937,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             outline_component.enabled = true;
             for (int i = 0; i < FocusManager.maxNumOutlines; i++)
             {
-                outline_component.OutlineColor[i] = chARpackColors.yellow;
-                backupOutlineColor[i] = chARpackColors.yellow;
+                outline_component.OutlineColor[i] = ColorPalette.atomSelectionColor;
+                backupOutlineColor[i] = ColorPalette.atomSelectionColor;
             }
             previousHighlightType = currentHighlightType;
             currentHighlightType = FocusManager.HighlightType.Select;
@@ -950,8 +950,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             outline_component.enabled = true;
             for (int i = 0; i < FocusManager.maxNumOutlines; i++)
             {
-                outline_component.OutlineColor[i] = chARpackColors.orange; //orange
-                backupOutlineColor[i] = chARpackColors.orange;
+                outline_component.OutlineColor[i] = ColorPalette.singleBondSelectionColor; //orange
+                backupOutlineColor[i] = ColorPalette.singleBondSelectionColor;
             }
             previousHighlightType = currentHighlightType;
             currentHighlightType = FocusManager.HighlightType.Select;
@@ -963,8 +963,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             outline_component.enabled = true;
             for (int i = 0; i < FocusManager.maxNumOutlines; i++)
             {
-                outline_component.OutlineColor[i] = chARpackColors.red;
-                backupOutlineColor[i] = chARpackColors.red;
+                outline_component.OutlineColor[i] = ColorPalette.angleBondSelectionColor;
+                backupOutlineColor[i] = ColorPalette.angleBondSelectionColor;
             }
             previousHighlightType = currentHighlightType;
             currentHighlightType = FocusManager.HighlightType.Select;
@@ -976,8 +976,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             outline_component.enabled = true;
             for (int i = 0; i < FocusManager.maxNumOutlines; i++)
             {
-                outline_component.OutlineColor[i] = chARpackColors.green;
-                backupOutlineColor[i] = chARpackColors.green;
+                outline_component.OutlineColor[i] = ColorPalette.torsionBondSelectionColor;
+                backupOutlineColor[i] = ColorPalette.torsionBondSelectionColor;
             }
             previousHighlightType = currentHighlightType;
             currentHighlightType = FocusManager.HighlightType.Select;
@@ -991,7 +991,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             currentHighlightType = FocusManager.HighlightType.None;
             if (previousHighlightType == FocusManager.HighlightType.Select)
             {
-                selectHighlightInFormula(new Color[4] { chARpackColors.notEnabledColor, chARpackColors.notEnabledColor, chARpackColors.notEnabledColor, chARpackColors.notEnabledColor });
+                selectHighlightInFormula(new Color[4] { ColorPalette.notEnabledColor, ColorPalette.notEnabledColor, ColorPalette.notEnabledColor, ColorPalette.notEnabledColor });
             }
             if (m_data.m_abbre.ToLower() == "dummy")
             {
@@ -1352,7 +1352,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 m_molecule.toolTipInstance = null;
             }
             markedList[0].markAtom(true, 2, toolTip);
-            markedList[0].toolTipInstance.GetComponent<ServerAtomTooltip>().localPosition = rectSave;
+            if (SceneManager.GetActiveScene().name == "ServerScene")
+            {
+                markedList[0].toolTipInstance.GetComponent<ServerAtomTooltip>().localPosition = rectSave;
+            }
         }
         else if (markedList.Count == 2)
         {
@@ -1578,10 +1581,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private string getToolTipText(string name, double mass, double radius, int bondNum)
     {
         //$"Name: {m_data.m_name}\nMass: {m_data.m_mass}\nRadius: {m_data.m_radius}\nNumBonds: {m_data.m_bondNum}"
-        string rad = GlobalCtrl.Singleton.GetLocalizedString("RADIUS");
-        string numBonds = GlobalCtrl.Singleton.GetLocalizedString("NUM_BONDS");
-        string massStr = GlobalCtrl.Singleton.GetLocalizedString("MASS");
-        string nameStr = GlobalCtrl.Singleton.GetLocalizedString("NAME");
+        string rad = localizationManager.Singleton.GetLocalizedString("RADIUS");
+        string numBonds = localizationManager.Singleton.GetLocalizedString("NUM_BONDS");
+        string massStr = localizationManager.Singleton.GetLocalizedString("MASS");
+        string nameStr = localizationManager.Singleton.GetLocalizedString("NAME");
         name = GetLocalizedElementName(name);
         double radius_in_angstrom = radius * 0.01f;
         string radiusInCorrectUnit = SettingsData.useAngstrom ? $"{radius_in_angstrom:0.00}" : $"{radius:0}";
@@ -1813,7 +1816,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 outline_component.enabled = false;
                 previousHighlightType = currentHighlightType;
                 currentHighlightType = FocusManager.HighlightType.None;
-                serverFocusHighlightInFormula(new Color[4] { chARpackColors.notEnabledColor, chARpackColors.notEnabledColor, chARpackColors.notEnabledColor, chARpackColors.notEnabledColor });
+                serverFocusHighlightInFormula(new Color[4] { ColorPalette.notEnabledColor, ColorPalette.notEnabledColor, ColorPalette.notEnabledColor, ColorPalette.notEnabledColor });
             }
             else
             {
@@ -1913,6 +1916,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     /// <param name="value">Whether the atom is frozen</param>
     public void setFrozenVisual(bool value)
     {
+        
         var FrozenIndicator = freezeButton.transform.Find("IconAndText").gameObject.transform.Find("Indicator").gameObject;
         if (value)
         {
