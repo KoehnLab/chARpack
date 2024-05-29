@@ -49,16 +49,15 @@ public class StructureFormulaGenerator : MonoBehaviour
         "python35.dll",
         };
 
-        //var path = Environment.GetEnvironmentVariable("PATH");
-        var path = Environment.GetEnvironmentVariable("PATH");
+        var path = Path.Combine(Application.streamingAssetsPath, "PythonEnv");
         string pythonHome = null;
         string pythonExe = null;
-        foreach (var p in path.Split(new char[] { ';' }))
+        foreach (var p in path.Split(';'))
         {
             var fullPath = Path.Combine(p, "python.exe");
             if (File.Exists(fullPath))
             {
-                pythonHome = p;
+                pythonHome = Path.GetDirectoryName(fullPath);
                 pythonExe = fullPath;
                 break;
             }
@@ -66,6 +65,7 @@ public class StructureFormulaGenerator : MonoBehaviour
 
         string pythonPath = null;
         string dll_path = null;
+        string zip_path = null;
         if (pythonHome != null)
         {
             // check for the dll
@@ -75,6 +75,7 @@ public class StructureFormulaGenerator : MonoBehaviour
                 if (File.Exists(fullPath))
                 {
                     dll_path = fullPath;
+                    zip_path = fullPath.Split('.')[0] + ".zip";
                     break;
                 }
             }
@@ -82,11 +83,6 @@ public class StructureFormulaGenerator : MonoBehaviour
             {
                 throw new Exception("Couldn't find python DLL");
             }
-
-            Environment.SetEnvironmentVariable("PATH", pythonHome);
-            Environment.SetEnvironmentVariable("PYTHONHOME", pythonHome);
-            pythonPath = pythonHome + ";" + Path.Combine(pythonHome, "Lib") + ";" + Path.Combine(pythonHome, "Lib/site-packages");
-            Environment.SetEnvironmentVariable("PYTHONPATH", pythonPath);
         }
         else
         {
@@ -94,24 +90,18 @@ public class StructureFormulaGenerator : MonoBehaviour
         }
 
         //// Set the path to the embedded Python environment
-        //pythonHome = "D:\\unity_projects\\python-3.10.9-embed-amd64";
-        //pythonHome = Path.Combine(Application.dataPath, "../PythonEnv");
-        //pythonPath = pythonHome + ";" + Path.Combine(pythonHome, "Lib/site-packages") + ";" + Path.Combine(pythonHome, "Lib");
-
-        //Environment.SetEnvironmentVariable("PYTHONHOME", pythonHome);
-        //Environment.SetEnvironmentVariable("PYTHONPATH", pythonPath + ";" + Path.Combine(pythonPath, "site-packages"));
+        pythonPath = pythonHome + ";" + Path.Combine(pythonHome, "Lib\\site-packages") + ";" + zip_path + ";" + Path.Combine(pythonHome, "DLLs");
+        Environment.SetEnvironmentVariable("PYTHONHOME", null);
+        Environment.SetEnvironmentVariable("PYTHONPATH", null);
 
         // Display Python runtime details
         Debug.Log($"Python DLL: {dll_path}");
         Debug.Log($"Python executable: {pythonExe}");
-        Debug.Log($"PYTHONHOME: {Environment.GetEnvironmentVariable("PYTHONHOME")}");
-        Debug.Log($"PYTHONPATH: {Environment.GetEnvironmentVariable("PYTHONPATH")}");
-
+        Debug.Log($"Python home: {pythonHome}");
+        Debug.Log($"Python path: {pythonPath}");
 
 
         // Initialize the Python runtime
-        //Runtime.PythonDLL = "D:\\unity_projects\\python-3.10.9-embed-amd64\\python310.dll";
-        //Runtime.PythonDLL = Path.Combine(pythonHome, "python310.dll");
         Runtime.PythonDLL = dll_path;
 
         // Initialize the Python engine with the embedded Python environment
@@ -189,9 +179,6 @@ public class StructureFormulaGenerator : MonoBehaviour
 
             // Call the function from the Python script
             dynamic result = script.gen_structure_formula(pyPosList, pySymbolList);
-            //dynamic myClass = script.MyClass("hallo");
-            //string greeting = myClass.greet();
-            //Debug.Log(greeting);
 
             // Extract values from the returned tuple
             svgContent = result[0].ToString();

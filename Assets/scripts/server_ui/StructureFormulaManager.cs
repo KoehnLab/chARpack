@@ -51,9 +51,6 @@ public class StructureFormulaManager : MonoBehaviour
     private GameObject interactiblePrefab;
     private GameObject structureFormulaPrefab;
     public GameObject UICanvas;
-    System.Diagnostics.Process python_process = null;
-    string python_exe;
-    StringBuilder standardOutput = new StringBuilder();
     private List<Texture2D> heatMapTextures;
     private List<string> heatMapNames = new List<string> { "HeatTexture_Cool", "HeatTexture_Inferno", "HeatTexture_Magma", "HeatTexture_Plasma", "HeatTexture_Viridis", "HeatTexture_Warm" };
     [HideInInspector]
@@ -73,39 +70,6 @@ public class StructureFormulaManager : MonoBehaviour
         {
             heatMapTextures.Add((Texture2D)Resources.Load($"materials/{name}"));
         }
-
-        //var python_home = Path.Combine(Path.Combine(Application.dataPath, ".."), "PythonEnv");
-        //Environment.SetEnvironmentVariable("PYTHONHOME", python_home);
-        //Environment.SetEnvironmentVariable("PYTHONPATH", python_home + ";" + Path.Combine(python_home, "Lib") + ";" + Path.Combine(python_home, "Lib/site-packages"));
-
-        //python_exe = Path.Combine(python_home, "python.exe");
-        var path = Environment.GetEnvironmentVariable("PATH");
-        string pythonPath = null;
-        foreach (var p in path.Split(new char[] { ';' }))
-        {
-            var fullPath = Path.Combine(p, "python.exe");
-            if (File.Exists(fullPath))
-            {
-                pythonPath = fullPath;
-                break;
-            }
-        }
-
-        if (pythonPath != null)
-        {
-            python_exe = pythonPath;
-            Debug.Log($"[Python] Found python.exe - {python_exe}");
-            Environment.SetEnvironmentVariable("PYTHONHOME", pythonPath);
-            Environment.SetEnvironmentVariable("PYTHONPATH", pythonPath + ";" + Path.Combine(pythonPath, "Lib") + ";" + Path.Combine(pythonPath, "Lib/site-packages"));
-        }
-        else
-        {
-            throw new Exception("Couldn't find python on %PATH%");
-        }
-
-
-        // Startup structure provider in python
-        StartCoroutine(waitAndInitialize());
     }
 
     public void setColorMap(int id)
@@ -118,18 +82,6 @@ public class StructureFormulaManager : MonoBehaviour
         }
     }
 
-
-    private IEnumerator waitAndInitialize()
-    {
-        yield return new WaitForSeconds(1f);
-        var pythonArgs = Path.Combine(Application.dataPath, "scripts/network/PytideInterface/chARpack_run_structrure_provider.py");
-        var psi = new System.Diagnostics.ProcessStartInfo(python_exe, pythonArgs);
-        psi.RedirectStandardOutput = true;
-        psi.UseShellExecute = false;
-        psi.CreateNoWindow = true;
-        psi.WindowStyle = System.Diagnostics.ProcessWindowStyle.Minimized;
-        python_process = System.Diagnostics.Process.Start(psi);
-    }
 
     public void pushSecondaryContent(Guid mol_id, int focus_id)
     {
@@ -630,16 +582,5 @@ public class StructureFormulaManager : MonoBehaviour
         }
         return null;
     }
-
-    private void OnDestroy()
-    {
-        if (python_process != null)
-        {
-            python_process.Kill();
-            python_process.WaitForExit();
-            python_process.Dispose();
-        }
-    }
-
 }
 

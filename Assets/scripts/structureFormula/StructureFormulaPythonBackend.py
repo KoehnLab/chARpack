@@ -5,15 +5,6 @@ import numpy as np
 import re
 
 
-class MyClass:
-    def __init__(self, name):
-        self.name = name
-
-    def greet(self):
-        return f"Hello, {self.name} from Python!"
-
-
-
 def gen_structure_formula(atom_positions, symbols):
     assert(len(atom_positions) == len(symbols))
 
@@ -67,29 +58,6 @@ def __get_atom_coordinates(mol):
     conf = mol.GetConformer()
     atom_coords = [tuple(conf.GetAtomPosition(i))[:2] for i in range(mol.GetNumAtoms())]  # Extract (x, y) coordinates
     return atom_coords
-
-# def get_structure_formula(self, smiles = "CCC"):
-#     rdDepictor.SetPreferCoordGen(True)
-
-#     mol = Chem.MolFromSmiles(smiles)
-
-#     mol = Chem.AddHs(mol)
-#     d = rdMolDraw2D.MolDraw2DSVG(-1, -1)
-#     #rdMolDraw2D.SetDarkMode(d)
-#     d.drawOptions().padding = 0.0
-#     d.drawOptions().scalingFactor = 30
-#     rdMolDraw2D.PrepareAndDrawMolecule(d, mol)
-#     d.FinishDrawing()
-#     svg_content = d.GetDrawingText()
-
-#     # svg_file = 'test.svg'
-#     # with open(svg_file, 'w') as f:
-#     #     f.write(svg_content)
-
-#     coords_on_svg = self.__calc_2d_atom_positions(mol, svg_content)
-#     #new_svg_content = add_circles_to_svg(svg_content, transformed_coords)
-
-#     return svg_content, coords_on_svg
 
 
 def __calc_2d_atom_positions(mol, svg_content):
