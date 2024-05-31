@@ -28,7 +28,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 3999708725248
-    m_Key: MainScene/NearMenu/ButtonCollection/Settings/IconAndText/TextMeshPro
+    m_Key: Settings
     m_Metadata:
       m_Items: []
   - m_Id: 4030889181184
@@ -100,7 +100,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5572186849280
-    m_Key: MainScene/loadSaveWindow/ScrollParent/SaveButton/IconAndText/TextMeshPro
+    m_Key: Save
     m_Metadata:
       m_Items: []
   - m_Id: 5799014809600
@@ -415,6 +415,62 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 121767377900126208
     m_Key: LoginScreenScene/LoginMenu/TitleBar/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121818269168943104
+    m_Key: Load
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121818554914291712
+    m_Key: NextUser
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121818665476145152
+    m_Key: PrevUser
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819028501544960
+    m_Key: EnterText
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819235968598016
+    m_Key: Space
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819288380620800
+    m_Key: RightMouse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819358941396992
+    m_Key: MiddleMouse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819508090847232
+    m_Key: LeftShift
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819868633219072
+    m_Key: MoveCam
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819978125524992
+    m_Key: MoveUpDown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820102004293632
+    m_Key: TextInput
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820335278899200
+    m_Key: RotateCam
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820496205955072
+    m_Key: PanCam
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820642767519744
+    m_Key: RotateAroundAtom
     m_Metadata:
       m_Items: []
   m_Metadata:

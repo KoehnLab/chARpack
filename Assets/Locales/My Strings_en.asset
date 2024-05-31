@@ -422,6 +422,62 @@ MonoBehaviour:
     m_Localized: Login Menu
     m_Metadata:
       m_Items: []
+  - m_Id: 121818269168943104
+    m_Localized: Load
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121818554914291712
+    m_Localized: Next User
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121818665476145152
+    m_Localized: Prev User
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819028501544960
+    m_Localized: Enter text...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819235968598016
+    m_Localized: Space
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819288380620800
+    m_Localized: Right Mouse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819358941396992
+    m_Localized: Middle Mouse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819508090847232
+    m_Localized: Left Shift + Right Click
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819868633219072
+    m_Localized: Move camera
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819978125524992
+    m_Localized: Move camera up/down
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820102004293632
+    m_Localized: Activate text input
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820335278899200
+    m_Localized: Rotate camera
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820496205955072
+    m_Localized: Pan camera (move in plane)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820642767519744
+    m_Localized: Rotate around atom
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
