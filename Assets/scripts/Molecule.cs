@@ -10,6 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using chARpackColorPalette;
 using UnityEngine.SceneManagement;
+using UnityEngine.Localization.SmartFormat.PersistentVariables;
 
 public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
@@ -226,6 +227,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject toggleDummiesButtonPrefab;
     [HideInInspector] public static GameObject undoButtonPrefab;
     [HideInInspector] public static GameObject changeBondWindowPrefab;
+    [HideInInspector] public static GameObject changeServerBondWindowPrefab;
     [HideInInspector] public static GameObject copyButtonPrefab;
     [HideInInspector] public static GameObject scaleMoleculeButtonPrefab;
     [HideInInspector] public static GameObject scalingSliderPrefab;
@@ -244,6 +246,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     public GameObject toolTipInstance;
     private GameObject freezeButton;
     public GameObject scalingSliderInstance;
+    public GameObject changeBondWindowInstance;
     private float toolTipDistanceWeight = 0.01f;
     private Vector3 startingScale;
     public bool frozen = false;
@@ -934,7 +937,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<ServerBondTooltip>().ToolTipText.text = toolTipText;
         toolTipInstance.GetComponent<ServerBondTooltip>().closeButton.onClick.AddListener(delegate { markBondTermUI(term, false); });
         toolTipInstance.GetComponent<ServerBondTooltip>().deleteButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.deleteBondUI(bond); });
-        toolTipInstance.GetComponent<ServerBondTooltip>().modifyButton.onClick.AddListener(delegate { createChangeBondWindow(term); });
+        toolTipInstance.GetComponent<ServerBondTooltip>().modifyButton.onClick.AddListener(delegate { createServerChangeBondWindow(term); });
         toolTipInstance.GetComponent<ServerBondTooltip>().localPosition = rectSave;
         toolTipInstance.GetComponent<ServerBondTooltip>().linkedMolecule = this;
         if (atom1.m_data.m_abbre == "Dummy" || atom2.m_data.m_abbre == "Dummy")
@@ -951,31 +954,46 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     }
     private void createChangeBondWindow(ForceField.BondTerm bond)
     {
-        var changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
+        changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
         var cb = changeBondWindowInstance.GetComponent<ChangeBond>();
         cb.bt = bond;
         var id = bondTerms.IndexOf(bond);
         cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeBondParametersUI(changeBondWindowInstance, id); });
     }
+     private void createServerChangeBondWindow(ForceField.BondTerm bond)
+    {
+        if (changeBondWindowInstance != null){Destroy(changeBondWindowInstance);changeBondWindowInstance=null;}
+        changeBondWindowInstance = Instantiate(changeServerBondWindowPrefab);
+        
+        var cb = changeBondWindowInstance.GetComponent<BondParametersServer>();
+        cb.bt = bond;
+        var id = bondTerms.IndexOf(bond);
+        cb.saveButton.GetComponent<Button>().onClick.AddListener(delegate { changeBondParametersUI(changeBondWindowInstance, id); });
+    } 
 
     private void changeBondParametersUI(GameObject windowInstance, int id)
     {
+        ForceField.BondTerm bt;
         cmlData before = this.AsCML();
-        var cb = windowInstance.GetComponent<ChangeBond>();
-        cb.changeBondParametersBT();
-        var bt = cb.bt;
-
-        var dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>();
-        // Update tool tip
-        string toolTipText = getBondToolTipText(bt.eqDist, dist.getDistanceInAngstrom(), bt.kBond, bt.order);
         if (!SceneManager.GetActiveScene().name.Equals("ServerScene"))
         {
-            toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        var cb = windowInstance.GetComponent<ChangeBond>();
+        cb.changeBondParametersBT();
+        bt = cb.bt;
+        var dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>();
+        string toolTipText = getBondToolTipText(bt.eqDist, dist.getDistanceInAngstrom(), bt.kBond, bt.order);
+        toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
         }
         else
         {
-            toolTipInstance.GetComponent<ServerBondTooltip>().ToolTipText.text = toolTipText;
+        var cb = windowInstance.GetComponent<BondParametersServer>();
+        cb.changeBondParametersBT();
+        bt = cb.bt;
+        var dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>();
+        string toolTipText = getBondToolTipText(bt.eqDist, dist.getDistanceInAngstrom(), bt.kBond, bt.order);
+        toolTipInstance.GetComponent<ServerBondTooltip>().ToolTipText.text = toolTipText;
         }
+                // Update tool tip
 
         changeBondParameters(bt, id);
         EventManager.Singleton.ChangeBondTerm(bt, m_id, (ushort)id);
@@ -1078,7 +1096,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<ServerAngleTooltip>().focus_id = focus_id;
         toolTipInstance.GetComponent<ServerAngleTooltip>().ToolTipText.text = toolTipText;
         toolTipInstance.GetComponent<ServerAngleTooltip>().closeButton.onClick.AddListener(delegate { markAngleTermUI(term, false); });
-        toolTipInstance.GetComponent<ServerAngleTooltip>().modifyButton.onClick.AddListener(delegate { createChangeAngleWindow(term); });
+        toolTipInstance.GetComponent<ServerAngleTooltip>().modifyButton.onClick.AddListener(delegate { createServerChangeAngleWindow(term); });
         toolTipInstance.GetComponent<ServerAngleTooltip>().localPosition = rectSave;
         toolTipInstance.GetComponent<ServerAngleTooltip>().linkedMolecule = this;
         markAngleTermServer(term, true);
@@ -1111,30 +1129,45 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void createChangeAngleWindow(ForceField.AngleTerm bond)
     {
-        var changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
+        changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
         var cb = changeBondWindowInstance.GetComponent<ChangeBond>();
         cb.at = bond;
         var id = angleTerms.IndexOf(bond);
         cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeAngleParametersUI(changeBondWindowInstance, id); });
     }
+    private void createServerChangeAngleWindow(ForceField.AngleTerm bond)
+    {
+        if (changeBondWindowInstance != null){Destroy(changeBondWindowInstance);}
+        changeBondWindowInstance = Instantiate(changeServerBondWindowPrefab);
+        
+        var cb = changeBondWindowInstance.GetComponent<BondParametersServer>();
+        cb.at = bond;
+        var id = angleTerms.IndexOf(bond);
+        cb.saveButton.GetComponent<Button>().onClick.AddListener(delegate { changeAngleParametersUI(changeBondWindowInstance, id); });
+    }
 
     private void changeAngleParametersUI(GameObject windowInstance, int id)
     {
         cmlData before = this.AsCML();
-        var cb = windowInstance.GetComponent<ChangeBond>();
-        cb.changeBondParametersAT();
-        var at = cb.at;
-        // Update tool tip
-        string toolTipText = getAngleToolTipText(at.eqAngle, at.kAngle);
+        ForceField.AngleTerm at;
         if (!SceneManager.GetActiveScene().name.Equals("ServerScene"))
         {
-            toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+        var cb = windowInstance.GetComponent<ChangeBond>();
+        cb.changeBondParametersAT();
+        at = cb.at;
+        string toolTipText = getAngleToolTipText(at.eqAngle, at.kAngle);
+        toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
         }
         else
         {
-            toolTipInstance.GetComponent<ServerAngleTooltip>().ToolTipText.text = toolTipText;
+        var cb = windowInstance.GetComponent<BondParametersServer>();
+        cb.changeBondParametersAT();
+        at = cb.at;
+        string toolTipText = getAngleToolTipText(at.eqAngle, at.kAngle);
+        toolTipInstance.GetComponent<ServerAngleTooltip>().ToolTipText.text = toolTipText;
         }
-
+        
+        // Update tool tip
         changeAngleParameters(at, id);
         EventManager.Singleton.ChangeAngleTerm(at, m_id, (ushort)id);
 
@@ -1246,7 +1279,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             toolTipInstance.GetComponent<ServerTorsionTooltip>().focus_id = focus_id;
             toolTipInstance.GetComponent<ServerTorsionTooltip>().ToolTipText.text = toolTipText;
             toolTipInstance.GetComponent<ServerTorsionTooltip>().closeButton.onClick.AddListener(delegate { markMoleculeUI(false); });
-            toolTipInstance.GetComponent<ServerTorsionTooltip>().modifyButton.onClick.AddListener(delegate { createChangeTorsionWindow(term); });
+            toolTipInstance.GetComponent<ServerTorsionTooltip>().modifyButton.onClick.AddListener(delegate { createServerChangeTorsionWindow(term); });
             toolTipInstance.GetComponent<ServerTorsionTooltip>().localPosition = rectSave;
             toolTipInstance.GetComponent<ServerTorsionTooltip>().linkedMolecule = this;
         }
@@ -1270,28 +1303,43 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void createChangeTorsionWindow(ForceField.TorsionTerm bond)
     {
-        var changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
+        changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
         var cb = changeBondWindowInstance.GetComponent<ChangeBond>();
         cb.tt = bond;
         var id = torsionTerms.IndexOf(bond);
         cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeTorsionParametersUI(changeBondWindowInstance, id); });
     }
-
+    private void createServerChangeTorsionWindow(ForceField.TorsionTerm bond)
+    {
+        if (changeBondWindowInstance != null){Destroy(changeBondWindowInstance);changeBondWindowInstance=null;}
+        changeBondWindowInstance = Instantiate(changeServerBondWindowPrefab);
+        
+        var cb = changeBondWindowInstance.GetComponent<BondParametersServer>();
+        cb.tt = bond;
+        var id = torsionTerms.IndexOf(bond);
+        cb.saveButton.GetComponent<Button>().onClick.AddListener(delegate { changeTorsionParametersUI(changeBondWindowInstance, id); });
+    }
     private void changeTorsionParametersUI(GameObject windowInstance, int id)
     {
         cmlData before = this.AsCML();
-        var cb = windowInstance.GetComponent<ChangeBond>();
-        cb.changeBondParametersTT();
-        var tt = cb.tt;
-        // Update tool tip
-        string toolTipText = getTorsionToolTipText(tt.eqAngle, tt.vk, tt.nn);
-
+        
+        ForceField.TorsionTerm tt;
         if (!SceneManager.GetActiveScene().name.Equals("ServerScene"))
         {
+            var cb = windowInstance.GetComponent<ChangeBond>();
+            cb.changeBondParametersTT();
+            tt = cb.tt;
+            // Update tool tip
+            string toolTipText = getTorsionToolTipText(tt.eqAngle, tt.vk, tt.nn);
             toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
         }
         else
         {
+            var cb = windowInstance.GetComponent<BondParametersServer>();
+            cb.changeBondParametersTT();
+            tt = cb.tt;
+            // Update tool tip
+            string toolTipText = getTorsionToolTipText(tt.eqAngle, tt.vk, tt.nn);
             toolTipInstance.GetComponent<ServerTorsionTooltip>().ToolTipText.text = toolTipText;
         }
 
