@@ -809,6 +809,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<ServerMoleculeTooltip>().closeButton.onClick.AddListener(delegate { markMoleculeUI(false); });
         toolTipInstance.GetComponent<ServerMoleculeTooltip>().freezeButton.onClick.AddListener(delegate { freezeUI(!frozen); });
         toolTipInstance.GetComponent<ServerMoleculeTooltip>().deleteButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.deleteMoleculeUI(this); });
+        toolTipInstance.GetComponent<ServerMoleculeTooltip>().toggleDummiesButton.onClick.AddListener(delegate { toggleDummiesUI(); });
         toolTipInstance.GetComponent<ServerMoleculeTooltip>().scaleButton.onClick.AddListener(delegate { toggleScalingSlider(); });
         toolTipInstance.GetComponent<ServerMoleculeTooltip>().copyButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.copyMolecule(this); });
         toolTipInstance.GetComponent<ServerMoleculeTooltip>().linkedMolecule = this;
@@ -926,11 +927,13 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         dist.StartAtom = atom1;
         dist.EndAtom = atom2;
 
+        var bond = atomList[term.Atom1].getBond(atomList[term.Atom2]);
+
         string toolTipText = getBondToolTipText(term.eqDist / 100, dist.getDistanceInAngstrom(), term.kBond, term.order);
         toolTipInstance.GetComponent<ServerBondTooltip>().focus_id = focus_id;
         toolTipInstance.GetComponent<ServerBondTooltip>().ToolTipText.text = toolTipText;
         toolTipInstance.GetComponent<ServerBondTooltip>().closeButton.onClick.AddListener(delegate { markBondTermUI(term, false); });
-        toolTipInstance.GetComponent<ServerBondTooltip>().deleteButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.deleteMoleculeUI(this); });
+        toolTipInstance.GetComponent<ServerBondTooltip>().deleteButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.deleteBondUI(bond); });
         toolTipInstance.GetComponent<ServerBondTooltip>().modifyButton.onClick.AddListener(delegate { createChangeBondWindow(term); });
         toolTipInstance.GetComponent<ServerBondTooltip>().localPosition = rectSave;
         toolTipInstance.GetComponent<ServerBondTooltip>().linkedMolecule = this;

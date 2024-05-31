@@ -14,6 +14,7 @@ public class ServerMoleculeTooltip : MonoBehaviour
     public Button freezeButton;
     public Button scaleButton;
     public Button copyButton;
+    public Button toggleDummiesButton;
     public RectTransform rect;
     public Molecule linkedMolecule;
     public GameObject userbox;
