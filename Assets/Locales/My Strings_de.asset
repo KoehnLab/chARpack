@@ -131,7 +131,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 6046524882944
-    m_Localized: "Aktuelle Molek\xFCle speicher"
+    m_Localized: "Aktuelle Molek\xFCle speichern"
     m_Metadata:
       m_Items: []
   - m_Id: 6111733727232
@@ -396,6 +396,30 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 105938896715546624
     m_Localized: "T\xFCrkis"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121766119395016704
+    m_Localized: Verbinden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121766265797197824
+    m_Localized: QR Scannen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121766478708457472
+    m_Localized: Einstellungen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767231506333696
+    m_Localized: Folgen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767314264145920
+    m_Localized: "Schlie\xDFen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767377900126208
+    m_Localized: "Login-Men\xFC"
     m_Metadata:
       m_Items: []
   references:

@@ -393,6 +393,30 @@ MonoBehaviour:
     m_Key: TURQUOISE
     m_Metadata:
       m_Items: []
+  - m_Id: 121766119395016704
+    m_Key: Connect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121766265797197824
+    m_Key: LoginScreenScene/LoginMenu/PressableButtonsTestCanvas/Content/row2/ScanQR/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121766478708457472
+    m_Key: LoginScreenScene/LoginMenu/PressableButtonsTestCanvas/Content/row2/Settings/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767231506333696
+    m_Key: LoginScreenScene/LoginMenu/TitleBar/Buttons/FollowMe/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767314264145920
+    m_Key: LoginScreenScene/LoginMenu/TitleBar/Buttons/Quit/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767377900126208
+    m_Key: LoginScreenScene/LoginMenu/TitleBar/Title
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
