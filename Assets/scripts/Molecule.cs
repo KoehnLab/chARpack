@@ -797,7 +797,14 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void createServerToolTip(int focus_id = -1)
     {
+        Vector2? oldPos = null;
+        if (toolTipInstance)
+        {
+            oldPos = toolTipInstance.GetComponent<RectTransform>().localPosition;
+            Destroy(toolTipInstance);
+        }
         toolTipInstance = Instantiate(serverMoleculeTooltipPrefab);
+        if (oldPos != null) toolTipInstance.GetComponent<ServerMoleculeTooltip>().localPosition = (Vector2)oldPos;
         type = toolTipType.MOLECULE;
         float tot_mass = 0.0f;
         calcMetaData(ref tot_mass);
@@ -936,7 +943,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<ServerBondTooltip>().deleteButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.deleteBondUI(bond); });
         toolTipInstance.GetComponent<ServerBondTooltip>().modifyButton.onClick.AddListener(delegate { createChangeBondWindow(term); });
         toolTipInstance.GetComponent<ServerBondTooltip>().localPosition = rectSave;
-        toolTipInstance.GetComponent<ServerBondTooltip>().linkedMolecule = this;
+        toolTipInstance.GetComponent<ServerBondTooltip>().linkedBond = bond;
         if (atom1.m_data.m_abbre == "Dummy" || atom2.m_data.m_abbre == "Dummy")
         {
             toolTipInstance.GetComponent<ServerBondTooltip>().deleteButton.gameObject.SetActive(false);
@@ -1080,7 +1087,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<ServerAngleTooltip>().closeButton.onClick.AddListener(delegate { markAngleTermUI(term, false); });
         toolTipInstance.GetComponent<ServerAngleTooltip>().modifyButton.onClick.AddListener(delegate { createChangeAngleWindow(term); });
         toolTipInstance.GetComponent<ServerAngleTooltip>().localPosition = rectSave;
-        toolTipInstance.GetComponent<ServerAngleTooltip>().linkedMolecule = this;
+        toolTipInstance.GetComponent<ServerAngleTooltip>().linkedAtom = atomList[term.Atom2];
         markAngleTermServer(term, true);
     }
 
@@ -1239,6 +1246,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 atom.toolTipInstance = null;
             }
 
+            var bond = atomList[term.Atom2].getBond(atomList[term.Atom3]);
+
             Destroy(toolTipInstance);
             toolTipInstance = Instantiate(serverTorsionTooltipPrefab);
             var curAngle = getDihedralAngle(term.Atom1, term.Atom2, term.Atom3, term.Atom4);
@@ -1248,7 +1257,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             toolTipInstance.GetComponent<ServerTorsionTooltip>().closeButton.onClick.AddListener(delegate { markMoleculeUI(false); });
             toolTipInstance.GetComponent<ServerTorsionTooltip>().modifyButton.onClick.AddListener(delegate { createChangeTorsionWindow(term); });
             toolTipInstance.GetComponent<ServerTorsionTooltip>().localPosition = rectSave;
-            toolTipInstance.GetComponent<ServerTorsionTooltip>().linkedMolecule = this;
+            toolTipInstance.GetComponent<ServerTorsionTooltip>().linkedBond = bond;
         }
         markTorsionTermServer(term, true);
     }
