@@ -478,6 +478,22 @@ MonoBehaviour:
     m_Localized: Rotate around atom
     m_Metadata:
       m_Items: []
+  - m_Id: 121835333887705088
+    m_Localized: Hybridization
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121835968263602176
+    m_Localized: Molecule
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121837265507303424
+    m_Localized: Toggle Dummies
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121838116850352128
+    m_Localized: Scale Molecule
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

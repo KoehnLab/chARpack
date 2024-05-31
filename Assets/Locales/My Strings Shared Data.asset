@@ -36,7 +36,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4088984485888
-    m_Key: MainScene/NearMenu/Hybridization/label
+    m_Key: CurrentHybridization
     m_Metadata:
       m_Items: []
   - m_Id: 4259612966912
@@ -44,31 +44,31 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4632532729856
-    m_Key: Settings/Settings/ButtonCollection/ToggleMesh/IconAndText/TextMeshPro
+    m_Key: ToggleMesh
     m_Metadata:
       m_Items: []
   - m_Id: 4739831414784
-    m_Key: Settings/Settings/ButtonCollection/ToggleDebug/IconAndText/TextMeshPro
+    m_Key: ToggleDebug
     m_Metadata:
       m_Items: []
   - m_Id: 4763302739968
-    m_Key: Settings/Settings/ButtonCollection/ToggleForceField/IconAndText/TextMeshPro
+    m_Key: ToggleForceField
     m_Metadata:
       m_Items: []
   - m_Id: 4797146578944
-    m_Key: Settings/Settings/ButtonCollection/ToggleHandMesh/IconAndText/TextMeshPro
+    m_Key: ToggleHandMesh
     m_Metadata:
       m_Items: []
   - m_Id: 4837789384704
-    m_Key: Settings/Settings/ButtonCollection/ToggleHandJoint/IconAndText/TextMeshPro
+    m_Key: ToggleHandJoint
     m_Metadata:
       m_Items: []
   - m_Id: 4927312609280
-    m_Key: Settings/Settings/ButtonCollection/ToggleHandRay/IconAndText/TextMeshPro
+    m_Key: ToggleHandRay
     m_Metadata:
       m_Items: []
   - m_Id: 4954957266944
-    m_Key: Settings/Settings/ButtonCollection/ToggleHandMenu/IconAndText/TextMeshPro
+    m_Key: ToggleHandMenu
     m_Metadata:
       m_Items: []
   - m_Id: 5021294379008
@@ -104,7 +104,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5799014809600
-    m_Key: ToggleDummiesButton/ToggleDummiesButton/IconAndText/TextMeshPro
+    m_Key: ToggleDummies
     m_Metadata:
       m_Items: []
   - m_Id: 5940799062016
@@ -141,7 +141,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 7687953170432
-    m_Key: DeleteMeButton/DeleteMeButton/IconAndText/TextMeshPro
+    m_Key: Delete
     m_Metadata:
       m_Items: []
   - m_Id: 7845721915392
@@ -149,7 +149,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 7903775277056
-    m_Key: ModifyMeButton/ModifyMeButton/IconAndText/TextMeshPro
+    m_Key: Modify
     m_Metadata:
       m_Items: []
   - m_Id: 8301739229184
@@ -222,19 +222,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5142275573186560
-    m_Key: HandMenu/HandMenu/MenuContent/ToggleFragmentRotationButton/IconAndText/TextMeshPro
+    m_Key: FragmentRotation
     m_Metadata:
       m_Items: []
   - m_Id: 5165129048031232
-    m_Key: PressableButtonHoloLens2/PressableButtonHoloLens2/IconAndText/TextMeshPro
+    m_Key: Copy
     m_Metadata:
       m_Items: []
   - m_Id: 16334419667222528
-    m_Key: ScaleMoleculeButton/ScaleMoleculeButton/IconAndText/TextMeshPro
-    m_Metadata:
-      m_Items: []
-  - m_Id: 24331552324354048
-    m_Key: HandMenu/HandMenu/MenuContent/Grid/ToggleMeasurmentModeButton/IconAndText/TextMeshPro
+    m_Key: ScaleMolecule
     m_Metadata:
       m_Items: []
   - m_Id: 25041727584190464
@@ -254,7 +250,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 28314155435982848
-    m_Key: Settings/Settings/ButtonCollection/ToggleGazeHighlight/IconAndText/TextMeshPro
+    m_Key: GazeHighlight
     m_Metadata:
       m_Items: []
   - m_Id: 38470251307892736
@@ -278,19 +274,19 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 40640045014040576
-    m_Key: Settings/Settings/CoopSettings/ButtonCollection/ToggleUserRay/IconAndText/TextMeshPro
+    m_Key: UserRay
     m_Metadata:
       m_Items: []
   - m_Id: 40640217840336896
-    m_Key: Settings/Settings/CoopSettings/ButtonCollection/ToggleUserBox/IconAndText/TextMeshPro
+    m_Key: UserBox
     m_Metadata:
       m_Items: []
   - m_Id: 43185531663138816
-    m_Key: Settings/Settings/ButtonCollection/TogglePointerHighlight/IconAndText/TextMeshPro
+    m_Key: PointerHighlight
     m_Metadata:
       m_Items: []
   - m_Id: 50767666435571712
-    m_Key: Settings/Settings/ButtonCollection/ToggleIntegrationMethodMenu/IconAndText/TextMeshPro
+    m_Key: IntegrationMethod
     m_Metadata:
       m_Items: []
   - m_Id: 50767914994221056
@@ -338,7 +334,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 93203354865401856
-    m_Key: Settings/Settings/ButtonCollection/ToggleLengthUnit/IconAndText/TextMeshPro
+    m_Key: LengthUnit
     m_Metadata:
       m_Items: []
   - m_Id: 93217280147619840
@@ -471,6 +467,22 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 121820642767519744
     m_Key: RotateAroundAtom
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121835333887705088
+    m_Key: Hybridization
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121835968263602176
+    m_Key: Molecule
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121837265507303424
+    m_Key: ToggleDummiesNoNewLine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121838116850352128
+    m_Key: ScaleMoleculeNoNewLine
     m_Metadata:
       m_Items: []
   m_Metadata:
