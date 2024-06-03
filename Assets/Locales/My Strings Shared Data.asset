@@ -549,6 +549,10 @@ MonoBehaviour:
     m_Key: PointerHighlightNoDash
     m_Metadata:
       m_Items: []
+  - m_Id: 123029884014465024
+    m_Key: ServerScene/UICanvas/InfoPanel/HGroup/Descriptions/L
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

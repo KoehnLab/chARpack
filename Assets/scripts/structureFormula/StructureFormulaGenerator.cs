@@ -90,7 +90,7 @@ public class StructureFormulaGenerator : MonoBehaviour
         }
 
         //// Set the path to the embedded Python environment
-        pythonPath = pythonHome + ";" + Path.Combine(pythonHome, "Lib\\site-packages") + ";" + zip_path + ";" + Path.Combine(pythonHome, "DLLs");
+        pythonPath = pythonHome + ";" + Path.Combine(pythonHome, "Lib\\site-packages") + ";" + zip_path + ";" + Path.Combine(pythonHome, "DLLs") + ";" + Path.Combine(Application.streamingAssetsPath, "PythonScripts");
         Environment.SetEnvironmentVariable("PYTHONHOME", null);
         Environment.SetEnvironmentVariable("PYTHONPATH", null);
 
@@ -160,22 +160,22 @@ public class StructureFormulaGenerator : MonoBehaviour
                 pySymbolList.Append(new PyString(s));
             }
 
-            // Import and run the Python script
-            dynamic sys = Py.Import("sys");
-            sys.path.append(Application.dataPath + "/scripts/structureFormula/");
+            //// Import and run the Python script
+            //dynamic sys = Py.Import("sys");
+            //sys.path.append(Path.Combine(Application.streamingAssetsPath + "PythonScripts"));
 
-            // Import the built-in module
-            dynamic builtins = Py.Import("builtins");
+            //// Import the built-in module
+            //dynamic builtins = Py.Import("builtins");
 
             // Import your Python script
             dynamic script = Py.Import("StructureFormulaPythonBackend");
 
-            // Print the attributes of the imported module
-            Debug.Log("Attributes of the imported module:");
-            foreach (string key in builtins.dir(script))
-            {
-                Debug.Log(key);
-            }
+            //// Print the attributes of the imported module
+            //Debug.Log("Attributes of the imported module:");
+            //foreach (string key in builtins.dir(script))
+            //{
+            //    Debug.Log(key);
+            //}
 
             // Call the function from the Python script
             dynamic result = script.gen_structure_formula(pyPosList, pySymbolList);

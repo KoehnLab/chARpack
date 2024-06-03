@@ -22,6 +22,7 @@ public class ServerInputSystem : MonoBehaviour
         cameraMouseManipulation();
         createStuff();
         selectWholeMolecule();
+        otherShortcuts();
 
         if (Input.GetKey(KeyCode.LeftShift))
         {
@@ -30,6 +31,14 @@ public class ServerInputSystem : MonoBehaviour
         else
         {
             moveSpeed = 0.04f;
+        }
+    }
+
+    void otherShortcuts()
+    {
+        if (!Input.GetKey(KeyCode.LeftShift) || !Input.GetKey(KeyCode.LeftControl))
+        {
+            // empty for now
         }
     }
 

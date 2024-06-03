@@ -558,6 +558,10 @@ MonoBehaviour:
     m_Localized: Fingerhervorhebung
     m_Metadata:
       m_Items: []
+  - m_Id: 123029884014465024
+    m_Localized: "\xD6ffnet den Debug Log"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
