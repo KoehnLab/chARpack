@@ -16,7 +16,7 @@ MonoBehaviour:
   m_TableCollectionNameGuidString: 2803bb8940043bb409c4ccb29a5926e2
   m_Entries:
   - m_Id: 3901570400256
-    m_Key: MainScene/NearMenu/ButtonCollection/CreateAtom/IconAndText/TextMeshPro
+    m_Key: CreateAtom
     m_Metadata:
       m_Items: []
   - m_Id: 3929072451584
@@ -28,7 +28,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 3999708725248
-    m_Key: MainScene/NearMenu/ButtonCollection/Settings/IconAndText/TextMeshPro
+    m_Key: Settings
     m_Metadata:
       m_Items: []
   - m_Id: 4030889181184
@@ -36,7 +36,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4088984485888
-    m_Key: MainScene/NearMenu/Hybridization/label
+    m_Key: CurrentHybridization
     m_Metadata:
       m_Items: []
   - m_Id: 4259612966912
@@ -44,39 +44,39 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4632532729856
-    m_Key: Settings/Settings/ButtonCollection/ToggleMesh/IconAndText/TextMeshPro
+    m_Key: ToggleMesh
     m_Metadata:
       m_Items: []
   - m_Id: 4739831414784
-    m_Key: Settings/Settings/ButtonCollection/ToggleDebug/IconAndText/TextMeshPro
+    m_Key: ToggleDebug
     m_Metadata:
       m_Items: []
   - m_Id: 4763302739968
-    m_Key: Settings/Settings/ButtonCollection/ToggleForceField/IconAndText/TextMeshPro
+    m_Key: ForceField
     m_Metadata:
       m_Items: []
   - m_Id: 4797146578944
-    m_Key: Settings/Settings/ButtonCollection/ToggleHandMesh/IconAndText/TextMeshPro
+    m_Key: HandMesh
     m_Metadata:
       m_Items: []
   - m_Id: 4837789384704
-    m_Key: Settings/Settings/ButtonCollection/ToggleHandJoint/IconAndText/TextMeshPro
+    m_Key: HandJoint
     m_Metadata:
       m_Items: []
   - m_Id: 4927312609280
-    m_Key: Settings/Settings/ButtonCollection/ToggleHandRay/IconAndText/TextMeshPro
+    m_Key: HandRay
     m_Metadata:
       m_Items: []
   - m_Id: 4954957266944
-    m_Key: Settings/Settings/ButtonCollection/ToggleHandMenu/IconAndText/TextMeshPro
+    m_Key: HandMenu
     m_Metadata:
       m_Items: []
   - m_Id: 5021294379008
-    m_Key: Settings/Settings/RepulsionScale/label
+    m_Key: RepulsionScale
     m_Metadata:
       m_Items: []
   - m_Id: 5094665338880
-    m_Key: Settings/Settings/BondStiffness/label
+    m_Key: BondStiffness
     m_Metadata:
       m_Items: []
   - m_Id: 5168279568384
@@ -100,11 +100,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5572186849280
-    m_Key: MainScene/loadSaveWindow/ScrollParent/SaveButton/IconAndText/TextMeshPro
+    m_Key: Save
     m_Metadata:
       m_Items: []
   - m_Id: 5799014809600
-    m_Key: ToggleDummiesButton/ToggleDummiesButton/IconAndText/TextMeshPro
+    m_Key: ToggleDummies
     m_Metadata:
       m_Items: []
   - m_Id: 5940799062016
@@ -141,7 +141,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 7687953170432
-    m_Key: DeleteMeButton/DeleteMeButton/IconAndText/TextMeshPro
+    m_Key: Delete
     m_Metadata:
       m_Items: []
   - m_Id: 7845721915392
@@ -149,7 +149,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 7903775277056
-    m_Key: ModifyMeButton/ModifyMeButton/IconAndText/TextMeshPro
+    m_Key: Modify
     m_Metadata:
       m_Items: []
   - m_Id: 8301739229184
@@ -222,19 +222,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5142275573186560
-    m_Key: HandMenu/HandMenu/MenuContent/ToggleFragmentRotationButton/IconAndText/TextMeshPro
+    m_Key: FragmentRotation
     m_Metadata:
       m_Items: []
   - m_Id: 5165129048031232
-    m_Key: PressableButtonHoloLens2/PressableButtonHoloLens2/IconAndText/TextMeshPro
+    m_Key: Copy
     m_Metadata:
       m_Items: []
   - m_Id: 16334419667222528
-    m_Key: ScaleMoleculeButton/ScaleMoleculeButton/IconAndText/TextMeshPro
-    m_Metadata:
-      m_Items: []
-  - m_Id: 24331552324354048
-    m_Key: HandMenu/HandMenu/MenuContent/Grid/ToggleMeasurmentModeButton/IconAndText/TextMeshPro
+    m_Key: ScaleMolecule
     m_Metadata:
       m_Items: []
   - m_Id: 25041727584190464
@@ -254,7 +250,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 28314155435982848
-    m_Key: Settings/Settings/ButtonCollection/ToggleGazeHighlight/IconAndText/TextMeshPro
+    m_Key: GazeHighlight
     m_Metadata:
       m_Items: []
   - m_Id: 38470251307892736
@@ -278,23 +274,23 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 40640045014040576
-    m_Key: Settings/Settings/CoopSettings/ButtonCollection/ToggleUserRay/IconAndText/TextMeshPro
+    m_Key: UserRay
     m_Metadata:
       m_Items: []
   - m_Id: 40640217840336896
-    m_Key: Settings/Settings/CoopSettings/ButtonCollection/ToggleUserBox/IconAndText/TextMeshPro
+    m_Key: UserBox
     m_Metadata:
       m_Items: []
   - m_Id: 43185531663138816
-    m_Key: Settings/Settings/ButtonCollection/TogglePointerHighlight/IconAndText/TextMeshPro
+    m_Key: PointerHighlight
     m_Metadata:
       m_Items: []
   - m_Id: 50767666435571712
-    m_Key: Settings/Settings/ButtonCollection/ToggleIntegrationMethodMenu/IconAndText/TextMeshPro
+    m_Key: IntegrationMethod
     m_Metadata:
       m_Items: []
   - m_Id: 50767914994221056
-    m_Key: Settings/Settings/IntegrationMethod/label
+    m_Key: IntegrationMethodNoDash
     m_Metadata:
       m_Items: []
   - m_Id: 50768774994313216
@@ -322,7 +318,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 63518995004243968
-    m_Key: Settings/Settings/CoopSettings/ButtonCollection/NetworkMeasurements/IconAndText/TextMeshPro
+    m_Key: NetworkMeasurements
     m_Metadata:
       m_Items: []
   - m_Id: 82701048467668992
@@ -338,7 +334,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 93203354865401856
-    m_Key: Settings/Settings/ButtonCollection/ToggleLengthUnit/IconAndText/TextMeshPro
+    m_Key: LengthUnit
     m_Metadata:
       m_Items: []
   - m_Id: 93217280147619840
@@ -346,7 +342,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 115292427869732864
-    m_Key: Settings/Settings/VisualSettings/ButtonCollection/LicoriceRendering/IconAndText/TextMeshPro
+    m_Key: LicoriceRendering
     m_Metadata:
       m_Items: []
   - m_Id: 104054137766264832
@@ -391,6 +387,166 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 105938896715546624
     m_Key: TURQUOISE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121766119395016704
+    m_Key: Connect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121766265797197824
+    m_Key: LoginScreenScene/LoginMenu/PressableButtonsTestCanvas/Content/row2/ScanQR/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121766478708457472
+    m_Key: LoginScreenScene/LoginMenu/PressableButtonsTestCanvas/Content/row2/Settings/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767231506333696
+    m_Key: LoginScreenScene/LoginMenu/TitleBar/Buttons/FollowMe/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767314264145920
+    m_Key: LoginScreenScene/LoginMenu/TitleBar/Buttons/Quit/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767377900126208
+    m_Key: LoginScreenScene/LoginMenu/TitleBar/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121818269168943104
+    m_Key: Load
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121818554914291712
+    m_Key: NextUser
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121818665476145152
+    m_Key: PrevUser
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819028501544960
+    m_Key: EnterText
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819235968598016
+    m_Key: Space
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819288380620800
+    m_Key: RightMouse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819358941396992
+    m_Key: MiddleMouse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819508090847232
+    m_Key: LeftShift
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819868633219072
+    m_Key: MoveCam
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819978125524992
+    m_Key: MoveUpDown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820102004293632
+    m_Key: TextInput
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820335278899200
+    m_Key: RotateCam
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820496205955072
+    m_Key: PanCam
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820642767519744
+    m_Key: RotateAroundAtom
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121835333887705088
+    m_Key: Hybridization
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121835968263602176
+    m_Key: Molecule
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121837265507303424
+    m_Key: ToggleDummiesNoNewLine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121838116850352128
+    m_Key: ScaleMoleculeNoNewLine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121839426114928640
+    m_Key: Cancel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121839568347971584
+    m_Key: General
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121839681724203008
+    m_Key: Network
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121839819934908416
+    m_Key: Highlighting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121840340364148736
+    m_Key: SpatialMesh
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121840640479182848
+    m_Key: Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121840774424281088
+    m_Key: InteractionMode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842217126445056
+    m_Key: EulerTime
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842288937123840
+    m_Key: SVTime
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842431879004160
+    m_Key: RKTime
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842511969239040
+    m_Key: MPTime
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842847412895744
+    m_Key: ShowAllHighlightsOnClients
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121843110450282496
+    m_Key: ColorMap
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121844364782059520
+    m_Key: LicoriceNoDash
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121845540726489088
+    m_Key: GazeHighlightNoDash
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121845710746796032
+    m_Key: PointerHighlightNoDash
     m_Metadata:
       m_Items: []
   m_Metadata:

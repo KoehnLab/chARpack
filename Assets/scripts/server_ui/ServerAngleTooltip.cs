@@ -14,7 +14,7 @@ public class ServerAngleTooltip : MonoBehaviour
     public Button modifyButton;
     public RectTransform rect;
     public Vector3 localPosition = new Vector3(0, 0, 0);
-    public Molecule linkedMolecule;
+    public Atom linkedAtom;
     public GameObject userbox;
     public int focus_id = -1;
 

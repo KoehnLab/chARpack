@@ -131,7 +131,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 6046524882944
-    m_Localized: "Aktuelle Molek\xFCle speicher"
+    m_Localized: "Aktuelle Molek\xFCle speichern"
     m_Metadata:
       m_Items: []
   - m_Id: 6111733727232
@@ -396,6 +396,166 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 105938896715546624
     m_Localized: "T\xFCrkis"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121766119395016704
+    m_Localized: Verbinden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121766265797197824
+    m_Localized: QR Scannen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121766478708457472
+    m_Localized: Einstellungen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767231506333696
+    m_Localized: Folgen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767314264145920
+    m_Localized: "Schlie\xDFen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767377900126208
+    m_Localized: "Login-Men\xFC"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121818269168943104
+    m_Localized: Laden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121818554914291712
+    m_Localized: Nutzer weiter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121818665476145152
+    m_Localized: "Nutzer zur\xFCck"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819028501544960
+    m_Localized: Text eingeben...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819235968598016
+    m_Localized: Leertaste
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819288380620800
+    m_Localized: Rechtsklick
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819358941396992
+    m_Localized: Mittlere Maustaste
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819508090847232
+    m_Localized: Umschalt + Rechtsklick
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819868633219072
+    m_Localized: Kamera bewegen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819978125524992
+    m_Localized: Kamera hoch/runter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820102004293632
+    m_Localized: Texteingabe aktivieren
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820335278899200
+    m_Localized: Kamera drehen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820496205955072
+    m_Localized: Kamera in Ebene bewegen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820642767519744
+    m_Localized: Um Atom drehen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121835333887705088
+    m_Localized: Hybridisierung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121835968263602176
+    m_Localized: "Molek\xFCl"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121837265507303424
+    m_Localized: Platzhalter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121838116850352128
+    m_Localized: Mol. skalieren
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121839426114928640
+    m_Localized: Abbrechen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121839568347971584
+    m_Localized: Allgemein
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121839681724203008
+    m_Localized: Netzwerk
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121839819934908416
+    m_Localized: Highlights
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121840340364148736
+    m_Localized: Raumgitter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121840640479182848
+    m_Localized: Sprache
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121840774424281088
+    m_Localized: Interaktionsmodus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842217126445056
+    m_Localized: Euler Zeitfaktor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842288937123840
+    m_Localized: SV Zeitfaktor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842431879004160
+    m_Localized: RK Zeitfaktor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842511969239040
+    m_Localized: MP Zeitfaktor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842847412895744
+    m_Localized: "Alle Highlights auf Ger\xE4ten zeigen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121843110450282496
+    m_Localized: Farbzuordnung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121844364782059520
+    m_Localized: Stabdarstellung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121845540726489088
+    m_Localized: Blickhervorhebung
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121845710746796032
+    m_Localized: Fingerhervorhebung
     m_Metadata:
       m_Items: []
   references:

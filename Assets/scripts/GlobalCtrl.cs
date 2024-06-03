@@ -295,6 +295,7 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
         Molecule.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
         Molecule.changeBondWindowPrefab = (GameObject)Resources.Load("prefabs/ChangeBondWindow");
+        Molecule.changeServerBondWindowPrefab = (GameObject)Resources.Load("prefabs/ChangeBondServerWindow");
         Molecule.toggleDummiesButtonPrefab = (GameObject)Resources.Load("prefabs/ToggleDummiesButton");
         Molecule.undoButtonPrefab = (GameObject)Resources.Load("prefabs/UndoButton");
         Molecule.copyButtonPrefab = (GameObject)Resources.Load("prefabs/CopyMeButton");
@@ -2234,8 +2235,9 @@ public class GlobalCtrl : MonoBehaviour
             {
                 if (a.toolTipInstance)
                 {
-                    Destroy(a.toolTipInstance);
-                    a.createToolTip();
+                    //Destroy(a.toolTipInstance);
+                    if (SceneManager.GetActiveScene().name.Equals("ServerScene")) { a.createServerToolTip(); }
+                    else { a.createToolTip(); }
                 }
             }
 
@@ -2243,22 +2245,44 @@ public class GlobalCtrl : MonoBehaviour
             if (mol.toolTipInstance)
             {
                 Molecule.toolTipType type = mol.type;
-                var target = mol.toolTipInstance.GetComponent<myToolTipConnector>().Target;
-                Destroy(mol.toolTipInstance);
-                if(type == Molecule.toolTipType.MOLECULE)
+                if (!SceneManager.GetActiveScene().name.Equals("ServerScene"))
                 {
-                    mol.createToolTip();
+                    var target = mol.toolTipInstance.GetComponent<myToolTipConnector>().Target;
+                    //Destroy(mol.toolTipInstance);
+                    if (type == Molecule.toolTipType.MOLECULE)
+                    {
+                        mol.createToolTip();
+                    }
+                    else if (type == Molecule.toolTipType.SINGLE || type == Molecule.toolTipType.TORSION)
+                    {
+                        ushort id = target.GetComponent<Bond>().atomID1;
+                        Atom a = findAtomById(mol, id);
+                        a.markConnections(true);
+                    }
+                    else if (type == Molecule.toolTipType.ANGLE)
+                    {
+                        Atom a = target.GetComponent<Atom>();
+                        a.markConnections(true);
+                    }
                 }
-                else if(type == Molecule.toolTipType.SINGLE || type == Molecule.toolTipType.TORSION)
+                else 
                 {
-                    ushort id = target.GetComponent<Bond>().atomID1;
-                    Atom a = findAtomById(mol, id);
-                    a.markConnections(true);
-                }
-                else if(type == Molecule.toolTipType.ANGLE)
-                {
-                    Atom a = target.GetComponent<Atom>();
-                    a.markConnections(true);
+                    if (type == Molecule.toolTipType.MOLECULE)
+                    {
+                        mol.createServerToolTip();
+                    } else if (type == Molecule.toolTipType.SINGLE)
+                    {
+                        Atom a = mol.atomList[mol.toolTipInstance.GetComponent<ServerBondTooltip>().linkedBond.GetComponent<Bond>().atomID1];
+                        a.markConnections(true);
+                    } else  if (type == Molecule.toolTipType.ANGLE)
+                    {
+                        Atom a = mol.toolTipInstance.GetComponent<ServerAngleTooltip>().linkedAtom;
+                        a.markConnections(true);
+                    } else if (type == Molecule.toolTipType.TORSION)
+                    {
+                        Atom a = mol.atomList[mol.toolTipInstance.GetComponent<ServerTorsionTooltip>().linkedBond.GetComponent<Bond>().atomID1];
+                        a.markConnections(true);
+                    }
                 }
             }
         }
@@ -2272,10 +2296,18 @@ public class GlobalCtrl : MonoBehaviour
             {
                 Molecule.toolTipType type = mol.type;
                 if (type != Molecule.toolTipType.SINGLE) return;
-                var target = mol.toolTipInstance.GetComponent<myToolTipConnector>().Target;
-                Destroy(mol.toolTipInstance);
-                ushort id = target.GetComponent<Bond>().atomID1;
-                Atom a = mol.atomList[id];
+                Atom a;
+                if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
+                {
+                    a = mol.atomList[mol.toolTipInstance.GetComponent<ServerBondTooltip>().linkedBond.GetComponent<Bond>().atomID1];
+                }
+                else
+                {
+                    var target = mol.toolTipInstance.GetComponent<myToolTipConnector>().Target;
+                    //Destroy(mol.toolTipInstance);
+                    ushort id = target.GetComponent<Bond>().atomID1;
+                    a = mol.atomList[id];
+                }
                 a.markConnections(true);
             }
         }
@@ -2289,8 +2321,9 @@ public class GlobalCtrl : MonoBehaviour
             {
                 if (a.toolTipInstance)
                 {
-                    Destroy(a.toolTipInstance);
-                    a.createToolTip();
+                    //Destroy(a.toolTipInstance);
+                    if (SceneManager.GetActiveScene().name.Equals("ServerScene")) a.createServerToolTip();
+                    else a.createToolTip();
                 }
             }
         }

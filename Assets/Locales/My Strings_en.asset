@@ -75,19 +75,19 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4797146578944
-    m_Localized: HandMesh
+    m_Localized: Hand Mesh
     m_Metadata:
       m_Items: []
   - m_Id: 4837789384704
-    m_Localized: HandJoint
+    m_Localized: Hand Joint
     m_Metadata:
       m_Items: []
   - m_Id: 4927312609280
-    m_Localized: HandRay
+    m_Localized: Hand Ray
     m_Metadata:
       m_Items: []
   - m_Id: 4954957266944
-    m_Localized: HandMenu
+    m_Localized: Hand Menu
     m_Metadata:
       m_Items: []
   - m_Id: 5021294379008
@@ -396,6 +396,166 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 105938896715546624
     m_Localized: Turquoise
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121766119395016704
+    m_Localized: Connect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121766265797197824
+    m_Localized: Scan QR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121766478708457472
+    m_Localized: Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767231506333696
+    m_Localized: Follow Me
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767314264145920
+    m_Localized: Quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767377900126208
+    m_Localized: Login Menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121818269168943104
+    m_Localized: Load
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121818554914291712
+    m_Localized: Next User
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121818665476145152
+    m_Localized: Prev User
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819028501544960
+    m_Localized: Enter text...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819235968598016
+    m_Localized: Space
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819288380620800
+    m_Localized: Right Mouse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819358941396992
+    m_Localized: Middle Mouse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819508090847232
+    m_Localized: Left Shift + Right Click
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819868633219072
+    m_Localized: Move camera
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819978125524992
+    m_Localized: Move camera up/down
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820102004293632
+    m_Localized: Activate text input
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820335278899200
+    m_Localized: Rotate camera
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820496205955072
+    m_Localized: Pan camera (move in plane)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820642767519744
+    m_Localized: Rotate around atom
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121835333887705088
+    m_Localized: Hybridization
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121835968263602176
+    m_Localized: Molecule
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121837265507303424
+    m_Localized: Toggle Dummies
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121838116850352128
+    m_Localized: Scale Molecule
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121839426114928640
+    m_Localized: Cancel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121839568347971584
+    m_Localized: General
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121839681724203008
+    m_Localized: Network
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121839819934908416
+    m_Localized: Highlighting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121840340364148736
+    m_Localized: Spatial Mesh
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121840640479182848
+    m_Localized: Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121840774424281088
+    m_Localized: Interaction Mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842217126445056
+    m_Localized: Euler Time Factor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842288937123840
+    m_Localized: SV Time Factor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842431879004160
+    m_Localized: RK Time Factor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842511969239040
+    m_Localized: MP Time Factor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842847412895744
+    m_Localized: Show all highlights on Clients
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121843110450282496
+    m_Localized: Color Map
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121844364782059520
+    m_Localized: Licorice (Stick) Rendering
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121845540726489088
+    m_Localized: Gaze Highlighting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121845710746796032
+    m_Localized: Pointer Highlighting
     m_Metadata:
       m_Items: []
   references:

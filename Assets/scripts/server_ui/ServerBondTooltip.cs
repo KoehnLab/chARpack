@@ -14,7 +14,7 @@ public class ServerBondTooltip : MonoBehaviour
     public Button deleteButton;
     public Button modifyButton;
     public Vector3 localPosition = new Vector3(0, 0, 0);
-    public Molecule linkedMolecule;
+    public Bond linkedBond;
     public GameObject userbox;
 
     public Boolean isSmall = false;
