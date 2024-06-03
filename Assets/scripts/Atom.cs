@@ -1287,7 +1287,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             {
                 if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
                 {
-                    createServerToolTip(this, focus_id);
+                    createServerToolTip(focus_id);
 
                 }
                 else
@@ -1602,14 +1602,17 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         return LocalizationSettings.StringDatabase.GetLocalizedString("Elements", text);
     }
-    public void createServerToolTip(Atom thisAtom, int focus_id = -1)
+    public void createServerToolTip(int focus_id = -1)
     {
+        Vector2? oldPos = null;
         if (toolTipInstance)
         {
+            oldPos = toolTipInstance.GetComponent<RectTransform>().localPosition;
             Destroy(toolTipInstance);
         }
 
         toolTipInstance = Instantiate(serverTooltipPrefab);
+        if (oldPos != null) toolTipInstance.GetComponent<ServerAtomTooltip>().localPosition = (Vector2)oldPos;
         toolTipInstance.GetComponent<ServerAtomTooltip>().focus_id = focus_id;
         toolTipInstance.GetComponent<ServerAtomTooltip>().hybridUp.onClick.AddListener(delegate { toolTipInstance.GetComponent<ServerAtomTooltip>().increase(); });
         toolTipInstance.GetComponent<ServerAtomTooltip>().hybridDown.onClick.AddListener(delegate { toolTipInstance.GetComponent<ServerAtomTooltip>().decrease(); });
@@ -1618,7 +1621,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         toolTipInstance.GetComponent<ServerAtomTooltip>().TooltipText.text = getToolTipText(m_data.m_name, m_data.m_mass, m_data.m_radius, con_atoms.Count);
         toolTipInstance.GetComponent<ServerAtomTooltip>().deleteButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.deleteAtomUI(this); });
         toolTipInstance.GetComponent<ServerAtomTooltip>().freezeButton.onClick.AddListener(delegate { freezeUI(!frozen); });
-        toolTipInstance.GetComponent<ServerAtomTooltip>().linkedAtom = thisAtom;
+        toolTipInstance.GetComponent<ServerAtomTooltip>().linkedAtom = this;
     }
 
     #endregion
