@@ -295,6 +295,7 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
         Molecule.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
         Molecule.changeBondWindowPrefab = (GameObject)Resources.Load("prefabs/ChangeBondWindow");
+        Molecule.changeServerBondWindowPrefab = (GameObject)Resources.Load("prefabs/ChangeBondServerWindow");
         Molecule.toggleDummiesButtonPrefab = (GameObject)Resources.Load("prefabs/ToggleDummiesButton");
         Molecule.undoButtonPrefab = (GameObject)Resources.Load("prefabs/UndoButton");
         Molecule.copyButtonPrefab = (GameObject)Resources.Load("prefabs/CopyMeButton");
