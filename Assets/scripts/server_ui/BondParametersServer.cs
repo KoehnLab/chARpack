@@ -9,11 +9,11 @@ using System;
 public class BondParametersServer : MonoBehaviour
 {
     public bool isSmall = false;
-    public RectTransform rect;
+    [HideInInspector] public RectTransform rect;
     public GameObject title;
     public GameObject textbox1;
     public GameObject textbox2;
-    public Canvas UI;
+    [HideInInspector] public Canvas UI;
     public TMP_Text topText;
     public TMP_InputField topInput;
     public TMP_Text bottomText;
@@ -64,12 +64,12 @@ public class BondParametersServer : MonoBehaviour
         rect.position = save;
         var drag = title.gameObject.AddComponent<Draggable>();
         drag.target = transform;
-        
+
     }
 
     public void changeBondParametersBT()
     {
-        bt_.eqDist = SettingsData.useAngstrom ? float.Parse(topInput.text)*100 : float.Parse(topInput.text);
+        bt_.eqDist = SettingsData.useAngstrom ? float.Parse(topInput.text) * 100 : float.Parse(topInput.text);
         bt_.kBond = float.Parse(bottomInput.text);
     }
 
