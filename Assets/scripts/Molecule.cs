@@ -348,16 +348,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 }
             }
         }
-
+        EventManager.Singleton.OnMoleculeLoaded += triggerGenerateFF;
         EventManager.Singleton.OnMolDataChanged += triggerGenerateFF;
+        EventManager.Singleton.OnMoleculeLoaded += adjustBBox;
         EventManager.Singleton.OnMolDataChanged += adjustBBox;
-#if UNITY_STANDALONE || UNITY_EDITOR
-        if (NetworkManagerServer.Singleton)
-        {
-            //EventManager.Singleton.OnMolDataChanged += NetworkManagerServer.Singleton.requestStructureFormula;
-            EventManager.Singleton.OnMolDataChanged += StructureFormulaGenerator.Singleton.requestStructureFormula;
-        }
-#endif
     }
 
     private void adjustBBox(Molecule mol)
@@ -822,6 +816,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<ServerMoleculeTooltip>().toggleDummiesButton.onClick.AddListener(delegate { toggleDummiesUI(); });
         toolTipInstance.GetComponent<ServerMoleculeTooltip>().scaleButton.onClick.AddListener(delegate { toggleScalingSlider(); });
         toolTipInstance.GetComponent<ServerMoleculeTooltip>().copyButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.copyMolecule(this); });
+        toolTipInstance.GetComponent<ServerMoleculeTooltip>().structureFormulaButton.onClick.AddListener(delegate { StructureFormulaGenerator.Singleton.immediateRequestStructureFormula(this); });
         toolTipInstance.GetComponent<ServerMoleculeTooltip>().linkedMolecule = this;
     }
 
@@ -2087,13 +2082,13 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             Destroy(scalingSliderInstance);
             scalingSliderInstance = null;
         }
+        EventManager.Singleton.OnMoleculeLoaded -= triggerGenerateFF;
         EventManager.Singleton.OnMolDataChanged -= triggerGenerateFF;
+        EventManager.Singleton.OnMoleculeLoaded -= adjustBBox;
         EventManager.Singleton.OnMolDataChanged -= adjustBBox;
 #if UNITY_STANDALONE || UNITY_EDITOR
         if (NetworkManagerServer.Singleton)
         {
-            //EventManager.Singleton.OnMolDataChanged -= NetworkManagerServer.Singleton.requestStructureFormula;
-            EventManager.Singleton.OnMolDataChanged -= StructureFormulaGenerator.Singleton.requestStructureFormula;
             StructureFormulaManager.Singleton.removeContent(m_id);
         }
 #endif

@@ -9,15 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4db626ad063b13545924a9839ac5fa83, type: 3}
-  m_Name: My Assets
+  m_Script: {fileID: 11500000, guid: 5be51871efa6c3e4eae1703925c8f5ac, type: 3}
+  m_Name: chARpack_locale_Strings
   m_EditorClassIdentifier: 
-  m_SharedTableData: {fileID: 11400000, guid: 0953dc951d13d004d8d1eec0907d1a4c, type: 2}
+  m_SharedTableData: {fileID: 11400000, guid: 2803bb8940043bb409c4ccb29a5926e2, type: 2}
   m_Tables:
-  - {fileID: 11400000, guid: f05c81863c6eb4d4f8b055b70a023e56, type: 2}
-  - {fileID: 11400000, guid: 3f378fa0836986f4793732eb710769e4, type: 2}
+  - {fileID: 11400000, guid: a5e10d7047f56d543a3882907cee5d18, type: 2}
+  - {fileID: 11400000, guid: 8bd6088126785e547a06685c5d69848a, type: 2}
   m_Extensions: []
-  m_Group: Asset Table
+  m_Group: String Table
   references:
     version: 2
     RefIds: []

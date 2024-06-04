@@ -1737,7 +1737,7 @@ public class GlobalCtrl : MonoBehaviour
         }
         moveMolecule(freshMoleculeID, moleData.molePos + Vector3.up*0.05f, moleData.moleQuat);
         EventManager.Singleton.MoveMolecule(freshMoleculeID, moleData.molePos + Vector3.up * 0.05f, moleData.moleQuat);
-        EventManager.Singleton.ChangeMolData(tempMolecule);
+        EventManager.Singleton.MoleculeLoaded(tempMolecule);
         undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id,tempMolecule.AsCML()));
     }
     #endregion
@@ -1899,7 +1899,7 @@ public class GlobalCtrl : MonoBehaviour
                 }
                 moveMolecule(freshMoleculeID, molecule.molePos + meanPos, molecule.moleQuat);
                 EventManager.Singleton.MoveMolecule(freshMoleculeID, molecule.molePos + meanPos, molecule.moleQuat);
-                EventManager.Singleton.ChangeMolData(tempMolecule);
+                EventManager.Singleton.MoleculeLoaded(tempMolecule);
 
                 loadDataWithCorrectedIDs.Add(tempMolecule.AsCML());
             }
@@ -1930,7 +1930,7 @@ public class GlobalCtrl : MonoBehaviour
         }
         moveMolecule(freshMoleculeID, molecule.molePos, molecule.moleQuat);
         EventManager.Singleton.MoveMolecule(freshMoleculeID, molecule.molePos, molecule.moleQuat);
-        EventManager.Singleton.ChangeMolData(tempMolecule);
+        EventManager.Singleton.MoleculeLoaded(tempMolecule);
 
         return tempMolecule.m_id;
     }
@@ -2021,7 +2021,7 @@ public class GlobalCtrl : MonoBehaviour
                         }
                     }
                 }
-                EventManager.Singleton.ChangeMolData(tempMolecule);
+                EventManager.Singleton.MoleculeLoaded(tempMolecule);
             }
         }
         SaveMolecule(true);
@@ -2060,33 +2060,6 @@ public class GlobalCtrl : MonoBehaviour
     public void SignalUndoScaling()
     {
         undoStack.SignalUndoSlider();
-    }
-
-
-    public void LoadPreset(int number)
-    {
-        DeleteAll();
-        switch(number)
-        {
-            case 1:
-                LoadMolecule("Aminole");
-                break;
-            case 2:
-                LoadMolecule("AcrylicAcid");
-                break;
-            case 3:
-                LoadMolecule("Adamantane");
-                break;
-            case 4:
-                LoadMolecule("Indole");
-                break;
-            case 5:
-                LoadMolecule("MirrorTask");
-                break;
-            case 6:
-                LoadMolecule("PlanarChirality");
-                break;
-        }
     }
 
     #endregion

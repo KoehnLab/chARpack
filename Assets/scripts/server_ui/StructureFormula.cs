@@ -12,6 +12,7 @@ public class StructureFormula : MonoBehaviour
     public SVGImage image;
     public Vector2 originalSize;
     public Button collapse_button;
+    public Button close_button;
     public TextMeshProUGUI collapse_button_label;
     public TextMeshProUGUI label;
     public HeatMap2D heatMap;
@@ -42,6 +43,7 @@ public class StructureFormula : MonoBehaviour
         heatMap.CanvasHeight = originalSize.y;
 
         highlight_choice_dropdown.onValueChanged.AddListener(setHighlightOption);
+        close_button.onClick.AddListener(close);
     }
 
 
@@ -124,5 +126,10 @@ public class StructureFormula : MonoBehaviour
         {
             collapse_button_label.text = "\u25BA";
         }
+    }
+
+    private void close()
+    {
+        StructureFormulaManager.Singleton.requestRemove(this);
     }
 }

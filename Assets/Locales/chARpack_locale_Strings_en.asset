@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
-  m_Name: My Strings_en
+  m_Name: chARpack_locale_Strings_en
   m_EditorClassIdentifier: 
   m_LocaleId:
     m_Code: en
@@ -560,6 +560,10 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 123029884014465024
     m_Localized: Opens Debug Log
+    m_Metadata:
+      m_Items: []
+  - m_Id: 123267836716027904
+    m_Localized: StructureFormula
     m_Metadata:
       m_Items: []
   references:

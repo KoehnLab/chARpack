@@ -45,7 +45,7 @@ public class ServerBondTooltip : MonoBehaviour
             Vector2 save = SpawnManager.Singleton.GetSpawnLocalPosition(rect);
             rect.position = save;
         }
-        assignColour(focus_id);
+        assignColor(focus_id);
     }
 
 
@@ -68,7 +68,7 @@ public class ServerBondTooltip : MonoBehaviour
             rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y + 160);
         }
     }
-    public void assignColour(int focus_id)
+    public void assignColor(int focus_id)
     {
         userbox.GetComponent<RawImage>().color = FocusColors.getColor(focus_id);
     }

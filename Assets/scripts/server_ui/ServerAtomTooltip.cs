@@ -79,7 +79,7 @@ public class ServerAtomTooltip : MonoBehaviour
             Vector2 save = SpawnManager.Singleton.GetSpawnLocalPosition(rect);
             rect.position = save;
         }
-        assignColour();
+        assignColor();
     }
 
     public void resize()
@@ -103,7 +103,7 @@ public class ServerAtomTooltip : MonoBehaviour
             rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y + 230);
         }
     }
-    public void assignColour()
+    public void assignColor()
     {
         var colorHolder = FocusColors.getColor(focus_id);
         userBox.GetComponent<RawImage>().color = colorHolder;

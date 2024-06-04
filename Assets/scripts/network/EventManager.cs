@@ -43,6 +43,13 @@ public class EventManager : MonoBehaviour
         OnMolDataChanged?.Invoke(mol);
     }
 
+    public delegate void MolRelaxedAction(Molecule mol);
+    public event MolRelaxedAction OnMolRelaxed;
+    public void RelaxMol(Molecule mol)
+    {
+        OnMolRelaxed?.Invoke(mol);
+    }
+
     public delegate void CreateAtomAction(Guid mol_id, string abbre, Vector3 pos, ushort hyb);
     public event CreateAtomAction OnCreateAtom;
     public void CreateAtom(Guid mol_id, string abbre, Vector3 pos, ushort hyb)
@@ -78,11 +85,18 @@ public class EventManager : MonoBehaviour
         OnMergeMolecule?.Invoke(molecule1ID, atom1ID, molecule2ID, atom2ID);
     }
 
-    public delegate void LoadMoleculeAction(string name);
-    public event LoadMoleculeAction OnLoadMolecule;
-    public void LoadMolecule(string name)
+    public delegate void MoleculeLoadedAction(Molecule mol);
+    public event MoleculeLoadedAction OnMoleculeLoaded;
+    public void MoleculeLoaded(Molecule mol)
     {
-        OnLoadMolecule?.Invoke(name);
+        OnMoleculeLoaded?.Invoke(mol);
+    }
+
+    public delegate void DeviceLoadMoleculeAction(string name);
+    public event DeviceLoadMoleculeAction OnDeviceLoadMolecule;
+    public void DeviceLoadMolecule(string name)
+    {
+        OnDeviceLoadMolecule?.Invoke(name);
     }
 
     public delegate void CmlReceiveCompletedAction();

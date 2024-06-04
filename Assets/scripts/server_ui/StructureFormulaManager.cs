@@ -47,7 +47,7 @@ public class StructureFormulaManager : MonoBehaviour
         Singleton = this;
     }
 
-    private Dictionary<Guid, Triple<GameObject, string, List<GameObject>>> svg_instances;
+    private Dictionary<Guid, Triple<GameObject, string, List<GameObject>>> svg_instances; // mol_id, primary_structure_formula, svg_content, secondary_structure_formulas
     private GameObject interactiblePrefab;
     private GameObject structureFormulaPrefab;
     public GameObject UICanvas;
@@ -222,6 +222,7 @@ public class StructureFormulaManager : MonoBehaviour
 
             createInteractables(mol_id);
         }
+        validateMolecules();
     }
 
     public void removeContent(Guid mol_id)
@@ -401,20 +402,6 @@ public class StructureFormulaManager : MonoBehaviour
     private void Update()
     {
 
-        // read chunk-wise while process is running.
-        //if(python_process != null && !python_process.HasExited)
-        //{
-        //    standardOutput.Append(python_process.StandardOutput.ReadToEnd());
-        //    Debug.Log($"[PythonProcess] Log: {standardOutput.ToString()}");
-        //}
-        //if (python_process != null && python_process.HasExited && standardOutput.Length > 0)
-        //{
-        //    Debug.Log($"[PythonProcess] Log: {standardOutput.ToString()}");
-        //    standardOutput.Clear();
-        //}
-
-
-
         var rayCastResults = GetEventSystemRaycastResults();
 
         if (Input.GetMouseButtonDown(0))
@@ -581,6 +568,39 @@ public class StructureFormulaManager : MonoBehaviour
             }
         }
         return null;
+    }
+
+    private void validateMolecules()
+    {
+        List<Guid> to_be_removed = new List<Guid>();
+        foreach (var sf_id in svg_instances.Keys)
+        {
+            if (!GlobalCtrl.Singleton.List_curMolecules.ContainsKey(sf_id))
+            {
+                to_be_removed.Add(sf_id);
+            }
+        }
+        foreach (var tbr in to_be_removed)
+        {
+            removeContent(tbr);
+        }
+    }
+
+    public void requestRemove(StructureFormula in_sf)
+    {
+        List<Guid> to_be_removed = new List<Guid>();
+        foreach (var go in svg_instances)
+        {
+            var sf = go.Value.Item1.GetComponentInParent<StructureFormula>();
+            if (sf = in_sf)
+            {
+                to_be_removed.Add(go.Key);
+            }
+        }
+        foreach (var tbr in to_be_removed)
+        {
+            removeContent(tbr);
+        }
     }
 }
 

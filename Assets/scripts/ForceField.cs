@@ -289,6 +289,10 @@ public class ForceField : MonoBehaviour
             {
                 converged = converged && (step.magnitude < threshold);
             }
+            if (converged)
+            {
+                EventManager.Singleton.RelaxMol(mol);
+            }
         }
         if (converged)
         {

@@ -71,7 +71,7 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnMoveAtom += sendAtomMoved;
         EventManager.Singleton.OnStopMoveAtom += sendStopMoveAtom;
         EventManager.Singleton.OnMergeMolecule += sendMoleculeMerged;
-        EventManager.Singleton.OnLoadMolecule += sendMoleculeLoaded;
+        EventManager.Singleton.OnDeviceLoadMolecule += sendDeviceMoleculeLoaded;
         EventManager.Singleton.OnDeleteEverything += sendDeleteEverything;
         EventManager.Singleton.OnDeleteAtom += sendDeleteAtom;
         EventManager.Singleton.OnDeleteBond += sendDeleteBond;
@@ -277,7 +277,7 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
-    public void sendMoleculeLoaded(string name)
+    public void sendDeviceMoleculeLoaded(string name)
     {
         var molData = GlobalCtrl.Singleton.getMoleculeData(name);
         NetworkUtils.serializeCmlData((ushort)ClientToServerID.moleculeLoaded, molData, chunkSize, true);

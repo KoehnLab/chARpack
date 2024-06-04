@@ -40,7 +40,7 @@ public class ServerTorsionTooltip : MonoBehaviour
         {
             rect.localPosition = localPosition;
         }
-        assignColour(focus_id);
+        assignColor(focus_id);
     }
 
     // Update is called once per frame
@@ -61,7 +61,7 @@ public class ServerTorsionTooltip : MonoBehaviour
             rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y + 130);
         }
     }
-    public void assignColour(int focus_id)
+    public void assignColor(int focus_id)
     {
         userbox.GetComponent<RawImage>().color = FocusColors.getColor(focus_id);
     }

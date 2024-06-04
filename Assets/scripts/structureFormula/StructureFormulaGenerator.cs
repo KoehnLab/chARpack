@@ -4,8 +4,11 @@ using UnityEngine;
 using Python.Runtime;
 using System.Collections.Generic;
 using Microsoft.MixedReality.Toolkit.Utilities.Editor;
+using System.Collections;
+using UnityEditor.Build.Pipeline.Tasks;
+using Unity.VisualScripting;
 
-
+#if UNITY_STANDALONE || UNITY_EDITOR
 public class StructureFormulaGenerator : MonoBehaviour
 {
 
@@ -36,6 +39,10 @@ public class StructureFormulaGenerator : MonoBehaviour
 
     void Start()
     {
+
+        EventManager.Singleton.OnMolDataChanged += requestStructureFormula;
+        EventManager.Singleton.OnMoleculeLoaded += immediateRequestStructureFormula;
+
         string[] possibleDllNames = new string[]
         {
         "python313.dll",
@@ -112,7 +119,22 @@ public class StructureFormulaGenerator : MonoBehaviour
 
     public void requestStructureFormula(Molecule mol)
     {
+        StartCoroutine(waitAndGenerate(mol));
+    }
 
+    public void immediateRequestStructureFormula(Molecule mol)
+    {
+        generate(mol);
+    }
+
+    private IEnumerator waitAndGenerate(Molecule mol)
+    {
+        yield return new WaitForSeconds(1f); // wait for relaxation of the molecule
+        generate(mol);
+    }
+
+    private void generate(Molecule mol)
+    {
         // Prepare lists
         List<Vector3> posList = new List<Vector3>();
         for (int i = 0; i < mol.atomList.Count; i++)
@@ -218,12 +240,14 @@ public class StructureFormulaGenerator : MonoBehaviour
         var sr = File.CreateText(file_path);
         sr.Write(svgContent);
         sr.Close();
-
     }
 
     private void OnDestroy()
     {
         // Shutdown the Python engine
         PythonEngine.Shutdown();
+        EventManager.Singleton.OnMolDataChanged -= requestStructureFormula;
+        EventManager.Singleton.OnMoleculeLoaded -= immediateRequestStructureFormula;
     }
 }
+#endif

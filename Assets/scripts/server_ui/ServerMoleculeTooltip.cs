@@ -15,17 +15,19 @@ public class ServerMoleculeTooltip : MonoBehaviour
     public Button scaleButton;
     public Button copyButton;
     public Button toggleDummiesButton;
-    public RectTransform rect;
-    public Molecule linkedMolecule;
+    public Button structureFormulaButton;
+    [HideInInspector] public RectTransform rect;
+    [HideInInspector] public Molecule linkedMolecule;
     public GameObject userbox;
     public Vector3 localPosition = new Vector3(0, 0, 0);
 
     public Boolean isSmall = false;
     public GameObject title;
     public GameObject infobox;
-    public int focus_id = -1;
+    [HideInInspector] public int focus_id = -1;
 
-    public Canvas UI;
+    [HideInInspector] public Canvas UI;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -47,7 +49,7 @@ public class ServerMoleculeTooltip : MonoBehaviour
             Vector2 save = SpawnManager.Singleton.GetSpawnLocalPosition(rect);
             rect.position = save;
         }
-        assignColour(focus_id);
+        assignColor(focus_id);
     }
 
     // Update is called once per frame
@@ -60,6 +62,8 @@ public class ServerMoleculeTooltip : MonoBehaviour
             freezeButton.gameObject.SetActive(true);
             copyButton.gameObject.SetActive(true);
             scaleButton.gameObject.SetActive(true);
+            toggleDummiesButton.gameObject.SetActive(true);
+            structureFormulaButton.gameObject.SetActive(true);
             infobox.SetActive(true);
             rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y - 250);
         }
@@ -70,11 +74,14 @@ public class ServerMoleculeTooltip : MonoBehaviour
             freezeButton.gameObject.SetActive(false);
             copyButton.gameObject.SetActive(false);
             scaleButton.gameObject.SetActive(false);
+            toggleDummiesButton.gameObject.SetActive(false);
+            structureFormulaButton.gameObject.SetActive(false);
             infobox.SetActive(false);
             rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y + 250);
         }
     }
-    public void assignColour(int focus_id)
+
+    public void assignColor(int focus_id)
     {
         userbox.GetComponent<RawImage>().color = FocusColors.getColor(focus_id);
     }
