@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections;
 
 
-#if UNITY_STANDALONE || UNITY_EDITOR
 public class StructureFormulaGenerator : MonoBehaviour
 {
 
@@ -35,6 +34,7 @@ public class StructureFormulaGenerator : MonoBehaviour
         Singleton = this;
     }
 
+#if UNITY_STANDALONE || UNITY_EDITOR
     void Start()
     {
 
@@ -256,5 +256,5 @@ public class StructureFormulaGenerator : MonoBehaviour
         EventManager.Singleton.OnMolDataChanged -= requestStructureFormula;
         EventManager.Singleton.OnMoleculeLoaded -= immediateRequestStructureFormula;
     }
-}
 #endif
+}

@@ -771,6 +771,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void createServerToolTip(int focus_id = -1)
     {
+#if UNITY_STANDALONE || UNITY_EDITOR
         Vector2? oldPos = null;
         if (toolTipInstance)
         {
@@ -795,6 +796,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<ServerMoleculeTooltip>().copyButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.copyMolecule(this); });
         toolTipInstance.GetComponent<ServerMoleculeTooltip>().structureFormulaButton.onClick.AddListener(delegate { StructureFormulaGenerator.Singleton.immediateRequestStructureFormula(this); });
         toolTipInstance.GetComponent<ServerMoleculeTooltip>().linkedMolecule = this;
+#endif
     }
 
     public void toggleScalingSlider()
@@ -877,6 +879,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void createServerBondToolTip(ForceField.BondTerm term, int focus_id = -1)
     {
+#if UNITY_STANDALONE || UNITY_EDITOR
         //TODO: Make spawn location conistant with first atom tooltip
         Vector3 rectSave = new Vector3(0, 0, 0);
         foreach (var atom in atomList)
@@ -929,7 +932,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             markBondTermServer(term, true);
         }
-
+#endif
     }
     private void createChangeBondWindow(ForceField.BondTerm bond)
     {
@@ -941,6 +944,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     }
     private void createServerChangeBondWindow(ForceField.BondTerm bond)
     {
+#if UNITY_STANDALONE || UNITY_EDITOR
         if (changeBondWindowInstance != null)
         {
             Destroy(changeBondWindowInstance);
@@ -952,6 +956,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         cb.bt = bond;
         var id = bondTerms.IndexOf(bond);
         cb.saveButton.GetComponent<Button>().onClick.AddListener(delegate { changeBondParametersUI(changeBondWindowInstance, id); });
+#endif
     }
 
     private void changeBondParametersUI(GameObject windowInstance, int id)
@@ -1016,9 +1021,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     }
     public void markBondTermServer(ForceField.BondTerm term, bool mark)
     {
+#if UNITY_STANDALONE || UNITY_EDITOR
         atomList[term.Atom1].markAtom(mark, 3);
         atomList[term.Atom2].markAtom(mark, 3);
         atomList[term.Atom1].getBond(atomList[term.Atom2])?.markBond(mark, 3);
+#endif
     }
 
 
@@ -1056,7 +1063,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void createServerAngleToolTip(ForceField.AngleTerm term, int focus_id = -1)
     {
-
+#if UNITY_STANDALONE || UNITY_EDITOR
         Vector3 rectSave = new Vector3(0, 0, 0);
         foreach (var atom in atomList)
         {
@@ -1083,6 +1090,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<ServerAngleTooltip>().localPosition = rectSave;
         toolTipInstance.GetComponent<ServerAngleTooltip>().linkedAtom = atomList[term.Atom2];
         markAngleTermServer(term, true);
+#endif
     }
 
     private AngleMeasurement getMeasurements(ForceField.AngleTerm term)
@@ -1120,6 +1128,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     }
     private void createServerChangeAngleWindow(ForceField.AngleTerm bond)
     {
+#if UNITY_STANDALONE || UNITY_EDITOR
         if (changeBondWindowInstance != null) { Destroy(changeBondWindowInstance); }
         changeBondWindowInstance = Instantiate(changeServerBondWindowPrefab);
 
@@ -1127,6 +1136,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         cb.at = bond;
         var id = angleTerms.IndexOf(bond);
         cb.saveButton.GetComponent<Button>().onClick.AddListener(delegate { changeAngleParametersUI(changeBondWindowInstance, id); });
+#endif
     }
 
     private void changeAngleParametersUI(GameObject windowInstance, int id)
@@ -1191,12 +1201,13 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     }
     public void markAngleTermServer(ForceField.AngleTerm term, bool mark)
     {
+#if UNITY_STANDALONE || UNITY_EDITOR
         atomList[term.Atom1].markAtom(mark, 4);
         atomList[term.Atom2].markAtom(mark, 4);
         atomList[term.Atom3].markAtom(mark, 4);
         atomList[term.Atom1].getBond(atomList[term.Atom2])?.markBond(mark, 4);
         atomList[term.Atom2].getBond(atomList[term.Atom3])?.markBond(mark, 4);
-
+#endif
     }
 
     /// <summary>
@@ -1235,7 +1246,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     public void createServerTorsionToolTip(ForceField.TorsionTerm term, int focus_id = -1)
     {
-
+#if UNITY_STANDALONE || UNITY_EDITOR
         Vector3 rectSave = new Vector3(0, 0, 0);
 
         type = toolTipType.TORSION;
@@ -1269,6 +1280,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             toolTipInstance.GetComponent<ServerTorsionTooltip>().linkedBond = bond;
         }
         markTorsionTermServer(term, true);
+#endif
     }
 
     private double getDihedralAngle(ushort atom1, ushort atom2, ushort atom3, ushort atom4)
@@ -1294,8 +1306,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var id = torsionTerms.IndexOf(bond);
         cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeTorsionParametersUI(changeBondWindowInstance, id); });
     }
+
     private void createServerChangeTorsionWindow(ForceField.TorsionTerm bond)
     {
+#if UNITY_STANDALONE || UNITY_EDITOR
         if (changeBondWindowInstance != null) { Destroy(changeBondWindowInstance); changeBondWindowInstance = null; }
         changeBondWindowInstance = Instantiate(changeServerBondWindowPrefab);
 
@@ -1303,7 +1317,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         cb.tt = bond;
         var id = torsionTerms.IndexOf(bond);
         cb.saveButton.GetComponent<Button>().onClick.AddListener(delegate { changeTorsionParametersUI(changeBondWindowInstance, id); });
+#endif
     }
+
     private void changeTorsionParametersUI(GameObject windowInstance, int id)
     {
         cmlData before = this.AsCML();
@@ -1369,6 +1385,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     }
     public void markTorsionTermServer(ForceField.TorsionTerm term, bool mark)
     {
+#if UNITY_STANDALONE || UNITY_EDITOR
         atomList[term.Atom1].markAtom(mark, 5);
         atomList[term.Atom2].markAtom(mark, 5);
         atomList[term.Atom3].markAtom(mark, 5);
@@ -1376,7 +1393,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         atomList[term.Atom1].getBond(atomList[term.Atom2])?.markBond(mark, 5);
         atomList[term.Atom2].getBond(atomList[term.Atom3])?.markBond(mark, 5);
         atomList[term.Atom3].getBond(atomList[term.Atom4])?.markBond(mark, 5);
-
+#endif
     }
     // Helper methods to generate localized tool tip text
     private string getAtomToolTipText(double totMass, double maxDist)
