@@ -502,13 +502,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         // apply transformation
         
-        transform.localPosition = otherMol.transform.localPosition;
-        atomList[0].resetMolPositionAfterMove();
-        otherMol.atomList[0].resetMolPositionAfterMove();
         try
         {
             var rotationMatrix = kabschRotationMatrix(atomPositions(), otherMol.atomPositions());
             transform.localRotation = Quaternion.LookRotation(rotationMatrix.GetRow(2), rotationMatrix.GetRow(1)) * transform.localRotation;
+
+            transform.localPosition = otherMol.transform.localPosition;
         } catch(Exception e)
         {
             // keep rotation if algorithm doesn't converge
