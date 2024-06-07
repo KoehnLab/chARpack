@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -86,33 +87,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 }
                 else
                 {
-                    if (GlobalCtrl.Singleton.collision)
-                    {
-                        Atom d1 = GlobalCtrl.Singleton.collider1;
-                        Atom d2 = GlobalCtrl.Singleton.collider2;
-
-                        Atom a1 = d1.dummyFindMain();
-                        Atom a2 = d2.dummyFindMain();
-
-                        if (!a1.alreadyConnected(a2))
-                        {
-                            if (atomList.Contains(a1))
-                            {
-                                EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
-                                GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
-                            }
-                            else
-                            {
-                                EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id, GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id);
-                                GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2, GlobalCtrl.Singleton.collider1);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        cmlData after = this.AsCML();
-                        GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
-                    }
+                    cmlData after = this.AsCML();
+                    GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
+                    GlobalCtrl.Singleton.checkForCollisionsAndMerge(this);
                 }
                 // change material back to normal
                 GetComponent<myBoundingBox>().setGrabbed(false);

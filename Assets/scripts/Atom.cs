@@ -2,17 +2,20 @@ using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.UI;
 using chARpackStructs;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Animations;
+using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Events;
+using Microsoft.MixedReality.Toolkit.Utilities;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using chARpackTypes;
 using chARpackColorPalette;
-
 
 /// <summary>
 /// A class that provides the functionalities of single atoms.
@@ -299,33 +302,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
 
 
-                // check for potential merge
-                if (GlobalCtrl.Singleton.collision)
-                {
-                    Atom d1 = GlobalCtrl.Singleton.collider1;
-                    Atom d2 = GlobalCtrl.Singleton.collider2;
-
-                    Atom a1 = d1.dummyFindMain();
-                    Atom a2 = d2.dummyFindMain();
-
-                    if (!a1.alreadyConnected(a2))
-                    {
-                        if (a1 == this)
-                        {
-                            EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
-                            GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
-                        }
-                        else
-                        {
-                            EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id, GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id);
-                            GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2, GlobalCtrl.Singleton.collider1);
-                        }
-                    }
-                }
-
-            }
-
+            // check for potential merge
+            GlobalCtrl.Singleton.checkForCollisionsAndMerge(m_molecule);
         }
+    }
     }
 
     private void OnMouseOver()
@@ -544,28 +524,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                         EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
                         EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
                         // check for potential merge
-                        if (GlobalCtrl.Singleton.collision)
-                        {
-                            Atom d1 = GlobalCtrl.Singleton.collider1;
-                            Atom d2 = GlobalCtrl.Singleton.collider2;
-
-                            Atom a1 = d1.dummyFindMain();
-                            Atom a2 = d2.dummyFindMain();
-
-                            if (!a1.alreadyConnected(a2))
-                            {
-                                if (a1 == this)
-                                {
-                                    EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
-                                    GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
-                                }
-                                else
-                                {
-                                    EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id, GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id);
-                                    GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2, GlobalCtrl.Singleton.collider1);
-                                }
-                            }
-                        }
+                        GlobalCtrl.Singleton.checkForCollisionsAndMerge(m_molecule);
                     }
                 }
 
@@ -1011,14 +970,9 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private void OnTriggerEnter(Collider collider)
     {
         // Debug.Log($"[Atom] Collision Detected: {collider.name}");
-        if (collider.name.StartsWith("Dummy") && name.StartsWith("Dummy") && GlobalCtrl.Singleton.collision == false)
+        if (collider.name.StartsWith("Dummy") && name.StartsWith("Dummy"))
         {
-
-            GlobalCtrl.Singleton.collision = true;
-            GlobalCtrl.Singleton.collider1 = collider.GetComponent<Atom>();
-            GlobalCtrl.Singleton.collider2 = GetComponent<Atom>();
-            GlobalCtrl.Singleton.collider1.colorSwapSelect(1);
-            GlobalCtrl.Singleton.collider2.colorSwapSelect(1);
+            GlobalCtrl.Singleton.TryAddCollision(collider.GetComponent<Atom>(), GetComponent<Atom>());
         }
     }
 
@@ -1026,17 +980,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         if (collider.name.StartsWith("Dummy") && name.StartsWith("Dummy"))
         {
-            if (GlobalCtrl.Singleton.collider1 != null)
+            colorSwapSelect(0);
+            collider.GetComponent<Atom>().colorSwapSelect(0);
+            if (GlobalCtrl.Singleton.collisions.Count > 0)
             {
-                GlobalCtrl.Singleton.collider1.colorSwapSelect(0);
-                GlobalCtrl.Singleton.collider1 = null;
+                //if(GlobalCtrl.Singleton.collisions.RemoveAll(m => (m.Equals((this, otherAtom)) || m.Equals((this, otherAtom)))) > 0)
+                GlobalCtrl.Singleton.collisions.RemoveAll(m => (m.Item1.Equals(this) || m.Item2.Equals(this))); // Only one collision per dummy allowed anyway
             }
-            if (GlobalCtrl.Singleton.collider2 != null)
-            {
-                GlobalCtrl.Singleton.collider2.colorSwapSelect(0);
-                GlobalCtrl.Singleton.collider2 = null;
-            }
-            GlobalCtrl.Singleton.collision = false;
         }
     }
 
@@ -1768,7 +1718,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             var pos = FocusManager.getPosInArray(focus_id);
             focused[pos] = value;
             focusHighlightInFormula(focused, null);
-
         }
         else
         {

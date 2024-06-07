@@ -92,9 +92,8 @@ public class GlobalCtrl : MonoBehaviour
 
     private bool bondsInForeground = false;
 
-    [HideInInspector] public bool collision = false;
-    [HideInInspector] public Atom collider1;
-    [HideInInspector] public Atom collider2;
+    //[HideInInspector] public Dictionary<Atom, Atom> collisions = new Dictionary<Atom, Atom>();
+    [HideInInspector] public List<Tuple<Atom, Atom>> collisions = new List<Tuple<Atom, Atom>>();
 
     [HideInInspector] public ushort curHybrid = 3;
 
@@ -1531,6 +1530,83 @@ public class GlobalCtrl : MonoBehaviour
         CreateBond(mainAtom, dummy, inputMole);
     }
 
+    public void TryAddCollision(Atom d1, Atom d2)
+    {
+        if (collisions.Any(m => (m.Item1.Equals(d1) || m.Item2.Equals(d1) || m.Item1.Equals(d2) || m.Item2.Equals(d2)))) return; // Only allow one collision per dummy to avoid confusion
+        collisions.Add(new Tuple<Atom, Atom>(d1, d2));
+        d1.colorSwapSelect(1);
+        d2.colorSwapSelect(1);
+    }
+
+    public void checkForCollisionsAndMerge(Molecule mol)
+    {
+        if (collisions.Count() == 0) return;
+
+        var molCollisions = new List<Tuple<Atom, Atom>>();
+        foreach (Atom a in mol.atomList)
+        {
+            if (a.name.StartsWith("Dummy"))
+            { // no need to check for collisions with non-dummy atoms
+                var col = collisions.Where(m => (m.Item1.Equals(a) || m.Item2.Equals(a)));
+                foreach (var collision in col) molCollisions.Add(collision); 
+            }
+        }
+
+        molCollisions = removeDuplicates(molCollisions);
+
+        if (molCollisions.Count > 0)
+        {
+            foreach (Tuple<Atom, Atom> tuple in molCollisions)
+            {
+                Atom d1 = tuple.Item1;
+                Atom d2 = tuple.Item2;
+                Atom a1 = d1.dummyFindMain();
+                Atom a2 = d2.dummyFindMain();
+
+                if (!a1.alreadyConnected(a2))
+                {
+                    if (mol.atomList.Contains(d1))
+                    {
+                        EventManager.Singleton.MergeMolecule(d1.m_molecule.m_id, d1.m_id, d2.m_molecule.m_id, d2.m_id);
+                        MergeMolecule(d1, d2);
+                    }
+                    else
+                    {
+                        EventManager.Singleton.MergeMolecule(d2.m_molecule.m_id, d2.m_id, d1.m_molecule.m_id, d1.m_id);
+                        MergeMolecule(d2, d1);
+                    }
+                }
+
+            }
+        }
+
+        resetMolCollisions(mol);
+    }
+
+    private void resetMolCollisions(Molecule mol)
+    {
+        foreach(Atom a in mol.atomList)
+        {
+            if (a.name.StartsWith("Dummy"))
+            {
+                var cols = collisions.Where(m => m.Item1.Equals(a) || m.Item2.Equals(a));
+                foreach(var col in cols)
+                {
+                    col.Item1.colorSwapSelect(0);
+                    col.Item2.colorSwapSelect(0);
+                }
+                collisions.RemoveAll(m => (m.Item1.Equals(a) || m.Item2.Equals(a)));
+            }
+        }
+    }
+
+    private List<Tuple<Atom, Atom>> removeDuplicates(List<Tuple<Atom, Atom>> collisions)
+    {
+         return collisions.Select(x => new[] { x.Item1, x.Item2 }.OrderBy(s => s.m_id).ToArray())
+            .Select(x => Tuple.Create(x[0], x[1]))
+            .Distinct().ToList();
+    }
+
     /// <summary>
     /// creates a bond between two atoms
     /// This method is called when the mergeMolecule method is executed, as this controls when a new bond is created
@@ -1554,7 +1630,6 @@ public class GlobalCtrl : MonoBehaviour
     public void MergeMolecule(Atom dummyInHand, Atom dummyInAir)
     {
         List<cmlData> before = new List<cmlData>();
-        collision = false;
         dummyInHand.dummyFindMain().keepConfig = false;
 
         //Debug.Log($"[MergeMolecule] Mol in hand num_atoms {dummyInHand.m_molecule.atomList.Count}");
