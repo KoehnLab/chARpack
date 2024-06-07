@@ -566,6 +566,10 @@ MonoBehaviour:
     m_Localized: StructureFormula
     m_Metadata:
       m_Items: []
+  - m_Id: 124461757766852608
+    m_Localized: MeasurementMode
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

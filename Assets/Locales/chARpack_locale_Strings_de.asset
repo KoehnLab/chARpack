@@ -566,6 +566,10 @@ MonoBehaviour:
     m_Localized: StrukturFormel
     m_Metadata:
       m_Items: []
+  - m_Id: 124461757766852608
+    m_Localized: Mess-Modus
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

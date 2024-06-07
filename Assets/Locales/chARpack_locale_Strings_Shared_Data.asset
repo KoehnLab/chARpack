@@ -557,6 +557,10 @@ MonoBehaviour:
     m_Key: StructureFormula
     m_Metadata:
       m_Items: []
+  - m_Id: 124461757766852608
+    m_Key: MeasurementMode
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
