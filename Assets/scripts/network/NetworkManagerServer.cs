@@ -103,6 +103,7 @@ public class NetworkManagerServer : MonoBehaviour
     public static void StartServer()
     {
         Singleton.Server = new Server();
+        Singleton.Server.TimeoutTime = 20000;
         Singleton.Server.Start(LoginData.port, LoginData.maxConnections);
         Singleton.Server.ClientDisconnected += Singleton.ClientDisconnected;
         Singleton.Server.ClientConnected += Singleton.ClientConnected; // client invokes sendName
@@ -373,6 +374,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddBools(SettingsData.coop);
         message.AddBool(SettingsData.networkMeasurements);
         message.AddBool(SettingsData.interpolateColors);
+        message.AddBool(SettingsData.licoriceRendering);
         message.AddBool(SettingsData.useAngstrom);
         Server.SendToAll(message);
     }
@@ -635,7 +637,7 @@ public class NetworkManagerServer : MonoBehaviour
         {
             atom.m_molecule.markMolecule(false);
         }
-        atom.advancedMarkAtom(selected, true);
+        atom.advancedMarkAtom(selected, true, UserServer.list[fromClientId].highlightFocusID);
 
         // Broadcast to other clients
         Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSelectAtom);
@@ -1187,7 +1189,7 @@ public class NetworkManagerServer : MonoBehaviour
             yield break;
         }
 
-        Message message = Message.Create(MessageSendMode.Unreliable, ServerToStructureID.requestStrucutreFormula);
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToStructureID.requestStrucutreFormula);
         message.AddGuid(mol.m_id);
         message.AddUShort((ushort)mol.atomList.Count);
 

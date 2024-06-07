@@ -1,0 +1,570 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: chARpack_locale_Strings_Shared_Data
+  m_EditorClassIdentifier: 
+  m_TableCollectionName: My Strings
+  m_TableCollectionNameGuidString: 2803bb8940043bb409c4ccb29a5926e2
+  m_Entries:
+  - m_Id: 3901570400256
+    m_Key: CreateAtom
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3929072451584
+    m_Key: MainScene/NearMenu/ButtonCollection/ClearMolecules/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3965957160960
+    m_Key: MainScene/NearMenu/ButtonCollection/Save/Load/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3999708725248
+    m_Key: Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4030889181184
+    m_Key: MainScene/NearMenu/ButtonCollection/Undo/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4088984485888
+    m_Key: CurrentHybridization
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4259612966912
+    m_Key: AtomMenuScrollable/AtomMenuScrollable/ScrollParent/TitleBar/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4632532729856
+    m_Key: ToggleMesh
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4739831414784
+    m_Key: ToggleDebug
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4763302739968
+    m_Key: ForceField
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4797146578944
+    m_Key: HandMesh
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4837789384704
+    m_Key: HandJoint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4927312609280
+    m_Key: HandRay
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4954957266944
+    m_Key: HandMenu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5021294379008
+    m_Key: RepulsionScale
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5094665338880
+    m_Key: BondStiffness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5168279568384
+    m_Key: Settings/Settings/TitleBar/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5229776453632
+    m_Key: Settings/Settings/TitleBar/Buttons/FollowMe/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5275636973568
+    m_Key: Settings/Settings/TitleBar/Buttons/Close/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5358243790848
+    m_Key: MainScene/NearMenu/ButtonExit/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5496316084224
+    m_Key: MainScene/loadSaveWindow/ScrollParent/TitleBar/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5572186849280
+    m_Key: Save
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5799014809600
+    m_Key: ToggleDummies
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5940799062016
+    m_Key: RepairMeButton/RepairMeButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6046524882944
+    m_Key: saveDialog/saveDialog/TitleBar/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6111733727232
+    m_Key: saveDialog/saveDialog/PressableButtonsTestCanvas/Content/CompressableVisualsLabel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6182353223680
+    m_Key: saveDialog/saveDialog/PressableButtonsTestCanvas/Content/SaveButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6434724495360
+    m_Key: CloseMeButton/CloseMeButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7238218924032
+    m_Key: ManualAddServer/ManualAddServer/TitleBar/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7381420851200
+    m_Key: ManualAddServer/ManualAddServer/PressableButtonsTestCanvas/Content/ServerNameTextfield/Text
+      Area/Placeholder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7472147841024
+    m_Key: ManualAddServer/ManualAddServer/PressableButtonsTestCanvas/Content/AddButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7687953170432
+    m_Key: Delete
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7845721915392
+    m_Key: modifyHybridization/modifyHybridization/label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7903775277056
+    m_Key: Modify
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8301739229184
+    m_Key: ServerList/ServerList/ScrollParent/TitleBar/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 98848846413824
+    m_Key: NUM_ATOMS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 98924700401664
+    m_Key: NUM_BONDS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 98988588040192
+    m_Key: TOT_MASS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111727175827456
+    m_Key: SINGLE_BOND
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111910873759744
+    m_Key: ANGLE_BOND
+    m_Metadata:
+      m_Items: []
+  - m_Id: 112048224632832
+    m_Key: TORSION_BOND
+    m_Metadata:
+      m_Items: []
+  - m_Id: 112147172458496
+    m_Key: ORDER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 112923764621312
+    m_Key: EQ_DIST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 114869443526656
+    m_Key: EQUI_ANGLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115486283038720
+    m_Key: K_ANGLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119833477808128
+    m_Key: MASS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119869385244672
+    m_Key: RADIUS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119924280295424
+    m_Key: NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 120037694275584
+    m_Key: DUMMY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1891008693911552
+    m_Key: Settings/Settings/ButtonCollection/SwitchLanguage/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1893316106371072
+    m_Key: Settings/Settings/ButtonCollection/SwitchLanguage/IconAndText/TextMeshPro
+      1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5142275573186560
+    m_Key: FragmentRotation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5165129048031232
+    m_Key: Copy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 16334419667222528
+    m_Key: ScaleMolecule
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25041727584190464
+    m_Key: Snap
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25041763416129536
+    m_Key: Freeze
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25042481984290816
+    m_Key: Clear_Measure
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25066698989617152
+    m_Key: ResetMeButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28314155435982848
+    m_Key: GazeHighlight
+    m_Metadata:
+      m_Items: []
+  - m_Id: 38470251307892736
+    m_Key: CURRENT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40611639874535424
+    m_Key: Settings/Settings/ButtonCollection/Handedness/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40617137625612288
+    m_Key: HandSettings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40637782321250304
+    m_Key: CoopSettingsButton
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40638709660893184
+    m_Key: CoopSettingsTitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40640045014040576
+    m_Key: UserRay
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40640217840336896
+    m_Key: UserBox
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43185531663138816
+    m_Key: PointerHighlight
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50767666435571712
+    m_Key: IntegrationMethod
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50767914994221056
+    m_Key: IntegrationMethodNoDash
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50768774994313216
+    m_Key: MidPoint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50768981853192192
+    m_Key: Euler
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50769049666699264
+    m_Key: Verlet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50769088724058112
+    m_Key: RungeKutta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50769175667785728
+    m_Key: Heun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50769287102054400
+    m_Key: Ralston
+    m_Metadata:
+      m_Items: []
+  - m_Id: 63518995004243968
+    m_Key: NetworkMeasurements
+    m_Metadata:
+      m_Items: []
+  - m_Id: 82701048467668992
+    m_Key: VisualSettings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 82701371655569408
+    m_Key: InterpolateBondColors
+    m_Metadata:
+      m_Items: []
+  - m_Id: 93195326913019904
+    m_Key: EquilibriumDistance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 93203354865401856
+    m_Key: LengthUnit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 93217280147619840
+    m_Key: SteepestDescent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115292427869732864
+    m_Key: LicoriceRendering
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104054137766264832
+    m_Key: Settings/Settings/VisualSettings/label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104054415286583296
+    m_Key: DARKBLUE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104054531082928128
+    m_Key: LIGHTBLUE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104054582219882496
+    m_Key: VIOLET
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104054650805141504
+    m_Key: GOLD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104063444926840832
+    m_Key: RAINBOW
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104077707544346624
+    m_Key: HEAT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104082784506068992
+    m_Key: SILVER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104086272925483008
+    m_Key: GREEN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105933965497499648
+    m_Key: MONOCHROME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105938896715546624
+    m_Key: TURQUOISE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121766119395016704
+    m_Key: Connect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121766265797197824
+    m_Key: LoginScreenScene/LoginMenu/PressableButtonsTestCanvas/Content/row2/ScanQR/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121766478708457472
+    m_Key: LoginScreenScene/LoginMenu/PressableButtonsTestCanvas/Content/row2/Settings/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767231506333696
+    m_Key: LoginScreenScene/LoginMenu/TitleBar/Buttons/FollowMe/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767314264145920
+    m_Key: LoginScreenScene/LoginMenu/TitleBar/Buttons/Quit/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121767377900126208
+    m_Key: LoginScreenScene/LoginMenu/TitleBar/Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121818269168943104
+    m_Key: Load
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121818554914291712
+    m_Key: NextUser
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121818665476145152
+    m_Key: PrevUser
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819028501544960
+    m_Key: EnterText
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819235968598016
+    m_Key: Space
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819288380620800
+    m_Key: RightMouse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819358941396992
+    m_Key: MiddleMouse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819508090847232
+    m_Key: LeftShift
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819868633219072
+    m_Key: MoveCam
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121819978125524992
+    m_Key: MoveUpDown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820102004293632
+    m_Key: TextInput
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820335278899200
+    m_Key: RotateCam
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820496205955072
+    m_Key: PanCam
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121820642767519744
+    m_Key: RotateAroundAtom
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121835333887705088
+    m_Key: Hybridization
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121835968263602176
+    m_Key: Molecule
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121837265507303424
+    m_Key: ToggleDummiesNoNewLine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121838116850352128
+    m_Key: ScaleMoleculeNoNewLine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121839426114928640
+    m_Key: Cancel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121839568347971584
+    m_Key: General
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121839681724203008
+    m_Key: Network
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121839819934908416
+    m_Key: Highlighting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121840340364148736
+    m_Key: SpatialMesh
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121840640479182848
+    m_Key: Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121840774424281088
+    m_Key: InteractionMode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842217126445056
+    m_Key: EulerTime
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842288937123840
+    m_Key: SVTime
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842431879004160
+    m_Key: RKTime
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842511969239040
+    m_Key: MPTime
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121842847412895744
+    m_Key: ShowAllHighlightsOnClients
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121843110450282496
+    m_Key: ColorMap
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121844364782059520
+    m_Key: LicoriceNoDash
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121845540726489088
+    m_Key: GazeHighlightNoDash
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121845710746796032
+    m_Key: PointerHighlightNoDash
+    m_Metadata:
+      m_Items: []
+  - m_Id: 123029884014465024
+    m_Key: ServerScene/UICanvas/InfoPanel/HGroup/Descriptions/L
+    m_Metadata:
+      m_Items: []
+  - m_Id: 123267836716027904
+    m_Key: StructureFormula
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 3401264042199482392
+  references:
+    version: 2
+    RefIds:
+    - rid: 3401264042199482392
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1688116189193

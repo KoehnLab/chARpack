@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using chARpackColorPalette;
+using Unity.VisualScripting;
 
 /// <summary>
 /// This class contains the functionality for an MRTK window showing the application's debug log.
@@ -101,15 +102,15 @@ public class DebugWindow : myScrollObject
         string colored_message;
         if (type == LogType.Error)
         {
-            colored_message = String.Format("{0}{1}{2}{3}{4}", "<color=", (chARpackColors.red).ToString(), ">", message, "</color>");
+            colored_message = $"<color=#{chARpackColors.red.ToHexString().Substring(0, 6).ToLower()}>{message}</color>";
         }
         else if (type == LogType.Warning)
         {
-            colored_message = String.Format("{0}{1}{2}{3}{4}", "<color=", (chARpackColors.orange).ToString(), ">", message, "</color>");
+            colored_message = $"<color=#{chARpackColors.orange.ToHexString().Substring(0, 6).ToLower()}>{message}</color>";
         }
         else
         {
-            colored_message = String.Format("{0}{1}{2}{3}{4}", "<color=", (chARpackColors.white).ToString(), ">", message, "</color>");
+            colored_message = $"<color=#{chARpackColors.white.ToHexString().Substring(0,6).ToLower()}>{message}</color>";
         }
 
 
@@ -173,11 +174,11 @@ public class DebugWindow : myScrollObject
     {
         if (value)
         {
-            indicator.GetComponent<MeshRenderer>().material.color = chARpackColors.orange;
+            indicator.GetComponent<MeshRenderer>().material.color = chARpackColorPalette.ColorPalette.activeIndicatorColor;
         }
         else
         {
-            indicator.GetComponent<MeshRenderer>().material.color = chARpackColors.gray;
+            indicator.GetComponent<MeshRenderer>().material.color = chARpackColorPalette.ColorPalette.inactiveIndicatorColor;
         }
     }
 

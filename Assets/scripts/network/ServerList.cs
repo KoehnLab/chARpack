@@ -5,6 +5,7 @@ using Riptide.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Net;
+using System.Collections;
 
 /// <summary>
 /// This class provides the functionality of a scrollable list of available servers.
@@ -46,7 +47,7 @@ public class ServerList : myScrollObject
 
         // add default servers for easy development
         // and quick connects even if LAN find fails
-        //addDefaultServers()
+        //addDefaultServers();
 
         // Check for open servers
         // get servers and generate entries
@@ -151,6 +152,14 @@ public class ServerList : myScrollObject
         scrollingObjectCollection.transform.parent.localScale = oldScale;
         // reset rotation
         resetRotation();
+
+        StartCoroutine(waitAndUpdateGrid());
+    }
+
+    private IEnumerator waitAndUpdateGrid()
+    {
+        yield return new WaitForSeconds(0.25f);
+        gridObjectCollection.GetComponent<GridObjectCollection>().UpdateCollection();
     }
 
     private void generateSingleEntry(FindServer.ServerData server)

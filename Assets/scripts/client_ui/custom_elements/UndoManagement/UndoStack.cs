@@ -14,7 +14,7 @@ public class UndoStack
     public void AddChange(IUndoableAction lastChange)
     {
         undoStack.Push(lastChange);
-        if (lastChange.GetType().Equals(typeof(ScaleMoleculeAction)) || lastChange.GetType().Equals(typeof(MoveMoleculeAction)))
+        if (lastChange.GetType().Equals(typeof(ScaleMoleculeAction)))
         {
             MergeChanges();
         }
@@ -47,23 +47,23 @@ public class UndoStack
     // they are put together into one instead of one every frame
     private void MergeChanges()
     {
-        if (undoStack.Peek().GetType().Equals(typeof(MoveMoleculeAction)))
-        {
-            var lastChange = GetLastChange();
-            var merged = new MoveMoleculeAction(lastChange as MoveMoleculeAction);
-            while(lastChange!=null && lastChange.GetType().Equals(typeof(MoveMoleculeAction)))
-            {
-                if ((lastChange as MoveMoleculeAction).before.moleID != merged.before.moleID) break;
-                merged.before = (lastChange as MoveMoleculeAction).before;
-                lastChange = GetLastChange();
-            }
-            // Put the last change back onto the stack since it was not a move molecule action on the same molecule
-            if (!lastChange.GetType().Equals(typeof(MoveMoleculeAction)) || 
-                        (lastChange as MoveMoleculeAction).before.moleID!=merged.before.moleID) undoStack.Push(lastChange);
-            undoStack.Push(merged);
-        }
-        else
-        {
+        //if (undoStack.Peek().GetType().Equals(typeof(MoveMoleculeAction)))
+        //{
+        //    var lastChange = GetLastChange();
+        //    var merged = new MoveMoleculeAction(lastChange as MoveMoleculeAction);
+        //    while(lastChange!=null && lastChange.GetType().Equals(typeof(MoveMoleculeAction)))
+        //    {
+        //        if ((lastChange as MoveMoleculeAction).before.moleID != merged.before.moleID) break;
+        //        merged.before = (lastChange as MoveMoleculeAction).before;
+        //        lastChange = GetLastChange();
+        //    }
+        //    // Put the last change back onto the stack since it was not a move molecule action on the same molecule
+        //    if (!lastChange.GetType().Equals(typeof(MoveMoleculeAction)) || 
+        //                (lastChange as MoveMoleculeAction).before.moleID!=merged.before.moleID) undoStack.Push(lastChange);
+        //    undoStack.Push(merged);
+        //}
+        //else
+        //{
             if (!undoStack.Peek().GetType().Equals(typeof(ScaleMoleculeAction))) return;
             var lastChange = GetLastChange();
             var merged = new ScaleMoleculeAction(lastChange as ScaleMoleculeAction);
@@ -77,6 +77,6 @@ public class UndoStack
             if (!lastChange.GetType().Equals(typeof(ScaleMoleculeAction)) || 
                         (lastChange as ScaleMoleculeAction).before.moleID!=merged.before.moleID) undoStack.Push(lastChange);
             undoStack.Push(merged);
-        }
+        //}
     }
 }

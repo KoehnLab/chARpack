@@ -9,7 +9,7 @@ import time
 
 class chARpackSimulationInterface():
 
-    PORT = 9050
+    PORT = 7777
 
     DEVICE_TYPE = 6
 

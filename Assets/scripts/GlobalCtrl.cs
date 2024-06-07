@@ -13,10 +13,8 @@ using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
 using System.Reflection;
 using Microsoft.MixedReality.Toolkit.Input;
 using System.Linq;
-using UnityEngine.Localization;
-using UnityEngine.Localization.Settings;
 using chARpackTypes;
-using System.Text;
+using chARpackColorPalette;
 
 /*! \mainpage 
  * API reference page for chARpack
@@ -99,6 +97,8 @@ public class GlobalCtrl : MonoBehaviour
 
     [HideInInspector] public ushort curHybrid = 3;
 
+    [HideInInspector] public float bondRadiusScale = 1f;
+
     Dictionary<Atom, List<Atom>> groupedAtoms = new Dictionary<Atom, List<Atom>>();
     //public List<string> favorites = new List<string>(new string[5]);
     //public GameObject fav1;
@@ -112,8 +112,6 @@ public class GlobalCtrl : MonoBehaviour
     /// the last created atom, init to default "C"
     /// </summary>
     private string lastAtom = "C";
-
-    private Locale currentLocale;
 
     [HideInInspector] public int numAtoms = 0;
 
@@ -236,11 +234,6 @@ public class GlobalCtrl : MonoBehaviour
     {
         // create singleton
         Singleton = this;
-        // make sure that numbers are printed with a dot as required by any post-processing with standard software
-        CultureInfo.CurrentCulture = new CultureInfo("en-US", false);
-        CultureInfo.CurrentUICulture = new CultureInfo("en-US", false);
-
-        currentLocale = LocalizationSettings.SelectedLocale;
 
         // check if file is found otherwise throw error
         var textFile = Resources.Load<TextAsset>("element_data/ElementData");
@@ -292,6 +285,7 @@ public class GlobalCtrl : MonoBehaviour
         Atom.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
         Atom.modifyHybridizationPrefab = (GameObject)Resources.Load("prefabs/modifyHybridization");
         Atom.freezeMePrefab = (GameObject)Resources.Load("prefabs/FreezeMeButton");
+        Atom.serverTooltipPrefab = (GameObject)Resources.Load("prefabs/ServerAtomTooltip");
 
         // Molecule
         Molecule.myToolTipPrefab = (GameObject)Resources.Load("prefabs/MRTKMoleculeTooltip");
@@ -300,6 +294,7 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.closeMeButtonPrefab = (GameObject)Resources.Load("prefabs/CloseMeButton");
         Molecule.modifyMeButtonPrefab = (GameObject)Resources.Load("prefabs/ModifyMeButton");
         Molecule.changeBondWindowPrefab = (GameObject)Resources.Load("prefabs/ChangeBondWindow");
+        Molecule.changeServerBondWindowPrefab = (GameObject)Resources.Load("prefabs/ChangeBondServerWindow");
         Molecule.toggleDummiesButtonPrefab = (GameObject)Resources.Load("prefabs/ToggleDummiesButton");
         Molecule.undoButtonPrefab = (GameObject)Resources.Load("prefabs/UndoButton");
         Molecule.copyButtonPrefab = (GameObject)Resources.Load("prefabs/CopyMeButton");
@@ -309,6 +304,10 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.snapMeButtonPrefab = (GameObject)Resources.Load("prefabs/SnapMeButton");
         Molecule.distanceMeasurementPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurementPrefab");
         Molecule.angleMeasurementPrefab = (GameObject)Resources.Load("prefabs/AngleMeasurementPrefab");
+        Molecule.serverMoleculeTooltipPrefab = (GameObject)Resources.Load("prefabs/ServerMoleculeTooltip");
+        Molecule.serverBondTooltipPrefab = (GameObject)Resources.Load("prefabs/ServerBondTooltip");
+        Molecule.serverAngleTooltipPrefab = (GameObject)Resources.Load("prefabs/ServerAngleTooltip");
+        Molecule.serverTorsionTooltipPrefab = (GameObject)Resources.Load("prefabs/ServerTorsionTooltip");
 
         // Measuremet
         DistanceMeasurement.distMeasurementPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurementPrefab");
@@ -327,20 +326,6 @@ public class GlobalCtrl : MonoBehaviour
         currentCamera = mainCamera;
         Debug.Log($"DEVICE Type: {SystemInfo.deviceType}, Model: {SystemInfo.deviceModel}");
     }
-
-    private void Update()
-    {
-        if(currentLocale != LocalizationSettings.SelectedLocale)
-        {
-            regenerateTooltips();
-            currentLocale = LocalizationSettings.SelectedLocale;
-            if (SceneManager.GetActiveScene().name.Equals("MainScene"))
-            {
-                appSettings.Singleton.updateVisuals();
-            }
-        }
-    }
-
 
     // on mol data changed (replacement for update loop checks)
     //void onMolDataChanged()
@@ -1827,7 +1812,7 @@ public class GlobalCtrl : MonoBehaviour
         }
         moveMolecule(freshMoleculeID, moleData.molePos + Vector3.up*0.05f, moleData.moleQuat);
         EventManager.Singleton.MoveMolecule(freshMoleculeID, moleData.molePos + Vector3.up * 0.05f, moleData.moleQuat);
-        EventManager.Singleton.ChangeMolData(tempMolecule);
+        EventManager.Singleton.MoleculeLoaded(tempMolecule);
         undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id,tempMolecule.AsCML()));
     }
     #endregion
@@ -1837,6 +1822,51 @@ public class GlobalCtrl : MonoBehaviour
     {
         OutlinePro.setNumOutlines(num);
         Atom2D.setNumFoci(num);
+    }
+
+    public void setLicoriceRendering(bool set)
+    {
+        var bond_scale_lic = new Vector3(1.5f, 1.5f, 0.5f);
+        var bond_scale_normal = new Vector3(1f, 1f, 0.3f);
+        if (set)
+        {
+            bondRadiusScale = 1.5f;
+            foreach(Molecule mol in List_curMolecules.Values)
+            {
+                foreach(Atom a in mol.atomList)
+                {
+                    a.transform.localScale = 0.01f * bondRadiusScale * Vector3.one;
+                }
+                foreach(Bond b in mol.bondList)
+                {
+                    b.transform.localScale = bond_scale_lic;
+                    // b.transform.localScale = bondRadiusScale * b.transform.localScale; // causes growing for multiple calls
+                    if (mol.frozen)
+                    {
+                        mol.setFrozenMaterialOnBond(b, true);
+                    }
+                }
+            }
+        } else
+        {
+            foreach (Molecule mol in List_curMolecules.Values)
+            {
+                foreach (Atom a in mol.atomList)
+                {
+                    a.transform.localScale = Vector3.one * a.m_data.m_radius * (scale / u2pm) * atomScale;
+                }
+                foreach (Bond b in mol.bondList)
+                {
+                    b.transform.localScale = bond_scale_normal;
+                    // b.transform.localScale = 1 / bondRadiusScale * b.transform.localScale; // causes shrinking for multiple calls
+                    if (mol.frozen)
+                    {
+                        mol.setFrozenMaterialOnBond(b, false);
+                    }
+                }
+            }
+            bondRadiusScale = 1f;
+        }
     }
     #endregion
 
@@ -1944,7 +1974,7 @@ public class GlobalCtrl : MonoBehaviour
                 }
                 moveMolecule(freshMoleculeID, molecule.molePos + meanPos, molecule.moleQuat);
                 EventManager.Singleton.MoveMolecule(freshMoleculeID, molecule.molePos + meanPos, molecule.moleQuat);
-                EventManager.Singleton.ChangeMolData(tempMolecule);
+                EventManager.Singleton.MoleculeLoaded(tempMolecule);
 
                 loadDataWithCorrectedIDs.Add(tempMolecule.AsCML());
             }
@@ -1975,7 +2005,7 @@ public class GlobalCtrl : MonoBehaviour
         }
         moveMolecule(freshMoleculeID, molecule.molePos, molecule.moleQuat);
         EventManager.Singleton.MoveMolecule(freshMoleculeID, molecule.molePos, molecule.moleQuat);
-        EventManager.Singleton.ChangeMolData(tempMolecule);
+        EventManager.Singleton.MoleculeLoaded(tempMolecule);
 
         return tempMolecule.m_id;
     }
@@ -2066,7 +2096,7 @@ public class GlobalCtrl : MonoBehaviour
                         }
                     }
                 }
-                EventManager.Singleton.ChangeMolData(tempMolecule);
+                EventManager.Singleton.MoleculeLoaded(tempMolecule);
             }
         }
         SaveMolecule(true);
@@ -2105,33 +2135,6 @@ public class GlobalCtrl : MonoBehaviour
     public void SignalUndoScaling()
     {
         undoStack.SignalUndoSlider();
-    }
-
-
-    public void LoadPreset(int number)
-    {
-        DeleteAll();
-        switch(number)
-        {
-            case 1:
-                LoadMolecule("Aminole");
-                break;
-            case 2:
-                LoadMolecule("AcrylicAcid");
-                break;
-            case 3:
-                LoadMolecule("Adamantane");
-                break;
-            case 4:
-                LoadMolecule("Indole");
-                break;
-            case 5:
-                LoadMolecule("MirrorTask");
-                break;
-            case 6:
-                LoadMolecule("PlanarChirality");
-                break;
-        }
     }
 
     #endregion
@@ -2266,11 +2269,12 @@ public class GlobalCtrl : MonoBehaviour
     }
     #endregion
 
+
     /// <summary>
     /// Destroys and regenerates all tool tips in the scene.
     /// This is used when changing the locale to properly update the tool tip text.
     /// </summary>
-    private void regenerateTooltips()
+    public void regenerateTooltips()
     {
         foreach(Molecule mol in List_curMolecules.Values)
         {
@@ -2279,8 +2283,9 @@ public class GlobalCtrl : MonoBehaviour
             {
                 if (a.toolTipInstance)
                 {
-                    Destroy(a.toolTipInstance);
-                    a.createToolTip();
+                    //Destroy(a.toolTipInstance);
+                    if (SceneManager.GetActiveScene().name.Equals("ServerScene")) { a.createServerToolTip(); }
+                    else { a.createToolTip(); }
                 }
             }
 
@@ -2288,22 +2293,44 @@ public class GlobalCtrl : MonoBehaviour
             if (mol.toolTipInstance)
             {
                 Molecule.toolTipType type = mol.type;
-                var target = mol.toolTipInstance.GetComponent<myToolTipConnector>().Target;
-                Destroy(mol.toolTipInstance);
-                if(type == Molecule.toolTipType.MOLECULE)
+                if (!SceneManager.GetActiveScene().name.Equals("ServerScene"))
                 {
-                    mol.createToolTip();
+                    var target = mol.toolTipInstance.GetComponent<myToolTipConnector>().Target;
+                    //Destroy(mol.toolTipInstance);
+                    if (type == Molecule.toolTipType.MOLECULE)
+                    {
+                        mol.createToolTip();
+                    }
+                    else if (type == Molecule.toolTipType.SINGLE || type == Molecule.toolTipType.TORSION)
+                    {
+                        ushort id = target.GetComponent<Bond>().atomID1;
+                        Atom a = findAtomById(mol, id);
+                        a.markConnections(true);
+                    }
+                    else if (type == Molecule.toolTipType.ANGLE)
+                    {
+                        Atom a = target.GetComponent<Atom>();
+                        a.markConnections(true);
+                    }
                 }
-                else if(type == Molecule.toolTipType.SINGLE || type == Molecule.toolTipType.TORSION)
+                else 
                 {
-                    ushort id = target.GetComponent<Bond>().atomID1;
-                    Atom a = findAtomById(mol, id);
-                    a.markConnections(true);
-                }
-                else if(type == Molecule.toolTipType.ANGLE)
-                {
-                    Atom a = target.GetComponent<Atom>();
-                    a.markConnections(true);
+                    if (type == Molecule.toolTipType.MOLECULE)
+                    {
+                        mol.createServerToolTip();
+                    } else if (type == Molecule.toolTipType.SINGLE)
+                    {
+                        Atom a = mol.atomList[mol.toolTipInstance.GetComponent<ServerBondTooltip>().linkedBond.GetComponent<Bond>().atomID1];
+                        a.markConnections(true);
+                    } else  if (type == Molecule.toolTipType.ANGLE)
+                    {
+                        Atom a = mol.toolTipInstance.GetComponent<ServerAngleTooltip>().linkedAtom;
+                        a.markConnections(true);
+                    } else if (type == Molecule.toolTipType.TORSION)
+                    {
+                        Atom a = mol.atomList[mol.toolTipInstance.GetComponent<ServerTorsionTooltip>().linkedBond.GetComponent<Bond>().atomID1];
+                        a.markConnections(true);
+                    }
                 }
             }
         }
@@ -2317,10 +2344,18 @@ public class GlobalCtrl : MonoBehaviour
             {
                 Molecule.toolTipType type = mol.type;
                 if (type != Molecule.toolTipType.SINGLE) return;
-                var target = mol.toolTipInstance.GetComponent<myToolTipConnector>().Target;
-                Destroy(mol.toolTipInstance);
-                ushort id = target.GetComponent<Bond>().atomID1;
-                Atom a = mol.atomList[id];
+                Atom a;
+                if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
+                {
+                    a = mol.atomList[mol.toolTipInstance.GetComponent<ServerBondTooltip>().linkedBond.GetComponent<Bond>().atomID1];
+                }
+                else
+                {
+                    var target = mol.toolTipInstance.GetComponent<myToolTipConnector>().Target;
+                    //Destroy(mol.toolTipInstance);
+                    ushort id = target.GetComponent<Bond>().atomID1;
+                    a = mol.atomList[id];
+                }
                 a.markConnections(true);
             }
         }
@@ -2334,8 +2369,9 @@ public class GlobalCtrl : MonoBehaviour
             {
                 if (a.toolTipInstance)
                 {
-                    Destroy(a.toolTipInstance);
-                    a.createToolTip();
+                    //Destroy(a.toolTipInstance);
+                    if (SceneManager.GetActiveScene().name.Equals("ServerScene")) a.createServerToolTip();
+                    else a.createToolTip();
                 }
             }
         }
@@ -2396,22 +2432,17 @@ public class GlobalCtrl : MonoBehaviour
     }
 
     /// <summary>
-    /// when the application quits and there are unsaved changes to any molecule, these will be saved to an XML file
+    /// when the application quits, reset color scheme to default (for visual consistency in editor)
     /// </summary>
     private void OnApplicationQuit()
     {
+        // when the application quits and there are unsaved changes to any molecule, these will be saved to an XML file
         //if (isAnyAtomChanged)
         //    CFileHelper.SaveData(Application.streamingAssetsPath + "/MoleculeFolder/ElementData.xml", list_ElementData);
+        //setColorPalette(defaultColor);
+
     }
 
-    /// <summary>
-    /// Gets the appropriate version of given text for the current loacle.
-    /// </summary>
-    /// <param name="text"></param>
-    /// <returns>a localized version of the given text</returns>
-    public string GetLocalizedString(string text)
-    {
-        return LocalizationSettings.StringDatabase.GetLocalizedString("My Strings", text);
-    }
+
 
 }

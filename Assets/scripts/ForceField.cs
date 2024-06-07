@@ -209,62 +209,6 @@ public class ForceField : MonoBehaviour
         SettingsData.forceField = enableForceField;
     }
 
-    //TODO: This can probably be implemented more elegantly
-    public void switchIntegrationMethodForward()
-    {
-        switch (currentMethod)
-        {
-            case Method.Euler: 
-                currentMethod = Method.Verlet; 
-                break;
-            case Method.Verlet:
-                currentMethod = Method.RungeKutta;
-                break;
-            case Method.RungeKutta:
-                currentMethod = Method.Heun;
-                break;
-            case Method.Heun:
-                currentMethod = Method.Ralston;
-                break;
-            case Method.Ralston:
-                currentMethod = Method.SteepestDescent;
-                break;
-            case Method.SteepestDescent:
-                currentMethod = Method.MidPoint;
-                break;
-            default:
-                currentMethod = Method.Euler;
-                break;
-        }
-    }
-    public void switchIntegrationMethodBackward()
-    {
-        switch (currentMethod)
-        {
-            case Method.Euler:
-                currentMethod = Method.MidPoint;
-                break;
-            case Method.Verlet:
-                currentMethod = Method.Euler;
-                break;
-            case Method.RungeKutta:
-                currentMethod = Method.Verlet;
-                break;
-            case Method.Heun:
-                currentMethod = Method.RungeKutta;
-                break;
-            case Method.Ralston:
-                currentMethod = Method.Heun;
-                break;
-            case Method.SteepestDescent:
-                currentMethod = Method.Ralston;
-                break;
-            default:
-                currentMethod = Method.SteepestDescent;
-                break;
-        }
-    }
-
     // Start is called before the first frame update
     void Start()
     {
@@ -344,6 +288,10 @@ public class ForceField : MonoBehaviour
             foreach (var step in mol.FFmovement)
             {
                 converged = converged && (step.magnitude < threshold);
+            }
+            if (converged)
+            {
+                EventManager.Singleton.RelaxMol(mol);
             }
         }
         if (converged)
@@ -1088,8 +1036,13 @@ public class ForceField : MonoBehaviour
             {
                 Atom a1 = mol.atomList.ElementAtOrDefault(bond.atomID1);
                 Atom a2 = mol.atomList.ElementAtOrDefault(bond.atomID2);
-                float offset1 = a1.m_data.m_radius * scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f * mol.transform.localScale.x;
-                float offset2 = a2.m_data.m_radius * scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f * mol.transform.localScale.x;
+                float offset1 = 0f;
+                float offset2 = 0f;
+                if (!SettingsData.licoriceRendering)
+                {
+                    offset1 = a1.m_data.m_radius * scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * mol.transform.localScale.x;
+                    offset2 = a2.m_data.m_radius * scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * mol.transform.localScale.x;
+                }
                 float distance = (Vector3.Distance(a1.transform.position, a2.transform.position)- offset1 - offset2) / mol.transform.localScale.x;
                 bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
                 Vector3 pos1 = Vector3.MoveTowards(a1.transform.position, a2.transform.position, offset1);

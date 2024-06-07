@@ -71,7 +71,7 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnMoveAtom += sendAtomMoved;
         EventManager.Singleton.OnStopMoveAtom += sendStopMoveAtom;
         EventManager.Singleton.OnMergeMolecule += sendMoleculeMerged;
-        EventManager.Singleton.OnLoadMolecule += sendMoleculeLoaded;
+        EventManager.Singleton.OnDeviceLoadMolecule += sendDeviceMoleculeLoaded;
         EventManager.Singleton.OnDeleteEverything += sendDeleteEverything;
         EventManager.Singleton.OnDeleteAtom += sendDeleteAtom;
         EventManager.Singleton.OnDeleteBond += sendDeleteBond;
@@ -137,8 +137,9 @@ public class NetworkManagerClient : MonoBehaviour
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    private void FailedToConnect(object sender, EventArgs e)
+    private void FailedToConnect(object sender, ConnectionFailedEventArgs e)
     {
+        Debug.LogError($"[NetworkmanagerClient:FailedToConnect] Reason {e.Reason}; Message {e.Message}");
         var myDialog = Dialog.Open(showErrorPrefab, DialogButtonType.OK, "Connection Failed", $"Connection to {LoginData.ip}:{LoginData.port} failed\nGoing back to Login Screen.", true);
         //make sure the dialog is rotated to the camera
         myDialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
@@ -276,7 +277,7 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
-    public void sendMoleculeLoaded(string name)
+    public void sendDeviceMoleculeLoaded(string name)
     {
         var molData = GlobalCtrl.Singleton.getMoleculeData(name);
         NetworkUtils.serializeCmlData((ushort)ClientToServerID.moleculeLoaded, molData, chunkSize, true);
@@ -966,6 +967,7 @@ public class NetworkManagerClient : MonoBehaviour
         var coop = message.GetBools();
         var networkMeasurements = message.GetBool();
         var interpolateColors = message.GetBool();
+        var licoriceRendering = message.GetBool();
         var useAngstrom = message.GetBool();
 
         // Get enum entries from strings
@@ -993,6 +995,7 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.coop = coop;
             SettingsData.networkMeasurements = networkMeasurements;
             SettingsData.interpolateColors = interpolateColors;
+            SettingsData.licoriceRendering = licoriceRendering;
             SettingsData.useAngstrom = useAngstrom;
             settingsControl.Singleton.updateSettings();
             if (appSettings.Singleton != null)

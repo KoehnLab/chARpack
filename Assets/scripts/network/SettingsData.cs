@@ -1,3 +1,4 @@
+using chARpackColorPalette;
 using UnityEngine;
 
 public class SettingsData
@@ -23,9 +24,10 @@ public class SettingsData
     [SerializeField] static public bool networkMeasurements = true;
     [SerializeField] static public bool interpolateColors = true;
     [SerializeField] static public bool useAngstrom = true;
+    [SerializeField] static public bool licoriceRendering = false;
+    [SerializeField] static public ColorScheme colorScheme = ColorScheme.GOLD;
 
 
-    
     public static int highlightColorMap { get => _highlightColorMap; set
         {
 
@@ -34,6 +36,62 @@ public class SettingsData
                 StructureFormulaManager.Singleton.setColorMap(value);
             }
             _highlightColorMap = value;
+        }
+    }
+
+    //TODO: This can probably be implemented more elegantly
+    public static void switchIntegrationMethodForward()
+    {
+        switch (integrationMethod)
+        {
+            case ForceField.Method.Euler:
+                integrationMethod = ForceField.Method.Verlet;
+                break;
+            case ForceField.Method.Verlet:
+                integrationMethod = ForceField.Method.RungeKutta;
+                break;
+            case ForceField.Method.RungeKutta:
+                integrationMethod = ForceField.Method.Heun;
+                break;
+            case ForceField.Method.Heun:
+                integrationMethod = ForceField.Method.Ralston;
+                break;
+            case ForceField.Method.Ralston:
+                integrationMethod = ForceField.Method.SteepestDescent;
+                break;
+            case ForceField.Method.SteepestDescent:
+                integrationMethod = ForceField.Method.MidPoint;
+                break;
+            default:
+                integrationMethod = ForceField.Method.Euler;
+                break;
+        }
+    }
+    public static void switchIntegrationMethodBackward()
+    {
+        switch (integrationMethod)
+        {
+            case ForceField.Method.Euler:
+                integrationMethod = ForceField.Method.MidPoint;
+                break;
+            case ForceField.Method.Verlet:
+                integrationMethod = ForceField.Method.Euler;
+                break;
+            case ForceField.Method.RungeKutta:
+                integrationMethod = ForceField.Method.Verlet;
+                break;
+            case ForceField.Method.Heun:
+                integrationMethod = ForceField.Method.RungeKutta;
+                break;
+            case ForceField.Method.Ralston:
+                integrationMethod = ForceField.Method.Heun;
+                break;
+            case ForceField.Method.SteepestDescent:
+                integrationMethod = ForceField.Method.Ralston;
+                break;
+            default:
+                integrationMethod = ForceField.Method.SteepestDescent;
+                break;
         }
     }
 }

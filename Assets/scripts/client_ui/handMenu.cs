@@ -119,18 +119,18 @@ public class handMenu : myScrollObject
     {
         if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
         {
-            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.orange;
-            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.gray;
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = ColorPalette.activeIndicatorColor;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = ColorPalette.inactiveIndicatorColor;
         }
         else if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)
         {
-            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.gray;
-            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.orange;
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = ColorPalette.inactiveIndicatorColor;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = ColorPalette.activeIndicatorColor;
         }
         else
         {
-            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.gray;
-            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = chARpackColors.gray;
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = ColorPalette.inactiveIndicatorColor;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = ColorPalette.inactiveIndicatorColor;
         }
     }
 
@@ -143,14 +143,14 @@ public class handMenu : myScrollObject
     {
         if(hand == Handedness.Right)
         {
-            gameObject.transform.Find("MenuContent/Grid/ToggleChainModeButton").transform.localPosition = new Vector3(0.205f, 0.025f, 0);
+            gameObject.transform.Find("MenuContent/Grid/ToggleFragmentRotationButton").transform.localPosition = new Vector3(0.205f, 0.025f, 0);
             gameObject.transform.Find("MenuContent/Grid/ToggleMeasurmentModeButton").transform.localPosition = new Vector3(0.205f, -0.025f, 0);
 
             gameObject.transform.Find("MenuContent/ScrollParent/ScrollPaginationButtons").transform.localPosition = new Vector3(-0.0327f, 0, 0);
         }
         else if(hand == Handedness.Left)
         {
-            gameObject.transform.Find("MenuContent/Grid/ToggleChainModeButton").transform.localPosition = new Vector3(0, 0.025f, 0);
+            gameObject.transform.Find("MenuContent/Grid/ToggleFragmentRotationButton").transform.localPosition = new Vector3(0, 0.025f, 0);
             gameObject.transform.Find("MenuContent/Grid/ToggleMeasurmentModeButton").transform.localPosition = new Vector3(0, -0.025f, 0);
 
             gameObject.transform.Find("MenuContent/ScrollParent/ScrollPaginationButtons").transform.localPosition = new Vector3(0.1f, 0, 0);

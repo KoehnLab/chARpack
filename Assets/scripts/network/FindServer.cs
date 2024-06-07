@@ -1,6 +1,7 @@
 using Riptide.Utils;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Sockets;
 using TMPro;
 using UnityEngine;
 
@@ -46,6 +47,20 @@ public class FindServer : MonoBehaviour
 
     private void Start()
     {
+#if UNITY_ANDROID
+        string[] permissions = {"android.permission.INTERNET",
+                "android.permission.ACCESS_NETWORK_STATE",
+                "android.permission.ACCESS_WIFI_STATE",
+                "android.permission.CHANGE_WIFI_MULTICAST_STATE"};
+        foreach (string permission in permissions)
+        {
+            if (!UnityEngine.Android.Permission.HasUserAuthorizedPermission(permission))
+            {
+                UnityEngine.Android.Permission.RequestUserPermission(permission);
+            }
+        }
+#endif
+
         lanDiscovery = new LanDiscovery(LoginData.uniqueID, LoginData.discoveryPort);
         lanDiscovery.HostDiscovered += HostDiscovered;
         if (!isServer)
@@ -71,7 +86,7 @@ public class FindServer : MonoBehaviour
         // update connect button with number of servers
         if (connectButtonText != null)
         {
-            connectButtonText.GetComponent<TextMeshPro>().text = $"Connect ({serverList.Count})";
+            connectButtonText.GetComponent<TextMeshPro>().text = $"{localizationManager.Singleton.GetLocalizedString("Connect")} ({serverList.Count})";
         }
         serverList.Clear();
         lanDiscovery.SendBroadcast();

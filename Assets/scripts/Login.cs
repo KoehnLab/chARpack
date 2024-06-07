@@ -47,7 +47,6 @@ public class Login : MonoBehaviour
 
     private Transform cam;
 
-    public GameObject toggleDebugButton;
     private GameObject scanProgressLabel_go;
 
     Dictionary<Guid, Tuple<List<Vector3>, List<Quaternion>>> pos_rot_dict;
@@ -66,9 +65,6 @@ public class Login : MonoBehaviour
 
         GameObject debugWindow = Instantiate((GameObject)Resources.Load("prefabs/DebugWindow"));
         debugWindow.SetActive(false);
-        toggleDebugButton.GetComponent<Button>().onClick.AddListener(delegate { DebugWindow.Singleton.toggleVisible(); });
-        DebugWindow.Singleton.debugIndicator = toggleDebugButton.transform.Find("IconAndText/Indicator").gameObject;
-
     }
 
     /// <summary>
@@ -110,6 +106,15 @@ public class Login : MonoBehaviour
             serverListInstance.transform.forward = Camera.main.transform.forward;
             gameObject.SetActive(false);
         }
+    }
+
+    /// <summary>
+    /// Opens an instance of the settings window.
+    /// </summary>
+    public void openSettingsWindow()
+    {
+        var settingsPrefab = (GameObject)Resources.Load("prefabs/Settings");
+        Instantiate(settingsPrefab);
     }
 
     private void OnQRUpdate(Guid qr_id, Pose pose)

@@ -32,19 +32,20 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     [HideInInspector] public static GameObject modifyMeButtonPrefab;
     [HideInInspector] public static GameObject modifyHybridizationPrefab;
     [HideInInspector] public static GameObject freezeMePrefab;
+    [HideInInspector] public static GameObject serverTooltipPrefab;
 
     private Stopwatch stopwatch;
-    [HideInInspector] public GameObject toolTipInstance = null;
+    public GameObject toolTipInstance = null;
     private GameObject freezeButton;
     private static float toolTipDistanceWeight = 2.5f;
-    private static Color grabColor = chARpackColors.blue;
-    public Color[] backupOutlineColor = new Color[4] { chARpackColors.notEnabledColor, chARpackColors.notEnabledColor, chARpackColors.notEnabledColor, chARpackColors.notEnabledColor };
+    private static Color grabColor = ColorPalette.atomGrabColor;
+    public Color[] backupOutlineColor = new Color[4] { ColorPalette.notEnabledColor, ColorPalette.notEnabledColor, ColorPalette.notEnabledColor, ColorPalette.notEnabledColor };
     public bool keepConfig = false;
     public bool frozen = false;
     public bool[] focused = new bool[4] { false, false, false, false };
     public bool serverFocus = false;
     private float[] focus_alpha = new float[4] { 0f, 0f, 0f, 0f };
-    private float focus_ramping_constant = 1f/(3f*40f);
+    private float focus_ramping_constant = 1f / (3f * 40f);
     private float outline_radius_min = 5f;
     private float outline_radius_max = 8f;
     private float[] outline_radius_current = new float[4] { 5f, 5f, 5f, 5f };
@@ -59,7 +60,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     public Vector2 structure_coords;
     public GameObject structure_interactible;
-
 
 
     /// <summary>
@@ -86,7 +86,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 outline_component.enabled = true;
                 for (int i = 0; i < FocusManager.maxNumOutlines; i++)
                 {
-                    backupOutlineColor[i] = chARpackColors.notEnabledColor;
+                    backupOutlineColor[i] = ColorPalette.notEnabledColor;
                 }
             }
             for (int i = 0; i < FocusManager.maxNumOutlines; i++)
@@ -137,7 +137,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     #region mouse_interaction
 
-#if !WINDOWS_UWP
+#if UNITY_STANDALONE || UNITY_EDITOR
     public static bool anyArcball;
     private bool arcball;
     private Vector3 oldMousePosition;
@@ -203,7 +203,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            if(hit.collider == GetComponent<BoxCollider>())
+            if (hit.collider == GetComponent<BoxCollider>())
             {
                 return true;
             }
@@ -246,7 +246,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             isGrabbed = true;
             before = m_molecule.AsCML();
         }
-        else if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)
+        else if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)
         {
             handleMeasurements();
         }
@@ -535,7 +535,6 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                         handleMeasurements();
                     }
                 }
-
             }
         }
     }
@@ -676,7 +675,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
         transform.parent = inputMole.transform;
         transform.localPosition = pos;
-        transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.scale / GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
+        transform.localScale = SettingsData.licoriceRendering ? Vector3.one * 0.01f * GlobalCtrl.Singleton.bondRadiusScale : Vector3.one * m_data.m_radius * (GlobalCtrl.scale / GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
 
         //Debug.Log(string.Format("Added latest {0}:  rad={1}  scale={2}  hyb={3}  nBonds={4}", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale, m_data.m_hybridization, m_data.m_bondNum));
 
@@ -749,7 +748,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         GetComponent<MeshRenderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
         m_mat = GetComponent<MeshRenderer>().material;
 
-        transform.localScale = Vector3.one * m_data.m_radius * (GlobalCtrl.scale / GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
+        transform.localScale = SettingsData.licoriceRendering ? Vector3.one * 0.01f * GlobalCtrl.Singleton.bondRadiusScale : Vector3.one * m_data.m_radius * (GlobalCtrl.scale / GlobalCtrl.u2pm) * GlobalCtrl.atomScale;
 
 
         foreach (Atom a in connectedDummys())
@@ -798,7 +797,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         // positions relative to the molecule center
         foreach (Atom a in m_molecule.atomList)
         {
-            a.transform.localPosition = (GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a.transform.position) - mol_center_rotated) * (1f/m_molecule.transform.localScale.x);
+            a.transform.localPosition = (GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a.transform.position) - mol_center_rotated) * (1f / m_molecule.transform.localScale.x);
         }
         // rotate back
         m_molecule.transform.localRotation = mol_rot;
@@ -810,8 +809,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             Atom a2 = m_molecule.atomList.ElementAtOrDefault(bond.atomID2);
             var a1_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a1.transform.position);
             var a2_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a2.transform.position);
-            float offset1 = a1.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f * m_molecule.transform.localScale.x;
-            float offset2 = a2.m_data.m_radius * ForceField.scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f * m_molecule.transform.localScale.x;
+            float offset1 = a1.m_data.m_radius * ForceField.scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * m_molecule.transform.localScale.x;
+            float offset2 = a2.m_data.m_radius * ForceField.scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * m_molecule.transform.localScale.x;
             float distance = (Vector3.Distance(a1_pos, a2_pos) - offset1 - offset2) / m_molecule.transform.localScale.x;
             bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
             Vector3 pos1 = Vector3.MoveTowards(a1_pos, a2_pos, offset1);
@@ -897,8 +896,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             outline_component.enabled = true;
             for (int i = 0; i < FocusManager.maxNumOutlines; i++)
             {
-                outline_component.OutlineColor[i] = chARpackColors.yellow;
-                backupOutlineColor[i] = chARpackColors.yellow;
+                outline_component.OutlineColor[i] = ColorPalette.atomSelectionColor;
+                backupOutlineColor[i] = ColorPalette.atomSelectionColor;
             }
             previousHighlightType = currentHighlightType;
             currentHighlightType = FocusManager.HighlightType.Select;
@@ -910,8 +909,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             outline_component.enabled = true;
             for (int i = 0; i < FocusManager.maxNumOutlines; i++)
             {
-                outline_component.OutlineColor[i] = chARpackColors.orange; //orange
-                backupOutlineColor[i] = chARpackColors.orange;
+                outline_component.OutlineColor[i] = ColorPalette.singleBondSelectionColor; //orange
+                backupOutlineColor[i] = ColorPalette.singleBondSelectionColor;
             }
             previousHighlightType = currentHighlightType;
             currentHighlightType = FocusManager.HighlightType.Select;
@@ -923,8 +922,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             outline_component.enabled = true;
             for (int i = 0; i < FocusManager.maxNumOutlines; i++)
             {
-                outline_component.OutlineColor[i] = chARpackColors.red;
-                backupOutlineColor[i] = chARpackColors.red;
+                outline_component.OutlineColor[i] = ColorPalette.angleBondSelectionColor;
+                backupOutlineColor[i] = ColorPalette.angleBondSelectionColor;
             }
             previousHighlightType = currentHighlightType;
             currentHighlightType = FocusManager.HighlightType.Select;
@@ -936,8 +935,8 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             outline_component.enabled = true;
             for (int i = 0; i < FocusManager.maxNumOutlines; i++)
             {
-                outline_component.OutlineColor[i] = chARpackColors.green;
-                backupOutlineColor[i] = chARpackColors.green;
+                outline_component.OutlineColor[i] = ColorPalette.torsionBondSelectionColor;
+                backupOutlineColor[i] = ColorPalette.torsionBondSelectionColor;
             }
             previousHighlightType = currentHighlightType;
             currentHighlightType = FocusManager.HighlightType.Select;
@@ -951,7 +950,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             currentHighlightType = FocusManager.HighlightType.None;
             if (previousHighlightType == FocusManager.HighlightType.Select)
             {
-                selectHighlightInFormula(new Color[4] { chARpackColors.notEnabledColor, chARpackColors.notEnabledColor, chARpackColors.notEnabledColor, chARpackColors.notEnabledColor });
+                selectHighlightInFormula(new Color[4] { ColorPalette.notEnabledColor, ColorPalette.notEnabledColor, ColorPalette.notEnabledColor, ColorPalette.notEnabledColor });
             }
             if (m_data.m_abbre.ToLower() == "dummy")
             {
@@ -1226,7 +1225,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     /// this method marks the atom in a different color if selected
     /// </summary>
     /// <param name="mark">true or false if the atom should be marked</param>
-    public void markAtom(bool mark, ushort mark_case = 2, bool toolTip = false)
+    public void markAtom(bool mark, ushort mark_case = 2, bool toolTip = false, int focus_id = -1)
     {
 
         isMarked = mark;
@@ -1236,7 +1235,16 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             colorSwapSelect(mark_case);
             if (!toolTipInstance && toolTip)
             {
-                createToolTip();
+                if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
+                {
+                    createServerToolTip(focus_id);
+
+                }
+                else
+                {
+                    createToolTip();
+                }
+
             }
             if (!m_molecule.isMarked)
             {
@@ -1273,7 +1281,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     /// or four (torsion bond) connected atoms are selected.
     /// </summary>
     /// <param name="toolTip">Whether to spawn a tool tip</param>
-    public void markConnections(bool toolTip = false)
+    public void markConnections(bool toolTip = false, int focus_id = -1)
     {
         // check for connected atom
         var markedList = new List<Atom>();
@@ -1286,8 +1294,18 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
         if (markedList.Count == 1)
         {
-            Destroy(m_molecule.toolTipInstance);
+            Vector3 rectSave = new Vector3(0, 0, 0);
+            if (m_molecule.toolTipInstance != null)
+            {
+                rectSave = m_molecule.toolTipInstance.GetComponent<RectTransform>().localPosition;
+                Destroy(m_molecule.toolTipInstance);
+                m_molecule.toolTipInstance = null;
+            }
             markedList[0].markAtom(true, 2, toolTip);
+            if (SceneManager.GetActiveScene().name == "ServerScene")
+            {
+                markedList[0].toolTipInstance.GetComponent<ServerAtomTooltip>().localPosition = rectSave;
+            }
         }
         else if (markedList.Count == 2)
         {
@@ -1297,7 +1315,14 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 {
                     if (toolTip)
                     {
-                        m_molecule.createBondToolTip(bond);
+                        if (SceneManager.GetActiveScene().name == "ServerScene")
+                        {
+                            m_molecule.createServerBondToolTip(bond, focus_id);
+                        }
+                        else
+                        {
+                            m_molecule.createBondToolTip(bond);
+                        }
                     }
                     else
                     {
@@ -1317,7 +1342,14 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 {
                     if (toolTip)
                     {
-                        m_molecule.createAngleToolTip(angle);
+                        if (!(SceneManager.GetActiveScene().name == "ServerScene"))
+                        {
+                            m_molecule.createAngleToolTip(angle);
+                        }
+                        else
+                        {
+                            m_molecule.createServerAngleToolTip(angle, focus_id);
+                        }
                     }
                     else
                     {
@@ -1339,12 +1371,20 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 {
                     if (toolTip)
                     {
-                        m_molecule.createTorsionToolTip(torsion);
+                        if (!(SceneManager.GetActiveScene().name == "ServerScene"))
+                        {
+                            m_molecule.createTorsionToolTip(torsion);
+                        }
+                        else
+                        {
+                            m_molecule.createServerTorsionToolTip(torsion, focus_id);
+                        }
                     }
                     else
                     {
                         m_molecule.markTorsionTerm(torsion, true);
                     }
+                    break; // TODO Delete when double torsion fixed
                 }
             }
         }
@@ -1352,6 +1392,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
 
         }
+        if (toolTipInstance == null && m_molecule.toolTipInstance == null) { markedList.RemoveRange(0, markedList.Count); }
     }
 
     /// <summary>
@@ -1366,10 +1407,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         advancedMarkAtom(mark, toolTip);
     }
 
-    public void advancedMarkAtom(bool mark, bool toolTip = false)
+    public void advancedMarkAtom(bool mark, bool toolTip = false, int focus_id = -1)
     {
-        markAtom(mark, 2, toolTip);
-        markConnections(toolTip);
+        markAtom(mark, 2, toolTip, focus_id);
+        markConnections(toolTip, focus_id);
     }
 
     /// <summary>
@@ -1490,10 +1531,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private string getToolTipText(string name, double mass, double radius, int bondNum)
     {
         //$"Name: {m_data.m_name}\nMass: {m_data.m_mass}\nRadius: {m_data.m_radius}\nNumBonds: {m_data.m_bondNum}"
-        string rad = GlobalCtrl.Singleton.GetLocalizedString("RADIUS");
-        string numBonds = GlobalCtrl.Singleton.GetLocalizedString("NUM_BONDS");
-        string massStr = GlobalCtrl.Singleton.GetLocalizedString("MASS");
-        string nameStr = GlobalCtrl.Singleton.GetLocalizedString("NAME");
+        string rad = localizationManager.Singleton.GetLocalizedString("RADIUS");
+        string numBonds = localizationManager.Singleton.GetLocalizedString("NUM_BONDS");
+        string massStr = localizationManager.Singleton.GetLocalizedString("MASS");
+        string nameStr = localizationManager.Singleton.GetLocalizedString("NAME");
         name = GetLocalizedElementName(name);
         double radius_in_angstrom = radius * 0.01f;
         string radiusInCorrectUnit = SettingsData.useAngstrom ? $"{radius_in_angstrom:0.00}" : $"{radius:0}";
@@ -1510,6 +1551,27 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     public string GetLocalizedElementName(string text)
     {
         return LocalizationSettings.StringDatabase.GetLocalizedString("Elements", text);
+    }
+    public void createServerToolTip(int focus_id = -1)
+    {
+        Vector2? oldPos = null;
+        if (toolTipInstance)
+        {
+            oldPos = toolTipInstance.GetComponent<RectTransform>().localPosition;
+            Destroy(toolTipInstance);
+        }
+
+        toolTipInstance = Instantiate(serverTooltipPrefab);
+        if (oldPos != null) toolTipInstance.GetComponent<ServerAtomTooltip>().localPosition = (Vector2)oldPos;
+        toolTipInstance.GetComponent<ServerAtomTooltip>().focus_id = focus_id;
+        toolTipInstance.GetComponent<ServerAtomTooltip>().hybridUp.onClick.AddListener(delegate { toolTipInstance.GetComponent<ServerAtomTooltip>().increase(); });
+        toolTipInstance.GetComponent<ServerAtomTooltip>().hybridDown.onClick.AddListener(delegate { toolTipInstance.GetComponent<ServerAtomTooltip>().decrease(); });
+        toolTipInstance.GetComponent<ServerAtomTooltip>().closeButton.onClick.AddListener(delegate { markAtomUI(false); });
+        var con_atoms = connectedAtoms();
+        toolTipInstance.GetComponent<ServerAtomTooltip>().TooltipText.text = getToolTipText(m_data.m_name, m_data.m_mass, m_data.m_radius, con_atoms.Count);
+        toolTipInstance.GetComponent<ServerAtomTooltip>().deleteButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.deleteAtomUI(this); });
+        toolTipInstance.GetComponent<ServerAtomTooltip>().freezeButton.onClick.AddListener(delegate { freezeUI(!frozen); });
+        toolTipInstance.GetComponent<ServerAtomTooltip>().linkedAtom = this;
     }
 
     #endregion
@@ -1564,6 +1626,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         if (SettingsData.pointerHighlighting)
         {
             proccessFocusUI(true);
+
         }
         else
         {
@@ -1664,8 +1727,10 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     public void serverFocusHighlightUI(bool value)
     {
+
         serverFocusHighlight(value);
         EventManager.Singleton.ServerFocusHighlight(m_molecule.m_id, m_id, value);
+
     }
 
     public void serverFocusHighlight(bool active)
@@ -1703,7 +1768,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 outline_component.enabled = false;
                 previousHighlightType = currentHighlightType;
                 currentHighlightType = FocusManager.HighlightType.None;
-                serverFocusHighlightInFormula(new Color[4] { chARpackColors.notEnabledColor, chARpackColors.notEnabledColor , chARpackColors.notEnabledColor , chARpackColors.notEnabledColor });
+                serverFocusHighlightInFormula(new Color[4] { ColorPalette.notEnabledColor, ColorPalette.notEnabledColor, ColorPalette.notEnabledColor, ColorPalette.notEnabledColor });
             }
             else
             {
@@ -1803,6 +1868,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     /// <param name="value">Whether the atom is frozen</param>
     public void setFrozenVisual(bool value)
     {
+        
         var FrozenIndicator = freezeButton.transform.Find("IconAndText").gameObject.transform.Find("Indicator").gameObject;
         if (value)
         {

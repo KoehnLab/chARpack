@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -46,11 +47,10 @@ public class StructureFormulaManager : MonoBehaviour
         Singleton = this;
     }
 
-    private Dictionary<Guid, Triple<GameObject, string, List<GameObject>>> svg_instances;
+    private Dictionary<Guid, Triple<GameObject, string, List<GameObject>>> svg_instances; // mol_id, primary_structure_formula, svg_content, secondary_structure_formulas
     private GameObject interactiblePrefab;
     private GameObject structureFormulaPrefab;
     public GameObject UICanvas;
-    System.Diagnostics.Process python_process = null;
     private List<Texture2D> heatMapTextures;
     private List<string> heatMapNames = new List<string> { "HeatTexture_Cool", "HeatTexture_Inferno", "HeatTexture_Magma", "HeatTexture_Plasma", "HeatTexture_Viridis", "HeatTexture_Warm" };
     [HideInInspector]
@@ -70,9 +70,6 @@ public class StructureFormulaManager : MonoBehaviour
         {
             heatMapTextures.Add((Texture2D)Resources.Load($"materials/{name}"));
         }
-
-        // Startup structure provider in python
-        StartCoroutine(waitAndInitialize());
     }
 
     public void setColorMap(int id)
@@ -85,15 +82,6 @@ public class StructureFormulaManager : MonoBehaviour
         }
     }
 
-
-    private IEnumerator waitAndInitialize()
-    {
-        yield return new WaitForSeconds(1f);
-        var pythonArgs = Path.Combine(Application.dataPath, "scripts/network/PytideInterface/chARpack_run_structrure_provider.py");
-        var psi = new System.Diagnostics.ProcessStartInfo("python", pythonArgs);
-        psi.WindowStyle = System.Diagnostics.ProcessWindowStyle.Minimized;
-        python_process = System.Diagnostics.Process.Start(psi);
-    }
 
     public void pushSecondaryContent(Guid mol_id, int focus_id)
     {
@@ -234,6 +222,7 @@ public class StructureFormulaManager : MonoBehaviour
 
             createInteractables(mol_id);
         }
+        validateMolecules();
     }
 
     public void removeContent(Guid mol_id)
@@ -412,6 +401,7 @@ public class StructureFormulaManager : MonoBehaviour
 
     private void Update()
     {
+
         var rayCastResults = GetEventSystemRaycastResults();
 
         if (Input.GetMouseButtonDown(0))
@@ -580,15 +570,37 @@ public class StructureFormulaManager : MonoBehaviour
         return null;
     }
 
-    private void OnDestroy()
+    private void validateMolecules()
     {
-        if (python_process != null)
+        List<Guid> to_be_removed = new List<Guid>();
+        foreach (var sf_id in svg_instances.Keys)
         {
-            python_process.Kill();
-            python_process.WaitForExit();
-            python_process.Dispose();
+            if (!GlobalCtrl.Singleton.List_curMolecules.ContainsKey(sf_id))
+            {
+                to_be_removed.Add(sf_id);
+            }
+        }
+        foreach (var tbr in to_be_removed)
+        {
+            removeContent(tbr);
         }
     }
 
+    public void requestRemove(StructureFormula in_sf)
+    {
+        List<Guid> to_be_removed = new List<Guid>();
+        foreach (var go in svg_instances)
+        {
+            var sf = go.Value.Item1.GetComponentInParent<StructureFormula>();
+            if (sf = in_sf)
+            {
+                to_be_removed.Add(go.Key);
+            }
+        }
+        foreach (var tbr in to_be_removed)
+        {
+            removeContent(tbr);
+        }
+    }
 }
 
