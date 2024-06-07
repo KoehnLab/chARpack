@@ -79,6 +79,7 @@ public class Atom2D : MonoBehaviour
         }
         else
         {
+            atom.serverFocusByStructure = !atom.serverFocusByStructure;
             atom.serverFocusHighlightUI(!atom.serverFocus);
         }
     }
