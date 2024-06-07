@@ -86,10 +86,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 }
                 else
                 {
-                    GlobalCtrl.Singleton.checkForCollisionsAndMerge(this);
-                    // TODO
                     cmlData after = this.AsCML();
                     GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
+                    GlobalCtrl.Singleton.checkForCollisionsAndMerge(this);
                 }
                 // change material back to normal
                 GetComponent<myBoundingBox>().setGrabbed(false);

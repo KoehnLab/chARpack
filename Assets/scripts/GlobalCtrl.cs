@@ -1557,8 +1557,6 @@ public class GlobalCtrl : MonoBehaviour
     {
         if (collisions.Count() == 0) return;
 
-        Debug.Log(collisions.Count());
-
         var molCollisions = new List<Tuple<Atom, Atom>>();
         foreach (Atom a in mol.atomList)
         {
