@@ -24,7 +24,15 @@ public class BondParametersServer : MonoBehaviour
     private ForceField.TorsionTerm tt_;
     public ForceField.BondTerm bt { get => bt_; set { bt_ = value; initTextFieldsBT(); } }
 
-    private void initTextFieldsBT()
+    void OnGUI()
+    {
+        if (Event.current.Equals(Event.KeyboardEvent("return")))
+        {
+            saveButton.GetComponent<Button>().onClick.Invoke();
+        }
+    }
+
+        private void initTextFieldsBT()
     {
         topText.text += SettingsData.useAngstrom ? " (\u00C5)" : " (pm)";
         var text = SettingsData.useAngstrom ? (bt.eqDist * 0.01f).ToString() : bt.eqDist.ToString();
