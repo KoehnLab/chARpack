@@ -1385,10 +1385,6 @@ public class GlobalCtrl : MonoBehaviour
         tempData.m_bondNum = calcNumBonds(tempData.m_hybridization, tempData.m_bondNum);
 
         atom.f_Modify(tempData);
-        foreach(Bond b in atom.connectedBonds())
-        {
-            b.setShaderProperties();
-        }
 
         cmlData after = List_curMolecules[mol_id].AsCML();
         undoStack.AddChange(new ChangeAtomAction(before, after));
