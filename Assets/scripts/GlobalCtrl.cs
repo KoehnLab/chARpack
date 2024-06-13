@@ -300,6 +300,7 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.copyButtonPrefab = (GameObject)Resources.Load("prefabs/CopyMeButton");
         Molecule.scaleMoleculeButtonPrefab = (GameObject)Resources.Load("prefabs/ScaleMoleculeButton");
         Molecule.scalingSliderPrefab = (GameObject)Resources.Load("prefabs/myTouchSlider");
+        Molecule.serverScalingSliderPrefab = (GameObject)Resources.Load("prefabs/ServerScalingSlider");
         Molecule.freezeMeButtonPrefab = (GameObject)Resources.Load("prefabs/FreezeMeButton");
         Molecule.snapMeButtonPrefab = (GameObject)Resources.Load("prefabs/SnapMeButton");
         Molecule.distanceMeasurementPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurementPrefab");

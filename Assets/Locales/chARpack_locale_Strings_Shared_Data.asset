@@ -246,7 +246,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 25066698989617152
-    m_Key: ResetMeButton/IconAndText/TextMeshPro
+    m_Key: Reset
     m_Metadata:
       m_Items: []
   - m_Id: 28314155435982848
