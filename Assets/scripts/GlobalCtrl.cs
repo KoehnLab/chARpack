@@ -2061,7 +2061,7 @@ public class GlobalCtrl : MonoBehaviour
     /// Creates molecules from cmlData
     /// </summary>
     /// <param name="data">list of cmlData that represents the world state to rebuild</param>
-    public void createFromCML(List<cmlData> data)
+    public void createFromCML(List<cmlData> data, bool addToUndoStack = true)
     {
         // this method preserves the ids of all objects
         if (data != null)
@@ -2093,6 +2093,7 @@ public class GlobalCtrl : MonoBehaviour
                         }
                     }
                 }
+                if (addToUndoStack) undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id, molecule));
                 EventManager.Singleton.MoleculeLoaded(tempMolecule);
             }
         }
