@@ -44,6 +44,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     public bool frozen = false;
     public bool[] focused = new bool[4] { false, false, false, false };
     public bool serverFocus = false;
+    public bool serverFocusByStructure = false;
     private float[] focus_alpha = new float[4] { 0f, 0f, 0f, 0f };
     private float focus_ramping_constant = 1f / (3f * 40f);
     private float outline_radius_min = 5f;
@@ -325,7 +326,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     private void OnMouseExit()
     {
-        if (serverFocus)
+        if (serverFocus && !serverFocusByStructure)
         {
             serverFocusHighlightUI(false);
         }
