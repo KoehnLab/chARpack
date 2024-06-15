@@ -300,6 +300,7 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.copyButtonPrefab = (GameObject)Resources.Load("prefabs/CopyMeButton");
         Molecule.scaleMoleculeButtonPrefab = (GameObject)Resources.Load("prefabs/ScaleMoleculeButton");
         Molecule.scalingSliderPrefab = (GameObject)Resources.Load("prefabs/myTouchSlider");
+        Molecule.serverScalingSliderPrefab = (GameObject)Resources.Load("prefabs/ServerScalingSlider");
         Molecule.freezeMeButtonPrefab = (GameObject)Resources.Load("prefabs/FreezeMeButton");
         Molecule.snapMeButtonPrefab = (GameObject)Resources.Load("prefabs/SnapMeButton");
         Molecule.distanceMeasurementPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurementPrefab");
@@ -1384,10 +1385,6 @@ public class GlobalCtrl : MonoBehaviour
         tempData.m_bondNum = calcNumBonds(tempData.m_hybridization, tempData.m_bondNum);
 
         atom.f_Modify(tempData);
-        foreach(Bond b in atom.connectedBonds())
-        {
-            b.setShaderProperties();
-        }
 
         cmlData after = List_curMolecules[mol_id].AsCML();
         undoStack.AddChange(new ChangeAtomAction(before, after));
@@ -2064,7 +2061,7 @@ public class GlobalCtrl : MonoBehaviour
     /// Creates molecules from cmlData
     /// </summary>
     /// <param name="data">list of cmlData that represents the world state to rebuild</param>
-    public void createFromCML(List<cmlData> data)
+    public void createFromCML(List<cmlData> data, bool addToUndoStack = true)
     {
         // this method preserves the ids of all objects
         if (data != null)
@@ -2096,6 +2093,7 @@ public class GlobalCtrl : MonoBehaviour
                         }
                     }
                 }
+                if (addToUndoStack) undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id, molecule));
                 EventManager.Singleton.MoleculeLoaded(tempMolecule);
             }
         }

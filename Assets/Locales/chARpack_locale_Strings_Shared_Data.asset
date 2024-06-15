@@ -246,7 +246,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 25066698989617152
-    m_Key: ResetMeButton/IconAndText/TextMeshPro
+    m_Key: Reset
     m_Metadata:
       m_Items: []
   - m_Id: 28314155435982848
@@ -559,6 +559,18 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 124461757766852608
     m_Key: MeasurementMode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 126551723915853824
+    m_Key: BondParameter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 126576652212224000
+    m_Key: ToHydrogen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 126576784383131648
+    m_Key: ToDummy
     m_Metadata:
       m_Items: []
   m_Metadata:

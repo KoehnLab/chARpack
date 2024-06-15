@@ -1471,7 +1471,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             {
                 var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
                 modifyButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { toolTipHelperChangeAtom("Dummy"); });
-                modifyButtonInstance.GetComponent<ButtonConfigHelper>().MainLabelText = "To Dummy";
+                modifyButtonInstance.GetComponent<ButtonConfigHelper>().MainLabelText = localizationManager.Singleton.GetLocalizedString("ToDummy");
                 toolTipInstance.GetComponent<DynamicToolTip>().addContent(modifyButtonInstance);
             }
 
@@ -1486,7 +1486,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         {
             var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
             modifyButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { toolTipHelperChangeAtom("H"); });
-            modifyButtonInstance.GetComponent<ButtonConfigHelper>().MainLabelText = "To Hydrogen";
+            modifyButtonInstance.GetComponent<ButtonConfigHelper>().MainLabelText = localizationManager.Singleton.GetLocalizedString("ToHydrogen");
             toolTipInstance.GetComponent<DynamicToolTip>().addContent(modifyButtonInstance);
         }
         var freezeButtonInstance = Instantiate(freezeMePrefab);
@@ -1510,7 +1510,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     }
 
 
-    private void toolTipHelperChangeAtom(string chemAbbre)
+    public void toolTipHelperChangeAtom(string chemAbbre)
     {
         GlobalCtrl.Singleton.changeAtomUI(m_molecule.m_id, m_id, chemAbbre);
         markAtomUI(false);

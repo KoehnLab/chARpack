@@ -74,8 +74,8 @@ public class UndoStack
                 lastChange = GetLastChange();
             }
             // Put the last change back onto the stack since it was not a scale molecule action
-            if (!lastChange.GetType().Equals(typeof(ScaleMoleculeAction)) || 
-                        (lastChange as ScaleMoleculeAction).before.moleID!=merged.before.moleID) undoStack.Push(lastChange);
+            if (lastChange!=null && (!lastChange.GetType().Equals(typeof(ScaleMoleculeAction)) || 
+                        (lastChange as ScaleMoleculeAction).before.moleID!=merged.before.moleID)) undoStack.Push(lastChange);
             undoStack.Push(merged);
         //}
     }

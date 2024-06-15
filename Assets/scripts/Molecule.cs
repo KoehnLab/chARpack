@@ -97,6 +97,17 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    public void OnServerSliderUpdated()
+    {
+        cmlData before = this.AsCML();
+        before.moleScale = new SaveableVector3(oldScale, oldScale, oldScale);
+        gameObject.transform.localScale = scalingSliderInstance.GetComponentInChildren<Slider>().value * startingScale;
+        oldScale = transform.localScale.x / startingScale.x; 
+        GlobalCtrl.Singleton.undoStack.AddChange(new ScaleMoleculeAction(before, this.AsCML()));
+        // networking
+        EventManager.Singleton.ChangeMoleculeScale(m_id, gameObject.transform.localScale.x);
+    }
+
     /// <summary>
     /// Scales the molecule based on the slider value and invokes a 
     /// change molecule scale event.
@@ -207,6 +218,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject copyButtonPrefab;
     [HideInInspector] public static GameObject scaleMoleculeButtonPrefab;
     [HideInInspector] public static GameObject scalingSliderPrefab;
+    [HideInInspector] public static GameObject serverScalingSliderPrefab;
     [HideInInspector] public static GameObject freezeMeButtonPrefab;
     [HideInInspector] public static GameObject snapMeButtonPrefab;
     [HideInInspector] public static GameObject distanceMeasurementPrefab;
@@ -227,6 +239,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private Vector3 startingScale;
     public bool frozen = false;
     private Material frozen_bond_mat;
+    private float oldScale = 1.0f;
 
     public enum toolTipType
     {
@@ -803,16 +816,28 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         if (!scalingSliderInstance)
         {
-            // position needs to be optimized
-            scalingSliderInstance = Instantiate(scalingSliderPrefab, gameObject.transform.position - 0.17f * GlobalCtrl.Singleton.currentCamera.transform.forward - 0.05f * Vector3.up, GlobalCtrl.Singleton.currentCamera.transform.rotation);
-            scalingSliderInstance.GetComponent<mySlider>().maxVal = 2;
-            scalingSliderInstance.GetComponent<mySlider>().minVal = 0.1f;
-            var currentScale = transform.localScale.x / startingScale.x;
-            // Set effective starting value and default to 1
-            scalingSliderInstance.GetComponent<mySlider>().SliderValue = (currentScale - scalingSliderInstance.GetComponent<mySlider>().minVal) / (scalingSliderInstance.GetComponent<mySlider>().maxVal - scalingSliderInstance.GetComponent<mySlider>().minVal);
-            scalingSliderInstance.GetComponent<mySlider>().defaultVal = (1 - scalingSliderInstance.GetComponent<mySlider>().minVal) / (scalingSliderInstance.GetComponent<mySlider>().maxVal - scalingSliderInstance.GetComponent<mySlider>().minVal);
-            //startingScale = gameObject.transform.localScale;
-            scalingSliderInstance.GetComponent<mySlider>().OnValueUpdated.AddListener(OnSliderUpdated);
+            if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
+            {
+                scalingSliderInstance = Instantiate(serverScalingSliderPrefab);
+                scalingSliderInstance.GetComponentInChildren<Slider>().maxValue = 2;
+                scalingSliderInstance.GetComponentInChildren<Slider>().minValue = 0.1f;
+                var currentScale = transform.localScale.x / startingScale.x;
+                scalingSliderInstance.GetComponentInChildren<Slider>().normalizedValue = (currentScale - scalingSliderInstance.GetComponentInChildren<Slider>().minValue) / (scalingSliderInstance.GetComponentInChildren<Slider>().maxValue - scalingSliderInstance.GetComponentInChildren<Slider>().minValue);
+                scalingSliderInstance.GetComponentInChildren<Slider>().onValueChanged.AddListener(delegate { OnServerSliderUpdated(); });
+            }
+            else
+            {
+                // position needs to be optimized
+                scalingSliderInstance = Instantiate(scalingSliderPrefab, gameObject.transform.position - 0.17f * GlobalCtrl.Singleton.currentCamera.transform.forward - 0.05f * Vector3.up, GlobalCtrl.Singleton.currentCamera.transform.rotation);
+                scalingSliderInstance.GetComponent<mySlider>().maxVal = 2;
+                scalingSliderInstance.GetComponent<mySlider>().minVal = 0.1f;
+                var currentScale = transform.localScale.x / startingScale.x;
+                // Set effective starting value and default to 1
+                scalingSliderInstance.GetComponent<mySlider>().SliderValue = (currentScale - scalingSliderInstance.GetComponent<mySlider>().minVal) / (scalingSliderInstance.GetComponent<mySlider>().maxVal - scalingSliderInstance.GetComponent<mySlider>().minVal);
+                scalingSliderInstance.GetComponent<mySlider>().defaultVal = (1 - scalingSliderInstance.GetComponent<mySlider>().minVal) / (scalingSliderInstance.GetComponent<mySlider>().maxVal - scalingSliderInstance.GetComponent<mySlider>().minVal);
+                //startingScale = gameObject.transform.localScale;
+                scalingSliderInstance.GetComponent<mySlider>().OnValueUpdated.AddListener(OnSliderUpdated);
+            }
         }
         else
         {
