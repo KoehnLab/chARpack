@@ -117,7 +117,6 @@ public class testmd : MonoBehaviour
         PythonEngine.PythonHome = pythonHome;
         PythonEngine.PythonPath = pythonPath;
         PythonEngine.Initialize();
-        PythonEngine.BeginAllowThreads();
 
         EventManager.Singleton.OnGrabAtom += applyConstraint;
     }
@@ -165,8 +164,8 @@ public class testmd : MonoBehaviour
         }
 
         // Acquire the GIL before using any Python APIs
-        //using (Py.GIL())
-        //{
+        using (Py.GIL())
+        {
             Debug.Log("[testmd] started python environment");
             // Convert the C# float array to a Python list
             var pyPosList = new PyList();
@@ -196,7 +195,7 @@ public class testmd : MonoBehaviour
 
             apax = script.ApaxMD();
             apax.setData(pyPosList, pySymbolList, pyIndexList);
-        // }
+        }
         Debug.Log("[testmd] Preparations done");
     }
 
@@ -204,24 +203,25 @@ public class testmd : MonoBehaviour
     dynamic python_return;
     private IEnumerator spreadSimulation()
     {
-        //yield return new WaitForSeconds(0.01f);
-        var done = false;
-        new Thread(() =>
-        {
-            Debug.Log("[testmd] started thread");
-            apax.run(1);
-            Debug.Log("[testmd] run done");
-            python_return = apax.getPositions();
-            Debug.Log("[testmd] got positions");
-            done = true;
-        }).Start();
+        yield return new WaitForSeconds(0.1f);
+        apax.run();
+        python_return = apax.getPositions();
 
-        while (!done)
-        {
-            yield return null;
-        }
-        //apax.run();
-        //python_return = apax.getPositions();
+        //var done = false;
+        //new Thread(() =>
+        //{
+        //    Debug.Log("[testmd] started thread");
+        //    apax.run(1);
+        //    Debug.Log("[testmd] run done");
+        //    python_return = apax.getPositions();
+        //    Debug.Log("[testmd] got positions");
+        //    done = true;
+        //}).Start();
+
+        //while (!done)
+        //{
+        //    yield return null;
+        //}
 
         Debug.Log("[testmd] got values from sim");
         sim_results = new List<Vector3>();
@@ -235,10 +235,10 @@ public class testmd : MonoBehaviour
     private void applyConstraint(Atom a, bool value)
     {
         if (apax == null) return;
-        //using (Py.GIL())
-        //{
+        using (Py.GIL())
+        {
             apax.fixAtom(a.m_id, value);
-        //}
+        }
         if (value)
         {
             grabbedAtoms.Add(a);
@@ -266,8 +266,8 @@ public class testmd : MonoBehaviour
             }
             sim_results = null;
         }
-        //using (Py.GIL())
-        //{
+        using (Py.GIL())
+        {
             foreach (var atom in grabbedAtoms)
             {
                 var pos = atom.transform.localPosition * GlobalCtrl.u2aa / GlobalCtrl.scale;
@@ -283,7 +283,7 @@ public class testmd : MonoBehaviour
                 Debug.Log($"[testmd] {symbols[apax.constraint_atoms[0]]}");
             }
             //Debug.Log($"[testmd] Force: {apax.getPosZero()}");
-        //}
+        }
     }
 
     public void stopSim()
