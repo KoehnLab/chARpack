@@ -18,17 +18,19 @@ import os
 
 class ApaxMD:
 
-    def __init__(self):
+    def __init__(self, mode="optimizer"):
         self.script_dir = os.path.dirname(os.path.abspath(__file__))
         #sys.path.insert(0,self.script_dir)
+        self.mode = mode
         self.atoms = None
         self.mol_id = None
         self.dyn = None
+        self.optimizer = None
         self.constraint_atoms = []
-        self.model_path = os.path.join(self.script_dir,"models/etoh")
+        #self.model_path = os.path.join(self.script_dir,"models/etoh")
+        self.model_path = os.path.join(self.script_dir,"uncertainty_model/apax_ens")
         print(self.model_path)
         self.deleteMetaFiles()
-        self.optimizer = None
 
     def deleteMetaFiles(self):
         from glob import glob
@@ -44,9 +46,12 @@ class ApaxMD:
         else:
             for i in range(1, len(symbols)):
                 self.atoms.extend(Atom(symbols[i], positions[i]))
-        #self.setupSim()
-        self.setupOptimization()
-
+        if self.mode == "optimizer":
+            self.setupOptimization()
+        elif self.mode == "thermostat":
+            self.setupSim()
+        else: # False
+            self.setupOptimization()
 
     def setupOptimization(self):
         calc = ASECalculator(model_dir=self.model_path)
@@ -62,12 +67,9 @@ class ApaxMD:
     def setupSim(self):
         # initialize the apax ase calculator and assign it to the starting structure
         #calc = LennardJones()  # EMT()
-        #self.atoms.calc = calc
+        #self.dyn = VelocityVerlet(atoms=self.atoms, timestep=0.5*units.fs)
         calc = ASECalculator(model_dir=self.model_path)
         self.atoms.calc = calc
-
-        #self.dyn = VelocityVerlet(atoms=self.atoms, timestep=0.5*units.fs)
-
         self.dyn = Langevin(
             atoms=self.atoms,
             timestep=0.5 * units.fs,
@@ -116,7 +118,10 @@ class ApaxMD:
         return np.max(self.atoms.get_forces())
 
 
-pos_array = np.asarray([(1.626544, -0.037693, 0.845612),
+
+
+if __name__ == "__main__":
+    pos_array = np.asarray([(1.626544, -0.037693, 0.845612),
              (1.011200, -0.045292, -0.062605),
              (1.325261, 0.803088, -0.684698),
              (1.250124, -0.961175, -0.618887),
@@ -126,9 +131,9 @@ pos_array = np.asarray([(1.626544, -0.037693, 0.845612),
              (-1.198129, 0.018094, -0.907245),
              (-2.112696, 0.064982, -0.664993)
               ])
-sym_array = ["H", "C", "H", "H", "C", "H", "H", "O", "H"]
+    sym_array = ["H", "C", "H", "H", "C", "H", "H", "O", "H"]
 
-xyz = """9
+    xyz = """9
 
 H          1.62654       -0.03768        0.84561
 C          1.01120       -0.04529       -0.06260
@@ -140,8 +145,6 @@ H         -0.68223        0.95369        0.86656
 O         -1.19813        0.01810       -0.90725
 H         -2.11270        0.06497       -0.66499
 """
-
-if __name__ == "__main__":
     a_md = ApaxMD()
     a_md.setData(pos_array, sym_array)
     #a_md.setDataFromXYZ(xyz)

@@ -193,7 +193,7 @@ public class testmd : MonoBehaviour
             // Import your Python script
             dynamic script = Py.Import("test_md");
 
-            apax = script.ApaxMD();
+            apax = script.ApaxMD("thermostat");
             apax.setData(pyPosList, pySymbolList, pyIndexList);
         }
         Debug.Log("[testmd] Preparations done");
@@ -203,8 +203,8 @@ public class testmd : MonoBehaviour
     dynamic python_return;
     private IEnumerator spreadSimulation()
     {
-        yield return new WaitForSeconds(0.1f);
-        apax.run();
+        //yield return new WaitForSeconds(0.1f);
+        yield return apax.run();
         python_return = apax.getPositions();
 
         //var done = false;
@@ -232,7 +232,7 @@ public class testmd : MonoBehaviour
         yield return null;
     }
 
-    private void applyConstraint(Atom a, bool value)
+    public void applyConstraint(Atom a, bool value)
     {
         if (apax == null) return;
         using (Py.GIL())
@@ -263,6 +263,7 @@ public class testmd : MonoBehaviour
             for (int i = 0; i < currentMol.atomList.Count; i++)
             {
                 currentMol.atomList[i].transform.localPosition = sim_results[i];
+                EventManager.Singleton.MoveAtom(currentMol.m_id, currentMol.atomList[i].m_id, currentMol.atomList[i].transform.localPosition);
             }
             sim_results = null;
         }

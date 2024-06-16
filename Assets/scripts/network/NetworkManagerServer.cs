@@ -1169,6 +1169,30 @@ public class NetworkManagerServer : MonoBehaviour
         outMessage.AddUShort(fromClientId);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
     }
+
+    [MessageHandler((ushort)ClientToServerID.grabAtom)]
+    private static void getGrabAtom(ushort fromClientId, Message message)
+    {
+        var mol_id = message.GetGuid();
+        var atom_id = message.GetUShort();
+        var grab = message.GetBool();
+
+        // do the move on the server
+        var atom = GlobalCtrl.Singleton.List_curMolecules.ContainsKey(mol_id) ? GlobalCtrl.Singleton.List_curMolecules[mol_id].atomList.ElementAtOrNull(atom_id, null) : null;
+        if (atom == null)
+        {
+            Debug.LogError($"[NetworkManagerServer:getGrabAtom] Molecule with id {mol_id} or atom with id {atom_id} do not exist.\nSynchronizing world with client {fromClientId}.");
+            NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
+            return;
+        }
+#if UNITY_STANDALONE || UNITY_EDITOR
+        if (testmd.Singleton)
+        {
+            testmd.Singleton.applyConstraint(atom, grab);
+        }
+#endif
+        // no bradcasting
+    }
     #endregion
 
     #region StructureMessages

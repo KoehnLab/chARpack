@@ -484,6 +484,15 @@ public class NetworkManagerClient : MonoBehaviour
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.clearMeasurements);
         Client.Send(message);
     }
+
+    public void sendGrabAtom(Atom a, bool value)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.grabAtom);
+        message.AddGuid(a.m_molecule.m_id);
+        message.AddUShort(a.m_id);
+        message.AddBool(value);
+        Client.Send(message);
+    }
     #endregion
 
     #region Listen

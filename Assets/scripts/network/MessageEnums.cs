@@ -39,7 +39,8 @@ public enum ClientToServerID : ushort
     createMeasurement = 1032,
     clearMeasurements = 1033,
     eyeCalibrationState = 1034,
-    batteryState = 1035
+    batteryState = 1035,
+    grabAtom = 1036
 }
 
 public enum ServerToClientID : ushort
