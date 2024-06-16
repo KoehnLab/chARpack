@@ -78,6 +78,13 @@ public class EventManager : MonoBehaviour
         OnStopMoveAtom?.Invoke(mol_id, atom_id);
     }
 
+    public delegate void GrabAtomAction(Atom a, bool value);
+    public event GrabAtomAction OnGrabAtom;
+    public void GrabAtom(Atom a, bool value)
+    {
+        OnGrabAtom?.Invoke(a, value);
+    }
+
     public delegate void MergeMoleculeAction(Guid molecule1ID, ushort atom1ID, Guid molecule2ID, ushort atom2ID);
     public event MergeMoleculeAction OnMergeMolecule;
     public void MergeMolecule(Guid molecule1ID, ushort atom1ID, Guid molecule2ID, ushort atom2ID)

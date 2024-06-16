@@ -245,6 +245,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             stopwatch = Stopwatch.StartNew();
             grabHighlight(true);
             isGrabbed = true;
+            EventManager.Singleton.GrabAtom(this, true);
             before = m_molecule.AsCML();
         }
         else if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)
@@ -271,6 +272,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         if (EventSystem.current.IsPointerOverGameObject()) { return; }
 
         isGrabbed = false;
+        EventManager.Singleton.GrabAtom(this, false);
         // reset outline
         grabHighlight(false);
 
@@ -352,6 +354,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
             stopwatch = Stopwatch.StartNew();
             isGrabbed = true;
+            EventManager.Singleton.GrabAtom(this, true);
             before = m_molecule.AsCML();
 
             // go through the chain of connected atoms and add the force there too
@@ -466,6 +469,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         if (isGrabbed)
         {
             isGrabbed = false;
+            EventManager.Singleton.GrabAtom(this, false);
             if (eventData.Pointer is MousePointer)
             {
                 UnityEngine.Debug.Log("Mouse");
