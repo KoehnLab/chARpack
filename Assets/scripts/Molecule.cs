@@ -440,7 +440,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             if (!toolTipInstance && showToolTip)
             {
                 if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
-                { createServerToolTip(); }
+                { 
+                    createServerToolTip();
+                }
                 else
                 {
                     createToolTip();

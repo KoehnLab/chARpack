@@ -262,8 +262,12 @@ public class testmd : MonoBehaviour
             Debug.Log("[testmd] applying new positions");
             for (int i = 0; i < currentMol.atomList.Count; i++)
             {
-                currentMol.atomList[i].transform.localPosition = sim_results[i];
-                EventManager.Singleton.MoveAtom(currentMol.m_id, currentMol.atomList[i].m_id, currentMol.atomList[i].transform.localPosition);
+                var exists = grabbedAtoms.Find(at => at.m_id == i);
+                if (exists == null)
+                {
+                    currentMol.atomList[i].transform.localPosition = sim_results[i];
+                    EventManager.Singleton.MoveAtom(currentMol.m_id, currentMol.atomList[i].m_id, currentMol.atomList[i].transform.localPosition);
+                }
             }
             sim_results = null;
         }
@@ -279,9 +283,6 @@ public class testmd : MonoBehaviour
                 apax.changeAtomPosition(atom.m_id, pyPos);
 
                 dynamic symbols = apax.atoms.get_chemical_symbols();
-                Debug.Log($"[testmd] {symbols}");
-                Debug.Log($"[testmd] {symbols[atom.m_id]}");
-                Debug.Log($"[testmd] {symbols[apax.constraint_atoms[0]]}");
             }
             //Debug.Log($"[testmd] Force: {apax.getPosZero()}");
         }

@@ -32,7 +32,7 @@ public class BondParametersServer : MonoBehaviour
         }
     }
 
-        private void initTextFieldsBT()
+    private void initTextFieldsBT()
     {
         topText.text += SettingsData.useAngstrom ? " (\u00C5)" : " (pm)";
         var text = SettingsData.useAngstrom ? (bt.eqDist * 0.01f).ToString() : bt.eqDist.ToString();
