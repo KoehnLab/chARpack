@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using chARpackStructs;
 using System.Linq;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 public class ForceField : MonoBehaviour
 {
@@ -171,8 +172,6 @@ public class ForceField : MonoBehaviour
     };
     
     
-    int frame = 0;  // counter for frames (debug only)
-
     // for Debugging; level = 100 only input coords + output movements
     //                level = 1000 more details on forces
     //                level = 10000 maximum detail level
@@ -249,10 +248,8 @@ public class ForceField : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        frame += 1;
         if (LogLevel >= 100 && enableForceField)
         {
-            FFlog.WriteLine("Current frame: " + frame);
             FFlog.WriteLine("Current time:  " + Time.time.ToString("f6") + "  Delta: " + Time.deltaTime.ToString("f6"));
         }
         // If the forcefield is active, update all connections and forces, else only update connections
@@ -359,28 +356,28 @@ public class ForceField : MonoBehaviour
             foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
             {
                 //Loop Bond List
-                foreach (BondTerm bond in mol.bondTerms)
+                Parallel.ForEach(mol.bondTerms, bond =>
                 {
                     calcBondForces(bond, mol);
-                }
+                });
 
                 //Loop Angle List
-                foreach (AngleTerm angle in mol.angleTerms)
+                Parallel.ForEach(mol.angleTerms, angle =>
                 {
                     calcAngleForces(angle, mol);
-                }
+                });
 
                 //Loop Torsion List
-                foreach (TorsionTerm torsion in mol.torsionTerms)
+                Parallel.ForEach(mol.torsionTerms, torsion =>
                 {
                     calcTorsionForces(torsion, mol);
-                }
+                });
 
                 //Loop Bond List
-                foreach (HardSphereTerm hsTerm in mol.hsTerms)
+                Parallel.ForEach(mol.hsTerms, hsTerm =>
                 {
                     calcRepForces(hsTerm, mol);
-                }
+                });
             }
             // do second Force pass for these Methods
             if (currentMethod == Method.RungeKutta || currentMethod == Method.Heun || currentMethod == Method.Ralston)
@@ -389,28 +386,28 @@ public class ForceField : MonoBehaviour
                 foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
                 {
                     //Loop Bond List
-                    foreach (BondTerm bond in mol.bondTerms)
+                    Parallel.ForEach(mol.bondTerms, bond =>
                     {
                         calcBondForces(bond, mol, true);
-                    }
+                    });
 
                     //Loop Angle List
-                    foreach (AngleTerm angle in mol.angleTerms)
+                    Parallel.ForEach(mol.angleTerms, angle =>
                     {
                         calcAngleForces(angle, mol, true);
-                    }
+                    });
 
                     //Loop Torsion List
-                    foreach (TorsionTerm torsion in mol.torsionTerms)
+                    Parallel.ForEach(mol.torsionTerms, torsion =>
                     {
                         calcTorsionForces(torsion, mol, true);
-                    }
+                    });
 
                     //Loop Bond List
-                    foreach (HardSphereTerm hsTerm in mol.hsTerms)
+                    Parallel.ForEach(mol.hsTerms, hsTerm =>
                     {
                         calcRepForces(hsTerm, mol, true);
-                    }
+                    });
                 }
             }
             switch (currentMethod)
@@ -453,28 +450,28 @@ public class ForceField : MonoBehaviour
             foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
             {
                 //Loop Bond List
-                foreach (BondTerm bond in mol.bondTerms)
+                Parallel.ForEach(mol.bondTerms, bond =>
                 {
                     calcBondForces(bond, mol);
-                }
+                });
 
                 //Loop Angle List
-                foreach (AngleTerm angle in mol.angleTerms)
+                Parallel.ForEach(mol.angleTerms, angle =>
                 {
                     calcAngleForces(angle, mol);
-                }
+                });
 
                 //Loop Torsion List
-                foreach (TorsionTerm torsion in mol.torsionTerms)
+                Parallel.ForEach(mol.torsionTerms, torsion =>
                 {
                     calcTorsionForces(torsion, mol);
-                }
+                });
 
                 //Loop Bond List
-                foreach (HardSphereTerm hsTerm in mol.hsTerms)
+                Parallel.ForEach(mol.hsTerms, hsTerm =>
                 {
                     calcRepForces(hsTerm, mol);
-                }
+                });
             }
             //eulerIntegration();
             verletIntegration();
@@ -750,7 +747,7 @@ public class ForceField : MonoBehaviour
             // check for too long steps:
             float MaxMove = 10f;
             float moveMaxNorm = 0f; // norm of movement vector
-            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            Parallel.For(0, mol.atomList.Count, (iAtom, state) =>
             {
                 // negative masses flag a fixed atom
                 if (!mol.atomList[iAtom].isGrabbed && mol.atomList[iAtom].m_data.m_mass > 0)
@@ -764,7 +761,7 @@ public class ForceField : MonoBehaviour
                 {
                     mol.FFforces[iAtom] = Vector3.zero;
                 }
-            }
+            });
 
             float scaleMove = 1f;
             if (moveMaxNorm > MaxMove)
@@ -774,11 +771,11 @@ public class ForceField : MonoBehaviour
             }
 
             // update position and total movement:
-            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            Parallel.For(0, mol.atomList.Count, (iAtom, state) =>
             {
                 mol.FFmovement[iAtom] += mol.FFforces[iAtom] * scaleMove;
                 mol.FFposition[iAtom] += mol.FFforces[iAtom] * scaleMove;
-            }
+            });
         }
     }
 
@@ -787,7 +784,7 @@ public class ForceField : MonoBehaviour
         foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
             // update position and total movement:
-            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            Parallel.For(0, mol.atomList.Count, (iAtom, state) =>
             {
                 // negative masses flag a fixed atom
                 if (!mol.atomList[iAtom].isGrabbed && mol.atomList[iAtom].m_data.m_mass > 0)
@@ -801,7 +798,7 @@ public class ForceField : MonoBehaviour
                 {
                     mol.FFmovement[iAtom] = Vector3.zero;
                 }
-            }
+            });
         }
     }
 
@@ -810,13 +807,13 @@ public class ForceField : MonoBehaviour
         foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
             // update position and total movement:
-            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            Parallel.For(0, mol.atomList.Count, (iAtom, state) =>
             {
                 // negative masses flag a fixed atom
                 if (!mol.atomList[iAtom].isGrabbed && mol.atomList[iAtom].m_data.m_mass > 0)
                 {
                     var current_pos = mol.FFposition[iAtom];
-                    mol.FFposition[iAtom] = current_pos + ((1f - 1f/(2f*alpha)) * mol.FFforces[iAtom] * RKtimeFactor)/ mol.atomList[iAtom].m_data.m_mass + (mol.FFforces_pass2[iAtom] * RKtimeFactor)/ (2f*alpha*mol.atomList[iAtom].m_data.m_mass);
+                    mol.FFposition[iAtom] = current_pos + ((1f - 1f / (2f * alpha)) * mol.FFforces[iAtom] * RKtimeFactor) / mol.atomList[iAtom].m_data.m_mass + (mol.FFforces_pass2[iAtom] * RKtimeFactor) / (2f * alpha * mol.atomList[iAtom].m_data.m_mass);
 
                     mol.FFmovement[iAtom] += mol.FFposition[iAtom] - current_pos;
                     mol.FFlastPosition[iAtom] = current_pos;
@@ -825,7 +822,7 @@ public class ForceField : MonoBehaviour
                 {
                     mol.FFmovement[iAtom] = Vector3.zero;
                 }
-            }
+            });
         }
     }
 
@@ -835,7 +832,7 @@ public class ForceField : MonoBehaviour
         {
 
             // update position and total movement:
-            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            Parallel.For(0, mol.atomList.Count, (iAtom, state) =>
             {
                 // negative masses flag a fixed atom
                 if (!mol.atomList[iAtom].isGrabbed && mol.atomList[iAtom].m_data.m_mass > 0)
@@ -852,7 +849,7 @@ public class ForceField : MonoBehaviour
                 {
                     mol.FFmovement[iAtom] = Vector3.zero;
                 }
-            }
+            });
         }
     }
 
@@ -862,7 +859,7 @@ public class ForceField : MonoBehaviour
         {
 
             //    // update position and total movement:
-            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            Parallel.For(0, mol.atomList.Count, (iAtom, state) =>
             {
                 // negative masses flag a fixed atom
                 if (!mol.atomList[iAtom].isGrabbed && mol.atomList[iAtom].m_data.m_mass > 0 && mol.FFforces[iAtom].magnitude > SDepsilon)
@@ -887,7 +884,7 @@ public class ForceField : MonoBehaviour
                     mol.FFmovement[iAtom] = Vector3.zero;
                     mol.FFlambda[iAtom] = SDdefaultLambda;
                 }
-            }
+            });
 
         // update position and total movement:
         //for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
@@ -928,7 +925,7 @@ public class ForceField : MonoBehaviour
         {
 
             // update position and total movement:
-            for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
+            Parallel.For(0, mol.atomList.Count, (iAtom, state) =>
             {
                 // negative masses flag a fixed atom
                 if (!mol.atomList[iAtom].isGrabbed && mol.atomList[iAtom].m_data.m_mass > 0)
@@ -951,7 +948,7 @@ public class ForceField : MonoBehaviour
                 {
                     mol.FFmovement[iAtom] = Vector3.zero;
                 }
-            }
+            });
         }
     }
 
@@ -998,7 +995,8 @@ public class ForceField : MonoBehaviour
         {
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
             {
-                if (float.IsFinite(mol.FFmovement[iAtom].x)) {
+                if (float.IsFinite(mol.FFmovement[iAtom].x))
+                {
                     var atom = mol.atomList.ElementAtOrDefault(iAtom);
                     if (atom.isGrabbed)
                     {
