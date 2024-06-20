@@ -12,6 +12,7 @@ using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using chARpackColorPalette;
+using UnityEngine.XR.ARFoundation;
 
 /// <summary>
 /// This class contains the implementation of all functions of the settings menu.
@@ -66,6 +67,7 @@ public class appSettings : MonoBehaviour
     public GameObject NetworkMeasurementIndicator;
     public GameObject ColorInterpolationIndicator;
     public GameObject LicoriceRenderingIndicator;
+    public GameObject VideoPassThroughIndicator;
     // Time factor sliders
     public GameObject EulerTimeFactorSlider;
     public GameObject SVTimeFactorSlider;
@@ -326,13 +328,23 @@ public class appSettings : MonoBehaviour
         colorSchemeManager.Singleton.setColorPalette((ColorScheme)(Enum.GetValues(typeof(ColorScheme))).GetValue(newIndex));
         updateVisuals();
     }
+
+    public void toggleVideoPassThrough()
+    {
+        SettingsData.videoPassThrough = !SettingsData.videoPassThrough;
+        var ar_cam_man = Camera.main.GetComponent<ARCameraManager>();
+        if (ar_cam_man != null) 
+        {
+            ar_cam_man.enabled = SettingsData.videoPassThrough;
+        }
+    }
     #endregion
 
     #region Integration method
-    /// <summary>
-    /// Toggles visibility of the child menu containing the integration method.
-    /// </summary>
-    public void toggleIntegrationMethod()
+        /// <summary>
+        /// Toggles visibility of the child menu containing the integration method.
+        /// </summary>
+        public void toggleIntegrationMethod()
     {
         GameObject integrationMethodMenu = gameObject.transform.Find("IntegrationMethod").gameObject;
         integrationMethodMenu.SetActive(!integrationMethodMenu.activeSelf);
@@ -633,6 +645,7 @@ public class appSettings : MonoBehaviour
         setVisual(ForceFieldIndicator, SettingsData.forceField);
         setVisual(SpatialMeshIndicator, SettingsData.spatialMesh);
         setVisual(ColorInterpolationIndicator, SettingsData.interpolateColors);
+        setVisual(VideoPassThroughIndicator, SettingsData.videoPassThrough);
 
         if (DebugWindow.Singleton == null)
         {

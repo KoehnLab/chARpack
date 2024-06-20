@@ -1186,9 +1186,9 @@ public class NetworkManagerServer : MonoBehaviour
             return;
         }
 #if UNITY_STANDALONE || UNITY_EDITOR
-        if (testmd.Singleton)
+        if (RunMolecularDynamics.Singleton)
         {
-            testmd.Singleton.applyConstraint(atom, grab);
+            RunMolecularDynamics.Singleton.applyConstraint(atom, grab);
         }
 #endif
         // no bradcasting

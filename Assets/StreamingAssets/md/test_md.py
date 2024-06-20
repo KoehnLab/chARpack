@@ -12,14 +12,16 @@ from apax.md import run_md, ASECalculator
 import ase.optimize
 import sys
 import os
+from glob import glob
 
 
 
 
 class ApaxMD:
 
-    def __init__(self, mode="optimizer"):
-        self.script_dir = os.path.dirname(os.path.abspath(__file__))
+    def __init__(self, base_dir, mode="optimizer"):
+        self.base_dir = base_dir 
+        #os.path.dirname(os.path.abspath(__file__))
         #sys.path.insert(0,self.script_dir)
         self.mode = mode
         self.atoms = None
@@ -28,14 +30,18 @@ class ApaxMD:
         self.optimizer = None
         self.constraint_atoms = []
         #self.model_path = os.path.join(self.script_dir,"models/etoh")
-        self.model_path = os.path.join(self.script_dir,"uncertainty_model/apax_ens")
-        print(self.model_path)
+        self.model_path = os.path.join(self.base_dir,"uncertainty_model/apax_ens")
+        self.deleteMetaFiles()
+
+    def setBaseDir(self, base_dir):
+        self.base_dir = base_dir
+        self.model_path = os.path.join(self.base_dir,"uncertainty_model/apax_ens")
         self.deleteMetaFiles()
 
     def deleteMetaFiles(self):
-        from glob import glob
-        for filename in glob(f"{self.model_path}/**/*.meta", recursive=True):
-            os.remove(filename)
+        if os.path.isdir(self.base_dir):
+            for filename in glob(f"{self.base_dir}/**/*.meta", recursive=True):
+                os.remove(filename)
 
     def setData(self, positions, symbols, indices = None, mol_id = None):
         self.mol_id = mol_id

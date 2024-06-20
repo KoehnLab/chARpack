@@ -5,20 +5,15 @@ using Python.Runtime;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Runtime.InteropServices;
-using Newtonsoft.Json;
-using Google.Protobuf.WellKnownTypes;
+using UnityEngine.Rendering.Universal;
 
 
-public class testmd : MonoBehaviour
+
+public class RunMolecularDynamics : MonoBehaviour
 {
-    private Thread thread;
-    private Mutex mutex = new Mutex();
-    private static testmd _singleton;
+    private static RunMolecularDynamics _singleton;
 
-    public static testmd Singleton
+    public static RunMolecularDynamics Singleton
     {
         get => _singleton;
         private set
@@ -29,7 +24,7 @@ public class testmd : MonoBehaviour
             }
             else if (_singleton != value)
             {
-                Debug.Log($"[{nameof(testmd)}] Instance already exists, destroying duplicate!");
+                Debug.Log($"[{nameof(RunMolecularDynamics)}] Instance already exists, destroying duplicate!");
                 Destroy(value);
             }
 
@@ -44,80 +39,6 @@ public class testmd : MonoBehaviour
 #if UNITY_STANDALONE || UNITY_EDITOR
     void Start()
     {
-
-        string[] possibleDllNames = new string[]
-        {
-        "python313.dll",
-        "python312.dll",
-        "python311.dll",
-        "python310.dll",
-        "python39.dll",
-        "python38.dll",
-        "python37.dll",
-        "python36.dll",
-        "python35.dll",
-        };
-
-        var path = Path.Combine(Application.streamingAssetsPath, "PythonEnv");
-        string pythonHome = null;
-        string pythonExe = null;
-        foreach (var p in path.Split(';'))
-        {
-            var fullPath = Path.Combine(p, "python.exe");
-            if (File.Exists(fullPath))
-            {
-                pythonHome = Path.GetDirectoryName(fullPath);
-                pythonExe = fullPath;
-                break;
-            }
-        }
-
-        string pythonPath = null;
-        string dll_path = null;
-        string zip_path = null;
-        if (pythonHome != null)
-        {
-            // check for the dll
-            foreach (var dllName in possibleDllNames)
-            {
-                var fullPath = Path.Combine(pythonHome, dllName);
-                if (File.Exists(fullPath))
-                {
-                    dll_path = fullPath;
-                    zip_path = fullPath.Split('.')[0] + ".zip";
-                    break;
-                }
-            }
-            if (dll_path == null)
-            {
-                throw new Exception("Couldn't find python DLL");
-            }
-        }
-        else
-        {
-            throw new Exception("Couldn't find python.exe");
-        }
-
-        //// Set the path to the embedded Python environment
-        pythonPath = pythonHome + ";" + Path.Combine(pythonHome, "Lib\\site-packages") + ";" + zip_path + ";" + Path.Combine(pythonHome, "DLLs") + ";" + Path.Combine(Application.streamingAssetsPath, "md");
-        Environment.SetEnvironmentVariable("PYTHONHOME", null);
-        Environment.SetEnvironmentVariable("PYTHONPATH", null);
-
-        // Display Python runtime details
-        Debug.Log($"Python DLL: {dll_path}");
-        Debug.Log($"Python executable: {pythonExe}");
-        Debug.Log($"Python home: {pythonHome}");
-        Debug.Log($"Python path: {pythonPath}");
-
-
-        // Initialize the Python runtime
-        Runtime.PythonDLL = dll_path;
-
-        // Initialize the Python engine with the embedded Python environment
-        PythonEngine.PythonHome = pythonHome;
-        PythonEngine.PythonPath = pythonPath;
-        PythonEngine.Initialize();
-
         EventManager.Singleton.OnGrabAtom += applyConstraint;
     }
 
@@ -128,9 +49,17 @@ public class testmd : MonoBehaviour
     List<Vector3> sim_results;
     Molecule currentMol;
     List<Atom> grabbedAtoms = new List<Atom>();
+    string base_dir;
 
     private void prepareSim()
     {
+        base_dir = Path.Combine(Application.streamingAssetsPath, "md");
+        if (!Directory.Exists(base_dir))
+        {
+            Debug.LogError($"[RunMolecularDynamics] Base dir with scripts and models does not exist.\nGiven path: {base_dir}");
+            return;
+        }
+
         currentMol = GlobalCtrl.Singleton.List_curMolecules.Values.First();
         sim_results = new List<Vector3>();
 
@@ -166,7 +95,6 @@ public class testmd : MonoBehaviour
         // Acquire the GIL before using any Python APIs
         using (Py.GIL())
         {
-            Debug.Log("[testmd] started python environment");
             // Convert the C# float array to a Python list
             var pyPosList = new PyList();
             foreach (var p in posList)
@@ -194,9 +122,10 @@ public class testmd : MonoBehaviour
             dynamic script = Py.Import("test_md");
 
             apax = script.ApaxMD("thermostat");
+            apax.setBaseDir(base_dir);
             apax.setData(pyPosList, pySymbolList, pyIndexList);
         }
-        Debug.Log("[testmd] Preparations done");
+        Debug.Log("[RunMolecularDynamics] Preparations done");
     }
 
 
@@ -207,23 +136,6 @@ public class testmd : MonoBehaviour
         yield return apax.run();
         python_return = apax.getPositions();
 
-        //var done = false;
-        //new Thread(() =>
-        //{
-        //    Debug.Log("[testmd] started thread");
-        //    apax.run(1);
-        //    Debug.Log("[testmd] run done");
-        //    python_return = apax.getPositions();
-        //    Debug.Log("[testmd] got positions");
-        //    done = true;
-        //}).Start();
-
-        //while (!done)
-        //{
-        //    yield return null;
-        //}
-
-        Debug.Log("[testmd] got values from sim");
         sim_results = new List<Vector3>();
         foreach (var res in python_return)
         {
@@ -259,7 +171,6 @@ public class testmd : MonoBehaviour
         }
         if (sim_results?.Count > 0)
         {
-            Debug.Log("[testmd] applying new positions");
             for (int i = 0; i < currentMol.atomList.Count; i++)
             {
                 var exists = grabbedAtoms.Find(at => at.m_id == i);
@@ -284,7 +195,6 @@ public class testmd : MonoBehaviour
 
                 dynamic symbols = apax.atoms.get_chemical_symbols();
             }
-            //Debug.Log($"[testmd] Force: {apax.getPosZero()}");
         }
     }
 
@@ -296,16 +206,11 @@ public class testmd : MonoBehaviour
     public void toggleSim()
     {
         running = !running;
+        ForceField.Singleton.toggleForceFieldUI();
         if (running)
         {
             prepareSim();
         }
-    }
-
-    private void OnDestroy()
-    {
-        // Shutdown the Python engine
-        PythonEngine.Shutdown();
     }
 #endif
 }
