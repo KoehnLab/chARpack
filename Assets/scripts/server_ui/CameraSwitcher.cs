@@ -203,4 +203,19 @@ public class CameraSwitcher : MonoBehaviour
         GlobalCtrl.Singleton.currentCamera = currentCam;
     }
 
+    public void switchToCam(ushort id)
+    {
+        if (cameras.Count < 1)
+        {
+            // Do nothing if no client camera is registered
+            return;
+        }
+        var user_id = cameras.FirstOrDefault(x => x.Value == currentCam).Key;
+        panel[user_id].transform.Find("Background").gameObject.SetActive(false);
+        currentCam = cameras.Values.ToList()[id];
+
+        panel[id].transform.Find("Background").gameObject.SetActive(true);
+        GlobalCtrl.Singleton.currentCamera = currentCam;
+    }
+
 }

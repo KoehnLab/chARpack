@@ -839,19 +839,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f11bda9651ea294468dbfcbc36ce8030, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  collapse_button: {fileID: 3923986453703101299}
   ToolTipText: {fileID: 3291490913349153478}
   closeButton: {fileID: 3776599553000479242}
-  modifyButton: {fileID: 4723594357663866696}
   rect: {fileID: 0}
   localPosition: {x: 0, y: 0, z: 0}
-  linkedBond: {fileID: 0}
   userbox: {fileID: 4255222871963167591}
   focus_id: -1
   isSmall: 0
   title: {fileID: 2260049461681973918}
   infobox: {fileID: 4658603205890544732}
   UI: {fileID: 0}
+  collapseButton: {fileID: 3923986453703101299}
+  modifyButton: {fileID: 4723594357663866696}
+  linkedBond: {fileID: 0}
 --- !u!1 &5384174969896973922
 GameObject:
   m_ObjectHideFlags: 0

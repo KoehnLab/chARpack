@@ -1477,25 +1477,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b0559f56bae9504380a12e16b94ea38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  collapse_button: {fileID: 3619513153446213447}
-  TooltipText: {fileID: 3018094965297434354}
+  ToolTipText: {fileID: 3018094965297434354}
   closeButton: {fileID: 3469735037922371134}
+  rect: {fileID: 0}
+  localPosition: {x: 0, y: 0, z: 0}
+  userbox: {fileID: 8320287051734871511}
+  focus_id: -1
+  isSmall: 0
+  title: {fileID: 1950793010769106602}
+  infobox: {fileID: 4965634223830657128}
+  UI: {fileID: 0}
+  collapseButton: {fileID: 3619513153446213447}
   deleteButton: {fileID: 5026651465602622332}
   freezeButton: {fileID: 8274696789854891784}
   hybridUp: {fileID: 4938959688561179998}
   hybridDown: {fileID: 8240230877588464193}
   modify: {fileID: 7099287621761807719}
   currentHybrid: {fileID: 1435642327618185031}
-  isSmall: 0
-  title: {fileID: 1950793010769106602}
-  infobox: {fileID: 4965634223830657128}
   hybrid: {fileID: 4764960869449919600}
-  UI: {fileID: 0}
   linkedAtom: {fileID: 0}
-  userBox: {fileID: 8320287051734871511}
-  rect: {fileID: 0}
-  localPosition: {x: 0, y: 0, z: 0}
-  focus_id: -1
 --- !u!1 &5690221649877191254
 GameObject:
   m_ObjectHideFlags: 0

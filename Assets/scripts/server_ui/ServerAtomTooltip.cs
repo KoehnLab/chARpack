@@ -6,28 +6,17 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ServerAtomTooltip : MonoBehaviour
+public class ServerAtomTooltip : ServerTooltip
 {
-    public Button collapse_button;
-    public TMP_Text TooltipText;
-    public Button closeButton;
+    public Button collapseButton;
     public Button deleteButton;
     public Button freezeButton;
     public Button hybridUp;
     public Button hybridDown;
     public Button modify;
     public TMP_Text currentHybrid;
-    public Boolean isSmall = false;
-    public GameObject title;
-    public GameObject infobox;
     public GameObject hybrid;
-    public Canvas UI;
     public Atom linkedAtom;
-    public GameObject userBox;
-    public RectTransform rect;
-    public Vector3 localPosition = new Vector3(0, 0, 0);
-    public int focus_id = -1;
-
 
     private ushort _hyb;
 
@@ -60,26 +49,12 @@ public class ServerAtomTooltip : MonoBehaviour
 
     public void Start()
     {
+        base.Start();
+
         hyb = linkedAtom.m_data.m_hybridization;
         currentHybrid.text = hyb.ToString();
-        var UIthing = GameObject.Find("UICanvas");
-        UI = UIthing.GetComponent<Canvas>();
-        transform.SetParent(UI.transform);
-        collapse_button.onClick.AddListener(delegate { resize(); });
-        var drag = title.gameObject.AddComponent<Draggable>();
-        drag.target = transform;
-        rect = transform as RectTransform;
-        RectTransform canvasRectTransform = UI.GetComponent<RectTransform>();
-        transform.localScale = new Vector2(1, 1);
-        if (localPosition != new Vector3(0, 0, 0))
-        {
-            rect.localPosition = localPosition;
-        }
-        else
-        {
-            Vector2 save = SpawnManager.Singleton.GetSpawnLocalPosition(rect);
-            rect.position = save;
-        }
+
+        collapseButton.onClick.AddListener(delegate { resize(); });
 
         if(linkedAtom.m_data.m_abbre == "Dummy")
         {
@@ -95,7 +70,7 @@ public class ServerAtomTooltip : MonoBehaviour
             modify.onClick.AddListener(delegate { linkedAtom.toolTipHelperChangeAtom("Dummy"); });
             modify.onClick.AddListener(delegate { updateModifyText(); });
         }
-        assignColor();
+        assignColor(focus_id);
     }
 
     public void resize()
@@ -118,11 +93,6 @@ public class ServerAtomTooltip : MonoBehaviour
             infobox.SetActive(false);
             rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y + 230);
         }
-    }
-    public void assignColor()
-    {
-        var colorHolder = FocusColors.getColor(focus_id);
-        userBox.GetComponent<RawImage>().color = colorHolder;
     }
 
     private void updateModifyText()
