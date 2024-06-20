@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using UnityEngine.Rendering.Universal;
+using Unity.VisualScripting;
 
 
 
@@ -44,8 +45,6 @@ public class RunMolecularDynamics : MonoBehaviour
 
     bool running = false;
     dynamic apax;
-    List<Vector3> posList;
-    string[] symbolList;
     List<Vector3> sim_results;
     Molecule currentMol;
     List<Atom> grabbedAtoms = new List<Atom>();
@@ -53,8 +52,19 @@ public class RunMolecularDynamics : MonoBehaviour
 
     private void prepareSim()
     {
-        if (!PythonEnvironmentManager.Singleton) return;
-        if (!PythonEnvironmentManager.Singleton.isInitialized) return;
+        if (!PythonEnvironmentManager.Singleton)
+        {
+            running = false;
+            Debug.LogWarning("[RunMolecularDynamics] No PythonEnvironmentManager found.");
+            return;
+        }
+        if (!PythonEnvironmentManager.Singleton.isInitialized)
+        {
+            running = false;
+            Debug.LogWarning("[RunMolecularDynamics] PythonEnvironment not initialized yet.");
+            return;
+        }
+
 
         base_dir = Path.Combine(Application.streamingAssetsPath, "md");
         if (!Directory.Exists(base_dir))
@@ -67,7 +77,7 @@ public class RunMolecularDynamics : MonoBehaviour
         sim_results = new List<Vector3>();
 
         // Prepare lists
-        posList = new List<Vector3>();
+        var posList = new List<Vector3>();
         for (int i = 0; i < currentMol.atomList.Count; i++)
         {
             var atom = currentMol.atomList[i];
@@ -75,7 +85,7 @@ public class RunMolecularDynamics : MonoBehaviour
             posList.Add(pos);
         }
 
-        symbolList = new string[currentMol.atomList.Count];
+        var symbolList = new string[currentMol.atomList.Count];
         for (int i = 0; i < currentMol.atomList.Count; i++)
         {
             var atom = currentMol.atomList[i];
@@ -89,10 +99,10 @@ public class RunMolecularDynamics : MonoBehaviour
             }
         }
 
-        var index_array = new int[currentMol.atomList.Count];
+        var indexList = new int[currentMol.atomList.Count];
         for (int i = 0; i < currentMol.atomList.Count; i++)
         {
-            index_array[i] = currentMol.atomList[i].m_id;
+            indexList[i] = currentMol.atomList[i].m_id;
         }
 
         // Acquire the GIL before using any Python APIs
@@ -116,7 +126,7 @@ public class RunMolecularDynamics : MonoBehaviour
             }
 
             var pyIndexList = new PyList();
-            foreach (var id in index_array)
+            foreach (var id in indexList)
             {
                 pyIndexList.Append(new PyInt(id));
             }
@@ -126,8 +136,10 @@ public class RunMolecularDynamics : MonoBehaviour
             apax = script.ApaxMD(base_dir: base_dir, mode: "thermostat");
             apax.setData(pyPosList, pySymbolList, pyIndexList);
         }
+
         Debug.Log("[RunMolecularDynamics] Preparation complete.");
     }
+
 
 
     dynamic python_return;
@@ -174,9 +186,10 @@ public class RunMolecularDynamics : MonoBehaviour
         {
             for (int i = 0; i < currentMol.atomList.Count; i++)
             {
-                if (grabbedAtoms.Find(at => at.m_id == i) != null)
+                var atom = currentMol.atomList[i];
+                if (!atom.isGrabbed)
                 {
-                    currentMol.atomList[i].transform.localPosition = sim_results[i];
+                    atom.transform.localPosition = sim_results[i];
                     EventManager.Singleton.MoveAtom(currentMol.m_id, currentMol.atomList[i].m_id, currentMol.atomList[i].transform.localPosition);
                 }
             }
@@ -203,12 +216,12 @@ public class RunMolecularDynamics : MonoBehaviour
 
     public void toggleSim()
     {
-        running = !running;
         ForceField.Singleton.toggleForceFieldUI();
-        if (running)
+        if (!running)
         {
             prepareSim();
         }
+        running = !running;
     }
 #endif
 }

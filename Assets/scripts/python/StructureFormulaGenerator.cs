@@ -37,8 +37,8 @@ public class StructureFormulaGenerator : MonoBehaviour
 #if UNITY_STANDALONE || UNITY_EDITOR
     void Start()
     {
-        EventManager.Singleton.OnMolDataChanged += requestStructureFormula;
-        EventManager.Singleton.OnMoleculeLoaded += immediateRequestStructureFormula;
+        //EventManager.Singleton.OnMolDataChanged += requestStructureFormula;
+        //EventManager.Singleton.OnMoleculeLoaded += immediateRequestStructureFormula;
     }
 
     public void requestStructureFormula(Molecule mol)
@@ -179,8 +179,8 @@ public class StructureFormulaGenerator : MonoBehaviour
 
     private void OnDestroy()
     {
-        EventManager.Singleton.OnMolDataChanged -= requestStructureFormula;
-        EventManager.Singleton.OnMoleculeLoaded -= immediateRequestStructureFormula;
+        //EventManager.Singleton.OnMolDataChanged -= requestStructureFormula;
+        //EventManager.Singleton.OnMoleculeLoaded -= immediateRequestStructureFormula;
     }
 #endif
 }

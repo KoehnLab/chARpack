@@ -44,6 +44,7 @@ public class PythonEnvironmentManager : MonoBehaviour
 
     string base_path;
     string python_env_path;
+    bool isInstalled = false;
     private static readonly HttpClient client = new HttpClient();
     Thread thread;
     void Start()
@@ -58,6 +59,10 @@ public class PythonEnvironmentManager : MonoBehaviour
                 Debug.Log("[PythonEnvironmentManager] No PythonEnv found. Starting download...");
                 downloadEnvironment();
             }
+            else
+            {
+                isInstalled = true;
+            }
         });
         thread.Start();
         StartCoroutine(waitForEnvironmentPrep());
@@ -65,8 +70,11 @@ public class PythonEnvironmentManager : MonoBehaviour
 
     IEnumerator waitForEnvironmentPrep()
     {   
+        while (!isInstalled)
+        {
+            yield return new WaitForSeconds(1f);
+        }
         thread.Join();
-        yield return null;
         initEnvironment();
     }
 
@@ -182,7 +190,8 @@ public class PythonEnvironmentManager : MonoBehaviour
 
         ZipFile.ExtractToDirectory(download_path, extract_path);
 
-        Debug.Log("[PythonEnvironmentManager] Python environment ready.");
+        isInstalled = true;
+        Debug.Log("[PythonEnvironmentManager] Python environment installed.");
     }
 
     private void OnDestroy()
