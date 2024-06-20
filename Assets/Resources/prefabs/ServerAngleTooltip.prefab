@@ -1075,19 +1075,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 074500541283ccd49a8a6f05afc48f06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  collapse_button: {fileID: 2171505060427477470}
   ToolTipText: {fileID: 431159400314374251}
   closeButton: {fileID: 2035448858639278247}
-  modifyButton: {fileID: 7627941846924994021}
   rect: {fileID: 0}
   localPosition: {x: 0, y: 0, z: 0}
-  linkedAtom: {fileID: 0}
   userbox: {fileID: 1346237270453916517}
   focus_id: -1
   isSmall: 0
   title: {fileID: 3966333962854912051}
   infobox: {fileID: 7561788233865965297}
   UI: {fileID: 0}
+  collapseButton: {fileID: 2171505060427477470}
+  modifyButton: {fileID: 7627941846924994021}
+  linkedAtom: {fileID: 0}
 --- !u!1 &7128668385505119439
 GameObject:
   m_ObjectHideFlags: 0

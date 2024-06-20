@@ -1323,20 +1323,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff139045fedc62f4aba297e98f183e4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  collapse_button: {fileID: 1518384493247081109}
   ToolTipText: {fileID: 1065971913480016672}
   closeButton: {fileID: 1661690883329833964}
-  snapButton: {fileID: 7127854950306496174}
+  rect: {fileID: 0}
   localPosition: {x: 0, y: 0, z: 0}
-  mol1: {fileID: 0}
-  mol2: {fileID: 0}
   userbox: {fileID: 5296339916807945674}
+  focus_id: -1
   isSmall: 0
   title: {fileID: 4340310363347274616}
   infobox: {fileID: 7187745742415803834}
-  rect: {fileID: 0}
-  focus_id: -1
   UI: {fileID: 0}
+  collapseButton: {fileID: 1518384493247081109}
+  snapButton: {fileID: 7127854950306496174}
+  mol1: {fileID: 0}
+  mol2: {fileID: 0}
 --- !u!1 &8141794244510177087
 GameObject:
   m_ObjectHideFlags: 0

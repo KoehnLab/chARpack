@@ -912,7 +912,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 40}
+  m_SizeDelta: {x: 200, y: 335}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &4516550492944373213
 CanvasRenderer:
@@ -990,24 +990,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60066621e226b3446b8325965b279f5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  collapse_button: {fileID: 4634975642733058981}
   ToolTipText: {fileID: 6596586679140622864}
   closeButton: {fileID: 4778139302362352348}
+  rect: {fileID: 0}
+  localPosition: {x: 0, y: 0, z: 0}
+  userbox: {fileID: 4967012418608819138}
+  focus_id: -1
+  isSmall: 0
+  title: {fileID: 7600737152024443464}
+  infobox: {fileID: 3927384922859242634}
+  UI: {fileID: 0}
+  collapseButton: {fileID: 4634975642733058981}
   deleteButton: {fileID: 6496189921190317350}
   freezeButton: {fileID: 6496189922395747568}
   scaleButton: {fileID: 6496189922648167415}
   copyButton: {fileID: 52922933100626922}
   toggleDummiesButton: {fileID: 4011551832198483870}
   structureFormulaButton: {fileID: 4776609134116649144}
-  rect: {fileID: 0}
   linkedMolecule: {fileID: 0}
-  userbox: {fileID: 4967012418608819138}
-  localPosition: {x: 0, y: 0, z: 0}
-  isSmall: 0
-  title: {fileID: 7600737152024443464}
-  infobox: {fileID: 3927384922859242634}
-  focus_id: -1
-  UI: {fileID: 0}
 --- !u!1 &4967012418608819138
 GameObject:
   m_ObjectHideFlags: 0
