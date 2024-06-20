@@ -14,7 +14,7 @@ public class ServerSnapTooltip : ServerTooltip
     public Molecule mol2;
 
     // Start is called before the first frame update
-    void Start()
+    new void Start()
     {
         base.Start();
         collapseButton.onClick.AddListener(delegate { resize(); });

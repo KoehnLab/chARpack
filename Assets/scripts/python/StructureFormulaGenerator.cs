@@ -59,6 +59,8 @@ public class StructureFormulaGenerator : MonoBehaviour
 
     private void generate(Molecule mol)
     {
+        if (!PythonEnvironmentManager.Singleton) return;
+        if (!PythonEnvironmentManager.Singleton.isInitialized) return;
         // Prepare lists
         List<Vector3> posList = new List<Vector3>();
         for (int i = 0; i < mol.atomList.Count; i++)

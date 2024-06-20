@@ -17,7 +17,7 @@ public class ServerMoleculeTooltip : ServerTooltip
     [HideInInspector] public Molecule linkedMolecule;
 
     // Start is called before the first frame update
-    void Start()
+    new void Start()
     {
         base.Start();
         collapseButton.onClick.AddListener(delegate { resize(); });

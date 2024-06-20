@@ -34,13 +34,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7377244445179915796}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &-9113464871276747971
 MeshFilter:
@@ -100,9 +100,17 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7377244445179915796}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
+  serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &-3007990313468190229
@@ -126,12 +134,23 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7377244445179915796}
-  serializedVersion: 2
+  serializedVersion: 4
   m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
   m_UseGravity: 0
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -165,15 +184,15 @@ MonoBehaviour:
   manipulationType: 1
   twoHandedManipulationType: 7
   allowFarManipulation: 0
-  useForcesForNearManipulation: 1
+  useForcesForNearManipulation: 0
   oneHandRotationModeNear: 1
   oneHandRotationModeFar: 1
-  releaseBehavior: 3
+  releaseBehavior: 0
   transformSmoothingLogicType:
     reference: Microsoft.MixedReality.Toolkit.Utilities.DefaultTransformSmoothingLogic,
       Microsoft.MixedReality.Toolkit.SDK
-  smoothingFar: 1
-  smoothingNear: 1
+  smoothingFar: 0
+  smoothingNear: 0
   moveLerpTime: 0.001
   rotateLerpTime: 0.001
   scaleLerpTime: 0.001
@@ -205,8 +224,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   toolTipInstance: {fileID: 0}
+  backupOutlineColor:
+  - {r: 0.5, g: 0.5, b: 0.5, a: 0}
+  - {r: 0.5, g: 0.5, b: 0.5, a: 0}
+  - {r: 0.5, g: 0.5, b: 0.5, a: 0}
+  - {r: 0.5, g: 0.5, b: 0.5, a: 0}
   keepConfig: 0
   frozen: 0
+  focused: 00000000
+  serverFocus: 0
+  serverFocusByStructure: 0
+  structure_coords: {x: 0, y: 0}
+  structure_interactible: {fileID: 0}
   mouse_offset: {x: 0, y: 0, z: 0}
   m_id: 0
   m_molecule: {fileID: 0}
@@ -239,9 +268,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ad5169229e40a6428df032e2291b021, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numOutlines: 1
   outlineMode: 1
-  multiOutlineMode: 0
   outlineColor:
   - {r: 1, g: 1, b: 1, a: 1}
   - {r: 1, g: 0, b: 0, a: 1}

@@ -38,7 +38,7 @@ public class PythonEnvironmentManager : MonoBehaviour
         Singleton = this;
     }
 
-    bool isInitialized = false;
+    public bool isInitialized { get; private set; }
 
 #if UNITY_STANDALONE || UNITY_EDITOR
 
@@ -48,6 +48,7 @@ public class PythonEnvironmentManager : MonoBehaviour
     Thread thread;
     void Start()
     {
+        isInitialized = false;
         base_path = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
         python_env_path = Path.Combine(base_path, "PythonEnv");
         thread = new Thread(() =>

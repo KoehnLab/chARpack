@@ -53,6 +53,9 @@ public class RunMolecularDynamics : MonoBehaviour
 
     private void prepareSim()
     {
+        if (!PythonEnvironmentManager.Singleton) return;
+        if (!PythonEnvironmentManager.Singleton.isInitialized) return;
+
         base_dir = Path.Combine(Application.streamingAssetsPath, "md");
         if (!Directory.Exists(base_dir))
         {
@@ -171,8 +174,7 @@ public class RunMolecularDynamics : MonoBehaviour
         {
             for (int i = 0; i < currentMol.atomList.Count; i++)
             {
-                var exists = grabbedAtoms.Find(at => at.m_id == i);
-                if (exists == null)
+                if (grabbedAtoms.Find(at => at.m_id == i) != null)
                 {
                     currentMol.atomList[i].transform.localPosition = sim_results[i];
                     EventManager.Singleton.MoveAtom(currentMol.m_id, currentMol.atomList[i].m_id, currentMol.atomList[i].transform.localPosition);
@@ -190,8 +192,6 @@ public class RunMolecularDynamics : MonoBehaviour
                 pyPos.Append(new PyFloat(pos.y));
                 pyPos.Append(new PyFloat(pos.z));
                 apax.changeAtomPosition(atom.m_id, pyPos);
-
-                dynamic symbols = apax.atoms.get_chemical_symbols();
             }
         }
     }

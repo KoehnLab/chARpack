@@ -41,7 +41,8 @@ public class ServerTooltip : MonoBehaviour
             rect.position = save;
         }
         assignColor(focus_id);
-       }
+    }
+
     public void assignColor(int focus_id)
     {
         userbox.GetComponent<RawImage>().color = FocusColors.getColor(focus_id);

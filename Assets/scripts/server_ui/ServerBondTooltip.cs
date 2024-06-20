@@ -14,7 +14,7 @@ public class ServerBondTooltip : ServerTooltip
     public Bond linkedBond;
 
     // Start is called before the first frame update
-    void Start()
+    new void Start()
     {
         base.Start();
         collapse_button.onClick.AddListener(delegate { resize(); });
