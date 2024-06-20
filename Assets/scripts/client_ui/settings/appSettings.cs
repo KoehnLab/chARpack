@@ -337,6 +337,7 @@ public class appSettings : MonoBehaviour
         {
             ar_cam_man.enabled = SettingsData.videoPassThrough;
         }
+        updateVisuals();
     }
     #endregion
 
