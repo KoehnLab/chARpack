@@ -19,17 +19,20 @@ from glob import glob
 
 class ApaxMD:
 
-    def __init__(self, base_dir, mode="optimizer"):
-        self.base_dir = base_dir 
-        #os.path.dirname(os.path.abspath(__file__))
-        #sys.path.insert(0,self.script_dir)
+    def __init__(self, base_dir="", mode="optimizer"):
+        if base_dir == "":
+            self.base_dir = os.path.dirname(os.path.abspath(__file__))
+        else:
+            self.base_dir = base_dir
+
+        #sys.path.insert(0,self.base_dir)
         self.mode = mode
         self.atoms = None
         self.mol_id = None
         self.dyn = None
         self.optimizer = None
         self.constraint_atoms = []
-        #self.model_path = os.path.join(self.script_dir,"models/etoh")
+        #self.model_path = os.path.join(self.base_dir,"models/etoh")
         self.model_path = os.path.join(self.base_dir,"uncertainty_model/apax_ens")
         self.deleteMetaFiles()
 

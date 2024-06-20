@@ -64,14 +64,9 @@ public class PythonEnvironmentManager : MonoBehaviour
 
     IEnumerator waitForEnvironmentPrep()
     {   
-        if (thread != null)
-        {
-            while (thread.IsAlive)
-            {
-                yield return null;
-            }
-            initEnvironment();
-        }
+        thread.Join();
+        yield return null;
+        initEnvironment();
     }
 
     private void initEnvironment()
@@ -154,46 +149,6 @@ public class PythonEnvironmentManager : MonoBehaviour
         Debug.Log("[PythonEnvironmentManager] Python environment initialized.");
     }
 
-    // UnityWebRequest only works in main thread
-    //private void downloadEnvironment()
-    //{
-    //    string url = "https://cloud.visus.uni-stuttgart.de/index.php/s/avET4hM9eoUCx6i/download";
-    //    using (UnityWebRequest webRequest = UnityWebRequest.Get(url))
-    //    {
-    //        Debug.Log("[PythonEnvironmentManager] Placing web request.");
-    //        // Request and wait for the desired page.
-    //        webRequest.SendWebRequest();
-    //        while (webRequest.result == UnityWebRequest.Result.InProgress);
-
-    //        switch (webRequest.result)
-    //        {
-    //            case UnityWebRequest.Result.ConnectionError:
-    //            case UnityWebRequest.Result.DataProcessingError:
-    //                Debug.LogError($"[PythonEnvironmentManager] Error: {webRequest.error}");
-    //                break;
-    //            case UnityWebRequest.Result.ProtocolError:
-    //                Debug.LogError($"[PythonEnvironmentManager] HTTP Error: {webRequest.error}");
-    //                break;
-    //            case UnityWebRequest.Result.Success:
-    //                Debug.Log($"[PythonEnvironmentManager] Download successful.\nReceived: {webRequest.downloadHandler.text}");
-    //                break;
-    //        }
-
-    //        if (webRequest.result == UnityWebRequest.Result.Success)
-    //        {
-    //            string download_path = base_path + "/PythonEnv.zip";
-    //            Debug.Log("[PythonEnvironmentManager] Writing downloaded content to disc.");
-    //            WriteAsync(download_path, webRequest.downloadHandler.data);
-
-    //            string extract_path = base_path + "/PythonEnv/";
-    //            Debug.Log("[PythonEnvironmentManager] Extracting zip.");
-    //            Task.Run(() => ZipFile.ExtractToDirectory(download_path, extract_path));
-
-    //            Debug.Log("[PythonEnvironmentManager] Python environment ready.");
-    //        }
-    //    }
-    //}
-
     async void downloadEnvironment()
     {
         string url = "https://cloud.visus.uni-stuttgart.de/index.php/s/avET4hM9eoUCx6i/download";
@@ -228,16 +183,6 @@ public class PythonEnvironmentManager : MonoBehaviour
 
         Debug.Log("[PythonEnvironmentManager] Python environment ready.");
     }
-
-    //async Task WriteAsync(string filePath, byte[] data)
-    //{
-    //    using (FileStream sourceStream = new FileStream(filePath,
-    //        FileMode.Append, FileAccess.Write, FileShare.None,
-    //        bufferSize: 4096, useAsync: true))
-    //    {
-    //        await sourceStream.WriteAsync(data, 0, data.Length);
-    //    };
-    //}
 
     private void OnDestroy()
     {

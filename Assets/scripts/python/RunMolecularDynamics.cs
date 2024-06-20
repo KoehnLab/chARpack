@@ -120,12 +120,10 @@ public class RunMolecularDynamics : MonoBehaviour
 
             // Import your Python script
             dynamic script = Py.Import("test_md");
-
-            apax = script.ApaxMD("thermostat");
-            apax.setBaseDir(base_dir);
+            apax = script.ApaxMD(base_dir: base_dir, mode: "thermostat");
             apax.setData(pyPosList, pySymbolList, pyIndexList);
         }
-        Debug.Log("[RunMolecularDynamics] Preparations done");
+        Debug.Log("[RunMolecularDynamics] Preparation complete.");
     }
 
 
