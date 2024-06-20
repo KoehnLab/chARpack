@@ -36,8 +36,14 @@ public class UserPanelEntry : MonoBehaviour
     public GameObject device_type_visual_go;
     public TextMeshProUGUI device_type_label;
 
+    //public GameObject cam_switcher_button;
+
     public Image focusColorImage;
 
+    public void Start()
+    {
+        GetComponent<Button>().onClick.AddListener(delegate { CameraSwitcher.Singleton.switchToCam(client_id); });
+    }
 
     public void hasEyeTracking(bool value)
     {
