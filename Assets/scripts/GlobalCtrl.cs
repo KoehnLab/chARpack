@@ -309,6 +309,7 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.serverBondTooltipPrefab = (GameObject)Resources.Load("prefabs/ServerBondTooltip");
         Molecule.serverAngleTooltipPrefab = (GameObject)Resources.Load("prefabs/ServerAngleTooltip");
         Molecule.serverTorsionTooltipPrefab = (GameObject)Resources.Load("prefabs/ServerTorsionTooltip");
+        Molecule.serverSnapTooltipPrefab = (GameObject)Resources.Load("prefabs/ServerSnapTooltip");
 
         // Measuremet
         DistanceMeasurement.distMeasurementPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurementPrefab");
