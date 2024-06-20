@@ -505,6 +505,16 @@ public class OpenBabelReadWrite : MonoBehaviour
             var mol_id = Guid.NewGuid();
             List<cmlData> mol = new List<cmlData>();
             mol.Add(new Tuple<Guid, OBMol>(mol_id, obmol).AsCML());
+            foreach(cmlData mole in mol)
+            {
+                for(int i=0; i<mole.atomArray.Length;i++)
+                {
+                    if(mole.atomArray[i].abbre.Equals("H") || mole.atomArray[i].abbre.Equals("Dummy"))
+                    {
+                        mole.atomArray[i].hybrid = 0;
+                    }
+                }
+            }
             GlobalCtrl.Singleton.createFromCML(mol);
             NetworkManagerServer.Singleton.pushLoadMolecule(mol);
         }
