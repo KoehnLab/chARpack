@@ -11,6 +11,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using chARpackColorPalette;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
@@ -227,6 +228,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject serverBondTooltipPrefab;
     [HideInInspector] public static GameObject serverAngleTooltipPrefab;
     [HideInInspector] public static GameObject serverTorsionTooltipPrefab;
+    [HideInInspector] public static GameObject serverSnapTooltipPrefab;
 
     [HideInInspector] public static Material compMaterialA;
     [HideInInspector] public static Material compMaterialB;
@@ -455,7 +457,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 if (!GlobalCtrl.Singleton.snapToolTipInstances.ContainsKey(new Tuple<Guid, Guid>(m_id, mol.m_id)) &&
                     !GlobalCtrl.Singleton.snapToolTipInstances.ContainsKey(new Tuple<Guid, Guid>(mol.m_id, m_id)))
                 {
-                    createSnapToolTip(mol.m_id);
+                    if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
+                    { createServerSnapToolTip(mol.m_id); }
+                    else
+                    {
+                        createSnapToolTip(mol.m_id);
+                    }
                 }
                 else
                 {
@@ -515,6 +522,30 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         var closeSnapButtonInstance = Instantiate(closeMeButtonPrefab);
         closeSnapButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { closeSnapUI(otherMolID); });
         snapToolTip.GetComponent<DoubleLineDynamicToolTip>().addContent(closeSnapButtonInstance);
+
+        GlobalCtrl.Singleton.snapToolTipInstances[new Tuple<Guid, Guid>(m_id, otherMolID)] = snapToolTip;
+    }
+
+    /// <summary>
+    /// Creates a snap tool tip connected to the current molecule and the
+    /// other selected molecule.
+    /// It contains information about the molecules and a button that provides
+    /// the option to perform the snap.
+    /// </summary>
+    /// <param name="otherMolID">ID of the other selected molecule</param>
+    public void createServerSnapToolTip(Guid otherMolID, int focus_id=-1)
+    {
+        // create tool tip
+        var snapToolTip = Instantiate(serverSnapTooltipPrefab);
+
+        snapToolTip.GetComponent<ServerSnapTooltip>().mol1 = this;
+        snapToolTip.GetComponent<ServerSnapTooltip>().mol2 = GlobalCtrl.Singleton.List_curMolecules[otherMolID];
+        string toolTipText = $"Molecule1 ID: {m_id}\nMolecule2 ID: {otherMolID}";
+        snapToolTip.GetComponent<ServerSnapTooltip>().ToolTipText.text = toolTipText;
+
+        snapToolTip.GetComponent<ServerSnapTooltip>().snapButton.onClick.AddListener(delegate { snapUI(otherMolID); });
+        snapToolTip.GetComponent<ServerSnapTooltip>().closeButton.onClick.AddListener(delegate { closeSnapUI(otherMolID); });
+        toolTipInstance.GetComponent<ServerMoleculeTooltip>().focus_id = focus_id;
 
         GlobalCtrl.Singleton.snapToolTipInstances[new Tuple<Guid, Guid>(m_id, otherMolID)] = snapToolTip;
     }
