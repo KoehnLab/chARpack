@@ -212,7 +212,7 @@ public class CameraSwitcher : MonoBehaviour
         }
         var user_id = cameras.FirstOrDefault(x => x.Value == currentCam).Key;
         panel[user_id].transform.Find("Background").gameObject.SetActive(false);
-        currentCam = cameras.Values.ToList()[id];
+        currentCam = cameras[id];
 
         panel[id].transform.Find("Background").gameObject.SetActive(true);
         GlobalCtrl.Singleton.currentCamera = currentCam;

@@ -96,6 +96,7 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnSetSnapColors += sendSetSnapColor;
         EventManager.Singleton.OnCreateMeasurement += sendCreateMeasurement;
         EventManager.Singleton.OnClearMeasurements += sendClearMeasurements;
+        EventManager.Singleton.OnGrabAtom += sendGrabAtom;
     }
 
     private void FixedUpdate()

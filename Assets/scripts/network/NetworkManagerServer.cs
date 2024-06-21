@@ -1185,8 +1185,10 @@ public class NetworkManagerServer : MonoBehaviour
             NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
             return;
         }
+        atom.isGrabbed = grab;
+        atom.grabHighlight(grab);
 #if UNITY_STANDALONE || UNITY_EDITOR
-        if (RunMolecularDynamics.Singleton)
+        if (RunMolecularDynamics.Singleton && RunMolecularDynamics.Singleton.isRunning)
         {
             RunMolecularDynamics.Singleton.applyConstraint(atom, grab);
         }
