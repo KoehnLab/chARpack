@@ -40,10 +40,11 @@ public class RunMolecularDynamics : MonoBehaviour
 #if UNITY_STANDALONE || UNITY_EDITOR
     void Start()
     {
+        isRunning = false;
         EventManager.Singleton.OnGrabAtom += applyConstraint;
     }
 
-    bool running = false;
+    public bool isRunning { get; private set; }
     dynamic apax;
     List<Vector3> sim_results;
     Molecule currentMol;
@@ -54,13 +55,13 @@ public class RunMolecularDynamics : MonoBehaviour
     {
         if (!PythonEnvironmentManager.Singleton)
         {
-            running = false;
+            isRunning = false;
             Debug.LogWarning("[RunMolecularDynamics] No PythonEnvironmentManager found.");
             return;
         }
         if (!PythonEnvironmentManager.Singleton.isInitialized)
         {
-            running = false;
+            isRunning = false;
             Debug.LogWarning("[RunMolecularDynamics] PythonEnvironment not initialized yet.");
             return;
         }
@@ -177,7 +178,7 @@ public class RunMolecularDynamics : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!running) return;
+        if (!isRunning) return;
         if (apax != null)
         {
             StartCoroutine(spreadSimulation());
@@ -211,17 +212,17 @@ public class RunMolecularDynamics : MonoBehaviour
 
     public void stopSim()
     {
-        running = false;
+        isRunning = false;
     }
 
     public void toggleSim()
     {
         ForceField.Singleton.toggleForceFieldUI();
-        if (!running)
+        if (!isRunning)
         {
             prepareSim();
         }
-        running = !running;
+        isRunning = !isRunning;
     }
 #endif
 }
