@@ -1,13 +1,11 @@
-using System;
 using System.IO;
 using UnityEngine;
 using Python.Runtime;
 using System.Collections.Generic;
 using System.Collections;
+using System;
 using System.Linq;
-using UnityEngine.Rendering.Universal;
-using Unity.VisualScripting;
-
+using chARpackTypes;
 
 
 public class RunMolecularDynamics : MonoBehaviour
@@ -28,7 +26,6 @@ public class RunMolecularDynamics : MonoBehaviour
                 Debug.Log($"[{nameof(RunMolecularDynamics)}] Instance already exists, destroying duplicate!");
                 Destroy(value);
             }
-
         }
     }
 
@@ -46,8 +43,8 @@ public class RunMolecularDynamics : MonoBehaviour
 
     public bool isRunning { get; private set; }
     dynamic apax;
-    List<Vector3> sim_results;
-    Molecule currentMol;
+    List<Atom> id_convert;
+    List<Vector3> sim_result;
     List<Atom> grabbedAtoms = new List<Atom>();
     string base_dir;
 
@@ -74,36 +71,45 @@ public class RunMolecularDynamics : MonoBehaviour
             return;
         }
 
-        currentMol = GlobalCtrl.Singleton.List_curMolecules.Values.First();
-        sim_results = new List<Vector3>();
+        if (GlobalCtrl.Singleton.List_curMolecules.Count == 0)
+        {
+            Debug.LogWarning("[RunMolecularDynamics] Preparing system for empty scene. Abort.");
+            return;
+        }
+        sim_result = new List<Vector3>();
+        id_convert = new List<Atom>();
 
         // Prepare lists
         var posList = new List<Vector3>();
-        for (int i = 0; i < currentMol.atomList.Count; i++)
+        int num_atoms = 0;
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
-            var atom = currentMol.atomList[i];
-            var pos = atom.transform.localPosition * GlobalCtrl.u2aa / GlobalCtrl.scale;
-            posList.Add(pos);
-        }
-
-        var symbolList = new string[currentMol.atomList.Count];
-        for (int i = 0; i < currentMol.atomList.Count; i++)
-        {
-            var atom = currentMol.atomList[i];
-            if (atom.m_data.m_abbre.ToLower() == "dummy")
+            for (int i = 0; i < mol.atomList.Count; i++)
             {
-                symbolList[i] = "H";
-            }
-            else
-            {
-                symbolList[i] = atom.m_data.m_abbre;
+                var atom = mol.atomList[i];
+                id_convert.Add(atom);
+                var pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(atom.transform.position) * GlobalCtrl.u2aa / GlobalCtrl.scale;
+                posList.Add(pos);
+                num_atoms++;
             }
         }
 
-        var indexList = new int[currentMol.atomList.Count];
-        for (int i = 0; i < currentMol.atomList.Count; i++)
+
+        var symbolList = new List<string>();
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
-            indexList[i] = currentMol.atomList[i].m_id;
+            for (int i = 0; i < mol.atomList.Count; i++)
+            {
+                var atom = mol.atomList[i];
+                if (atom.m_data.m_abbre.ToLower() == "dummy")
+                {
+                    symbolList.Add("H");
+                }
+                else
+                {
+                    symbolList.Add(atom.m_data.m_abbre);
+                }
+            }
         }
 
         // Acquire the GIL before using any Python APIs
@@ -126,34 +132,26 @@ public class RunMolecularDynamics : MonoBehaviour
                 pySymbolList.Append(new PyString(s));
             }
 
-            var pyIndexList = new PyList();
-            foreach (var id in indexList)
-            {
-                pyIndexList.Append(new PyInt(id));
-            }
-
             // Import your Python script
             dynamic script = Py.Import("test_md");
             apax = script.ApaxMD(base_dir: base_dir, mode: "thermostat");
-            apax.setData(pyPosList, pySymbolList, pyIndexList);
+            apax.setData(pyPosList, pySymbolList);
         }
 
         Debug.Log("[RunMolecularDynamics] Preparation complete.");
     }
 
-
-
-    dynamic python_return;
     private IEnumerator spreadSimulation()
     {
         //yield return new WaitForSeconds(0.1f);
         yield return apax.run();
-        python_return = apax.getPositions();
+        dynamic python_pos_return = apax.getPositions();
+        int num_atoms = apax.getNumAtoms().As<int>();
 
-        sim_results = new List<Vector3>();
-        foreach (var res in python_return)
+        sim_result = new List<Vector3>();
+        for (int i = 0; i < num_atoms; i++)
         {
-            sim_results.Add(GlobalCtrl.scale / GlobalCtrl.u2aa * new Vector3(res[0].As<float>(), res[1].As<float>(), res[2].As<float>()));
+            sim_result.Add(GlobalCtrl.scale / GlobalCtrl.u2aa * new Vector3(python_pos_return[i][0].As<float>(), python_pos_return[i][1].As<float>(), python_pos_return[i][2].As<float>()));
         }
         yield return null;
     }
@@ -163,7 +161,8 @@ public class RunMolecularDynamics : MonoBehaviour
         if (apax == null) return;
         using (Py.GIL())
         {
-            apax.fixAtom(a.m_id, value);
+            var id = id_convert.IndexOf(a);
+            apax.fixAtom(id, value);
         }
         if (value)
         {
@@ -183,24 +182,38 @@ public class RunMolecularDynamics : MonoBehaviour
         {
             StartCoroutine(spreadSimulation());
         }
-        if (sim_results?.Count > 0)
+        if (sim_result?.Count > 0)
         {
-            for (int i = 0; i < currentMol.atomList.Count; i++)
+            //int offset = 0;
+            //foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
+            //{
+            //    for (int i = 0; i < mol.atomList.Count; i++)
+            //    {
+            //        var atom = mol.atomList[i];
+            //        if (!atom.isGrabbed)
+            //        {
+            //            atom.transform.position = GlobalCtrl.Singleton.atomWorld.transform.TransformPoint(sim_results[offset + i]);
+            //            EventManager.Singleton.MoveAtom(mol.m_id, mol.atomList[i].m_id, mol.atomList[i].transform.localPosition);
+            //        }
+            //    }
+            //    offset += mol.atomList.Count;
+            // }
+            for (int i = 0; i < id_convert.Count; i++)
             {
-                var atom = currentMol.atomList[i];
+                var atom = id_convert[i];
                 if (!atom.isGrabbed)
                 {
-                    atom.transform.localPosition = sim_results[i];
-                    EventManager.Singleton.MoveAtom(currentMol.m_id, currentMol.atomList[i].m_id, currentMol.atomList[i].transform.localPosition);
+                    atom.transform.position = GlobalCtrl.Singleton.atomWorld.transform.TransformPoint(sim_result[i]);
+                    EventManager.Singleton.MoveAtom(atom.m_molecule.m_id, atom.m_id, atom.transform.localPosition);
                 }
             }
-            sim_results = null;
+            sim_result = null;
         }
         using (Py.GIL())
         {
             foreach (var atom in grabbedAtoms)
             {
-                var pos = atom.transform.localPosition * GlobalCtrl.u2aa / GlobalCtrl.scale;
+                var pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(atom.transform.position) * GlobalCtrl.u2aa / GlobalCtrl.scale;
                 var pyPos = new PyList();
                 pyPos.Append(new PyFloat(pos.x));
                 pyPos.Append(new PyFloat(pos.y));

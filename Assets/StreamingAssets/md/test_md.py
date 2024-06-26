@@ -92,6 +92,12 @@ class ApaxMD:
 
     def getPositions(self):
         return self.atoms.positions
+    
+    def getIndices(self):
+        return [x.index for x in self.atoms]
+
+    def getNumAtoms(self):
+        return len(self.atoms)
 
     def test(self):
         self.atoms.get_chemical_symbols()
