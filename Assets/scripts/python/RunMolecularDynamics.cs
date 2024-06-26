@@ -45,7 +45,6 @@ public class RunMolecularDynamics : MonoBehaviour
     dynamic apax;
     List<Atom> id_convert;
     List<Vector3> sim_result;
-    List<Atom> grabbedAtoms = new List<Atom>();
     string base_dir;
 
     private void prepareSim()
@@ -82,6 +81,7 @@ public class RunMolecularDynamics : MonoBehaviour
         // Prepare lists
         var posList = new List<Vector3>();
         int num_atoms = 0;
+        var symbolList = new List<string>();
         foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
             for (int i = 0; i < mol.atomList.Count; i++)
@@ -91,16 +91,7 @@ public class RunMolecularDynamics : MonoBehaviour
                 var pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(atom.transform.position) * GlobalCtrl.u2aa / GlobalCtrl.scale;
                 posList.Add(pos);
                 num_atoms++;
-            }
-        }
 
-
-        var symbolList = new List<string>();
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
-        {
-            for (int i = 0; i < mol.atomList.Count; i++)
-            {
-                var atom = mol.atomList[i];
                 if (atom.m_data.m_abbre.ToLower() == "dummy")
                 {
                     symbolList.Add("H");
@@ -112,24 +103,22 @@ public class RunMolecularDynamics : MonoBehaviour
             }
         }
 
+        var posAndSymbols = posList.Zip(symbolList, (p, s) => new { Pos = p, Symbol = s });
         // Acquire the GIL before using any Python APIs
         using (Py.GIL())
         {
             // Convert the C# float array to a Python list
             var pyPosList = new PyList();
-            foreach (var p in posList)
+            var pySymbolList = new PyList();
+            foreach (var possym in posAndSymbols)
             {
                 var pos = new PyList();
-                pos.Append(new PyFloat(p.x));
-                pos.Append(new PyFloat(p.y));
-                pos.Append(new PyFloat(p.z));
+                pos.Append(new PyFloat(possym.Pos.x));
+                pos.Append(new PyFloat(possym.Pos.y));
+                pos.Append(new PyFloat(possym.Pos.z));
                 pyPosList.Append(pos);
-            }
 
-            var pySymbolList = new PyList();
-            foreach (var s in symbolList)
-            {
-                pySymbolList.Append(new PyString(s));
+                pySymbolList.Append(new PyString(possym.Symbol));
             }
 
             // Import your Python script
@@ -163,14 +152,6 @@ public class RunMolecularDynamics : MonoBehaviour
         {
             var id = id_convert.IndexOf(a);
             apax.fixAtom(id, value);
-        }
-        if (value)
-        {
-            grabbedAtoms.Add(a);
-        }
-        else
-        {
-            grabbedAtoms.Remove(a);
         }
     }
 
@@ -211,14 +192,17 @@ public class RunMolecularDynamics : MonoBehaviour
         }
         using (Py.GIL())
         {
-            foreach (var atom in grabbedAtoms)
+            for (int i = 0; i < id_convert.Count; i++)
             {
-                var pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(atom.transform.position) * GlobalCtrl.u2aa / GlobalCtrl.scale;
-                var pyPos = new PyList();
-                pyPos.Append(new PyFloat(pos.x));
-                pyPos.Append(new PyFloat(pos.y));
-                pyPos.Append(new PyFloat(pos.z));
-                apax.changeAtomPosition(atom.m_id, pyPos);
+                if (id_convert[i].isGrabbed)
+                {
+                    var pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(id_convert[i].transform.position) * GlobalCtrl.u2aa / GlobalCtrl.scale;
+                    var pyPos = new PyList();
+                    pyPos.Append(new PyFloat(pos.x));
+                    pyPos.Append(new PyFloat(pos.y));
+                    pyPos.Append(new PyFloat(pos.z));
+                    apax.changeAtomPosition(i, pyPos);
+                }
             }
         }
     }
