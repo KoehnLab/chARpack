@@ -39,7 +39,10 @@ public class StructureFormulaGenerator : MonoBehaviour
     {
 
         EventManager.Singleton.OnMolDataChanged += requestStructureFormula;
-        EventManager.Singleton.OnMoleculeLoaded += immediateRequestStructureFormula;
+        if (SettingsData.autogenerateStructureFormulas)
+        {
+            EventManager.Singleton.OnMoleculeLoaded += immediateRequestStructureFormula;
+        }
 
         string[] possibleDllNames = new string[]
         {

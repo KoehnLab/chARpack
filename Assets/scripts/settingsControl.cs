@@ -61,6 +61,7 @@ public class settingsControl : MonoBehaviour
         setTimeFactors(SettingsData.timeFactors);
         setCoopSettings(SettingsData.coop);
         setInteractionMode(SettingsData.interactionMode);
+        setAutoGenerateStructureFormulas(SettingsData.autogenerateStructureFormulas);
         GlobalCtrl.Singleton.setLicoriceRendering(SettingsData.licoriceRendering);
         GlobalCtrl.Singleton.reloadShaders();
         GlobalCtrl.Singleton.regenerateSingleBondTooltips(); // Regenerate in case length unit was changed
@@ -142,6 +143,12 @@ public class settingsControl : MonoBehaviour
     private void setHandMenu(bool value)
     {
         handMenu.Singleton.gameObject.SetActive(value);
+    }
+
+    private void setAutoGenerateStructureFormulas(bool value)
+    {
+        if(value) EventManager.Singleton.OnMoleculeLoaded += StructureFormulaGenerator.Singleton.immediateRequestStructureFormula;
+        else EventManager.Singleton.OnMoleculeLoaded -= StructureFormulaGenerator.Singleton.immediateRequestStructureFormula;
     }
 
     private void setLanguage(string lang)

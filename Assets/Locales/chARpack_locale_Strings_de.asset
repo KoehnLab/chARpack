@@ -582,6 +582,12 @@ MonoBehaviour:
     m_Localized: Platzhalter
     m_Metadata:
       m_Items: []
+  - m_Id: 131626782116265984
+    m_Localized: 'Strukturformeln automatisch
+
+      generieren'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
