@@ -47,7 +47,7 @@ public class ServerAtomTooltip : ServerTooltip
         }
     }
 
-    public void Start()
+    public override void Start()
     {
         base.Start();
 

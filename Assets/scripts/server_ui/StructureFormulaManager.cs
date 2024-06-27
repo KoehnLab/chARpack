@@ -592,7 +592,7 @@ public class StructureFormulaManager : MonoBehaviour
         foreach (var go in svg_instances)
         {
             var sf = go.Value.Item1.GetComponentInParent<StructureFormula>();
-            if (sf = in_sf)
+            if (sf == in_sf)
             {
                 to_be_removed.Add(go.Key);
             }

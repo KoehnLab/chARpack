@@ -21,7 +21,7 @@ public class ServerTooltip : MonoBehaviour
     public GameObject infobox;
     // Start is called before the first frame update
     public Canvas UI;
-    public void Start()
+    public virtual void Start()
     {
         var UIthing = GameObject.Find("UICanvas");
         UI = UIthing.GetComponent<Canvas>();
