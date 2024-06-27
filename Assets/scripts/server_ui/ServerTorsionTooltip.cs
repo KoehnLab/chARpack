@@ -13,7 +13,9 @@ public class ServerTorsionTooltip : ServerTooltip
     public Button modifyButton;
     public Bond linkedBond;
 
-    new void Start()
+
+    public override void Start()
+
     {
         base.Start();
         collapseButton.onClick.AddListener(delegate { resize(); });

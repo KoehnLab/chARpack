@@ -37,8 +37,84 @@ public class StructureFormulaGenerator : MonoBehaviour
 #if UNITY_STANDALONE || UNITY_EDITOR
     void Start()
     {
-        //EventManager.Singleton.OnMolDataChanged += requestStructureFormula;
-        //EventManager.Singleton.OnMoleculeLoaded += immediateRequestStructureFormula;
+        EventManager.Singleton.OnMolDataChanged += requestStructureFormula;
+        if (SettingsData.autogenerateStructureFormulas)
+        {
+            EventManager.Singleton.OnMoleculeLoaded += immediateRequestStructureFormula;
+        }
+
+        string[] possibleDllNames = new string[]
+        {
+        "python313.dll",
+        "python312.dll",
+        "python311.dll",
+        "python310.dll",
+        "python39.dll",
+        "python38.dll",
+        "python37.dll",
+        "python36.dll",
+        "python35.dll",
+        };
+
+        var path = Path.Combine(Application.streamingAssetsPath, "PythonEnv");
+        string pythonHome = null;
+        string pythonExe = null;
+        foreach (var p in path.Split(';'))
+        {
+            var fullPath = Path.Combine(p, "python.exe");
+            if (File.Exists(fullPath))
+            {
+                pythonHome = Path.GetDirectoryName(fullPath);
+                pythonExe = fullPath;
+                break;
+            }
+        }
+
+        string pythonPath = null;
+        string dll_path = null;
+        string zip_path = null;
+        if (pythonHome != null)
+        {
+            // check for the dll
+            foreach (var dllName in possibleDllNames)
+            {
+                var fullPath = Path.Combine(pythonHome, dllName);
+                if (File.Exists(fullPath))
+                {
+                    dll_path = fullPath;
+                    zip_path = fullPath.Split('.')[0] + ".zip";
+                    break;
+                }
+            }
+            if (dll_path == null)
+            {
+                throw new Exception("Couldn't find python DLL");
+            }
+        }
+        else
+        {
+            throw new Exception("Couldn't find python.exe");
+        }
+
+        //// Set the path to the embedded Python environment
+        pythonPath = pythonHome + ";" + Path.Combine(pythonHome, "Lib\\site-packages") + ";" + zip_path + ";" + Path.Combine(pythonHome, "DLLs") + ";" + Path.Combine(Application.streamingAssetsPath, "PythonScripts");
+        Environment.SetEnvironmentVariable("PYTHONHOME", null);
+        Environment.SetEnvironmentVariable("PYTHONPATH", null);
+
+        // Display Python runtime details
+        Debug.Log($"Python DLL: {dll_path}");
+        Debug.Log($"Python executable: {pythonExe}");
+        Debug.Log($"Python home: {pythonHome}");
+        Debug.Log($"Python path: {pythonPath}");
+
+
+        // Initialize the Python runtime
+        Runtime.PythonDLL = dll_path;
+
+        // Initialize the Python engine with the embedded Python environment
+        PythonEngine.PythonHome = pythonHome;
+        PythonEngine.PythonPath = pythonPath;
+        PythonEngine.Initialize();
     }
 
     public void requestStructureFormula(Molecule mol)

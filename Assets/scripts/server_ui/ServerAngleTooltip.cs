@@ -12,7 +12,8 @@ public class ServerAngleTooltip : ServerTooltip
     public Button modifyButton;
     public Atom linkedAtom;
 
-    new void Start()
+    public override void Start()
+
     {
         base.Start();
         collapseButton.onClick.AddListener(delegate { resize(); });

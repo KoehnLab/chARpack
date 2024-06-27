@@ -27,6 +27,8 @@ public class SettingsData
     [SerializeField] static public bool licoriceRendering = false;
     [SerializeField] static public ColorScheme colorScheme = ColorScheme.GOLD;
     [SerializeField] static public bool videoPassThrough = true;
+    [SerializeField] static public bool autogenerateStructureFormulas = false; // Only for server, not broadcast via network
+
 
 
     public static int highlightColorMap { get => _highlightColorMap; set
