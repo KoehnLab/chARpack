@@ -573,6 +573,10 @@ MonoBehaviour:
     m_Key: ToDummy
     m_Metadata:
       m_Items: []
+  - m_Id: 131626782116265984
+    m_Key: AutoGenerateStructureFormula
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
