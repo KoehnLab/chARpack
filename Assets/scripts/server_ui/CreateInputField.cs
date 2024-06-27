@@ -50,7 +50,10 @@ public class CreateInputField : MonoBehaviour
                     return;
                 }
             }
-            OpenBabelReadWrite.Singleton.createSmiles(input_field.text);
+            if (input_field.text.Length > 0)
+            {
+                OpenBabelReadWrite.Singleton.createSmiles(input_field.text);
+            }
             gameObject.SetActive(false);
         }
         if (Input.GetKeyDown(KeyCode.Escape))
