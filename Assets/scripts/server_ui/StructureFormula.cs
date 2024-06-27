@@ -24,6 +24,8 @@ public class StructureFormula : MonoBehaviour
     private static int _numFocusRegions = 1;
     public int onlyUser = -1;
 
+    public Vector3 localPosition = new Vector3(0, 0, 0);
+
     public static int numFocusRegions { get => _numFocusRegions; 
         set
         {
@@ -44,6 +46,17 @@ public class StructureFormula : MonoBehaviour
 
         highlight_choice_dropdown.onValueChanged.AddListener(setHighlightOption);
         close_button.onClick.AddListener(close);
+
+        RectTransform rect = transform as RectTransform;
+        if (localPosition != new Vector3(0, 0, 0))
+        {
+            rect.localPosition = localPosition;
+        }
+        else
+        {
+            Vector2 save = SpawnManager.Singleton.GetSpawnLocalPosition(rect);
+            rect.position = save;
+        }
     }
 
 
