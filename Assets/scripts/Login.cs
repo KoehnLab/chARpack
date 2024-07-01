@@ -3,13 +3,11 @@ using Microsoft.MixedReality.Toolkit.Input;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using System;
 using QRTracking;
-using static Unity.Barracuda.TextureAsTensorData;
-using chARpackTypes;
+
 
 
 public class Login : MonoBehaviour
@@ -46,11 +44,8 @@ public class Login : MonoBehaviour
     [HideInInspector] public GameObject anchorPrefab;
 
     [HideInInspector] public GameObject labelPrefab;
+    [HideInInspector] public GameObject screenAlignmentPrefab;
 
-    [HideInInspector] public AudioClip confirmClip;
-
-    [HideInInspector] public GameObject screenQuadPrefab;
-    [HideInInspector] public Material screenIndicatorMaterial;
 
     private Transform cam;
 
@@ -71,9 +66,8 @@ public class Login : MonoBehaviour
         stopScanButtonPrefab = (GameObject)Resources.Load("prefabs/QR/StopScanButton");
         anchorPrefab = (GameObject)Resources.Load("prefabs/QR/QRAnchor");
         labelPrefab = (GameObject)Resources.Load("prefabs/3DLabelPrefab");
-        confirmClip = (AudioClip)Resources.Load("audio/confirmation");
-        screenQuadPrefab = (GameObject)Resources.Load("prefabs/ScreenQuad"); 
-        screenIndicatorMaterial = (Material)Resources.Load("materials/ScreenIndicatorMaterial");
+        screenAlignmentPrefab = (GameObject)Resources.Load("prefabs/ScreenAlignmentPrefab");
+
 
         cam = Camera.main.transform;
 
@@ -365,99 +359,23 @@ public class Login : MonoBehaviour
 #endif
     }
 
-    System.Diagnostics.Stopwatch screenScanStopwatch;
-    Vector3 oldIndexPos = Vector3.zero;
-    Triple<Vector3, Vector3, Vector3> screenVertices;
-    List<GameObject> indicatorList = new List<GameObject>();
     public void startScanScreen()
     {
-        //gameObject.SetActive(false);
-        if (indicatorList.Count > 0)
+        if (screenAlignment.Singleton)
         {
-            foreach (var indicator in indicatorList)
-            {
-                Destroy(indicator.gameObject);
-            }
-            indicatorList.Clear();
+            DestroyImmediate(screenAlignment.Singleton.gameObject);
         }
-        HandTracking.Singleton.gameObject.SetActive(true);
-        screenVertices = new Triple<Vector3, Vector3, Vector3>(Vector3.zero, Vector3.zero, Vector3.zero);
-        screenScanStopwatch = System.Diagnostics.Stopwatch.StartNew();
-        StartCoroutine(timedCheck());
+        Instantiate(screenAlignmentPrefab);
+
+        screenAlignment.Singleton.startScreenAlignment();
+        screenAlignment.Singleton.OnScreenInitialized += stopScanScreen;
+        gameObject.SetActive(false);
     }
 
-    private IEnumerator timedCheck()
+    private void stopScanScreen()
     {
-        bool run_check = true;
-        while (run_check)
-        {
-            var index_pos = HandTracking.Singleton.getIndexTip();
-            if (Vector3.Distance(index_pos, oldIndexPos) <= 0.001f)
-            {
-                screenScanStopwatch.Stop();
-                if (screenScanStopwatch.ElapsedMilliseconds > 2000)
-                {
-                    if (screenVertices.Item1 == Vector3.zero)
-                    {
-                        screenVertices = new Triple<Vector3, Vector3, Vector3>(index_pos, Vector3.zero, Vector3.zero);
-                        AudioSource.PlayClipAtPoint(confirmClip, index_pos);
-                        var indicator1 = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                        indicator1.transform.localScale = 0.01f * Vector3.one;
-                        indicator1.transform.position = index_pos;
-                        indicator1.GetComponent<Renderer>().material = screenIndicatorMaterial;
-                        indicatorList.Add(indicator1);
-                        screenScanStopwatch.Restart();
-                    }
-                    else if (screenVertices.Item2 == Vector3.zero)
-                    {
-                        screenVertices = new Triple<Vector3, Vector3, Vector3>(screenVertices.Item1, index_pos, Vector3.zero);
-                        AudioSource.PlayClipAtPoint(confirmClip, index_pos);
-                        var indicator2 = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                        indicator2.transform.localScale = 0.01f * Vector3.one;
-                        indicator2.transform.position = index_pos;
-                        indicator2.GetComponent<Renderer>().material = screenIndicatorMaterial;
-                        indicatorList.Add(indicator2);
-                        screenScanStopwatch.Restart();
-                    }
-                    else
-                    {
-                        screenVertices = new Triple<Vector3, Vector3, Vector3>(screenVertices.Item1, screenVertices.Item2, index_pos);
-                        AudioSource.PlayClipAtPoint(confirmClip, index_pos);
-                        var indicator3 = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                        indicator3.transform.localScale = 0.01f * Vector3.one;
-                        indicator3.transform.position = index_pos;
-                        indicator3.GetComponent<Renderer>().material = screenIndicatorMaterial;
-                        indicatorList.Add(indicator3);
-                        gameObject.SetActive(true);
-                        HandTracking.Singleton.gameObject.SetActive(false);
-                        var screenIndicator = Instantiate(screenQuadPrefab);
-                        var center = screenVertices.Item3 + 0.5f * (screenVertices.Item1 - screenVertices.Item3);
-                        screenIndicator.transform.position = Vector3.zero;
-                        var vertices = new Vector3[4];
-                        vertices[0] = screenIndicator.transform.InverseTransformPoint(screenVertices.Item2 + 2f * (center - screenVertices.Item2));
-                        vertices[1] = screenIndicator.transform.InverseTransformPoint(screenVertices.Item3);
-                        vertices[2] = screenIndicator.transform.InverseTransformPoint(screenVertices.Item1);
-                        vertices[3] = screenIndicator.transform.InverseTransformPoint(screenVertices.Item2);
-                        Debug.Log($"[Login] Corners: {screenVertices.Item1} {screenVertices.Item2} {screenVertices.Item3}");
-                        screenIndicator.GetComponent<MeshFilter>().mesh.vertices = vertices;
-                        screenIndicator.GetComponent<MeshFilter>().mesh.RecalculateNormals();
-                        screenIndicator.GetComponent<MeshFilter>().mesh.RecalculateBounds();
-                        indicatorList.Add(screenIndicator);
-                        run_check = false;
-                    }
-                }
-                else
-                {
-                    screenScanStopwatch.Start();
-                }
-            }
-            else
-            {
-                screenScanStopwatch.Restart();
-            }
-            oldIndexPos = index_pos;
-            yield return new WaitForSeconds(0.01f);
-        }
+        screenAlignment.Singleton.OnScreenInitialized -= stopScanScreen;
+        gameObject.SetActive(true);
     }
 
 }

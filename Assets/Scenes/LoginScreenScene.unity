@@ -11752,7 +11752,6 @@ MonoBehaviour:
   stopScanButtonInstance: {fileID: 0}
   anchorPrefab: {fileID: 0}
   labelPrefab: {fileID: 0}
-  confirmClip: {fileID: 0}
 --- !u!114 &9002824700177712317
 MonoBehaviour:
   m_ObjectHideFlags: 0

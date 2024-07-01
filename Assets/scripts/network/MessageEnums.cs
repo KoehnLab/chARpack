@@ -40,7 +40,8 @@ public enum ClientToServerID : ushort
     clearMeasurements = 1033,
     eyeCalibrationState = 1034,
     batteryState = 1035,
-    grabAtom = 1036
+    grabAtom = 1036,
+    grabOnScreen = 1037
 }
 
 public enum ServerToClientID : ushort
@@ -82,7 +83,9 @@ public enum ServerToClientID : ushort
     requestEyeCalibrationState = 2034,
     requestBatteryState = 2035,
     bcastServerFocusHighlight = 2036,
-    bcastNumOutlines = 2037
+    bcastNumOutlines = 2037,
+    bcastServerViewport = 2038,
+    bcastSyncMode = 2039
 }
 
 public enum SimToServerID : ushort

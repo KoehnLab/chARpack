@@ -1,8 +1,6 @@
 using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.Utilities;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -34,6 +32,7 @@ public class HandTracking : MonoBehaviour
     {
         Singleton = this;
         gameObject.SetActive(false);
+        showFragmentIndicator(false);
     }
 
     //private MixedRealityPose indexTip = MixedRealityPose.ZeroIdentity;
@@ -46,7 +45,10 @@ public class HandTracking : MonoBehaviour
 
     public void showFragmentIndicator(bool show)
     {
-        fragmentIndicator?.SetActive(show);
+        if (fragmentIndicator != null)
+        {
+            fragmentIndicator.SetActive(show);
+        }
     }
 
     // check hand pose to pick which end of chain to move

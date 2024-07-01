@@ -1,11 +1,10 @@
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.Utilities;
-using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using chARpackColorPalette;
 using Unity.VisualScripting;
+
 
 /// <summary>
 /// This class contains the functionality for an MRTK window showing the application's debug log.

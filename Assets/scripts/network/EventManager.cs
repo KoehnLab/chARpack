@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -315,6 +313,20 @@ public class EventManager : MonoBehaviour
     public void SetNumOutlines(int num_outlines)
     {
         OnSetNumOutlines?.Invoke(num_outlines);
+    }
+
+    public delegate void GrabOnScreenAction(Vector2 ss_coords);
+    public event GrabOnScreenAction OnGrabOnScreen;
+    public void GrabOnScreen(Vector2 ss_coords)
+    {
+        OnGrabOnScreen?.Invoke(ss_coords);
+    }
+
+    public delegate void SyncModeChangedAction(TransitionManager.SyncMode mode);
+    public event SyncModeChangedAction OnSyncModeChanged;
+    public void ChangeSyncMode(TransitionManager.SyncMode mode)
+    {
+        OnSyncModeChanged?.Invoke(mode);
     }
 
     #endregion
