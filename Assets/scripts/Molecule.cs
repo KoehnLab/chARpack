@@ -98,6 +98,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    public void Hover(bool value)
+    {
+        GetComponent<myBoundingBox>().setHovering(value);
+    }
+
     public void OnServerSliderUpdated()
     {
         cmlData before = this.AsCML();

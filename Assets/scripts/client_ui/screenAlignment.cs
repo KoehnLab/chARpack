@@ -224,7 +224,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
     }
 
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (fullyInitialized)
         {
@@ -232,9 +232,20 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
             if (projectionIndicator == null)
             {
                 projectionIndicator = Instantiate(indicator1, transform);
+                DestroyImmediate(projectionIndicator.GetComponent<BoxCollider>());
                 projectionIndicator.GetComponent<Renderer>().material.color = new Color(0f, 1f, 0f, 1f);
             }
-            projectionIndicator.transform.position = proj.Value;
+            if (GetComponent<BoxCollider>().bounds.Contains(proj.Value))
+            {
+                projectionIndicator.SetActive(true);
+                projectionIndicator.transform.position = proj.Value;
+                var ss_coords = getScreenSpaceCoords(proj.Value);
+                EventManager.Singleton.HoverOverScreen(ss_coords.Value);
+            }
+            else
+            {
+                projectionIndicator.SetActive(false);
+            }
         }
     }
 

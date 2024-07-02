@@ -21,6 +21,8 @@ public class myBoundingBox : MonoBehaviour
 
     [HideInInspector] public LineRenderer myLR;
     [HideInInspector] public GameObject[] cornerHandles = new GameObject[8];
+    private Material handleHoverMaterial;
+    private Material lineHoverMaterial;
 
     private Quaternion[] cornerOrientation = new Quaternion[8];
     private Bounds localBounds;
@@ -107,6 +109,8 @@ public class myBoundingBox : MonoBehaviour
         getBounds();
         generateCorners();
 
+        handleHoverMaterial = Resources.Load<Material>("materials/BoundingBoxHandleHover");
+        lineHoverMaterial = Resources.Load<Material>("materials/BoundingBoxLineHover");
     }
 
     private void generateCorners()
@@ -246,6 +250,28 @@ public class myBoundingBox : MonoBehaviour
             setNormalMaterial(fade);
         }
 
+    }
+
+    public void setHovering(bool hovering)
+    {
+        if (hovering)
+        {
+            if (handleHoverMaterial != null)
+            {
+                foreach (var handle in cornerHandles)
+                {
+                    handle.GetComponentInChildren<MeshRenderer>().material = handleHoverMaterial;
+                }
+            }
+            if (lineHoverMaterial != null)
+            {
+                myLR.material = lineHoverMaterial;
+            }
+        }
+        else
+        {
+            setNormalMaterial(fade);
+        }
     }
 
     public void Update()

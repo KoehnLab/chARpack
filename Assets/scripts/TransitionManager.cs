@@ -39,7 +39,34 @@ public class TransitionManager : MonoBehaviour
         Singleton = this;
     }
 
-    public void initialize(Vector2 ss_coords)
+
+
+    private Molecule hoverMol;
+    public void hover(Vector2 ss_coords)
+    {
+        var wpos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, 0.36f)); // z component is target distance from camera
+        Ray ray = new Ray();
+        ray.direction = GlobalCtrl.Singleton.currentCamera.transform.forward;
+        ray.origin = wpos;
+
+        RaycastHit hit;
+        if (Physics.SphereCast(ray, 0.04f, out hit))
+        {
+            var mol = hit.transform.GetComponentInParent<Molecule>();
+            if (mol != null)
+            {
+                hoverMol = mol;
+                hoverMol.Hover(true);
+            }
+            else
+            {
+                hoverMol.Hover(false);
+            }
+        }
+    }
+
+
+    public void initializeTransition(Vector2 ss_coords)
     {
 
         var wpos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, 0.36f)); // z component is target distance from camera
@@ -56,8 +83,6 @@ public class TransitionManager : MonoBehaviour
         ray.direction = GlobalCtrl.Singleton.currentCamera.transform.forward;
         ray.origin = wpos;
 
-        // Cast a sphere wrapping character controller 10 meters forward
-        // to see if it is about to hit anything.
         RaycastHit hit;
         if (Physics.SphereCast(ray, 0.04f, out hit))
         {

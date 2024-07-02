@@ -41,7 +41,8 @@ public enum ClientToServerID : ushort
     eyeCalibrationState = 1034,
     batteryState = 1035,
     grabAtom = 1036,
-    grabOnScreen = 1037
+    grabOnScreen = 1037,
+    hoverOverScreen = 1038
 }
 
 public enum ServerToClientID : ushort

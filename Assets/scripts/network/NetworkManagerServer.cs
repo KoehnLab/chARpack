@@ -72,7 +72,7 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnMRCapture += sendMRCapture;
         EventManager.Singleton.OnSetNumOutlines += bcastNumOutlines;
         EventManager.Singleton.OnSyncModeChanged += bcastSyncMode;
-        if (SettingsData.syncMode == TransitionManager.SyncMode.Sync)
+        if (currentSyncMode == TransitionManager.SyncMode.Sync)
         {
             activateSync();
         }
@@ -213,8 +213,11 @@ public class NetworkManagerServer : MonoBehaviour
     {
         // send current atom world
         Debug.Log($"[NetworkManagerServer] Client {e.Client.Id} connected. Sending current world and settings.");
-        var atomWorld = GlobalCtrl.Singleton.saveAtomWorld();
-        sendAtomWorld(atomWorld, e.Client.Id);
+        if (currentSyncMode == TransitionManager.SyncMode.Sync)
+        {
+            var atomWorld = GlobalCtrl.Singleton.saveAtomWorld();
+            sendAtomWorld(atomWorld, e.Client.Id);
+        }
         bcastSettings();
     }
 
@@ -1271,6 +1274,10 @@ public class NetworkManagerServer : MonoBehaviour
 #endif
         // no bradcasting
     }
+    #endregion
+
+
+    #region Async Setup
 
     [MessageHandler((ushort)ClientToServerID.grabOnScreen)]
     private static void getGrabOnScreen(ushort fromClientId, Message message)
@@ -1279,7 +1286,18 @@ public class NetworkManagerServer : MonoBehaviour
 
         if (TransitionManager.Singleton != null)
         {
-            TransitionManager.Singleton.initialize(ss_coords);
+            TransitionManager.Singleton.initializeTransition(ss_coords);
+        }
+    }
+
+    [MessageHandler((ushort)ClientToServerID.hoverOverScreen)]
+    private static void getHoverOverScreen(ushort fromClientId, Message message)
+    {
+        var ss_coords = message.GetVector2();
+
+        if (TransitionManager.Singleton != null)
+        {
+            TransitionManager.Singleton.hover(ss_coords);
         }
     }
     #endregion

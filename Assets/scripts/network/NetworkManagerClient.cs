@@ -71,6 +71,11 @@ public class NetworkManagerClient : MonoBehaviour
         // subscribe to event manager events
         EventManager.Singleton.OnEnableForceField += sendEnableForceField;
         EventManager.Singleton.OnGrabOnScreen += sendGrabOnScreen;
+        EventManager.Singleton.OnHoverOverScreen += sendHoverOverScreen;
+        if (currentSyncMode == TransitionManager.SyncMode.Sync)
+        {
+            activateSync();
+        }
     }
 
     public void changeSyncMode(TransitionManager.SyncMode mode)
@@ -560,6 +565,14 @@ public class NetworkManagerClient : MonoBehaviour
         message.AddVector2(ss_coords);
         Client.Send(message);
     }
+
+    private void sendHoverOverScreen(Vector2 ss_coords)
+    {
+        Message message = Message.Create(MessageSendMode.Unreliable, ClientToServerID.hoverOverScreen);
+        message.AddVector2(ss_coords);
+        Client.Send(message);
+    }
+
 
     #endregion
 

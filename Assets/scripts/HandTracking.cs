@@ -31,6 +31,10 @@ public class HandTracking : MonoBehaviour
     private void Awake()
     {
         Singleton = this;
+    }
+
+    private void Start()
+    {
         gameObject.SetActive(false);
         showFragmentIndicator(false);
     }

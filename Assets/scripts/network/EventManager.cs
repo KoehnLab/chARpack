@@ -329,6 +329,13 @@ public class EventManager : MonoBehaviour
         OnSyncModeChanged?.Invoke(mode);
     }
 
+    public delegate void HoverOverScreenAction(Vector2 ss_coords);
+    public event HoverOverScreenAction OnHoverOverScreen;
+    public void HoverOverScreen(Vector2 ss_coords)
+    {
+        OnHoverOverScreen?.Invoke(ss_coords);
+    }
+
     #endregion
 
 
