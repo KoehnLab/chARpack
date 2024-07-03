@@ -507,7 +507,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             var rotationMatrix = kabschRotationMatrix(atomPositions(), otherMol.atomPositions());
             transform.localRotation = Quaternion.LookRotation(rotationMatrix.GetRow(2), rotationMatrix.GetRow(1)) * transform.localRotation;
 
+            resetMolRotation();
+
             transform.localPosition = otherMol.transform.localPosition;
+            atomList[0].resetMolPositionAfterMove();
+            otherMol.atomList[0].resetMolPositionAfterMove();
         } catch(Exception e)
         {
             // keep rotation if algorithm doesn't converge
@@ -518,6 +522,37 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         setSnapColors(otherMol);
 
         return true;
+    }
+
+    public void resetMolRotation()
+    {
+
+        // reset molecule position
+        Vector3 molCenter = getCenterInAtomWorld();
+        // positions relative to the molecule center
+        foreach (Atom a in atomList)
+        {
+            a.transform.localPosition = (GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a.transform.position) - molCenter) * (1f / transform.localScale.x);
+        }
+        // rotate back
+        transform.localRotation = Quaternion.identity;
+        transform.localPosition = molCenter;
+        // scale, position and orient bonds
+        foreach (Bond bond in bondList)
+        {
+            Atom a1 = atomList.ElementAtOrDefault(bond.atomID1);
+            Atom a2 = atomList.ElementAtOrDefault(bond.atomID2);
+            var a1_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a1.transform.position);
+            var a2_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a2.transform.position);
+            float offset1 = a1.m_data.m_radius * ForceField.scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * transform.localScale.x;
+            float offset2 = a2.m_data.m_radius * ForceField.scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * transform.localScale.x;
+            float distance = (Vector3.Distance(a1_pos, a2_pos) - offset1 - offset2) / transform.localScale.x;
+            bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
+            Vector3 pos1 = Vector3.MoveTowards(a1_pos, a2_pos, offset1);
+            Vector3 pos2 = Vector3.MoveTowards(a2_pos, a1_pos, offset2);
+            bond.transform.position = (pos1 + pos2) / 2;
+            bond.transform.LookAt(a2.transform.position);
+        }
     }
 
     private Vector3[] atomPositions()
