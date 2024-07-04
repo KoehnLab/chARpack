@@ -594,6 +594,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             // keep rotation if algorithm doesn't converge
             UnityEngine.Debug.Log(e.Message);
+            transform.localPosition = otherMol.transform.localPosition;
         }
         // TODO: Add advanced alignment mode
         // add coloring
