@@ -18,10 +18,12 @@ public class SettingsPanel : MonoBehaviour
     public GameObject handJointsToggle;
     public GameObject handRayToggle;
     public GameObject handMenuToggle;
+    public GameObject autoGenerateStructureFormulasToggle;
     public GameObject languageDropdown;
     public GameObject gazeHighlightingToggle;
     public GameObject pointerHighlightingToggle;
     public GameObject bondColorInterpolationToggle;
+    public GameObject licoriceRenderingToggle;
     public GameObject integrationMethodDropdown;
     public GameObject interactionModeDropdown;
     public GameObject lengthUnitDropdown;
@@ -32,6 +34,8 @@ public class SettingsPanel : MonoBehaviour
     public GameObject userBoxToggle;
     public GameObject userRayToggle;
     public GameObject networkMeasurementsToggle;
+    public GameObject highlightColorMapDropdown;
+    public GameObject showAllHighlightsToggle;
 
     private void Start()
     {
@@ -66,11 +70,20 @@ public class SettingsPanel : MonoBehaviour
 
         handMenuToggle.GetComponent<Toggle>().isOn = SettingsData.handMenu;
 
+        autoGenerateStructureFormulasToggle.GetComponent<Toggle>().isOn = SettingsData.autogenerateStructureFormulas;
+
         gazeHighlightingToggle.GetComponent<Toggle>().isOn = SettingsData.gazeHighlighting;
 
         pointerHighlightingToggle.GetComponent<Toggle>().isOn = SettingsData.pointerHighlighting;
 
+        showAllHighlightsToggle.GetComponent<Toggle>().isOn = SettingsData.showAllHighlightsOnClients;
+
+        int highlightColorMapValue = (int)SettingsData.highlightColorMap;
+        highlightColorMapDropdown.GetComponent<TMPro.TMP_Dropdown>().value = highlightColorMapValue;
+
         bondColorInterpolationToggle.GetComponent<Toggle>().isOn = SettingsData.interpolateColors;
+
+        licoriceRenderingToggle.GetComponent<Toggle>().isOn = SettingsData.licoriceRendering;
 
         int langValue = 0;
         if (SettingsData.language == "de")
@@ -115,8 +128,11 @@ public class SettingsPanel : MonoBehaviour
         SettingsData.handJoints = handJointsToggle.GetComponent<Toggle>().isOn;
         SettingsData.handRay = handRayToggle.GetComponent<Toggle>().isOn;
         SettingsData.handMenu = handMenuToggle.GetComponent<Toggle>().isOn;
+        SettingsData.autogenerateStructureFormulas = autoGenerateStructureFormulasToggle.GetComponent<Toggle>().isOn;
         SettingsData.gazeHighlighting = gazeHighlightingToggle.GetComponent<Toggle>().isOn;
         SettingsData.pointerHighlighting = pointerHighlightingToggle.GetComponent<Toggle>().isOn;
+        SettingsData.showAllHighlightsOnClients = showAllHighlightsToggle.GetComponent<Toggle>().isOn;
+        SettingsData.highlightColorMap = highlightColorMapDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
         var options = languageDropdown.GetComponent<TMPro.TMP_Dropdown>().options;
         var lang = options[languageDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text;
         SettingsData.language = lang;
@@ -137,6 +153,7 @@ public class SettingsPanel : MonoBehaviour
         SettingsData.coop = new bool[] { userBoxToggle.GetComponent<Toggle>().isOn, userRayToggle.GetComponent<Toggle>().isOn };
         SettingsData.networkMeasurements = networkMeasurementsToggle.GetComponent<Toggle>().isOn;
         SettingsData.interpolateColors = bondColorInterpolationToggle.GetComponent<Toggle>().isOn;
+        SettingsData.licoriceRendering = licoriceRenderingToggle.GetComponent<Toggle>().isOn;
 
         settingsControl.Singleton.updateSettings();
         EventManager.Singleton.UpdateSettings();
@@ -151,6 +168,15 @@ public class SettingsPanel : MonoBehaviour
     {
         var active = gameObject.activeSelf;
         gameObject.SetActive(!active);
+    }
+
+
+    public void quit()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+        Application.Quit();
     }
 
 }

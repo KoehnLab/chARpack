@@ -1,0 +1,3 @@
+[submodule "Assets/StreamingAssets/PythonEnv"]
+	path = Assets/StreamingAssets/PythonEnv
+	url = https://github.com/KoehnLab/chARpack_PythonEnv.git

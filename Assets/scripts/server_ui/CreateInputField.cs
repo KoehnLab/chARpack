@@ -47,8 +47,14 @@ public class CreateInputField : MonoBehaviour
                 {
                     GlobalCtrl.Singleton.createAtomUI(symbol);
                     gameObject.SetActive(false);
+                    return;
                 }
             }
+            if (input_field.text.Length > 0)
+            {
+                OpenBabelReadWrite.Singleton.createSmiles(input_field.text);
+            }
+            gameObject.SetActive(false);
         }
         if (Input.GetKeyDown(KeyCode.Escape))
         {

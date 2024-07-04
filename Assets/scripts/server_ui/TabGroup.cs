@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using chARpackColorPalette;
 
 public class TabGroup : MonoBehaviour
 {
@@ -8,9 +9,9 @@ public class TabGroup : MonoBehaviour
     public List<GameObject> pagesToSwitch;
     public tabButton selectedTab;
 
-    private Color selectedColor = Color.black;
-    private Color hoverColor = Color.black;
-    private Color inactiveColor = Color.grey;
+    private Color selectedColor = chARpackColors.black;
+    private Color hoverColor = chARpackColors.black;
+    private Color inactiveColor = chARpackColors.grey;
 
     public void Subscribe(tabButton button)
     {

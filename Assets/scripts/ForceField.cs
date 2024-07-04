@@ -123,7 +123,7 @@ public class ForceField : MonoBehaviour
     public static float k0 = 3000f;               //between 100 - 5000
     public static float ka = 3f*k0;               //angle force constant
     public static float kb = 7f * k0 / 10000f;    //bond force constant, "/ 10000f" because of caculating A^2 to pm^2
-    public static float kim = 0.02f * k0;         //improper torsion force constant 0.45 ; 0.045
+    public static float kim = 0.45f * k0;         //improper torsion force constant 0.45 ; 0.045
 
     //float standardDistance = 154f; // integrate into new bondList
     public static float alphaNull = 109.4712f; // integrate into new angleList
@@ -209,62 +209,6 @@ public class ForceField : MonoBehaviour
         SettingsData.forceField = enableForceField;
     }
 
-    //TODO: This can probably be implemented more elegantly
-    public void switchIntegrationMethodForward()
-    {
-        switch (currentMethod)
-        {
-            case Method.Euler: 
-                currentMethod = Method.Verlet; 
-                break;
-            case Method.Verlet:
-                currentMethod = Method.RungeKutta;
-                break;
-            case Method.RungeKutta:
-                currentMethod = Method.Heun;
-                break;
-            case Method.Heun:
-                currentMethod = Method.Ralston;
-                break;
-            case Method.Ralston:
-                currentMethod = Method.SteepestDescent;
-                break;
-            case Method.SteepestDescent:
-                currentMethod = Method.MidPoint;
-                break;
-            default:
-                currentMethod = Method.Euler;
-                break;
-        }
-    }
-    public void switchIntegrationMethodBackward()
-    {
-        switch (currentMethod)
-        {
-            case Method.Euler:
-                currentMethod = Method.MidPoint;
-                break;
-            case Method.Verlet:
-                currentMethod = Method.Euler;
-                break;
-            case Method.RungeKutta:
-                currentMethod = Method.Verlet;
-                break;
-            case Method.Heun:
-                currentMethod = Method.RungeKutta;
-                break;
-            case Method.Ralston:
-                currentMethod = Method.Heun;
-                break;
-            case Method.SteepestDescent:
-                currentMethod = Method.Ralston;
-                break;
-            default:
-                currentMethod = Method.SteepestDescent;
-                break;
-        }
-    }
-
     // Start is called before the first frame update
     void Start()
     {
@@ -339,11 +283,15 @@ public class ForceField : MonoBehaviour
     void measureConvergence()
     {
         bool converged = true;
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
             foreach (var step in mol.FFmovement)
             {
                 converged = converged && (step.magnitude < threshold);
+            }
+            if (converged)
+            {
+                EventManager.Singleton.RelaxMol(mol);
             }
         }
         if (converged)
@@ -361,7 +309,7 @@ public class ForceField : MonoBehaviour
     bool isConverged()
     {
         bool converged = true;
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
             for (int i = 0; i < mol.atomList.Count; i++)
             {
@@ -374,7 +322,7 @@ public class ForceField : MonoBehaviour
 
     void clearLists()
     {
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
             mol.FFposition.Clear();
             mol.FFforces.Clear();
@@ -408,7 +356,7 @@ public class ForceField : MonoBehaviour
         for (int istep = 0; istep < integrationCycles; istep++)
         {
             // Forces Pass 1
-            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
             {
                 //Loop Bond List
                 foreach (BondTerm bond in mol.bondTerms)
@@ -438,7 +386,7 @@ public class ForceField : MonoBehaviour
             if (currentMethod == Method.RungeKutta || currentMethod == Method.Heun || currentMethod == Method.Ralston)
             {
                 // Forces Pass 2
-                foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+                foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
                 {
                     //Loop Bond List
                     foreach (BondTerm bond in mol.bondTerms)
@@ -502,7 +450,7 @@ public class ForceField : MonoBehaviour
         while (notConverged)
         {
             // Forces Pass 1
-            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
             {
                 //Loop Bond List
                 foreach (BondTerm bond in mol.bondTerms)
@@ -796,7 +744,7 @@ public class ForceField : MonoBehaviour
 
         // force -> momentum change: divide by mass
         // momentum change to position change: apply time factor
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
 
             // check for too long steps:
@@ -836,7 +784,7 @@ public class ForceField : MonoBehaviour
 
     void verletIntegration()
     {
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
             // update position and total movement:
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
@@ -859,7 +807,7 @@ public class ForceField : MonoBehaviour
 
     void RK_Integration()
     {
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
             // update position and total movement:
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
@@ -883,7 +831,7 @@ public class ForceField : MonoBehaviour
 
     void midpointIntegration()
     {
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
 
             // update position and total movement:
@@ -910,7 +858,7 @@ public class ForceField : MonoBehaviour
 
     void steepestDecent()
     {
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
 
             //    // update position and total movement:
@@ -976,7 +924,7 @@ public class ForceField : MonoBehaviour
 
     void RKAS_Integration_1D()
     {
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
 
             // update position and total movement:
@@ -1009,7 +957,7 @@ public class ForceField : MonoBehaviour
 
     void RKAS_Integration_3D()
     {
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
 
             // update position and total movement:
@@ -1046,7 +994,7 @@ public class ForceField : MonoBehaviour
     void applyMovements()
     {
         // momentum change to position change: apply time factor
-        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
             for (int iAtom = 0; iAtom < mol.atomList.Count; iAtom++)
             {
@@ -1082,14 +1030,19 @@ public class ForceField : MonoBehaviour
         // Calculate distance between atoms
         // Scale, transform position, LookAt
         
-        foreach(Molecule mol in GlobalCtrl.Singleton.List_curMolecules)
+        foreach(Molecule mol in GlobalCtrl.Singleton.List_curMolecules.Values)
         {
             foreach(Bond bond in mol.bondList)
             {
                 Atom a1 = mol.atomList.ElementAtOrDefault(bond.atomID1);
                 Atom a2 = mol.atomList.ElementAtOrDefault(bond.atomID2);
-                float offset1 = a1.m_data.m_radius * scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f * mol.transform.localScale.x;
-                float offset2 = a2.m_data.m_radius * scalingfactor*GlobalCtrl.atomScale*GlobalCtrl.scale  * 0.8f * mol.transform.localScale.x;
+                float offset1 = 0f;
+                float offset2 = 0f;
+                if (!SettingsData.licoriceRendering)
+                {
+                    offset1 = a1.m_data.m_radius * scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * mol.transform.localScale.x;
+                    offset2 = a2.m_data.m_radius * scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * mol.transform.localScale.x;
+                }
                 float distance = (Vector3.Distance(a1.transform.position, a2.transform.position)- offset1 - offset2) / mol.transform.localScale.x;
                 bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
                 Vector3 pos1 = Vector3.MoveTowards(a1.transform.position, a2.transform.position, offset1);

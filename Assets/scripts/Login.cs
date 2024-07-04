@@ -9,6 +9,8 @@ using TMPro;
 using chARpackTypes;
 using System;
 using QRTracking;
+using Unity.VisualScripting;
+using Microsoft.MixedReality.Toolkit.Input;
 
 public class Login : MonoBehaviour
 {
@@ -47,7 +49,6 @@ public class Login : MonoBehaviour
 
     private Transform cam;
 
-    public GameObject toggleDebugButton;
     private GameObject scanProgressLabel_go;
 
     Dictionary<Guid, Tuple<List<Vector3>, List<Quaternion>>> pos_rot_dict;
@@ -66,9 +67,6 @@ public class Login : MonoBehaviour
 
         GameObject debugWindow = Instantiate((GameObject)Resources.Load("prefabs/DebugWindow"));
         debugWindow.SetActive(false);
-        toggleDebugButton.GetComponent<Button>().onClick.AddListener(delegate { DebugWindow.Singleton.toggleVisible(); });
-        DebugWindow.Singleton.debugIndicator = toggleDebugButton.transform.Find("IconAndText/Indicator").gameObject;
-
     }
 
     /// <summary>
@@ -110,6 +108,15 @@ public class Login : MonoBehaviour
             serverListInstance.transform.forward = Camera.main.transform.forward;
             gameObject.SetActive(false);
         }
+    }
+
+    /// <summary>
+    /// Opens an instance of the settings window.
+    /// </summary>
+    public void openSettingsWindow()
+    {
+        var settingsPrefab = (GameObject)Resources.Load("prefabs/Settings");
+        Instantiate(settingsPrefab);
     }
 
     private void OnQRUpdate(Guid qr_id, Pose pose)
@@ -161,6 +168,7 @@ public class Login : MonoBehaviour
 
     public void startQRScanTimer()
     {
+#if WINDOWS_UWP
         Debug.Log("[Login:QR] Starting scan with timer.");
         
         if (QRCodesManager.Singleton == null)
@@ -176,7 +184,25 @@ public class Login : MonoBehaviour
         pos_rot_dict = new Dictionary<Guid, Tuple<List<Vector3>, List<Quaternion>>>();
 
         QRCodesManager.Singleton.OnQRPoseUpdate += OnQRUpdate;
+#else
+        if (QRAnchor.Singleton == null)
+        {
+            Instantiate(anchorPrefab);
+        }
+        foreach (var mrenderer in QRAnchor.Singleton.GetComponentsInChildren<MeshRenderer>())
+        {
+            mrenderer.material.color = new Color(mrenderer.material.color.r, mrenderer.material.color.g, mrenderer.material.color.b, 0.6f);
+        }   
 
+        QRAnchor.Singleton.AddComponent<NearInteractionGrabbable>();
+        QRAnchor.Singleton.AddComponent<ObjectManipulator>();
+
+        stopScanButtonInstance = Instantiate(stopScanButtonPrefab);
+        stopScanButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { manualStop(); });
+        gameObject.SetActive(false);
+
+        QRAnchor.Singleton.transform.position = Camera.main.transform.position + 0.2f * Camera.main.transform.forward;
+#endif
     }
 
     public void stopQRScanTimer(Guid current_highest_id)
@@ -221,6 +247,22 @@ public class Login : MonoBehaviour
 
     }
     
+    private void manualStop()
+    {
+        LoginData.offsetPos = QRAnchor.Singleton.transform.position;
+        LoginData.offsetRot = QRAnchor.Singleton.transform.rotation;
+        gameObject.SetActive(true);
+
+        Destroy(QRAnchor.Singleton.GetComponent<NearInteractionGrabbable>());
+        Destroy(QRAnchor.Singleton.GetComponent<ObjectManipulator>());
+        foreach (var mrenderer in QRAnchor.Singleton.GetComponentsInChildren<MeshRenderer>())
+        {
+            mrenderer.material.color = new Color(mrenderer.material.color.r, mrenderer.material.color.g, mrenderer.material.color.b, 1f);
+        }
+
+        Destroy(stopScanButtonInstance);
+    }
+
     /// <summary>
      /// Starts scanning of a QR code, spawns stop scan button.
      /// </summary>
@@ -236,7 +278,6 @@ public class Login : MonoBehaviour
         gameObject.SetActive(false);
         stopScanButtonInstance = Instantiate(stopScanButtonPrefab);
         stopScanButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { stopScanQR(); });
-
     }
 
     /// <summary>
@@ -245,6 +286,7 @@ public class Login : MonoBehaviour
     /// </summary>
     public void stopScanQR()
     {
+#if WINDOWS_UWP
         QRCodesManager.Singleton.StopQRTracking();
         Destroy(stopScanButtonInstance);
         gameObject.SetActive(true);
@@ -308,6 +350,7 @@ public class Login : MonoBehaviour
 
         // destroy qr code manager
         Destroy(QRTracking.QRCodesManager.Singleton.gameObject);
+#endif
     }
 
 }

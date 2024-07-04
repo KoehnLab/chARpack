@@ -7,6 +7,7 @@ using OpenBabel;
 using System.Collections;
 using System.Threading.Tasks;
 using SimpleFileBrowser;
+using System;
 
 /// <summary>
 /// This class provides methods to read molecule data from files using OpenBabel.
@@ -192,7 +193,7 @@ public class OpenBabelReadWrite : MonoBehaviour
             }
 
             var mols = new List<Molecule>();
-            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules)
+            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
             {
                 if (mol.isMarked)
                 {
@@ -201,7 +202,7 @@ public class OpenBabelReadWrite : MonoBehaviour
             }
             if (mols.Count < 1)
             {
-                mols.Add(GlobalCtrl.Singleton.List_curMolecules[0]);
+                mols.Add(GlobalCtrl.Singleton.List_curMolecules.GetFirst());
             }
 
             foreach (var mol in mols)
@@ -345,15 +346,15 @@ public class OpenBabelReadWrite : MonoBehaviour
                         float new_z;
                         if (all_not_finite)
                         {
-                            new_x = Random.Range(-1.0f, 1.0f);
-                            new_y = Random.Range(-1.0f, 1.0f);
-                            new_z = Random.Range(-1.0f, 1.0f);
+                            new_x = UnityEngine.Random.Range(-1.0f, 1.0f);
+                            new_y = UnityEngine.Random.Range(-1.0f, 1.0f);
+                            new_z = UnityEngine.Random.Range(-1.0f, 1.0f);
                         }
                         else
                         {
-                            new_x = Random.Range(minmax_x[0], minmax_x[1]);
-                            new_y = Random.Range(minmax_y[0], minmax_y[1]);
-                            new_z = Random.Range(minmax_z[0], minmax_z[1]);
+                            new_x = UnityEngine.Random.Range(minmax_x[0], minmax_x[1]);
+                            new_y = UnityEngine.Random.Range(minmax_y[0], minmax_y[1]);
+                            new_z = UnityEngine.Random.Range(minmax_z[0], minmax_z[1]);
                         }
 
                         var new_pos = new OBVector3(new_x, new_y, new_z);
@@ -361,8 +362,8 @@ public class OpenBabelReadWrite : MonoBehaviour
                     }
                 }
             }
-
-            saveData.Add(obmol.AsCML());
+            var mol_id = Guid.NewGuid();
+            saveData.Add(new Tuple<Guid, OBMol>(mol_id, obmol).AsCML());
         }
 
         if (saveData == null || saveData.Count == 0)
@@ -378,18 +379,18 @@ public class OpenBabelReadWrite : MonoBehaviour
     {
         var mol = loadMolecule(fi);
         if (mol == null) yield break;
-        GlobalCtrl.Singleton.rebuildAtomWorld(mol, true);
+        GlobalCtrl.Singleton.createFromCML(mol);
         NetworkManagerServer.Singleton.pushLoadMolecule(mol);
     }
 
-        /// <summary>
-        /// Saves a molecule to the specified file, either in XML format
-        /// or a format supported by OpenBabel.
-        /// </summary>
-        /// <param name="mol"></param>
-        /// <param name="fi"></param>
-        /// <returns></returns>
-        public IEnumerator saveMolecule(Molecule mol, FileInfo fi)
+    /// <summary>
+    /// Saves a molecule to the specified file, either in XML format
+    /// or a format supported by OpenBabel.
+    /// </summary>
+    /// <param name="mol"></param>
+    /// <param name="fi"></param>
+    /// <returns></returns>
+    public IEnumerator saveMolecule(Molecule mol, FileInfo fi)
     {
         UnityEngine.Debug.Log($"[ReadMoleculeFile] Saving Molecule {fi.FullName}");
         if (fi.Extension.ToLower() == ".xml")
@@ -403,6 +404,126 @@ public class OpenBabelReadWrite : MonoBehaviour
             conv.WriteFile(mol.AsCML().AsOBMol(), fi.FullName);
         }
         return null;
+    }
+
+    public void generateSVG()
+    {
+        var mols = new List<Molecule>();
+        foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
+        {
+            if (mol.isMarked)
+            {
+                mols.Add(mol);
+            }
+        }
+        if (mols.Count < 1)
+        {
+            mols.Add(GlobalCtrl.Singleton.List_curMolecules.GetFirst());
+        }
+
+        var obmol = mols[0].AsCML().AsOBMol();
+
+        // convert to xyz
+        var convXYZ = new OBConversion();
+        convXYZ.SetOutFormat(OBFormat.FindType("xyz"));
+        var xyz = convXYZ.WriteString(obmol);
+
+        // read back for unbiased obmol
+        var newobmol = new OBMol();
+        var conv_ = new OBConversion();
+        conv_.SetInFormat(OBFormat.FindType("xyz"));
+        conv_.ReadString(newobmol, xyz);
+        
+        // create bonds etc.
+        var builder = new OBBuilder();
+        builder.Build(newobmol);
+
+        // convert to smiles
+        var conv = new OBConversion();
+        conv.SetOutFormat(OBFormat.FindType("smiles"));
+        UnityEngine.Debug.Log(conv.WriteString(newobmol));
+
+        conv.SetOutFormat(OBFormat.FindType("svg"));
+        conv.WriteFile(newobmol, $"{Application.streamingAssetsPath}/SavedMolecules/blub.svg");
+
+        UnityEngine.Debug.Log($"Has 2D information: {newobmol.Has2D()}");
+
+
+        float min_x = 0f;
+        float max_x = 0f;
+        float min_y = 0f;
+        float max_y = 0f;
+        float min_z = 0f;
+        float max_z = 0f;
+        var atom0 = newobmol.GetFirstAtom();
+        if (atom0 != null)
+        {
+            min_x = max_x = (float)atom0.GetVector().GetX();
+            min_y = max_y = (float)atom0.GetVector().GetY();
+            min_z = max_z = (float)atom0.GetVector().GetZ();
+            foreach (var atom in newobmol.Atoms())
+            {
+                min_x = Mathf.Min(min_x, (float)atom.GetVector().GetX());
+                max_x = Mathf.Max(max_x, (float)atom.GetVector().GetX());
+                min_y = Mathf.Min(min_y, (float)atom.GetVector().GetY());
+                max_y = Mathf.Max(max_y, (float)atom.GetVector().GetY());
+                min_z = Mathf.Min(min_z, (float)atom.GetVector().GetZ());
+                max_z = Mathf.Max(max_z, (float)atom.GetVector().GetZ());
+            }
+        }
+
+        UnityEngine.Debug.Log($"minX: {min_x}, minY: {min_y}, minZ: {min_z}");
+
+
+        var margin = 40f;
+
+        foreach (var atom in newobmol.Atoms())
+        {
+            UnityEngine.Debug.Log($"vector: {(atom.GetVector().GetX() - min_x) + margin} {(atom.GetVector().GetY() - min_y) + margin} {(atom.GetVector().GetZ() - min_z) + margin}");
+        }
+
+
+    }
+
+
+
+    public bool createSmiles(string smiles)
+    {
+        try
+        {
+            var conv = new OBConversion();
+            conv.SetInFormat(OBFormat.FindType("smiles"));
+            var obmol = new OBMol();
+            conv.ReadString(obmol, smiles);
+            if (obmol == null) return false;
+
+            obmol.AddHydrogens();
+            var builder = new OBBuilder();
+            builder.Build(obmol);
+            OpenBabelForceField.MinimiseStructure(obmol, 500);
+
+            var mol_id = Guid.NewGuid();
+            List<cmlData> mol = new List<cmlData>();
+            mol.Add(new Tuple<Guid, OBMol>(mol_id, obmol).AsCML());
+            foreach(cmlData mole in mol)
+            {
+                for(int i=0; i<mole.atomArray.Length;i++)
+                {
+                    if(mole.atomArray[i].abbre.Equals("H") || mole.atomArray[i].abbre.Equals("Dummy"))
+                    {
+                        mole.atomArray[i].hybrid = 0;
+                    }
+                }
+            }
+            GlobalCtrl.Singleton.createFromCML(mol);
+            NetworkManagerServer.Singleton.pushLoadMolecule(mol);
+        }
+        catch
+        {
+            UnityEngine.Debug.LogError("Invalid SMILES string.");
+            return false;
+        }
+        return true;
     }
 
 }

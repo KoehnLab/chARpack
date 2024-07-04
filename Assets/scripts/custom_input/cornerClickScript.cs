@@ -1,9 +1,11 @@
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using Microsoft.MixedReality.Toolkit.Utilities.Solvers;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -12,7 +14,7 @@ using UnityEngine.EventSystems;
 /// </summary>
 public class cornerClickScript : MonoBehaviour
 {
-#if !WINDOWS_UWP
+#if UNITY_STANDALONE || UNITY_EDITOR
 
     private Molecule mol;
     private myBoundingBox box;
@@ -68,28 +70,8 @@ public class cornerClickScript : MonoBehaviour
         }
         else
         {
-            if (GlobalCtrl.Singleton.collision)
-            {
-                Atom d1 = GlobalCtrl.Singleton.collider1;
-                Atom d2 = GlobalCtrl.Singleton.collider2;
-
-                Atom a1 = d1.dummyFindMain();
-                Atom a2 = d2.dummyFindMain();
-
-                if (!a1.alreadyConnected(a2))
-                {
-                    if (mol.atomList.Contains(a1))
-                    {
-                        EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id, GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id);
-                        GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider1, GlobalCtrl.Singleton.collider2);
-                    }
-                    else
-                    {
-                        EventManager.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2.m_molecule.m_id, GlobalCtrl.Singleton.collider2.m_id, GlobalCtrl.Singleton.collider1.m_molecule.m_id, GlobalCtrl.Singleton.collider1.m_id);
-                        GlobalCtrl.Singleton.MergeMolecule(GlobalCtrl.Singleton.collider2, GlobalCtrl.Singleton.collider1);
-                    }
-                }
-            }
+            // check for potential merge
+            GlobalCtrl.Singleton.checkForCollisionsAndMerge(mol);
         }
 
         // change material back to normal

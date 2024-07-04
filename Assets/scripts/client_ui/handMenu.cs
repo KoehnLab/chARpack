@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using chARpackColorPalette;
 
 /// <summary>
 /// This class provides the functionality of a small scrollable atom menu
@@ -27,7 +28,6 @@ public class handMenu : myScrollObject
 
     public GameObject ChainModeIndicator;
     public GameObject MeasurementModeIndicator;
-    private Color orange = new Color(1.0f, 0.5f, 0.0f);
 
     private static handMenu _singleton;
 
@@ -119,18 +119,18 @@ public class handMenu : myScrollObject
     {
         if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
         {
-            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = orange;
-            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = ColorPalette.activeIndicatorColor;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = ColorPalette.inactiveIndicatorColor;
         }
         else if(GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)
         {
-            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = orange;
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = ColorPalette.inactiveIndicatorColor;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = ColorPalette.activeIndicatorColor;
         }
         else
         {
-            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
-            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+            ChainModeIndicator.GetComponent<MeshRenderer>().material.color = ColorPalette.inactiveIndicatorColor;
+            MeasurementModeIndicator.GetComponent<MeshRenderer>().material.color = ColorPalette.inactiveIndicatorColor;
         }
     }
 
@@ -143,14 +143,14 @@ public class handMenu : myScrollObject
     {
         if(hand == Handedness.Right)
         {
-            gameObject.transform.Find("MenuContent/Grid/ToggleChainModeButton").transform.localPosition = new Vector3(0.205f, 0.025f, 0);
+            gameObject.transform.Find("MenuContent/Grid/ToggleFragmentRotationButton").transform.localPosition = new Vector3(0.205f, 0.025f, 0);
             gameObject.transform.Find("MenuContent/Grid/ToggleMeasurmentModeButton").transform.localPosition = new Vector3(0.205f, -0.025f, 0);
 
             gameObject.transform.Find("MenuContent/ScrollParent/ScrollPaginationButtons").transform.localPosition = new Vector3(-0.0327f, 0, 0);
         }
         else if(hand == Handedness.Left)
         {
-            gameObject.transform.Find("MenuContent/Grid/ToggleChainModeButton").transform.localPosition = new Vector3(0, 0.025f, 0);
+            gameObject.transform.Find("MenuContent/Grid/ToggleFragmentRotationButton").transform.localPosition = new Vector3(0, 0.025f, 0);
             gameObject.transform.Find("MenuContent/Grid/ToggleMeasurmentModeButton").transform.localPosition = new Vector3(0, -0.025f, 0);
 
             gameObject.transform.Find("MenuContent/ScrollParent/ScrollPaginationButtons").transform.localPosition = new Vector3(0.1f, 0, 0);

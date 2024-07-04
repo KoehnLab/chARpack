@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.UI;
+using chARpackColorPalette;
 
 public class CameraSwitcher : MonoBehaviour
 {
@@ -89,7 +90,7 @@ public class CameraSwitcher : MonoBehaviour
             user_panel_entry.client_id = id;
 
             user_panel_entry.user_name_label.text = id == 0 ? "ServerCamera" : UserServer.list[id].deviceName;
-
+            if (id == 0) user_panel_entry.focusColorImage.color = FocusColors.getColor(-1);
             var device_type = id == 0 ? myDeviceType.PC : UserServer.list[id].deviceType;
 
             if (device_type == myDeviceType.PC)
@@ -98,10 +99,16 @@ public class CameraSwitcher : MonoBehaviour
                 user_panel_entry.hasEyeTracking(false);
                 user_panel_entry.hasBattery(false);
             }
-            else
+            else if (device_type == myDeviceType.AR)
             {
                 user_panel_entry.canRecord(true);
                 user_panel_entry.hasEyeTracking(true);
+                user_panel_entry.hasBattery(true);
+            }
+            else if (device_type == myDeviceType.XR)
+            {
+                user_panel_entry.canRecord(false);
+                user_panel_entry.hasEyeTracking(false);
                 user_panel_entry.hasBattery(true);
             }
 
@@ -193,6 +200,21 @@ public class CameraSwitcher : MonoBehaviour
 
         var new_user_id = cameras.FirstOrDefault(x => x.Value == currentCam).Key;
         panel[new_user_id].transform.Find("Background").gameObject.SetActive(true);
+        GlobalCtrl.Singleton.currentCamera = currentCam;
+    }
+
+    public void switchToCam(ushort id)
+    {
+        if (cameras.Count < 1)
+        {
+            // Do nothing if no client camera is registered
+            return;
+        }
+        var user_id = cameras.FirstOrDefault(x => x.Value == currentCam).Key;
+        panel[user_id].transform.Find("Background").gameObject.SetActive(false);
+        currentCam = cameras.Values.ToList()[id];
+
+        panel[id].transform.Find("Background").gameObject.SetActive(true);
         GlobalCtrl.Singleton.currentCamera = currentCam;
     }
 
