@@ -203,7 +203,7 @@ public class settingsControl : MonoBehaviour
         {
             NetworkManagerClient.Singleton.changeSyncMode(mode);
         }
-        else
+        if (NetworkManagerServer.Singleton != null)
         {
             NetworkManagerServer.Singleton.changeSyncMode(mode);
         }

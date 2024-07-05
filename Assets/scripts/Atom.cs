@@ -1298,13 +1298,13 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
             Vector3 rectSave = new Vector3(0, 0, 0);
             if (m_molecule.toolTipInstance != null)
             {
-                rectSave = m_molecule.toolTipInstance.GetComponent<RectTransform>().localPosition;
                 Destroy(m_molecule.toolTipInstance);
                 m_molecule.toolTipInstance = null;
             }
             markedList[0].markAtom(true, 2, toolTip);
             if (SceneManager.GetActiveScene().name == "ServerScene")
             {
+                rectSave = m_molecule.toolTipInstance.GetComponent<RectTransform>().localPosition;
                 markedList[0].toolTipInstance.GetComponent<ServerAtomTooltip>().localPosition = rectSave;
             }
         }
