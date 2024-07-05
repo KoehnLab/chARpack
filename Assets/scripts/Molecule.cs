@@ -349,6 +349,63 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         EventManager.Singleton.OnMolDataChanged += triggerGenerateFF;
         EventManager.Singleton.OnMoleculeLoaded += adjustBBox;
         EventManager.Singleton.OnMolDataChanged += adjustBBox;
+        if (HandTracking.Singleton)
+        {
+            HandTracking.Singleton.OnMiddleFingerGrab += OnTransitionGrab;
+            HandTracking.Singleton.OnMiddleFingerGrabRelease += OnTransitionGrabRelease;
+            HandTracking.Singleton.OnIndexFingerGrab += OnNormalGrab;
+            HandTracking.Singleton.OnIndexFingerGrabRelease += OnNormalGrabRelease;
+        }
+    }
+
+
+    public bool containedInAtoms(Vector3 pos)
+    {
+        foreach (var atom in atomList)
+        {
+            if (atom.GetComponent<BoxCollider>().bounds.Contains(pos)) return true;
+        }
+        return false;
+    }
+
+    bool emptyGrab = false;
+    private void OnNormalGrab(Vector3 pos)
+    {
+        if (screenAlignment.Singleton == null) return;
+        if (GetComponent<myBoundingBox>().contains(pos))
+        {
+            if (GetComponent<myBoundingBox>().containedInHandles(pos)) return;
+            if (containedInAtoms(pos)) return;
+
+            screenAlignment.Singleton.OnDistantGrab(pos);
+            emptyGrab = true;
+        }
+    }
+
+    private void OnNormalGrabRelease()
+    {
+        if (screenAlignment.Singleton == null) return;
+        if (emptyGrab)
+        {
+            screenAlignment.Singleton.OnDistantGrabRelease();
+            emptyGrab = false;
+        }
+    }   
+    
+    private void OnTransitionGrab(Vector3 pos)
+    {
+        if (GetComponent<myBoundingBox>().contains(pos))
+        {
+            if (SettingsData.syncMode == TransitionManager.SyncMode.Async)
+            {
+                TransitionManager.Singleton.initializeTransitionClient(this);
+            }
+        }
+    }
+
+    private void OnTransitionGrabRelease()
+    {
+
     }
 
     private void adjustBBox(Molecule mol)
@@ -2143,6 +2200,13 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         EventManager.Singleton.OnMolDataChanged -= triggerGenerateFF;
         EventManager.Singleton.OnMoleculeLoaded -= adjustBBox;
         EventManager.Singleton.OnMolDataChanged -= adjustBBox;
+        if (HandTracking.Singleton)
+        {
+            HandTracking.Singleton.OnMiddleFingerGrab -= OnTransitionGrab;
+            HandTracking.Singleton.OnMiddleFingerGrabRelease -= OnTransitionGrabRelease;
+            HandTracking.Singleton.OnIndexFingerGrab -= OnNormalGrab;
+            HandTracking.Singleton.OnIndexFingerGrabRelease -= OnNormalGrabRelease;
+        }
 #if UNITY_STANDALONE || UNITY_EDITOR
         if (NetworkManagerServer.Singleton)
         {

@@ -47,7 +47,7 @@ public class ServerList : myScrollObject
 
         // add default servers for easy development
         // and quick connects even if LAN find fails
-        //addDefaultServers();
+        addDefaultServers();
 
         // Check for open servers
         // get servers and generate entries
@@ -60,29 +60,29 @@ public class ServerList : myScrollObject
     private void addDefaultServers()
     {
         var myServer1 = new FindServer.ServerData();
-        myServer1.ip = IPAddress.Parse("192.168.188.22");
+        myServer1.ip = IPAddress.Parse("129.69.205.43");
         myServer1.port = LoginData.port;
 
-        var myServer2 = new FindServer.ServerData();
-        myServer2.ip = IPAddress.Parse("192.168.178.33");
-        myServer2.port = LoginData.port;
+        //var myServer2 = new FindServer.ServerData();
+        //myServer2.ip = IPAddress.Parse("192.168.178.33");
+        //myServer2.port = LoginData.port;
 
-        var myServer3 = new FindServer.ServerData();
-        myServer3.ip = IPAddress.Parse("192.168.166.55");
-        myServer3.port = LoginData.port;
+        //var myServer3 = new FindServer.ServerData();
+        //myServer3.ip = IPAddress.Parse("192.168.166.55");
+        //myServer3.port = LoginData.port;
 
         if (!FindServer.manualServerList.Contains(myServer1))
         {
             FindServer.manualServerList.Add(myServer1);
         }
-        if (!FindServer.manualServerList.Contains(myServer2))
-        {
-            FindServer.manualServerList.Add(myServer2);
-        }
-        if (!FindServer.manualServerList.Contains(myServer3))
-        {
-            FindServer.manualServerList.Add(myServer3);
-        }
+        //if (!FindServer.manualServerList.Contains(myServer2))
+        //{
+        //    FindServer.manualServerList.Add(myServer2);
+        //}
+        //if (!FindServer.manualServerList.Contains(myServer3))
+        //{
+        //    FindServer.manualServerList.Add(myServer3);
+        //}
     }
 
     public void refresh()

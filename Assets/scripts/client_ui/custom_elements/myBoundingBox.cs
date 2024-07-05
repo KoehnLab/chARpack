@@ -57,6 +57,20 @@ public class myBoundingBox : MonoBehaviour
         return localBounds.size;
     }
 
+    public bool contains(Vector3 pos)
+    {
+        return localBounds.Contains(pos);
+    }
+
+    public bool containedInHandles(Vector3 pos)
+    {
+        foreach (var handle in cornerHandles)
+        {
+            if (handle.GetComponent<BoxCollider>().bounds.Contains(pos)) return true;
+        }
+        return false;
+    }
+
     private void renderCube()
     {
         // note: line is drawn continously

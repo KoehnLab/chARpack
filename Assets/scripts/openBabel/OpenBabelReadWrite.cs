@@ -380,7 +380,10 @@ public class OpenBabelReadWrite : MonoBehaviour
         var mol = loadMolecule(fi);
         if (mol == null) yield break;
         GlobalCtrl.Singleton.createFromCML(mol);
-        NetworkManagerServer.Singleton.pushLoadMolecule(mol);
+        if (SettingsData.syncMode == TransitionManager.SyncMode.Sync)
+        {
+            NetworkManagerServer.Singleton.pushLoadMolecule(mol);
+        }
     }
 
     /// <summary>
@@ -516,7 +519,10 @@ public class OpenBabelReadWrite : MonoBehaviour
                 }
             }
             GlobalCtrl.Singleton.createFromCML(mol);
-            NetworkManagerServer.Singleton.pushLoadMolecule(mol);
+            if (SettingsData.syncMode == TransitionManager.SyncMode.Sync)
+            {
+                NetworkManagerServer.Singleton.pushLoadMolecule(mol);
+            }
         }
         catch
         {

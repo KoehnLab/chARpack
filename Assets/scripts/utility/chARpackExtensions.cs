@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System.Threading.Tasks;
+using chARpackStructs;
 
 public static class chARpackExtensions
 {
@@ -224,6 +225,11 @@ TKey mol_id, params object[] argList)
             print += $"{entry} ";
         }
         return print;
+    }
+
+    public static SaveableQuaternion ToSaveableQuaternion(this Quaternion q)
+    {
+        return new SaveableQuaternion(q.x, q.y, q.z, q.w);
     }
 }
 

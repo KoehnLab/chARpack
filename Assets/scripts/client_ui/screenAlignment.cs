@@ -1,8 +1,10 @@
 using Microsoft.MixedReality.Toolkit.Input;
 using System.Collections;
+using System.ComponentModel;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
@@ -34,6 +36,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
     public GameObject indicator1;
     public GameObject indicator2;
     public GameObject indicator3;
+    public GameObject indicator4;
 
     private void Awake()
     {
@@ -53,16 +56,20 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         indicator1.SetActive(false);
         indicator2.SetActive(false);
         indicator3.SetActive(false);
+        indicator4.SetActive(false);
 
         OnScreenInitialized += OnInitializationComplete;
 
         // we will keep the screen alive
         DontDestroyOnLoad(gameObject);
+
+        // on scene change
+        SceneManager.activeSceneChanged += OnSceneChange;
     }
 
     System.Diagnostics.Stopwatch screenScanStopwatch;
     Vector3 oldIndexPos = Vector3.zero;
-    Vector3[] screenVertices = new Vector3[4]{ Vector3.zero, Vector3.zero , Vector3.zero , Vector3.zero };
+    Vector3[] screenVertices;
     bool fullyInitialized = false;
     Vector3 screenCenter = Vector3.zero;
     public void startScreenAlignment()
@@ -74,6 +81,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
             indicator1.SetActive(false);
             indicator2.SetActive(false);
             indicator3.SetActive(false);
+            indicator4.SetActive(false);
         }
         HandTracking.Singleton.gameObject.SetActive(true);
         screenVertices = new Vector3[4] { Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero };
@@ -86,7 +94,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         bool run_check = true;
         while (run_check)
         {
-            var index_pos = HandTracking.Singleton.getIndexTip();
+            var index_pos = HandTracking.Singleton.getIndexTip(); // for scanning screen use tip
             if (Vector3.Distance(index_pos, oldIndexPos) <= 0.001f)
             {
                 screenScanStopwatch.Stop();
@@ -116,7 +124,9 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                         AudioSource.PlayClipAtPoint(confirmClip, index_pos);
                         indicator3.SetActive(true);
                         indicator3.transform.position = index_pos;
-                        
+                        indicator4.SetActive(true);
+                        indicator4.transform.position = screenVertices[3];
+
                         screenQuad.transform.position = Vector3.zero;
                         var vertices = new Vector3[4];
                         vertices[0] = screenQuad.transform.InverseTransformPoint(screenVertices[0]);
@@ -152,7 +162,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         // set correct collider
         Bounds bounds = indicator1.GetComponent<BoxCollider>().bounds;
 
-        var indicator_list = new GameObject[3] { indicator1, indicator2, indicator3 };
+        var indicator_list = new GameObject[4] { indicator1, indicator2, indicator3, indicator4 };
         foreach (var ind in indicator_list)
         {
             var box_col = ind.GetComponent<BoxCollider>();
@@ -165,6 +175,10 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         BoxCollider collider = GetComponent<BoxCollider>();
         collider.center = bounds.center;
         collider.size = bounds.size;
+
+        // listen to distant grabs
+        HandTracking.Singleton.OnMiddleFingerGrab += OnDistantGrab;
+        HandTracking.Singleton.OnMiddleFingerGrabRelease += OnDistantGrabRelease;
     }
 
 
@@ -181,7 +195,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
             HandTracking.Singleton.gameObject.SetActive(true);
         }
 
-        var index_in_world_space = HandTracking.Singleton.getIndexTip();
+        var index_in_world_space = HandTracking.Singleton.getIndexKnuckle(); // for tracking use knuckle
         var dir_x = screenVertices[2] - screenVertices[0];
         var dir_y = screenVertices[1] - screenVertices[0];
         var normal = Vector3.Cross(dir_x, dir_y).normalized;
@@ -217,6 +231,9 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         var on_screen_x = Mathf.Clamp(projected_x * SettingsData.serverViewport.x, 0f, SettingsData.serverViewport.x);
         var on_screen_y = Mathf.Clamp(projected_y * SettingsData.serverViewport.y, 0f, SettingsData.serverViewport.y);
 
+        //var on_screen_x = projected_x * SettingsData.serverViewport.x;
+        //var on_screen_y = projected_y * SettingsData.serverViewport.y;
+
         //Debug.Log($"[screenAlignment] p_x {projected_x} p_y {projected_y}");
         //Debug.Log($"[screenAlignment] p_x {on_screen_x} p_y {on_screen_y}");
 
@@ -240,12 +257,50 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                 projectionIndicator.SetActive(true);
                 projectionIndicator.transform.position = proj.Value;
                 var ss_coords = getScreenSpaceCoords(proj.Value);
-                EventManager.Singleton.HoverOverScreen(ss_coords.Value);
+                if (EventManager.Singleton != null)
+                {
+                    EventManager.Singleton.HoverOverScreen(ss_coords.Value);
+                }
             }
             else
             {
                 projectionIndicator.SetActive(false);
             }
+        }
+    }
+
+    public Vector3 getCurrentProjectedPos()
+    {
+        var proj = projectIndexOnScreen();
+        return proj.Value;
+    }
+
+    public Vector3 getScreenCenter()
+    {
+        return screenCenter;
+    }
+
+    public bool contains(Vector3 pos)
+    {
+        return GetComponent<BoxCollider>().bounds.Contains(pos);
+    }
+
+
+    public void OnDistantGrab(Vector3 pos)
+    {
+        var proj = projectIndexOnScreen();
+        var viewport_coords = getScreenSpaceCoords(proj.Value);
+        if (EventManager.Singleton)
+        {
+            EventManager.Singleton.GrabOnScreen(viewport_coords.Value);
+        }
+    }
+
+    public void OnDistantGrabRelease()
+    {
+        if (EventManager.Singleton)
+        {
+            EventManager.Singleton.ReleaseGrabOnScreen();
         }
     }
 
@@ -272,7 +327,27 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
 
     public void OnPointerUp(MixedRealityPointerEventData eventData)
     {
-        // Intentionally empty
+        if (EventManager.Singleton)
+        {
+            EventManager.Singleton.ReleaseGrabOnScreen();
+        }
+    }
+
+    private void OnSceneChange(Scene current, Scene next)
+    {
+        if (fullyInitialized)
+        {
+            if (HandTracking.Singleton)
+            {
+                HandTracking.Singleton.OnMiddleFingerGrab += OnDistantGrab;
+                HandTracking.Singleton.OnMiddleFingerGrabRelease += OnDistantGrabRelease;
+            }
+            else
+            {
+                Debug.LogError("[screenAlignment] Could not subscribe to HandTracking events.");
+            }
+            
+        }
     }
 
 }

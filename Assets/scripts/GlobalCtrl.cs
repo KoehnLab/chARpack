@@ -2094,6 +2094,10 @@ public class GlobalCtrl : MonoBehaviour
                         }
                     }
                 }
+                if (molecule.relQuat != Quaternion.identity)
+                {
+                    tempMolecule.transform.rotation = currentCamera.transform.rotation * molecule.relQuat;
+                }
                 if (addToUndoStack) undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id, molecule));
                 EventManager.Singleton.MoleculeLoaded(tempMolecule);
             }

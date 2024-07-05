@@ -5205,6 +5205,7 @@ GameObject:
   - component: {fileID: 2259205814895634667}
   - component: {fileID: 8469389139670857806}
   - component: {fileID: 124748820260027915}
+  - component: {fileID: 5607840507226332016}
   m_Layer: 0
   m_Name: Settings
   m_TagString: Untagged
@@ -5522,6 +5523,18 @@ MonoBehaviour:
   RKTimeFactorSlider: {fileID: 497928363516594232}
   MPTimeFactorSlider: {fileID: 4576513368095609848}
   LengthUnitLabel: {fileID: 1091772001946865355}
+--- !u!114 &5607840507226332016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1136666759422499952}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3707e2660a8ec644f80037c0c08c72a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1136666759535862997
 GameObject:
   m_ObjectHideFlags: 0

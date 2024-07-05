@@ -322,6 +322,13 @@ public class EventManager : MonoBehaviour
         OnGrabOnScreen?.Invoke(ss_coords);
     }
 
+    public delegate void ReleaseGrabOnScreenAction();
+    public event ReleaseGrabOnScreenAction OnReleaseGrabOnScreen;
+    public void ReleaseGrabOnScreen()
+    {
+        OnReleaseGrabOnScreen?.Invoke();
+    }
+
     public delegate void SyncModeChangedAction(TransitionManager.SyncMode mode);
     public event SyncModeChangedAction OnSyncModeChanged;
     public void ChangeSyncMode(TransitionManager.SyncMode mode)
@@ -334,6 +341,13 @@ public class EventManager : MonoBehaviour
     public void HoverOverScreen(Vector2 ss_coords)
     {
         OnHoverOverScreen?.Invoke(ss_coords);
+    }
+
+    public delegate void TransitionMoleculeAction(Molecule mol);
+    public event TransitionMoleculeAction OnTransitionMolecule;
+    public void TransitionMolecule(Molecule mol)
+    {
+        OnTransitionMolecule?.Invoke(mol);
     }
 
     #endregion

@@ -7,6 +7,7 @@ using UnityEngine;
 using System.IO;
 using System.Collections;
 using System;
+using Unity.VisualScripting;
 
 public class NetworkManagerServer : MonoBehaviour
 {
@@ -47,7 +48,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     private GameObject _userWorld;
     public GameObject UserWorld { get => _userWorld; private set => _userWorld = value; }
-    private TransitionManager.SyncMode currentSyncMode;
+    private TransitionManager.SyncMode currentSyncMode = SettingsData.syncMode;
 
     private void Awake()
     {
@@ -64,9 +65,6 @@ public class NetworkManagerServer : MonoBehaviour
 
         StartServer();
 
-        currentSyncMode = SettingsData.syncMode;
-
-        EventManager.Singleton.OnCmlReceiveCompleted += flagReceiveComplete;
         EventManager.Singleton.OnStructureReceiveCompleted += structureReceiveComplete;
         EventManager.Singleton.OnUpdateSettings += bcastSettings;
         EventManager.Singleton.OnMRCapture += sendMRCapture;
@@ -75,6 +73,10 @@ public class NetworkManagerServer : MonoBehaviour
         if (currentSyncMode == TransitionManager.SyncMode.Sync)
         {
             activateSync();
+        }
+        else
+        {
+            activateAsync();
         }
         // set actual server viewport
         SettingsData.serverViewport = new Vector2(Camera.main.pixelRect.width, Camera.main.pixelRect.height);
@@ -85,20 +87,39 @@ public class NetworkManagerServer : MonoBehaviour
     {
         if (currentSyncMode != mode)
         {
-            if (currentSyncMode == TransitionManager.SyncMode.Sync)
+            if (mode == TransitionManager.SyncMode.Sync)
             {
+                deactivateAsync();
                 activateSync();
                 // TODO Send scene content
             }
             else
             {
                 deactivateSync();
+                activateAsync();
             }
+            currentSyncMode = mode;
         }
     }
 
+    private void activateAsync()
+    {
+        EventManager.Singleton.OnTransitionMolecule += transitionMol;
+        EventManager.Singleton.OnMoleculeLoaded += TransitionManager.Singleton.getTransitionServer;
+    }
+
+    private void deactivateAsync()
+    {
+        EventManager.Singleton.OnTransitionMolecule -= transitionMol;
+        EventManager.Singleton.OnMoleculeLoaded -= TransitionManager.Singleton.getTransitionServer;
+    }
+
+
     private void activateSync()
     {
+        Debug.Log($"[NetworkManagerServer] Sync mode Activated");
+
+        EventManager.Singleton.OnCmlReceiveCompleted += flagReceiveComplete;
         EventManager.Singleton.OnMoveAtom += bcastMoveAtom;
         EventManager.Singleton.OnStopMoveAtom += bcastStopMoveAtom;
         EventManager.Singleton.OnMergeMolecule += bcastMergeMolecule;
@@ -128,6 +149,9 @@ public class NetworkManagerServer : MonoBehaviour
 
     private void deactivateSync()
     {
+        Debug.Log($"[NetworkManagerServer] Sync mode Deactivated");
+
+        EventManager.Singleton.OnCmlReceiveCompleted -= flagReceiveComplete;
         EventManager.Singleton.OnMoveAtom -= bcastMoveAtom;
         EventManager.Singleton.OnStopMoveAtom -= bcastStopMoveAtom;
         EventManager.Singleton.OnMergeMolecule -= bcastMergeMolecule;
@@ -438,7 +462,6 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddBool(SettingsData.interpolateColors);
         message.AddBool(SettingsData.licoriceRendering);
         message.AddBool(SettingsData.useAngstrom);
-        message.AddBool(SettingsData.useAngstrom);
         message.AddVector2(SettingsData.serverViewport);
         message.AddInt((int)SettingsData.syncMode);
         Server.SendToAll(message);
@@ -527,6 +550,17 @@ public class NetworkManagerServer : MonoBehaviour
         Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSyncMode);
         message.AddInt((int)mode);
         Server.SendToAll(message);
+    }
+
+    public void transitionMol(Molecule mol)
+    {
+        var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * mol.transform.rotation;
+
+        var cml = mol.AsCML();
+        cml.assignRelativeQuaternion(q);
+
+        NetworkUtils.serializeCmlData((ushort)ServerToClientID.transitionMolecule, new List<cmlData> { cml }, chunkSize, false);
+        GlobalCtrl.Singleton.deleteMolecule(mol);
     }
 
     #endregion
@@ -1286,7 +1320,16 @@ public class NetworkManagerServer : MonoBehaviour
 
         if (TransitionManager.Singleton != null)
         {
-            TransitionManager.Singleton.initializeTransition(ss_coords);
+            TransitionManager.Singleton.initializeTransitionServer(ss_coords);
+        }
+    }
+
+    [MessageHandler((ushort)ClientToServerID.releaseGrabOnScreen)]
+    private static void getReleaseGrabOnScreen(ushort fromClientId, Message message)
+    {
+        if (TransitionManager.Singleton != null)
+        {
+            TransitionManager.Singleton.release();
         }
     }
 
@@ -1294,13 +1337,21 @@ public class NetworkManagerServer : MonoBehaviour
     private static void getHoverOverScreen(ushort fromClientId, Message message)
     {
         var ss_coords = message.GetVector2();
-
         if (TransitionManager.Singleton != null)
         {
             TransitionManager.Singleton.hover(ss_coords);
         }
     }
+
+    [MessageHandler((ushort)ClientToServerID.transitionMolecule)]
+    private static void getMoleculeTransition(ushort fromClientId, Message message)
+    {
+        NetworkUtils.deserializeCmlData(message, ref cmlTotalBytes, ref cmlWorld, chunkSize, false);
+    }
+
     #endregion
+
+
 
     #region StructureMessages
 

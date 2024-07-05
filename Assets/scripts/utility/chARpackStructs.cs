@@ -5,6 +5,7 @@ using System;
 using System.Xml.Serialization;
 using System.ComponentModel;
 using System.Linq;
+using Unity.VisualScripting;
 
 namespace chARpackStructs
 {
@@ -157,6 +158,7 @@ namespace chARpackStructs
         public SaveableVector3 molePos;
         public SaveableVector3 moleScale;
         public SaveableQuaternion moleQuat;
+        public SaveableQuaternion relQuat;
         public Guid moleID;
         public bool keepConfig;
         public cmlAtom[] atomArray;
@@ -177,6 +179,12 @@ namespace chARpackStructs
             bondArray = b.ToArray();
             angleArray = ang?.ToArray();
             torsionArray = tor?.ToArray();
+            relQuat = Quaternion.identity;
+        }
+
+        public void assignRelativeQuaternion(Quaternion q)
+        {
+            relQuat = q;
         }
     }
 
@@ -320,6 +328,26 @@ namespace chARpackStructs
         }
 
         public static bool operator !=(SaveableQuaternion a, SaveableQuaternion b)
+        {
+            return a.x != b.x && a.y != b.y && a.z != b.z && a.w != b.w;
+        }
+
+        public static bool operator ==(SaveableQuaternion a, Quaternion b)
+        {
+            return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+        }
+
+        public static bool operator !=(SaveableQuaternion a, Quaternion b)
+        {
+            return a.x != b.x && a.y != b.y && a.z != b.z && a.w != b.w;
+        }
+
+        public static bool operator ==(Quaternion a, SaveableQuaternion b)
+        {
+            return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+        }
+
+        public static bool operator !=(Quaternion a, SaveableQuaternion b)
         {
             return a.x != b.x && a.y != b.y && a.z != b.z && a.w != b.w;
         }

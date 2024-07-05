@@ -35,8 +35,8 @@ public class HandTracking : MonoBehaviour
 
     private void Start()
     {
-        gameObject.SetActive(false);
         showFragmentIndicator(false);
+        gameObject.SetActive(false);
     }
 
     //private MixedRealityPose indexTip = MixedRealityPose.ZeroIdentity;
@@ -45,7 +45,11 @@ public class HandTracking : MonoBehaviour
     public Vector3 indexForward { get => _indexForward; private set => _indexForward = value; }
     private MixedRealityPose indexKnucklePose = MixedRealityPose.ZeroIdentity;
     private MixedRealityPose indexTipPose = MixedRealityPose.ZeroIdentity;
+    private MixedRealityPose middleTipPose = MixedRealityPose.ZeroIdentity;
+    private MixedRealityPose thumbTipPose = MixedRealityPose.ZeroIdentity;
     public GameObject fragmentIndicator;
+    bool middleFingerGrab = false;
+    bool indexFingerGrab = false;
 
     public void showFragmentIndicator(bool show)
     {
@@ -83,11 +87,74 @@ public class HandTracking : MonoBehaviour
     //    }
     //}
 
+
+    public delegate void MiddleFingerGrabAction(Vector3 mfpos);
+    public event MiddleFingerGrabAction OnMiddleFingerGrab;
+    public void MiddleFingerGrab(Vector3 mfpos)
+    {
+        OnMiddleFingerGrab?.Invoke(mfpos);
+    }
+
+    public delegate void MiddleFingerGrabReleaseAction();
+    public event MiddleFingerGrabReleaseAction OnMiddleFingerGrabRelease;
+    public void MiddleFingerGrabRelease()
+    {
+        OnMiddleFingerGrabRelease?.Invoke();
+    }
+
+    public delegate void IndexFingerGrabAction(Vector3 ifpos);
+    public event IndexFingerGrabAction OnIndexFingerGrab;
+    public void IndexFingerGrab(Vector3 ifpos)
+    {
+        OnIndexFingerGrab?.Invoke(ifpos);
+    }
+
+    public delegate void IndexFingerGrabReleaseAction();
+    public event IndexFingerGrabReleaseAction OnIndexFingerGrabRelease;
+    public void IndexFingerGrabRelease()
+    {
+        OnIndexFingerGrabRelease?.Invoke();
+    }
+
+
     private void Update()
     {
         getPose();
         transform.forward = indexForward;
         transform.position = indexKnucklePose.Position;
+        if (Vector3.Distance(middleTipPose.Position, thumbTipPose.Position) < 0.02f)
+        {
+            if (!middleFingerGrab)
+            {
+                middleFingerGrab = true;
+                MiddleFingerGrab(middleTipPose.Position);
+            }
+        }
+        else
+        {
+            if (middleFingerGrab)
+            {
+                middleFingerGrab = false;
+                MiddleFingerGrabRelease();
+            }
+        }
+
+        if (Vector3.Distance(indexTipPose.Position, thumbTipPose.Position) < 0.02f)
+        {
+            if (!indexFingerGrab)
+            {
+                indexFingerGrab = true;
+                IndexFingerGrab(middleTipPose.Position);
+            }
+        }
+        else
+        {
+            if (indexFingerGrab)
+            {
+                indexFingerGrab = false;
+                IndexFingerGrabRelease();
+            }
+        }
     }
 
 
@@ -103,13 +170,21 @@ public class HandTracking : MonoBehaviour
                     var hand = p.Controller as IMixedRealityHand;
                     if (hand != null)
                     {
-                        if (hand.TryGetJoint(TrackedHandJoint.IndexTip, out MixedRealityPose tipPose))
+                        if (hand.TryGetJoint(TrackedHandJoint.MiddleTip, out MixedRealityPose MTpose))
                         {
-                            indexTipPose = tipPose;
+                            middleTipPose = MTpose;
                         }
-                        if (hand.TryGetJoint(TrackedHandJoint.IndexKnuckle, out MixedRealityPose middlePose))
+                        if (hand.TryGetJoint(TrackedHandJoint.ThumbTip, out MixedRealityPose TTpose))
                         {
-                            indexKnucklePose = middlePose;
+                            thumbTipPose = TTpose;
+                        }
+                        if (hand.TryGetJoint(TrackedHandJoint.IndexTip, out MixedRealityPose ITpose))
+                        {
+                            indexTipPose = ITpose;
+                        }
+                        if (hand.TryGetJoint(TrackedHandJoint.IndexKnuckle, out MixedRealityPose IKpose))
+                        {
+                            indexKnucklePose = IKpose;
                         }
                         indexForward = Vector3.Normalize(indexTipPose.Position - indexKnucklePose.Position);
                     }
@@ -118,13 +193,21 @@ public class HandTracking : MonoBehaviour
                         var handVisualizer = p.Controller as IMixedRealityHandVisualizer;
                         if (handVisualizer != null)
                         {
-                            if (HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexTip, Handedness.Both, out MixedRealityPose tipPose))
+                            if (HandJointUtils.TryGetJointPose(TrackedHandJoint.MiddleTip, Handedness.Both, out MixedRealityPose MTpose))
                             {
-                                indexTipPose = tipPose;
+                                middleTipPose = MTpose;
                             }
-                            if (HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexKnuckle, Handedness.Both, out MixedRealityPose middlePose))
+                            if (HandJointUtils.TryGetJointPose(TrackedHandJoint.ThumbTip, Handedness.Both, out MixedRealityPose TTpose))
                             {
-                                indexKnucklePose = middlePose;
+                                thumbTipPose = TTpose;
+                            }
+                            if (HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexTip, Handedness.Both, out MixedRealityPose ITpose))
+                            {
+                                indexTipPose = ITpose;
+                            }
+                            if (HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexKnuckle, Handedness.Both, out MixedRealityPose IKpose))
+                            {
+                                indexKnucklePose = IKpose;
                             }
                             indexForward = Vector3.Normalize(indexTipPose.Position - indexKnucklePose.Position);
                         }
@@ -142,5 +225,10 @@ public class HandTracking : MonoBehaviour
     public Vector3 getIndexTip()
     {
         return indexTipPose.Position;
+    }
+
+    public Vector3 getIndexKnuckle()
+    {
+        return indexKnucklePose.Position;
     }
 }

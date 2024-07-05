@@ -37,7 +37,7 @@ public class NetworkManagerClient : MonoBehaviour
     public Client Client { get; private set; }
     [HideInInspector] public GameObject userWorld;
     [HideInInspector] public bool controlledExit = false;
-    private TransitionManager.SyncMode currentSyncMode;
+    private TransitionManager.SyncMode currentSyncMode = SettingsData.syncMode;
 
     private void Awake()
     {
@@ -67,14 +67,18 @@ public class NetworkManagerClient : MonoBehaviour
 
         Connect();
 
-        currentSyncMode = SettingsData.syncMode;
         // subscribe to event manager events
         EventManager.Singleton.OnEnableForceField += sendEnableForceField;
         EventManager.Singleton.OnGrabOnScreen += sendGrabOnScreen;
+        EventManager.Singleton.OnReleaseGrabOnScreen += sendReleaseGrabOnScreen;
         EventManager.Singleton.OnHoverOverScreen += sendHoverOverScreen;
         if (currentSyncMode == TransitionManager.SyncMode.Sync)
         {
             activateSync();
+        }
+        else
+        {
+            activateAsync();
         }
     }
 
@@ -82,16 +86,31 @@ public class NetworkManagerClient : MonoBehaviour
     {
         if (currentSyncMode != mode)
         {
-            if (currentSyncMode == TransitionManager.SyncMode.Sync)
+            if (mode == TransitionManager.SyncMode.Sync)
             {
-                activateSync(); 
+                deactivateAsync();
+                activateSync();
                 // TODO Send scene content
             }
             else
             {
                 deactivateSync();
+                activateAsync();
             }
+            currentSyncMode = mode;
         }
+    }
+
+    private void activateAsync()
+    {
+        EventManager.Singleton.OnMoleculeLoaded += TransitionManager.Singleton.getTransitionClient;
+        EventManager.Singleton.OnTransitionMolecule += transitionMolecule;
+    }
+
+    private void deactivateAsync()
+    {
+        EventManager.Singleton.OnMoleculeLoaded -= TransitionManager.Singleton.getTransitionClient;
+        EventManager.Singleton.OnTransitionMolecule -= transitionMolecule;
     }
 
     private void activateSync()
@@ -566,6 +585,13 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
+    private void sendReleaseGrabOnScreen()
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.releaseGrabOnScreen);
+        Client.Send(message);
+    }
+    
+
     private void sendHoverOverScreen(Vector2 ss_coords)
     {
         Message message = Message.Create(MessageSendMode.Unreliable, ClientToServerID.hoverOverScreen);
@@ -573,6 +599,16 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
+    private void transitionMolecule(Molecule mol)
+    {
+        var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * mol.transform.rotation;
+
+        var cml = mol.AsCML();
+        cml.assignRelativeQuaternion(q);
+
+        NetworkUtils.serializeCmlData((ushort)ClientToServerID.transitionMolecule, new List<cmlData> { cml }, chunkSize, true);
+        GlobalCtrl.Singleton.deleteMolecule(mol);
+    }
 
     #endregion
 
@@ -1268,7 +1304,13 @@ public class NetworkManagerClient : MonoBehaviour
         Debug.Log($"[NetworkManagerClient] Got num_outlines {num_outlines}");
         GlobalCtrl.Singleton.changeNumOutlines(num_outlines);
     }
-    
+
+    [MessageHandler((ushort)ServerToClientID.transitionMolecule)]
+    private static void getMoleculeTransition(Message message)
+    {
+        NetworkUtils.deserializeCmlData(message, ref cmlTotalBytes, ref cmlWorld, chunkSize, false);
+    }
+
     #endregion
 
-    }
+}

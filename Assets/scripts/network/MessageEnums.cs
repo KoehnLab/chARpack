@@ -42,7 +42,9 @@ public enum ClientToServerID : ushort
     batteryState = 1035,
     grabAtom = 1036,
     grabOnScreen = 1037,
-    hoverOverScreen = 1038
+    releaseGrabOnScreen = 1038,
+    hoverOverScreen = 1039,
+    transitionMolecule = 1040
 }
 
 public enum ServerToClientID : ushort
@@ -86,7 +88,8 @@ public enum ServerToClientID : ushort
     bcastServerFocusHighlight = 2036,
     bcastNumOutlines = 2037,
     bcastServerViewport = 2038,
-    bcastSyncMode = 2039
+    bcastSyncMode = 2039,
+    transitionMolecule = 2040
 }
 
 public enum SimToServerID : ushort
