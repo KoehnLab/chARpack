@@ -353,8 +353,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             HandTracking.Singleton.OnMiddleFingerGrab += OnTransitionGrab;
             HandTracking.Singleton.OnMiddleFingerGrabRelease += OnTransitionGrabRelease;
-            HandTracking.Singleton.OnIndexFingerGrab += OnNormalGrab;
-            HandTracking.Singleton.OnIndexFingerGrabRelease += OnNormalGrabRelease;
+            //HandTracking.Singleton.OnIndexFingerGrab += OnNormalGrab;
+            //HandTracking.Singleton.OnIndexFingerGrabRelease += OnNormalGrabRelease;
         }
     }
 
@@ -2204,8 +2204,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             HandTracking.Singleton.OnMiddleFingerGrab -= OnTransitionGrab;
             HandTracking.Singleton.OnMiddleFingerGrabRelease -= OnTransitionGrabRelease;
-            HandTracking.Singleton.OnIndexFingerGrab -= OnNormalGrab;
-            HandTracking.Singleton.OnIndexFingerGrabRelease -= OnNormalGrabRelease;
+            //HandTracking.Singleton.OnIndexFingerGrab -= OnNormalGrab;
+            //HandTracking.Singleton.OnIndexFingerGrabRelease -= OnNormalGrabRelease;
         }
 #if UNITY_STANDALONE || UNITY_EDITOR
         if (NetworkManagerServer.Singleton)

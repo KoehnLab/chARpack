@@ -14,6 +14,12 @@ public class TransitionManager : MonoBehaviour
         Async = 1
     }
 
+    public enum DesktopMode
+    {
+        TWO_D = 0,
+        THREE_D = 1
+    }
+
     private static TransitionManager _singleton;
 
     public static TransitionManager Singleton
@@ -49,6 +55,7 @@ public class TransitionManager : MonoBehaviour
     }
 
 
+    static public float zDistance = 1f;
     private bool grabHold = false;
     private void grab(Vector2 ss_coords)
     {
@@ -62,9 +69,12 @@ public class TransitionManager : MonoBehaviour
         grabScreenWPos = null;
     }
 
+
     private Molecule hoverMol;
+    Vector2? current_ss_coords = null;
     public void hover(Vector2 ss_coords)
     {
+        current_ss_coords = ss_coords;
         var wpos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, 0.36f)); // z component is target distance from camera
         Ray ray = new Ray();
         ray.direction = GlobalCtrl.Singleton.currentCamera.transform.forward;
@@ -104,7 +114,7 @@ public class TransitionManager : MonoBehaviour
         grabHold = true;
         var wpos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, 0.36f)); // z component is target distance from camera
 
-
+        StartCoroutine(blinkOnScreen(ss_coords, wpos));
 
         Ray ray = new Ray();
         ray.direction = GlobalCtrl.Singleton.currentCamera.transform.forward;
@@ -124,7 +134,14 @@ public class TransitionManager : MonoBehaviour
                 return;
             }
 
-            StartCoroutine(moveMolAndTransition(mol, wpos));
+            if (SettingsData.desktopMode == TransitionManager.DesktopMode.THREE_D)
+            {
+                StartCoroutine(moveMolAndTransition(mol, wpos));
+            }
+            else
+            {
+                EventManager.Singleton.TransitionMolecule(mol);
+            }
         }
     }
 
@@ -134,9 +151,8 @@ public class TransitionManager : MonoBehaviour
         var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube.transform.localScale = Vector3.one * 0.04f;
         cube.GetComponent<Renderer>().material.color = new Color(1f, 0f, 0f, 1f);
-        //Debug.Log($"[getGrabOnScreen] Got: {ss_coords}");
         cube.transform.position = wpos;
-        //Debug.Log($"[getGrabOnScreen] World pos: {wpos}");
+        //Debug.Log($"[blink] ss: {ss_coords}; w: {wpos}");
         yield return new WaitForSeconds(0.1f);
         DestroyImmediate(cube);
     }
@@ -155,15 +171,30 @@ public class TransitionManager : MonoBehaviour
     {
         if (grabScreenWPos != null)
         {
-            mol.transform.position = grabScreenWPos.Value;
+            if (SettingsData.desktopMode == DesktopMode.THREE_D)
+            {
+                // init position different from ss position
+                mol.transform.position = grabScreenWPos.Value;
+            }
             StartCoroutine(moveMolToHand(mol));
         }
     }
 
     public void getTransitionServer(Molecule mol)
     {
-        mol.transform.position = GlobalCtrl.Singleton.currentCamera.transform.position + 0.36f * GlobalCtrl.Singleton.currentCamera.transform.forward;
-        StartCoroutine(moveMolAway(mol));
+        if (current_ss_coords == null)
+        {
+            mol.transform.position = GlobalCtrl.Singleton.currentCamera.transform.position + zDistance * GlobalCtrl.Singleton.currentCamera.transform.forward;
+        }
+        else
+        {
+            mol.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(current_ss_coords.Value.x, current_ss_coords.Value.y, zDistance));
+        }
+
+        if (SettingsData.desktopMode == TransitionManager.DesktopMode.THREE_D)
+        {
+            StartCoroutine(moveMolAway(mol));
+        }
     }
 
     private IEnumerator moveMolAndTransition(Molecule mol, Vector3 pos)

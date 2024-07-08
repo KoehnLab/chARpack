@@ -156,6 +156,7 @@ namespace chARpackStructs
     public struct cmlData
     {
         public SaveableVector3 molePos;
+        public SaveableVector2 ssPos;
         public SaveableVector3 moleScale;
         public SaveableQuaternion moleQuat;
         public SaveableQuaternion relQuat;
@@ -180,11 +181,17 @@ namespace chARpackStructs
             angleArray = ang?.ToArray();
             torsionArray = tor?.ToArray();
             relQuat = Quaternion.identity;
+            ssPos = Vector2.zero;
         }
 
         public void assignRelativeQuaternion(Quaternion q)
         {
             relQuat = q;
+        }
+
+        public void assignSSPos(Vector2 ss_coords)
+        {
+            ssPos = ss_coords;
         }
     }
 
@@ -213,6 +220,75 @@ namespace chARpackStructs
         Any = 0,
         left = 1,
         right = 2
+    }
+
+    [Serializable]
+    public struct SaveableVector2
+    {
+        public float x;
+        public float y;
+
+        public SaveableVector2(float x, float y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is SaveableVector2))
+            {
+                return false;
+            }
+
+            var s = (SaveableVector2)obj;
+            return x == s.x && y == s.y;
+        }
+
+        public Vector3 ToVector2()
+        {
+            return new Vector2(x, y);
+        }
+
+        public static bool operator ==(SaveableVector2 a, SaveableVector2 b)
+        {
+            return a.x == b.x && a.y == b.y;
+        }
+
+        public static bool operator !=(SaveableVector2 a, SaveableVector2 b)
+        {
+            return a.x != b.x && a.y != b.y;
+        }
+
+        public static bool operator ==(Vector2 a, SaveableVector2 b)
+        {
+            return a.x == b.x && a.y == b.y;
+        }
+
+        public static bool operator ==(SaveableVector2 a, Vector2 b)
+        {
+            return a.x == b.x && a.y == b.y;
+        }
+
+        public static bool operator !=(Vector2 a, SaveableVector2 b)
+        {
+            return a.x != b.x && a.y != b.y;
+        }
+
+        public static bool operator !=(SaveableVector2 a, Vector2 b)
+        {
+            return a.x != b.x && a.y != b.y;
+        }
+
+        public static implicit operator Vector2(SaveableVector2 x)
+        {
+            return new Vector2(x.x, x.y);
+        }
+
+        public static implicit operator SaveableVector2(Vector2 x)
+        {
+            return new SaveableVector2(x.x, x.y);
+        }
     }
 
     [Serializable]

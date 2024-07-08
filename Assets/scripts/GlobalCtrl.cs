@@ -80,6 +80,10 @@ public class GlobalCtrl : MonoBehaviour
     /// scale covalent radius to atom diameter
     /// </summary>
     public static float atomScale = 0.4f;
+    /// <summary>
+    /// z distance objects spawn in fromt of the camera
+    /// </summary>
+    public static float spawnZDistance = 1f;
 
     /// <summary>
     /// the space for creating molecules
@@ -1345,7 +1349,7 @@ public class GlobalCtrl : MonoBehaviour
     public void createAtomUI(string ChemicalID)
     {
         lastAtom = ChemicalID; // remember this for later
-        Vector3 create_position = currentCamera.transform.position + 0.5f * currentCamera.transform.forward;
+        Vector3 create_position = currentCamera.transform.position + spawnZDistance * currentCamera.transform.forward;
         var newID = Guid.NewGuid();
         CreateAtom(newID, ChemicalID, create_position, curHybrid);
 
@@ -2097,6 +2101,15 @@ public class GlobalCtrl : MonoBehaviour
                 if (molecule.relQuat != Quaternion.identity)
                 {
                     tempMolecule.transform.rotation = currentCamera.transform.rotation * molecule.relQuat;
+                }
+                Debug.Log($"[CreateFromCML] Conditions: TWO_D {SettingsData.desktopMode == TransitionManager.DesktopMode.TWO_D}; non-zero {molecule.ssPos != Vector2.zero}");
+                if (SettingsData.desktopMode == TransitionManager.DesktopMode.TWO_D && molecule.ssPos != Vector2.zero)
+                {
+                    if (screenAlignment.Singleton)
+                    {
+                        tempMolecule.transform.position = screenAlignment.Singleton.getWordsSpaceCoords(molecule.ssPos);
+                        Debug.Log($"[CreateFromCML] Got SS coords: {molecule.ssPos}; translated to wold coords: {tempMolecule.transform.position}");
+                    }
                 }
                 if (addToUndoStack) undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id, molecule));
                 EventManager.Singleton.MoleculeLoaded(tempMolecule);

@@ -14,7 +14,6 @@ public static class NetworkUtils
         var state = message.GetString();
         if (state == "start")
         {
-            Debug.Log("[NetworkManagerClient] Receiving atom world");
             cmlWorld_ = new List<cmlData>();
         }
         else if (state == "end")

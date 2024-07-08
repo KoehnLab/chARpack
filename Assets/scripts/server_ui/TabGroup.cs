@@ -1,7 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using chARpackColorPalette;
+
 
 public class TabGroup : MonoBehaviour
 {
@@ -19,7 +19,11 @@ public class TabGroup : MonoBehaviour
         {
             buttons = new List<tabButton>();
         }
-        buttons.Add(button);
+        if(!buttons.Contains(button))
+        {
+            buttons.Add(button);
+        }
+
 
         if(button == selectedTab)
         {
@@ -33,11 +37,18 @@ public class TabGroup : MonoBehaviour
         ResetTabColors();
         button.text.color = selectedColor;
 
-        int index = button.transform.GetSiblingIndex();
+        //int index = button.transform.GetSiblingIndex();
+        int index = buttons.IndexOf(button);
         for(int i=0; i<pagesToSwitch.Count; i++)
         {
-            if (i == index) { pagesToSwitch[i].SetActive(true); }
-            else { pagesToSwitch[i].SetActive(false); }
+            if (i == index)
+            {
+                pagesToSwitch[i].SetActive(true);
+            }
+            else
+            {
+                pagesToSwitch[i].SetActive(false);
+            }
         }
     }
     public void OnTabExit(tabButton button)

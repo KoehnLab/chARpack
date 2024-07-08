@@ -605,6 +605,7 @@ public class NetworkManagerClient : MonoBehaviour
 
         var cml = mol.AsCML();
         cml.assignRelativeQuaternion(q);
+        cml.assignSSPos(Vector2.zero);
 
         NetworkUtils.serializeCmlData((ushort)ClientToServerID.transitionMolecule, new List<cmlData> { cml }, chunkSize, true);
         GlobalCtrl.Singleton.deleteMolecule(mol);
@@ -1097,6 +1098,7 @@ public class NetworkManagerClient : MonoBehaviour
         var useAngstrom = message.GetBool();
         var serverViewport = message.GetVector2();
         var syncMode = (TransitionManager.SyncMode)message.GetInt();
+        var desktopMode = (TransitionManager.DesktopMode)message.GetInt();
 
         // Get enum entries from strings
         Enum.TryParse(integrationMethodString, ignoreCase: true, out ForceField.Method integrationMethod);
@@ -1127,6 +1129,7 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.useAngstrom = useAngstrom;
             SettingsData.serverViewport = serverViewport;
             SettingsData.syncMode = syncMode;
+            SettingsData.desktopMode = desktopMode;
             settingsControl.Singleton.updateSettings();
             if (appSettings.Singleton != null)
             {

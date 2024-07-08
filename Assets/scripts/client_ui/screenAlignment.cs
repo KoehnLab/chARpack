@@ -219,14 +219,17 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
 
         var dir_x = screenVertices[2] - screenVertices[0];
         var dir_y = screenVertices[1] - screenVertices[0];
-        var dir_max = screenVertices[3] - screenVertices[0];
+        //var dir_max = screenVertices[3] - screenVertices[0];
         var input_dir = input - screenVertices[0];
 
-        var p_max_x = Vector3.Dot(dir_x, dir_max);
-        var p_max_y = Vector3.Dot(dir_y, dir_max);
+        //var p_max_x = Vector3.Dot(dir_x, dir_max);
+        //var p_max_y = Vector3.Dot(dir_y, dir_max);
 
-        var projected_x = Vector3.Dot(dir_x, input_dir) / p_max_x;
-        var projected_y = Vector3.Dot(dir_y, input_dir) / p_max_y;
+        //var projected_x = Vector3.Dot(dir_x, input_dir) / p_max_x;
+        //var projected_y = Vector3.Dot(dir_y, input_dir) / p_max_y;
+
+        var projected_x = Vector3.Dot(dir_x.normalized, input_dir) / dir_x.magnitude;
+        var projected_y = Vector3.Dot(dir_y.normalized, input_dir) / dir_y.magnitude;
 
         var on_screen_x = Mathf.Clamp(projected_x * SettingsData.serverViewport.x, 0f, SettingsData.serverViewport.x);
         var on_screen_y = Mathf.Clamp(projected_y * SettingsData.serverViewport.y, 0f, SettingsData.serverViewport.y);
@@ -238,6 +241,16 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         //Debug.Log($"[screenAlignment] p_x {on_screen_x} p_y {on_screen_y}");
 
         return new Vector2(on_screen_x, on_screen_y);
+    }
+
+    public Vector3 getWordsSpaceCoords(Vector2 input)
+    {
+        var dir_x = screenVertices[2] - screenVertices[0];
+        var dir_y = screenVertices[1] - screenVertices[0];
+
+        var ss_coords = screenVertices[0] + dir_x * input.x / SettingsData.serverViewport.x + dir_y * input.y / SettingsData.serverViewport.y;
+
+        return ss_coords;
     }
 
 

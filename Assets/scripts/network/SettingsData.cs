@@ -30,7 +30,7 @@ public class SettingsData
     [SerializeField] static public bool autogenerateStructureFormulas = false; // Only for server, not broadcast via network
     [SerializeField] static public Vector2 serverViewport = new Vector2(1920, 1080);
     [SerializeField] static public TransitionManager.SyncMode syncMode = TransitionManager.SyncMode.Async;
-
+    [SerializeField] static public TransitionManager.DesktopMode desktopMode = TransitionManager.DesktopMode.TWO_D;
 
 
     public static int highlightColorMap { get => _highlightColorMap; set

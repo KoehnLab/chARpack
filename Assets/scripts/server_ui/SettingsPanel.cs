@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -36,6 +37,8 @@ public class SettingsPanel : MonoBehaviour
     public GameObject networkMeasurementsToggle;
     public GameObject highlightColorMapDropdown;
     public GameObject showAllHighlightsToggle;
+    public GameObject useAsyncModeToggle;
+    public GameObject serverAs2DToggle;
 
     private void Start()
     {
@@ -113,6 +116,10 @@ public class SettingsPanel : MonoBehaviour
         mpSlider.GetComponent<UpdateSliderLabel>().updateLabel();
 
         networkMeasurementsToggle.GetComponent<Toggle>().isOn = SettingsData.networkMeasurements;
+
+        useAsyncModeToggle.GetComponent<Toggle>().isOn = SettingsData.syncMode == TransitionManager.SyncMode.Async;
+        serverAs2DToggle.GetComponent<Toggle>().isOn = SettingsData.desktopMode == TransitionManager.DesktopMode.TWO_D;
+
     }
 
     /// <summary>
@@ -154,6 +161,9 @@ public class SettingsPanel : MonoBehaviour
         SettingsData.networkMeasurements = networkMeasurementsToggle.GetComponent<Toggle>().isOn;
         SettingsData.interpolateColors = bondColorInterpolationToggle.GetComponent<Toggle>().isOn;
         SettingsData.licoriceRendering = licoriceRenderingToggle.GetComponent<Toggle>().isOn;
+
+        SettingsData.syncMode = useAsyncModeToggle.GetComponent<Toggle>().isOn ? TransitionManager.SyncMode.Async : TransitionManager.SyncMode.Sync;
+        SettingsData.desktopMode = serverAs2DToggle.GetComponent<Toggle>().isOn ? TransitionManager.DesktopMode.TWO_D : TransitionManager.DesktopMode.THREE_D;
 
         settingsControl.Singleton.updateSettings();
         EventManager.Singleton.UpdateSettings();

@@ -464,6 +464,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddBool(SettingsData.useAngstrom);
         message.AddVector2(SettingsData.serverViewport);
         message.AddInt((int)SettingsData.syncMode);
+        message.AddInt((int)SettingsData.desktopMode);
         Server.SendToAll(message);
     }
 
@@ -558,6 +559,17 @@ public class NetworkManagerServer : MonoBehaviour
 
         var cml = mol.AsCML();
         cml.assignRelativeQuaternion(q);
+        if (SettingsData.desktopMode == TransitionManager.DesktopMode.TWO_D)
+        {
+            var cam = GlobalCtrl.Singleton.currentCamera;
+            if (cam == null)
+            {
+                cam = Camera.main;
+            }
+            var ss_coords = cam.WorldToScreenPoint(mol.transform.position);
+            Debug.Log($"[TransitionCoords] {ss_coords}");
+            cml.assignSSPos(ss_coords);
+        }
 
         NetworkUtils.serializeCmlData((ushort)ServerToClientID.transitionMolecule, new List<cmlData> { cml }, chunkSize, false);
         GlobalCtrl.Singleton.deleteMolecule(mol);
@@ -1317,10 +1329,19 @@ public class NetworkManagerServer : MonoBehaviour
     private static void getGrabOnScreen(ushort fromClientId, Message message)
     {
         var ss_coords = message.GetVector2();
+        Debug.Log($"[GrabOnScreen] ss {ss_coords}");
 
         if (TransitionManager.Singleton != null)
         {
             TransitionManager.Singleton.initializeTransitionServer(ss_coords);
+        }
+        if (HoverMarker.Singleton != null)
+        {
+            if (!HoverMarker.Singleton.isVisible())
+            {
+                HoverMarker.Singleton.show();
+            }
+            HoverMarker.Singleton.setGrab();
         }
     }
 
@@ -1331,6 +1352,14 @@ public class NetworkManagerServer : MonoBehaviour
         {
             TransitionManager.Singleton.release();
         }
+        if (HoverMarker.Singleton != null)
+        {
+            if (!HoverMarker.Singleton.isVisible())
+            {
+                HoverMarker.Singleton.show();
+            }
+            HoverMarker.Singleton.setHover();
+        }
     }
 
     [MessageHandler((ushort)ClientToServerID.hoverOverScreen)]
@@ -1340,6 +1369,14 @@ public class NetworkManagerServer : MonoBehaviour
         if (TransitionManager.Singleton != null)
         {
             TransitionManager.Singleton.hover(ss_coords);
+        }
+        if (HoverMarker.Singleton != null)
+        {
+            if (!HoverMarker.Singleton.isVisible())
+            {
+                HoverMarker.Singleton.show();
+            }
+            HoverMarker.Singleton.setPosition(ss_coords);
         }
     }
 
