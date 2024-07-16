@@ -160,7 +160,7 @@ public class PythonEnvironmentManager : MonoBehaviour
 
     async void downloadEnvironment()
     {
-        string url = "https://cloud.visus.uni-stuttgart.de/index.php/s/avET4hM9eoUCx6i/download";
+        string url = "https://cloud.visus.uni-stuttgart.de/index.php/s/eeffkl7NTKVLsMI/download";
         // Send a GET request to the specified URL
         HttpResponseMessage response = await client.GetAsync(url);
         string download_path = base_path + "/PythonEnv.zip";

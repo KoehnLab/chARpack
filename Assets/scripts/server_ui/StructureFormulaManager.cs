@@ -47,7 +47,7 @@ public class StructureFormulaManager : MonoBehaviour
         Singleton = this;
     }
 
-    private Dictionary<Guid, Triple<GameObject, string, List<GameObject>>> svg_instances; // mol_id, primary_structure_formula, svg_content, secondary_structure_formulas
+    public Dictionary<Guid, Triple<GameObject, string, List<GameObject>>> svg_instances { get; private set; } // mol_id, primary_structure_formula, svg_content, secondary_structure_formulas
     private GameObject interactiblePrefab;
     private GameObject structureFormulaPrefab;
     public GameObject UICanvas;
