@@ -46,7 +46,10 @@ public class StructureFormulaGenerator : MonoBehaviour
 
     public void requestStructureFormula(Molecule mol)
     {
-        StartCoroutine(waitAndGenerate(mol));
+        if (StructureFormulaManager.Singleton.svg_instances.ContainsKey(mol.m_id))
+        {
+            StartCoroutine(waitAndGenerate(mol));
+        }
     }
 
     public void immediateRequestStructureFormula(Molecule mol)
