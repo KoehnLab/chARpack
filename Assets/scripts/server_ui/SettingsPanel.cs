@@ -38,7 +38,9 @@ public class SettingsPanel : MonoBehaviour
     public GameObject highlightColorMapDropdown;
     public GameObject showAllHighlightsToggle;
     public GameObject useAsyncModeToggle;
-    public GameObject serverAs2DToggle;
+    public GameObject transitionModeDropdown;
+    public GameObject immersiveTargetDropdown;
+    public GameObject requireGrabHoldToggle;
 
     private void Start()
     {
@@ -118,7 +120,9 @@ public class SettingsPanel : MonoBehaviour
         networkMeasurementsToggle.GetComponent<Toggle>().isOn = SettingsData.networkMeasurements;
 
         useAsyncModeToggle.GetComponent<Toggle>().isOn = SettingsData.syncMode == TransitionManager.SyncMode.Async;
-        serverAs2DToggle.GetComponent<Toggle>().isOn = SettingsData.desktopMode == TransitionManager.DesktopMode.TWO_D;
+        transitionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().value = (int)SettingsData.transitionMode;
+        immersiveTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value = (int)SettingsData.immersiveTarget;
+        requireGrabHoldToggle.GetComponent<Toggle>().isOn = SettingsData.requireGrabHold;
 
     }
 
@@ -163,7 +167,9 @@ public class SettingsPanel : MonoBehaviour
         SettingsData.licoriceRendering = licoriceRenderingToggle.GetComponent<Toggle>().isOn;
 
         SettingsData.syncMode = useAsyncModeToggle.GetComponent<Toggle>().isOn ? TransitionManager.SyncMode.Async : TransitionManager.SyncMode.Sync;
-        SettingsData.desktopMode = serverAs2DToggle.GetComponent<Toggle>().isOn ? TransitionManager.DesktopMode.TWO_D : TransitionManager.DesktopMode.THREE_D;
+        SettingsData.transitionMode = (TransitionManager.TransitionMode)transitionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
+        SettingsData.immersiveTarget = (TransitionManager.ImmersiveTarget)immersiveTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
+        SettingsData.requireGrabHold = requireGrabHoldToggle.GetComponent<Toggle>().isOn;
 
         settingsControl.Singleton.updateSettings();
         EventManager.Singleton.UpdateSettings();

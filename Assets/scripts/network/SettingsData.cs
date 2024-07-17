@@ -30,7 +30,9 @@ public class SettingsData
     [SerializeField] static public bool autogenerateStructureFormulas = false; // Only for server, not broadcast via network
     [SerializeField] static public Vector2 serverViewport = new Vector2(1920, 1080);
     [SerializeField] static public TransitionManager.SyncMode syncMode = TransitionManager.SyncMode.Async;
-    [SerializeField] static public TransitionManager.DesktopMode desktopMode = TransitionManager.DesktopMode.TWO_D;
+    [SerializeField] static public TransitionManager.TransitionMode transitionMode = TransitionManager.TransitionMode.DESKTOP_2D;
+    [SerializeField] static public TransitionManager.ImmersiveTarget immersiveTarget = TransitionManager.ImmersiveTarget.HAND;
+    [SerializeField] static public bool requireGrabHold = true;
 
 
     public static int highlightColorMap { get => _highlightColorMap; set

@@ -105,13 +105,13 @@ public class NetworkManagerServer : MonoBehaviour
     private void activateAsync()
     {
         EventManager.Singleton.OnTransitionMolecule += transitionMol;
-        EventManager.Singleton.OnMoleculeLoaded += TransitionManager.Singleton.getTransitionServer;
+        EventManager.Singleton.OnReceiveMoleculeTransition += TransitionManager.Singleton.getTransitionServer;
     }
 
     private void deactivateAsync()
     {
         EventManager.Singleton.OnTransitionMolecule -= transitionMol;
-        EventManager.Singleton.OnMoleculeLoaded -= TransitionManager.Singleton.getTransitionServer;
+        EventManager.Singleton.OnReceiveMoleculeTransition -= TransitionManager.Singleton.getTransitionServer;
     }
 
 
@@ -464,7 +464,9 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddBool(SettingsData.useAngstrom);
         message.AddVector2(SettingsData.serverViewport);
         message.AddInt((int)SettingsData.syncMode);
-        message.AddInt((int)SettingsData.desktopMode);
+        message.AddInt((int)SettingsData.transitionMode);
+        message.AddInt((int)SettingsData.immersiveTarget);
+        message.AddBool(SettingsData.requireGrabHold);
         Server.SendToAll(message);
     }
 
@@ -559,7 +561,7 @@ public class NetworkManagerServer : MonoBehaviour
 
         var cml = mol.AsCML();
         cml.assignRelativeQuaternion(q);
-        if (SettingsData.desktopMode == TransitionManager.DesktopMode.TWO_D)
+        if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT)
         {
             var cam = GlobalCtrl.Singleton.currentCamera;
             if (cam == null)
@@ -569,7 +571,12 @@ public class NetworkManagerServer : MonoBehaviour
             var ss_coords = cam.WorldToScreenPoint(mol.transform.position);
             Debug.Log($"[TransitionCoords] {ss_coords}");
             cml.assignSSPos(ss_coords);
+
+            var ss_bounds = mol.getScreenSpaceBounds();
+            cml.assignSSBounds(ss_bounds);
+            Debug.Log($"[Transition] ss bounds: {ss_bounds}");
         }
+        cml.setTransitionFlag();
 
         NetworkUtils.serializeCmlData((ushort)ServerToClientID.transitionMolecule, new List<cmlData> { cml }, chunkSize, false);
         GlobalCtrl.Singleton.deleteMolecule(mol);

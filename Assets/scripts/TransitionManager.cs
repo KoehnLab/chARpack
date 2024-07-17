@@ -14,10 +14,22 @@ public class TransitionManager : MonoBehaviour
         Async = 1
     }
 
-    public enum DesktopMode
+    public enum TransitionMode
     {
-        TWO_D = 0,
-        THREE_D = 1
+        FULL_3D = 0,
+        DESKTOP_2D = 1,
+        INSTANT = 2
+    }
+
+    public enum ImmersiveTarget
+    {
+        HAND = 0,
+        CAMERA = 1
+    }
+
+    public enum DesktopTarget
+    {
+        NONE = 0
     }
 
     private static TransitionManager _singleton;
@@ -114,6 +126,7 @@ public class TransitionManager : MonoBehaviour
         grabHold = true;
         var wpos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, 0.36f)); // z component is target distance from camera
 
+        // debug blink
         StartCoroutine(blinkOnScreen(ss_coords, wpos));
 
         Ray ray = new Ray();
@@ -134,7 +147,7 @@ public class TransitionManager : MonoBehaviour
                 return;
             }
 
-            if (SettingsData.desktopMode == TransitionManager.DesktopMode.THREE_D)
+            if (SettingsData.transitionMode == TransitionMode.FULL_3D)
             {
                 StartCoroutine(moveMolAndTransition(mol, wpos));
             }
@@ -161,8 +174,15 @@ public class TransitionManager : MonoBehaviour
     public void initializeTransitionClient(Molecule mol)
     {
         grabHold = true;
-
-        StartCoroutine(moveMolToScreenAndTransition(mol));
+        if (SettingsData.transitionMode == TransitionMode.INSTANT)
+        {
+            mol.transform.position = screenAlignment.Singleton.getScreenCenter();
+            EventManager.Singleton.TransitionMolecule(mol);
+        }
+        else
+        {
+            StartCoroutine(moveMolToScreenAndTransition(mol));
+        }
     }
 
     private Vector3? grabScreenWPos = null;
@@ -171,12 +191,27 @@ public class TransitionManager : MonoBehaviour
     {
         if (grabScreenWPos != null)
         {
-            if (SettingsData.desktopMode == DesktopMode.THREE_D)
+            if (SettingsData.transitionMode == TransitionMode.INSTANT)
             {
-                // init position different from ss position
-                mol.transform.position = grabScreenWPos.Value;
+                mol.transform.position = HandTracking.Singleton.getIndexTip();
             }
-            StartCoroutine(moveMolToHand(mol));
+            else
+            {
+                if (SettingsData.transitionMode == TransitionMode.FULL_3D)
+                {
+                    // init position different from ss position
+                    mol.transform.position = grabScreenWPos.Value;
+                }
+                if (SettingsData.immersiveTarget == ImmersiveTarget.HAND)
+                {
+                    StartCoroutine(moveMolToHand(mol));
+                }
+                else
+                {
+                    StartCoroutine(moveMolToUser(mol));
+                }
+                
+            }
         }
     }
 
@@ -191,7 +226,7 @@ public class TransitionManager : MonoBehaviour
             mol.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(current_ss_coords.Value.x, current_ss_coords.Value.y, zDistance));
         }
 
-        if (SettingsData.desktopMode == TransitionManager.DesktopMode.THREE_D)
+        if (SettingsData.transitionMode == TransitionManager.TransitionMode.FULL_3D)
         {
             StartCoroutine(moveMolAway(mol));
         }
@@ -205,7 +240,10 @@ public class TransitionManager : MonoBehaviour
         var dir = (pos - mol.transform.position).normalized;
         while (dist > 0.005f)
         {
-            if (!grabHold) yield break;
+            if (SettingsData.requireGrabHold)
+            {
+                if (!grabHold) yield break;
+            }
             dist = Vector3.Distance(mol.transform.position, pos);
             float t = (Time.time - startTime) / duration;
             var dist_per_step = Mathf.SmoothStep(0.001f, 0.01f, t);
@@ -226,7 +264,10 @@ public class TransitionManager : MonoBehaviour
         var dir = (center - mol.transform.position).normalized;
         while (dist > 0.005f)
         {
-            if (!grabHold) yield break;
+            if (SettingsData.requireGrabHold)
+            {
+                if (!grabHold) yield break;
+            }
             var pos = screenAlignment.Singleton.getCurrentProjectedPos();
             if (!screenAlignment.Singleton.contains(pos))
             {
@@ -250,8 +291,33 @@ public class TransitionManager : MonoBehaviour
         var dist = Vector3.Distance(mol.transform.position, pos);
         while (dist > 0.005f)
         {
-            if (!grabHold) yield break;
+            if (SettingsData.requireGrabHold)
+            {
+                if (!grabHold) yield break;
+            }
             pos = HandTracking.Singleton.getIndexTip();
+            dist = Vector3.Distance(mol.transform.position, pos);
+            float t = (Time.time - startTime) / duration;
+            var dir = (pos - mol.transform.position).normalized;
+            var dist_per_step = Mathf.SmoothStep(0.001f, 0.01f, t);
+            mol.transform.position += dir * dist_per_step;
+            yield return null; // wait for next frame
+        }
+    }
+
+    private IEnumerator moveMolToUser(Molecule mol)
+    {
+        var startTime = Time.time;
+        var duration = 3f;
+        var pos = GlobalCtrl.Singleton.getCurrentSpawnPos();
+        var dist = Vector3.Distance(mol.transform.position, pos);
+        while (dist > 0.005f)
+        {
+            if (SettingsData.requireGrabHold)
+            {
+                if (!grabHold) yield break;
+            }
+            pos = GlobalCtrl.Singleton.getCurrentSpawnPos();
             dist = Vector3.Distance(mol.transform.position, pos);
             float t = (Time.time - startTime) / duration;
             var dir = (pos - mol.transform.position).normalized;
@@ -265,11 +331,14 @@ public class TransitionManager : MonoBehaviour
     {
         var startTime = Time.time;
         var duration = 3f;
-        var destination = GlobalCtrl.Singleton.currentCamera.transform.position + 2f * GlobalCtrl.Singleton.currentCamera.transform.forward;
+        var destination = GlobalCtrl.Singleton.getCurrentSpawnPos();
         var dist = Vector3.Distance(mol.transform.position, destination);
         while (dist > 0.005f)
         {
-            if (!grabHold) yield break;
+            if (SettingsData.requireGrabHold)
+            {
+                if (!grabHold) yield break;
+            }
             dist = Vector3.Distance(mol.transform.position, destination);
             float t = (Time.time - startTime) / duration;
             var dir = (destination - mol.transform.position).normalized;

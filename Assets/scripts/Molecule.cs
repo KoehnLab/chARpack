@@ -12,6 +12,7 @@ using UnityEngine.UI;
 using chARpackColorPalette;
 using UnityEngine.SceneManagement;
 using TMPro;
+using OpenBabel;
 
 public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
@@ -287,7 +288,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         startingScale = transform.localScale;
         atomList = new List<Atom>();
         bondList = new List<Bond>();
-        // TODO put collider into a corner
+        // TODO: we need the collider but we dont want it
         var collider = gameObject.AddComponent<BoxCollider>();
         collider.size = new Vector3(0.001f, 0.001f, 0.001f);
         //collider.center = GetComponent<myBoundingBox>().cornerHandles[1].transform.position;
@@ -406,6 +407,46 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private void OnTransitionGrabRelease()
     {
 
+    }
+
+    public Vector4 getScreenSpaceBounds()
+    {
+        if (NetworkManagerServer.Singleton != null)
+        {
+            var cam = GlobalCtrl.Singleton.currentCamera;
+            if (cam == null)
+            {
+                cam = Camera.main;
+            }
+            var boundPoints = GetComponent<myBoundingBox>().localBounds.GetCorners();
+
+            Vector2 ss_min = Vector2.one * float.MaxValue;
+            Vector2 ss_max = Vector2.zero;
+            foreach (var point in boundPoints)
+            {
+                var ss_coord = cam.WorldToScreenPoint(point);
+                ss_min = Vector2.Min(ss_min, ss_coord);
+                ss_max = Vector2.Max(ss_max, ss_coord);
+            }
+            return new Vector4(ss_min.x, ss_min.y, ss_max.x, ss_max.y);
+        }
+        if (NetworkManagerClient.Singleton != null)
+        {
+            var corners = GetComponent<myBoundingBox>().localBounds.GetCorners();
+            Vector2 ss_min = Vector2.one * float.MaxValue;
+            Vector2 ss_max = Vector2.zero;
+            foreach (var corner in corners)
+            {
+                var proj_corner = screenAlignment.Singleton.projectWSPointToScreen(corner);
+                var ss_corner = screenAlignment.Singleton.getScreenSpaceCoords(proj_corner);
+
+                ss_min = Vector2.Min(ss_min, ss_corner.Value);
+                ss_max = Vector2.Max(ss_max, ss_corner.Value);
+            }
+
+            return new Vector4(ss_min.x, ss_min.y, ss_max.x, ss_max.y);
+        }
+        return Vector4.zero;
     }
 
     private void adjustBBox(Molecule mol)

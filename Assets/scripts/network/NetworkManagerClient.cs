@@ -103,13 +103,13 @@ public class NetworkManagerClient : MonoBehaviour
 
     private void activateAsync()
     {
-        EventManager.Singleton.OnMoleculeLoaded += TransitionManager.Singleton.getTransitionClient;
+        EventManager.Singleton.OnReceiveMoleculeTransition += TransitionManager.Singleton.getTransitionClient;
         EventManager.Singleton.OnTransitionMolecule += transitionMolecule;
     }
 
     private void deactivateAsync()
     {
-        EventManager.Singleton.OnMoleculeLoaded -= TransitionManager.Singleton.getTransitionClient;
+        EventManager.Singleton.OnReceiveMoleculeTransition -= TransitionManager.Singleton.getTransitionClient;
         EventManager.Singleton.OnTransitionMolecule -= transitionMolecule;
     }
 
@@ -607,6 +607,16 @@ public class NetworkManagerClient : MonoBehaviour
         cml.assignRelativeQuaternion(q);
         cml.assignSSPos(Vector2.zero);
 
+        if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT)
+        {
+            var mol_ss_bounds = mol.getScreenSpaceBounds();
+            if (mol_ss_bounds != Vector4.zero)
+            {
+                cml.assignSSBounds(mol_ss_bounds);
+            }
+        }
+        cml.setTransitionFlag();
+
         NetworkUtils.serializeCmlData((ushort)ClientToServerID.transitionMolecule, new List<cmlData> { cml }, chunkSize, true);
         GlobalCtrl.Singleton.deleteMolecule(mol);
     }
@@ -1098,7 +1108,9 @@ public class NetworkManagerClient : MonoBehaviour
         var useAngstrom = message.GetBool();
         var serverViewport = message.GetVector2();
         var syncMode = (TransitionManager.SyncMode)message.GetInt();
-        var desktopMode = (TransitionManager.DesktopMode)message.GetInt();
+        var transitionMode = (TransitionManager.TransitionMode)message.GetInt();
+        var immersiveTarget = (TransitionManager.ImmersiveTarget)message.GetInt();
+        var requireGrabHold = message.GetBool();
 
         // Get enum entries from strings
         Enum.TryParse(integrationMethodString, ignoreCase: true, out ForceField.Method integrationMethod);
@@ -1129,7 +1141,9 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.useAngstrom = useAngstrom;
             SettingsData.serverViewport = serverViewport;
             SettingsData.syncMode = syncMode;
-            SettingsData.desktopMode = desktopMode;
+            SettingsData.transitionMode = transitionMode;
+            SettingsData.immersiveTarget = immersiveTarget;
+            SettingsData.requireGrabHold = requireGrabHold;
             settingsControl.Singleton.updateSettings();
             if (appSettings.Singleton != null)
             {

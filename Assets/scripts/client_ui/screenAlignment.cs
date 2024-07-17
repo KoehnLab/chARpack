@@ -70,6 +70,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
     System.Diagnostics.Stopwatch screenScanStopwatch;
     Vector3 oldIndexPos = Vector3.zero;
     Vector3[] screenVertices;
+    Vector3 screenNormal;
     bool fullyInitialized = false;
     Vector3 screenCenter = Vector3.zero;
     public void startScreenAlignment()
@@ -121,12 +122,17 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                         screenVertices[2] = index_pos;
                         screenCenter = screenVertices[2] + 0.5f * (screenVertices[1] - screenVertices[2]);
                         screenVertices[3] = screenVertices[0] + 2f * (screenCenter - screenVertices[0]);
+                        //calc normal
+                        var dir_x = screenVertices[2] - screenVertices[0];
+                        var dir_y = screenVertices[1] - screenVertices[0];
+                        screenNormal = Vector3.Cross(dir_x, dir_y).normalized;
+                        // indicators
                         AudioSource.PlayClipAtPoint(confirmClip, index_pos);
                         indicator3.SetActive(true);
                         indicator3.transform.position = index_pos;
                         indicator4.SetActive(true);
                         indicator4.transform.position = screenVertices[3];
-
+                        // quad
                         screenQuad.transform.position = Vector3.zero;
                         var vertices = new Vector3[4];
                         vertices[0] = screenQuad.transform.InverseTransformPoint(screenVertices[0]);
@@ -196,11 +202,14 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         }
 
         var index_in_world_space = HandTracking.Singleton.getIndexKnuckle(); // for tracking use knuckle
-        var dir_x = screenVertices[2] - screenVertices[0];
-        var dir_y = screenVertices[1] - screenVertices[0];
-        var normal = Vector3.Cross(dir_x, dir_y).normalized;
+
+        return projectWSPointToScreen(index_in_world_space);
+    }
+
+    public Vector3 projectWSPointToScreen(Vector3 point)
+    {
         // project on plane https://forum.unity.com/threads/projection-of-point-on-plane.855958/
-        var pos_projected_on_screen = Vector3.ProjectOnPlane(index_in_world_space, normal) + Vector3.Dot(screenCenter, normal) * normal;
+        var pos_projected_on_screen = Vector3.ProjectOnPlane(point, screenNormal) + Vector3.Dot(screenCenter, screenNormal) * screenNormal;
 
         return pos_projected_on_screen;
     }
@@ -243,14 +252,61 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         return new Vector2(on_screen_x, on_screen_y);
     }
 
-    public Vector3 getWordsSpaceCoords(Vector2 input)
+    public Vector3 getWorldSpaceCoords(Vector2 input)
     {
         var dir_x = screenVertices[2] - screenVertices[0];
         var dir_y = screenVertices[1] - screenVertices[0];
 
-        var ss_coords = screenVertices[0] + dir_x * input.x / SettingsData.serverViewport.x + dir_y * input.y / SettingsData.serverViewport.y;
+        var ws_coords = screenVertices[0] + dir_x * input.x / SettingsData.serverViewport.x + dir_y * input.y / SettingsData.serverViewport.y;
 
-        return ss_coords;
+        return ws_coords;
+    }
+
+    public Vector2 getScreenAlignedDistanceWS(Vector2 input_min, Vector2 input_max)
+    {
+        var dir_x = screenVertices[2] - screenVertices[0];
+        var dir_y = screenVertices[1] - screenVertices[0];
+
+        var ws_coords1 = screenVertices[0] + dir_x * input_min.x / SettingsData.serverViewport.x + dir_y * input_min.y / SettingsData.serverViewport.y;
+        var ws_coords2 = screenVertices[0] + dir_x * input_max.x / SettingsData.serverViewport.x + dir_y * input_max.y / SettingsData.serverViewport.y;
+
+        var diff = ws_coords2 - ws_coords1;
+
+        var amount_x = Vector3.Dot(diff, dir_x);
+        var amount_y = Vector3.Dot(diff, dir_y);
+
+        return new Vector2(amount_x, amount_y);
+    }
+
+    public Vector2 sizeProjectedToScreenWS(Bounds bounds)
+    {
+        var corners = bounds.GetCorners();
+
+        var dir_x = screenVertices[2] - screenVertices[0];
+        var dir_y = screenVertices[1] - screenVertices[0];
+
+        Vector2 min = Vector2.one * float.MaxValue;
+        Vector2 max = Vector2.zero;
+
+        foreach (var corner in corners)
+        {
+            var proj_point = projectWSPointToScreen(corner) - screenVertices[0];
+            
+            var amount_x = Vector3.Dot(proj_point, dir_x);
+            var amount_y = Vector3.Dot(proj_point, dir_y);
+
+            Vector2 projVec = new Vector2(amount_x, amount_y);
+
+            min = Vector2.Min(min, projVec);
+            max = Vector2.Max(max, projVec);
+        }
+
+        return max - min;
+    }
+
+    public Vector3 getScreenNormal()
+    {
+        return screenNormal;
     }
 
 

@@ -83,7 +83,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <summary>
     /// z distance objects spawn in fromt of the camera
     /// </summary>
-    public static float spawnZDistance = 1f;
+    public static float spawnZDistance = 0.75f;
 
     /// <summary>
     /// the space for creating molecules
@@ -331,6 +331,16 @@ public class GlobalCtrl : MonoBehaviour
         // for use in mouse events
         currentCamera = mainCamera;
         Debug.Log($"DEVICE Type: {SystemInfo.deviceType}, Model: {SystemInfo.deviceModel}");
+
+        if(NetworkManagerClient.Singleton != null)
+        {
+            spawnZDistance = 0.5f;
+        }
+    }
+
+    public Vector3 getCurrentSpawnPos()
+    {
+        return currentCamera.transform.position + spawnZDistance * currentCamera.transform.forward;
     }
 
     // on mol data changed (replacement for update loop checks)
@@ -2100,19 +2110,72 @@ public class GlobalCtrl : MonoBehaviour
                 }
                 if (molecule.relQuat != Quaternion.identity)
                 {
-                    tempMolecule.transform.rotation = currentCamera.transform.rotation * molecule.relQuat;
+                    if (NetworkManagerClient.Singleton != null)
+                    {
+                        var normal = screenAlignment.Singleton.getScreenNormal();
+                        var screen_quat = Quaternion.LookRotation(-normal);
+                        tempMolecule.transform.rotation = screen_quat * molecule.relQuat;
+                    }
+                    if (NetworkManagerServer.Singleton != null)
+                    {
+                        tempMolecule.transform.rotation = currentCamera.transform.rotation * molecule.relQuat;
+                    }
                 }
-                Debug.Log($"[CreateFromCML] Conditions: TWO_D {SettingsData.desktopMode == TransitionManager.DesktopMode.TWO_D}; non-zero {molecule.ssPos != Vector2.zero}");
-                if (SettingsData.desktopMode == TransitionManager.DesktopMode.TWO_D && molecule.ssPos != Vector2.zero)
+                if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT && molecule.ssPos != Vector2.zero)
                 {
                     if (screenAlignment.Singleton)
                     {
-                        tempMolecule.transform.position = screenAlignment.Singleton.getWordsSpaceCoords(molecule.ssPos);
+                        tempMolecule.transform.position = screenAlignment.Singleton.getWorldSpaceCoords(molecule.ssPos);
                         Debug.Log($"[CreateFromCML] Got SS coords: {molecule.ssPos}; translated to wold coords: {tempMolecule.transform.position}");
+                    }
+                }
+                if (molecule.ssBounds != Vector4.zero)
+                {
+                    tempMolecule.transform.localScale = Vector3.one;
+                    if (NetworkManagerClient.Singleton != null)
+                    {
+                        var ss_min = new Vector2(molecule.ssBounds.x, molecule.ssBounds.y);
+                        var ss_max = new Vector2(molecule.ssBounds.z, molecule.ssBounds.w);
+                        var aligned_dist = screenAlignment.Singleton.getScreenAlignedDistanceWS(ss_min, ss_max);
+                        var max_size = Mathf.Max(aligned_dist.x, aligned_dist.y);
+                        Debug.Log($"[Create:transition] max_size: {max_size}");
+
+                        var mol_bounds = tempMolecule.GetComponent<myBoundingBox>().localBounds;
+                        var proj_mol_size = screenAlignment.Singleton.sizeProjectedToScreenWS(mol_bounds);
+                        Debug.Log($"[Create:transition] proj_mol_size: {proj_mol_size}");
+                        var max_mol_size = Mathf.Max(proj_mol_size.x, proj_mol_size.y);
+                        Debug.Log($"[Create:transition] max_mol_size: {max_mol_size}");
+
+                        var scale_factor = max_size / max_mol_size;
+                        Debug.Log($"[Create:transition] scale_factor: {scale_factor}");
+                        tempMolecule.transform.localScale *= scale_factor;
+                    }
+                    if (NetworkManagerServer.Singleton != null)
+                    {
+                        var ss_min = new Vector2(molecule.ssBounds.x, molecule.ssBounds.y);
+                        var ss_max = new Vector2(molecule.ssBounds.z, molecule.ssBounds.w);
+                        var ss_diff = ss_max - ss_min;
+                        var cml_max_size = Mathf.Max(ss_diff.x, ss_diff.y);
+
+                        var current_ss_bounds = tempMolecule.getScreenSpaceBounds();
+                        var current_min = new Vector2(current_ss_bounds.x, current_ss_bounds.y);
+                        var current_max = new Vector2(current_ss_bounds.z, current_ss_bounds.w);
+                        var current_diff = current_max - current_min;
+                        var current_max_size = Mathf.Max(current_diff.x, current_diff.y);
+
+                        Debug.Log($"[Create:transition] cml_max_size {cml_max_size}; current_max_size {current_max_size}");
+
+                        var scale_factor = cml_max_size / current_max_size;
+                        Debug.Log($"[Create:transition] scale_factor {scale_factor}");
+                        tempMolecule.transform.localScale *= scale_factor;
                     }
                 }
                 if (addToUndoStack) undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id, molecule));
                 EventManager.Singleton.MoleculeLoaded(tempMolecule);
+                if (molecule.moleTransitioned)
+                {
+                    EventManager.Singleton.ReceiveMoleculeTransition(tempMolecule);
+                }
             }
         }
         SaveMolecule(true);

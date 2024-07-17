@@ -25,7 +25,8 @@ public class myBoundingBox : MonoBehaviour
     private Material lineHoverMaterial;
 
     private Quaternion[] cornerOrientation = new Quaternion[8];
-    private Bounds localBounds;
+    private Bounds _localBounds;
+    public Bounds localBounds { get { getBounds(); return _localBounds; } private set { _localBounds = value; } }
     private GameObject boxGO;
 
     public bool fade = true;
@@ -42,11 +43,11 @@ public class myBoundingBox : MonoBehaviour
             {
                 if (first)
                 {
-                    localBounds = render.bounds;
+                    _localBounds = render.bounds;
                     first = false;
                 } else
                 {
-                    localBounds.Encapsulate(render.bounds);
+                    _localBounds.Encapsulate(render.bounds);
                 }
             }
         }
@@ -76,22 +77,22 @@ public class myBoundingBox : MonoBehaviour
         // note: line is drawn continously
         // render 12 edges of a cube
 
-        myLR.SetPosition(0, localBounds.min); // LBF
-        myLR.SetPosition(1, new Vector3(localBounds.max.x, localBounds.min.y, localBounds.min.z));
-        myLR.SetPosition(2, new Vector3(localBounds.max.x, localBounds.max.y, localBounds.min.z));
-        myLR.SetPosition(3, new Vector3(localBounds.min.x, localBounds.max.y, localBounds.min.z));
-        myLR.SetPosition(4, localBounds.min);
-        myLR.SetPosition(5, new Vector3(localBounds.min.x, localBounds.min.y, localBounds.max.z));
-        myLR.SetPosition(6, new Vector3(localBounds.max.x, localBounds.min.y, localBounds.max.z));
-        myLR.SetPosition(7, localBounds.max);
-        myLR.SetPosition(8, new Vector3(localBounds.min.x, localBounds.max.y, localBounds.max.z));
-        myLR.SetPosition(9, new Vector3(localBounds.min.x, localBounds.min.y, localBounds.max.z));
-        myLR.SetPosition(10, new Vector3(localBounds.min.x, localBounds.max.y, localBounds.max.z));
-        myLR.SetPosition(11, new Vector3(localBounds.min.x, localBounds.max.y, localBounds.min.z));
-        myLR.SetPosition(12, new Vector3(localBounds.max.x, localBounds.max.y, localBounds.min.z));
-        myLR.SetPosition(13, localBounds.max);
-        myLR.SetPosition(14, new Vector3(localBounds.max.x, localBounds.min.y, localBounds.max.z));
-        myLR.SetPosition(15, new Vector3(localBounds.max.x, localBounds.min.y, localBounds.min.z));
+        myLR.SetPosition(0, _localBounds.min); // LBF
+        myLR.SetPosition(1, new Vector3(_localBounds.max.x, _localBounds.min.y, _localBounds.min.z));
+        myLR.SetPosition(2, new Vector3(_localBounds.max.x, _localBounds.max.y, _localBounds.min.z));
+        myLR.SetPosition(3, new Vector3(_localBounds.min.x, _localBounds.max.y, _localBounds.min.z));
+        myLR.SetPosition(4, _localBounds.min);
+        myLR.SetPosition(5, new Vector3(_localBounds.min.x, _localBounds.min.y, _localBounds.max.z));
+        myLR.SetPosition(6, new Vector3(_localBounds.max.x, _localBounds.min.y, _localBounds.max.z));
+        myLR.SetPosition(7, _localBounds.max);
+        myLR.SetPosition(8, new Vector3(_localBounds.min.x, _localBounds.max.y, _localBounds.max.z));
+        myLR.SetPosition(9, new Vector3(_localBounds.min.x, _localBounds.min.y, _localBounds.max.z));
+        myLR.SetPosition(10, new Vector3(_localBounds.min.x, _localBounds.max.y, _localBounds.max.z));
+        myLR.SetPosition(11, new Vector3(_localBounds.min.x, _localBounds.max.y, _localBounds.min.z));
+        myLR.SetPosition(12, new Vector3(_localBounds.max.x, _localBounds.max.y, _localBounds.min.z));
+        myLR.SetPosition(13, _localBounds.max);
+        myLR.SetPosition(14, new Vector3(_localBounds.max.x, _localBounds.min.y, _localBounds.max.z));
+        myLR.SetPosition(15, new Vector3(_localBounds.max.x, _localBounds.min.y, _localBounds.min.z));
 
     }
 
@@ -130,15 +131,15 @@ public class myBoundingBox : MonoBehaviour
     private void generateCorners()
     {
         Vector3[] corners = new Vector3[8];
-        corners[0] = localBounds.max;
-        corners[1] = new Vector3(localBounds.min.x, localBounds.max.y, localBounds.max.z);
-        corners[2] = new Vector3(localBounds.min.x, localBounds.min.y, localBounds.max.z);
-        corners[3] = new Vector3(localBounds.max.x, localBounds.min.y, localBounds.max.z);
+        corners[0] = _localBounds.max;
+        corners[1] = new Vector3(_localBounds.min.x, _localBounds.max.y, _localBounds.max.z);
+        corners[2] = new Vector3(_localBounds.min.x, _localBounds.min.y, _localBounds.max.z);
+        corners[3] = new Vector3(_localBounds.max.x, _localBounds.min.y, _localBounds.max.z);
 
-        corners[4] = new Vector3(localBounds.max.x, localBounds.max.y, localBounds.min.z);
-        corners[5] = new Vector3(localBounds.min.x, localBounds.max.y, localBounds.min.z);
-        corners[6] = localBounds.min;
-        corners[7] = new Vector3(localBounds.max.x, localBounds.min.y, localBounds.min.z);
+        corners[4] = new Vector3(_localBounds.max.x, _localBounds.max.y, _localBounds.min.z);
+        corners[5] = new Vector3(_localBounds.min.x, _localBounds.max.y, _localBounds.min.z);
+        corners[6] = _localBounds.min;
+        corners[7] = new Vector3(_localBounds.max.x, _localBounds.min.y, _localBounds.min.z);
 
         cornerOrientation[0] = Quaternion.Euler(0, 90, 0);
         cornerOrientation[1] = Quaternion.Euler(0, 0, 0);
@@ -180,15 +181,15 @@ public class myBoundingBox : MonoBehaviour
     private void updateCorners()
     {
         Vector3[] corners = new Vector3[8];
-        corners[0] = localBounds.max;
-        corners[1] = new Vector3(localBounds.min.x, localBounds.max.y, localBounds.max.z);
-        corners[2] = new Vector3(localBounds.min.x, localBounds.min.y, localBounds.max.z);
-        corners[3] = new Vector3(localBounds.max.x, localBounds.min.y, localBounds.max.z);
+        corners[0] = _localBounds.max;
+        corners[1] = new Vector3(_localBounds.min.x, _localBounds.max.y, _localBounds.max.z);
+        corners[2] = new Vector3(_localBounds.min.x, _localBounds.min.y, _localBounds.max.z);
+        corners[3] = new Vector3(_localBounds.max.x, _localBounds.min.y, _localBounds.max.z);
 
-        corners[4] = new Vector3(localBounds.max.x, localBounds.max.y, localBounds.min.z);
-        corners[5] = new Vector3(localBounds.min.x, localBounds.max.y, localBounds.min.z);
-        corners[6] = localBounds.min;
-        corners[7] = new Vector3(localBounds.max.x, localBounds.min.y, localBounds.min.z);
+        corners[4] = new Vector3(_localBounds.max.x, _localBounds.max.y, _localBounds.min.z);
+        corners[5] = new Vector3(_localBounds.min.x, _localBounds.max.y, _localBounds.min.z);
+        corners[6] = _localBounds.min;
+        corners[7] = new Vector3(_localBounds.max.x, _localBounds.min.y, _localBounds.min.z);
 
 
         for (int i = 0; i < corners.Length; i++)

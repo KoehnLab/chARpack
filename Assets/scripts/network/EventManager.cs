@@ -350,6 +350,13 @@ public class EventManager : MonoBehaviour
         OnTransitionMolecule?.Invoke(mol);
     }
 
+    public delegate void ReceiveMoleculeTransitionAction(Molecule mol);
+    public event ReceiveMoleculeTransitionAction OnReceiveMoleculeTransition;
+    public void ReceiveMoleculeTransition(Molecule mol)
+    {
+        OnReceiveMoleculeTransition?.Invoke(mol);
+    }
+
     #endregion
 
 

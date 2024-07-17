@@ -231,6 +231,20 @@ TKey mol_id, params object[] argList)
     {
         return new SaveableQuaternion(q.x, q.y, q.z, q.w);
     }
+
+    public static Vector3[] GetCorners(this Bounds b)
+    {
+        Vector3[] boundPoints = new Vector3[8];
+        boundPoints[0] = b.min;
+        boundPoints[1] = b.max;
+        boundPoints[2] = new Vector3(boundPoints[0].x, boundPoints[0].y, boundPoints[1].z);
+        boundPoints[3] = new Vector3(boundPoints[0].x, boundPoints[1].y, boundPoints[0].z);
+        boundPoints[4] = new Vector3(boundPoints[1].x, boundPoints[0].y, boundPoints[0].z);
+        boundPoints[5] = new Vector3(boundPoints[0].x, boundPoints[1].y, boundPoints[1].z);
+        boundPoints[6] = new Vector3(boundPoints[1].x, boundPoints[0].y, boundPoints[1].z);
+        boundPoints[7] = new Vector3(boundPoints[1].x, boundPoints[1].y, boundPoints[0].z);
+        return boundPoints;
+    }
 }
 
 public static class TaskExtensions

@@ -157,7 +157,9 @@ namespace chARpackStructs
     {
         public SaveableVector3 molePos;
         public SaveableVector2 ssPos;
+        public SaveableVector4 ssBounds;
         public SaveableVector3 moleScale;
+        public bool moleTransitioned;
         public SaveableQuaternion moleQuat;
         public SaveableQuaternion relQuat;
         public Guid moleID;
@@ -182,6 +184,8 @@ namespace chARpackStructs
             torsionArray = tor?.ToArray();
             relQuat = Quaternion.identity;
             ssPos = Vector2.zero;
+            ssBounds = Vector4.zero;
+            moleTransitioned = false;
         }
 
         public void assignRelativeQuaternion(Quaternion q)
@@ -192,6 +196,16 @@ namespace chARpackStructs
         public void assignSSPos(Vector2 ss_coords)
         {
             ssPos = ss_coords;
+        }
+
+        public void assignSSBounds(Vector4 ss_bounds)
+        {
+            ssBounds = ss_bounds;
+        }
+
+        public void setTransitionFlag()
+        {
+            moleTransitioned = true;
         }
     }
 
@@ -257,7 +271,7 @@ namespace chARpackStructs
 
         public static bool operator !=(SaveableVector2 a, SaveableVector2 b)
         {
-            return a.x != b.x && a.y != b.y;
+            return a.x != b.x || a.y != b.y;
         }
 
         public static bool operator ==(Vector2 a, SaveableVector2 b)
@@ -272,12 +286,12 @@ namespace chARpackStructs
 
         public static bool operator !=(Vector2 a, SaveableVector2 b)
         {
-            return a.x != b.x && a.y != b.y;
+            return a.x != b.x || a.y != b.y;
         }
 
         public static bool operator !=(SaveableVector2 a, Vector2 b)
         {
-            return a.x != b.x && a.y != b.y;
+            return a.x != b.x || a.y != b.y;
         }
 
         public static implicit operator Vector2(SaveableVector2 x)
@@ -339,7 +353,7 @@ namespace chARpackStructs
 
         public static bool operator !=(SaveableVector3 a, SaveableVector3 b)
         {
-            return a.x != b.x && a.y != b.y && a.z != b.z;
+            return a.x != b.x || a.y != b.y || a.z != b.z;
         }
 
         public static implicit operator Vector3(SaveableVector3 x)
@@ -350,6 +364,92 @@ namespace chARpackStructs
         public static implicit operator SaveableVector3(Vector3 x)
         {
             return new SaveableVector3(x.x, x.y, x.z);
+        }
+    }
+
+    [Serializable]
+    public struct SaveableVector4
+    {
+        public float x;
+        public float y;
+        public float z;
+        public float w;
+
+        public SaveableVector4(float x, float y, float z, float w)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.w = w;
+
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is SaveableVector4))
+            {
+                return false;
+            }
+
+            var s = (SaveableVector4)obj;
+            return x == s.x &&
+                   y == s.y &&
+                   z == s.z &&
+                   w == s.w;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 373119288;
+            hashCode = hashCode * -1521134295 + x.GetHashCode();
+            hashCode = hashCode * -1521134295 + y.GetHashCode();
+            hashCode = hashCode * -1521134295 + z.GetHashCode();
+            return hashCode;
+        }
+
+        public Vector4 ToVector4()
+        {
+            return new Vector4(x, y, z, w);
+        }
+
+        public static bool operator ==(SaveableVector4 a, SaveableVector4 b)
+        {
+            return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+        }
+
+        public static bool operator !=(SaveableVector4 a, SaveableVector4 b)
+        {
+            return a.x != b.x && a.y != b.y && a.z != b.z && a.w != b.w;
+        }
+
+        public static implicit operator Vector4(SaveableVector4 x)
+        {
+            return new Vector4(x.x, x.y, x.z, x.w);
+        }
+
+        public static implicit operator SaveableVector4(Vector4 x)
+        {
+            return new SaveableVector4(x.x, x.y, x.z, x.w);
+        }
+
+        public static bool operator ==(Vector4 a, SaveableVector4 b)
+        {
+            return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+        }
+
+        public static bool operator ==(SaveableVector4 a, Vector4 b)
+        {
+            return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+        }
+
+        public static bool operator !=(Vector4 a, SaveableVector4 b)
+        {
+            return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
+        }
+
+        public static bool operator !=(SaveableVector4 a, Vector4 b)
+        {
+            return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
         }
     }
 
@@ -405,7 +505,7 @@ namespace chARpackStructs
 
         public static bool operator !=(SaveableQuaternion a, SaveableQuaternion b)
         {
-            return a.x != b.x && a.y != b.y && a.z != b.z && a.w != b.w;
+            return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
         }
 
         public static bool operator ==(SaveableQuaternion a, Quaternion b)
@@ -415,7 +515,7 @@ namespace chARpackStructs
 
         public static bool operator !=(SaveableQuaternion a, Quaternion b)
         {
-            return a.x != b.x && a.y != b.y && a.z != b.z && a.w != b.w;
+            return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
         }
 
         public static bool operator ==(Quaternion a, SaveableQuaternion b)
@@ -425,7 +525,7 @@ namespace chARpackStructs
 
         public static bool operator !=(Quaternion a, SaveableQuaternion b)
         {
-            return a.x != b.x && a.y != b.y && a.z != b.z && a.w != b.w;
+            return a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w;
         }
 
         public static implicit operator Quaternion(SaveableQuaternion q)

@@ -1295,17 +1295,20 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         }
         if (markedList.Count == 1)
         {
-            Vector3 rectSave = new Vector3(0, 0, 0);
+            markedList[0].markAtom(true, 2, toolTip);
+            if (SceneManager.GetActiveScene().name == "ServerScene")
+            {
+                var rectSave = Vector3.zero;
+                if (m_molecule.toolTipInstance != null)
+                {
+                    rectSave = m_molecule.toolTipInstance.GetComponent<RectTransform>().localPosition;
+                }
+                markedList[0].toolTipInstance.GetComponent<ServerAtomTooltip>().localPosition = rectSave;
+            }
             if (m_molecule.toolTipInstance != null)
             {
                 Destroy(m_molecule.toolTipInstance);
                 m_molecule.toolTipInstance = null;
-            }
-            markedList[0].markAtom(true, 2, toolTip);
-            if (SceneManager.GetActiveScene().name == "ServerScene")
-            {
-                rectSave = m_molecule.toolTipInstance.GetComponent<RectTransform>().localPosition;
-                markedList[0].toolTipInstance.GetComponent<ServerAtomTooltip>().localPosition = rectSave;
             }
         }
         else if (markedList.Count == 2)
