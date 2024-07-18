@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 
-public class myResizer : MonoBehaviour, IDragHandler {
+public class myResizer : MonoBehaviour {
 	public GameObject panel;
 	public List<GameObject> resizeHandles;
 
@@ -23,16 +23,16 @@ public class myResizer : MonoBehaviour, IDragHandler {
         }
 	}
 	
-	public void OnDrag (PointerEventData data) {
+	public void moveHandles () {
 		if (panelRectTransform == null)
 			return;
 
 		if (resizeHandles.Count > 0)
-		{
-			resizeHandles[0].GetComponent<RectTransform>().localPosition = new Vector2(-panelRectTransform.sizeDelta[0], panelRectTransform.sizeDelta[1] / 2);
-			resizeHandles[1].GetComponent<RectTransform>().localPosition = new Vector2(-0f, panelRectTransform.sizeDelta[1] / 2);
-			resizeHandles[2].GetComponent<RectTransform>().localPosition = new Vector2(-panelRectTransform.sizeDelta[0], -panelRectTransform.sizeDelta[1] / 2);
-			resizeHandles[3].GetComponent<RectTransform>().localPosition = new Vector2(-0f, -panelRectTransform.sizeDelta[1] / 2);
+		{ 
+			resizeHandles[0].GetComponent<RectTransform>().localPosition = new Vector2(panelRectTransform.rect.x, panelRectTransform.rect.y + panelRectTransform.rect.size.y);
+			resizeHandles[1].GetComponent<RectTransform>().localPosition = new Vector2(panelRectTransform.rect.x + panelRectTransform.rect.size.x, panelRectTransform.rect.y + panelRectTransform.rect.size.y);
+			resizeHandles[2].GetComponent<RectTransform>().localPosition = new Vector2(panelRectTransform.rect.x, panelRectTransform.rect.y);
+			resizeHandles[3].GetComponent<RectTransform>().localPosition = new Vector2(panelRectTransform.rect.x + panelRectTransform.rect.size.x, panelRectTransform.rect.y);
 		}
 	}
 }

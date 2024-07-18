@@ -16,8 +16,14 @@ public class resizeHandle : MonoBehaviour, IPointerDownHandler, IDragHandler
     [HideInInspector] public Corner corner;
     private Vector2 originalLocalPointerPosition;
     private Vector2 originalSizeDelta;
+    private myResizer resizer;
     public Vector2 minSize = new Vector2(200, 200);
     public Vector2 maxSize = new Vector2(1000, 1000);
+
+    public void Start()
+    {
+        resizer = transform.parent.GetComponent<myResizer>();
+    }
 
     [HideInInspector] public RectTransform rect;
 
@@ -34,6 +40,7 @@ public class resizeHandle : MonoBehaviour, IPointerDownHandler, IDragHandler
         Vector3 offsetToOriginal = localPointerPosition - originalLocalPointerPosition;
 
         Vector2 sizeDelta = originalSizeDelta;
+        movePivot(corner);
         switch (corner)
         {
             case Corner.UpperLeft:
@@ -55,5 +62,51 @@ public class resizeHandle : MonoBehaviour, IPointerDownHandler, IDragHandler
         );
 
         rect.sizeDelta = sizeDelta;
+
+        resizer.moveHandles();
+    }
+
+    public void movePivot(Corner corner)
+    {
+        var worldPos = rect.position;
+        var originalPivot = rect.pivot;
+        switch (corner)
+        {
+            case Corner.UpperLeft:
+                rect.pivot = new Vector2(1f, 0f);
+                break;
+            case Corner.UpperRight:
+                rect.pivot = new Vector2(0f, 0f);
+                break;
+            case Corner.LowerLeft:
+                rect.pivot = new Vector2(1f, 1f);
+                break;
+            case Corner.LowerRight:
+                rect.pivot = new Vector2(0f, 1f);
+                break;
+        }
+        //var offset = new Vector2((originalPivot.x - rect.pivot.x) * rect.rect.width, (originalPivot.y - rect.pivot.y) * rect.rect.height);
+        var offset = originalPivot - rect.pivot;
+        offset.Scale(rect.rect.size);
+        rect.position = rect.position - rect.TransformVector(offset);
+    }
+
+    // Set the RectTransform's pivot point without moving the position.
+    // This is like dragging the pivot handle in the editor.
+    //
+    private void SetPivotInWorldSpace(RectTransform source, Vector2 pivot)
+    {
+        // Strip scaling and rotations.
+        pivot = source.InverseTransformPoint(pivot);
+        Vector2 pivot2 = new Vector2(
+            (pivot.x - source.rect.xMin) / source.rect.width,
+            (pivot.y - source.rect.yMin) / source.rect.height);
+
+        // Now move the pivot, keeping and restoring the position which is based on it.
+        Vector2 offset = pivot2 - source.pivot;
+        offset.Scale(source.rect.size);
+        Vector3 worldPos = source.position + source.TransformVector(offset);
+        source.pivot = pivot2;
+        source.position = worldPos;
     }
 }
