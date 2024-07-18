@@ -59,6 +59,13 @@ public class StructureFormula : MonoBehaviour
             rect.position = save;
         }
 
+        StartCoroutine(WaitAndPositionHandles());
+    }
+
+    public IEnumerator WaitAndPositionHandles()
+    {
+        yield return new WaitForSeconds(0.25f);
+        RectTransform rect = transform as RectTransform;
         resizeHandles[0].GetComponent<RectTransform>().localPosition = new Vector2(-rect.sizeDelta[0], rect.sizeDelta[1] / 2);
         resizeHandles[1].GetComponent<RectTransform>().localPosition = new Vector2(-0f, rect.sizeDelta[1] / 2);
         resizeHandles[2].GetComponent<RectTransform>().localPosition = new Vector2(-rect.sizeDelta[0], -rect.sizeDelta[1] / 2);
