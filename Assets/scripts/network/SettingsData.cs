@@ -26,7 +26,11 @@ public class SettingsData
     [SerializeField] static public bool useAngstrom = true;
     [SerializeField] static public bool licoriceRendering = false;
     [SerializeField] static public ColorScheme colorScheme = ColorScheme.GOLD;
+    [SerializeField] static public bool videoPassThrough = true;
     [SerializeField] static public bool autogenerateStructureFormulas = false; // Only for server, not broadcast via network
+    [SerializeField] static public Vector2 serverViewport = new Vector2(1920, 1080);
+    [SerializeField] static public TransitionManager.SyncMode syncMode = TransitionManager.SyncMode.Async;
+
 
 
     public static int highlightColorMap { get => _highlightColorMap; set

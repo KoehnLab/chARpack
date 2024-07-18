@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -76,6 +74,13 @@ public class EventManager : MonoBehaviour
     public void StopMoveAtom(Guid mol_id, ushort atom_id)
     {
         OnStopMoveAtom?.Invoke(mol_id, atom_id);
+    }
+
+    public delegate void GrabAtomAction(Atom a, bool value);
+    public event GrabAtomAction OnGrabAtom;
+    public void GrabAtom(Atom a, bool value)
+    {
+        OnGrabAtom?.Invoke(a, value);
     }
 
     public delegate void MergeMoleculeAction(Guid molecule1ID, ushort atom1ID, Guid molecule2ID, ushort atom2ID);
@@ -308,6 +313,27 @@ public class EventManager : MonoBehaviour
     public void SetNumOutlines(int num_outlines)
     {
         OnSetNumOutlines?.Invoke(num_outlines);
+    }
+
+    public delegate void GrabOnScreenAction(Vector2 ss_coords);
+    public event GrabOnScreenAction OnGrabOnScreen;
+    public void GrabOnScreen(Vector2 ss_coords)
+    {
+        OnGrabOnScreen?.Invoke(ss_coords);
+    }
+
+    public delegate void SyncModeChangedAction(TransitionManager.SyncMode mode);
+    public event SyncModeChangedAction OnSyncModeChanged;
+    public void ChangeSyncMode(TransitionManager.SyncMode mode)
+    {
+        OnSyncModeChanged?.Invoke(mode);
+    }
+
+    public delegate void HoverOverScreenAction(Vector2 ss_coords);
+    public event HoverOverScreenAction OnHoverOverScreen;
+    public void HoverOverScreen(Vector2 ss_coords)
+    {
+        OnHoverOverScreen?.Invoke(ss_coords);
     }
 
     #endregion

@@ -47,6 +47,7 @@ public class NetworkManagerServer : MonoBehaviour
 
     private GameObject _userWorld;
     public GameObject UserWorld { get => _userWorld; private set => _userWorld = value; }
+    private TransitionManager.SyncMode currentSyncMode;
 
     private void Awake()
     {
@@ -63,8 +64,41 @@ public class NetworkManagerServer : MonoBehaviour
 
         StartServer();
 
+        currentSyncMode = SettingsData.syncMode;
+
         EventManager.Singleton.OnCmlReceiveCompleted += flagReceiveComplete;
         EventManager.Singleton.OnStructureReceiveCompleted += structureReceiveComplete;
+        EventManager.Singleton.OnUpdateSettings += bcastSettings;
+        EventManager.Singleton.OnMRCapture += sendMRCapture;
+        EventManager.Singleton.OnSetNumOutlines += bcastNumOutlines;
+        EventManager.Singleton.OnSyncModeChanged += bcastSyncMode;
+        if (currentSyncMode == TransitionManager.SyncMode.Sync)
+        {
+            activateSync();
+        }
+        // set actual server viewport
+        SettingsData.serverViewport = new Vector2(Camera.main.pixelRect.width, Camera.main.pixelRect.height);
+        Debug.Log($"[NetworkManagerServer] Server viewport set to: {SettingsData.serverViewport}");
+    }
+
+    public void changeSyncMode(TransitionManager.SyncMode mode)
+    {
+        if (currentSyncMode != mode)
+        {
+            if (currentSyncMode == TransitionManager.SyncMode.Sync)
+            {
+                activateSync();
+                // TODO Send scene content
+            }
+            else
+            {
+                deactivateSync();
+            }
+        }
+    }
+
+    private void activateSync()
+    {
         EventManager.Singleton.OnMoveAtom += bcastMoveAtom;
         EventManager.Singleton.OnStopMoveAtom += bcastStopMoveAtom;
         EventManager.Singleton.OnMergeMolecule += bcastMergeMolecule;
@@ -81,19 +115,44 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnChangeAngleTerm += bcastChangeAngleTerm;
         EventManager.Singleton.OnChangeTorsionTerm += bcastChangeTorsionTerm;
         EventManager.Singleton.OnModifyHyb += bcastModifyHyb;
-        EventManager.Singleton.OnChangeAtom +=  bcastChangeAtom;
-        EventManager.Singleton.OnDeleteBond +=  bcastDeleteBond;
-        EventManager.Singleton.OnUpdateSettings += bcastSettings;
+        EventManager.Singleton.OnChangeAtom += bcastChangeAtom;
+        EventManager.Singleton.OnDeleteBond += bcastDeleteBond;
         EventManager.Singleton.OnChangeMoleculeScale += bcastScaleMolecule;
         EventManager.Singleton.OnCreateMeasurement += bcastCreateMeasurement;
         EventManager.Singleton.OnClearMeasurements += bcastClearMeasurements;
-        EventManager.Singleton.OnMRCapture += sendMRCapture;
         EventManager.Singleton.OnFreezeAtom += bcastFreezeAtom;
         EventManager.Singleton.OnFreezeMolecule += bcastFreezeMolecule;
         EventManager.Singleton.OnSetSnapColors += bcastSetSnapColors;
         EventManager.Singleton.OnServerFocusHighlight += bcastServerFocusHighlight;
-        EventManager.Singleton.OnSetNumOutlines += bcastNumOutlines;
+    }
 
+    private void deactivateSync()
+    {
+        EventManager.Singleton.OnMoveAtom -= bcastMoveAtom;
+        EventManager.Singleton.OnStopMoveAtom -= bcastStopMoveAtom;
+        EventManager.Singleton.OnMergeMolecule -= bcastMergeMolecule;
+        EventManager.Singleton.OnSelectAtom -= bcastSelectAtom;
+        EventManager.Singleton.OnCreateAtom -= bcastCreateAtom;
+        EventManager.Singleton.OnDeleteAtom -= bcastDeleteAtom;
+        EventManager.Singleton.OnDeleteMolecule -= bcastDeleteMolecule;
+        EventManager.Singleton.OnReplaceDummies -= bcastReplaceDummies;
+        EventManager.Singleton.OnSelectMolecule -= bcastSelectMolecule;
+        EventManager.Singleton.OnSelectBond -= bcastSelectBond;
+        EventManager.Singleton.OnMarkTerm -= bcastMarkTerm;
+        EventManager.Singleton.OnMoveMolecule -= bcastMoveMolecule;
+        EventManager.Singleton.OnChangeBondTerm -= bcastChangeBondTerm;
+        EventManager.Singleton.OnChangeAngleTerm -= bcastChangeAngleTerm;
+        EventManager.Singleton.OnChangeTorsionTerm -= bcastChangeTorsionTerm;
+        EventManager.Singleton.OnModifyHyb -= bcastModifyHyb;
+        EventManager.Singleton.OnChangeAtom -= bcastChangeAtom;
+        EventManager.Singleton.OnDeleteBond -= bcastDeleteBond;
+        EventManager.Singleton.OnChangeMoleculeScale -= bcastScaleMolecule;
+        EventManager.Singleton.OnCreateMeasurement -= bcastCreateMeasurement;
+        EventManager.Singleton.OnClearMeasurements -= bcastClearMeasurements;
+        EventManager.Singleton.OnFreezeAtom -= bcastFreezeAtom;
+        EventManager.Singleton.OnFreezeMolecule -= bcastFreezeMolecule;
+        EventManager.Singleton.OnSetSnapColors -= bcastSetSnapColors;
+        EventManager.Singleton.OnServerFocusHighlight -= bcastServerFocusHighlight;
     }
 
 
@@ -154,8 +213,11 @@ public class NetworkManagerServer : MonoBehaviour
     {
         // send current atom world
         Debug.Log($"[NetworkManagerServer] Client {e.Client.Id} connected. Sending current world and settings.");
-        var atomWorld = GlobalCtrl.Singleton.saveAtomWorld();
-        sendAtomWorld(atomWorld, e.Client.Id);
+        if (currentSyncMode == TransitionManager.SyncMode.Sync)
+        {
+            var atomWorld = GlobalCtrl.Singleton.saveAtomWorld();
+            sendAtomWorld(atomWorld, e.Client.Id);
+        }
         bcastSettings();
     }
 
@@ -376,6 +438,9 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddBool(SettingsData.interpolateColors);
         message.AddBool(SettingsData.licoriceRendering);
         message.AddBool(SettingsData.useAngstrom);
+        message.AddBool(SettingsData.useAngstrom);
+        message.AddVector2(SettingsData.serverViewport);
+        message.AddInt((int)SettingsData.syncMode);
         Server.SendToAll(message);
     }
 
@@ -447,6 +512,20 @@ public class NetworkManagerServer : MonoBehaviour
     {
         Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastNumOutlines);
         message.AddInt(num_outlines);
+        Server.SendToAll(message);
+    }
+
+    public void bcastServerViewport(Vector2 port)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastServerViewport);
+        message.AddVector2(port);
+        Server.SendToAll(message);
+    }
+
+    public void bcastSyncMode(TransitionManager.SyncMode mode)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSyncMode);
+        message.AddInt((int)mode);
         Server.SendToAll(message);
     }
 
@@ -1168,6 +1247,58 @@ public class NetworkManagerServer : MonoBehaviour
         Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastClearMeasurements);
         outMessage.AddUShort(fromClientId);
         NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+    }
+
+    [MessageHandler((ushort)ClientToServerID.grabAtom)]
+    private static void getGrabAtom(ushort fromClientId, Message message)
+    {
+        var mol_id = message.GetGuid();
+        var atom_id = message.GetUShort();
+        var grab = message.GetBool();
+
+        // do the move on the server
+        var atom = GlobalCtrl.Singleton.List_curMolecules.ContainsKey(mol_id) ? GlobalCtrl.Singleton.List_curMolecules[mol_id].atomList.ElementAtOrNull(atom_id, null) : null;
+        if (atom == null)
+        {
+            Debug.LogError($"[NetworkManagerServer:getGrabAtom] Molecule with id {mol_id} or atom with id {atom_id} do not exist.\nSynchronizing world with client {fromClientId}.");
+            NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld(), fromClientId);
+            return;
+        }
+        atom.isGrabbed = grab;
+        atom.grabHighlight(grab);
+#if UNITY_STANDALONE || UNITY_EDITOR
+        if (RunMolecularDynamics.Singleton && RunMolecularDynamics.Singleton.isRunning)
+        {
+            RunMolecularDynamics.Singleton.applyConstraint(atom, grab);
+        }
+#endif
+        // no bradcasting
+    }
+    #endregion
+
+
+    #region Async Setup
+
+    [MessageHandler((ushort)ClientToServerID.grabOnScreen)]
+    private static void getGrabOnScreen(ushort fromClientId, Message message)
+    {
+        var ss_coords = message.GetVector2();
+
+        if (TransitionManager.Singleton != null)
+        {
+            TransitionManager.Singleton.initializeTransition(ss_coords);
+        }
+    }
+
+    [MessageHandler((ushort)ClientToServerID.hoverOverScreen)]
+    private static void getHoverOverScreen(ushort fromClientId, Message message)
+    {
+        var ss_coords = message.GetVector2();
+
+        if (TransitionManager.Singleton != null)
+        {
+            TransitionManager.Singleton.hover(ss_coords);
+        }
     }
     #endregion
 

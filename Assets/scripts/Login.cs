@@ -1,16 +1,14 @@
 using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit.Input;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Linq;
-using UnityEngine.UI;
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using chARpackTypes;
 using System;
 using QRTracking;
-using Unity.VisualScripting;
-using Microsoft.MixedReality.Toolkit.Input;
+
+
 
 public class Login : MonoBehaviour
 {
@@ -46,6 +44,8 @@ public class Login : MonoBehaviour
     [HideInInspector] public GameObject anchorPrefab;
 
     [HideInInspector] public GameObject labelPrefab;
+    [HideInInspector] public GameObject screenAlignmentPrefab;
+
 
     private Transform cam;
 
@@ -57,11 +57,17 @@ public class Login : MonoBehaviour
     private void Awake()
     {
         Singleton = this;
+    }
+
+    private void Start()
+    {
         serverListPrefab = (GameObject)Resources.Load("prefabs/ServerList");
         qrManagerPrefab = (GameObject)Resources.Load("prefabs/QR/QRCodesManager");
         stopScanButtonPrefab = (GameObject)Resources.Load("prefabs/QR/StopScanButton");
         anchorPrefab = (GameObject)Resources.Load("prefabs/QR/QRAnchor");
         labelPrefab = (GameObject)Resources.Load("prefabs/3DLabelPrefab");
+        screenAlignmentPrefab = (GameObject)Resources.Load("prefabs/ScreenAlignmentPrefab");
+
 
         cam = Camera.main.transform;
 
@@ -194,8 +200,8 @@ public class Login : MonoBehaviour
             mrenderer.material.color = new Color(mrenderer.material.color.r, mrenderer.material.color.g, mrenderer.material.color.b, 0.6f);
         }   
 
-        QRAnchor.Singleton.AddComponent<NearInteractionGrabbable>();
-        QRAnchor.Singleton.AddComponent<ObjectManipulator>();
+        QRAnchor.Singleton.gameObject.AddComponent<NearInteractionGrabbable>();
+        QRAnchor.Singleton.gameObject.AddComponent<ObjectManipulator>();
 
         stopScanButtonInstance = Instantiate(stopScanButtonPrefab);
         stopScanButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { manualStop(); });
@@ -253,8 +259,8 @@ public class Login : MonoBehaviour
         LoginData.offsetRot = QRAnchor.Singleton.transform.rotation;
         gameObject.SetActive(true);
 
-        Destroy(QRAnchor.Singleton.GetComponent<NearInteractionGrabbable>());
-        Destroy(QRAnchor.Singleton.GetComponent<ObjectManipulator>());
+        Destroy(QRAnchor.Singleton.gameObject.GetComponent<NearInteractionGrabbable>());
+        Destroy(QRAnchor.Singleton.gameObject.GetComponent<ObjectManipulator>());
         foreach (var mrenderer in QRAnchor.Singleton.GetComponentsInChildren<MeshRenderer>())
         {
             mrenderer.material.color = new Color(mrenderer.material.color.r, mrenderer.material.color.g, mrenderer.material.color.b, 1f);
@@ -351,6 +357,25 @@ public class Login : MonoBehaviour
         // destroy qr code manager
         Destroy(QRTracking.QRCodesManager.Singleton.gameObject);
 #endif
+    }
+
+    public void startScanScreen()
+    {
+        if (screenAlignment.Singleton)
+        {
+            DestroyImmediate(screenAlignment.Singleton.gameObject);
+        }
+        Instantiate(screenAlignmentPrefab);
+
+        screenAlignment.Singleton.startScreenAlignment();
+        screenAlignment.Singleton.OnScreenInitialized += stopScanScreen;
+        gameObject.SetActive(false);
+    }
+
+    private void stopScanScreen()
+    {
+        screenAlignment.Singleton.OnScreenInitialized -= stopScanScreen;
+        gameObject.SetActive(true);
     }
 
 }

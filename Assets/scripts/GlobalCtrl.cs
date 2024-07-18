@@ -145,7 +145,7 @@ public class GlobalCtrl : MonoBehaviour
             if (HandTracking.Singleton)
             {
                 HandTracking.Singleton.gameObject.SetActive(true);
-                HandTracking.Singleton.showVisual(true);
+                HandTracking.Singleton.showFragmentIndicator(true);
             }
             freezeWorld(false);
         }
@@ -174,7 +174,7 @@ public class GlobalCtrl : MonoBehaviour
             if (HandTracking.Singleton)
             {
                 HandTracking.Singleton.gameObject.SetActive(true);
-                HandTracking.Singleton.showVisual(false);
+                HandTracking.Singleton.showFragmentIndicator(false);
             }
             freezeWorld(true);
         }
@@ -206,7 +206,7 @@ public class GlobalCtrl : MonoBehaviour
             if (HandTracking.Singleton)
             {
                 HandTracking.Singleton.gameObject.SetActive(true);
-                HandTracking.Singleton.showVisual(true);
+                HandTracking.Singleton.showFragmentIndicator(true);
             }
             freezeWorld(false);
         } else if(mode == InteractionModes.MEASUREMENT)
@@ -214,7 +214,7 @@ public class GlobalCtrl : MonoBehaviour
             if (HandTracking.Singleton)
             {
                 HandTracking.Singleton.gameObject.SetActive(true);
-                HandTracking.Singleton.showVisual(false);
+                HandTracking.Singleton.showFragmentIndicator(false);
             }
             freezeWorld(true);
         } else

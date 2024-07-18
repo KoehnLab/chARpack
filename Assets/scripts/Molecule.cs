@@ -98,6 +98,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    public void Hover(bool value)
+    {
+        GetComponent<myBoundingBox>().setHovering(value);
+    }
+
     public void OnServerSliderUpdated()
     {
         cmlData before = this.AsCML();
@@ -442,7 +447,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             if (!toolTipInstance && showToolTip)
             {
                 if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
-                { createServerToolTip(); }
+                { 
+                    createServerToolTip();
+                }
                 else
                 {
                     createToolTip();

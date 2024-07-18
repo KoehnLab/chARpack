@@ -1,10 +1,6 @@
-using chARpackColorPalette;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
-using System;
+
 
 public class ServerAngleTooltip : ServerTooltip
 {
@@ -13,6 +9,7 @@ public class ServerAngleTooltip : ServerTooltip
     public Atom linkedAtom;
 
     public override void Start()
+
     {
         base.Start();
         collapseButton.onClick.AddListener(delegate { resize(); });

@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public static class chARpackExtensions
 {
@@ -223,5 +224,30 @@ TKey mol_id, params object[] argList)
             print += $"{entry} ";
         }
         return print;
+    }
+}
+
+public static class TaskExtensions
+{
+    public static IEnumerator AsCoroutine(this Task task)
+    {
+        while (!task.IsCompleted)
+        {
+            yield return null;
+        }
+
+        if (task.IsFaulted)
+        {
+            throw task.Exception;
+        }
+    }
+}
+
+public static class CoroutineWrapper
+{
+    public static IEnumerator WrapAction(Action action)
+    {
+        action();
+        yield return null;
     }
 }

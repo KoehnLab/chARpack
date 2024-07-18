@@ -1,10 +1,6 @@
-using chARpackColorPalette;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
-using System;
+
 
 public class ServerBondTooltip : ServerTooltip
 {
@@ -13,8 +9,9 @@ public class ServerBondTooltip : ServerTooltip
     public Button modifyButton;
     public Bond linkedBond;
 
-    // Start is called before the first frame update
+
     public override void Start()
+
     {
         base.Start();
         collapse_button.onClick.AddListener(delegate { resize(); });

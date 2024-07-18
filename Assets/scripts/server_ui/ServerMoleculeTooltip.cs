@@ -1,10 +1,7 @@
-using chARpackColorPalette;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
-using System;
+
+
 public class ServerMoleculeTooltip : ServerTooltip
 {
     public Button collapseButton;
@@ -16,8 +13,9 @@ public class ServerMoleculeTooltip : ServerTooltip
     public Button structureFormulaButton;
     [HideInInspector] public Molecule linkedMolecule;
 
-    // Start is called before the first frame update
+
     public override void Start()
+
     {
         base.Start();
         collapseButton.onClick.AddListener(delegate { resize(); });

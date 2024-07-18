@@ -7,8 +7,9 @@ public class ServerScalingSlider : ServerTooltip
 {
     [HideInInspector] public Molecule linkedMolecule;
 
-    // Start is called before the first frame update
+
     public override void Start()
+
     {
         base.Start();
         closeButton.onClick.AddListener(delegate { Destroy(gameObject); });

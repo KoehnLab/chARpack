@@ -62,6 +62,7 @@ public class settingsControl : MonoBehaviour
         setCoopSettings(SettingsData.coop);
         setInteractionMode(SettingsData.interactionMode);
         setAutoGenerateStructureFormulas(SettingsData.autogenerateStructureFormulas);
+        setSyncMode(SettingsData.syncMode);
         GlobalCtrl.Singleton.setLicoriceRendering(SettingsData.licoriceRendering);
         GlobalCtrl.Singleton.reloadShaders();
         GlobalCtrl.Singleton.regenerateSingleBondTooltips(); // Regenerate in case length unit was changed
@@ -147,8 +148,13 @@ public class settingsControl : MonoBehaviour
 
     private void setAutoGenerateStructureFormulas(bool value)
     {
-        if(value) EventManager.Singleton.OnMoleculeLoaded += StructureFormulaGenerator.Singleton.immediateRequestStructureFormula;
-        else EventManager.Singleton.OnMoleculeLoaded -= StructureFormulaGenerator.Singleton.immediateRequestStructureFormula;
+#if UNITY_STANDALONE || UNITY_EDITOR
+        if (StructureFormulaGenerator.Singleton)
+        {
+            if (value) EventManager.Singleton.OnMoleculeLoaded += StructureFormulaGenerator.Singleton.immediateRequestStructureFormula;
+            else EventManager.Singleton.OnMoleculeLoaded -= StructureFormulaGenerator.Singleton.immediateRequestStructureFormula;
+        }
+#endif
     }
 
     private void setLanguage(string lang)
@@ -188,6 +194,18 @@ public class settingsControl : MonoBehaviour
                 box.GetComponent<MeshRenderer>().enabled = userBox;
                 box.GetComponent<LineRenderer>().enabled = userRay;
             }
+        }
+    }
+    
+    private void setSyncMode(TransitionManager.SyncMode mode)
+    {
+        if (NetworkManagerClient.Singleton != null)
+        {
+            NetworkManagerClient.Singleton.changeSyncMode(mode);
+        }
+        else
+        {
+            NetworkManagerServer.Singleton.changeSyncMode(mode);
         }
     }
 }

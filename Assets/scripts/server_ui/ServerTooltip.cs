@@ -1,10 +1,8 @@
 using chARpackColorPalette;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using System;
+
 
 public class ServerTooltip : MonoBehaviour
 {
@@ -41,7 +39,8 @@ public class ServerTooltip : MonoBehaviour
             rect.position = save;
         }
         assignColor(focus_id);
-       }
+    }
+
     public void assignColor(int focus_id)
     {
         userbox.GetComponent<RawImage>().color = FocusColors.getColor(focus_id);
