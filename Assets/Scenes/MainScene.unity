@@ -6054,7 +6054,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a99b88fff293d3344986dc729efde132, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fragmentIndicator: {fileID: 0}
+  fragmentIndicator: {fileID: 515315609}
 --- !u!1 &1601631981
 GameObject:
   m_ObjectHideFlags: 0

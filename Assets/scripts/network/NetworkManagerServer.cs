@@ -7,7 +7,7 @@ using UnityEngine;
 using System.IO;
 using System.Collections;
 using System;
-using Unity.VisualScripting;
+
 
 public class NetworkManagerServer : MonoBehaviour
 {
@@ -467,6 +467,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddInt((int)SettingsData.transitionMode);
         message.AddInt((int)SettingsData.immersiveTarget);
         message.AddBool(SettingsData.requireGrabHold);
+        message.AddInt((int)SettingsData.handedness);
         Server.SendToAll(message);
     }
 

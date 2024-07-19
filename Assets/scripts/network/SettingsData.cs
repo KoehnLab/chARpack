@@ -1,4 +1,5 @@
 using chARpackColorPalette;
+using Microsoft.MixedReality.Toolkit.Utilities;
 using UnityEngine;
 
 public class SettingsData
@@ -33,6 +34,7 @@ public class SettingsData
     [SerializeField] static public TransitionManager.TransitionMode transitionMode = TransitionManager.TransitionMode.DESKTOP_2D;
     [SerializeField] static public TransitionManager.ImmersiveTarget immersiveTarget = TransitionManager.ImmersiveTarget.HAND;
     [SerializeField] static public bool requireGrabHold = true;
+    [SerializeField] static public Handedness handedness = Handedness.Right;
 
 
     public static int highlightColorMap { get => _highlightColorMap; set

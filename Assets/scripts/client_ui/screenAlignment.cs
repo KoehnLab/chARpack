@@ -338,10 +338,17 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
-    public Vector3 getCurrentProjectedPos()
+    public Vector3 getCurrentProjectedIndexPos()
     {
         var proj = projectIndexOnScreen();
         return proj.Value;
+    }
+
+    public Vector2 getCurrentIndexSSPos()
+    {
+        var proj = projectIndexOnScreen();
+        var ss_coords = getScreenSpaceCoords(proj.Value);
+        return ss_coords.Value;
     }
 
     public Vector3 getScreenCenter()

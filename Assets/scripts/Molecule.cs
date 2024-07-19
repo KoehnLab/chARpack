@@ -391,15 +391,23 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             screenAlignment.Singleton.OnDistantGrabRelease();
             emptyGrab = false;
         }
-    }   
-    
+    }
+
+    private Stopwatch transitionGrabCoolDown = Stopwatch.StartNew();
     private void OnTransitionGrab(Vector3 pos)
     {
         if (GetComponent<myBoundingBox>().contains(pos))
         {
             if (SettingsData.syncMode == TransitionManager.SyncMode.Async)
             {
+                transitionGrabCoolDown?.Stop();
+                if (transitionGrabCoolDown?.ElapsedMilliseconds < 800)
+                {
+                    transitionGrabCoolDown.Start();
+                    return;
+                }
                 TransitionManager.Singleton.initializeTransitionClient(this);
+                transitionGrabCoolDown.Restart();
             }
         }
     }

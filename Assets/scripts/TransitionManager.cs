@@ -72,7 +72,7 @@ public class TransitionManager : MonoBehaviour
     private void grab(Vector2 ss_coords)
     {
         grabHold = true;
-        grabScreenWPos = screenAlignment.Singleton.getCurrentProjectedPos();
+        grabScreenWPos = screenAlignment.Singleton.getCurrentProjectedIndexPos();
     }
 
     public void release()
@@ -87,10 +87,13 @@ public class TransitionManager : MonoBehaviour
     public void hover(Vector2 ss_coords)
     {
         current_ss_coords = ss_coords;
-        var wpos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, 0.36f)); // z component is target distance from camera
-        Ray ray = new Ray();
-        ray.direction = GlobalCtrl.Singleton.currentCamera.transform.forward;
-        ray.origin = wpos;
+        // var wpos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, 0.36f)); // z component is target distance from camera
+        //Ray ray = new Ray();
+        //ray.direction = GlobalCtrl.Singleton.currentCamera.transform.forward;
+        //ray.origin = wpos;
+        // using the forward vector of the camera is only properly working in the middle of the screen
+        // better use:
+        var ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(new Vector3(ss_coords.x, ss_coords.y, 0.36f));
 
         RaycastHit hit;
         if (Physics.SphereCast(ray, 0.04f, out hit))
@@ -129,9 +132,12 @@ public class TransitionManager : MonoBehaviour
         // debug blink
         StartCoroutine(blinkOnScreen(ss_coords, wpos));
 
-        Ray ray = new Ray();
-        ray.direction = GlobalCtrl.Singleton.currentCamera.transform.forward;
-        ray.origin = wpos;
+        //Ray ray = new Ray();
+        //ray.direction = GlobalCtrl.Singleton.currentCamera.transform.forward;
+        //ray.origin = wpos;
+        // using the forward vector of the camera is only properly working in the middle of the screen
+        // better use:
+        var ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(new Vector3(ss_coords.x, ss_coords.y, 0.36f));
 
         RaycastHit hit;
         if (Physics.SphereCast(ray, 0.04f, out hit))
@@ -193,15 +199,24 @@ public class TransitionManager : MonoBehaviour
         {
             if (SettingsData.transitionMode == TransitionMode.INSTANT)
             {
-                mol.transform.position = HandTracking.Singleton.getIndexTip();
+                if (SettingsData.immersiveTarget == ImmersiveTarget.HAND)
+                {
+                    mol.transform.position = HandTracking.Singleton.getIndexTip();
+                }
+                else
+                {
+                    mol.transform.position = GlobalCtrl.Singleton.getCurrentSpawnPos();
+                }
             }
             else
             {
+                // TODO test if this is necessary
                 if (SettingsData.transitionMode == TransitionMode.FULL_3D)
                 {
                     // init position different from ss position
                     mol.transform.position = grabScreenWPos.Value;
                 }
+
                 if (SettingsData.immersiveTarget == ImmersiveTarget.HAND)
                 {
                     StartCoroutine(moveMolToHand(mol));
@@ -210,7 +225,6 @@ public class TransitionManager : MonoBehaviour
                 {
                     StartCoroutine(moveMolToUser(mol));
                 }
-                
             }
         }
     }
@@ -219,11 +233,12 @@ public class TransitionManager : MonoBehaviour
     {
         if (current_ss_coords == null)
         {
-            mol.transform.position = GlobalCtrl.Singleton.currentCamera.transform.position + zDistance * GlobalCtrl.Singleton.currentCamera.transform.forward;
+            mol.transform.position = GlobalCtrl.Singleton.getCurrentSpawnPos();
         }
         else
         {
-            mol.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(current_ss_coords.Value.x, current_ss_coords.Value.y, zDistance));
+            mol.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(current_ss_coords.Value.x, current_ss_coords.Value.y, 0.4f));
+            Debug.Log($"[getTransitionServer] Setting ss coords: {current_ss_coords.Value.x} {current_ss_coords.Value.y};");
         }
 
         if (SettingsData.transitionMode == TransitionManager.TransitionMode.FULL_3D)
@@ -257,7 +272,6 @@ public class TransitionManager : MonoBehaviour
     {
         var center = screenAlignment.Singleton.getScreenCenter();
 
-
         var startTime = Time.time;
         var duration = 3f;
         var dist = Vector3.Distance(mol.transform.position, center);
@@ -268,7 +282,7 @@ public class TransitionManager : MonoBehaviour
             {
                 if (!grabHold) yield break;
             }
-            var pos = screenAlignment.Singleton.getCurrentProjectedPos();
+            var pos = screenAlignment.Singleton.getCurrentProjectedIndexPos();
             if (!screenAlignment.Singleton.contains(pos))
             {
                 pos = center;

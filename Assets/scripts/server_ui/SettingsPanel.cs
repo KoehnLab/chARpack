@@ -1,7 +1,9 @@
+using Microsoft.MixedReality.Toolkit.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -41,6 +43,7 @@ public class SettingsPanel : MonoBehaviour
     public GameObject transitionModeDropdown;
     public GameObject immersiveTargetDropdown;
     public GameObject requireGrabHoldToggle;
+    public GameObject handednessDropdown;
 
     private void Start()
     {
@@ -123,6 +126,7 @@ public class SettingsPanel : MonoBehaviour
         transitionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().value = (int)SettingsData.transitionMode;
         immersiveTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value = (int)SettingsData.immersiveTarget;
         requireGrabHoldToggle.GetComponent<Toggle>().isOn = SettingsData.requireGrabHold;
+        handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().value = SettingsData.handedness == Handedness.Right ? 0 : 1;
 
     }
 
@@ -170,6 +174,8 @@ public class SettingsPanel : MonoBehaviour
         SettingsData.transitionMode = (TransitionManager.TransitionMode)transitionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
         SettingsData.immersiveTarget = (TransitionManager.ImmersiveTarget)immersiveTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
         SettingsData.requireGrabHold = requireGrabHoldToggle.GetComponent<Toggle>().isOn;
+        options = handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().options;
+        SettingsData.handedness = options[handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text == "Right" ? Handedness.Right : Handedness.Left;
 
         settingsControl.Singleton.updateSettings();
         EventManager.Singleton.UpdateSettings();

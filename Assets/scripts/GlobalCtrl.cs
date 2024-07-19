@@ -2113,7 +2113,9 @@ public class GlobalCtrl : MonoBehaviour
                     if (NetworkManagerClient.Singleton != null)
                     {
                         var normal = screenAlignment.Singleton.getScreenNormal();
-                        var screen_quat = Quaternion.LookRotation(-normal);
+                        // TODO test if -normal or just normal (-normal does not work properly) [maybe need different approach]
+                        //var screen_quat = Quaternion.LookRotation(-normal);
+                        var screen_quat = Quaternion.LookRotation(normal);
                         tempMolecule.transform.rotation = screen_quat * molecule.relQuat;
                     }
                     if (NetworkManagerServer.Singleton != null)
@@ -2123,10 +2125,14 @@ public class GlobalCtrl : MonoBehaviour
                 }
                 if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT && molecule.ssPos != Vector2.zero)
                 {
+                    Debug.Log($"[Create:transition] Got SS coords: {molecule.ssPos};");
                     if (screenAlignment.Singleton)
                     {
                         tempMolecule.transform.position = screenAlignment.Singleton.getWorldSpaceCoords(molecule.ssPos);
-                        Debug.Log($"[CreateFromCML] Got SS coords: {molecule.ssPos}; translated to wold coords: {tempMolecule.transform.position}");
+                    }
+                    else
+                    {
+                        tempMolecule.transform.position = currentCamera.ScreenToWorldPoint(new Vector3(molecule.ssPos.x, molecule.ssPos.y, 0.4f));
                     }
                 }
                 if (molecule.ssBounds != Vector4.zero)
@@ -2172,6 +2178,7 @@ public class GlobalCtrl : MonoBehaviour
                 }
                 if (addToUndoStack) undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id, molecule));
                 EventManager.Singleton.MoleculeLoaded(tempMolecule);
+                Debug.Log($"[Create:transition] moleTransitioned {molecule.moleTransitioned}");
                 if (molecule.moleTransitioned)
                 {
                     EventManager.Singleton.ReceiveMoleculeTransition(tempMolecule);

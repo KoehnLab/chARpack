@@ -8,6 +8,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.VisualScripting;
+using Microsoft.MixedReality.Toolkit.Utilities;
 
 public class NetworkManagerClient : MonoBehaviour
 {
@@ -605,10 +606,10 @@ public class NetworkManagerClient : MonoBehaviour
 
         var cml = mol.AsCML();
         cml.assignRelativeQuaternion(q);
-        cml.assignSSPos(Vector2.zero);
 
         if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT)
         {
+            cml.assignSSPos(screenAlignment.Singleton.getCurrentIndexSSPos());
             var mol_ss_bounds = mol.getScreenSpaceBounds();
             if (mol_ss_bounds != Vector4.zero)
             {
@@ -1111,6 +1112,7 @@ public class NetworkManagerClient : MonoBehaviour
         var transitionMode = (TransitionManager.TransitionMode)message.GetInt();
         var immersiveTarget = (TransitionManager.ImmersiveTarget)message.GetInt();
         var requireGrabHold = message.GetBool();
+        var handedness = (Handedness)message.GetInt();
 
         // Get enum entries from strings
         Enum.TryParse(integrationMethodString, ignoreCase: true, out ForceField.Method integrationMethod);
@@ -1144,6 +1146,7 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.transitionMode = transitionMode;
             SettingsData.immersiveTarget = immersiveTarget;
             SettingsData.requireGrabHold = requireGrabHold;
+            SettingsData.handedness = handedness;
             settingsControl.Singleton.updateSettings();
             if (appSettings.Singleton != null)
             {

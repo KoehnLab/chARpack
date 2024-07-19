@@ -1,6 +1,7 @@
 using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.Utilities;
+using System.Diagnostics;
 using UnityEngine;
 
 /// <summary>
@@ -21,7 +22,7 @@ public class HandTracking : MonoBehaviour
             }
             else if (_singleton != value)
             {
-                Debug.Log($"[{nameof(HandTracking)}] Instance already exists, destroying duplicate!");
+                UnityEngine.Debug.Log($"[{nameof(HandTracking)}] Instance already exists, destroying duplicate!");
                 Destroy(value);
             }
         }
@@ -116,18 +117,28 @@ public class HandTracking : MonoBehaviour
         OnIndexFingerGrabRelease?.Invoke();
     }
 
-
+    Stopwatch middleFingerGrabCooldown = new Stopwatch();
     private void Update()
     {
         getPose();
+        if (indexForward == Vector3.zero) return;
         transform.forward = indexForward;
         transform.position = indexKnucklePose.Position;
         if (Vector3.Distance(middleTipPose.Position, thumbTipPose.Position) < 0.02f)
         {
             if (!middleFingerGrab)
             {
-                middleFingerGrab = true;
-                MiddleFingerGrab(middleTipPose.Position);
+                middleFingerGrabCooldown.Stop();
+                if (middleFingerGrabCooldown.ElapsedMilliseconds > 200)
+                {
+                    middleFingerGrab = true;
+                    MiddleFingerGrab(middleTipPose.Position);
+                    middleFingerGrabCooldown.Restart();
+                }
+                else
+                {
+                    middleFingerGrabCooldown.Start();
+                }
             }
         }
         else
@@ -170,6 +181,7 @@ public class HandTracking : MonoBehaviour
                     var hand = p.Controller as IMixedRealityHand;
                     if (hand != null)
                     {
+                        if (hand.ControllerHandedness != SettingsData.handedness) return;
                         if (hand.TryGetJoint(TrackedHandJoint.MiddleTip, out MixedRealityPose MTpose))
                         {
                             middleTipPose = MTpose;
@@ -193,6 +205,7 @@ public class HandTracking : MonoBehaviour
                         var handVisualizer = p.Controller as IMixedRealityHandVisualizer;
                         if (handVisualizer != null)
                         {
+                            if (handVisualizer.Controller.ControllerHandedness != SettingsData.handedness) return;
                             if (HandJointUtils.TryGetJointPose(TrackedHandJoint.MiddleTip, Handedness.Both, out MixedRealityPose MTpose))
                             {
                                 middleTipPose = MTpose;
