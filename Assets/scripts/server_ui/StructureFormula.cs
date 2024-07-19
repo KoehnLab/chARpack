@@ -17,7 +17,6 @@ public class StructureFormula : MonoBehaviour
     public TextMeshProUGUI label;
     public HeatMap2D heatMap;
     public TMP_Dropdown highlight_choice_dropdown;
-    //public List<GameObject> resizeHandles;
     public myResizer resizer;
     [HideInInspector]
     public Atom2D[] interactables;
@@ -67,11 +66,6 @@ public class StructureFormula : MonoBehaviour
     {
         yield return new WaitForSeconds(0.25f);
         resizer.moveHandles();
-        //RectTransform rect = transform as RectTransform;
-        //resizeHandles[0].GetComponent<RectTransform>().localPosition = new Vector2(-rect.sizeDelta[0], rect.sizeDelta[1] / 2);
-        //resizeHandles[1].GetComponent<RectTransform>().localPosition = new Vector2(-0f, rect.sizeDelta[1] / 2);
-        //resizeHandles[2].GetComponent<RectTransform>().localPosition = new Vector2(-rect.sizeDelta[0], -rect.sizeDelta[1] / 2);
-        //resizeHandles[3].GetComponent<RectTransform>().localPosition = new Vector2(-0f, -rect.sizeDelta[1] / 2);
     }
 
 
@@ -139,6 +133,7 @@ public class StructureFormula : MonoBehaviour
             rect.sizeDelta = new Vector2(rect.sizeDelta.x, rect.sizeDelta.y + image_hight);
             rect.localPosition = new Vector3(rect.localPosition.x, rect.localPosition.y - 0.5f * image_hight, rect.localPosition.z);
         }
+        resizer.moveHandles();
     }
 
     private void toggleImage()

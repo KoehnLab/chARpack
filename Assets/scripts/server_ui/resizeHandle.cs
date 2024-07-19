@@ -63,6 +63,8 @@ public class resizeHandle : MonoBehaviour, IPointerDownHandler, IDragHandler
 
         rect.sizeDelta = sizeDelta;
 
+        StructureFormulaManager.Singleton.updateInteractables(StructureFormulaManager.Singleton.getMolID(resizer.structureFormula), sizeDelta / originalSizeDelta);
+
         resizer.moveHandles();
     }
 

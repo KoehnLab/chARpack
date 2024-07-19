@@ -10,9 +10,11 @@ public class myResizer : MonoBehaviour {
 	public GameObject image;
 
 	private RectTransform panelRectTransform;
+	public StructureFormula structureFormula;
 
 	void Awake () {
 		panelRectTransform = panel.GetComponent<RectTransform> ();
+		structureFormula = panel.GetComponent<StructureFormula>();
 
 		// Assign position to each handle
 		if(resizeHandles.Count > 0)
@@ -33,7 +35,7 @@ public class myResizer : MonoBehaviour {
 
 		if (resizeHandles.Count > 0)
 		{ 
-			resizeHandles[0].GetComponent<RectTransform>().localPosition = new Vector2(panelRectTransform.rect.x +offset, panelRectTransform.rect.y + panelRectTransform.rect.size.y - offset);
+			resizeHandles[0].GetComponent<RectTransform>().localPosition = new Vector2(panelRectTransform.rect.x + offset, panelRectTransform.rect.y + panelRectTransform.rect.size.y - offset);
 			resizeHandles[1].GetComponent<RectTransform>().localPosition = new Vector2(panelRectTransform.rect.x + panelRectTransform.rect.size.x - offset, panelRectTransform.rect.y + panelRectTransform.rect.size.y - offset);
 			resizeHandles[2].GetComponent<RectTransform>().localPosition = new Vector2(panelRectTransform.rect.x + offset, panelRectTransform.rect.y + offset);
 			resizeHandles[3].GetComponent<RectTransform>().localPosition = new Vector2(panelRectTransform.rect.x + panelRectTransform.rect.size.x -offset, panelRectTransform.rect.y + offset);
