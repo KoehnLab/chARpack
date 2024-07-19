@@ -27,7 +27,7 @@ public class myResizer : MonoBehaviour {
         }
 	}
 	
-	public void moveHandles () {
+	public void moveHandlesAndResize () {
 		if (panelRectTransform == null)
 			return;
 

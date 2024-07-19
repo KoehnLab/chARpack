@@ -66,7 +66,7 @@ public class StructureFormula : MonoBehaviour
     public IEnumerator WaitAndPositionHandles()
     {
         yield return new WaitForSeconds(0.25f);
-        resizer.moveHandles();
+        resizer.moveHandlesAndResize();
     }
 
 
@@ -134,7 +134,7 @@ public class StructureFormula : MonoBehaviour
             rect.sizeDelta = new Vector2(rect.sizeDelta.x, rect.sizeDelta.y + image_hight);
             rect.localPosition = new Vector3(rect.localPosition.x, rect.localPosition.y - 0.5f * image_hight, rect.localPosition.z);
         }
-        resizer.moveHandles();
+        resizer.moveHandlesAndResize();
     }
 
     private void toggleImage()
