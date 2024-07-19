@@ -59,6 +59,7 @@ public class StructureFormula : MonoBehaviour
             rect.position = save;
         }
 
+        resizer.resizeImage();
         StartCoroutine(WaitAndPositionHandles());
     }
 
