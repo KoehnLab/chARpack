@@ -88,25 +88,6 @@ public class resizeHandle : MonoBehaviour, IPointerDownHandler, IDragHandler
         //var offset = new Vector2((originalPivot.x - rect.pivot.x) * rect.rect.width, (originalPivot.y - rect.pivot.y) * rect.rect.height);
         var offset = originalPivot - rect.pivot;
         offset.Scale(rect.rect.size);
-        rect.position = rect.position - rect.TransformVector(offset);
-    }
-
-    // Set the RectTransform's pivot point without moving the position.
-    // This is like dragging the pivot handle in the editor.
-    //
-    private void SetPivotInWorldSpace(RectTransform source, Vector2 pivot)
-    {
-        // Strip scaling and rotations.
-        pivot = source.InverseTransformPoint(pivot);
-        Vector2 pivot2 = new Vector2(
-            (pivot.x - source.rect.xMin) / source.rect.width,
-            (pivot.y - source.rect.yMin) / source.rect.height);
-
-        // Now move the pivot, keeping and restoring the position which is based on it.
-        Vector2 offset = pivot2 - source.pivot;
-        offset.Scale(source.rect.size);
-        Vector3 worldPos = source.position + source.TransformVector(offset);
-        source.pivot = pivot2;
-        source.position = worldPos;
+        rect.position = worldPos - rect.TransformVector(offset);
     }
 }

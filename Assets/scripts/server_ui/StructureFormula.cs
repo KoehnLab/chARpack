@@ -17,7 +17,8 @@ public class StructureFormula : MonoBehaviour
     public TextMeshProUGUI label;
     public HeatMap2D heatMap;
     public TMP_Dropdown highlight_choice_dropdown;
-    public List<GameObject> resizeHandles;
+    //public List<GameObject> resizeHandles;
+    public myResizer resizer;
     [HideInInspector]
     public Atom2D[] interactables;
     public float scaleFactor = 1.0f;
@@ -65,11 +66,12 @@ public class StructureFormula : MonoBehaviour
     public IEnumerator WaitAndPositionHandles()
     {
         yield return new WaitForSeconds(0.25f);
-        RectTransform rect = transform as RectTransform;
-        resizeHandles[0].GetComponent<RectTransform>().localPosition = new Vector2(-rect.sizeDelta[0], rect.sizeDelta[1] / 2);
-        resizeHandles[1].GetComponent<RectTransform>().localPosition = new Vector2(-0f, rect.sizeDelta[1] / 2);
-        resizeHandles[2].GetComponent<RectTransform>().localPosition = new Vector2(-rect.sizeDelta[0], -rect.sizeDelta[1] / 2);
-        resizeHandles[3].GetComponent<RectTransform>().localPosition = new Vector2(-0f, -rect.sizeDelta[1] / 2);
+        resizer.moveHandles();
+        //RectTransform rect = transform as RectTransform;
+        //resizeHandles[0].GetComponent<RectTransform>().localPosition = new Vector2(-rect.sizeDelta[0], rect.sizeDelta[1] / 2);
+        //resizeHandles[1].GetComponent<RectTransform>().localPosition = new Vector2(-0f, rect.sizeDelta[1] / 2);
+        //resizeHandles[2].GetComponent<RectTransform>().localPosition = new Vector2(-rect.sizeDelta[0], -rect.sizeDelta[1] / 2);
+        //resizeHandles[3].GetComponent<RectTransform>().localPosition = new Vector2(-0f, -rect.sizeDelta[1] / 2);
     }
 
 
