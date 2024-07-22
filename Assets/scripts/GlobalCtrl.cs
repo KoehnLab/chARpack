@@ -1368,6 +1368,13 @@ public class GlobalCtrl : MonoBehaviour
         EventManager.Singleton.CreateAtom(newID, ChemicalID, List_curMolecules[newID].transform.localPosition, curHybrid);
     }
 
+    public void createGenericObjectUI(string name)
+    {
+        var go = GenericObject.create(name);
+        go.transform.position = getCurrentSpawnPos();
+        EventManager.Singleton.CreateGenericObject(go);
+    }
+
     public ushort calcNumBonds(ushort hyb, ushort element_bondNum)
     {
         return (ushort)Mathf.Max(0, element_bondNum - (3 - hyb)); // a preliminary solution
@@ -2110,6 +2117,7 @@ public class GlobalCtrl : MonoBehaviour
                 }
                 if (molecule.relQuat != Quaternion.identity)
                 {
+                    tempMolecule.relQuatBeforeTransition = molecule.relQuat;
                     if (NetworkManagerClient.Singleton != null)
                     {
                         var normal = screenAlignment.Singleton.getScreenNormal();
@@ -2163,7 +2171,7 @@ public class GlobalCtrl : MonoBehaviour
                         var ss_diff = ss_max - ss_min;
                         var cml_max_size = Mathf.Max(ss_diff.x, ss_diff.y);
 
-                        var current_ss_bounds = tempMolecule.getScreenSpaceBounds();
+                        var current_ss_bounds = tempMolecule.GetComponent<myBoundingBox>().getScreenSpaceBounds();
                         var current_min = new Vector2(current_ss_bounds.x, current_ss_bounds.y);
                         var current_max = new Vector2(current_ss_bounds.z, current_ss_bounds.w);
                         var current_diff = current_max - current_min;

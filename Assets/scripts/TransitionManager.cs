@@ -2,6 +2,7 @@ using Google.Protobuf.WellKnownTypes;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine;
 using UnityEngineInternal;
 
@@ -30,6 +31,14 @@ public class TransitionManager : MonoBehaviour
     public enum DesktopTarget
     {
         NONE = 0
+    }
+
+    public enum TransitionAnimation
+    {
+        NONE = 0 << 0,
+        SCALE = 1 << 0,
+        ROTATION = 1 << 1,
+        BOTH = SCALE | ROTATION
     }
 
     private static TransitionManager _singleton;
@@ -83,6 +92,7 @@ public class TransitionManager : MonoBehaviour
 
 
     private Molecule hoverMol;
+    private GenericObject hoverGenericObject;
     Vector2? current_ss_coords = null;
     public void hover(Vector2 ss_coords)
     {
@@ -99,17 +109,38 @@ public class TransitionManager : MonoBehaviour
         if (Physics.SphereCast(ray, 0.04f, out hit))
         {
             var mol = hit.transform.GetComponentInParent<Molecule>();
+            var go = hit.transform.GetComponentInParent<GenericObject>();
             if (mol != null)
             {
                 hoverMol = mol;
                 hoverMol.Hover(true);
+                if (hoverGenericObject != null)
+                {
+                    hoverGenericObject.Hover(false);
+                    hoverGenericObject = null;
+                }
             }
-            else
+            else if (go != null)
+            {
+                hoverGenericObject = go;
+                hoverGenericObject.Hover(true);
+                if (hoverGenericObject != null)
+                {
+                    hoverMol.Hover(false);
+                    hoverMol = null;
+                }
+            }
+            else // some kind of other object
             {
                 if (hoverMol != null)
                 {
                     hoverMol.Hover(false);
                     hoverMol = null;
+                }
+                if (hoverGenericObject != null)
+                {
+                    hoverGenericObject.Hover(false);
+                    hoverGenericObject = null;
                 }
             }
         }
@@ -119,6 +150,11 @@ public class TransitionManager : MonoBehaviour
             {
                 hoverMol.Hover(false);
                 hoverMol = null;
+            }
+            if (hoverGenericObject != null)
+            {
+                hoverGenericObject.Hover(false);
+                hoverGenericObject = null;
             }
         }
     }
@@ -142,24 +178,41 @@ public class TransitionManager : MonoBehaviour
         RaycastHit hit;
         if (Physics.SphereCast(ray, 0.04f, out hit))
         {
-            var mol = hit.transform.GetComponentInParent<Molecule>();
-            if (mol != null)
+            Transform trans = null; 
+            var mol_test = hit.transform.GetComponentInParent<Molecule>();
+            GenericObject go_test = null;
+            if (mol_test != null)
             {
-                Debug.Log("[TransitionManager] Got Mol!");
+                trans = mol_test.transform;
             }
-            else
-            {
-                Debug.Log("[TransitionManager] Got Something unexpected.");
-                return;
+            if (mol_test == null) {
+                go_test = hit.transform.GetComponentInParent<GenericObject>();
+                if (go_test != null)
+                {
+                    trans = go_test.transform;
+                }
+                else
+                {
+                    Debug.Log("[TransitionManager] Got Something unexpected.");
+                    return;
+                }
             }
+
 
             if (SettingsData.transitionMode == TransitionMode.FULL_3D)
             {
-                StartCoroutine(moveMolAndTransition(mol, wpos));
+                StartCoroutine(moveAndTransition(trans, wpos));
             }
             else
             {
-                EventManager.Singleton.TransitionMolecule(mol);
+                if (mol_test != null)
+                {
+                    EventManager.Singleton.TransitionMolecule(mol_test);
+                }
+                else
+                {
+                    EventManager.Singleton.TransitionGenericObject(go_test);
+                }
             }
         }
     }
@@ -177,23 +230,43 @@ public class TransitionManager : MonoBehaviour
     }
 
 
-    public void initializeTransitionClient(Molecule mol)
+    public void initializeTransitionClient(Transform trans)
     {
         grabHold = true;
         if (SettingsData.transitionMode == TransitionMode.INSTANT)
         {
-            mol.transform.position = screenAlignment.Singleton.getScreenCenter();
-            EventManager.Singleton.TransitionMolecule(mol);
+            trans.position = screenAlignment.Singleton.getScreenCenter();
+            var mol = trans.GetComponent<Molecule>();
+            if (mol != null)
+            {
+                EventManager.Singleton.TransitionMolecule(mol);
+            }
+            else
+            {
+                var go = trans.GetComponent<GenericObject>();
+                EventManager.Singleton.TransitionGenericObject(go);
+            }
         }
         else
         {
-            StartCoroutine(moveMolToScreenAndTransition(mol));
+            StartCoroutine(moveToScreenAndTransition(trans));
         }
     }
 
     private Vector3? grabScreenWPos = null;
 
-    public void getTransitionClient(Molecule mol)
+
+    public void getMoleculeTransitionClient(Molecule mol)
+    {
+        getTransitionClient(mol.transform);
+    }
+
+    public void getGenericObjectTransitionClient(GenericObject go)
+    {
+        getTransitionClient(go.transform);
+    }
+
+    private void getTransitionClient(Transform trans)
     {
         if (grabScreenWPos != null)
         {
@@ -201,11 +274,11 @@ public class TransitionManager : MonoBehaviour
             {
                 if (SettingsData.immersiveTarget == ImmersiveTarget.HAND)
                 {
-                    mol.transform.position = HandTracking.Singleton.getIndexTip();
+                    trans.position = HandTracking.Singleton.getIndexTip();
                 }
                 else
                 {
-                    mol.transform.position = GlobalCtrl.Singleton.getCurrentSpawnPos();
+                    trans.position = GlobalCtrl.Singleton.getCurrentSpawnPos();
                 }
             }
             else
@@ -214,68 +287,85 @@ public class TransitionManager : MonoBehaviour
                 if (SettingsData.transitionMode == TransitionMode.FULL_3D)
                 {
                     // init position different from ss position
-                    mol.transform.position = grabScreenWPos.Value;
+                    trans.position = grabScreenWPos.Value;
                 }
 
                 if (SettingsData.immersiveTarget == ImmersiveTarget.HAND)
                 {
-                    StartCoroutine(moveMolToHand(mol));
+                    StartCoroutine(moveToHand(trans));
                 }
                 else
                 {
-                    StartCoroutine(moveMolToUser(mol));
+                    StartCoroutine(moveToUser(trans));
                 }
             }
         }
     }
 
-    public void getTransitionServer(Molecule mol)
+    public void getMoleculeTransitionServer(Molecule mol)
+    {
+        getTransitionServer(mol.transform);
+    }
+
+    public void getGenericObjectTransitionServer(GenericObject go)
+    {
+        getTransitionServer(go.transform);
+    }
+
+    private void getTransitionServer(Transform trans)
     {
         if (current_ss_coords == null)
         {
-            mol.transform.position = GlobalCtrl.Singleton.getCurrentSpawnPos();
+            trans.position = GlobalCtrl.Singleton.getCurrentSpawnPos();
         }
         else
         {
-            mol.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(current_ss_coords.Value.x, current_ss_coords.Value.y, 0.4f));
+            trans.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(current_ss_coords.Value.x, current_ss_coords.Value.y, 0.4f));
             Debug.Log($"[getTransitionServer] Setting ss coords: {current_ss_coords.Value.x} {current_ss_coords.Value.y};");
         }
 
         if (SettingsData.transitionMode == TransitionManager.TransitionMode.FULL_3D)
         {
-            StartCoroutine(moveMolAway(mol));
+            StartCoroutine(moveAway(trans));
         }
     }
 
-    private IEnumerator moveMolAndTransition(Molecule mol, Vector3 pos)
+    private IEnumerator moveAndTransition(Transform trans, Vector3 pos)
     {
         var startTime = Time.time;
-        var duration = 3f;
-        var dist = Vector3.Distance(mol.transform.position, pos);
-        var dir = (pos - mol.transform.position).normalized;
+        var dist = Vector3.Distance(trans.position, pos);
+        var dir = (pos - trans.position).normalized;
         while (dist > 0.005f)
         {
             if (SettingsData.requireGrabHold)
             {
                 if (!grabHold) yield break;
             }
-            dist = Vector3.Distance(mol.transform.position, pos);
-            float t = (Time.time - startTime) / duration;
+            dist = Vector3.Distance(trans.position, pos);
+            float t = (Time.time - startTime) / SettingsData.transitionAnimationDuration;
             var dist_per_step = Mathf.SmoothStep(0.001f, 0.01f, t);
-            mol.transform.position += dir * dist_per_step;
+            trans.position += dir * dist_per_step;
             yield return null; // wait for next frame
         }
-        EventManager.Singleton.TransitionMolecule(mol);
+        var mol = trans.GetComponent<Molecule>();
+        if (mol != null)
+        {
+            EventManager.Singleton.TransitionMolecule(mol);
+        }
+        else
+        {
+            var go = trans.GetComponent<GenericObject>();
+            EventManager.Singleton.TransitionGenericObject(go);
+        }
     }
 
-    private IEnumerator moveMolToScreenAndTransition(Molecule mol)
+    private IEnumerator moveToScreenAndTransition(Transform trans)
     {
         var center = screenAlignment.Singleton.getScreenCenter();
 
         var startTime = Time.time;
-        var duration = 3f;
-        var dist = Vector3.Distance(mol.transform.position, center);
-        var dir = (center - mol.transform.position).normalized;
+        var dist = Vector3.Distance(trans.position, center);
+        var dir = (center - trans.position).normalized;
         while (dist > 0.005f)
         {
             if (SettingsData.requireGrabHold)
@@ -287,22 +377,51 @@ public class TransitionManager : MonoBehaviour
             {
                 pos = center;
             }
-            dist = Vector3.Distance(mol.transform.position, pos);
-            dir = (pos - mol.transform.position).normalized;
-            float t = (Time.time - startTime) / duration;
+            dist = Vector3.Distance(trans.position, pos);
+            dir = (pos - trans.position).normalized;
+            float t = (Time.time - startTime) / SettingsData.transitionAnimationDuration;
             var dist_per_step = Mathf.SmoothStep(0.001f, 0.01f, t);
-            mol.transform.position += dir * dist_per_step;
+            trans.position += dir * dist_per_step;
+
+            if (SettingsData.transitionAnimation == (TransitionAnimation.SCALE | TransitionAnimation.BOTH))
+            {
+                if (!Mathf.Approximately(trans.localScale.x, 0.5f))
+                {
+                    var scale_diff = 0.5f * trans.localScale.x;
+                    var scale_per_step = Mathf.SmoothStep(0.0001f, 0.01f, t);
+                    trans.localScale += scale_diff * scale_per_step * Vector3.one;
+                }
+            }
             yield return null; // wait for next frame
         }
-        EventManager.Singleton.TransitionMolecule(mol);
+        var mol = trans.GetComponent<Molecule>();
+        if (mol != null)
+        {
+            EventManager.Singleton.TransitionMolecule(mol);
+        }
+        else
+        {
+            var go = trans.GetComponent<GenericObject>();
+            EventManager.Singleton.TransitionGenericObject(go);
+        }
     }
 
-    private IEnumerator moveMolToHand(Molecule mol)
+    private IEnumerator moveToHand(Transform trans)
     {
         var startTime = Time.time;
-        var duration = 3f;
         var pos = HandTracking.Singleton.getIndexTip();
-        var dist = Vector3.Distance(mol.transform.position, pos);
+        var dist = Vector3.Distance(trans.position, pos);
+        var relQuat = Quaternion.identity;
+        var mol = trans.GetComponent<Molecule>();
+        if (mol != null)
+        {
+            relQuat = mol.relQuatBeforeTransition;
+        }
+        else
+        {
+            var go = trans.GetComponent<GenericObject>();
+            relQuat = go.relQuatBeforeTransition;
+        }
         while (dist > 0.005f)
         {
             if (SettingsData.requireGrabHold)
@@ -310,21 +429,46 @@ public class TransitionManager : MonoBehaviour
                 if (!grabHold) yield break;
             }
             pos = HandTracking.Singleton.getIndexTip();
-            dist = Vector3.Distance(mol.transform.position, pos);
-            float t = (Time.time - startTime) / duration;
-            var dir = (pos - mol.transform.position).normalized;
+            dist = Vector3.Distance(trans.position, pos);
+            float t = (Time.time - startTime) / SettingsData.transitionAnimationDuration;
+            var dir = (pos - trans.position).normalized;
             var dist_per_step = Mathf.SmoothStep(0.001f, 0.01f, t);
-            mol.transform.position += dir * dist_per_step;
+            trans.position += dir * dist_per_step;
+
+            if (SettingsData.transitionAnimation == (TransitionAnimation.ROTATION | TransitionAnimation.BOTH))
+            {
+                var head_to_obj = Quaternion.LookRotation(trans.position - GlobalCtrl.Singleton.currentCamera.transform.position);
+                trans.rotation = head_to_obj * relQuat;
+            }
+            if (SettingsData.transitionAnimation == (TransitionAnimation.SCALE | TransitionAnimation.BOTH))
+            {
+                if (!Mathf.Approximately(trans.localScale.x, 1.0f))
+                {
+                    var scale_diff = 1.0f - trans.localScale.x;
+                    var scale_per_step = Mathf.SmoothStep(0.0001f, 0.01f, t);
+                    trans.localScale += scale_diff * scale_per_step * Vector3.one;
+                }
+            }
             yield return null; // wait for next frame
         }
     }
 
-    private IEnumerator moveMolToUser(Molecule mol)
+    private IEnumerator moveToUser(Transform trans)
     {
         var startTime = Time.time;
-        var duration = 3f;
         var pos = GlobalCtrl.Singleton.getCurrentSpawnPos();
-        var dist = Vector3.Distance(mol.transform.position, pos);
+        var dist = Vector3.Distance(trans.position, pos);
+        var relQuat = Quaternion.identity;
+        var mol = trans.GetComponent<Molecule>();
+        if (mol != null)
+        {
+            relQuat = mol.relQuatBeforeTransition;
+        }
+        else
+        {
+            var go = trans.GetComponent<GenericObject>();
+            relQuat = go.relQuatBeforeTransition;
+        }
         while (dist > 0.005f)
         {
             if (SettingsData.requireGrabHold)
@@ -332,32 +476,43 @@ public class TransitionManager : MonoBehaviour
                 if (!grabHold) yield break;
             }
             pos = GlobalCtrl.Singleton.getCurrentSpawnPos();
-            dist = Vector3.Distance(mol.transform.position, pos);
-            float t = (Time.time - startTime) / duration;
-            var dir = (pos - mol.transform.position).normalized;
+            dist = Vector3.Distance(trans.position, pos);
+            float t = (Time.time - startTime) / SettingsData.transitionAnimationDuration;
+            var dir = (pos - trans.position).normalized;
             var dist_per_step = Mathf.SmoothStep(0.001f, 0.01f, t);
-            mol.transform.position += dir * dist_per_step;
+            trans.position += dir * dist_per_step;
+
+            if (SettingsData.transitionAnimation == (TransitionAnimation.ROTATION | TransitionAnimation.BOTH))
+            {
+                var head_to_obj = Quaternion.LookRotation(trans.position - GlobalCtrl.Singleton.currentCamera.transform.position);
+                trans.rotation = head_to_obj * relQuat;
+            }
+            if (SettingsData.transitionAnimation == (TransitionAnimation.SCALE | TransitionAnimation.BOTH))
+            {
+                var scale_diff = 1.0f - trans.localScale.x;
+                var scale_per_step = Mathf.SmoothStep(0.0001f, 0.01f, t);
+                trans.localScale += scale_diff * scale_per_step * Vector3.one;
+            }
             yield return null; // wait for next frame
         }
     }
 
-    private IEnumerator moveMolAway(Molecule mol)
+    private IEnumerator moveAway(Transform trans)
     {
         var startTime = Time.time;
-        var duration = 3f;
         var destination = GlobalCtrl.Singleton.getCurrentSpawnPos();
-        var dist = Vector3.Distance(mol.transform.position, destination);
+        var dist = Vector3.Distance(trans.position, destination);
         while (dist > 0.005f)
         {
             if (SettingsData.requireGrabHold)
             {
                 if (!grabHold) yield break;
             }
-            dist = Vector3.Distance(mol.transform.position, destination);
-            float t = (Time.time - startTime) / duration;
-            var dir = (destination - mol.transform.position).normalized;
+            dist = Vector3.Distance(trans.position, destination);
+            float t = (Time.time - startTime) / SettingsData.transitionAnimationDuration;
+            var dir = (destination - trans.position).normalized;
             var dist_per_step = Mathf.SmoothStep(0.001f, 0.01f, t);
-            mol.transform.position += dir * dist_per_step;
+            trans.position += dir * dist_per_step;
             yield return null; // wait for next frame
         }
     }

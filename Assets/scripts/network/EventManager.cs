@@ -357,6 +357,27 @@ public class EventManager : MonoBehaviour
         OnReceiveMoleculeTransition?.Invoke(mol);
     }
 
+    public delegate void TransitionGenericObjectAction(GenericObject go);
+    public event TransitionGenericObjectAction OnTransitionGenericObject;
+    public void TransitionGenericObject(GenericObject go)
+    {
+        OnTransitionGenericObject?.Invoke(go);
+    }
+
+    public delegate void ReceiveGenericObjectTransitionAction(GenericObject go);
+    public event ReceiveGenericObjectTransitionAction OnReceiveGenericObjectTransition;
+    public void ReceiveGenericObjectTransition(GenericObject go)
+    {
+        OnReceiveGenericObjectTransition?.Invoke(go);
+    }
+
+    public delegate void CreateGenericObjectAction(GenericObject go);
+    public event CreateGenericObjectAction OnCreateGenericObject;
+    public void CreateGenericObject(GenericObject go)
+    {
+        OnCreateGenericObject?.Invoke(go);
+    }
+
     #endregion
 
 

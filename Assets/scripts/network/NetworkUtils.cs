@@ -175,6 +175,131 @@ public static class NetworkUtils
     }
 
 
+    public static void serializeGenericObject(ushort messageSignature, sGenericObject data, ushort chunkSize_, bool toServer = false, int toClientID = -1)
+    {
+        // prepare clients for the messages'
+        Message startMessage = Message.Create(MessageSendMode.Reliable, messageSignature);
+        startMessage.AddString("start");
+        if (toServer)
+        {
+            NetworkManagerClient.Singleton.Client.Send(startMessage);
+        }
+        else
+        {
+            if (toClientID < 0)
+            {
+                NetworkManagerServer.Singleton.Server.SendToAll(startMessage);
+            }
+            else
+            {
+                NetworkManagerServer.Singleton.Server.Send(startMessage, (ushort)toClientID);
+            }
+        }
+
+        var totalBytes = Serializer.Serialize(data);
+        uint totalLength = (uint)totalBytes.Length; // first
+        ushort rest = (ushort)(totalBytes.Length % chunkSize_);
+        ushort numPieces = rest == 0 ? (ushort)(totalBytes.Length / chunkSize_) : (ushort)((totalBytes.Length / chunkSize_) + 1); // second
+        //
+        List<ushort> bytesPerPiece = new List<ushort>();
+        for (ushort j = 0; j < (numPieces - 1); j++)
+        {
+            bytesPerPiece.Add(chunkSize_);
+        }
+        if (rest != 0)
+        {
+            bytesPerPiece.Add(rest);
+        }
+        else
+        {
+            bytesPerPiece.Add(chunkSize_);
+        }
+
+        // create pieces and messages
+        for (ushort j = 0; j < numPieces; j++)
+        {
+            var currentPieceID = j; // third
+            var piece = totalBytes[..bytesPerPiece[j]]; // forth
+            totalBytes = totalBytes[bytesPerPiece[j]..];
+            Message message = Message.Create(MessageSendMode.Reliable, messageSignature);
+            message.AddString("data");
+            message.AddUInt(totalLength);
+            message.AddUShort(numPieces);
+            message.AddUShort(currentPieceID);
+            message.AddBytes(piece);
+            if (toServer)
+            {
+                NetworkManagerClient.Singleton.Client.Send(message);
+            }
+            else
+            {
+                if (toClientID < 0)
+                {
+                    NetworkManagerServer.Singleton.Server.SendToAll(message);
+                }
+                else
+                {
+                    NetworkManagerServer.Singleton.Server.Send(message, (ushort)toClientID);
+                }
+            }
+        }
+
+        Message endMessage = Message.Create(MessageSendMode.Reliable, messageSignature);
+        endMessage.AddString("end");
+        if (toServer)
+        {
+            NetworkManagerClient.Singleton.Client.Send(endMessage);
+        }
+        else
+        {
+            if (toClientID < 0)
+            {
+                NetworkManagerServer.Singleton.Server.SendToAll(endMessage);
+            }
+            else
+            {
+                NetworkManagerServer.Singleton.Server.Send(endMessage, (ushort)toClientID);
+            }
+        }
+    }
+
+    public static void deserializeGenericObject(Message message, ref byte[] cmlBytes_, ref sGenericObject genericObject_, ushort chunkSize_)
+    {
+        var state = message.GetString();
+        if (state == "start")
+        {
+            genericObject_ = new sGenericObject();
+        }
+        else if (state == "end")
+        {
+            // do the load
+            
+            GenericObject.createFromSerialized(genericObject_);
+        }
+        else
+        {
+            // get rest of message
+            var totalLength = message.GetUInt();
+            var numPieces = message.GetUShort();
+            var currentChunkID = message.GetUShort();
+            var currentChunk = message.GetBytes();
+            if (currentChunkID == 0)
+            {
+                cmlBytes_ = new byte[totalLength];
+                currentChunk.CopyTo(cmlBytes_, 0);
+            }
+            else if (currentChunkID == numPieces - 1)
+            {
+                currentChunk.CopyTo(cmlBytes_, currentChunkID * chunkSize_);
+                genericObject_ = Serializer.Deserialize<sGenericObject>(cmlBytes_);
+            }
+            else
+            {
+                currentChunk.CopyTo(cmlBytes_, currentChunkID * chunkSize_);
+            }
+        }
+    }
+
 
     #endregion
 }

@@ -210,31 +210,56 @@ namespace chARpackStructs
     }
 
     /// <summary>
-    /// contain the status of each buttons of a controller
+    /// data that combines attributes of a generic object for saving or sending data via network
     /// </summary>
-    public struct ControllerStatus
+    [Serializable]
+    public struct sGenericObject
     {
-        public float TriggerPress;
-        public float Primary2D;
-        public float Secondary2D;
-        public float GripPress;
-        public void SetValue(float triggerPress, float primary2D, float secondary2D, float grip)
+        public string obj_name;
+        public SaveableVector3 pos;
+        public SaveableVector3 scale;
+        public SaveableQuaternion quat;
+        public SaveableVector2 ssPos;
+        public SaveableVector4 ssBounds;
+        public bool transitioned;
+        public SaveableQuaternion relQuat;
+        public Guid ID;
+
+        public sGenericObject(string obj_name_, Guid id_, SaveableVector3 pos_, SaveableVector3 scale_, SaveableQuaternion quat_)
         {
-            TriggerPress = triggerPress;
-            Primary2D = primary2D;
-            Secondary2D = secondary2D;
-            GripPress = grip;
+            obj_name = obj_name_;
+            pos = pos_;
+            scale = scale_;
+            quat = quat_;
+            ID = id_;
+            relQuat = Quaternion.identity;
+            ssPos = Vector2.zero;
+            ssBounds = Vector4.zero;
+            transitioned = false;
         }
+
+        public void assignRelativeQuaternion(Quaternion q)
+        {
+            relQuat = q;
+        }
+
+        public void assignSSPos(Vector2 ss_coords)
+        {
+            ssPos = ss_coords;
+        }
+
+        public void assignSSBounds(Vector4 ss_bounds)
+        {
+            ssBounds = ss_bounds;
+        }
+
+        public void setTransitionFlag()
+        {
+            transitioned = true;
+        }
+
     }
-    /// <summary>
-    /// which hand
-    /// </summary>
-    public enum WhichHand
-    {
-        Any = 0,
-        left = 1,
-        right = 2
-    }
+
 
     [Serializable]
     public struct SaveableVector2

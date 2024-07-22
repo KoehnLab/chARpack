@@ -245,6 +245,11 @@ TKey mol_id, params object[] argList)
         boundPoints[7] = new Vector3(boundPoints[1].x, boundPoints[1].y, boundPoints[0].z);
         return boundPoints;
     }
+
+    public static sGenericObject AsSerializable(this GenericObject go)
+    {
+        return new sGenericObject(go.name, go.getID(), go.transform.localPosition, go.transform.localScale, go.transform.localRotation);
+    }
 }
 
 public static class TaskExtensions

@@ -39,6 +39,7 @@ public class NetworkManagerServer : MonoBehaviour
     // CML deserialize memory
     private static byte[] cmlTotalBytes;
     private static List<cmlData> cmlWorld;
+    private static sGenericObject sGO;
     private static ushort chunkSize = 255;
     private static bool receiveComplete = false;
 
@@ -105,13 +106,17 @@ public class NetworkManagerServer : MonoBehaviour
     private void activateAsync()
     {
         EventManager.Singleton.OnTransitionMolecule += transitionMol;
-        EventManager.Singleton.OnReceiveMoleculeTransition += TransitionManager.Singleton.getTransitionServer;
+        EventManager.Singleton.OnReceiveMoleculeTransition += TransitionManager.Singleton.getMoleculeTransitionServer;
+        EventManager.Singleton.OnTransitionGenericObject += transitionGenericObject;
+        EventManager.Singleton.OnReceiveGenericObjectTransition += TransitionManager.Singleton.getGenericObjectTransitionServer;
     }
 
     private void deactivateAsync()
     {
         EventManager.Singleton.OnTransitionMolecule -= transitionMol;
-        EventManager.Singleton.OnReceiveMoleculeTransition -= TransitionManager.Singleton.getTransitionServer;
+        EventManager.Singleton.OnReceiveMoleculeTransition -= TransitionManager.Singleton.getMoleculeTransitionServer;
+        EventManager.Singleton.OnTransitionGenericObject -= transitionGenericObject;
+        EventManager.Singleton.OnReceiveGenericObjectTransition -= TransitionManager.Singleton.getGenericObjectTransitionServer;
     }
 
 
@@ -468,6 +473,8 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddInt((int)SettingsData.immersiveTarget);
         message.AddBool(SettingsData.requireGrabHold);
         message.AddInt((int)SettingsData.handedness);
+        message.AddInt((int)SettingsData.transitionAnimation);
+        message.AddFloat(SettingsData.transitionAnimationDuration);
         Server.SendToAll(message);
     }
 
@@ -573,7 +580,7 @@ public class NetworkManagerServer : MonoBehaviour
             Debug.Log($"[TransitionCoords] {ss_coords}");
             cml.assignSSPos(ss_coords);
 
-            var ss_bounds = mol.getScreenSpaceBounds();
+            var ss_bounds = mol.GetComponent<myBoundingBox>().getScreenSpaceBounds();
             cml.assignSSBounds(ss_bounds);
             Debug.Log($"[Transition] ss bounds: {ss_bounds}");
         }
@@ -581,6 +588,33 @@ public class NetworkManagerServer : MonoBehaviour
 
         NetworkUtils.serializeCmlData((ushort)ServerToClientID.transitionMolecule, new List<cmlData> { cml }, chunkSize, false);
         GlobalCtrl.Singleton.deleteMolecule(mol);
+    }
+
+    public void transitionGenericObject(GenericObject go)
+    {
+        var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * go.transform.rotation;
+
+        var sgo = go.AsSerializable();
+        sgo.assignRelativeQuaternion(q);
+        if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT)
+        {
+            var cam = GlobalCtrl.Singleton.currentCamera;
+            if (cam == null)
+            {
+                cam = Camera.main;
+            }
+            var ss_coords = cam.WorldToScreenPoint(go.transform.position);
+            Debug.Log($"[TransitionCoords] {ss_coords}");
+            sgo.assignSSPos(ss_coords);
+
+            var ss_bounds = go.GetComponent<myBoundingBox>().getScreenSpaceBounds();
+            sgo.assignSSBounds(ss_bounds);
+            Debug.Log($"[Transition] ss bounds: {ss_bounds}");
+        }
+        sgo.setTransitionFlag();
+
+        NetworkUtils.serializeGenericObject((ushort)ServerToClientID.transitionGenericObject, sgo, chunkSize, false);
+        GenericObject.delete(go);
     }
 
     #endregion
@@ -1392,6 +1426,12 @@ public class NetworkManagerServer : MonoBehaviour
     private static void getMoleculeTransition(ushort fromClientId, Message message)
     {
         NetworkUtils.deserializeCmlData(message, ref cmlTotalBytes, ref cmlWorld, chunkSize, false);
+    }
+
+    [MessageHandler((ushort)ClientToServerID.transitionGenericObject)]
+    private static void getGenericObjectTransition(ushort fromClientId, Message message)
+    {
+        NetworkUtils.deserializeGenericObject(message, ref cmlTotalBytes, ref sGO, chunkSize);
     }
 
     #endregion

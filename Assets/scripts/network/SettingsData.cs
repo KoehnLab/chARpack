@@ -35,6 +35,8 @@ public class SettingsData
     [SerializeField] static public TransitionManager.ImmersiveTarget immersiveTarget = TransitionManager.ImmersiveTarget.HAND;
     [SerializeField] static public bool requireGrabHold = true;
     [SerializeField] static public Handedness handedness = Handedness.Right;
+    [SerializeField] static public TransitionManager.TransitionAnimation transitionAnimation = TransitionManager.TransitionAnimation.BOTH;
+    [SerializeField] static public float transitionAnimationDuration = 3.0f;
 
 
     public static int highlightColorMap { get => _highlightColorMap; set

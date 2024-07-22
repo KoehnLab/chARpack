@@ -34,6 +34,7 @@ public class NetworkManagerClient : MonoBehaviour
     [HideInInspector] public GameObject showErrorPrefab;
     private static byte[] cmlTotalBytes;
     private static List<cmlData> cmlWorld;
+    private static sGenericObject sGO;
     private static ushort chunkSize = 255;
     public Client Client { get; private set; }
     [HideInInspector] public GameObject userWorld;
@@ -104,14 +105,18 @@ public class NetworkManagerClient : MonoBehaviour
 
     private void activateAsync()
     {
-        EventManager.Singleton.OnReceiveMoleculeTransition += TransitionManager.Singleton.getTransitionClient;
+        EventManager.Singleton.OnReceiveMoleculeTransition += TransitionManager.Singleton.getMoleculeTransitionClient;
+        EventManager.Singleton.OnReceiveGenericObjectTransition += TransitionManager.Singleton.getGenericObjectTransitionClient;
         EventManager.Singleton.OnTransitionMolecule += transitionMolecule;
+        EventManager.Singleton.OnTransitionGenericObject += transitionGenericObject;
     }
 
     private void deactivateAsync()
     {
-        EventManager.Singleton.OnReceiveMoleculeTransition -= TransitionManager.Singleton.getTransitionClient;
+        EventManager.Singleton.OnReceiveMoleculeTransition -= TransitionManager.Singleton.getMoleculeTransitionClient;
+        EventManager.Singleton.OnReceiveGenericObjectTransition -= TransitionManager.Singleton.getGenericObjectTransitionClient;
         EventManager.Singleton.OnTransitionMolecule -= transitionMolecule;
+        EventManager.Singleton.OnTransitionGenericObject -= transitionGenericObject;
     }
 
     private void activateSync()
@@ -610,7 +615,7 @@ public class NetworkManagerClient : MonoBehaviour
         if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT)
         {
             cml.assignSSPos(screenAlignment.Singleton.getCurrentIndexSSPos());
-            var mol_ss_bounds = mol.getScreenSpaceBounds();
+            var mol_ss_bounds = mol.GetComponent<myBoundingBox>().getScreenSpaceBounds();
             if (mol_ss_bounds != Vector4.zero)
             {
                 cml.assignSSBounds(mol_ss_bounds);
@@ -620,6 +625,28 @@ public class NetworkManagerClient : MonoBehaviour
 
         NetworkUtils.serializeCmlData((ushort)ClientToServerID.transitionMolecule, new List<cmlData> { cml }, chunkSize, true);
         GlobalCtrl.Singleton.deleteMolecule(mol);
+    }
+
+    private void transitionGenericObject(GenericObject go)
+    {
+        var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * go.transform.rotation;
+
+        var sgo = go.AsSerializable();
+        sgo.assignRelativeQuaternion(q);
+
+        if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT)
+        {
+            sgo.assignSSPos(screenAlignment.Singleton.getCurrentIndexSSPos());
+            var mol_ss_bounds = go.GetComponent<myBoundingBox>().getScreenSpaceBounds();
+            if (mol_ss_bounds != Vector4.zero)
+            {
+                sgo.assignSSBounds(mol_ss_bounds);
+            }
+        }
+        sgo.setTransitionFlag();
+
+        NetworkUtils.serializeGenericObject((ushort)ClientToServerID.transitionGenericObject, sgo, chunkSize, true);
+        GenericObject.delete(go);
     }
 
     #endregion
@@ -1113,6 +1140,8 @@ public class NetworkManagerClient : MonoBehaviour
         var immersiveTarget = (TransitionManager.ImmersiveTarget)message.GetInt();
         var requireGrabHold = message.GetBool();
         var handedness = (Handedness)message.GetInt();
+        var transitionAnimation = (TransitionManager.TransitionAnimation)message.GetInt();
+        var transitionAnimationDuration = message.GetFloat();
 
         // Get enum entries from strings
         Enum.TryParse(integrationMethodString, ignoreCase: true, out ForceField.Method integrationMethod);
@@ -1147,6 +1176,8 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.immersiveTarget = immersiveTarget;
             SettingsData.requireGrabHold = requireGrabHold;
             SettingsData.handedness = handedness;
+            SettingsData.transitionAnimation = transitionAnimation;
+            SettingsData.transitionAnimationDuration = transitionAnimationDuration;
             settingsControl.Singleton.updateSettings();
             if (appSettings.Singleton != null)
             {
@@ -1329,6 +1360,12 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getMoleculeTransition(Message message)
     {
         NetworkUtils.deserializeCmlData(message, ref cmlTotalBytes, ref cmlWorld, chunkSize, false);
+    }
+
+    [MessageHandler((ushort)ServerToClientID.transitionGenericObject)]
+    private static void getGenericObjectTransition(Message message)
+    {
+        NetworkUtils.deserializeGenericObject(message, ref cmlTotalBytes, ref sGO, chunkSize);
     }
 
     #endregion

@@ -44,6 +44,8 @@ public class SettingsPanel : MonoBehaviour
     public GameObject immersiveTargetDropdown;
     public GameObject requireGrabHoldToggle;
     public GameObject handednessDropdown;
+    public GameObject transitionAnimationDropdown;
+    public GameObject transitionAnimationDurationSlider;
 
     private void Start()
     {
@@ -127,7 +129,17 @@ public class SettingsPanel : MonoBehaviour
         immersiveTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value = (int)SettingsData.immersiveTarget;
         requireGrabHoldToggle.GetComponent<Toggle>().isOn = SettingsData.requireGrabHold;
         handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().value = SettingsData.handedness == Handedness.Right ? 0 : 1;
-
+        var transitionAniValue = 0;
+        if (SettingsData.transitionAnimation == TransitionManager.TransitionAnimation.BOTH)
+        {
+            transitionAniValue = 2;
+        }
+        else if (SettingsData.transitionAnimation == TransitionManager.TransitionAnimation.ROTATION)
+        {
+            transitionAniValue = 1;
+        }
+        transitionAnimationDropdown.GetComponent<TMPro.TMP_Dropdown>().value = transitionAniValue;
+        transitionAnimationDurationSlider.GetComponent<Slider>().value = SettingsData.transitionAnimationDuration;
     }
 
     /// <summary>
@@ -176,6 +188,20 @@ public class SettingsPanel : MonoBehaviour
         SettingsData.requireGrabHold = requireGrabHoldToggle.GetComponent<Toggle>().isOn;
         options = handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().options;
         SettingsData.handedness = options[handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text == "Right" ? Handedness.Right : Handedness.Left;
+        options = transitionAnimationDropdown.GetComponent<TMPro.TMP_Dropdown>().options;
+        if (options[transitionAnimationDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text == "Both")
+        {
+            SettingsData.transitionAnimation = TransitionManager.TransitionAnimation.BOTH;
+        }
+        else if (options[transitionAnimationDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text == "Scale")
+        {
+            SettingsData.transitionAnimation = TransitionManager.TransitionAnimation.SCALE;
+        }
+        else
+        {
+            SettingsData.transitionAnimation = TransitionManager.TransitionAnimation.ROTATION;
+        }
+        SettingsData.transitionAnimationDuration = transitionAnimationDurationSlider.GetComponent<Slider>().value;
 
         settingsControl.Singleton.updateSettings();
         EventManager.Singleton.UpdateSettings();
