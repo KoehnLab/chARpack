@@ -2176,12 +2176,14 @@ public class GlobalCtrl : MonoBehaviour
                         var current_max = new Vector2(current_ss_bounds.z, current_ss_bounds.w);
                         var current_diff = current_max - current_min;
                         var current_max_size = Mathf.Max(current_diff.x, current_diff.y);
-
                         Debug.Log($"[Create:transition] cml_max_size {cml_max_size}; current_max_size {current_max_size}");
 
-                        var scale_factor = cml_max_size / current_max_size;
-                        Debug.Log($"[Create:transition] scale_factor {scale_factor}");
-                        tempMolecule.transform.localScale *= scale_factor;
+                        if (!current_max_size.approx(0f))
+                        {
+                            var scale_factor = cml_max_size / current_max_size;
+                            Debug.Log($"[Create:transition] scale_factor {scale_factor}");
+                            tempMolecule.transform.localScale *= scale_factor;
+                        }
                     }
                 }
                 if (addToUndoStack) undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id, molecule));

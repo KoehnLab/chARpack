@@ -55,6 +55,7 @@ public class myBoundingBox : MonoBehaviour
 
     public Vector4 getScreenSpaceBounds()
     {
+        getBounds();
         if (NetworkManagerServer.Singleton != null)
         {
             var cam = GlobalCtrl.Singleton.currentCamera;

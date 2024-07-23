@@ -45,11 +45,11 @@ public class AttachedModel : MonoBehaviour
                     var axis_cam = Vector3.Cross(vector1, vector2);
 
                     Matrix4x4 viewMatrix = Camera.main.worldToCameraMatrix;
-                    Matrix4x4 modelMatrix = transform.localToWorldMatrix;
+                    Matrix4x4 modelMatrix = genericObject.transform.localToWorldMatrix;
                     Matrix4x4 cameraToObjectMatrix = Matrix4x4.Inverse(viewMatrix * modelMatrix);
                     var axis_world = cameraToObjectMatrix * axis_cam;
 
-                    transform.RotateAround(transform.position, axis_world, 2 * Mathf.Rad2Deg * angle);
+                    genericObject.transform.RotateAround(genericObject.transform.position, axis_world, 2 * Mathf.Rad2Deg * angle);
                 }
             }
         }
@@ -108,24 +108,23 @@ public class AttachedModel : MonoBehaviour
 
     void OnMouseDown()
     {
-        UnityEngine.Debug.Log("blub");
         // Handle server GUI interaction
         if (EventSystem.current.IsPointerOverGameObject()) { return; }
 
 
-        mouse_offset = gameObject.transform.position - GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
-         new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f));
+        mouse_offset = genericObject.transform.position - GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
+         new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.1f));
 
         stopwatch = Stopwatch.StartNew();
         genericObject.isGrabbed = true;
-        genericObject.grabHighlight(true);
+        genericObject.processHighlights();
     }
 
     void OnMouseDrag()
     {
         if (EventSystem.current.IsPointerOverGameObject()) { return; }
-        Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f);
-        transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + mouse_offset;
+        Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.1f);
+        genericObject.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + mouse_offset;
     }
 
     private void OnMouseUp()
@@ -134,14 +133,14 @@ public class AttachedModel : MonoBehaviour
 
         // reset outline
         genericObject.isGrabbed = false;
-        genericObject.grabHighlight(false);
+
 
         stopwatch?.Stop();
         if (stopwatch?.ElapsedMilliseconds < 200)
         {
             genericObject.toggleMarkObject();
         }
-
+        genericObject.processHighlights();
     }
 
 

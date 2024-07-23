@@ -15938,6 +15938,8 @@ MonoBehaviour:
   m_Value: 0
   m_Options:
     m_Options:
+    - m_Text: None
+      m_Image: {fileID: 0}
     - m_Text: Scale
       m_Image: {fileID: 0}
     - m_Text: Rotation
@@ -30433,7 +30435,7 @@ MonoBehaviour:
   requireGrabHoldToggle: {fileID: 1111223259}
   handednessDropdown: {fileID: 1706666077}
   transitionAnimationDropdown: {fileID: 1005159959}
-  transitionAnimationDurationSlider: {fileID: 0}
+  transitionAnimationDurationSlider: {fileID: 371968781}
 --- !u!114 &1915393806
 MonoBehaviour:
   m_ObjectHideFlags: 0

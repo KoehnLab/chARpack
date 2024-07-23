@@ -132,11 +132,15 @@ public class SettingsPanel : MonoBehaviour
         var transitionAniValue = 0;
         if (SettingsData.transitionAnimation == TransitionManager.TransitionAnimation.BOTH)
         {
-            transitionAniValue = 2;
+            transitionAniValue = 3;
         }
         else if (SettingsData.transitionAnimation == TransitionManager.TransitionAnimation.ROTATION)
         {
-            transitionAniValue = 1;
+            transitionAniValue = 2;
+        }
+        else if (SettingsData.transitionAnimation == TransitionManager.TransitionAnimation.SCALE)
+        {
+            transitionAniValue = 2;
         }
         transitionAnimationDropdown.GetComponent<TMPro.TMP_Dropdown>().value = transitionAniValue;
         transitionAnimationDurationSlider.GetComponent<Slider>().value = SettingsData.transitionAnimationDuration;
@@ -197,9 +201,13 @@ public class SettingsPanel : MonoBehaviour
         {
             SettingsData.transitionAnimation = TransitionManager.TransitionAnimation.SCALE;
         }
-        else
+        else if (options[transitionAnimationDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text == "Rotation")
         {
             SettingsData.transitionAnimation = TransitionManager.TransitionAnimation.ROTATION;
+        }
+        else
+        {
+            SettingsData.transitionAnimation = TransitionManager.TransitionAnimation.NONE;
         }
         SettingsData.transitionAnimationDuration = transitionAnimationDurationSlider.GetComponent<Slider>().value;
 

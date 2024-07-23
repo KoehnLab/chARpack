@@ -240,11 +240,11 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         var projected_x = Vector3.Dot(dir_x.normalized, input_dir) / dir_x.magnitude;
         var projected_y = Vector3.Dot(dir_y.normalized, input_dir) / dir_y.magnitude;
 
-        var on_screen_x = Mathf.Clamp(projected_x * SettingsData.serverViewport.x, 0f, SettingsData.serverViewport.x);
-        var on_screen_y = Mathf.Clamp(projected_y * SettingsData.serverViewport.y, 0f, SettingsData.serverViewport.y);
+        //var on_screen_x = Mathf.Clamp(projected_x * SettingsData.serverViewport.x, 0f, SettingsData.serverViewport.x);
+        //var on_screen_y = Mathf.Clamp(projected_y * SettingsData.serverViewport.y, 0f, SettingsData.serverViewport.y);
 
-        //var on_screen_x = projected_x * SettingsData.serverViewport.x;
-        //var on_screen_y = projected_y * SettingsData.serverViewport.y;
+        var on_screen_x = projected_x * SettingsData.serverViewport.x;
+        var on_screen_y = projected_y * SettingsData.serverViewport.y;
 
         //Debug.Log($"[screenAlignment] p_x {projected_x} p_y {projected_y}");
         //Debug.Log($"[screenAlignment] p_x {on_screen_x} p_y {on_screen_y}");

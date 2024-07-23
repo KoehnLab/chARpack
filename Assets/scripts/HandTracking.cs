@@ -124,7 +124,7 @@ public class HandTracking : MonoBehaviour
         if (indexForward == Vector3.zero) return;
         transform.forward = indexForward;
         transform.position = indexKnucklePose.Position;
-        if (Vector3.Distance(middleTipPose.Position, thumbTipPose.Position) < 0.02f)
+        if (Vector3.Distance(middleTipPose.Position, thumbTipPose.Position) < 0.025f && Vector3.Distance(indexTipPose.Position, thumbTipPose.Position) > 0.025f)
         {
             if (!middleFingerGrab)
             {
@@ -150,7 +150,7 @@ public class HandTracking : MonoBehaviour
             }
         }
 
-        if (Vector3.Distance(indexTipPose.Position, thumbTipPose.Position) < 0.02f)
+        if (Vector3.Distance(indexTipPose.Position, thumbTipPose.Position) < 0.025f)
         {
             if (!indexFingerGrab)
             {

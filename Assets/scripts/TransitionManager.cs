@@ -1,10 +1,5 @@
-using Google.Protobuf.WellKnownTypes;
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine;
-using UnityEngineInternal;
 
 public class TransitionManager : MonoBehaviour
 {
@@ -124,7 +119,7 @@ public class TransitionManager : MonoBehaviour
             {
                 hoverGenericObject = go;
                 hoverGenericObject.Hover(true);
-                if (hoverGenericObject != null)
+                if (hoverMol != null)
                 {
                     hoverMol.Hover(false);
                     hoverMol = null;
@@ -233,8 +228,21 @@ public class TransitionManager : MonoBehaviour
     public void initializeTransitionClient(Transform trans)
     {
         grabHold = true;
+        //get target size on screen
+        // if object is larger than screen it should only take 0.5*screen_hight
+        var box = trans.GetComponent<myBoundingBox>();
+        var ss_bounds = box.getScreenSpaceBounds();
+        var ss_size_y = ss_bounds.w - ss_bounds.y;
+        float target_scale = 1.0f;
+        if (ss_size_y > 0.5f * SettingsData.serverViewport.y)
+        {
+            target_scale = SettingsData.serverViewport.y / (2f * ss_size_y);
+            Debug.Log($"[initializeTransitionClient] Object larger than screen. Scale factor {target_scale}");
+        }
+
         if (SettingsData.transitionMode == TransitionMode.INSTANT)
         {
+            trans.localScale *= target_scale;
             trans.position = screenAlignment.Singleton.getScreenCenter();
             var mol = trans.GetComponent<Molecule>();
             if (mol != null)
@@ -250,6 +258,10 @@ public class TransitionManager : MonoBehaviour
         else
         {
             StartCoroutine(moveToScreenAndTransition(trans));
+            if (SettingsData.transitionAnimation == (TransitionAnimation.SCALE | TransitionAnimation.BOTH))
+            {
+                StartCoroutine(scaleWhileMoving(trans, trans.localScale.x * target_scale));
+            }
         }
     }
 
@@ -298,6 +310,10 @@ public class TransitionManager : MonoBehaviour
                 {
                     StartCoroutine(moveToUser(trans));
                 }
+                if (SettingsData.transitionAnimation == (TransitionAnimation.SCALE | TransitionAnimation.BOTH))
+                {
+                    StartCoroutine(scaleWhileMoving(trans));
+                }
             }
         }
     }
@@ -327,6 +343,54 @@ public class TransitionManager : MonoBehaviour
         if (SettingsData.transitionMode == TransitionManager.TransitionMode.FULL_3D)
         {
             StartCoroutine(moveAway(trans));
+        }
+    }
+
+    private IEnumerator scaleWhileMoving(Transform trans, float target_scale = 1f)
+    {
+        var startTime = Time.time;
+        var initial_scale = trans.localScale.x;
+        Debug.Log($"[scaleWhileMoving] initial scale {initial_scale}");
+        while (!trans.localScale.x.approx(target_scale, 0.005f) && trans != null)
+        {
+            if (SettingsData.requireGrabHold)
+            {
+                if (!grabHold)
+                {
+                    StartCoroutine(scaleAnimation(trans, initial_scale));
+                    yield break;
+                }
+            }
+            var elapsed = Time.time - startTime;
+            if (elapsed > (0.75f * SettingsData.transitionAnimationDuration))
+            {
+                trans.localScale = target_scale * Vector3.one;
+                yield break;
+            }
+            float t = elapsed / (0.5f * SettingsData.transitionAnimationDuration);
+            var scale_diff = target_scale - trans.localScale.x;
+            var scale_per_step = Mathf.SmoothStep(0.0001f, 0.01f, t);
+            trans.localScale += Mathf.Sign(scale_diff) * scale_per_step * Vector3.one;
+            yield return null;  // wait for next frame
+        }
+    }
+
+    private IEnumerator scaleAnimation(Transform trans, float target_scale = 1f)
+    {
+        var startTime = Time.time;
+        while (!trans.localScale.x.approx(target_scale, 0.005f) && trans != null)
+        {
+            var elapsed = Time.time - startTime;
+            if (elapsed > (0.5f * SettingsData.transitionAnimationDuration))
+            {
+                trans.localScale = target_scale * Vector3.one;
+                yield break;
+            }
+            float t = elapsed / (0.25f * SettingsData.transitionAnimationDuration);
+            var scale_diff = target_scale - trans.localScale.x;
+            var scale_per_step = Mathf.SmoothStep(0.0001f, 0.01f, t);
+            trans.localScale += Mathf.Sign(scale_diff) * scale_per_step * Vector3.one;
+            yield return null;  // wait for next frame
         }
     }
 
@@ -383,15 +447,6 @@ public class TransitionManager : MonoBehaviour
             var dist_per_step = Mathf.SmoothStep(0.001f, 0.01f, t);
             trans.position += dir * dist_per_step;
 
-            if (SettingsData.transitionAnimation == (TransitionAnimation.SCALE | TransitionAnimation.BOTH))
-            {
-                if (!Mathf.Approximately(trans.localScale.x, 0.5f))
-                {
-                    var scale_diff = 0.5f * trans.localScale.x;
-                    var scale_per_step = Mathf.SmoothStep(0.0001f, 0.01f, t);
-                    trans.localScale += scale_diff * scale_per_step * Vector3.one;
-                }
-            }
             yield return null; // wait for next frame
         }
         var mol = trans.GetComponent<Molecule>();
@@ -440,15 +495,6 @@ public class TransitionManager : MonoBehaviour
                 var head_to_obj = Quaternion.LookRotation(trans.position - GlobalCtrl.Singleton.currentCamera.transform.position);
                 trans.rotation = head_to_obj * relQuat;
             }
-            if (SettingsData.transitionAnimation == (TransitionAnimation.SCALE | TransitionAnimation.BOTH))
-            {
-                if (!Mathf.Approximately(trans.localScale.x, 1.0f))
-                {
-                    var scale_diff = 1.0f - trans.localScale.x;
-                    var scale_per_step = Mathf.SmoothStep(0.0001f, 0.01f, t);
-                    trans.localScale += scale_diff * scale_per_step * Vector3.one;
-                }
-            }
             yield return null; // wait for next frame
         }
     }
@@ -486,12 +532,6 @@ public class TransitionManager : MonoBehaviour
             {
                 var head_to_obj = Quaternion.LookRotation(trans.position - GlobalCtrl.Singleton.currentCamera.transform.position);
                 trans.rotation = head_to_obj * relQuat;
-            }
-            if (SettingsData.transitionAnimation == (TransitionAnimation.SCALE | TransitionAnimation.BOTH))
-            {
-                var scale_diff = 1.0f - trans.localScale.x;
-                var scale_per_step = Mathf.SmoothStep(0.0001f, 0.01f, t);
-                trans.localScale += scale_diff * scale_per_step * Vector3.one;
             }
             yield return null; // wait for next frame
         }

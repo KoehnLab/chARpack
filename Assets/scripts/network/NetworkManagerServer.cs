@@ -565,7 +565,8 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void transitionMol(Molecule mol)
     {
-        var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * mol.transform.rotation;
+        //var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * mol.transform.rotation;
+        var q = Quaternion.Inverse(Quaternion.LookRotation(mol.transform.position - GlobalCtrl.Singleton.currentCamera.transform.position)) * mol.transform.rotation;
 
         var cml = mol.AsCML();
         cml.assignRelativeQuaternion(q);
@@ -592,7 +593,8 @@ public class NetworkManagerServer : MonoBehaviour
 
     public void transitionGenericObject(GenericObject go)
     {
-        var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * go.transform.rotation;
+        //var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * go.transform.rotation;
+        var q = Quaternion.Inverse(Quaternion.LookRotation(go.transform.position - GlobalCtrl.Singleton.currentCamera.transform.position)) * go.transform.rotation;
 
         var sgo = go.AsSerializable();
         sgo.assignRelativeQuaternion(q);

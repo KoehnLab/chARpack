@@ -11,6 +11,7 @@ public class cornerClickScript : MonoBehaviour
 
     private Transform trans;
     private Molecule mol = null;
+    private GenericObject go = null;
     private myBoundingBox box;
     private Vector3 pickupPos = Vector3.zero;
     private Quaternion pickupRot = Quaternion.identity;
@@ -19,6 +20,7 @@ public class cornerClickScript : MonoBehaviour
     {
         trans = transform.parent.transform.parent;
         mol = trans.GetComponent<Molecule>();
+        go = trans.GetComponent<GenericObject>();
         box = transform.parent.transform.parent.GetComponent<myBoundingBox>();
     }
 
@@ -39,6 +41,16 @@ public class cornerClickScript : MonoBehaviour
         //
         stopwatch = Stopwatch.StartNew();
         box.setGrabbed(true);
+
+        if (mol != null)
+        {
+            mol.isGrabbed = true;
+        }
+        if (go != null)
+        {
+            go.isGrabbed = true;
+            go.processHighlights();
+        }
     }
 
     void OnMouseDrag()
@@ -68,6 +80,10 @@ public class cornerClickScript : MonoBehaviour
                 EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
                 mol.markMoleculeUI(!mol.isMarked, true);
             }
+            else if (go != null)
+            {
+                go.toggleMarkObject();
+            }
         }
         else
         {
@@ -77,6 +93,16 @@ public class cornerClickScript : MonoBehaviour
 
         // change material back to normal
         box.setGrabbed(false);
+
+        if (mol != null)
+        {
+            mol.isGrabbed = false;
+        }
+        if (go != null)
+        {
+            go.isGrabbed = false;
+            go.processHighlights();
+        }
     }
 #endif
 }
