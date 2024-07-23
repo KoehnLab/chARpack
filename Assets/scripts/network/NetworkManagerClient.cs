@@ -1368,6 +1368,34 @@ public class NetworkManagerClient : MonoBehaviour
         NetworkUtils.deserializeGenericObject(message, ref cmlTotalBytes, ref sGO, chunkSize);
     }
 
+
+    [MessageHandler((ushort)ServerToClientID.requestTransition)]
+    private static void getRequestTransition(Message message)
+    {
+        if (GlobalCtrl.Singleton.List_curMolecules.Count > 0)
+        {
+            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
+            {
+                if (mol.isMarked)
+                {
+                    TransitionManager.Singleton.initializeTransitionClient(mol.transform);
+                    return;
+                }
+            }
+        }
+        if (GenericObject.objects != null && GenericObject.objects.Count > 0)
+        {
+            foreach (var go in GenericObject.objects.Values)
+            {
+                if (go.isMarked)
+                {
+                    TransitionManager.Singleton.initializeTransitionClient(go.transform);
+                    return;
+                }
+            }
+        }
+    }
+
     #endregion
 
 }

@@ -38,7 +38,33 @@ public class ServerInputSystem : MonoBehaviour
     {
         if (!Input.GetKey(KeyCode.LeftShift) || !Input.GetKey(KeyCode.LeftControl))
         {
-            // empty for now
+            if (Input.GetKeyDown(KeyCode.F12))
+            {
+                if (GlobalCtrl.Singleton.List_curMolecules.Count > 0)
+                {
+                    foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
+                    {
+                        if (mol.isMarked)
+                        {
+                            TransitionManager.Singleton.initializeTransitionServer(mol);
+                            return;
+                        }
+                    }
+                }
+                if (GenericObject.objects != null && GenericObject.objects.Count > 0)
+                {
+                    foreach (var go in GenericObject.objects.Values)
+                    {
+                        if (go.isMarked)
+                        {
+                            TransitionManager.Singleton.initializeTransitionServer(go);
+                            return;
+                        }
+                    }
+                }
+                // Nothing is marked in the server scene
+                EventManager.Singleton.RequestTransition();
+            }
         }
     }
 

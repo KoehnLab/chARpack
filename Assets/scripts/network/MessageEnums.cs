@@ -91,7 +91,8 @@ public enum ServerToClientID : ushort
     bcastServerViewport = 2038,
     bcastSyncMode = 2039,
     transitionMolecule = 2040,
-    transitionGenericObject = 2041
+    transitionGenericObject = 2041,
+    requestTransition = 2042
 }
 
 public enum SimToServerID : ushort

@@ -212,6 +212,33 @@ public class TransitionManager : MonoBehaviour
         }
     }
 
+    public void initializeTransitionServer(Molecule mol)
+    {
+        var wpos = GlobalCtrl.Singleton.getCurrentSpawnPos();
+        if (SettingsData.transitionMode == TransitionMode.FULL_3D)
+        {
+            StartCoroutine(moveAndTransition(mol.transform, wpos));
+        }
+        else
+        {
+            EventManager.Singleton.TransitionMolecule(mol);
+        }
+    }
+
+    public void initializeTransitionServer(GenericObject go)
+    {
+        var wpos = GlobalCtrl.Singleton.getCurrentSpawnPos();
+        if (SettingsData.transitionMode == TransitionMode.FULL_3D)
+        {
+            StartCoroutine(moveAndTransition(go.transform, wpos));
+        }
+        else
+        {
+            EventManager.Singleton.TransitionGenericObject(go);
+        }
+    }
+
+
     private IEnumerator blinkOnScreen(Vector2 ss_coords, Vector3 wpos)
     {
         // Debug Position

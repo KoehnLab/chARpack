@@ -109,6 +109,7 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnReceiveMoleculeTransition += TransitionManager.Singleton.getMoleculeTransitionServer;
         EventManager.Singleton.OnTransitionGenericObject += transitionGenericObject;
         EventManager.Singleton.OnReceiveGenericObjectTransition += TransitionManager.Singleton.getGenericObjectTransitionServer;
+        EventManager.Singleton.OnRequestTransition += requestTransition;
     }
 
     private void deactivateAsync()
@@ -117,6 +118,7 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnReceiveMoleculeTransition -= TransitionManager.Singleton.getMoleculeTransitionServer;
         EventManager.Singleton.OnTransitionGenericObject -= transitionGenericObject;
         EventManager.Singleton.OnReceiveGenericObjectTransition -= TransitionManager.Singleton.getGenericObjectTransitionServer;
+        EventManager.Singleton.OnRequestTransition -= requestTransition;
     }
 
 
@@ -617,6 +619,12 @@ public class NetworkManagerServer : MonoBehaviour
 
         NetworkUtils.serializeGenericObject((ushort)ServerToClientID.transitionGenericObject, sgo, chunkSize, false);
         GenericObject.delete(go);
+    }
+
+    public void requestTransition()
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.requestTransition);
+        Server.SendToAll(message);
     }
 
     #endregion

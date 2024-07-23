@@ -378,6 +378,13 @@ public class EventManager : MonoBehaviour
         OnCreateGenericObject?.Invoke(go);
     }
 
+    public delegate void RequestTransitionAction();
+    public event RequestTransitionAction OnRequestTransition;
+    public void RequestTransition()
+    {
+        OnRequestTransition?.Invoke();
+    }
+
     #endregion
 
 

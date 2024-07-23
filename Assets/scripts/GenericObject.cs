@@ -13,7 +13,7 @@ using UnityEngine.SceneManagement;
 
 public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
 {
-    static Dictionary<Guid, GenericObject> objects = null;
+    public static Dictionary<Guid, GenericObject> objects = null;
     public string objectName = "";
     public GameObject attachedModel;
     public bool isMarked = false;
