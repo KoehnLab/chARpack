@@ -203,10 +203,12 @@ public class TransitionManager : MonoBehaviour
                 if (mol_test != null)
                 {
                     EventManager.Singleton.TransitionMolecule(mol_test);
+                    return;
                 }
-                else
+                if (go_test != null)
                 {
                     EventManager.Singleton.TransitionGenericObject(go_test);
+                    return;
                 }
             }
         }
@@ -252,7 +254,7 @@ public class TransitionManager : MonoBehaviour
     }
 
 
-    public void initializeTransitionClient(Transform trans)
+    public void initializeTransitionClient(Transform trans, bool treat_as_instant = false)
     {
         grabHold = true;
         //get target size on screen
@@ -260,16 +262,16 @@ public class TransitionManager : MonoBehaviour
         var box = trans.GetComponent<myBoundingBox>();
         var ss_bounds = box.getScreenSpaceBounds();
         var ss_size_y = ss_bounds.w - ss_bounds.y;
-        float target_scale = 1.0f;
+        float target_scale_factor = 1.0f;
         if (ss_size_y > 0.5f * SettingsData.serverViewport.y)
         {
-            target_scale = SettingsData.serverViewport.y / (2f * ss_size_y);
-            Debug.Log($"[initializeTransitionClient] Object larger than screen. Scale factor {target_scale}");
+            target_scale_factor = SettingsData.serverViewport.y / (2f * ss_size_y);
+            Debug.Log($"[initializeTransitionClient] Object larger than screen. Scale factor {target_scale_factor}");
         }
 
-        if (SettingsData.transitionMode == TransitionMode.INSTANT)
+        if (SettingsData.transitionMode == TransitionMode.INSTANT || treat_as_instant)
         {
-            trans.localScale *= target_scale;
+            trans.localScale *= target_scale_factor;
             trans.position = screenAlignment.Singleton.getScreenCenter();
             var mol = trans.GetComponent<Molecule>();
             if (mol != null)
@@ -284,11 +286,11 @@ public class TransitionManager : MonoBehaviour
         }
         else
         {
-            StartCoroutine(moveToScreenAndTransition(trans));
             if (SettingsData.transitionAnimation == (TransitionAnimation.SCALE | TransitionAnimation.BOTH))
             {
-                StartCoroutine(scaleWhileMoving(trans, trans.localScale.x * target_scale));
+                StartCoroutine(scaleWhileMoving(trans, trans.localScale.x * target_scale_factor));
             }
+            StartCoroutine(moveToScreenAndTransition(trans));
         }
     }
 

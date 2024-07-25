@@ -407,6 +407,7 @@ public class GlobalCtrl : MonoBehaviour
     public void DeleteAll()
     {
         markToDeleteCore(true);
+        GenericObject.deleteAll();
     }
 
     /// <summary>
@@ -1371,8 +1372,58 @@ public class GlobalCtrl : MonoBehaviour
     public void createGenericObjectUI(string name)
     {
         var go = GenericObject.create(name);
-        go.transform.position = getCurrentSpawnPos();
         EventManager.Singleton.CreateGenericObject(go);
+    }
+
+    public Transform getFirstMarkedObject()
+    {
+        if (GlobalCtrl.Singleton.List_curMolecules.Count > 0)
+        {
+            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
+            {
+                if (mol.isMarked)
+                {
+                    return mol.transform;
+                }
+            }
+        }
+        if (GenericObject.objects != null && GenericObject.objects.Count > 0)
+        {
+            foreach (var go in GenericObject.objects.Values)
+            {
+                if (go.isMarked)
+                {
+                    return go.transform;
+                }
+            }
+        }
+        return null;
+    }
+
+    public List<Transform> getAllMarkedObjects()
+    {
+        var list = new List<Transform>();
+        if (List_curMolecules.Count > 0)
+        {
+            foreach (var mol in List_curMolecules.Values)
+            {
+                if (mol.isMarked)
+                {
+                    list.Add(mol.transform);
+                }
+            }
+        }
+        if (GenericObject.objects != null && GenericObject.objects.Count > 0)
+        {
+            foreach (var go in GenericObject.objects.Values)
+            {
+                if (go.isMarked)
+                {
+                    list.Add(go.transform);
+                }
+            }
+        }
+        return list;
     }
 
     public ushort calcNumBonds(ushort hyb, ushort element_bondNum)
@@ -2140,7 +2191,9 @@ public class GlobalCtrl : MonoBehaviour
                     }
                     else
                     {
-                        tempMolecule.transform.position = currentCamera.ScreenToWorldPoint(new Vector3(molecule.ssPos.x, molecule.ssPos.y, 0.4f));
+                        var mol_bounds = tempMolecule.GetComponent<myBoundingBox>().localBounds;
+                        tempMolecule.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(molecule.ssPos.x, molecule.ssPos.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f + mol_bounds.extents.z));
+                        //tempMolecule.transform.position = currentCamera.ScreenToWorldPoint(new Vector3(molecule.ssPos.x, molecule.ssPos.y, 0.4f));
                     }
                 }
                 if (molecule.ssBounds != Vector4.zero)
@@ -2166,6 +2219,9 @@ public class GlobalCtrl : MonoBehaviour
                     }
                     if (NetworkManagerServer.Singleton != null)
                     {
+                        var mol_bounds = tempMolecule.GetComponent<myBoundingBox>().localBounds;
+                        tempMolecule.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(molecule.ssPos.x, molecule.ssPos.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f + mol_bounds.extents.z));
+
                         var ss_min = new Vector2(molecule.ssBounds.x, molecule.ssBounds.y);
                         var ss_max = new Vector2(molecule.ssBounds.z, molecule.ssBounds.w);
                         var ss_diff = ss_max - ss_min;

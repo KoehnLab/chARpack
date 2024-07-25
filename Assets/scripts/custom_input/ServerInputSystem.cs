@@ -40,30 +40,47 @@ public class ServerInputSystem : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.F12))
             {
-                if (GlobalCtrl.Singleton.List_curMolecules.Count > 0)
+                var obj = GlobalCtrl.Singleton.getFirstMarkedObject();
+                if (obj != null)
                 {
-                    foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
+                    var mol = obj.GetComponent<Molecule>();
+                    if (mol != null)
                     {
-                        if (mol.isMarked)
+                        TransitionManager.Singleton.initializeTransitionServer(mol);
+                    }
+                    var go = obj.GetComponent<GenericObject>();
+                    if (go != null)
+                    {
+                        TransitionManager.Singleton.initializeTransitionServer(go);
+                    }
+                }
+                else
+                {
+                    // Nothing is marked in the server scene
+                    // send transition request to client
+                    EventManager.Singleton.RequestTransition();
+                }
+            }
+            if (Input.GetKeyDown(KeyCode.Delete))
+            {
+                var list = GlobalCtrl.Singleton.getAllMarkedObjects();
+                if (list.Count > 0)
+                {
+                    foreach(var obj in list)
+                    {
+                        var mol = obj.GetComponent<Molecule>();
+                        if (mol != null)
                         {
-                            TransitionManager.Singleton.initializeTransitionServer(mol);
-                            return;
+                            GlobalCtrl.Singleton.deleteMoleculeUI(mol);
+                        }
+                        var go = obj.GetComponent<GenericObject>();
+                        if (go != null)
+                        {
+                            GenericObject.delete(go);
                         }
                     }
                 }
-                if (GenericObject.objects != null && GenericObject.objects.Count > 0)
-                {
-                    foreach (var go in GenericObject.objects.Values)
-                    {
-                        if (go.isMarked)
-                        {
-                            TransitionManager.Singleton.initializeTransitionServer(go);
-                            return;
-                        }
-                    }
-                }
-                // Nothing is marked in the server scene
-                EventManager.Singleton.RequestTransition();
+                EventManager.Singleton.ForwardDeleteMarkedRequest();
             }
         }
     }

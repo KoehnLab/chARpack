@@ -71,6 +71,8 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnMRCapture += sendMRCapture;
         EventManager.Singleton.OnSetNumOutlines += bcastNumOutlines;
         EventManager.Singleton.OnSyncModeChanged += bcastSyncMode;
+        EventManager.Singleton.OnForwardDeleteMarkedRequest += bcastDeleteMarkedRequest;
+        EventManager.Singleton.OnDeleteEverything += bcastDeleteEverything;
         if (currentSyncMode == TransitionManager.SyncMode.Sync)
         {
             activateSync();
@@ -624,6 +626,19 @@ public class NetworkManagerServer : MonoBehaviour
     public void requestTransition()
     {
         Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.requestTransition);
+        Server.SendToAll(message);
+    }
+
+    public void bcastDeleteMarkedRequest()
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastRequestDeleteMarked);
+        Server.SendToAll(message);
+    }
+
+    public void bcastDeleteEverything()
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteEverything);
+        message.AddUShort(0);
         Server.SendToAll(message);
     }
 

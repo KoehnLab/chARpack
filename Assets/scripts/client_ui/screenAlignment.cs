@@ -1,5 +1,7 @@
 using Microsoft.MixedReality.Toolkit.Input;
+using RuntimeGizmos;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Unity.VisualScripting;
@@ -37,6 +39,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
     public GameObject indicator2;
     public GameObject indicator3;
     public GameObject indicator4;
+    private BoxCollider collider;
 
     private void Awake()
     {
@@ -178,13 +181,23 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
             }
         }
 
-        BoxCollider collider = GetComponent<BoxCollider>();
+        collider = GetComponent<BoxCollider>();
         collider.center = bounds.center;
         collider.size = bounds.size;
 
         // listen to distant grabs
         HandTracking.Singleton.OnMiddleFingerGrab += OnDistantGrab;
         HandTracking.Singleton.OnMiddleFingerGrabRelease += OnDistantGrabRelease;
+
+        // turn off quad after 2 sec
+        StartCoroutine(turnOffQuad());
+    }
+
+
+    private IEnumerator turnOffQuad()
+    {
+        yield return new WaitForSeconds(2f);
+        screenQuad.SetActive(false);
     }
 
 
@@ -309,6 +322,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         return screenNormal;
     }
 
+    List<Transform> old_intersecting_objects = new List<Transform>();
 
     private void FixedUpdate()
     {
@@ -335,8 +349,145 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
             {
                 projectionIndicator.SetActive(false);
             }
+
+            // check if object is getting pushed into the screen
+            if (GlobalCtrl.Singleton != null)
+            {
+                var intersecting_objects = new List<Transform>();
+                if (GenericObject.objects != null && GenericObject.objects.Count > 0)
+                {
+                    foreach (var obj in GenericObject.objects.Values)
+                    {
+                        if (collider.bounds.Intersects(obj.GetComponent<myBoundingBox>().localBounds) && obj.isGrabbed)
+                        {
+                            intersecting_objects.Add(obj.transform);
+                        }
+                    }
+                }
+                if (GlobalCtrl.Singleton.List_curMolecules != null && GlobalCtrl.Singleton.List_curMolecules.Count > 0)
+                {
+                    foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
+                    {
+                        if (collider.bounds.Intersects(mol.GetComponent<myBoundingBox>().localBounds) && mol.isGrabbed)
+                        {
+                            intersecting_objects.Add(mol.transform);
+                        }
+                    }
+                }
+
+                // shrink object while getting pushed in the screen
+                foreach (var obj in intersecting_objects)
+                {
+                    shrink(obj);
+                }
+
+                // transition object if center pushed beyond screen
+                foreach (var obj in intersecting_objects)
+                {
+                    transition(obj);
+                }
+
+                if (old_intersecting_objects.Count > 0)
+                {
+                    var to_remove = new List<Transform>();
+                    foreach (var oio in old_intersecting_objects)
+                    {
+                        if (!intersecting_objects.Contains(oio))
+                        {
+                            // only grow when grabbed
+                            bool isGrabbed = false;
+                            var mol = oio.GetComponent<Molecule>();
+                            if (mol != null)
+                            {
+                                isGrabbed = mol.isGrabbed;
+                            }
+                            var go = oio.GetComponent<GenericObject>();
+                            if (go != null)
+                            {
+                                isGrabbed = go.isGrabbed;
+                            }
+                            if (isGrabbed)
+                            {
+                                grow(oio);
+                            }
+                            else
+                            {
+                                // remove from list when not grabbed anymore
+                                to_remove.Add(oio);
+                            }
+                        }
+                    }
+                    // Perform removing from list
+                    foreach (var obj in to_remove)
+                    {
+                        old_intersecting_objects.Remove(obj);
+                    }
+                }
+            }
         }
     }
+
+    private void transition(Transform trans)
+    {
+        var box = trans.GetComponent<myBoundingBox>();
+        var obj_bounds = box.localBounds;
+        if (Vector3.Dot(screenNormal, screenCenter - obj_bounds.center) < 0f)
+        {
+            TransitionManager.Singleton.initializeTransitionClient(trans, true);
+        }
+    }
+
+    private void shrink(Transform trans)
+    {
+        // if object is larger than screen it should only take 0.5*screen_hight
+        var box = trans.GetComponent<myBoundingBox>();
+        var ss_bounds = box.getScreenSpaceBounds();
+        var ss_size_y = ss_bounds.w - ss_bounds.y;
+        if (ss_size_y > 0.5f * SettingsData.serverViewport.y)
+        {
+            var target_scale_factor = SettingsData.serverViewport.y / (2f * ss_size_y);
+            var target_scale = trans.localScale * target_scale_factor;
+
+            var obj_bounds = box.localBounds;
+            var obj_center = obj_bounds.center;
+            var obj_center_proj_to_screen = projectWSPointToScreen(obj_center);
+            var obj_distance_to_screen = (obj_center_proj_to_screen - obj_center).magnitude;
+            var obj_longes_half_edge = Mathf.Max(Mathf.Max(obj_bounds.extents.x, obj_bounds.extents.y), obj_bounds.extents.z);
+
+            var dist_scale_factor = obj_longes_half_edge / obj_distance_to_screen;
+
+            //trans.localScale *= target_scale_factor * dist_scale_factor;
+            trans.localScale -= 0.01f * dist_scale_factor * Vector3.one;
+            // Regulate overshooting
+            if (trans.localScale.x < target_scale.x) trans.localScale = target_scale;
+        }
+        if (!old_intersecting_objects.Contains(trans)) old_intersecting_objects.Add(trans);
+    }
+
+    private void grow(Transform trans)
+    {
+        if (trans.localScale.x < 1f)
+        {
+            var box = trans.GetComponent<myBoundingBox>();
+            var obj_bounds = box.localBounds;
+            var obj_center = obj_bounds.center;
+            var obj_center_proj_to_screen = projectWSPointToScreen(obj_center);
+            var obj_distance_to_screen = (obj_center_proj_to_screen - obj_center).magnitude;
+            var obj_longes_half_edge = Mathf.Max(Mathf.Max(obj_bounds.extents.x, obj_bounds.extents.y), obj_bounds.extents.z);
+
+            var dist_scale_factor = obj_distance_to_screen / obj_longes_half_edge;
+
+            //trans.localScale *= dist_scale_factor;
+            trans.localScale += 0.01f * dist_scale_factor * Vector3.one;
+            // regulate overshooting
+            if (trans.localScale.x > 1f) trans.localScale = Vector3.one;
+        }
+        else
+        {
+            old_intersecting_objects.Remove(trans);
+        }
+    }
+
 
     public Vector3 getCurrentProjectedIndexPos()
     {

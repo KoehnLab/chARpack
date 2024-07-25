@@ -248,8 +248,9 @@ TKey mol_id, params object[] argList)
 
     public static sGenericObject AsSerializable(this GenericObject go)
     {
-        return new sGenericObject(go.name, go.getID(), go.transform.localPosition, go.transform.localScale, go.transform.localRotation);
+        return new sGenericObject(go.name, go.id, go.transform.localPosition, go.transform.localScale, go.transform.localRotation);
     }
+
 }
 
 public static class TaskExtensions

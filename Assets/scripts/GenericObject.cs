@@ -19,6 +19,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
     public bool isMarked = false;
     public bool isGrabbed = false;
     private Stopwatch stopwatch;
+    public Guid id;
 
     public static GenericObject create(string name, Guid? _existingID = null)
     {
@@ -71,7 +72,6 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
         model.transform.SetParent(genericObject.transform);
         genericObject.attachedModel = model;
 
-        genericObject.transform.position = GlobalCtrl.Singleton.getCurrentSpawnPos();
         genericObject.objectName = name;
 
         // TODO: we need the collider but we dont want it
@@ -83,6 +83,20 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
         var box = genericObject.GetComponent<myBoundingBox>();
         box.setNormalMaterial(false);
         box.scaleCorners(0.1f);
+
+        // initial positioning
+        var box_bounds = box.localBounds;
+        var diff_pos_boxcenter = genericObject.transform.position - box_bounds.center;
+        UnityEngine.Debug.Log($"[GenericObject:create] transform position diff to box center: {diff_pos_boxcenter}");
+        genericObject.transform.position = GlobalCtrl.Singleton.getCurrentSpawnPos() + diff_pos_boxcenter;
+        var near_plane_wpos = GlobalCtrl.Singleton.currentCamera.transform.position + GlobalCtrl.Singleton.currentCamera.transform.forward * GlobalCtrl.Singleton.currentCamera.nearClipPlane;
+
+        if (box_bounds.Contains(near_plane_wpos))
+        {
+            UnityEngine.Debug.Log($"[GenericObject:create] NearPlane in Box");
+            UnityEngine.Debug.Log($"[GenericObject:create] Box extends {box_bounds.extents}");
+            genericObject.transform.position += box_bounds.extents.multiply(GlobalCtrl.Singleton.currentCamera.transform.forward);
+        }
 
 
         if (objects == null)
@@ -96,15 +110,29 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
         }
         else
         {
-            objects[Guid.NewGuid()] = genericObject;
+            var new_id = Guid.NewGuid();
+            genericObject.id = new_id;
+            objects[new_id] = genericObject;
         }
         return genericObject;
     }
 
     public static void delete(GenericObject go)
     {
-        objects.Remove(go.getID());
+        objects.Remove(go.id);
         Destroy(go.gameObject);
+    }
+
+    public static void deleteAll()
+    {
+        if (objects != null)
+        {
+            foreach (var go in objects.Values)
+            {
+                Destroy(go.gameObject);
+            }
+            objects.Clear();
+        }
     }
 
     public static void createFromSerialized(sGenericObject sgo)
@@ -135,7 +163,8 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
             }
             else
             {
-                new_go.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(sgo.ssPos.x, sgo.ssPos.y, 0.4f));
+                var go_bounds = new_go.GetComponent<myBoundingBox>().localBounds;
+                new_go.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(sgo.ssPos.x, sgo.ssPos.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f + go_bounds.extents.z));
             }
         }
         if (sgo.ssBounds != Vector4.zero)
@@ -161,6 +190,9 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
             }
             if (NetworkManagerServer.Singleton != null)
             {
+                var go_bounds = new_go.GetComponent<myBoundingBox>().localBounds;
+                new_go.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(sgo.ssPos.x, sgo.ssPos.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f + go_bounds.extents.z));
+
                 var ss_min = new Vector2(sgo.ssBounds.x, sgo.ssBounds.y);
                 var ss_max = new Vector2(sgo.ssBounds.z, sgo.ssBounds.w);
                 var ss_diff = ss_max - ss_min;
@@ -190,11 +222,6 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
-
-    public Guid getID()
-    {
-        return objects.Single(item => item.Value == this).Key;
-    }
 
     public void Hover(bool value)
     {

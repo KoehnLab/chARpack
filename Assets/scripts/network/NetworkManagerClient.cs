@@ -1396,6 +1396,28 @@ public class NetworkManagerClient : MonoBehaviour
         }
     }
 
-    #endregion
+    [MessageHandler((ushort)ServerToClientID.bcastRequestDeleteMarked)]
+    private static void getRequestDeleteMarked(Message message)
+    {
+        var list = GlobalCtrl.Singleton.getAllMarkedObjects();
+        if (list.Count > 0)
+        {
+            foreach (var obj in list)
+            {
+                var mol = obj.GetComponent<Molecule>();
+                if (mol != null)
+                {
+                    GlobalCtrl.Singleton.deleteMoleculeUI(mol);
+                }
+                var go = obj.GetComponent<GenericObject>();
+                if (go != null)
+                {
+                    GenericObject.delete(go);
+                }
+            }
+        }
+    }
 
-}
+#endregion
+
+    }

@@ -385,6 +385,13 @@ public class EventManager : MonoBehaviour
         OnRequestTransition?.Invoke();
     }
 
+    public delegate void ForwardDeleteMarkedRequestAction();
+    public event ForwardDeleteMarkedRequestAction OnForwardDeleteMarkedRequest;
+    public void ForwardDeleteMarkedRequest()
+    {
+        OnForwardDeleteMarkedRequest?.Invoke();
+    }
+
     #endregion
 
 
