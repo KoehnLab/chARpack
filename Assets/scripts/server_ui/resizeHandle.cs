@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -30,13 +31,13 @@ public class resizeHandle : MonoBehaviour, IPointerDownHandler, IDragHandler
     public void OnPointerDown(PointerEventData data)
     {
         originalSizeDelta = rect.sizeDelta;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, data.position, data.pressEventCamera, out originalLocalPointerPosition);
+        originalLocalPointerPosition = data.position;
     }
 
     public void OnDrag(PointerEventData data)
     {
         Vector2 localPointerPosition;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, data.position, data.pressEventCamera, out localPointerPosition);
+        localPointerPosition = data.position;
         Vector3 offsetToOriginal = localPointerPosition - originalLocalPointerPosition;
 
         Vector2 sizeDelta = originalSizeDelta;
@@ -44,16 +45,16 @@ public class resizeHandle : MonoBehaviour, IPointerDownHandler, IDragHandler
         switch (corner)
         {
             case Corner.UpperLeft:
-                sizeDelta = originalSizeDelta + new Vector2(-offsetToOriginal.x, offsetToOriginal.y);
+                sizeDelta = originalSizeDelta + new Vector2(-offsetToOriginal.x, offsetToOriginal.y) * 1.5f;
                 break;
             case Corner.UpperRight:
-                sizeDelta = originalSizeDelta + new Vector2(offsetToOriginal.x, offsetToOriginal.y);
+                sizeDelta = originalSizeDelta + new Vector2(offsetToOriginal.x, offsetToOriginal.y) * 1.5f;
                 break;
             case Corner.LowerLeft:
-                sizeDelta = originalSizeDelta + new Vector2(-offsetToOriginal.x, -offsetToOriginal.y);
+                sizeDelta = originalSizeDelta + new Vector2(-offsetToOriginal.x, -offsetToOriginal.y) * 1.5f;
                 break;
             case Corner.LowerRight:
-                sizeDelta = originalSizeDelta + new Vector2(offsetToOriginal.x, -offsetToOriginal.y);
+                sizeDelta = originalSizeDelta + new Vector2(offsetToOriginal.x, -offsetToOriginal.y) * 1.5f;
                 break;
         }
         sizeDelta = new Vector2(
@@ -63,9 +64,9 @@ public class resizeHandle : MonoBehaviour, IPointerDownHandler, IDragHandler
 
         rect.sizeDelta = sizeDelta;
 
-        StructureFormulaManager.Singleton.updateInteractables(StructureFormulaManager.Singleton.getMolID(resizer.structureFormula), sizeDelta / originalSizeDelta);
+        resizer.moveHandlesAndResize();
 
-        resizer.moveHandles();
+        StructureFormulaManager.Singleton.updateInteractables(StructureFormulaManager.Singleton.getMolID(resizer.structureFormula), sizeDelta / originalSizeDelta);
     }
 
     public void movePivot(Corner corner)
