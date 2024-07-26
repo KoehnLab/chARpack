@@ -494,8 +494,8 @@ public class OpenBabelReadWrite : MonoBehaviour
             var conv = new OBConversion();
             conv.SetInFormat(OBFormat.FindType("smiles"));
             var obmol = new OBMol();
-            conv.ReadString(obmol, smiles);
-            if (obmol == null) return false;
+            var valid = conv.ReadString(obmol, smiles);
+            if (obmol == null || !valid) return false;
 
             obmol.AddHydrogens();
             var builder = new OBBuilder();
