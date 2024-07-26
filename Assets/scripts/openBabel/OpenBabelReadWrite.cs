@@ -495,7 +495,10 @@ public class OpenBabelReadWrite : MonoBehaviour
             conv.SetInFormat(OBFormat.FindType("smiles"));
             var obmol = new OBMol();
             var valid = conv.ReadString(obmol, smiles);
-            if (obmol == null || !valid) return false;
+            if (obmol == null || !valid) {
+                UnityEngine.Debug.LogError("Invalid SMILES string.");
+                return false;
+            }
 
             obmol.AddHydrogens();
             var builder = new OBBuilder();
