@@ -128,7 +128,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                         //calc normal
                         var dir_x = screenVertices[2] - screenVertices[0];
                         var dir_y = screenVertices[1] - screenVertices[0];
-                        screenNormal = Vector3.Cross(dir_x, dir_y).normalized;
+                        screenNormal = -Vector3.Cross(dir_x, dir_y).normalized;
                         // indicators
                         AudioSource.PlayClipAtPoint(confirmClip, index_pos);
                         indicator3.SetActive(true);
@@ -323,7 +323,8 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
     }
 
     List<Transform> old_intersecting_objects = new List<Transform>();
-
+    List<Transform> to_remove_intersecting_objects = new List<Transform>();
+    Dictionary<Transform, float> initial_scale_of_intersecting_objects = new Dictionary<Transform, float>();
     private void FixedUpdate()
     {
         if (fullyInitialized)
@@ -361,6 +362,10 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                         if (collider.bounds.Intersects(obj.GetComponent<myBoundingBox>().localBounds) && obj.isGrabbed)
                         {
                             intersecting_objects.Add(obj.transform);
+                            if (!initial_scale_of_intersecting_objects.Keys.Contains(obj.transform))
+                            {
+                                initial_scale_of_intersecting_objects[obj.transform] = obj.transform.localScale.x;
+                            }
                         }
                     }
                 }
@@ -371,70 +376,91 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                         if (collider.bounds.Intersects(mol.GetComponent<myBoundingBox>().localBounds) && mol.isGrabbed)
                         {
                             intersecting_objects.Add(mol.transform);
+                            if (!initial_scale_of_intersecting_objects.Keys.Contains(mol.transform))
+                            {
+                                initial_scale_of_intersecting_objects[mol.transform] = mol.transform.localScale.x;
+                            }
                         }
                     }
                 }
 
-                // shrink object while getting pushed in the screen
-                foreach (var obj in intersecting_objects)
-                {
-                    shrink(obj);
-                }
-
                 // transition object if center pushed beyond screen
+                var is_transitioned = false;
                 foreach (var obj in intersecting_objects)
                 {
-                    transition(obj);
+                    is_transitioned = transition(obj);
                 }
 
-                if (old_intersecting_objects.Count > 0)
+                if (SettingsData.transitionAnimation == TransitionManager.TransitionAnimation.BOTH || SettingsData.transitionAnimation == TransitionManager.TransitionAnimation.SCALE)
                 {
-                    var to_remove = new List<Transform>();
-                    foreach (var oio in old_intersecting_objects)
+                    if (!is_transitioned)
                     {
-                        if (!intersecting_objects.Contains(oio))
+                        // shrink object while getting pushed in the screen
+                        foreach (var obj in intersecting_objects)
                         {
-                            // only grow when grabbed
-                            bool isGrabbed = false;
-                            var mol = oio.GetComponent<Molecule>();
-                            if (mol != null)
+                            shrink(obj);
+                        }
+
+                        if (old_intersecting_objects.Count > 0)
+                        {
+                            foreach (var oio in old_intersecting_objects)
                             {
-                                isGrabbed = mol.isGrabbed;
-                            }
-                            var go = oio.GetComponent<GenericObject>();
-                            if (go != null)
-                            {
-                                isGrabbed = go.isGrabbed;
-                            }
-                            if (isGrabbed)
-                            {
-                                grow(oio);
-                            }
-                            else
-                            {
-                                // remove from list when not grabbed anymore
-                                to_remove.Add(oio);
+                                if (!intersecting_objects.Contains(oio))
+                                {
+                                    // only grow when grabbed
+                                    bool isGrabbed = false;
+                                    var mol = oio.GetComponent<Molecule>();
+                                    if (mol != null)
+                                    {
+                                        isGrabbed = mol.isGrabbed;
+                                    }
+                                    var go = oio.GetComponent<GenericObject>();
+                                    if (go != null)
+                                    {
+                                        isGrabbed = go.isGrabbed;
+                                    }
+                                    if (isGrabbed)
+                                    {
+                                        grow(oio);
+                                    }
+                                    else
+                                    {
+                                        // remove from list when not grabbed anymore
+                                        if (!to_remove_intersecting_objects.Contains(oio))
+                                        {
+                                            to_remove_intersecting_objects.Add(oio);
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                     // Perform removing from list
-                    foreach (var obj in to_remove)
+                    foreach (var obj in to_remove_intersecting_objects)
                     {
                         old_intersecting_objects.Remove(obj);
+                        initial_scale_of_intersecting_objects.Remove(obj);
                     }
+                    to_remove_intersecting_objects.Clear();
                 }
             }
         }
     }
 
-    private void transition(Transform trans)
+    private bool transition(Transform trans)
     {
         var box = trans.GetComponent<myBoundingBox>();
         var obj_bounds = box.localBounds;
-        if (Vector3.Dot(screenNormal, screenCenter - obj_bounds.center) < 0f)
+        if (Vector3.Dot(screenNormal, obj_bounds.center - screenCenter) < 0f)
         {
-            TransitionManager.Singleton.initializeTransitionClient(trans, true);
+            if (old_intersecting_objects.Contains(trans))
+            {
+                to_remove_intersecting_objects.Add(trans);
+            }
+            TransitionManager.Singleton.initializeTransitionClient(trans, TransitionManager.InteractionType.CLOSE_GRAB);
+            return true;
         }
+        return false;
     }
 
     private void shrink(Transform trans)
@@ -466,7 +492,12 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
 
     private void grow(Transform trans)
     {
-        if (trans.localScale.x < 1f)
+        var target_scale = 1f;
+        if (initial_scale_of_intersecting_objects.Keys.Contains(trans))
+        {
+            target_scale = initial_scale_of_intersecting_objects[trans];
+        }
+        if (trans.localScale.x < target_scale)
         {
             var box = trans.GetComponent<myBoundingBox>();
             var obj_bounds = box.localBounds;
@@ -480,11 +511,14 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
             //trans.localScale *= dist_scale_factor;
             trans.localScale += 0.01f * dist_scale_factor * Vector3.one;
             // regulate overshooting
-            if (trans.localScale.x > 1f) trans.localScale = Vector3.one;
+            if (trans.localScale.x > target_scale) trans.localScale = target_scale * Vector3.one;
         }
         else
         {
-            old_intersecting_objects.Remove(trans);
+            if (!to_remove_intersecting_objects.Contains(trans))
+            {
+                to_remove_intersecting_objects.Add(trans);
+            }
         }
     }
 
@@ -519,7 +553,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         var viewport_coords = getScreenSpaceCoords(proj.Value);
         if (EventManager.Singleton)
         {
-            EventManager.Singleton.GrabOnScreen(viewport_coords.Value);
+            EventManager.Singleton.GrabOnScreen(viewport_coords.Value, true);
         }
     }
 
@@ -543,7 +577,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         var viewport_coords = getScreenSpaceCoords(proj.Value);
         if (EventManager.Singleton)
         {
-            EventManager.Singleton.GrabOnScreen(viewport_coords.Value);
+            EventManager.Singleton.GrabOnScreen(viewport_coords.Value, false);
         }
     }
 

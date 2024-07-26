@@ -93,7 +93,8 @@ public enum ServerToClientID : ushort
     transitionMolecule = 2040,
     transitionGenericObject = 2041,
     requestTransition = 2042,
-    bcastRequestDeleteMarked = 2043
+    bcastRequestDeleteMarked = 2043,
+    bcastMousePosition = 2044
 }
 
 public enum SimToServerID : ushort

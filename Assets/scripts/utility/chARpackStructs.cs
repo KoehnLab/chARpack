@@ -160,6 +160,7 @@ namespace chARpackStructs
         public SaveableVector4 ssBounds;
         public SaveableVector3 moleScale;
         public bool moleTransitioned;
+        public int transitionTriggeredBy;
         public SaveableQuaternion moleQuat;
         public SaveableQuaternion relQuat;
         public Guid moleID;
@@ -186,6 +187,7 @@ namespace chARpackStructs
             ssPos = Vector2.zero;
             ssBounds = Vector4.zero;
             moleTransitioned = false;
+            transitionTriggeredBy = -1;
         }
 
         public void assignRelativeQuaternion(Quaternion q)
@@ -207,6 +209,11 @@ namespace chARpackStructs
         {
             moleTransitioned = true;
         }
+
+        public void setTransitionTriggeredBy(TransitionManager.InteractionType triggered_by)
+        {
+            transitionTriggeredBy = (int)triggered_by;
+        }
     }
 
     /// <summary>
@@ -222,6 +229,7 @@ namespace chARpackStructs
         public SaveableVector2 ssPos;
         public SaveableVector4 ssBounds;
         public bool transitioned;
+        public int transitionTriggeredBy;
         public SaveableQuaternion relQuat;
         public Guid ID;
 
@@ -236,6 +244,7 @@ namespace chARpackStructs
             ssPos = Vector2.zero;
             ssBounds = Vector4.zero;
             transitioned = false;
+            transitionTriggeredBy = -1;
         }
 
         public void assignRelativeQuaternion(Quaternion q)
@@ -257,7 +266,10 @@ namespace chARpackStructs
         {
             transitioned = true;
         }
-
+        public void setTransitionTriggeredBy(TransitionManager.InteractionType triggered_by)
+        {
+            transitionTriggeredBy = (int)triggered_by;
+        }
     }
 
 

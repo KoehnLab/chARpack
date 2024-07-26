@@ -34,9 +34,10 @@ public class ServerInputSystem : MonoBehaviour
         }
     }
 
+    Dictionary<GameObject, bool> uiState = new Dictionary<GameObject, bool>();
     void otherShortcuts()
     {
-        if (!Input.GetKey(KeyCode.LeftShift) || !Input.GetKey(KeyCode.LeftControl))
+        if (!Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl) && !CreateInputField.Singleton.gameObject.activeSelf)
         {
             if (Input.GetKeyDown(KeyCode.F12))
             {
@@ -46,19 +47,19 @@ public class ServerInputSystem : MonoBehaviour
                     var mol = obj.GetComponent<Molecule>();
                     if (mol != null)
                     {
-                        TransitionManager.Singleton.initializeTransitionServer(mol);
+                        TransitionManager.Singleton.initializeTransitionServer(mol, TransitionManager.InteractionType.BUTTON_PRESS);
                     }
                     var go = obj.GetComponent<GenericObject>();
                     if (go != null)
                     {
-                        TransitionManager.Singleton.initializeTransitionServer(go);
+                        TransitionManager.Singleton.initializeTransitionServer(go, TransitionManager.InteractionType.BUTTON_PRESS);
                     }
                 }
                 else
                 {
                     // Nothing is marked in the server scene
                     // send transition request to client
-                    EventManager.Singleton.RequestTransition();
+                    EventManager.Singleton.RequestTransition(TransitionManager.InteractionType.BUTTON_PRESS);
                 }
             }
             if (Input.GetKeyDown(KeyCode.Delete))
@@ -81,6 +82,30 @@ public class ServerInputSystem : MonoBehaviour
                     }
                 }
                 EventManager.Singleton.ForwardDeleteMarkedRequest();
+            }
+            if (Input.GetKeyDown(KeyCode.H))
+            {
+                if (uiState.Count > 0) // return from hide
+                {
+                    foreach (var child in  uiState)
+                    {
+                        child.Key.SetActive(child.Value);
+                    }
+                    uiState.Clear();
+                }
+                else // do the hide
+                {
+                    var ui_canvas = GameObject.Find("UICanvas");
+                    foreach (Transform child in ui_canvas.transform)
+                    {
+                        if (child.gameObject.layer == LayerMask.NameToLayer("UI"))
+                        {
+                            uiState[child.gameObject] = child.gameObject.activeSelf;
+                            child.gameObject.SetActive(false);
+                        }
+                    }
+                }
+
             }
         }
     }
@@ -128,7 +153,7 @@ public class ServerInputSystem : MonoBehaviour
         if (Input.GetMouseButton(1))
         {
 #if UNITY_STANDALONE || UNITY_EDITOR
-            if (!Atom.anyArcball)
+            if (!Atom.anyArcball && !AttachedModel.anyArcball)
 #endif
             {
                 float delta_x = Input.GetAxis("Mouse X") * turnSpeed;

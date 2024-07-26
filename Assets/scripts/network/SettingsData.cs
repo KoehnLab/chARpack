@@ -32,11 +32,12 @@ public class SettingsData
     [SerializeField] static public Vector2 serverViewport = new Vector2(1920, 1080);
     [SerializeField] static public TransitionManager.SyncMode syncMode = TransitionManager.SyncMode.Async;
     [SerializeField] static public TransitionManager.TransitionMode transitionMode = TransitionManager.TransitionMode.DESKTOP_2D;
-    [SerializeField] static public TransitionManager.ImmersiveTarget immersiveTarget = TransitionManager.ImmersiveTarget.HAND;
+    [SerializeField] static public TransitionManager.ImmersiveTarget immersiveTarget = TransitionManager.ImmersiveTarget.HAND_FIXED;
     [SerializeField] static public bool requireGrabHold = true;
     [SerializeField] static public Handedness handedness = Handedness.Right;
     [SerializeField] static public TransitionManager.TransitionAnimation transitionAnimation = TransitionManager.TransitionAnimation.BOTH;
     [SerializeField] static public float transitionAnimationDuration = 3.0f;
+    [SerializeField] static public TransitionManager.DesktopTarget desktopTarget = TransitionManager.DesktopTarget.CENTER_OF_SCREEN;
 
 
     public static int highlightColorMap { get => _highlightColorMap; set

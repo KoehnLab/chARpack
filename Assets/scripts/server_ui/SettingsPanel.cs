@@ -46,6 +46,7 @@ public class SettingsPanel : MonoBehaviour
     public GameObject handednessDropdown;
     public GameObject transitionAnimationDropdown;
     public GameObject transitionAnimationDurationSlider;
+    public GameObject desktopTargetDropdown;
 
     private void Start()
     {
@@ -127,6 +128,7 @@ public class SettingsPanel : MonoBehaviour
         useAsyncModeToggle.GetComponent<Toggle>().isOn = SettingsData.syncMode == TransitionManager.SyncMode.Async;
         transitionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().value = (int)SettingsData.transitionMode;
         immersiveTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value = (int)SettingsData.immersiveTarget;
+        desktopTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value = (int)SettingsData.desktopTarget;
         requireGrabHoldToggle.GetComponent<Toggle>().isOn = SettingsData.requireGrabHold;
         handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().value = SettingsData.handedness == Handedness.Right ? 0 : 1;
         var transitionAniValue = 0;
@@ -140,10 +142,11 @@ public class SettingsPanel : MonoBehaviour
         }
         else if (SettingsData.transitionAnimation == TransitionManager.TransitionAnimation.SCALE)
         {
-            transitionAniValue = 2;
+            transitionAniValue = 1;
         }
         transitionAnimationDropdown.GetComponent<TMPro.TMP_Dropdown>().value = transitionAniValue;
         transitionAnimationDurationSlider.GetComponent<Slider>().value = SettingsData.transitionAnimationDuration;
+        transitionAnimationDurationSlider.GetComponent<UpdateSliderLabel>().updateLabel();
     }
 
     /// <summary>
@@ -189,6 +192,7 @@ public class SettingsPanel : MonoBehaviour
         SettingsData.syncMode = useAsyncModeToggle.GetComponent<Toggle>().isOn ? TransitionManager.SyncMode.Async : TransitionManager.SyncMode.Sync;
         SettingsData.transitionMode = (TransitionManager.TransitionMode)transitionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
         SettingsData.immersiveTarget = (TransitionManager.ImmersiveTarget)immersiveTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
+        SettingsData.desktopTarget = (TransitionManager.DesktopTarget)desktopTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
         SettingsData.requireGrabHold = requireGrabHoldToggle.GetComponent<Toggle>().isOn;
         options = handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().options;
         SettingsData.handedness = options[handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text == "Right" ? Handedness.Right : Handedness.Left;

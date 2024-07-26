@@ -14,7 +14,7 @@ public class AttachedModel : MonoBehaviour
     #region mouse_interaction
 
 #if UNITY_STANDALONE || UNITY_EDITOR
-    public static bool anyArcball;
+    public static bool anyArcball = false;
     private bool arcball;
     private Vector3 oldMousePosition;
     private Vector3 newMousePosition;
@@ -49,7 +49,10 @@ public class AttachedModel : MonoBehaviour
                     Matrix4x4 cameraToObjectMatrix = Matrix4x4.Inverse(viewMatrix * modelMatrix);
                     var axis_world = cameraToObjectMatrix * axis_cam;
 
-                    genericObject.transform.RotateAround(genericObject.transform.position, axis_world, 2 * Mathf.Rad2Deg * angle);
+                    if (float.IsFinite(genericObject.transform.position.x))
+                    {
+                        genericObject.transform.RotateAround(genericObject.transform.position, axis_world, 2 * Mathf.Rad2Deg * angle);
+                    }
                 }
             }
         }
@@ -76,9 +79,10 @@ public class AttachedModel : MonoBehaviour
     private bool mouseOverObject()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit))
+        RaycastHit[] hits = Physics.RaycastAll(ray);
+        for (int i = 0; i < hits.Length; i++)
         {
-            if (hit.collider == GetComponent<MeshCollider>())
+            if (hits[i].collider == GetComponent<MeshCollider>())
             {
                 return true;
             }

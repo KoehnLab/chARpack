@@ -343,12 +343,67 @@ public class GlobalCtrl : MonoBehaviour
         return currentCamera.transform.position + spawnZDistance * currentCamera.transform.forward;
     }
 
+    public Vector3 getIdealSpawnPos(Transform trans)
+    {
+        var mol = trans.GetComponent<Molecule>();
+        myBoundingBox box;
+        if (mol != null) {
+            box = mol.GetComponent<myBoundingBox>();
+        }
+        else
+        {
+            var go = trans.GetComponent<GenericObject>();
+            box = go.GetComponent<myBoundingBox>();
+        }
+        var box_bounds = box.localBounds;
+        var diff_pos_boxcenter = trans.position - box_bounds.center;
+        var ideal_pos = getCurrentSpawnPos() + diff_pos_boxcenter;
+        var near_plane_wpos = currentCamera.transform.position + currentCamera.transform.forward * currentCamera.nearClipPlane;
+
+        if (box_bounds.Contains(near_plane_wpos))
+        {
+            ideal_pos += box_bounds.extents.multiply(currentCamera.transform.forward);
+        }
+        return ideal_pos;
+    }
+
+    public Vector3 getIdealSpawnPos(Transform trans, Vector2 ss_coords)
+    {
+        var mol = trans.GetComponent<Molecule>();
+        Bounds bounds;
+        if (mol != null)
+        {
+            bounds = mol.GetComponent<myBoundingBox>().localBounds;
+        }
+        else
+        {
+            var go = trans.GetComponent<GenericObject>();
+            bounds = go.GetComponent<myBoundingBox>().localBounds;
+
+        }
+        return currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, currentCamera.nearClipPlane + 0.0001f + bounds.extents.z));
+    }
+
+    public float getLongestBBoxEdge(Transform trans)
+    {
+        var mol = trans.GetComponent<Molecule>();
+        if (mol != null)
+        {
+            return mol.GetComponent<myBoundingBox>().getSize().maxDimValue();
+        }
+        else
+        {
+            var go = trans.GetComponent<GenericObject>();
+            return go.GetComponent<myBoundingBox>().getSize().maxDimValue();
+
+        }
+    }
+
     // on mol data changed (replacement for update loop checks)
     //void onMolDataChanged()
     //{
     //    SaveMolecule(true);
     //}
-
 
     #region atom_helper
     /// <summary>
@@ -2173,8 +2228,8 @@ public class GlobalCtrl : MonoBehaviour
                     {
                         var normal = screenAlignment.Singleton.getScreenNormal();
                         // TODO test if -normal or just normal (-normal does not work properly) [maybe need different approach]
-                        //var screen_quat = Quaternion.LookRotation(-normal);
-                        var screen_quat = Quaternion.LookRotation(normal);
+                        var screen_quat = Quaternion.LookRotation(-normal);
+                        //var screen_quat = Quaternion.LookRotation(normal);
                         tempMolecule.transform.rotation = screen_quat * molecule.relQuat;
                     }
                     if (NetworkManagerServer.Singleton != null)
@@ -2192,7 +2247,7 @@ public class GlobalCtrl : MonoBehaviour
                     else
                     {
                         var mol_bounds = tempMolecule.GetComponent<myBoundingBox>().localBounds;
-                        tempMolecule.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(molecule.ssPos.x, molecule.ssPos.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f + mol_bounds.extents.z));
+                        tempMolecule.transform.position = currentCamera.ScreenToWorldPoint(new Vector3(molecule.ssPos.x, molecule.ssPos.y, currentCamera.nearClipPlane + 0.0001f + mol_bounds.extents.z));
                         //tempMolecule.transform.position = currentCamera.ScreenToWorldPoint(new Vector3(molecule.ssPos.x, molecule.ssPos.y, 0.4f));
                     }
                 }
@@ -2220,7 +2275,7 @@ public class GlobalCtrl : MonoBehaviour
                     if (NetworkManagerServer.Singleton != null)
                     {
                         var mol_bounds = tempMolecule.GetComponent<myBoundingBox>().localBounds;
-                        tempMolecule.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(molecule.ssPos.x, molecule.ssPos.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f + mol_bounds.extents.z));
+                        tempMolecule.transform.position = currentCamera.ScreenToWorldPoint(new Vector3(molecule.ssPos.x, molecule.ssPos.y, currentCamera.nearClipPlane + 0.0001f + mol_bounds.extents.z));
 
                         var ss_min = new Vector2(molecule.ssBounds.x, molecule.ssBounds.y);
                         var ss_max = new Vector2(molecule.ssBounds.z, molecule.ssBounds.w);
@@ -2244,10 +2299,11 @@ public class GlobalCtrl : MonoBehaviour
                 }
                 if (addToUndoStack) undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id, molecule));
                 EventManager.Singleton.MoleculeLoaded(tempMolecule);
-                Debug.Log($"[Create:transition] moleTransitioned {molecule.moleTransitioned}");
+                Debug.Log($"[Create:transition] moleTransitioned {molecule.moleTransitioned}; triggered by {molecule.transitionTriggeredBy}");
                 if (molecule.moleTransitioned)
                 {
-                    EventManager.Singleton.ReceiveMoleculeTransition(tempMolecule);
+
+                    EventManager.Singleton.ReceiveMoleculeTransition(tempMolecule, (TransitionManager.InteractionType)molecule.transitionTriggeredBy);
                 }
             }
         }

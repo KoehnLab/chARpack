@@ -406,7 +406,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                     transitionGrabCoolDown.Start();
                     return;
                 }
-                TransitionManager.Singleton.initializeTransitionClient(transform);
+                TransitionManager.Singleton.initializeTransitionClient(transform, TransitionManager.InteractionType.DISTANT_GRAB);
                 transitionGrabCoolDown.Restart();
             }
         }

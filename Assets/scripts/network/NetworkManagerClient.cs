@@ -40,6 +40,7 @@ public class NetworkManagerClient : MonoBehaviour
     [HideInInspector] public GameObject userWorld;
     [HideInInspector] public bool controlledExit = false;
     private TransitionManager.SyncMode currentSyncMode = SettingsData.syncMode;
+    public Vector2 ServerMousePosition { get; private set; }
 
     private void Awake()
     {
@@ -268,7 +269,10 @@ public class NetworkManagerClient : MonoBehaviour
         if (!controlledExit)
         {
             controlledExit = false;
-            MainActionMenu.Singleton.gameObject.SetActive(false);
+            if (MainActionMenu.Singleton != null)
+            {
+                MainActionMenu.Singleton.gameObject.SetActive(false);
+            }
             var myDialog = Dialog.Open(showErrorPrefab, DialogButtonType.OK, "Connection Failed", $"Connection to {LoginData.ip}:{LoginData.port} failed\nGoing back to Login Screen.", true);
             //make sure the dialog is rotated to the camera
             myDialog.transform.forward = -GlobalCtrl.Singleton.mainCamera.transform.forward;
@@ -584,10 +588,11 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
-    private void sendGrabOnScreen(Vector2 ss_coords)
+    private void sendGrabOnScreen(Vector2 ss_coords, bool distant)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.grabOnScreen);
         message.AddVector2(ss_coords);
+        message.AddBool(distant);
         Client.Send(message);
     }
 
@@ -605,7 +610,7 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
-    private void transitionMolecule(Molecule mol)
+    private void transitionMolecule(Molecule mol, TransitionManager.InteractionType triggered_by)
     {
         var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * mol.transform.rotation;
 
@@ -622,12 +627,13 @@ public class NetworkManagerClient : MonoBehaviour
             }
         }
         cml.setTransitionFlag();
+        cml.setTransitionTriggeredBy(triggered_by);
 
         NetworkUtils.serializeCmlData((ushort)ClientToServerID.transitionMolecule, new List<cmlData> { cml }, chunkSize, true);
         GlobalCtrl.Singleton.deleteMolecule(mol);
     }
 
-    private void transitionGenericObject(GenericObject go)
+    private void transitionGenericObject(GenericObject go, TransitionManager.InteractionType triggered_by)
     {
         var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * go.transform.rotation;
 
@@ -644,6 +650,7 @@ public class NetworkManagerClient : MonoBehaviour
             }
         }
         sgo.setTransitionFlag();
+        sgo.setTransitionTriggeredBy(triggered_by);
 
         NetworkUtils.serializeGenericObject((ushort)ClientToServerID.transitionGenericObject, sgo, chunkSize, true);
         GenericObject.delete(go);
@@ -1142,6 +1149,7 @@ public class NetworkManagerClient : MonoBehaviour
         var handedness = (Handedness)message.GetInt();
         var transitionAnimation = (TransitionManager.TransitionAnimation)message.GetInt();
         var transitionAnimationDuration = message.GetFloat();
+        var desktopTarget = (TransitionManager.DesktopTarget)message.GetInt();
 
         // Get enum entries from strings
         Enum.TryParse(integrationMethodString, ignoreCase: true, out ForceField.Method integrationMethod);
@@ -1178,6 +1186,7 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.handedness = handedness;
             SettingsData.transitionAnimation = transitionAnimation;
             SettingsData.transitionAnimationDuration = transitionAnimationDuration;
+            SettingsData.desktopTarget = desktopTarget;
             settingsControl.Singleton.updateSettings();
             if (appSettings.Singleton != null)
             {
@@ -1372,13 +1381,14 @@ public class NetworkManagerClient : MonoBehaviour
     [MessageHandler((ushort)ServerToClientID.requestTransition)]
     private static void getRequestTransition(Message message)
     {
+        var triggered_by = (TransitionManager.InteractionType)message.GetInt();
         if (GlobalCtrl.Singleton.List_curMolecules.Count > 0)
         {
             foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
             {
                 if (mol.isMarked)
                 {
-                    TransitionManager.Singleton.initializeTransitionClient(mol.transform);
+                    TransitionManager.Singleton.initializeTransitionClient(mol.transform, triggered_by);
                     return;
                 }
             }
@@ -1389,7 +1399,7 @@ public class NetworkManagerClient : MonoBehaviour
             {
                 if (go.isMarked)
                 {
-                    TransitionManager.Singleton.initializeTransitionClient(go.transform);
+                    TransitionManager.Singleton.initializeTransitionClient(go.transform, triggered_by);
                     return;
                 }
             }
@@ -1418,6 +1428,13 @@ public class NetworkManagerClient : MonoBehaviour
         }
     }
 
+    [MessageHandler((ushort)ServerToClientID.bcastMousePosition)]
+    private static void getServerMousePosition(Message message)
+    {
+        var pos = message.GetVector2();
+        Singleton.ServerMousePosition = pos;
+
+    }
 #endregion
 
     }

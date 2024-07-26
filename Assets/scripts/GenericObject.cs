@@ -85,19 +85,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
         box.scaleCorners(0.1f);
 
         // initial positioning
-        var box_bounds = box.localBounds;
-        var diff_pos_boxcenter = genericObject.transform.position - box_bounds.center;
-        UnityEngine.Debug.Log($"[GenericObject:create] transform position diff to box center: {diff_pos_boxcenter}");
-        genericObject.transform.position = GlobalCtrl.Singleton.getCurrentSpawnPos() + diff_pos_boxcenter;
-        var near_plane_wpos = GlobalCtrl.Singleton.currentCamera.transform.position + GlobalCtrl.Singleton.currentCamera.transform.forward * GlobalCtrl.Singleton.currentCamera.nearClipPlane;
-
-        if (box_bounds.Contains(near_plane_wpos))
-        {
-            UnityEngine.Debug.Log($"[GenericObject:create] NearPlane in Box");
-            UnityEngine.Debug.Log($"[GenericObject:create] Box extends {box_bounds.extents}");
-            genericObject.transform.position += box_bounds.extents.multiply(GlobalCtrl.Singleton.currentCamera.transform.forward);
-        }
-
+        genericObject.transform.position = GlobalCtrl.Singleton.getIdealSpawnPos(genericObject.transform);
 
         if (objects == null)
         {
@@ -106,6 +94,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
 
         if (_existingID != null)
         {
+            genericObject.id = _existingID.Value;
             objects[_existingID.Value] = genericObject;
         }
         else
@@ -119,7 +108,15 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
 
     public static void delete(GenericObject go)
     {
-        objects.Remove(go.id);
+        if (objects.ContainsKey(go.id))
+        {
+            objects.Remove(go.id);
+        }
+        else
+        {
+            var id = objects.First(kvp => kvp.Value == go);
+            objects.Remove(id.Key);
+        }
         Destroy(go.gameObject);
     }
 
@@ -138,6 +135,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
     public static void createFromSerialized(sGenericObject sgo)
     {
         var new_go = create(sgo.obj_name, sgo.ID);
+        new_go.transform.localScale = sgo.scale;
         if (sgo.relQuat != Quaternion.identity)
         {
             new_go.relQuatBeforeTransition = sgo.relQuat;
@@ -145,8 +143,8 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
             {
                 var normal = screenAlignment.Singleton.getScreenNormal();
                 // TODO test if -normal or just normal (-normal does not work properly) [maybe need different approach]
-                //var screen_quat = Quaternion.LookRotation(-normal);
-                var screen_quat = Quaternion.LookRotation(normal);
+                var screen_quat = Quaternion.LookRotation(-normal);
+                //var screen_quat = Quaternion.LookRotation(normal);
                 new_go.transform.rotation = screen_quat * sgo.relQuat;
             }
             if (NetworkManagerServer.Singleton != null)
@@ -163,13 +161,11 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
             }
             else
             {
-                var go_bounds = new_go.GetComponent<myBoundingBox>().localBounds;
-                new_go.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(sgo.ssPos.x, sgo.ssPos.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f + go_bounds.extents.z));
+                new_go.transform.position = GlobalCtrl.Singleton.getIdealSpawnPos(new_go.transform, sgo.ssPos);
             }
         }
         if (sgo.ssBounds != Vector4.zero)
         {
-            new_go.transform.localScale = Vector3.one;
             if (NetworkManagerClient.Singleton != null)
             {
                 var ss_min = new Vector2(sgo.ssBounds.x, sgo.ssBounds.y);
@@ -190,8 +186,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
             }
             if (NetworkManagerServer.Singleton != null)
             {
-                var go_bounds = new_go.GetComponent<myBoundingBox>().localBounds;
-                new_go.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(sgo.ssPos.x, sgo.ssPos.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f + go_bounds.extents.z));
+                new_go.transform.position = GlobalCtrl.Singleton.getIdealSpawnPos(new_go.transform, sgo.ssPos);
 
                 var ss_min = new Vector2(sgo.ssBounds.x, sgo.ssBounds.y);
                 var ss_max = new Vector2(sgo.ssBounds.z, sgo.ssBounds.w);
@@ -214,11 +209,11 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
                 }
             }
         }
-        // EventManager.Singleton.MoleculeLoaded(tempMolecule);
-
+        // EventManager.Singleton.MoleculeLoaded(tempMolecule); TODO: implement for sync mode
+        UnityEngine.Debug.Log($"[GO:Create:transition] transitioned {sgo.transitioned}; triggered by {sgo.transitionTriggeredBy}");
         if (sgo.transitioned)
         {
-            EventManager.Singleton.ReceiveGenericObjectTransition(new_go);
+            EventManager.Singleton.ReceiveGenericObjectTransition(new_go, (TransitionManager.InteractionType)sgo.transitionTriggeredBy);
         }
     }
 
@@ -261,7 +256,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
                     transitionGrabCoolDown.Start();
                     return;
                 }
-                TransitionManager.Singleton.initializeTransitionClient(transform);
+                TransitionManager.Singleton.initializeTransitionClient(transform, TransitionManager.InteractionType.DISTANT_GRAB);
                 transitionGrabCoolDown.Restart();
             }
         }

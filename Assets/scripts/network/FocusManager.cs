@@ -57,9 +57,9 @@ public static class FocusManager
 
     public static void silentRemoveClient(ushort client_id)
     {
-        focus_ids.Remove(client_id);
         available_ids.Add(focus_ids[client_id]);
         available_ids.Sort();
+        focus_ids.Remove(client_id);
     }
 
     private static int getFocusID(ushort client_id)

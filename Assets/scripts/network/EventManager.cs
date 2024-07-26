@@ -315,11 +315,11 @@ public class EventManager : MonoBehaviour
         OnSetNumOutlines?.Invoke(num_outlines);
     }
 
-    public delegate void GrabOnScreenAction(Vector2 ss_coords);
+    public delegate void GrabOnScreenAction(Vector2 ss_coords, bool distant);
     public event GrabOnScreenAction OnGrabOnScreen;
-    public void GrabOnScreen(Vector2 ss_coords)
+    public void GrabOnScreen(Vector2 ss_coords, bool distant)
     {
-        OnGrabOnScreen?.Invoke(ss_coords);
+        OnGrabOnScreen?.Invoke(ss_coords, distant);
     }
 
     public delegate void ReleaseGrabOnScreenAction();
@@ -343,32 +343,32 @@ public class EventManager : MonoBehaviour
         OnHoverOverScreen?.Invoke(ss_coords);
     }
 
-    public delegate void TransitionMoleculeAction(Molecule mol);
+    public delegate void TransitionMoleculeAction(Molecule mol, TransitionManager.InteractionType triggered_by);
     public event TransitionMoleculeAction OnTransitionMolecule;
-    public void TransitionMolecule(Molecule mol)
+    public void TransitionMolecule(Molecule mol, TransitionManager.InteractionType triggered_by)
     {
-        OnTransitionMolecule?.Invoke(mol);
+        OnTransitionMolecule?.Invoke(mol, triggered_by);
     }
 
-    public delegate void ReceiveMoleculeTransitionAction(Molecule mol);
+    public delegate void ReceiveMoleculeTransitionAction(Molecule mol, TransitionManager.InteractionType triggered_by);
     public event ReceiveMoleculeTransitionAction OnReceiveMoleculeTransition;
-    public void ReceiveMoleculeTransition(Molecule mol)
+    public void ReceiveMoleculeTransition(Molecule mol, TransitionManager.InteractionType triggered_by)
     {
-        OnReceiveMoleculeTransition?.Invoke(mol);
+        OnReceiveMoleculeTransition?.Invoke(mol, triggered_by);
     }
 
-    public delegate void TransitionGenericObjectAction(GenericObject go);
+    public delegate void TransitionGenericObjectAction(GenericObject go, TransitionManager.InteractionType triggered_by);
     public event TransitionGenericObjectAction OnTransitionGenericObject;
-    public void TransitionGenericObject(GenericObject go)
+    public void TransitionGenericObject(GenericObject go, TransitionManager.InteractionType triggered_by)
     {
-        OnTransitionGenericObject?.Invoke(go);
+        OnTransitionGenericObject?.Invoke(go, triggered_by);
     }
 
-    public delegate void ReceiveGenericObjectTransitionAction(GenericObject go);
+    public delegate void ReceiveGenericObjectTransitionAction(GenericObject go, TransitionManager.InteractionType triggered_by);
     public event ReceiveGenericObjectTransitionAction OnReceiveGenericObjectTransition;
-    public void ReceiveGenericObjectTransition(GenericObject go)
+    public void ReceiveGenericObjectTransition(GenericObject go, TransitionManager.InteractionType triggered_by)
     {
-        OnReceiveGenericObjectTransition?.Invoke(go);
+        OnReceiveGenericObjectTransition?.Invoke(go, triggered_by);
     }
 
     public delegate void CreateGenericObjectAction(GenericObject go);
@@ -378,11 +378,11 @@ public class EventManager : MonoBehaviour
         OnCreateGenericObject?.Invoke(go);
     }
 
-    public delegate void RequestTransitionAction();
+    public delegate void RequestTransitionAction(TransitionManager.InteractionType triggered_by);
     public event RequestTransitionAction OnRequestTransition;
-    public void RequestTransition()
+    public void RequestTransition(TransitionManager.InteractionType triggered_by)
     {
-        OnRequestTransition?.Invoke();
+        OnRequestTransition?.Invoke(triggered_by);
     }
 
     public delegate void ForwardDeleteMarkedRequestAction();

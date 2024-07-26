@@ -215,6 +215,7 @@ public class NetworkManagerServer : MonoBehaviour
     {
         if (ServerStarted)
         {
+            bcastMousePosition();
             Server.Update();
         }
     }
@@ -479,6 +480,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddInt((int)SettingsData.handedness);
         message.AddInt((int)SettingsData.transitionAnimation);
         message.AddFloat(SettingsData.transitionAnimationDuration);
+        message.AddInt((int)SettingsData.desktopTarget);
         Server.SendToAll(message);
     }
 
@@ -567,7 +569,14 @@ public class NetworkManagerServer : MonoBehaviour
         Server.SendToAll(message);
     }
 
-    public void transitionMol(Molecule mol)
+    public void bcastMousePosition()
+    {
+        Message message = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastMousePosition);
+        message.AddVector2(Input.mousePosition);
+        Server.SendToAll(message);
+    }
+
+    public void transitionMol(Molecule mol, TransitionManager.InteractionType triggered_by)
     {
         //var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * mol.transform.rotation;
         var q = Quaternion.Inverse(Quaternion.LookRotation(mol.transform.position - GlobalCtrl.Singleton.currentCamera.transform.position)) * mol.transform.rotation;
@@ -590,12 +599,14 @@ public class NetworkManagerServer : MonoBehaviour
             Debug.Log($"[Transition] ss bounds: {ss_bounds}");
         }
         cml.setTransitionFlag();
+        Debug.Log($"[NetworkManagerServer] transition Mol: Triggered by {triggered_by}");
+        cml.setTransitionTriggeredBy(triggered_by);
 
         NetworkUtils.serializeCmlData((ushort)ServerToClientID.transitionMolecule, new List<cmlData> { cml }, chunkSize, false);
         GlobalCtrl.Singleton.deleteMolecule(mol);
     }
 
-    public void transitionGenericObject(GenericObject go)
+    public void transitionGenericObject(GenericObject go, TransitionManager.InteractionType triggered_by)
     {
         //var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * go.transform.rotation;
         var q = Quaternion.Inverse(Quaternion.LookRotation(go.transform.position - GlobalCtrl.Singleton.currentCamera.transform.position)) * go.transform.rotation;
@@ -618,14 +629,17 @@ public class NetworkManagerServer : MonoBehaviour
             Debug.Log($"[Transition] ss bounds: {ss_bounds}");
         }
         sgo.setTransitionFlag();
+        Debug.Log($"[NetworkManagerServer] transition Mol: Triggered by {triggered_by}");
+        sgo.setTransitionTriggeredBy(triggered_by);
 
         NetworkUtils.serializeGenericObject((ushort)ServerToClientID.transitionGenericObject, sgo, chunkSize, false);
         GenericObject.delete(go);
     }
 
-    public void requestTransition()
+    public void requestTransition(TransitionManager.InteractionType triggered_by)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.requestTransition);
+        message.AddInt((int)triggered_by);
         Server.SendToAll(message);
     }
 
@@ -1396,11 +1410,19 @@ public class NetworkManagerServer : MonoBehaviour
     private static void getGrabOnScreen(ushort fromClientId, Message message)
     {
         var ss_coords = message.GetVector2();
+        var distant = message.GetBool();
         Debug.Log($"[GrabOnScreen] ss {ss_coords}");
 
         if (TransitionManager.Singleton != null)
         {
-            TransitionManager.Singleton.initializeTransitionServer(ss_coords);
+            if (distant)
+            {
+                TransitionManager.Singleton.initializeTransitionServer(ss_coords, TransitionManager.InteractionType.DISTANT_GRAB);
+            }
+            else
+            {
+                TransitionManager.Singleton.initializeTransitionServer(ss_coords, TransitionManager.InteractionType.CLOSE_GRAB);
+            }
         }
         if (HoverMarker.Singleton != null)
         {
