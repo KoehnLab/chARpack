@@ -227,6 +227,16 @@ TKey mol_id, params object[] argList)
         return print;
     }
 
+    public static string Print<T,S>(this Dictionary<T,S> dict)
+    {
+        string print = "";
+        foreach (var entry in dict)
+        {
+            print += $"{entry.Key}:{entry.Value} ";
+        }
+        return print;
+    }
+
     public static SaveableQuaternion ToSaveableQuaternion(this Quaternion q)
     {
         return new SaveableQuaternion(q.x, q.y, q.z, q.w);

@@ -9,6 +9,7 @@ using chARpackStructs;
 using System.Linq;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 public class ForceField : MonoBehaviour
 {
@@ -84,15 +85,16 @@ public class ForceField : MonoBehaviour
     int num_steps_to_convergence = 0;
     bool do_measurment = true;
     Stopwatch stopwatch;
+
     public enum Method
     {
-        Euler,
-        Verlet,
-        RungeKutta,
-        Heun,
-        Ralston,
-        MidPoint,
-        SteepestDescent
+        Euler = 0,
+        Verlet = 1,
+        RungeKutta = 2,
+        Heun = 3,
+        Ralston = 4,
+        MidPoint = 5,
+        SteepestDescent = 6
     }
     public Method _currentMethod;
 
