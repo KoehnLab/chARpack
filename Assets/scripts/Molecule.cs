@@ -18,6 +18,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
     private Stopwatch stopwatch;
     [HideInInspector] public bool isGrabbed = false;
+    [HideInInspector] public bool isServerFocused = false;
     private cmlData before;
     private Vector3 pickupPos = Vector3.zero;
     private Quaternion pickupRot = Quaternion.identity;
@@ -418,11 +419,45 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     }
 
+    bool isInteractable = true;
+    public void setIntractable(bool value)
+    {
+        if (isInteractable != value)
+        {
+            isInteractable = value;
+            GetComponent<ObjectManipulator>().enabled = value;
+            GetComponent<NearInteractionGrabbable>().enabled = value;
+            foreach (var nag in GetComponentsInChildren<NearInteractionGrabbable>())
+            {
+                nag.enabled = value;
+            }
+            GetComponent<myBoundingBox>().show(value);
+            GetComponent<myBoundingBox>().enabled = value;
+        }
+    }
+
+    float currentOpacity = 1f;
+    public void setOpacity(float value)
+    {
+        if (currentOpacity != value)
+        {
+            currentOpacity = value;
+            foreach (var renderer in GetComponentsInChildren<Renderer>())
+            {
+                foreach (var mat in renderer.materials)
+                {
+                    var col = new Color(mat.color.r, mat.color.g, mat.color.b, value);
+                    mat.color = col;
+                }
+            }
+        }
+    }
+
     private void adjustBBox(Molecule mol)
     {
 #if UNITY_STANDALONE || UNITY_EDITOR
         GetComponent<myBoundingBox>().setNormalMaterial(false);
-#else
+#endif
         if (mol == this)
         {
             if (GlobalCtrl.Singleton.List_curMolecules.ContainsValue(mol))
@@ -430,7 +465,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 StartCoroutine(adjustBBoxCoroutine());
             }
         }
-#endif
     }
 
     // Need coroutine to use sleep
@@ -438,7 +472,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         yield return new WaitForSeconds(0.1f);
         var current_size = getLongestBBoxEdge();
-        GetComponent<myBoundingBox>().scaleCorners(0.02f + 0.02f * current_size);
+        GetComponent<myBoundingBox>().scaleCorners(0.02f + 0.05f * current_size);
         if (current_size > 0.25f)
         {
             GetComponent<myBoundingBox>().setNormalMaterial(false);
@@ -476,6 +510,19 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         GlobalCtrl.Singleton.List_curMolecules.RemoveValue(this);
         Destroy(gameObject);
     }
+
+    public void setServerFocus(bool focus)
+    {
+        if (isServerFocused != focus)
+        {
+            isServerFocused = focus;
+            foreach (Atom a in atomList)
+            {
+                a.serverFocusHighlightUI(focus);
+            }
+        }
+    }
+
 
     /// <summary>
     /// Outlines the molecule in the selection color and potentially spawns a molecule tool tip.

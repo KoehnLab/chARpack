@@ -15,6 +15,7 @@ using Microsoft.MixedReality.Toolkit.Input;
 using System.Linq;
 using chARpackTypes;
 using chARpackColorPalette;
+using System.Xml.Serialization;
 
 /*! \mainpage 
  * API reference page for chARpack
@@ -2060,13 +2061,20 @@ public class GlobalCtrl : MonoBehaviour
     /// this method loads a saved molecule into the workspace
     /// </summary>
     /// <param name="name">name of the saved molecule</param>
-    public void LoadMolecule(string name)
+    public List<Molecule> LoadMolecule(string name, bool from_resources = false)
     {
         List<cmlData> loadData;
+        List<Molecule> loadedMolecules = new List<Molecule>();
 
         Vector3 meanPos = new Vector3(0.0f, 0.0f, 0.0f);
-
-        loadData = (List<cmlData>)XMLFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
+        if (from_resources)
+        {
+            loadData = (List<cmlData>)XMLFileHelper.LoadDataFromResources(name, typeof(List<cmlData>));
+        }
+        else
+        {
+            loadData = (List<cmlData>)XMLFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
+        }
         if (loadData != null)
         {
             var loadDataWithCorrectedIDs = new List<cmlData>();
@@ -2112,10 +2120,14 @@ public class GlobalCtrl : MonoBehaviour
                 EventManager.Singleton.MoleculeLoaded(tempMolecule);
 
                 loadDataWithCorrectedIDs.Add(tempMolecule.AsCML());
+                loadedMolecules.Add(tempMolecule);
             }
 
             undoStack.AddChange(new LoadMoleculeAction(loadDataWithCorrectedIDs));
+            return loadedMolecules;
         }
+        Debug.LogError("[GlobalCtrl:LoadMolecule] Could not load molecule data.");
+        return null;
     }
 
     public Guid BuildMoleculeFromCML(cmlData molecule, Guid? id = null)

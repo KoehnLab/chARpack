@@ -152,6 +152,7 @@ namespace chARpackStructs
     /// <summary>
     /// cmlData combines the list of atoms and bonds in cml format
     /// </summary>
+    [XmlRoot("cmlData")]
     [Serializable]
     public struct cmlData
     {

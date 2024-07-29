@@ -9,11 +9,21 @@ using UnityEditor;
 
 
 
-
+[InitializeOnLoad]
 class PreBuildFileNamesSaver : IPreprocessBuildWithReport
 {
     public int callbackOrder { get { return 0; } }
     public void OnPreprocessBuild(UnityEditor.Build.Reporting.BuildReport report)
+    {
+        createFileReference();
+    }
+
+    static PreBuildFileNamesSaver()
+    {
+        createFileReference();
+    }
+
+    static void createFileReference()
     {
         //The Resources folder path
         string resourcsPath = Application.dataPath + "/Resources";

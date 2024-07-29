@@ -275,11 +275,15 @@ public class OpenBabelReadWrite : MonoBehaviour
 
             // do the read
             var conv = new OBConversion(fi.Name);
+            //var conv = new OBConversion();
+            //conv.SetInFormat(OBFormat.FindType(fi.Extension));
             var obmol = new OBMol();
             conv.ReadFile(obmol, fi.FullName);
 
+            UnityEngine.Debug.Log($"[loadMolecule] OBmol num atoms {obmol.NumAtoms()}");
+
             // check if loaded molecule has 3D structure data
-            if (obmol.GetDimension() != 3)
+            if (obmol.GetDimension() != 3 && obmol.NumAtoms() > 0)
             {
                 // this code is from avogadro to build/guess the structure
                 var builder = new OBBuilder();
@@ -362,8 +366,13 @@ public class OpenBabelReadWrite : MonoBehaviour
                     }
                 }
             }
-            var mol_id = Guid.NewGuid();
-            saveData.Add(new Tuple<Guid, OBMol>(mol_id, obmol).AsCML());
+
+            
+            if (obmol.NumAtoms() > 0)
+            {
+                var mol_id = Guid.NewGuid();
+                saveData.Add(new Tuple<Guid, OBMol>(mol_id, obmol).AsCML());
+            }
         }
 
         if (saveData == null || saveData.Count == 0)
@@ -398,7 +407,7 @@ public class OpenBabelReadWrite : MonoBehaviour
         UnityEngine.Debug.Log($"[ReadMoleculeFile] Saving Molecule {fi.FullName}");
         if (fi.Extension.ToLower() == ".xml")
         {
-            XMLFileHelper.SaveData(fi.FullName, mol.AsCML());
+            XMLFileHelper.SaveData(fi.FullName, new List<cmlData> { mol.AsCML() });
         }
         else
         {

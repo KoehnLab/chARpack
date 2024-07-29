@@ -1,9 +1,11 @@
+using chARpackColorPalette;
 using chARpackStructs;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.UI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using Unity.VisualScripting;
@@ -18,12 +20,13 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
     public GameObject attachedModel;
     public bool isMarked = false;
     public bool isGrabbed = false;
+    public bool isServerFocused = false;
     private Stopwatch stopwatch;
     public Guid id;
 
     public static GenericObject create(string name, Guid? _existingID = null)
     {
-
+        UnityEngine.Debug.Log($"[GenericObject:create] creating: {name}");
         if (Path.GetExtension(name) != "fbx")
         {
             name = Path.GetFileNameWithoutExtension(name) + ".fbx";
@@ -59,11 +62,21 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
         var model_prefab = Resources.Load<GameObject>(resources_file);
         //var model_prefab = Resources.Load<GameObject>("other/round_wooden_table/round_wooden_table");
         var model = Instantiate(model_prefab);
-        foreach (Transform child in model.transform)
+        if (model.GetComponent<MeshRenderer>() != null)
         {
-            child.AddComponent<MeshCollider>().convex = true;
-            child.AddComponent<NearInteractionGrabbable>();
-            child.AddComponent<AttachedModel>().genericObject = genericObject;
+            model.AddComponent<MeshCollider>().convex = true;
+            model.AddComponent<NearInteractionGrabbable>();
+            model.AddComponent<AttachedModel>().genericObject = genericObject;
+            model.AddComponent<MeshCollider>().convex = false; // in case the convex mesh generation has not worked, also better collider
+        }
+        else
+        {
+            foreach (Transform child in model.transform)
+            {
+                child.AddComponent<MeshCollider>().convex = true;
+                child.AddComponent<NearInteractionGrabbable>();
+                child.AddComponent<AttachedModel>().genericObject = genericObject;
+            }
         }
         var outline = model.AddComponent<Outline>();
         outline.enabled = false;
@@ -82,7 +95,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
 
         var box = genericObject.GetComponent<myBoundingBox>();
         box.setNormalMaterial(false);
-        box.scaleCorners(0.1f);
+        box.scaleCorners(0.02f + 0.05f * box.localBounds.size.maxDimValue());
 
         // initial positioning
         genericObject.transform.position = GlobalCtrl.Singleton.getIdealSpawnPos(genericObject.transform);
@@ -268,143 +281,6 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
 
     }
 
-//#region mouse_interaction
-
-//#if UNITY_STANDALONE || UNITY_EDITOR
-//    public static bool anyArcball;
-//    private bool arcball;
-//    private Vector3 oldMousePosition;
-//    private Vector3 newMousePosition;
-//    public void Update()
-//    {
-//        if (SceneManager.GetActiveScene().name == "ServerScene")
-//        {
-//            if (Input.GetMouseButtonDown(1) && Input.GetKey(KeyCode.LeftShift) && mouseOverObject())
-//            {
-//                arcball = true; anyArcball = true;
-//                oldMousePosition = Input.mousePosition;
-//                newMousePosition = Input.mousePosition;
-//            }
-//            if (Input.GetMouseButtonUp(1) || !Input.GetKey(KeyCode.LeftShift))
-//            {
-//                arcball = false; anyArcball = false;
-//            }
-
-//            if (arcball)
-//            {
-//                oldMousePosition = newMousePosition;
-//                newMousePosition = Input.mousePosition;
-//                if (newMousePosition != oldMousePosition)
-//                {
-//                    var vector2 = getArcballVector(newMousePosition);
-//                    var vector1 = getArcballVector(oldMousePosition);
-//                    float angle = (float)Math.Acos(Vector3.Dot(vector1, vector2));
-//                    var axis_cam = Vector3.Cross(vector1, vector2);
-
-//                    Matrix4x4 viewMatrix = Camera.main.worldToCameraMatrix;
-//                    Matrix4x4 modelMatrix = transform.localToWorldMatrix;
-//                    Matrix4x4 cameraToObjectMatrix = Matrix4x4.Inverse(viewMatrix * modelMatrix);
-//                    var axis_world = cameraToObjectMatrix * axis_cam;
-
-//                    transform.RotateAround(transform.position, axis_world, 2 * Mathf.Rad2Deg * angle);
-//                }
-//            }
-//        }
-//    }
-
-//    private bool isBlockedByUI()
-//    {
-//        PointerEventData eventData = new PointerEventData(EventSystem.current);
-//        eventData.position = Input.mousePosition;
-
-//        List<RaycastResult> raysastResults = new List<RaycastResult>();
-//        EventSystem.current.RaycastAll(eventData, raysastResults);
-
-//        if (raysastResults.Count > 0)
-//        {
-//            if (raysastResults[0].gameObject.layer == LayerMask.NameToLayer("UI"))
-//            {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
-//    private bool mouseOverObject()
-//    {
-//        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-//        if (Physics.Raycast(ray, out RaycastHit hit))
-//        {
-//            if (hit.collider == attachedModel.GetComponent<MeshCollider>())
-//            {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
-//    private Vector3 getArcballVector(Vector3 inputPos)
-//    {
-//        Vector3 vector = CameraSwitcher.Singleton.currentCam.ScreenToViewportPoint(inputPos);
-//        vector = -vector;
-//        if (vector.x * vector.x + vector.y * vector.y <= 1)
-//        {
-//            vector.z = (float)Math.Sqrt(1 - vector.x * vector.x - vector.y * vector.y);
-//        }
-//        else
-//        {
-//            vector = vector.normalized;
-//        }
-//        return vector;
-//    }
-
-
-//    // offset for mouse interaction
-//    public Vector3 mouse_offset = Vector3.zero;
-
-
-//    void OnMouseDown()
-//    {
-//        UnityEngine.Debug.Log("blub");
-//        // Handle server GUI interaction
-//        if (EventSystem.current.IsPointerOverGameObject()) { return; }
-
-
-//        mouse_offset = gameObject.transform.position - GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
-//         new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f));
-
-//        stopwatch = Stopwatch.StartNew();
-//        isGrabbed = true;
-//        processHighlights();
-//    }
-
-//    void OnMouseDrag()
-//    {
-//        if (EventSystem.current.IsPointerOverGameObject()) { return; }
-//        Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f);
-//        transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + mouse_offset;
-//    }
-
-//    private void OnMouseUp()
-//    {
-//        if (EventSystem.current.IsPointerOverGameObject()) { return; }
-
-//        // reset outline
-//        isGrabbed = false;
-
-
-//        stopwatch?.Stop();
-//        if (stopwatch?.ElapsedMilliseconds < 200)
-//        {
-//            toggleMarkObject();
-//        }
-
-//        processHighlights();
-//    }
-
-//#endif
-//#endregion
-
     public void toggleMarkObject()
     {
         isMarked = !isMarked;
@@ -413,18 +289,73 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
     public void processHighlights()
     {
         var outline = attachedModel.GetComponent<Outline>();
-        if (!isMarked)
+        if (isServerFocused || isMarked || isGrabbed)
         {
-            outline.enabled = isGrabbed;
-            outline.OutlineColor = chARpackColorPalette.ColorPalette.atomGrabColor;
+            outline.enabled = true;
         }
         else
         {
-            outline.enabled = true;
+            outline.enabled = false;
+            return;
+        }
+
+        if (isMarked)
+        {
             outline.OutlineColor = chARpackColorPalette.ColorPalette.atomSelectionColor;
+            
+        }
+        else if (isServerFocused)
+        {
+            outline.OutlineColor = FocusColors.getColor(-1);
+        }
+        else
+        {
+            outline.OutlineColor = chARpackColorPalette.ColorPalette.atomGrabColor;
         }
     }
 
+    public void setServerFocus(bool focus)
+    {
+        if (isServerFocused != focus)
+        {
+            isServerFocused = focus;
+            processHighlights();
+        }
+    }
+
+    bool isInteractable = true;
+    public void setIntractable(bool value)
+    {
+        if (isInteractable != value)
+        {
+            isInteractable = value;
+            GetComponent<ObjectManipulator>().enabled = value;
+            GetComponent<NearInteractionGrabbable>().enabled = value;
+            foreach (var nag in GetComponentsInChildren<NearInteractionGrabbable>())
+            {
+                nag.enabled = value;
+            }
+            GetComponent<myBoundingBox>().show(value);
+            GetComponent<myBoundingBox>().enabled = value;
+        }
+    }
+
+    float currentOpacity = 1f;
+    public void setOpacity(float value)
+    {
+        if (currentOpacity != value)
+        {
+            currentOpacity = value;
+            foreach (var renderer in GetComponentsInChildren<Renderer>())
+            {
+                foreach (var mat in renderer.materials)
+                {
+                    var col = new Color(mat.color.r, mat.color.g, mat.color.b, value);
+                    mat.color = col;
+                }
+            }
+        }
+    }
 
 
     private Vector3 pickupPos = Vector3.zero;

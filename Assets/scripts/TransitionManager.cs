@@ -118,8 +118,13 @@ public class TransitionManager : MonoBehaviour
             var go = hit.transform.GetComponentInParent<GenericObject>();
             if (mol != null)
             {
-                hoverMol = mol;
-                hoverMol.Hover(true);
+                if (hoverMol != mol)
+                {
+                    if (hoverMol != null) hoverMol.Hover(false);
+                    hoverMol = mol;
+                    hoverMol.Hover(true);
+                }
+
                 if (hoverGenericObject != null)
                 {
                     hoverGenericObject.Hover(false);
@@ -128,8 +133,13 @@ public class TransitionManager : MonoBehaviour
             }
             else if (go != null)
             {
-                hoverGenericObject = go;
-                hoverGenericObject.Hover(true);
+                if (hoverGenericObject != go)
+                {
+                    if (hoverGenericObject != null) hoverGenericObject.Hover(false);
+                    hoverGenericObject = go;
+                    hoverGenericObject.Hover(true);
+                }
+
                 if (hoverMol != null)
                 {
                     hoverMol.Hover(false);

@@ -110,6 +110,8 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnReceiveGenericObjectTransition += TransitionManager.Singleton.getGenericObjectTransitionClient;
         EventManager.Singleton.OnTransitionMolecule += transitionMolecule;
         EventManager.Singleton.OnTransitionGenericObject += transitionGenericObject;
+        EventManager.Singleton.OnSpawnGhostObject += sendSpawnGhostObject;
+        EventManager.Singleton.OnObjectToTrack += sendObjectToTrack;
     }
 
     private void deactivateAsync()
@@ -118,6 +120,8 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnReceiveGenericObjectTransition -= TransitionManager.Singleton.getGenericObjectTransitionClient;
         EventManager.Singleton.OnTransitionMolecule -= transitionMolecule;
         EventManager.Singleton.OnTransitionGenericObject -= transitionGenericObject;
+        EventManager.Singleton.OnSpawnGhostObject -= sendSpawnGhostObject;
+        EventManager.Singleton.OnObjectToTrack -= sendObjectToTrack;
     }
 
     private void activateSync()
@@ -654,6 +658,20 @@ public class NetworkManagerClient : MonoBehaviour
 
         NetworkUtils.serializeGenericObject((ushort)ClientToServerID.transitionGenericObject, sgo, chunkSize, true);
         GenericObject.delete(go);
+    }
+
+    private void sendSpawnGhostObject(string path)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.sendSpawnGhostObject);
+        message.AddString(path);
+        Client.Send(message);
+    }
+
+    private void sendObjectToTrack(Guid id)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.sendObjectToTrack);
+        message.AddGuid(id);
+        Client.Send(message);
     }
 
     #endregion
@@ -1435,6 +1453,29 @@ public class NetworkManagerClient : MonoBehaviour
         Singleton.ServerMousePosition = pos;
 
     }
-#endregion
 
+    [MessageHandler((ushort)ServerToClientID.sendSpawnGhostObject)]
+    private static void getSpawnGhostObject(Message message)
+    {
+        var id = message.GetUShort();
+        var path = message.GetString();
+        if (TaskManager.Singleton != null)
+        {
+            TaskManager.Singleton.spawnGhostObject(path);
+        }
     }
+
+    [MessageHandler((ushort)ServerToClientID.sendObjectToTrack)]
+    private static void getObjectToTrack(Message message)
+    {
+        var server_network_id = message.GetUShort();
+        var id = message.GetGuid();
+        if (TaskManager.Singleton != null)
+        {
+            TaskManager.Singleton.setObjectToTrack(id);
+        }
+    }
+
+    #endregion
+
+}

@@ -45,7 +45,9 @@ public enum ClientToServerID : ushort
     releaseGrabOnScreen = 1038,
     hoverOverScreen = 1039,
     transitionMolecule = 1040,
-    transitionGenericObject = 1041
+    transitionGenericObject = 1041,
+    sendSpawnGhostObject = 1042,
+    sendObjectToTrack = 1043
 }
 
 public enum ServerToClientID : ushort
@@ -94,7 +96,9 @@ public enum ServerToClientID : ushort
     transitionGenericObject = 2041,
     requestTransition = 2042,
     bcastRequestDeleteMarked = 2043,
-    bcastMousePosition = 2044
+    bcastMousePosition = 2044,
+    sendSpawnGhostObject = 2045,
+    sendObjectToTrack = 2046
 }
 
 public enum SimToServerID : ushort

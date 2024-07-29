@@ -8,6 +8,7 @@ using System.Xml;
 using System.Xml.Serialization;
 
 using UnityEngine;
+using chARpackStructs;
 public class XMLFileHelper
 { 
     
@@ -40,31 +41,19 @@ public class XMLFileHelper
     /// <summary>
     /// It saves the specified object¡¯s data into a XML file.
     /// </summary>
-    public static void SaveData(string fileName, object data)
+    public static void SaveData(string fileName, List<cmlData> data)
     {
         string path = fileName;
-        Stream stream = File.Create(path);
-        var xmlWriterSettings = new XmlWriterSettings() { Indent = true };
-        // Debug.Log("stream is open");
-        // Convert the object to XML data and put it in the stream
         XmlSerializer serializer = new XmlSerializer(data.GetType());
-        using (XmlWriter writer = XmlWriter.Create(stream, xmlWriterSettings))
+
+        using (FileStream stream = new FileStream(path, FileMode.Create))
         {
-            // Serialize using the XmlTextWriter. 
-            serializer.Serialize(writer, data);
-            writer.Close();
+            serializer.Serialize(stream, data);
+
+            // Write a newline character to the stream after closing the XmlWriter
+            byte[] newLineBytes = Encoding.UTF8.GetBytes(Environment.NewLine);
+            stream.Write(newLineBytes, 0, newLineBytes.Length);
         }
-        //using (XmlWriter writer = new XmlTextWriter(stream, Encoding.Unicode))
-        //{
-        //    // Serialize using the XmlTextWriter. 
-        //    serializer.Serialize(writer, data);
-        //    writer.Close();
-        //}
-
-
-
-        // Close the file
-        stream.Close();
     }
 
     /// <summary>
@@ -72,26 +61,39 @@ public class XMLFileHelper
     /// </summary>
     public static object LoadData(string fileName, Type type)
     {
-
-        //Stream stream = File.OpenRead(fileName);
-
-        //XmlRootAttribute xRoot = new XmlRootAttribute();
-        ////xRoot.ElementName = "message";
-        //xRoot.IsNullable = true;
-        //XmlSerializer serializer = new XmlSerializer(type, xRoot);
-
-        //object obj = serializer.Deserialize(stream);
-
-        //stream.Close();
-        //return obj;
-
-
         try 
         {
             Stream stream = File.OpenRead(fileName);
             XmlSerializer serializer = new XmlSerializer(type);
 
             object obj = serializer.Deserialize(stream);
+
+            stream.Close();
+            return obj;
+        }
+        catch (Exception ex)
+        {
+            Debug.Log("2:" + ex.GetBaseException());
+        }
+        return null;
+
+    }
+
+    public static object LoadDataFromResources(string filePath, Type type)
+    {
+        var path = filePath;
+        if (Path.HasExtension(path))
+        {
+            path = Path.Join(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path));
+        }
+        try
+        {
+            TextAsset xmlAsText = Resources.Load<TextAsset>(path);
+
+            MemoryStream stream = new MemoryStream(xmlAsText.bytes);
+
+            XmlSerializer serializer = new XmlSerializer(typeof(List<cmlData>));
+            var obj = (List<cmlData>)serializer.Deserialize(stream);
 
             stream.Close();
             return obj;

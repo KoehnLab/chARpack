@@ -151,7 +151,7 @@ public class myBoundingBox : MonoBehaviour
     //    Destroy(myLR);
     //}
 
-    private void Awake()
+    private void Start()
     {
         boxGO = new GameObject("box");
         boxGO.transform.parent = transform;
@@ -168,6 +168,11 @@ public class myBoundingBox : MonoBehaviour
 
         handleHoverMaterial = Resources.Load<Material>("materials/BoundingBoxHandleHover");
         lineHoverMaterial = Resources.Load<Material>("materials/BoundingBoxLineHover");
+    }
+
+    public void show(bool value)
+    {
+        boxGO.SetActive(value);
     }
 
     private void generateCorners()

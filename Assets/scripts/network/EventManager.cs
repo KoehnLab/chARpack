@@ -392,6 +392,20 @@ public class EventManager : MonoBehaviour
         OnForwardDeleteMarkedRequest?.Invoke();
     }
 
+    public delegate void SpawnGhostObjectAction(string path);
+    public event SpawnGhostObjectAction OnSpawnGhostObject;
+    public void SpawnGhostObject(string path)
+    {
+        OnSpawnGhostObject?.Invoke(path);
+    }
+
+    public delegate void ObjectToTrackAction(Guid id);
+    public event ObjectToTrackAction OnObjectToTrack;
+    public void ObjectToTrack(Guid id)
+    {
+        OnObjectToTrack?.Invoke(id);
+    }
+
     #endregion
 
 

@@ -112,6 +112,8 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnTransitionGenericObject += transitionGenericObject;
         EventManager.Singleton.OnReceiveGenericObjectTransition += TransitionManager.Singleton.getGenericObjectTransitionServer;
         EventManager.Singleton.OnRequestTransition += requestTransition;
+        EventManager.Singleton.OnSpawnGhostObject += sendSpawnGhostObject;
+        EventManager.Singleton.OnObjectToTrack += sendObjectToTrack;
     }
 
     private void deactivateAsync()
@@ -121,6 +123,8 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnTransitionGenericObject -= transitionGenericObject;
         EventManager.Singleton.OnReceiveGenericObjectTransition -= TransitionManager.Singleton.getGenericObjectTransitionServer;
         EventManager.Singleton.OnRequestTransition -= requestTransition;
+        EventManager.Singleton.OnSpawnGhostObject -= sendSpawnGhostObject;
+        EventManager.Singleton.OnObjectToTrack -= sendObjectToTrack;
     }
 
 
@@ -653,6 +657,22 @@ public class NetworkManagerServer : MonoBehaviour
     {
         Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteEverything);
         message.AddUShort(0);
+        Server.SendToAll(message);
+    }
+
+    public void sendSpawnGhostObject(string path)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.sendSpawnGhostObject);
+        message.AddUShort(0);
+        message.AddString(path);
+        Server.SendToAll(message);
+    }
+
+    public void sendObjectToTrack(Guid id)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.sendObjectToTrack);
+        message.AddUShort(0);
+        message.AddGuid(id);
         Server.SendToAll(message);
     }
 
@@ -1479,6 +1499,26 @@ public class NetworkManagerServer : MonoBehaviour
     private static void getGenericObjectTransition(ushort fromClientId, Message message)
     {
         NetworkUtils.deserializeGenericObject(message, ref cmlTotalBytes, ref sGO, chunkSize);
+    }
+
+    [MessageHandler((ushort)ClientToServerID.sendSpawnGhostObject)]
+    private static void getSpawnGhostObject(ushort fromClientId, Message message)
+    {
+        var path = message.GetString();
+        if (TaskManager.Singleton != null)
+        {
+            TaskManager.Singleton.spawnGhostObject(path);
+        }
+    }
+
+    [MessageHandler((ushort)ClientToServerID.sendObjectToTrack)]
+    private static void getObjectToTrack(ushort fromClientId, Message message)
+    {
+        var id = message.GetGuid();
+        if (TaskManager.Singleton != null)
+        {
+            TaskManager.Singleton.setObjectToTrack(id);
+        }
     }
 
     #endregion
