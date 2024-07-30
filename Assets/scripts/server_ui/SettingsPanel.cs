@@ -1,8 +1,11 @@
 using Microsoft.MixedReality.Toolkit.Utilities;
+using SimpleFileBrowser;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.IO;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -47,16 +50,59 @@ public class SettingsPanel : MonoBehaviour
     public GameObject transitionAnimationDropdown;
     public GameObject transitionAnimationDurationSlider;
     public GameObject desktopTargetDropdown;
+    public GameObject randomSeedInputField;
+
+    // save load buttons
+    public GameObject saveSettingsButton;
+    public GameObject loadSettingsButton;
 
     private void Start()
     {
         updateElements();
+        saveSettingsButton.GetComponent<Button>().onClick.AddListener(delegate { StartCoroutine(ShowSaveDialogCoroutine()); });
+        loadSettingsButton.GetComponent<Button>().onClick.AddListener(delegate { StartCoroutine(ShowLoadDialogCoroutine()); });
     }
 
     private void OnEnable()
     {
         updateElements();
     }
+
+    IEnumerator ShowSaveDialogCoroutine()
+    {
+        yield return FileBrowser.WaitForSaveDialog(FileBrowser.PickMode.Files);
+
+
+        if (FileBrowser.Success)
+        {
+            if (FileBrowser.Result.Length != 1)
+            {
+                Debug.LogError("[SettingsPanel] Path from FileBrowser is empty. Abort.");
+                yield break;
+            }
+            FileInfo fi = new FileInfo(FileBrowser.Result[0]);
+            SettingsData.dumpSettingsToJSON(fi.FullName);
+        }
+    }
+
+    IEnumerator ShowLoadDialogCoroutine()
+    {
+        yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files);
+
+
+        if (FileBrowser.Success)
+        {
+            if (FileBrowser.Result.Length != 1)
+            {
+                Debug.LogError("[SettingsPanel] Path from FileBrowser is empty. Abort.");
+                yield break;
+            }
+            FileInfo fi = new FileInfo(FileBrowser.Result[0]);
+            SettingsData.readSettingsFromJSON(fi.FullName);
+            updateElements();
+        }
+    }
+
 
     /// <summary>
     /// Checks the current state of all settings data from the network.
@@ -147,6 +193,7 @@ public class SettingsPanel : MonoBehaviour
         transitionAnimationDropdown.GetComponent<TMPro.TMP_Dropdown>().value = transitionAniValue;
         transitionAnimationDurationSlider.GetComponent<Slider>().value = SettingsData.transitionAnimationDuration;
         transitionAnimationDurationSlider.GetComponent<UpdateSliderLabel>().updateLabel();
+        randomSeedInputField.GetComponent<TMP_InputField>().text = $"{SettingsData.randomSeed}";
     }
 
     /// <summary>
@@ -214,6 +261,8 @@ public class SettingsPanel : MonoBehaviour
             SettingsData.transitionAnimation = TransitionManager.TransitionAnimation.NONE;
         }
         SettingsData.transitionAnimationDuration = transitionAnimationDurationSlider.GetComponent<Slider>().value;
+        SettingsData.randomSeed = int.Parse(randomSeedInputField.GetComponent<TMP_InputField>().text);
+
 
         settingsControl.Singleton.updateSettings();
         EventManager.Singleton.UpdateSettings();

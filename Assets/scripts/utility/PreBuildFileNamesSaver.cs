@@ -39,7 +39,7 @@ class PreBuildFileNamesSaver : IPreprocessBuildWithReport
 
         //Convert the Names to Json to make it easier to access when reading it
         FileNameInfo fileInfo = new FileNameInfo(fileNames);
-        string fileInfoJson = JsonUtility.ToJson(fileInfo);
+        string fileInfoJson = JsonUtility.ToJson(fileInfo, true);
 
         //Save the json to the Resources folder as "FileNames.txt"
         File.WriteAllText(Application.dataPath + "/Resources/FileNames.txt", fileInfoJson);

@@ -151,7 +151,7 @@ public class myBoundingBox : MonoBehaviour
     //    Destroy(myLR);
     //}
 
-    private void Start()
+    private void Awake()
     {
         boxGO = new GameObject("box");
         boxGO.transform.parent = transform;

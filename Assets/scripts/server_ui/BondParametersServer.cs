@@ -13,7 +13,6 @@ public class BondParametersServer : MonoBehaviour
     public GameObject title;
     public GameObject textbox1;
     public GameObject textbox2;
-    [HideInInspector] public Canvas UI;
     public TMP_Text topText;
     public TMP_InputField topInput;
     public TMP_Text bottomText;
@@ -63,9 +62,8 @@ public class BondParametersServer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        var UIthing = GameObject.Find("UICanvas");
-        UI = UIthing.GetComponent<Canvas>();
-        transform.SetParent(UI.transform);
+        var canvas = UICanvas.Singleton.GetComponent<Canvas>();
+        transform.SetParent(canvas.transform);
         rect = transform as RectTransform;
         this.transform.localScale = new Vector2(1.1f, 1.1f);
         Vector2 save = SpawnManager.Singleton.GetSpawnLocalPosition(rect);

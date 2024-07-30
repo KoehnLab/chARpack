@@ -47,7 +47,8 @@ public enum ClientToServerID : ushort
     transitionMolecule = 1040,
     transitionGenericObject = 1041,
     sendSpawnGhostObject = 1042,
-    sendObjectToTrack = 1043
+    sendObjectToTrack = 1043,
+    sendResults = 1044
 }
 
 public enum ServerToClientID : ushort
@@ -98,7 +99,9 @@ public enum ServerToClientID : ushort
     bcastRequestDeleteMarked = 2043,
     bcastMousePosition = 2044,
     sendSpawnGhostObject = 2045,
-    sendObjectToTrack = 2046
+    sendObjectToTrack = 2046,
+    sendSpawnObjectCollection = 2047,
+    requestResults = 2048
 }
 
 public enum SimToServerID : ushort

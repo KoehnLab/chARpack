@@ -1431,16 +1431,6 @@ public class GlobalCtrl : MonoBehaviour
         EventManager.Singleton.CreateGenericObject(go);
     }
 
-    public void createSettingsDump()
-    {
-        SettingsData.dumpSettingsToJSON();
-    }
-
-    public void loadSettings(string path)
-    {
-        SettingsData.readSettingsFromJSON(path);
-    }
-
     public Transform getFirstMarkedObject()
     {
         if (GlobalCtrl.Singleton.List_curMolecules.Count > 0)

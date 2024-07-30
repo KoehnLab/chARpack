@@ -17,17 +17,15 @@ public class ServerTooltip : MonoBehaviour
     public bool isSmall = false;
     public GameObject title;
     public GameObject infobox;
-    // Start is called before the first frame update
-    public Canvas UI;
+
+
     public virtual void Start()
     {
-        var UIthing = GameObject.Find("UICanvas");
-        UI = UIthing.GetComponent<Canvas>();
-        transform.SetParent(UI.transform);
+        var canvas = UICanvas.Singleton.GetComponent<Canvas>();
+        transform.SetParent(canvas.transform);
         var drag = title.gameObject.AddComponent<Draggable>();
         drag.target = transform;
         rect = transform as RectTransform;
-        RectTransform canvasRectTransform = UI.GetComponent<RectTransform>();
         transform.localScale = new Vector2(1, 1);
         if (localPosition != new Vector3(0, 0, 0))
         {

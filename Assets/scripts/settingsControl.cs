@@ -1,9 +1,6 @@
 using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.SpatialAwareness;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
@@ -63,6 +60,7 @@ public class settingsControl : MonoBehaviour
         setInteractionMode(SettingsData.interactionMode);
         setAutoGenerateStructureFormulas(SettingsData.autogenerateStructureFormulas);
         setSyncMode(SettingsData.syncMode);
+        setRandomSeed(SettingsData.randomSeed);
         GlobalCtrl.Singleton.setLicoriceRendering(SettingsData.licoriceRendering);
         GlobalCtrl.Singleton.reloadShaders();
         GlobalCtrl.Singleton.regenerateSingleBondTooltips(); // Regenerate in case length unit was changed
@@ -207,5 +205,10 @@ public class settingsControl : MonoBehaviour
         {
             NetworkManagerServer.Singleton.changeSyncMode(mode);
         }
+    }
+
+    private void setRandomSeed(int seed)
+    {
+        UnityEngine.Random.InitState(seed);
     }
 }

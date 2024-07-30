@@ -164,7 +164,7 @@ public class UserPanelEntry : MonoBehaviour
     {
         if (!secondaryStructureDialogInstance)
         {
-            secondaryStructureDialogInstance = Instantiate(StructureFormulaManager.Singleton.secondaryStructureDialogPrefab, StructureFormulaManager.Singleton.UICanvas.transform);
+            secondaryStructureDialogInstance = Instantiate(StructureFormulaManager.Singleton.secondaryStructureDialogPrefab, UICanvas.Singleton.transform);
             secondaryStructureDialogInstance.GetComponent<SecondaryStructureFormula>().focus_id = focus_id;
         }
     }

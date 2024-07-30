@@ -406,6 +406,20 @@ public class EventManager : MonoBehaviour
         OnObjectToTrack?.Invoke(id);
     }
 
+    public delegate void SpawnObjectCollectionAction(int task_id);
+    public event SpawnObjectCollectionAction OnSpawnObjectCollection;
+    public void SpawnObjectCollection(int task_id)
+    {
+        OnSpawnObjectCollection?.Invoke(task_id);
+    }
+
+    public delegate void RequestResultsAction();
+    public event RequestResultsAction OnRequestResults;
+    public void RequestResults()
+    {
+        OnRequestResults?.Invoke();
+    }
+
     #endregion
 
 

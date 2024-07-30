@@ -114,6 +114,8 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnRequestTransition += requestTransition;
         EventManager.Singleton.OnSpawnGhostObject += sendSpawnGhostObject;
         EventManager.Singleton.OnObjectToTrack += sendObjectToTrack;
+        EventManager.Singleton.OnSpawnObjectCollection += sendSpawnObjectCollection;
+        EventManager.Singleton.OnRequestResults += requestResults;
     }
 
     private void deactivateAsync()
@@ -125,6 +127,8 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnRequestTransition -= requestTransition;
         EventManager.Singleton.OnSpawnGhostObject -= sendSpawnGhostObject;
         EventManager.Singleton.OnObjectToTrack -= sendObjectToTrack;
+        EventManager.Singleton.OnSpawnObjectCollection -= sendSpawnObjectCollection;
+        EventManager.Singleton.OnRequestResults -= requestResults;
     }
 
 
@@ -485,6 +489,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddInt((int)SettingsData.transitionAnimation);
         message.AddFloat(SettingsData.transitionAnimationDuration);
         message.AddInt((int)SettingsData.desktopTarget);
+        message.AddInt(SettingsData.randomSeed);
         Server.SendToAll(message);
     }
 
@@ -673,6 +678,22 @@ public class NetworkManagerServer : MonoBehaviour
         Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.sendObjectToTrack);
         message.AddUShort(0);
         message.AddGuid(id);
+        Server.SendToAll(message);
+    }
+
+    public void sendSpawnObjectCollection(int task_id)
+    {
+        Debug.Log("[NetworkManagerServer] Sending request to spawn obejct collection");
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.sendSpawnObjectCollection);
+        message.AddUShort(0);
+        message.AddInt(task_id);
+        Server.SendToAll(message);
+    }
+
+    public void requestResults()
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.requestResults);
+        message.AddUShort(0);
         Server.SendToAll(message);
     }
 
@@ -1505,9 +1526,9 @@ public class NetworkManagerServer : MonoBehaviour
     private static void getSpawnGhostObject(ushort fromClientId, Message message)
     {
         var path = message.GetString();
-        if (TaskManager.Singleton != null)
+        if (StudyTaskManager.Singleton != null)
         {
-            TaskManager.Singleton.spawnGhostObject(path);
+            StudyTaskManager.Singleton.spawnGhostObject(path);
         }
     }
 
@@ -1515,9 +1536,21 @@ public class NetworkManagerServer : MonoBehaviour
     private static void getObjectToTrack(ushort fromClientId, Message message)
     {
         var id = message.GetGuid();
-        if (TaskManager.Singleton != null)
+        if (StudyTaskManager.Singleton != null)
         {
-            TaskManager.Singleton.setObjectToTrack(id);
+            StudyTaskManager.Singleton.setObjectToTrack(id);
+        }
+    }
+
+    [MessageHandler((ushort)ClientToServerID.sendResults)]
+    private static void getResults(ushort fromClientId, Message message)
+    {
+        var angle = message.GetFloat();
+        var dist = message.GetFloat();
+        if (StudyTaskManager.Singleton != null)
+        {
+            StudyTaskManager.Singleton.resultAngle = angle;
+            StudyTaskManager.Singleton.resultDist = dist;
         }
     }
 

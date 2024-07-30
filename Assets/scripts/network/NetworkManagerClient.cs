@@ -674,6 +674,14 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
+    private void sendResults(float angle, float dist)
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.sendResults);
+        message.AddFloat(angle);
+        message.AddFloat(dist);
+        Client.Send(message);
+    }
+
     #endregion
 
     #region Listen
@@ -1168,6 +1176,7 @@ public class NetworkManagerClient : MonoBehaviour
         var transitionAnimation = (TransitionManager.TransitionAnimation)message.GetInt();
         var transitionAnimationDuration = message.GetFloat();
         var desktopTarget = (TransitionManager.DesktopTarget)message.GetInt();
+        var randomSeed = message.GetInt();
 
         // Get enum entries from strings
         Enum.TryParse(integrationMethodString, ignoreCase: true, out ForceField.Method integrationMethod);
@@ -1205,6 +1214,7 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.transitionAnimation = transitionAnimation;
             SettingsData.transitionAnimationDuration = transitionAnimationDuration;
             SettingsData.desktopTarget = desktopTarget;
+            SettingsData.randomSeed = randomSeed;
             settingsControl.Singleton.updateSettings();
             if (appSettings.Singleton != null)
             {
@@ -1459,9 +1469,9 @@ public class NetworkManagerClient : MonoBehaviour
     {
         var id = message.GetUShort();
         var path = message.GetString();
-        if (TaskManager.Singleton != null)
+        if (StudyTaskManager.Singleton != null)
         {
-            TaskManager.Singleton.spawnGhostObject(path);
+            StudyTaskManager.Singleton.spawnGhostObject(path);
         }
     }
 
@@ -1470,12 +1480,37 @@ public class NetworkManagerClient : MonoBehaviour
     {
         var server_network_id = message.GetUShort();
         var id = message.GetGuid();
-        if (TaskManager.Singleton != null)
+        if (StudyTaskManager.Singleton != null)
         {
-            TaskManager.Singleton.setObjectToTrack(id);
+            StudyTaskManager.Singleton.setObjectToTrack(id);
         }
     }
 
+
+    [MessageHandler((ushort)ServerToClientID.sendSpawnObjectCollection)]
+    private static void getSpawnObjectCollection(Message message)
+    {
+        var server_network_id = message.GetUShort();
+        var task_id = message.GetInt();
+        if (StudyTaskManager.Singleton != null)
+        {
+            StudyTaskManager.Singleton.overrideTaskID(task_id);
+            StudyTaskManager.Singleton.generateObjects();
+        }
+    }
+
+
+    [MessageHandler((ushort)ServerToClientID.requestResults)]
+    private static void getRequestResults(Message message)
+    {
+        var server_network_id = message.GetUShort();
+        if (StudyTaskManager.Singleton != null)
+        {
+            var angle = StudyTaskManager.Singleton.getErrorAngle();
+            var dist = StudyTaskManager.Singleton.getErrorAngle();
+            
+        }
+    }
     #endregion
 
 }

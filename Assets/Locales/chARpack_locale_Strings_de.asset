@@ -583,9 +583,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 131626782116265984
-    m_Localized: 'Strukturformeln automatisch
-
-      generieren'
+    m_Localized: Strukturformeln auto gen.
     m_Metadata:
       m_Items: []
   references:

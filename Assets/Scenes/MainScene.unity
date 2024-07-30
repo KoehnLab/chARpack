@@ -672,7 +672,7 @@ GameObject:
   - component: {fileID: 227606439}
   - component: {fileID: 227606440}
   m_Layer: 0
-  m_Name: TaskManager
+  m_Name: StudyManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -702,7 +702,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 227606438}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b0bd75b950d0ea4791add454b06eedc, type: 3}
+  m_Script: {fileID: 11500000, guid: 2c32fffe23a828f42a1c7c0fb49c7774, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &238955595

@@ -117,22 +117,36 @@ public class SettingsData
     }
 
 
-    public static void dumpSettingsToJSON()
+    public static void dumpSettingsToJSON(string path)
     {
 
         var settingsDataObject = new SettingsData();
         //Convert the Names to Json to make it easier to access when reading it
         //string settingsJson = JsonUtility.ToJson(settingsDataObject);
         string settingsJson = JsonConvert.SerializeObject(settingsDataObject);
+        settingsJson = JValue.Parse(settingsJson).ToString(Formatting.Indented); // make it pretty
 
-        //Save the json to the Resources folder 
-        File.WriteAllText(Application.dataPath + "/Resources/settings/currentSettings.json", settingsJson);
+        //Save the json as file
+        File.WriteAllText(path, settingsJson);
     }
 
     public static void readSettingsFromJSON(string path)
     {
-        var file = Resources.Load<TextAsset>(path);
-        var source = JsonConvert.DeserializeObject<JToken>(file.text);
+        string file_content;
+        if (path.Contains("Resources/")) {
+            var reduced = path.Split("Resources/")[1];
+            var resources_file = Path.Join(Path.GetDirectoryName(reduced), Path.GetFileNameWithoutExtension(reduced));
+            var file = Resources.Load<TextAsset>(resources_file);
+            file_content = file.text;
+        }
+        else
+        {
+            StreamReader reader = new StreamReader(path);
+            file_content = reader.ReadToEnd();
+            reader.Close();
+        }
+
+        var source = JsonConvert.DeserializeObject<JToken>(file_content);
 
         var destinatonFields = new List<FieldInfo>();
         var type = typeof(SettingsData);

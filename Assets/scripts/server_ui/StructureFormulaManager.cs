@@ -50,7 +50,6 @@ public class StructureFormulaManager : MonoBehaviour
     public Dictionary<Guid, Triple<GameObject, string, List<GameObject>>> svg_instances { get; private set; } // mol_id, primary_structure_formula, svg_content, secondary_structure_formulas
     private GameObject interactiblePrefab;
     private GameObject structureFormulaPrefab;
-    public GameObject UICanvas;
     private List<Texture2D> heatMapTextures;
     private List<string> heatMapNames = new List<string> { "HeatTexture_Cool", "HeatTexture_Inferno", "HeatTexture_Magma", "HeatTexture_Plasma", "HeatTexture_Viridis", "HeatTexture_Warm" };
     [HideInInspector]
@@ -63,7 +62,6 @@ public class StructureFormulaManager : MonoBehaviour
         interactiblePrefab = (GameObject)Resources.Load("prefabs/2DAtom");
         selectionBoxPrefab = (GameObject)Resources.Load("prefabs/2DSelectionBox");
         secondaryStructureDialogPrefab = (GameObject)Resources.Load("prefabs/SecondaryStructureFormulaDialog");
-        UICanvas = GameObject.Find("UICanvas");
 
         heatMapTextures = new List<Texture2D>();
         foreach (var name in heatMapNames)
@@ -91,7 +89,7 @@ public class StructureFormulaManager : MonoBehaviour
             return;
         }
         var sf = svg_instances[mol_id].Item1.GetComponentInParent<StructureFormula>();
-        var new_go = Instantiate(sf.gameObject, UICanvas.transform);
+        var new_go = Instantiate(sf.gameObject, UICanvas.Singleton.transform);
         new_go.transform.localScale = 0.8f * new_go.transform.localScale;
         var new_sf = new_go.GetComponent<StructureFormula>();
         new_sf.label.text = $"{sf.label.text} Focus: {focus_id}";
@@ -112,7 +110,7 @@ public class StructureFormulaManager : MonoBehaviour
     {
         var old_sf = old_go.GetComponentInParent<StructureFormula>();
         var sf = svg_instances[mol_id].Item1.GetComponentInParent<StructureFormula>();
-        var new_go = Instantiate(sf.gameObject, UICanvas.transform);
+        var new_go = Instantiate(sf.gameObject, UICanvas.Singleton.transform);
         new_go.transform.localScale = old_sf.transform.localScale;
         new_go.transform.localPosition = old_sf.transform.localPosition;
         var new_sf = new_go.GetComponentInChildren<StructureFormula>();
@@ -138,7 +136,7 @@ public class StructureFormulaManager : MonoBehaviour
         {
             var sceneInfo = SVGParser.ImportSVG(new StringReader(svg_content));
             var rect = svg_instances[mol_id].Item1.transform as RectTransform;
-            var ui_rect = UICanvas.transform as RectTransform;
+            var ui_rect = UICanvas.Singleton.transform as RectTransform;
             float scaling_factor_w = (ui_rect.sizeDelta.x * 0.3f) / sceneInfo.SceneViewport.width;
             float scaling_factor_h = (ui_rect.sizeDelta.y * 0.5f) / sceneInfo.SceneViewport.height;
             var scaling_factor = scaling_factor_w < scaling_factor_h ? scaling_factor_w : scaling_factor_h;
@@ -180,7 +178,7 @@ public class StructureFormulaManager : MonoBehaviour
         }
         else // New Content
         {
-            GameObject sf_object = Instantiate(structureFormulaPrefab, UICanvas.transform);
+            GameObject sf_object = Instantiate(structureFormulaPrefab, UICanvas.Singleton.transform);
             sf_object.transform.localScale = Vector3.one;
             var sf = sf_object.GetComponent<StructureFormula>();
 
@@ -190,7 +188,7 @@ public class StructureFormulaManager : MonoBehaviour
 
             var sceneInfo = SVGParser.ImportSVG(new StringReader(svg_content));
 
-            var ui_rect = UICanvas.transform as RectTransform;
+            var ui_rect = UICanvas.Singleton.transform as RectTransform;
             float scaling_factor_w = (ui_rect.sizeDelta.x * 0.3f) / sceneInfo.SceneViewport.width;
             float scaling_factor_h = (ui_rect.sizeDelta.y * 0.5f) / sceneInfo.SceneViewport.height;
             var scaling_factor = scaling_factor_w < scaling_factor_h ? scaling_factor_w : scaling_factor_h;
@@ -445,7 +443,7 @@ public class StructureFormulaManager : MonoBehaviour
             
             if (selectionBoxInstance)
             {
-                var scaleFactor = UICanvas.GetComponent<Canvas>().scaleFactor;
+                var scaleFactor = UICanvas.Singleton.GetComponent<Canvas>().scaleFactor;
 
                 var selBox = selectionBoxInstance.transform as RectTransform;
                 selBox.sizeDelta = new Vector2(Mathf.Abs(width), Mathf.Abs(height)); // / scaleFactor;

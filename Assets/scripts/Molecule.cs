@@ -442,14 +442,28 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         if (currentOpacity != value)
         {
             currentOpacity = value;
-            foreach (var renderer in GetComponentsInChildren<Renderer>())
+            foreach (var atom in atomList)
             {
+                var renderer = atom.GetComponent<Renderer>();
                 foreach (var mat in renderer.materials)
                 {
                     var col = new Color(mat.color.r, mat.color.g, mat.color.b, value);
                     mat.color = col;
                 }
             }
+            foreach(var bond in bondList)
+            {
+                var renderer = bond.GetComponentInChildren<Renderer>();
+                renderer.material.SetFloat("Alpha", value);
+            }
+            //foreach (var renderer in GetComponentsInChildren<Renderer>())
+            //{
+            //    foreach (var mat in renderer.materials)
+            //    {
+            //        var col = new Color(mat.color.r, mat.color.g, mat.color.b, value);
+            //        mat.color = col;
+            //    }
+            //}
         }
     }
 

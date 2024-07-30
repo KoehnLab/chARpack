@@ -95,8 +95,7 @@ public class ServerInputSystem : MonoBehaviour
                 }
                 else // do the hide
                 {
-                    var ui_canvas = GameObject.Find("UICanvas");
-                    foreach (Transform child in ui_canvas.transform)
+                    foreach (Transform child in UICanvas.Singleton.transform)
                     {
                         if (child.gameObject.layer == LayerMask.NameToLayer("UI"))
                         {
@@ -105,7 +104,13 @@ public class ServerInputSystem : MonoBehaviour
                         }
                     }
                 }
-
+            }
+            if (Input.GetKeyDown(KeyCode.Return))
+            {
+                if (StudyTaskManager.Singleton != null)
+                {
+                    StudyTaskManager.Singleton.startAndFinishTask();
+                }
             }
         }
     }
