@@ -17,7 +17,6 @@ public class StructureFormula : MonoBehaviour
     public TextMeshProUGUI label;
     public HeatMap2D heatMap;
     public TMP_Dropdown highlight_choice_dropdown;
-    public myResizer resizer;
     [HideInInspector]
     public Atom2D[] interactables;
     public float scaleFactor = 1.0f;
@@ -58,17 +57,7 @@ public class StructureFormula : MonoBehaviour
             Vector2 save = SpawnManager.Singleton.GetSpawnLocalPosition(rect);
             rect.position = save;
         }
-
-        resizer.resizeImage();
-        StartCoroutine(WaitAndPositionHandles());
     }
-
-    public IEnumerator WaitAndPositionHandles()
-    {
-        yield return new WaitForSeconds(0.25f);
-        resizer.moveHandlesAndResize();
-    }
-
 
     public void setHighlightOption(Int32 choice)
     {
@@ -134,7 +123,6 @@ public class StructureFormula : MonoBehaviour
             rect.sizeDelta = new Vector2(rect.sizeDelta.x, rect.sizeDelta.y + image_hight);
             rect.localPosition = new Vector3(rect.localPosition.x, rect.localPosition.y - 0.5f * image_hight, rect.localPosition.z);
         }
-        resizer.moveHandlesAndResize();
     }
 
     private void toggleImage()
