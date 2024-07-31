@@ -259,18 +259,21 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
     private Stopwatch transitionGrabCoolDown = Stopwatch.StartNew();
     private void OnTransitionGrab(Vector3 pos)
     {
-        if (GetComponent<myBoundingBox>().contains(pos))
+        if (isInteractable)
         {
-            if (SettingsData.syncMode == TransitionManager.SyncMode.Async)
+            if (GetComponent<myBoundingBox>().contains(pos))
             {
-                transitionGrabCoolDown?.Stop();
-                if (transitionGrabCoolDown?.ElapsedMilliseconds < 800)
+                if (SettingsData.syncMode == TransitionManager.SyncMode.Async)
                 {
-                    transitionGrabCoolDown.Start();
-                    return;
+                    transitionGrabCoolDown?.Stop();
+                    if (transitionGrabCoolDown?.ElapsedMilliseconds < 800)
+                    {
+                        transitionGrabCoolDown.Start();
+                        return;
+                    }
+                    TransitionManager.Singleton.initializeTransitionClient(transform, TransitionManager.InteractionType.DISTANT_GRAB);
+                    transitionGrabCoolDown.Restart();
                 }
-                TransitionManager.Singleton.initializeTransitionClient(transform, TransitionManager.InteractionType.DISTANT_GRAB);
-                transitionGrabCoolDown.Restart();
             }
         }
     }
@@ -340,6 +343,11 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    public bool getIsInteractable()
+    {
+        return isInteractable;
+    }
+
     float currentOpacity = 1f;
     public void setOpacity(float value)
     {
@@ -367,13 +375,16 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="eventData"></param>
     public void OnPointerDown(MixedRealityPointerEventData eventData)
     {
-        pickupPos = transform.localPosition;
-        pickupRot = transform.localRotation;
-        isGrabbed = true;
-        stopwatch = Stopwatch.StartNew();
-        // change material of grabbed object
-        GetComponent<myBoundingBox>().setGrabbed(true);
-        processHighlights();
+        if (isInteractable)
+        {
+            pickupPos = transform.localPosition;
+            pickupRot = transform.localRotation;
+            isGrabbed = true;
+            stopwatch = Stopwatch.StartNew();
+            // change material of grabbed object
+            GetComponent<myBoundingBox>().setGrabbed(true);
+            processHighlights();
+        }
     }
 
     public void OnPointerClicked(MixedRealityPointerEventData eventData)
@@ -404,21 +415,24 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="eventData"></param>
     public void OnPointerUp(MixedRealityPointerEventData eventData)
     {
-        stopwatch?.Stop();
-        if (isGrabbed)
+        if (isInteractable)
         {
-            isGrabbed = false;
-            if (stopwatch?.ElapsedMilliseconds < 200)
+            stopwatch?.Stop();
+            if (isGrabbed)
             {
-                transform.localPosition = pickupPos;
-                transform.localRotation = pickupRot;
-                //EventManager.Singleton.MoveMolecule(m_id, transform.localPosition, transform.localRotation);
-                toggleMarkObject();
-                // TODO open tool tip
+                isGrabbed = false;
+                if (stopwatch?.ElapsedMilliseconds < 200)
+                {
+                    transform.localPosition = pickupPos;
+                    transform.localRotation = pickupRot;
+                    //EventManager.Singleton.MoveMolecule(m_id, transform.localPosition, transform.localRotation);
+                    toggleMarkObject();
+                    // TODO open tool tip
+                }
+                // change material back to normal
+                GetComponent<myBoundingBox>().setGrabbed(false);
+                processHighlights();
             }
-            // change material back to normal
-            GetComponent<myBoundingBox>().setGrabbed(false);
-            processHighlights();
         }
     }
 }

@@ -168,6 +168,10 @@ public class HandTracking : MonoBehaviour
         }
     }
 
+    public bool isIndexGrabbed()
+    {
+        return indexFingerGrab;
+    }
 
     private void getPose()
     {

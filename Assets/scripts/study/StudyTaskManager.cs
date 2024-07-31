@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 
@@ -69,12 +70,12 @@ public class StudyTaskManager : MonoBehaviour
             }
             object_paths_copy.RemoveAt(rnd_id);
         }
-
+        var spacing = 0.9f * longest_edge;
         var forward = (objects[0].Item2.transform.position - GlobalCtrl.Singleton.currentCamera.transform.position).normalized;
         var up = GlobalCtrl.Singleton.currentCamera.transform.up;
         var right = Vector3.Cross(forward, up).normalized;
 
-        var start_pos = objects[0].Item2.transform.position + 1.5f * longest_edge * up - 1.5f * longest_edge * right;
+        var start_pos = objects[0].Item2.transform.position + 1.5f * spacing * up - 1.5f * spacing * right;
         if (NetworkManagerServer.Singleton)
         {
             var start_dist = (start_pos - objects[0].Item2.transform.position).magnitude;
@@ -87,10 +88,11 @@ public class StudyTaskManager : MonoBehaviour
             {
                 rotation = -rotation;
             }
-
-            var dist = (objects[0].Item2.transform.position - GlobalCtrl.Singleton.currentCamera.transform.position).magnitude;
-            start_pos = GlobalCtrl.Singleton.currentCamera.transform.position + dist * (Quaternion.Euler(0f, rotation, 0f) * forward);
+            forward = Quaternion.Euler(0f, rotation, 0f) * forward;
             right = Quaternion.Euler(0f, rotation, 0f) * right;
+            var dist = (objects[0].Item2.transform.position - GlobalCtrl.Singleton.currentCamera.transform.position).magnitude;
+            start_pos = (GlobalCtrl.Singleton.currentCamera.transform.position + 1.5f * spacing * right) + dist * forward + 1.5f * spacing * up - 1.5f * spacing * right;
+
         }
 
         for (int i = 0; i < 4; i++)
@@ -98,10 +100,10 @@ public class StudyTaskManager : MonoBehaviour
             for (int j = 0; j < 4; j++)
             {
                 var obj = objects[j + 4 * i].Item2;
-                obj.position = start_pos + j * longest_edge * right;
+                obj.position = start_pos + j * spacing * right;
                 UnityEngine.Debug.Log($"[TaskManager] obj pos {obj.position}");
             }
-            start_pos -= longest_edge * up;
+            start_pos -= spacing * up;
         }
         highlightRandomObject();
         UnityEngine.Random.InitState(SettingsData.randomSeed);
@@ -166,6 +168,7 @@ public class StudyTaskManager : MonoBehaviour
         }
 
         ghostObject.rotation = Quaternion.Euler(getRandomRotation());
+        ghostObject.localScale = UnityEngine.Random.Range(0.8f * ghostObject.localScale.x, 1.2f * ghostObject.localScale.x) * Vector3.one;
 
         if (NetworkManagerServer.Singleton != null)
         {
@@ -287,16 +290,18 @@ public class StudyTaskManager : MonoBehaviour
         if (task.objectSpawn == StudyTask.objectSpawnEnvironment.DESKTOP)
         {
             // Get data from Client
-            EventManager.Singleton.RequestResults();
-            StartCoroutine(checkForNetworkResults());
-
+            EventManager.Singleton.RequestResults(currentTaskID);
         }
         else
         {
             var angle = getErrorAngle();
             var dist = getErrorDist();
+            var scale = getErrorScale();
             StudyLogger.Singleton.write($"(Task_{currentTaskID}) AngleError: {angle}");
             StudyLogger.Singleton.write($"(Task_{currentTaskID}) DistError: {dist}");
+            StudyLogger.Singleton.write($"(Task_{currentTaskID}) DistError: {scale}");
+            // log finised task
+            StudyLogger.Singleton.write($"(Task_{currentTaskID}) finished.");
         }
     }
 
@@ -348,7 +353,7 @@ public class StudyTaskManager : MonoBehaviour
         }
         else
         {
-            UnityEngine.Debug.LogError($"[getErrorAngle] Could not find object to track");
+            UnityEngine.Debug.LogError($"[getErrorDist] Could not find object to track");
             return -1f;
         }
 
@@ -356,53 +361,76 @@ public class StudyTaskManager : MonoBehaviour
         return dist;
     }
 
+    public float getErrorScale()
+    {
+        var scaleA = ghostObject.transform.localScale.x;
+        float scaleB;
+        if (GlobalCtrl.Singleton.List_curMolecules.ContainsKey(objectToTrack))
+        {
+            scaleB = GlobalCtrl.Singleton.List_curMolecules[objectToTrack].transform.localScale.x;
+        }
+        else if (GenericObject.objects.ContainsKey(objectToTrack))
+        {
+            scaleB = GenericObject.objects[objectToTrack].transform.localScale.x;
+        }
+        else
+        {
+            UnityEngine.Debug.LogError($"[getErrorScale] Could not find object to track");
+            return 0f;
+        }
+
+        var scale = scaleA - scaleB;
+        return scale;
+    }
+
     Stopwatch stopwatch = Stopwatch.StartNew();
     public void startAndFinishTask()
     {
-        if (isTaskInProgress) // finishing task
+        if (currentTaskID < currentTaskSet.Count)
         {
-            isTaskInProgress = false;
-
-            // process and log data
-            stopwatch.Stop();
-            StudyLogger.Singleton.write($"(Task_{currentTaskID}) Time: {stopwatch.ElapsedMilliseconds}");
-            evaluateCorrectness();
-
-            // clear scene and reset objects 
-            ghostObject = null;
-            objectToTrack = Guid.Empty;
-
-            // log finised task
-            StudyLogger.Singleton.write($"(Task_{currentTaskID}) finished.");
-
-            // prepare for next task
-            currentTaskID++;
-            if (currentTaskID == currentTaskSet.Count) // finish study
+            if (isTaskInProgress) // finishing task
             {
-                StudyLogger.Singleton.write($"Study finished.");
+                isTaskInProgress = false;
+
+                // process and log data
+                stopwatch.Stop();
+                StudyLogger.Singleton.write($"(Task_{currentTaskID}) Time: {stopwatch.ElapsedMilliseconds}");
+                evaluateCorrectness();
+
+                // clear scene and reset objects 
+                ghostObject = null;
+                objectToTrack = Guid.Empty;
+
+                // prepare for next task
+                currentTaskID++;
+                if (currentTaskID == currentTaskSet.Count) // finish study
+                {
+                    StudyLogger.Singleton.write($"Study finished.");
+                    showDescriptionText("Study finished.");
+                }
+                else
+                {
+                    activateTask(currentTaskSet[currentTaskID]);
+                }
             }
-            else
+            else // starting task
             {
-                activateTask(currentTaskSet[currentTaskID]);
-            }
-        }
-        else // starting task
-        {
-            GlobalCtrl.Singleton.DeleteAllUI();
-            isTaskInProgress = true;
-            hideDescriptionText();
-            stopwatch.Restart();
+                GlobalCtrl.Singleton.DeleteAllUI();
+                isTaskInProgress = true;
+                hideDescriptionText();
+                stopwatch.Restart();
 
-            StudyLogger.Singleton.write($"(Task_{currentTaskID}) Started.");
+                StudyLogger.Singleton.write($"(Task_{currentTaskID}) Started.");
 
-            var task = currentTaskSet[currentTaskID];
-            if (task.objectSpawn == StudyTask.objectSpawnEnvironment.DESKTOP)
-            {
-                generateObjects();
-            }
-            else
-            {
-                EventManager.Singleton.SpawnObjectCollection(currentTaskID);
+                var task = currentTaskSet[currentTaskID];
+                if (task.objectSpawn == StudyTask.objectSpawnEnvironment.DESKTOP)
+                {
+                    generateObjects();
+                }
+                else
+                {
+                    EventManager.Singleton.SpawnObjectCollection(currentTaskID);
+                }
             }
         }
     }

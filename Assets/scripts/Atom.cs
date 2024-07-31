@@ -141,7 +141,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     private Vector3 newMousePosition;
     public void Update()
     {
-        if (SceneManager.GetActiveScene().name == "ServerScene")
+        if (SceneManager.GetActiveScene().name == "ServerScene" && m_molecule.getIsInteractable())
         {
             if (Input.GetMouseButtonDown(1) && Input.GetKey(KeyCode.LeftShift) && mouseOverAtom())
             {
@@ -228,105 +228,120 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     public Vector3 mouse_offset = Vector3.zero;
     void OnMouseDown()
     {
-        // Handle server GUI interaction
-        if (EventSystem.current.IsPointerOverGameObject()) { return; }
-
-        m_molecule.saveAtomState();
-
-        mouse_offset = gameObject.transform.position - GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
-         new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f));
-
-        if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
+        if (m_molecule.getIsInteractable())
         {
-            stopwatch = Stopwatch.StartNew();
-            grabHighlight(true);
-            isGrabbed = true;
-            EventManager.Singleton.GrabAtom(this, true);
-            before = m_molecule.AsCML();
-        }
-        else if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)
-        {
-            handleMeasurements();
+            // Handle server GUI interaction
+            if (EventSystem.current.IsPointerOverGameObject()) { return; }
+
+            m_molecule.saveAtomState();
+
+            mouse_offset = gameObject.transform.position - GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
+             new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f));
+
+            if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
+            {
+                stopwatch = Stopwatch.StartNew();
+                grabHighlight(true);
+                isGrabbed = true;
+                EventManager.Singleton.GrabAtom(this, true);
+                before = m_molecule.AsCML();
+            }
+            else if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)
+            {
+                handleMeasurements();
+            }
         }
     }
 
     void OnMouseDrag()
     {
-        if (EventSystem.current.IsPointerOverGameObject()) { return; }
-
-        if (!frozen && GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
+        if (m_molecule.getIsInteractable())
         {
-            Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f);
-            transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + mouse_offset;
-            // position relative to molecule position
-            EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
+            if (EventSystem.current.IsPointerOverGameObject()) { return; }
+
+            if (!frozen && GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
+            {
+                Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.5f);
+                transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + mouse_offset;
+                // position relative to molecule position
+                EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
+            }
         }
     }
 
     private void OnMouseUp()
     {
-        if (EventSystem.current.IsPointerOverGameObject()) { return; }
-
-        isGrabbed = false;
-        EventManager.Singleton.GrabAtom(this, false);
-        // reset outline
-        grabHighlight(false);
-
-
-        if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
+        if (m_molecule.getIsInteractable())
         {
-            // measure convergence
-            ForceField.Singleton.resetMeasurment();
+            if (EventSystem.current.IsPointerOverGameObject()) { return; }
 
-            stopwatch?.Stop();
-            if (stopwatch?.ElapsedMilliseconds < 200)
+            isGrabbed = false;
+            EventManager.Singleton.GrabAtom(this, false);
+            // reset outline
+            grabHighlight(false);
+
+
+            if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
             {
-                m_molecule.popAtomState();
-                if (m_molecule.isMarked)
+                // measure convergence
+                ForceField.Singleton.resetMeasurment();
+
+                stopwatch?.Stop();
+                if (stopwatch?.ElapsedMilliseconds < 200)
                 {
-                    m_molecule.markMolecule(false);
+                    m_molecule.popAtomState();
+                    if (m_molecule.isMarked)
+                    {
+                        m_molecule.markMolecule(false);
+                    }
+                    else
+                    {
+                        markAtomUI(!isMarked);
+                    }
                 }
+
                 else
                 {
-                    markAtomUI(!isMarked);
+                    resetMolPositionAfterMove();
+                    cmlData after = m_molecule.AsCML();
+                    GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
+                    EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
+                    EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
+
+
+                    // check for potential merge
+                    GlobalCtrl.Singleton.checkForCollisionsAndMerge(m_molecule);
                 }
             }
-
-            else
-            {
-                resetMolPositionAfterMove();
-                cmlData after = m_molecule.AsCML();
-                GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
-                EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
-                EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
-
-
-            // check for potential merge
-            GlobalCtrl.Singleton.checkForCollisionsAndMerge(m_molecule);
         }
-    }
     }
 
     private void OnMouseOver()
     {
-        if (Input.GetKey(KeyCode.LeftControl))
+        if (m_molecule.getIsInteractable())
         {
-            if (!serverFocus)
+            if (Input.GetKey(KeyCode.LeftControl))
             {
-                serverFocusHighlightUI(true);
+                if (!serverFocus)
+                {
+                    serverFocusHighlightUI(true);
+                }
             }
-        }
-        if (Input.GetKeyUp(KeyCode.LeftControl))
-        {
-            serverFocusHighlightUI(false);
+            if (Input.GetKeyUp(KeyCode.LeftControl))
+            {
+                serverFocusHighlightUI(false);
+            }
         }
     }
 
     private void OnMouseExit()
     {
-        if (serverFocus && !serverFocusByStructure)
+        if (m_molecule.getIsInteractable())
         {
-            serverFocusHighlightUI(false);
+            if (serverFocus && !serverFocusByStructure)
+            {
+                serverFocusHighlightUI(false);
+            }
         }
     }
 
@@ -342,51 +357,54 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     /// <param name="eventData">The data of the triggering pointer event</param>
     public void OnPointerDown(MixedRealityPointerEventData eventData)
     {
-        if (eventData.Pointer is SpherePointer)
+        if (m_molecule.getIsInteractable())
         {
-            m_molecule.saveAtomState();
-            // give it a outline
-            grabHighlight(true);
-
-            stopwatch = Stopwatch.StartNew();
-            isGrabbed = true;
-            EventManager.Singleton.GrabAtom(this, true);
-            before = m_molecule.AsCML();
-
-            // go through the chain of connected atoms and add the force there too
-            if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
+            if (eventData.Pointer is SpherePointer)
             {
-                // Get the bond that is closest to grab direction
-                var fwd = HandTracking.Singleton.getForward();
-                var con_atoms = connectedAtoms();
-                var dot_products = new List<float>();
-                foreach (var atom in con_atoms)
+                m_molecule.saveAtomState();
+                // give it a outline
+                grabHighlight(true);
+
+                stopwatch = Stopwatch.StartNew();
+                isGrabbed = true;
+                EventManager.Singleton.GrabAtom(this, true);
+                before = m_molecule.AsCML();
+
+                // go through the chain of connected atoms and add the force there too
+                if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
                 {
-                    var dir = atom.transform.position - transform.position;
-                    dot_products.Add(Vector3.Dot(fwd, dir));
-                }
-                var start_atom = con_atoms[dot_products.maxElementIndex()];
+                    // Get the bond that is closest to grab direction
+                    var fwd = HandTracking.Singleton.getForward();
+                    var con_atoms = connectedAtoms();
+                    var dot_products = new List<float>();
+                    foreach (var atom in con_atoms)
+                    {
+                        var dir = atom.transform.position - transform.position;
+                        dot_products.Add(Vector3.Dot(fwd, dir));
+                    }
+                    var start_atom = con_atoms[dot_products.maxElementIndex()];
 
-                GetComponent<MoveAxisConstraint>().enabled = true;
+                    GetComponent<MoveAxisConstraint>().enabled = true;
 
-                currentChain = start_atom.connectedChain(this);
+                    currentChain = start_atom.connectedChain(this);
 
-                ConstraintSource cs = new ConstraintSource();
-                cs.sourceTransform = transform;
-                cs.weight = 1;
-                foreach (var atom in currentChain)
-                {
-                    atom.grabHighlight(true);
-                    atom.isGrabbed = true;
-                    //atom.transform.parent = transform;
-                    // use parent constraint
+                    ConstraintSource cs = new ConstraintSource();
+                    cs.sourceTransform = transform;
+                    cs.weight = 1;
+                    foreach (var atom in currentChain)
+                    {
+                        atom.grabHighlight(true);
+                        atom.isGrabbed = true;
+                        //atom.transform.parent = transform;
+                        // use parent constraint
 
-                    var pc = atom.gameObject.AddComponent<ParentConstraint>();
-                    var positionDelta = pc.transform.position - transform.position;
-                    pc.AddSource(cs);
-                    pc.SetTranslationOffset(0, Quaternion.Inverse(transform.rotation) * positionDelta);
-                    pc.constraintActive = true;
+                        var pc = atom.gameObject.AddComponent<ParentConstraint>();
+                        var positionDelta = pc.transform.position - transform.position;
+                        pc.AddSource(cs);
+                        pc.SetTranslationOffset(0, Quaternion.Inverse(transform.rotation) * positionDelta);
+                        pc.constraintActive = true;
 
+                    }
                 }
             }
         }
@@ -404,37 +422,40 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     /// <param name="eventData"></param>
     public void OnPointerDragged(MixedRealityPointerEventData eventData)
     {
-        // position relative to molecule position
-        if (!frozen)
+        if (m_molecule.getIsInteractable())
         {
-            EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
-        }
-
-        if (m_data.m_abbre != "Dummy" && GlobalCtrl.Singleton.currentInteractionMode != GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
-        {
-            var con_atoms = connectedAtoms();
-            foreach (var atom in con_atoms)
+            // position relative to molecule position
+            if (!frozen)
             {
-                // make sure this is only executed once and not for both grabbed atoms (id check)
-                if (atom.isGrabbed && atom.m_data.m_abbre != "Dummy" && m_id < atom.m_id)
+                EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
+            }
+
+            if (m_data.m_abbre != "Dummy" && GlobalCtrl.Singleton.currentInteractionMode != GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
+            {
+                var con_atoms = connectedAtoms();
+                foreach (var atom in con_atoms)
                 {
-                    var term = m_molecule.bondTerms.Find(p => p.Contains(m_id, atom.m_id));
-                    var current_dist = ((transform.localPosition - atom.transform.localPosition) / ForceField.scalingfactor).magnitude;
-                    if (current_dist > 3 * term.eqDist)
+                    // make sure this is only executed once and not for both grabbed atoms (id check)
+                    if (atom.isGrabbed && atom.m_data.m_abbre != "Dummy" && m_id < atom.m_id)
                     {
-                        GlobalCtrl.Singleton.SeparateMolecule(this, atom);
+                        var term = m_molecule.bondTerms.Find(p => p.Contains(m_id, atom.m_id));
+                        var current_dist = ((transform.localPosition - atom.transform.localPosition) / ForceField.scalingfactor).magnitude;
+                        if (current_dist > 3 * term.eqDist)
+                        {
+                            GlobalCtrl.Singleton.SeparateMolecule(this, atom);
+                        }
                     }
                 }
             }
-        }
 
-        // if chain interaction send positions of all connected atoms
-        if (currentChain.Any() && GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
-        {
-            foreach (var atom in currentChain)
+            // if chain interaction send positions of all connected atoms
+            if (currentChain.Any() && GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
             {
-                var mol_rel_pos = m_molecule.transform.InverseTransformPoint(atom.transform.position);
-                EventManager.Singleton.MoveAtom(m_molecule.m_id, atom.m_id, mol_rel_pos);
+                foreach (var atom in currentChain)
+                {
+                    var mol_rel_pos = m_molecule.transform.InverseTransformPoint(atom.transform.position);
+                    EventManager.Singleton.MoveAtom(m_molecule.m_id, atom.m_id, mol_rel_pos);
+                }
             }
         }
     }
@@ -461,79 +482,82 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     /// <param name="eventData"></param>
     public void OnPointerUp(MixedRealityPointerEventData eventData)
     {
-        stopwatch?.Stop();
-        if (isGrabbed)
+        if (m_molecule.getIsInteractable())
         {
-            isGrabbed = false;
-            EventManager.Singleton.GrabAtom(this, false);
-            if (eventData.Pointer is MousePointer)
+            stopwatch?.Stop();
+            if (isGrabbed)
             {
-                UnityEngine.Debug.Log("Mouse");
-            }
-            if (eventData.Pointer is SpherePointer)
-            {
-                // reset outline
-                var focus_id = FocusManager.getMyFocusID() < 0 ? 0 : FocusManager.getMyFocusID();
-                var pos = FocusManager.getPosInArray(focus_id);
-                focused[pos] = false;
-                grabHighlight(false);
-
-                // measure convergence
-                ForceField.Singleton.resetMeasurment();
-
-                if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
+                isGrabbed = false;
+                EventManager.Singleton.GrabAtom(this, false);
+                if (eventData.Pointer is MousePointer)
                 {
-                    GetComponent<MoveAxisConstraint>().enabled = false;
-                    foreach (var atom in currentChain)
-                    {
-                        atom.grabHighlight(false);
-                        atom.isGrabbed = false;
-                        //atom.transform.parent = m_molecule.transform;
-                        Destroy(atom.GetComponent<ParentConstraint>());
-                    }
-                    currentChain.Clear();
-                    resetMolPositionAfterMove();
-                    cmlData after = m_molecule.AsCML();
-                    GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
-                    EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
-                    EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
+                    UnityEngine.Debug.Log("Mouse");
                 }
-
-                if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
+                if (eventData.Pointer is SpherePointer)
                 {
-                    //UnityEngine.Debug.Log($"[Atom] Interaction stopwatch: {stopwatch.ElapsedMilliseconds} [ms]");
-                    if (stopwatch?.ElapsedMilliseconds < 200)
+                    // reset outline
+                    var focus_id = FocusManager.getMyFocusID() < 0 ? 0 : FocusManager.getMyFocusID();
+                    var pos = FocusManager.getPosInArray(focus_id);
+                    focused[pos] = false;
+                    grabHighlight(false);
+
+                    // measure convergence
+                    ForceField.Singleton.resetMeasurment();
+
+                    if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
                     {
-                        m_molecule.popAtomState();
-                        resetMolPositionAfterMove();
-                        EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
-                        EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
-                        if (m_molecule.isMarked)
+                        GetComponent<MoveAxisConstraint>().enabled = false;
+                        foreach (var atom in currentChain)
                         {
-                            m_molecule.markMolecule(false);
+                            atom.grabHighlight(false);
+                            atom.isGrabbed = false;
+                            //atom.transform.parent = m_molecule.transform;
+                            Destroy(atom.GetComponent<ParentConstraint>());
                         }
-                        else
-                        {
-                            markAtomUI(!isMarked);
-                        }
-                    }
-                    else
-                    {
+                        currentChain.Clear();
                         resetMolPositionAfterMove();
                         cmlData after = m_molecule.AsCML();
                         GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
                         EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
                         EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
-                        // check for potential merge
-                        GlobalCtrl.Singleton.checkForCollisionsAndMerge(m_molecule);
                     }
-                }
 
-                if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)
-                {
-                    if (stopwatch?.ElapsedMilliseconds < 300)
+                    if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
                     {
-                        handleMeasurements();
+                        //UnityEngine.Debug.Log($"[Atom] Interaction stopwatch: {stopwatch.ElapsedMilliseconds} [ms]");
+                        if (stopwatch?.ElapsedMilliseconds < 200)
+                        {
+                            m_molecule.popAtomState();
+                            resetMolPositionAfterMove();
+                            EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
+                            EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
+                            if (m_molecule.isMarked)
+                            {
+                                m_molecule.markMolecule(false);
+                            }
+                            else
+                            {
+                                markAtomUI(!isMarked);
+                            }
+                        }
+                        else
+                        {
+                            resetMolPositionAfterMove();
+                            cmlData after = m_molecule.AsCML();
+                            GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
+                            EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
+                            EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
+                            // check for potential merge
+                            GlobalCtrl.Singleton.checkForCollisionsAndMerge(m_molecule);
+                        }
+                    }
+
+                    if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.MEASUREMENT)
+                    {
+                        if (stopwatch?.ElapsedMilliseconds < 300)
+                        {
+                            handleMeasurements();
+                        }
                     }
                 }
             }
@@ -970,23 +994,29 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     private void OnTriggerEnter(Collider collider)
     {
-        // Debug.Log($"[Atom] Collision Detected: {collider.name}");
-        if (collider.name.StartsWith("Dummy") && name.StartsWith("Dummy"))
+        if (m_molecule.getIsInteractable())
         {
-            GlobalCtrl.Singleton.TryAddCollision(collider.GetComponent<Atom>(), GetComponent<Atom>());
+            // Debug.Log($"[Atom] Collision Detected: {collider.name}");
+            if (collider.name.StartsWith("Dummy") && name.StartsWith("Dummy"))
+            {
+                GlobalCtrl.Singleton.TryAddCollision(collider.GetComponent<Atom>(), GetComponent<Atom>());
+            }
         }
     }
 
     private void OnTriggerExit(Collider collider)
     {
-        if (collider.name.StartsWith("Dummy") && name.StartsWith("Dummy"))
+        if (m_molecule.getIsInteractable())
         {
-            colorSwapSelect(0);
-            collider.GetComponent<Atom>().colorSwapSelect(0);
-            if (GlobalCtrl.Singleton.collisions.Count > 0)
+            if (collider.name.StartsWith("Dummy") && name.StartsWith("Dummy"))
             {
-                //if(GlobalCtrl.Singleton.collisions.RemoveAll(m => (m.Equals((this, otherAtom)) || m.Equals((this, otherAtom)))) > 0)
-                GlobalCtrl.Singleton.collisions.RemoveAll(m => (m.Item1.Equals(this) || m.Item2.Equals(this))); // Only one collision per dummy allowed anyway
+                colorSwapSelect(0);
+                collider.GetComponent<Atom>().colorSwapSelect(0);
+                if (GlobalCtrl.Singleton.collisions.Count > 0)
+                {
+                    //if(GlobalCtrl.Singleton.collisions.RemoveAll(m => (m.Equals((this, otherAtom)) || m.Equals((this, otherAtom)))) > 0)
+                    GlobalCtrl.Singleton.collisions.RemoveAll(m => (m.Item1.Equals(this) || m.Item2.Equals(this))); // Only one collision per dummy allowed anyway
+                }
             }
         }
     }
@@ -1592,37 +1622,49 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     // Handle Gaze events
     private void onLookStart()
     {
-        if (SettingsData.gazeHighlighting)
+        if (m_molecule.getIsInteractable())
         {
-            proccessFocusUI(true);
-        }
-        else
-        {
-            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, true);
+            if (SettingsData.gazeHighlighting)
+            {
+                proccessFocusUI(true);
+            }
+            else
+            {
+                EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, true);
+            }
         }
     }
 
     private void onLookAway()
     {
-        if (SettingsData.gazeHighlighting)
+        if (m_molecule.getIsInteractable())
         {
-            proccessFocusUI(false);
-        }
-        else
-        {
-            EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
+            if (SettingsData.gazeHighlighting)
+            {
+                proccessFocusUI(false);
+            }
+            else
+            {
+                EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
+            }
         }
     }
 
     // Handle mrtk focus events
     void IMixedRealityFocusHandler.OnFocusEnter(FocusEventData eventData)
     {
-        OnFocusEnter(eventData);
+        if (m_molecule.getIsInteractable())
+        {
+            OnFocusEnter(eventData);
+        }
     }
 
     void IMixedRealityFocusHandler.OnFocusExit(FocusEventData eventData)
     {
-        OnFocusExit(eventData);
+        if (m_molecule.getIsInteractable())
+        {
+            OnFocusExit(eventData);
+        }
     }
 
     public void OnFocusEnter(FocusEventData eventData)

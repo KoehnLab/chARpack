@@ -336,6 +336,12 @@ public class TransitionManager : MonoBehaviour
 
     private void getTransitionClient(Transform trans, InteractionType triggered_by)
     {
+        if (triggered_by == InteractionType.CLOSE_GRAB)
+        {
+            StartCoroutine(attachToGrip(trans));
+            manualSetGrip(trans, true);
+            return;
+        }
         if (SettingsData.transitionMode == TransitionMode.INSTANT)
         {
             if (SettingsData.immersiveTarget == ImmersiveTarget.HAND_FIXED || SettingsData.immersiveTarget == ImmersiveTarget.HAND_FIXED)
@@ -694,6 +700,32 @@ public class TransitionManager : MonoBehaviour
             old_pos = trans.position;
             trans.position += dir * dist_per_step;
             yield return null; // wait for next frame
+        }
+    }
+
+    private IEnumerator attachToGrip(Transform trans)
+    {
+        var isGrabbed = true;
+        while (isGrabbed)
+        {
+            isGrabbed = HandTracking.Singleton.isIndexGrabbed();
+            trans.position = HandTracking.Singleton.getIndexTip();
+            yield return null;
+        }
+        manualSetGrip(trans, false);
+    }
+
+    private void manualSetGrip(Transform trans, bool isGrabbed)
+    {
+        var mol = trans.GetComponent<Molecule>();
+        if (mol != null)
+        {
+            mol.isGrabbed = isGrabbed;
+        }
+        else
+        {
+            var go = trans.GetComponent<GenericObject>();
+            go.isGrabbed = isGrabbed;
         }
     }
 

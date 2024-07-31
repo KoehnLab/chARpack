@@ -413,11 +413,11 @@ public class EventManager : MonoBehaviour
         OnSpawnObjectCollection?.Invoke(task_id);
     }
 
-    public delegate void RequestResultsAction();
+    public delegate void RequestResultsAction(int task_id);
     public event RequestResultsAction OnRequestResults;
-    public void RequestResults()
+    public void RequestResults(int task_id)
     {
-        OnRequestResults?.Invoke();
+        OnRequestResults?.Invoke(task_id);
     }
 
     #endregion

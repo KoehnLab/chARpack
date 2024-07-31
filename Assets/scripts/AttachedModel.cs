@@ -20,7 +20,7 @@ public class AttachedModel : MonoBehaviour
     private Vector3 newMousePosition;
     public void Update()
     {
-        if (SceneManager.GetActiveScene().name == "ServerScene")
+        if (SceneManager.GetActiveScene().name == "ServerScene" && genericObject.getIsInteractable())
         {
             if (Input.GetMouseButtonDown(1) && Input.GetKey(KeyCode.LeftShift) && mouseOverObject())
             {
@@ -78,7 +78,7 @@ public class AttachedModel : MonoBehaviour
 
     private bool mouseOverObject()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit[] hits = Physics.RaycastAll(ray);
         for (int i = 0; i < hits.Length; i++)
         {
@@ -112,39 +112,48 @@ public class AttachedModel : MonoBehaviour
 
     void OnMouseDown()
     {
-        // Handle server GUI interaction
-        if (EventSystem.current.IsPointerOverGameObject()) { return; }
+        if (genericObject.getIsInteractable())
+        {
+            // Handle server GUI interaction
+            if (EventSystem.current.IsPointerOverGameObject()) { return; }
 
 
-        mouse_offset = genericObject.transform.position - GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
-         new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.1f));
+            mouse_offset = genericObject.transform.position - GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(
+             new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.1f));
 
-        stopwatch = Stopwatch.StartNew();
-        genericObject.isGrabbed = true;
-        genericObject.processHighlights();
+            stopwatch = Stopwatch.StartNew();
+            genericObject.isGrabbed = true;
+            genericObject.processHighlights();
+        }
     }
 
     void OnMouseDrag()
     {
-        if (EventSystem.current.IsPointerOverGameObject()) { return; }
-        Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.1f);
-        genericObject.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + mouse_offset;
+        if (genericObject.getIsInteractable())
+        {
+            if (EventSystem.current.IsPointerOverGameObject()) { return; }
+            Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0.1f);
+            genericObject.transform.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(newPosition) + mouse_offset;
+        }
     }
 
     private void OnMouseUp()
     {
-        if (EventSystem.current.IsPointerOverGameObject()) { return; }
-
-        // reset outline
-        genericObject.isGrabbed = false;
-
-
-        stopwatch?.Stop();
-        if (stopwatch?.ElapsedMilliseconds < 200)
+        if (genericObject.getIsInteractable())
         {
-            genericObject.toggleMarkObject();
+            if (EventSystem.current.IsPointerOverGameObject()) { return; }
+
+            // reset outline
+            genericObject.isGrabbed = false;
+
+
+            stopwatch?.Stop();
+            if (stopwatch?.ElapsedMilliseconds < 200)
+            {
+                genericObject.toggleMarkObject();
+            }
+            genericObject.processHighlights();
         }
-        genericObject.processHighlights();
     }
 
 

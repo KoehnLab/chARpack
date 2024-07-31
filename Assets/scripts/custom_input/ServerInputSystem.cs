@@ -8,6 +8,35 @@ public class ServerInputSystem : MonoBehaviour
 {
     private float moveSpeed = 0.04f;
     private float turnSpeed = 1f;
+    private Transform lastObjectClickedOn = null;
+
+    private void getObjectClickedOn()
+    {
+        Ray ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(Input.mousePosition);
+        RaycastHit[] hits = Physics.RaycastAll(ray);
+        for (int i = 0; i < hits.Length; i++)
+        {
+            var mol = hits[i].transform.GetComponentInParent<Molecule>();
+            var go = hits[i].transform.GetComponentInParent<GenericObject>();
+            if (mol != null)
+            {
+                if (mol.getIsInteractable())
+                {
+                    lastObjectClickedOn = mol.transform;
+                    return;
+                }
+            }
+            if (go != null)
+            {
+                if (go.getIsInteractable())
+                {
+                    lastObjectClickedOn = go.transform;
+                    return;
+                }
+            }
+        }
+        lastObjectClickedOn = null;
+    }
 
     // Update is called once per frame
     void Update()
@@ -110,6 +139,33 @@ public class ServerInputSystem : MonoBehaviour
                 if (StudyTaskManager.Singleton != null)
                 {
                     StudyTaskManager.Singleton.startAndFinishTask();
+                }
+            }
+            if (Input.GetMouseButtonDown(1))
+            {
+                getObjectClickedOn();
+            }
+            if (Input.GetMouseButtonDown(1))
+            {
+
+            }
+            if (Input.GetMouseButton(1) && Input.GetKey(KeyCode.LeftAlt))
+            {
+                if (lastObjectClickedOn != null)
+                {
+                    var amount = 0.1f * Input.GetAxis("Mouse X");
+                    if (lastObjectClickedOn.transform.localScale.x > 0.1f)
+                    {
+                        lastObjectClickedOn.transform.localScale += amount * Vector3.one;
+                    }
+                    else
+                    {
+                        if (amount > 0f)
+                        {
+                            lastObjectClickedOn.transform.localScale += amount * Vector3.one;
+                        }
+                    }
+
                 }
             }
         }

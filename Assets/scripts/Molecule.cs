@@ -32,18 +32,23 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="eventData"></param>
     public void OnPointerDown(MixedRealityPointerEventData eventData)
     {
-        pickupPos = transform.localPosition;
-        pickupRot = transform.localRotation;
-
-        isGrabbed = true;
-        stopwatch = Stopwatch.StartNew();
-        // change material of grabbed object
-        if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL ||
-            GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
+        if (isInteractable)
         {
-            GetComponent<myBoundingBox>().setGrabbed(true);
+
+
+            pickupPos = transform.localPosition;
+            pickupRot = transform.localRotation;
+
+            isGrabbed = true;
+            stopwatch = Stopwatch.StartNew();
+            // change material of grabbed object
+            if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL ||
+                GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
+            {
+                GetComponent<myBoundingBox>().setGrabbed(true);
+            }
+            before = this.AsCML();
         }
-        before = this.AsCML();
     }
 
     public void OnPointerClicked(MixedRealityPointerEventData eventData)
@@ -58,7 +63,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="eventData"></param>
     public void OnPointerDragged(MixedRealityPointerEventData eventData)
     {
-        if (!frozen)
+        if (!frozen && isInteractable)
         {
             // keep everything relative to atom world
             EventManager.Singleton.MoveMolecule(m_id, transform.localPosition, transform.localRotation);
@@ -74,35 +79,41 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="eventData"></param>
     public void OnPointerUp(MixedRealityPointerEventData eventData)
     {
-        stopwatch?.Stop();
-        if (isGrabbed)
+        if (isInteractable)
         {
-            isGrabbed = false;
-            if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL ||
-                GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
+            stopwatch?.Stop();
+            if (isGrabbed)
             {
-                if (stopwatch?.ElapsedMilliseconds < 200)
+                isGrabbed = false;
+                if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL ||
+                    GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)
                 {
-                    transform.localPosition = pickupPos;
-                    transform.localRotation = pickupRot;
-                    EventManager.Singleton.MoveMolecule(m_id, transform.localPosition, transform.localRotation);
-                    markMoleculeUI(!isMarked, true);
+                    if (stopwatch?.ElapsedMilliseconds < 200)
+                    {
+                        transform.localPosition = pickupPos;
+                        transform.localRotation = pickupRot;
+                        EventManager.Singleton.MoveMolecule(m_id, transform.localPosition, transform.localRotation);
+                        markMoleculeUI(!isMarked, true);
+                    }
+                    else
+                    {
+                        cmlData after = this.AsCML();
+                        GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
+                        GlobalCtrl.Singleton.checkForCollisionsAndMerge(this);
+                    }
+                    // change material back to normal
+                    GetComponent<myBoundingBox>().setGrabbed(false);
                 }
-                else
-                {
-                    cmlData after = this.AsCML();
-                    GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
-                    GlobalCtrl.Singleton.checkForCollisionsAndMerge(this);
-                }
-                // change material back to normal
-                GetComponent<myBoundingBox>().setGrabbed(false);
             }
         }
     }
 
     public void Hover(bool value)
     {
-        GetComponent<myBoundingBox>().setHovering(value);
+        if (isInteractable)
+        {
+            GetComponent<myBoundingBox>().setHovering(value);
+        }
     }
 
     public void OnServerSliderUpdated()
@@ -397,18 +408,21 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private Stopwatch transitionGrabCoolDown = Stopwatch.StartNew();
     private void OnTransitionGrab(Vector3 pos)
     {
-        if (GetComponent<myBoundingBox>().contains(pos))
+        if (isInteractable)
         {
-            if (SettingsData.syncMode == TransitionManager.SyncMode.Async)
+            if (GetComponent<myBoundingBox>().contains(pos))
             {
-                transitionGrabCoolDown?.Stop();
-                if (transitionGrabCoolDown?.ElapsedMilliseconds < 800)
+                if (SettingsData.syncMode == TransitionManager.SyncMode.Async)
                 {
-                    transitionGrabCoolDown.Start();
-                    return;
+                    transitionGrabCoolDown?.Stop();
+                    if (transitionGrabCoolDown?.ElapsedMilliseconds < 800)
+                    {
+                        transitionGrabCoolDown.Start();
+                        return;
+                    }
+                    TransitionManager.Singleton.initializeTransitionClient(transform, TransitionManager.InteractionType.DISTANT_GRAB);
+                    transitionGrabCoolDown.Restart();
                 }
-                TransitionManager.Singleton.initializeTransitionClient(transform, TransitionManager.InteractionType.DISTANT_GRAB);
-                transitionGrabCoolDown.Restart();
             }
         }
     }
@@ -436,6 +450,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    public bool getIsInteractable()
+    {
+        return isInteractable;
+    }
+
     float currentOpacity = 1f;
     public void setOpacity(float value)
     {
@@ -454,7 +473,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             foreach(var bond in bondList)
             {
                 var renderer = bond.GetComponentInChildren<Renderer>();
-                renderer.material.SetFloat("Alpha", value);
+                renderer.material.SetFloat("_Alpha", value);
             }
             //foreach (var renderer in GetComponentsInChildren<Renderer>())
             //{
@@ -469,9 +488,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void adjustBBox(Molecule mol)
     {
-#if UNITY_STANDALONE || UNITY_EDITOR
-        GetComponent<myBoundingBox>().setNormalMaterial(false);
-#endif
         if (mol == this)
         {
             if (GlobalCtrl.Singleton.List_curMolecules.ContainsValue(mol))
@@ -479,6 +495,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 StartCoroutine(adjustBBoxCoroutine());
             }
         }
+#if UNITY_STANDALONE || UNITY_EDITOR
+        GetComponent<myBoundingBox>().setNormalMaterial(false);
+#endif
     }
 
     // Need coroutine to use sleep

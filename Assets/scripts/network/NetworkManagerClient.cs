@@ -674,11 +674,13 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
-    private void sendResults(float angle, float dist)
+    private void sendResults(int task_id, float angle, float dist, float scale)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.sendResults);
+        message.AddInt(task_id);
         message.AddFloat(angle);
         message.AddFloat(dist);
+        message.AddFloat(scale);
         Client.Send(message);
     }
 
@@ -1504,11 +1506,14 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getRequestResults(Message message)
     {
         var server_network_id = message.GetUShort();
+        var task_id = message.GetInt();
         if (StudyTaskManager.Singleton != null)
         {
             var angle = StudyTaskManager.Singleton.getErrorAngle();
             var dist = StudyTaskManager.Singleton.getErrorAngle();
-            
+            var scale = StudyTaskManager.Singleton.getErrorScale();
+
+            Singleton.sendResults(task_id, angle, dist, scale);
         }
     }
     #endregion

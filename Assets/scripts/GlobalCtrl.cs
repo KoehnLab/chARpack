@@ -1409,6 +1409,15 @@ public class GlobalCtrl : MonoBehaviour
         EventManager.Singleton.ChangeMolData(tempMolecule);
     }
 
+    public void setOpacity(float value)
+    {
+        foreach (var mol in List_curMolecules.Values)
+        {
+            mol.setOpacity(value);
+            mol.setIntractable(false);
+        }
+    }
+
     /// <summary>
     /// Creates an atom of the given type and invokes a create atom event.
     /// </summary>

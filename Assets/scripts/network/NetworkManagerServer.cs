@@ -690,10 +690,11 @@ public class NetworkManagerServer : MonoBehaviour
         Server.SendToAll(message);
     }
 
-    public void requestResults()
+    public void requestResults(int task_id)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.requestResults);
         message.AddUShort(0);
+        message.AddInt(task_id);
         Server.SendToAll(message);
     }
 
@@ -1545,12 +1546,17 @@ public class NetworkManagerServer : MonoBehaviour
     [MessageHandler((ushort)ClientToServerID.sendResults)]
     private static void getResults(ushort fromClientId, Message message)
     {
+        var task_id = message.GetInt();
         var angle = message.GetFloat();
         var dist = message.GetFloat();
+        var scale = message.GetFloat();
         if (StudyTaskManager.Singleton != null)
         {
-            StudyTaskManager.Singleton.resultAngle = angle;
-            StudyTaskManager.Singleton.resultDist = dist;
+            StudyLogger.Singleton.write($"(Task_{task_id}) AngleError: {angle}");
+            StudyLogger.Singleton.write($"(Task_{task_id}) DistError: {dist}");
+            StudyLogger.Singleton.write($"(Task_{task_id}) ScaleError: {scale}");
+            // log finised task
+            StudyLogger.Singleton.write($"(Task_{task_id}) finished.");
         }
     }
 
