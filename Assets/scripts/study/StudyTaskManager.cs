@@ -43,6 +43,11 @@ public class StudyTaskManager : MonoBehaviour
 
     public void generateObjects()
     {
+        StartCoroutine(generateRoutine());
+    }
+
+    private IEnumerator generateRoutine()
+    {
         objects.Clear();
         UnityEngine.Random.InitState(SettingsData.randomSeed + currentTaskID);
 
@@ -52,24 +57,28 @@ public class StudyTaskManager : MonoBehaviour
         // instantiate 16 objects 
         for (int i = 0; i < 16; i++)
         {
+            yield return null;
             var rnd_id = UnityEngine.Random.Range(0, object_paths_copy.Count);
             var path = object_paths_copy[rnd_id];
 
             if (Path.GetExtension(path) == ".fbx")
             {
                 var instance = GenericObject.create(path);
+                instance.gameObject.SetActive(false);
                 longest_edge = Mathf.Max(longest_edge, instance.GetComponent<myBoundingBox>().localBounds.size.maxDimValue());
-                objects.Add(new Tuple<string, Transform>(path,instance.transform));
+                objects.Add(new Tuple<string, Transform>(path, instance.transform));
             }
             else
             {
                 UnityEngine.Debug.Log($"[TaskManager] Molecule path {path}");
                 var instance_list = GlobalCtrl.Singleton.LoadMolecule(path, true);
+                instance_list[0].gameObject.SetActive(false);
                 longest_edge = Mathf.Max(longest_edge, instance_list[0].GetComponent<myBoundingBox>().localBounds.size.maxDimValue());
                 objects.Add(new Tuple<string, Transform>(path, instance_list[0].transform));
             }
             object_paths_copy.RemoveAt(rnd_id);
         }
+
         var spacing = 0.9f * longest_edge;
         var forward = (objects[0].Item2.transform.position - GlobalCtrl.Singleton.currentCamera.transform.position).normalized;
         var up = GlobalCtrl.Singleton.currentCamera.transform.up;
@@ -91,7 +100,7 @@ public class StudyTaskManager : MonoBehaviour
             forward = Quaternion.Euler(0f, rotation, 0f) * forward;
             right = Quaternion.Euler(0f, rotation, 0f) * right;
             var dist = (objects[0].Item2.transform.position - GlobalCtrl.Singleton.currentCamera.transform.position).magnitude;
-            start_pos = (GlobalCtrl.Singleton.currentCamera.transform.position + 1.5f * spacing * right) + dist * forward + 1.5f * spacing * up - 1.5f * spacing * right;
+            start_pos = (GlobalCtrl.Singleton.currentCamera.transform.position - Mathf.Sign(rotation) * 1.5f * spacing * right) + dist * forward + 1.5f * spacing * up - 1.5f * spacing * right;
 
         }
 
@@ -101,10 +110,12 @@ public class StudyTaskManager : MonoBehaviour
             {
                 var obj = objects[j + 4 * i].Item2;
                 obj.position = start_pos + j * spacing * right;
+                obj.gameObject.SetActive(true);
                 UnityEngine.Debug.Log($"[TaskManager] obj pos {obj.position}");
             }
             start_pos -= spacing * up;
         }
+        yield return null;
         highlightRandomObject();
         UnityEngine.Random.InitState(SettingsData.randomSeed);
     }
@@ -213,6 +224,7 @@ public class StudyTaskManager : MonoBehaviour
     {
         UnityEngine.Random.InitState(SettingsData.randomSeed);
         descriptionPrefab = Resources.Load<GameObject>("prefabs/TaskDescription");
+        grayOutPrefab = Resources.Load<GameObject>("prefabs/GrayOutPannel");
         // Check for fbx and xml assets in Resources using file info dump
         if (object_paths == null)
         {
@@ -319,68 +331,81 @@ public class StudyTaskManager : MonoBehaviour
 
     public float getErrorAngle()
     {
-        Quaternion rotA = ghostObject.transform.rotation;
-        Quaternion rotB;
-        if (GlobalCtrl.Singleton.List_curMolecules.ContainsKey(objectToTrack))
+        if (ghostObject != null)
         {
-            rotB = GlobalCtrl.Singleton.List_curMolecules[objectToTrack].transform.rotation;
-        }
-        else if (GenericObject.objects.ContainsKey(objectToTrack))
-        {
-            rotB = GenericObject.objects[objectToTrack].transform.rotation;
-        }
-        else
-        {
-            UnityEngine.Debug.LogError($"[getErrorAngle] Could not find object to track");
-            return 0f;
-        }
+            Quaternion rotA = ghostObject.transform.rotation;
+            Quaternion rotB;
+            if (GlobalCtrl.Singleton.List_curMolecules.ContainsKey(objectToTrack))
+            {
+                rotB = GlobalCtrl.Singleton.List_curMolecules[objectToTrack].transform.rotation;
+            }
+            else if (GenericObject.objects.ContainsKey(objectToTrack))
+            {
+                rotB = GenericObject.objects[objectToTrack].transform.rotation;
+            }
+            else
+            {
+                UnityEngine.Debug.LogError($"[getErrorAngle] Could not find object to track");
+                return -1f;
+            }
 
-        var angle = Quaternion.Angle(rotA, rotB);
-        return angle;
+            var angle = Quaternion.Angle(rotA, rotB);
+            return angle;
+
+        }
+        return -1;
     }
 
     public float getErrorDist()
     {
-        var posA = ghostObject.transform.position;
-        Vector3 posB;
-        if (GlobalCtrl.Singleton.List_curMolecules.ContainsKey(objectToTrack))
+        if (ghostObject != null)
         {
-            posB = GlobalCtrl.Singleton.List_curMolecules[objectToTrack].transform.position;
-        }
-        else if (GenericObject.objects.ContainsKey(objectToTrack))
-        {
-            posB = GenericObject.objects[objectToTrack].transform.position;
-        }
-        else
-        {
-            UnityEngine.Debug.LogError($"[getErrorDist] Could not find object to track");
-            return -1f;
-        }
+            var posA = ghostObject.transform.position;
+            Vector3 posB;
+            if (GlobalCtrl.Singleton.List_curMolecules.ContainsKey(objectToTrack))
+            {
+                posB = GlobalCtrl.Singleton.List_curMolecules[objectToTrack].transform.position;
+            }
+            else if (GenericObject.objects.ContainsKey(objectToTrack))
+            {
+                posB = GenericObject.objects[objectToTrack].transform.position;
+            }
+            else
+            {
+                UnityEngine.Debug.LogError($"[getErrorDist] Could not find object to track");
+                return -1f;
+            }
 
-        var dist = (posA - posB).magnitude;
-        return dist;
+            var dist = (posA - posB).magnitude;
+            return dist;
+        }
+        return -1;
     }
 
     public float getErrorScale()
     {
-        var scaleA = ghostObject.transform.localScale.x;
-        float scaleB;
-        if (GlobalCtrl.Singleton.List_curMolecules.ContainsKey(objectToTrack))
+        if (ghostObject != null)
         {
-            scaleB = GlobalCtrl.Singleton.List_curMolecules[objectToTrack].transform.localScale.x;
-        }
-        else if (GenericObject.objects.ContainsKey(objectToTrack))
-        {
-            scaleB = GenericObject.objects[objectToTrack].transform.localScale.x;
-        }
-        else
-        {
-            UnityEngine.Debug.LogError($"[getErrorScale] Could not find object to track");
-            return 0f;
-        }
+            var scaleA = ghostObject.transform.localScale.x;
+            float scaleB;
+            if (GlobalCtrl.Singleton.List_curMolecules.ContainsKey(objectToTrack))
+            {
+                scaleB = GlobalCtrl.Singleton.List_curMolecules[objectToTrack].transform.localScale.x;
+            }
+            else if (GenericObject.objects.ContainsKey(objectToTrack))
+            {
+                scaleB = GenericObject.objects[objectToTrack].transform.localScale.x;
+            }
+            else
+            {
+                UnityEngine.Debug.LogError($"[getErrorScale] Could not find object to track");
+                return 0f;
+            }
 
-        var scale = scaleA - scaleB;
-        return scale;
+            var scale = scaleA - scaleB;
+            return scale;
+        }
+        return 0f;
     }
 
     Stopwatch stopwatch = Stopwatch.StartNew();
@@ -418,11 +443,13 @@ public class StudyTaskManager : MonoBehaviour
                 GlobalCtrl.Singleton.DeleteAllUI();
                 isTaskInProgress = true;
                 hideDescriptionText();
+                GlobalCtrl.Singleton.currentCamera.Reset();
                 stopwatch.Restart();
 
                 StudyLogger.Singleton.write($"(Task_{currentTaskID}) Started.");
 
                 var task = currentTaskSet[currentTaskID];
+                StudyTask.activateTaskSettings(task);
                 if (task.objectSpawn == StudyTask.objectSpawnEnvironment.DESKTOP)
                 {
                     generateObjects();
@@ -436,23 +463,38 @@ public class StudyTaskManager : MonoBehaviour
     }
 
     GameObject descriptionPrefab;
-    GameObject descriptionInstance;
+    GameObject descriptionInstance = null;
+    GameObject grayOutPrefab;
+    GameObject grayOutInstance = null;
+
     private void showDescriptionText(string text)
     {
-        descriptionInstance = Instantiate(descriptionPrefab);
-        descriptionInstance.transform.SetParent(UICanvas.Singleton.transform);
-        var rect = descriptionInstance.transform as RectTransform;
-        rect.anchoredPosition = Vector3.zero;
-
+        if (descriptionInstance == null)
+        {
+            descriptionInstance = Instantiate(descriptionPrefab);
+            descriptionInstance.transform.SetParent(UICanvas.Singleton.transform);
+            var rect = descriptionInstance.transform as RectTransform;
+            rect.anchoredPosition = Vector3.zero;
+        }
         descriptionInstance.GetComponent<TMP_Text>().text = text;
+        grayOutInstance = Instantiate(grayOutPrefab);
+        grayOutInstance.transform.SetParent(UICanvas.Singleton.transform);
+        var gray_rect = grayOutInstance.transform as RectTransform;
+        gray_rect.anchoredPosition = Vector3.zero;
+
     }
 
     private void hideDescriptionText()
     {
-        if (descriptionInstance != null)
+        //if (descriptionInstance != null)
+        //{
+        //    Destroy(descriptionInstance);
+        //    descriptionInstance = null;
+        //}
+        if (grayOutInstance != null)
         {
-            Destroy(descriptionInstance);
-            descriptionInstance = null;
+            Destroy(grayOutInstance);
+            grayOutInstance = null;
         }
     }
 

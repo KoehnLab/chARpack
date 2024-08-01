@@ -52,6 +52,17 @@ public class HandTracking : MonoBehaviour
     bool middleFingerGrab = false;
     bool indexFingerGrab = false;
 
+    private IMixedRealityHandJointService handJointService;
+
+    private IMixedRealityHandJointService HandJointService =>
+        handJointService ??
+        (handJointService = CoreServices.GetInputSystemDataProvider<IMixedRealityHandJointService>());
+
+    private MixedRealityPose? previousLeftHandPose;
+
+    private MixedRealityPose? previousRightHandPose;
+
+
     public void showFragmentIndicator(bool show)
     {
         if (fragmentIndicator != null)
@@ -175,63 +186,93 @@ public class HandTracking : MonoBehaviour
 
     private void getPose()
     {
-        foreach (var source in CoreServices.InputSystem.DetectedInputSources)
+
+        if (HandJointService.IsHandTracked(SettingsData.handedness))
         {
-            // Ignore anything that is not a hand because we want articulated hands
-            if (source.SourceType == InputSourceType.Hand)
-            {
-                foreach (var p in source.Pointers)
-                {
-                    var hand = p.Controller as IMixedRealityHand;
-                    if (hand != null)
-                    {
-                        if (hand.ControllerHandedness != SettingsData.handedness) return;
-                        if (hand.TryGetJoint(TrackedHandJoint.MiddleTip, out MixedRealityPose MTpose))
-                        {
-                            middleTipPose = MTpose;
-                        }
-                        if (hand.TryGetJoint(TrackedHandJoint.ThumbTip, out MixedRealityPose TTpose))
-                        {
-                            thumbTipPose = TTpose;
-                        }
-                        if (hand.TryGetJoint(TrackedHandJoint.IndexTip, out MixedRealityPose ITpose))
-                        {
-                            indexTipPose = ITpose;
-                        }
-                        if (hand.TryGetJoint(TrackedHandJoint.IndexKnuckle, out MixedRealityPose IKpose))
-                        {
-                            indexKnucklePose = IKpose;
-                        }
-                        indexForward = Vector3.Normalize(indexTipPose.Position - indexKnucklePose.Position);
-                    }
-                    else
-                    {
-                        var handVisualizer = p.Controller as IMixedRealityHandVisualizer;
-                        if (handVisualizer != null)
-                        {
-                            if (handVisualizer.Controller.ControllerHandedness != SettingsData.handedness) return;
-                            if (HandJointUtils.TryGetJointPose(TrackedHandJoint.MiddleTip, Handedness.Both, out MixedRealityPose MTpose))
-                            {
-                                middleTipPose = MTpose;
-                            }
-                            if (HandJointUtils.TryGetJointPose(TrackedHandJoint.ThumbTip, Handedness.Both, out MixedRealityPose TTpose))
-                            {
-                                thumbTipPose = TTpose;
-                            }
-                            if (HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexTip, Handedness.Both, out MixedRealityPose ITpose))
-                            {
-                                indexTipPose = ITpose;
-                            }
-                            if (HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexKnuckle, Handedness.Both, out MixedRealityPose IKpose))
-                            {
-                                indexKnucklePose = IKpose;
-                            }
-                            indexForward = Vector3.Normalize(indexTipPose.Position - indexKnucklePose.Position);
-                        }
-                    }
-                }
-            }
+            //var palmTransform = HandJointService.RequestJointTransform(TrackedHandJoint.Palm, SettingsData.handedness);
+
+            var indexTopTransform = HandJointService.RequestJointTransform(TrackedHandJoint.IndexTip, SettingsData.handedness);
+            indexTipPose = new MixedRealityPose(indexTopTransform.position, indexTopTransform.rotation);
+
+            var indexKnuckleTransform = HandJointService.RequestJointTransform(TrackedHandJoint.IndexKnuckle, SettingsData.handedness);
+            indexKnucklePose = new MixedRealityPose(indexKnuckleTransform.position, indexKnuckleTransform.rotation);
+
+            var middleTipTransform = HandJointService.RequestJointTransform(TrackedHandJoint.MiddleTip, SettingsData.handedness);
+            middleTipPose = new MixedRealityPose(middleTipTransform.position, middleTipTransform.rotation);
+
+            var thumbTipTransform = HandJointService.RequestJointTransform(TrackedHandJoint.ThumbTip, SettingsData.handedness);
+            thumbTipPose = new MixedRealityPose(thumbTipTransform.position, thumbTipTransform.rotation);
+
+            indexForward = Vector3.Normalize(indexTipPose.Position - indexKnucklePose.Position);
+
         }
+
+
+        //currentTrackedHandedness = TrackedHandedness;
+        //if (currentTrackedHandedness == Handedness.Both)
+        //{
+        //    if (HandJointService.IsHandTracked(PreferredTrackedHandedness))
+        //    {
+        //        currentTrackedHandedness = PreferredTrackedHandedness;
+        //    }
+
+
+        //foreach (var source in CoreServices.InputSystem.DetectedInputSources)
+        //{
+        // Ignore anything that is not a hand because we want articulated hands
+        //if (source.SourceType == InputSourceType.Hand)
+        //{
+        //        foreach (var p in source.Pointers)
+        //    {
+        //var hand = p.Controller as IMixedRealityHand;
+        //if (hand != null)
+        //{
+        //    if (hand.ControllerHandedness != SettingsData.handedness || hand.ControllerHandedness != Handedness.Both) return;
+        //    if (hand.TryGetJoint(TrackedHandJoint.MiddleTip, out MixedRealityPose MTpose))
+        //    {
+        //        middleTipPose = MTpose;
+        //    }
+        //    if (hand.TryGetJoint(TrackedHandJoint.ThumbTip, out MixedRealityPose TTpose))
+        //    {
+        //        thumbTipPose = TTpose;
+        //    }
+        //    if (hand.TryGetJoint(TrackedHandJoint.IndexTip, out MixedRealityPose ITpose))
+        //    {
+        //        indexTipPose = ITpose;
+        //    }
+        //    if (hand.TryGetJoint(TrackedHandJoint.IndexKnuckle, out MixedRealityPose IKpose))
+        //    {
+        //        indexKnucklePose = IKpose;
+        //    }
+        //    indexForward = Vector3.Normalize(indexTipPose.Position - indexKnucklePose.Position);
+        //}
+        //else
+        //{
+        //}
+        //var handVisualizer = p.Controller as IMixedRealityHandVisualizer;
+        //if (handVisualizer != null)
+        //{
+        //    if (HandJointUtils.TryGetJointPose(TrackedHandJoint.MiddleTip, Handedness.Both, out MixedRealityPose MTpose))
+        //    {
+        //        middleTipPose = MTpose;
+        //    }
+        //    if (HandJointUtils.TryGetJointPose(TrackedHandJoint.ThumbTip, Handedness.Both, out MixedRealityPose TTpose))
+        //    {
+        //        thumbTipPose = TTpose;
+        //    }
+        //    if (HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexTip, Handedness.Both, out MixedRealityPose ITpose))
+        //    {
+        //        indexTipPose = ITpose;
+        //    }
+        //    if (HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexKnuckle, Handedness.Both, out MixedRealityPose IKpose))
+        //    {
+        //        indexKnucklePose = IKpose;
+        //    }
+        //    indexForward = Vector3.Normalize(indexTipPose.Position - indexKnucklePose.Position);
+        //}
+        //}
+        //}
+        //}
     }
 
     public Vector3 getForward()
@@ -247,5 +288,63 @@ public class HandTracking : MonoBehaviour
     public Vector3 getIndexKnuckle()
     {
         return indexKnucklePose.Position;
+    }
+}
+
+public static class GestureUtils
+{
+    private const float PinchThreshold = 0.7f;
+    private const float GrabThreshold = 0.4f;
+
+    public static bool IsIndexPinching(Handedness trackedHand)
+    {
+        return CalculateIndexPinch(trackedHand) > PinchThreshold;
+    }
+
+    public static bool IsMiddlePinching(Handedness trackedHand)
+    {
+        return CalculateMiddlePinch(trackedHand) > PinchThreshold;
+    }
+
+    public static bool IsGrabbing(Handedness trackedHand)
+    {
+        return !IsIndexPinching(trackedHand) &&
+               HandPoseUtils.MiddleFingerCurl(trackedHand) > GrabThreshold &&
+               HandPoseUtils.RingFingerCurl(trackedHand) > GrabThreshold &&
+               HandPoseUtils.PinkyFingerCurl(trackedHand) > GrabThreshold &&
+               HandPoseUtils.ThumbFingerCurl(trackedHand) > GrabThreshold;
+    }
+
+    /// <summary>
+    /// Pinch calculation of the index finger with the thumb based on the distance between the finger tip and the thumb tip.
+    /// 4 cm (0.04 unity units) is the threshold for fingers being far apart and pinch being read as 0.
+    /// </summary>
+    /// <param name="handedness">Handedness to query joint pose against.</param>
+    /// <returns> Float ranging from 0 to 1. 0 if the thumb and finger are not pinched together, 1 if thumb finger are pinched together</returns>
+
+    private const float IndexThumbSqrMagnitudeThreshold = 0.0016f;
+    public static float CalculateIndexPinch(Handedness handedness)
+    {
+        HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexTip, handedness, out var indexPose);
+        HandJointUtils.TryGetJointPose(TrackedHandJoint.ThumbTip, handedness, out var thumbPose);
+
+        Vector3 distanceVector = indexPose.Position - thumbPose.Position;
+        float indexThumbSqrMagnitude = distanceVector.sqrMagnitude;
+
+        float pinchStrength = Mathf.Clamp(1 - indexThumbSqrMagnitude / IndexThumbSqrMagnitudeThreshold, 0.0f, 1.0f);
+        return pinchStrength;
+    }
+
+    private const float MiddleThumbSqrMagnitudeThreshold = 0.0016f;
+    public static float CalculateMiddlePinch(Handedness handedness)
+    {
+        HandJointUtils.TryGetJointPose(TrackedHandJoint.MiddleTip, handedness, out var middlePose);
+        HandJointUtils.TryGetJointPose(TrackedHandJoint.ThumbTip, handedness, out var thumbPose);
+
+        Vector3 distanceVector = middlePose.Position - thumbPose.Position;
+        float middleThumbSqrMagnitude = distanceVector.sqrMagnitude;
+
+        float pinchStrength = Mathf.Clamp(1 - middleThumbSqrMagnitude / IndexThumbSqrMagnitudeThreshold, 0.0f, 1.0f);
+        return pinchStrength;
     }
 }

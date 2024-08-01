@@ -161,7 +161,7 @@ public class StudyTask
             if (thisVar.GetValue(task) != null && thisVar.Name != "description")
             {
                 var value = Convert.ChangeType(thisVar.GetValue(task), Nullable.GetUnderlyingType(thisVar.FieldType));
-                task.description += $"{thisVar.Name} = {value}; ";
+                task.description += $"{thisVar.Name} = {value}\n";
             }
         }
     }
@@ -202,5 +202,46 @@ public class StudyTask
         return tasks;
     }
 
+    public static void activateTaskSettings(StudyTask task)
+    {
+        if (task != null)
+        {
+            if (task.withAnimation != null)
+            {
+                if (task.withAnimation.Value)
+                {
+                    SettingsData.transitionMode = TransitionManager.TransitionMode.DESKTOP_2D;
+                    SettingsData.transitionAnimation = TransitionManager.TransitionAnimation.BOTH;
+                }
+                else
+                {
+                    SettingsData.transitionMode = TransitionManager.TransitionMode.INSTANT;
+                    SettingsData.transitionAnimation = TransitionManager.TransitionAnimation.NONE;
+                }
+            }
+            if (task.B_desktopTarget != null)
+            {
+                SettingsData.desktopTarget = task.B_desktopTarget.Value;
+            }
+            if (task.B_immersiveTarget != null)
+            {
+                SettingsData.immersiveTarget = task.B_immersiveTarget.Value;
+            }
+            if (task.DG_desktopTarget != null)
+            {
+                SettingsData.desktopTarget = task.DG_desktopTarget.Value;
+            }
+            if (task.DG_immersiveTarget != null)
+            {
+                SettingsData.immersiveTarget = task.DG_immersiveTarget.Value;
+            }
+            if (task.DG_holdGrab != null)
+            {
+                SettingsData.requireGrabHold = task.DG_holdGrab.Value;
+            }
+        }
+        settingsControl.Singleton.updateSettings();
+        EventManager.Singleton.UpdateSettings();
+    }
 
 }

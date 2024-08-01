@@ -6767,6 +6767,7 @@ GameObject:
   - component: {fileID: 445067728}
   - component: {fileID: 445067731}
   - component: {fileID: 445067732}
+  - component: {fileID: 445067733}
   m_Layer: 0
   m_Name: MainCamera
   m_TagString: MainCamera
@@ -6904,6 +6905,69 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d9ca3a4f9c49064bbf1c726a2a2902d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &445067733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 445067727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c0ad0e8e55c95c4e931911c4b943a64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  space: 0
+  transformType: 0
+  pivot: 1
+  centerType: 0
+  scaleType: 0
+  SetMoveType: 49
+  SetRotateType: 50
+  SetScaleType: 51
+  SetAllTransformType: 52
+  SetSpaceToggle: 53
+  SetPivotModeToggle: 0
+  SetCenterTypeToggle: 0
+  SetScaleTypeToggle: 0
+  translationSnapping: 306
+  AddSelection: 304
+  RemoveSelection: 306
+  ActionKey: 304
+  UndoAction: 0
+  RedoAction: 0
+  xColor: {r: 1, g: 0, b: 0, a: 0.8}
+  yColor: {r: 0, g: 1, b: 0, a: 0.8}
+  zColor: {r: 0, g: 0, b: 1, a: 0.8}
+  allColor: {r: 0.7, g: 0.7, b: 0.7, a: 0.8}
+  selectedColor: {r: 1, g: 1, b: 0, a: 0.8}
+  hoverColor: {r: 1, g: 0.75, b: 0, a: 0.8}
+  planesOpacity: 0.5
+  movementSnap: 0.25
+  rotationSnap: 15
+  scaleSnap: 1
+  handleLength: 0.25
+  handleWidth: 0.003
+  planeSize: 0.035
+  triangleSize: 0.03
+  boxSize: 0.03
+  circleDetail: 40
+  allMoveHandleLengthMultiplier: 1
+  allRotateHandleLengthMultiplier: 1.4
+  allScaleHandleLengthMultiplier: 1.6
+  minSelectedDistanceCheck: 0.01
+  moveSpeedMultiplier: 1
+  scaleSpeedMultiplier: 1
+  rotateSpeedMultiplier: 1
+  allRotateSpeedMultiplier: 20
+  useFirstSelectedAsMain: 1
+  circularRotationMethod: 0
+  forceUpdatePivotPointOnChange: 1
+  maxUndoStored: 1
+  manuallyHandleGizmo: 0
+  selectionMask:
+    serializedVersion: 2
+    m_Bits: 225
 --- !u!1 &452298048
 GameObject:
   m_ObjectHideFlags: 0
@@ -12594,7 +12658,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &737017272
 RectTransform:
   m_ObjectHideFlags: 0

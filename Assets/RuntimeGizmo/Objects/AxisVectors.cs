@@ -26,10 +26,5 @@ namespace RuntimeGizmos
 			z.Clear();
 			all.Clear();
 		}
-
-		public int Count()
-        {
-			return x.Count;
-        }
 	}
 }

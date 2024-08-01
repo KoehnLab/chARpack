@@ -1,8 +1,6 @@
 using Microsoft.MixedReality.Toolkit.Input;
-using RuntimeGizmos;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -539,6 +537,13 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
     public Vector3 getScreenCenter()
     {
         return screenCenter;
+    }
+
+    public Vector2 getScreenSizeWS()
+    {
+        var y = (indicator2.transform.position - indicator1.transform.position).magnitude;
+        var x = (indicator3.transform.position - indicator1.transform.position).magnitude;
+        return new Vector2(x, y);
     }
 
     public bool contains(Vector3 pos)

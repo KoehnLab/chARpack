@@ -364,7 +364,9 @@ public class TransitionManager : MonoBehaviour
             }
             else // ImmersiveTarget.FRONT_OF_SCREEN
             {
+                var screenSize = screenAlignment.Singleton.getScreenSizeWS();
                 float dist_to_move = 0.5f * GlobalCtrl.Singleton.getLongestBBoxEdge(trans);
+                dist_to_move = Mathf.Max(dist_to_move, screenSize.y);
                 trans.position += dist_to_move * screenAlignment.Singleton.getScreenNormal();
             }
         }
@@ -398,7 +400,9 @@ public class TransitionManager : MonoBehaviour
             }
             else // SettingsData.immersiveTarget == ImmersiveTarget.FRONT_OF_SCREEN
             {
+                var screenSize = screenAlignment.Singleton.getScreenSizeWS();
                 float dist_to_move = 0.5f * GlobalCtrl.Singleton.getLongestBBoxEdge(trans);
+                dist_to_move = Mathf.Max(dist_to_move, screenSize.y);
                 var pos = trans.position + dist_to_move * screenAlignment.Singleton.getScreenNormal();
                 StartCoroutine(moveToPos(trans, pos));
             }
