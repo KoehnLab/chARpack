@@ -364,7 +364,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         EventManager.Singleton.OnMolDataChanged += adjustBBox;
         if (HandTracking.Singleton)
         {
-            HandTracking.Singleton.OnMiddleFingerGrab += OnTransitionGrab;
+            //HandTracking.Singleton.OnMiddleFingerGrab += OnTransitionGrab;
+            HandTracking.Singleton.OnMiddleFingerGrab.AddListener(OnTransitionGrab, IsHandInTransitionGrabBounds);
             HandTracking.Singleton.OnMiddleFingerGrabRelease += OnTransitionGrabRelease;
             //HandTracking.Singleton.OnIndexFingerGrab += OnNormalGrab;
             //HandTracking.Singleton.OnIndexFingerGrabRelease += OnNormalGrabRelease;
@@ -390,7 +391,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             if (GetComponent<myBoundingBox>().containedInHandles(pos)) return;
             if (containedInAtoms(pos)) return;
 
-            screenAlignment.Singleton.OnDistantGrab(pos);
+            screenAlignment.Singleton.OnDistantGrab();
             emptyGrab = true;
         }
     }
@@ -405,27 +406,27 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
-    private Stopwatch transitionGrabCoolDown = Stopwatch.StartNew();
-    private void OnTransitionGrab(Vector3 pos)
+    private void OnTransitionGrab()
+    {
+        if (SettingsData.syncMode == TransitionManager.SyncMode.Async)
+        {
+            TransitionManager.Singleton.initializeTransitionClient(transform, TransitionManager.InteractionType.DISTANT_GRAB);
+        }
+    }
+
+
+    private bool IsHandInTransitionGrabBounds()
     {
         if (isInteractable)
         {
-            if (GetComponent<myBoundingBox>().contains(pos))
+            if (GetComponent<myBoundingBox>().contains(HandTracking.Singleton.getMiddleTip()))
             {
-                if (SettingsData.syncMode == TransitionManager.SyncMode.Async)
-                {
-                    transitionGrabCoolDown?.Stop();
-                    if (transitionGrabCoolDown?.ElapsedMilliseconds < 800)
-                    {
-                        transitionGrabCoolDown.Start();
-                        return;
-                    }
-                    TransitionManager.Singleton.initializeTransitionClient(transform, TransitionManager.InteractionType.DISTANT_GRAB);
-                    transitionGrabCoolDown.Restart();
-                }
+                return true;
             }
         }
+        return false;
     }
+
     public Quaternion relQuatBeforeTransition = Quaternion.identity;
 
     private void OnTransitionGrabRelease()
@@ -544,15 +545,37 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         Destroy(gameObject);
     }
 
-    public void setServerFocus(bool focus)
+    public void setServerFocus(bool focus, bool useBlinkAnimation = false)
     {
         if (isServerFocused != focus)
         {
             isServerFocused = focus;
+            if (!useBlinkAnimation)
+            {
+                foreach (Atom a in atomList)
+                {
+                    a.serverFocusHighlightUI(focus);
+                }
+            }
+            else
+            {
+                StartCoroutine(serverFocusBlinkAnimation());
+            }
+
+        }
+    }
+
+    private IEnumerator serverFocusBlinkAnimation()
+    {
+        bool current_state = true;
+        while(isServerFocused)
+        {
             foreach (Atom a in atomList)
             {
-                a.serverFocusHighlightUI(focus);
+                a.serverFocusHighlightUI(current_state);
             }
+            current_state = !current_state;
+            yield return new WaitForSeconds(0.5f);
         }
     }
 
@@ -2292,7 +2315,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         EventManager.Singleton.OnMolDataChanged -= adjustBBox;
         if (HandTracking.Singleton)
         {
-            HandTracking.Singleton.OnMiddleFingerGrab -= OnTransitionGrab;
+            HandTracking.Singleton.OnMiddleFingerGrab.RemoveListener(OnTransitionGrab);
             HandTracking.Singleton.OnMiddleFingerGrabRelease -= OnTransitionGrabRelease;
             //HandTracking.Singleton.OnIndexFingerGrab -= OnNormalGrab;
             //HandTracking.Singleton.OnIndexFingerGrabRelease -= OnNormalGrabRelease;

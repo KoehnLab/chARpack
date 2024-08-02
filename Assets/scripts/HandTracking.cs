@@ -100,12 +100,7 @@ public class HandTracking : MonoBehaviour
     //}
 
 
-    public delegate void MiddleFingerGrabAction(Vector3 mfpos);
-    public event MiddleFingerGrabAction OnMiddleFingerGrab;
-    public void MiddleFingerGrab(Vector3 mfpos)
-    {
-        OnMiddleFingerGrab?.Invoke(mfpos);
-    }
+    public ConditionalEventWithCooldown OnMiddleFingerGrab = new ConditionalEventWithCooldown(0.2f);
 
     public delegate void MiddleFingerGrabReleaseAction();
     public event MiddleFingerGrabReleaseAction OnMiddleFingerGrabRelease;
@@ -143,7 +138,8 @@ public class HandTracking : MonoBehaviour
                 if (middleFingerGrabCooldown.ElapsedMilliseconds > 200)
                 {
                     middleFingerGrab = true;
-                    MiddleFingerGrab(middleTipPose.Position);
+                    //MiddleFingerGrab(middleTipPose.Position);
+                    OnMiddleFingerGrab.Invoke();
                     middleFingerGrabCooldown.Restart();
                 }
                 else
@@ -288,6 +284,11 @@ public class HandTracking : MonoBehaviour
     public Vector3 getIndexKnuckle()
     {
         return indexKnucklePose.Position;
+    }
+
+    public Vector3 getMiddleTip()
+    {
+        return middleTipPose.Position;
     }
 }
 

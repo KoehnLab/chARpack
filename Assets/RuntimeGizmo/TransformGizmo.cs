@@ -20,6 +20,7 @@ namespace RuntimeGizmos
 		public TransformPivot pivot = TransformPivot.Pivot;
 		public CenterType centerType = CenterType.All;
 		public ScaleType scaleType = ScaleType.FromPoint;
+		public bool scaleWithDistance = false;
 
 		//These are the same as the unity editor hotkeys
 		public KeyCode SetMoveType = KeyCode.W;
@@ -130,8 +131,30 @@ namespace RuntimeGizmos
 		static Material lineMaterial;
 		static Material outlineMaterial;
 
-		void Awake()
+
+
+        private static TransformGizmo _singleton;
+
+        public static TransformGizmo Singleton
+        {
+            get => _singleton;
+            private set
+            {
+                if (_singleton == null)
+                {
+                    _singleton = value;
+                }
+                else if (_singleton != value)
+                {
+                    Debug.Log($"[{nameof(TransformGizmo)}] Instance already exists, destroying duplicate!");
+                    Destroy(value);
+                }
+
+            }
+        }
+        void Awake()
 		{
+			Singleton = this;
 			myCamera = GetComponent<Camera>();
 			SetMaterial();
 		}
@@ -363,28 +386,32 @@ namespace RuntimeGizmos
 		{
 			if(mainTargetRoot != null)
 			{
-				if(nearAxis != Axis.None && Input.GetMouseButtonDown(0))
+                if (nearAxis != Axis.None && Input.GetMouseButtonDown(0))
 				{
-
-                    //check if mouse position is over any active and visible UI object
-                    foreach (MaskableGraphic uiElement in UICanvas.Singleton.GetComponentsInChildren<MaskableGraphic>())
-                    {
-                        if (uiElement.gameObject.activeInHierarchy && uiElement.enabled)
-                        {
-                            Vector2 tmpLocalPoint;
-                            RectTransformUtility.ScreenPointToLocalPointInRectangle(uiElement.rectTransform, Input.mousePosition, null, out tmpLocalPoint);
-                            if (uiElement.rectTransform.rect.Contains(tmpLocalPoint))
-                            {
-                                return;
-                            }
-
-                        }
-                    }
+					if (mouseIsOverUIElement()) return;
 
                     StartCoroutine(TransformSelected(translatingType));
 				}
 			}
 		}
+
+		private bool mouseIsOverUIElement()
+		{
+            //check if mouse position is over any active and visible UI object
+            foreach (MaskableGraphic uiElement in UICanvas.Singleton.GetComponentsInChildren<MaskableGraphic>())
+            {
+                if (uiElement.gameObject.activeInHierarchy && uiElement.enabled)
+                {
+                    Vector2 tmpLocalPoint;
+                    RectTransformUtility.ScreenPointToLocalPointInRectangle(uiElement.rectTransform, Input.mousePosition, null, out tmpLocalPoint);
+                    if (uiElement.rectTransform.rect.Contains(tmpLocalPoint))
+                    {
+						return true;
+                    }
+                }
+            }
+			return false;
+        }
 		
 		IEnumerator TransformSelected(TransformType transType)
 		{
@@ -662,20 +689,7 @@ namespace RuntimeGizmos
 				bool isAdding = Input.GetKey(AddSelection);
 				bool isRemoving = Input.GetKey(RemoveSelection);
 
-                //check if mouse position is over any active and visible UI object
-                foreach (MaskableGraphic uiElement in UICanvas.Singleton.GetComponentsInChildren<MaskableGraphic>())
-                {
-                    if (uiElement.gameObject.activeInHierarchy && uiElement.enabled)
-                    {
-                        Vector2 tmpLocalPoint;
-                        RectTransformUtility.ScreenPointToLocalPointInRectangle(uiElement.rectTransform, Input.mousePosition, null, out tmpLocalPoint);
-                        if (uiElement.rectTransform.rect.Contains(tmpLocalPoint))
-                        {
-                            return;
-                        }
-
-                    }
-                }
+                if (mouseIsOverUIElement()) return;
 
                 RaycastHit hitInfo; 
 				if(Physics.Raycast(myCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, Mathf.Infinity, selectionMask))
@@ -1002,6 +1016,7 @@ namespace RuntimeGizmos
 		void SetNearAxis()
 		{
 			if(isTransforming) return;
+			if (mouseIsOverUIElement()) return;
 
 			SetTranslatingAxis(transformType, Axis.None);
 
@@ -1162,10 +1177,13 @@ namespace RuntimeGizmos
 		//This helps keep the size consistent no matter how far we are from it.
 		public float GetDistanceMultiplier()
 		{
-			if(mainTargetRoot == null) return 0f;
-
-			if(myCamera.orthographic) return Mathf.Max(.01f, myCamera.orthographicSize * 2f);
-			return Mathf.Max(.01f, Mathf.Abs(ExtVector3.MagnitudeInDirection(pivotPoint - transform.position, myCamera.transform.forward)));
+            if (mainTargetRoot == null) return 0f;
+            if (scaleWithDistance)
+			{
+                if (myCamera.orthographic) return Mathf.Max(.01f, myCamera.orthographicSize * 2f);
+                return Mathf.Max(.01f, Mathf.Abs(ExtVector3.MagnitudeInDirection(pivotPoint - transform.position, myCamera.transform.forward)));
+            }
+			return 1f;
 		}
 
 		void SetLines()

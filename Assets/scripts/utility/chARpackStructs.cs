@@ -297,7 +297,7 @@ namespace chARpackStructs
             return x == s.x && y == s.y;
         }
 
-        public Vector3 ToVector2()
+        public Vector2 ToVector2()
         {
             return new Vector2(x, y);
         }

@@ -184,7 +184,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         collider.size = bounds.size;
 
         // listen to distant grabs
-        HandTracking.Singleton.OnMiddleFingerGrab += OnDistantGrab;
+        HandTracking.Singleton.OnMiddleFingerGrab.SetDefaultListener(OnDistantGrab);
         HandTracking.Singleton.OnMiddleFingerGrabRelease += OnDistantGrabRelease;
 
         // turn off quad after 2 sec
@@ -328,26 +328,33 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         if (fullyInitialized)
         {
             var proj = projectIndexOnScreen();
-            if (projectionIndicator == null)
-            {
-                projectionIndicator = Instantiate(indicator1, transform);
-                DestroyImmediate(projectionIndicator.GetComponent<BoxCollider>());
-                projectionIndicator.GetComponent<Renderer>().material.color = new Color(0f, 1f, 0f, 1f);
-            }
+            //if (projectionIndicator == null)
+            //{
+            //    projectionIndicator = Instantiate(indicator1, transform);
+            //    DestroyImmediate(projectionIndicator.GetComponent<BoxCollider>());
+            //    projectionIndicator.GetComponent<Renderer>().material.color = new Color(0f, 1f, 0f, 1f);
+            //}
             if (GetComponent<BoxCollider>().bounds.Contains(proj.Value))
             {
-                projectionIndicator.SetActive(true);
-                projectionIndicator.transform.position = proj.Value;
+                //projectionIndicator.SetActive(true);
+                //projectionIndicator.transform.position = proj.Value;
                 var ss_coords = getScreenSpaceCoords(proj.Value);
                 if (EventManager.Singleton != null)
                 {
                     EventManager.Singleton.HoverOverScreen(ss_coords.Value);
                 }
             }
-            else
-            {
-                projectionIndicator.SetActive(false);
-            }
+            //else
+            //{
+            //    projectionIndicator.SetActive(false);
+            //}
+
+            //if (GenericObject.objects != null && GenericObject.objects.Count > 0)
+            //{
+            //    var go_proj = projectWSPointToScreen(GenericObject.objects.Values.Last().transform.position);
+            //    projectionIndicator.transform.position = go_proj;
+            //    //Debug.Log($"setting indicator {go_proj}");
+            //}
 
             // check if object is getting pushed into the screen
             if (GlobalCtrl.Singleton != null)
@@ -546,13 +553,19 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         return new Vector2(x, y);
     }
 
+    public float getDistanceFromScreen(Vector3 pos)
+    {
+        var proj = projectWSPointToScreen(pos);
+        return (pos - proj).magnitude;
+    }
+
     public bool contains(Vector3 pos)
     {
         return GetComponent<BoxCollider>().bounds.Contains(pos);
     }
 
 
-    public void OnDistantGrab(Vector3 pos)
+    public void OnDistantGrab()
     {
         var proj = projectIndexOnScreen();
         var viewport_coords = getScreenSpaceCoords(proj.Value);
@@ -605,7 +618,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         {
             if (HandTracking.Singleton)
             {
-                HandTracking.Singleton.OnMiddleFingerGrab += OnDistantGrab;
+                HandTracking.Singleton.OnMiddleFingerGrab.SetDefaultListener(OnDistantGrab);
                 HandTracking.Singleton.OnMiddleFingerGrabRelease += OnDistantGrabRelease;
             }
             else
@@ -613,6 +626,15 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                 Debug.LogError("[screenAlignment] Could not subscribe to HandTracking events.");
             }
             
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (HandTracking.Singleton)
+        {
+            HandTracking.Singleton.OnMiddleFingerGrab.RemoveListener(OnDistantGrab);
+            HandTracking.Singleton.OnMiddleFingerGrabRelease -= OnDistantGrabRelease;
         }
     }
 

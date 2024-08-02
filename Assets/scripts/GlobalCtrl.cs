@@ -2248,9 +2248,7 @@ public class GlobalCtrl : MonoBehaviour
                     if (NetworkManagerClient.Singleton != null)
                     {
                         var normal = screenAlignment.Singleton.getScreenNormal();
-                        // TODO test if -normal or just normal (-normal does not work properly) [maybe need different approach]
                         var screen_quat = Quaternion.LookRotation(-normal);
-                        //var screen_quat = Quaternion.LookRotation(normal);
                         tempMolecule.transform.rotation = screen_quat * molecule.relQuat;
                     }
                     if (NetworkManagerServer.Singleton != null)
@@ -2258,18 +2256,16 @@ public class GlobalCtrl : MonoBehaviour
                         tempMolecule.transform.rotation = currentCamera.transform.rotation * molecule.relQuat;
                     }
                 }
-                if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT && molecule.ssPos != Vector2.zero)
+                if (molecule.ssPos != Vector2.zero)
                 {
-                    Debug.Log($"[Create:transition] Got SS coords: {molecule.ssPos};");
+                    Debug.Log($"[Create:transition] Got SS coords: {molecule.ssPos.ToVector2()};");
                     if (screenAlignment.Singleton)
                     {
                         tempMolecule.transform.position = screenAlignment.Singleton.getWorldSpaceCoords(molecule.ssPos);
                     }
                     else
                     {
-                        var mol_bounds = tempMolecule.GetComponent<myBoundingBox>().localBounds;
-                        tempMolecule.transform.position = currentCamera.ScreenToWorldPoint(new Vector3(molecule.ssPos.x, molecule.ssPos.y, currentCamera.nearClipPlane + 0.0001f + mol_bounds.extents.z));
-                        //tempMolecule.transform.position = currentCamera.ScreenToWorldPoint(new Vector3(molecule.ssPos.x, molecule.ssPos.y, 0.4f));
+                        tempMolecule.transform.position = getIdealSpawnPos(tempMolecule.transform, molecule.ssPos);
                     }
                 }
                 if (molecule.ssBounds != Vector4.zero)
@@ -2295,8 +2291,7 @@ public class GlobalCtrl : MonoBehaviour
                     }
                     if (NetworkManagerServer.Singleton != null)
                     {
-                        var mol_bounds = tempMolecule.GetComponent<myBoundingBox>().localBounds;
-                        tempMolecule.transform.position = currentCamera.ScreenToWorldPoint(new Vector3(molecule.ssPos.x, molecule.ssPos.y, currentCamera.nearClipPlane + 0.0001f + mol_bounds.extents.z));
+                        //tempMolecule.transform.position = getIdealSpawnPos(tempMolecule.transform, molecule.ssPos);
 
                         var ss_min = new Vector2(molecule.ssBounds.x, molecule.ssBounds.y);
                         var ss_max = new Vector2(molecule.ssBounds.z, molecule.ssBounds.w);
@@ -2320,10 +2315,9 @@ public class GlobalCtrl : MonoBehaviour
                 }
                 if (addToUndoStack) undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id, molecule));
                 EventManager.Singleton.MoleculeLoaded(tempMolecule);
-                Debug.Log($"[Create:transition] moleTransitioned {molecule.moleTransitioned}; triggered by {molecule.transitionTriggeredBy}");
+                Debug.Log($"[Create:transition] moleTransitioned {molecule.moleTransitioned}; triggered by {(TransitionManager.InteractionType)molecule.transitionTriggeredBy}");
                 if (molecule.moleTransitioned)
                 {
-
                     EventManager.Singleton.ReceiveMoleculeTransition(tempMolecule, (TransitionManager.InteractionType)molecule.transitionTriggeredBy);
                 }
             }

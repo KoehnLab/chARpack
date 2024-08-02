@@ -141,33 +141,46 @@ public class ServerInputSystem : MonoBehaviour
                     StudyTaskManager.Singleton.startAndFinishTask();
                 }
             }
-            if (Input.GetMouseButtonDown(1))
+            if (Input.GetMouseButtonDown(0))
             {
                 getObjectClickedOn();
             }
-            if (Input.GetMouseButtonDown(1))
-            {
 
-            }
-            if (Input.GetMouseButton(1) && Input.GetKey(KeyCode.LeftAlt))
+            if (Input.GetMouseButtonUp(0) && lastObjectClickedOn == null)
             {
-                if (lastObjectClickedOn != null)
+                foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
                 {
-                    var amount = 0.1f * Input.GetAxis("Mouse X");
-                    if (lastObjectClickedOn.transform.localScale.x > 0.1f)
+                    mol.markMoleculeUI(false);
+                }
+                if (GenericObject.objects != null)
+                {
+                    foreach (var obj in GenericObject.objects.Values)
                     {
-                        lastObjectClickedOn.transform.localScale += amount * Vector3.one;
+                        obj.isMarked = false;
+                        obj.processHighlights();
                     }
-                    else
-                    {
-                        if (amount > 0f)
-                        {
-                            lastObjectClickedOn.transform.localScale += amount * Vector3.one;
-                        }
-                    }
-
                 }
             }
+
+            //if (Input.GetMouseButton(1) && Input.GetKey(KeyCode.LeftAlt))
+            //{
+            //    if (lastObjectClickedOn != null)
+            //    {
+            //        var amount = 0.1f * Input.GetAxis("Mouse X");
+            //        if (lastObjectClickedOn.transform.localScale.x > 0.1f)
+            //        {
+            //            lastObjectClickedOn.transform.localScale += amount * Vector3.one;
+            //        }
+            //        else
+            //        {
+            //            if (amount > 0f)
+            //            {
+            //                lastObjectClickedOn.transform.localScale += amount * Vector3.one;
+            //            }
+            //        }
+
+            //    }
+            //}
         }
     }
 

@@ -623,7 +623,10 @@ public class NetworkManagerClient : MonoBehaviour
 
         if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT)
         {
-            cml.assignSSPos(screenAlignment.Singleton.getCurrentIndexSSPos());
+            var proj = screenAlignment.Singleton.projectWSPointToScreen(mol.transform.position);
+            var mol_ss_pos = screenAlignment.Singleton.getScreenSpaceCoords(proj);
+            Debug.Log($"[transitionMolecule] proj {proj}; mol_ss_pos {mol_ss_pos}");
+            cml.assignSSPos(mol_ss_pos.Value);
             var mol_ss_bounds = mol.GetComponent<myBoundingBox>().getScreenSpaceBounds();
             if (mol_ss_bounds != Vector4.zero)
             {
@@ -646,7 +649,9 @@ public class NetworkManagerClient : MonoBehaviour
 
         if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT)
         {
-            sgo.assignSSPos(screenAlignment.Singleton.getCurrentIndexSSPos());
+            var proj = screenAlignment.Singleton.projectWSPointToScreen(go.transform.position);
+            var go_ss_pos = screenAlignment.Singleton.getScreenSpaceCoords(proj);
+            sgo.assignSSPos(go_ss_pos.Value);
             var mol_ss_bounds = go.GetComponent<myBoundingBox>().getScreenSpaceBounds();
             if (mol_ss_bounds != Vector4.zero)
             {

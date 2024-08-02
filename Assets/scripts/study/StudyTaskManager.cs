@@ -130,13 +130,13 @@ public class StudyTaskManager : MonoBehaviour
         var mol = rnd_object.Item2.GetComponent<Molecule>();
         if (mol != null)
         {
-            mol.setServerFocus(true);
+            mol.setServerFocus(true, true);
             object_to_track = mol.m_id;
         }
         else
         {
             var go = rnd_object.Item2.GetComponent<GenericObject>();
-            go.setServerFocus(true);
+            go.setServerFocus(true, true);
             object_to_track = go.id;
         }
         EventManager.Singleton.SpawnGhostObject(rnd_object.Item1);

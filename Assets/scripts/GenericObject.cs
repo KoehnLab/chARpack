@@ -3,6 +3,7 @@ using chARpackStructs;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.UI;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
@@ -155,19 +156,18 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
             if (NetworkManagerClient.Singleton != null)
             {
                 var normal = screenAlignment.Singleton.getScreenNormal();
-                // TODO test if -normal or just normal (-normal does not work properly) [maybe need different approach]
                 var screen_quat = Quaternion.LookRotation(-normal);
-                //var screen_quat = Quaternion.LookRotation(normal);
                 new_go.transform.rotation = screen_quat * sgo.relQuat;
             }
             if (NetworkManagerServer.Singleton != null)
             {
                 new_go.transform.rotation = GlobalCtrl.Singleton.currentCamera.transform.rotation * sgo.relQuat;
+                // TODO test with delta between obj and camera forward
             }
         }
-        if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT && sgo.ssPos != Vector2.zero)
+        if (sgo.ssPos != Vector2.zero)
         {
-            UnityEngine.Debug.Log($"[Create:transition] Got SS coords: {sgo.ssPos};");
+            UnityEngine.Debug.Log($"[Create:transition] Got SS coords: {sgo.ssPos.ToVector2()};");
             if (screenAlignment.Singleton)
             {
                 new_go.transform.position = screenAlignment.Singleton.getWorldSpaceCoords(sgo.ssPos);
@@ -199,11 +199,12 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
             }
             if (NetworkManagerServer.Singleton != null)
             {
-                new_go.transform.position = GlobalCtrl.Singleton.getIdealSpawnPos(new_go.transform, sgo.ssPos);
-
                 var ss_min = new Vector2(sgo.ssBounds.x, sgo.ssBounds.y);
                 var ss_max = new Vector2(sgo.ssBounds.z, sgo.ssBounds.w);
                 var ss_diff = ss_max - ss_min;
+
+                //new_go.transform.position = GlobalCtrl.Singleton.getIdealSpawnPos(new_go.transform, ss_min + 0.5f * ss_diff);
+
                 var sgo_max_size = Mathf.Max(ss_diff.x, ss_diff.y);
 
                 var current_ss_bounds = new_go.GetComponent<myBoundingBox>().getScreenSpaceBounds();
@@ -223,7 +224,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
             }
         }
         // EventManager.Singleton.MoleculeLoaded(tempMolecule); TODO: implement for sync mode
-        UnityEngine.Debug.Log($"[GO:Create:transition] transitioned {sgo.transitioned}; triggered by {sgo.transitionTriggeredBy}");
+        UnityEngine.Debug.Log($"[GO:Create:transition] transitioned {sgo.transitioned}; triggered by {(TransitionManager.InteractionType)sgo.transitionTriggeredBy}");
         if (sgo.transitioned)
         {
             EventManager.Singleton.ReceiveGenericObjectTransition(new_go, (TransitionManager.InteractionType)sgo.transitionTriggeredBy);
@@ -240,7 +241,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
     {
         if (HandTracking.Singleton)
         {
-            HandTracking.Singleton.OnMiddleFingerGrab += OnTransitionGrab;
+            HandTracking.Singleton.OnMiddleFingerGrab.AddListener(OnTransitionGrab, IsHandInTransitionGrabBounds);
             HandTracking.Singleton.OnMiddleFingerGrabRelease += OnTransitionGrabRelease;
             //HandTracking.Singleton.OnIndexFingerGrab += OnNormalGrab;
             //HandTracking.Singleton.OnIndexFingerGrabRelease += OnNormalGrabRelease;
@@ -251,32 +252,32 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
     {
         if (HandTracking.Singleton)
         {
-            HandTracking.Singleton.OnMiddleFingerGrab -= OnTransitionGrab;
+            HandTracking.Singleton.OnMiddleFingerGrab.RemoveListener(OnTransitionGrab);
             HandTracking.Singleton.OnMiddleFingerGrabRelease -= OnTransitionGrabRelease;
         }
     }
 
-    private Stopwatch transitionGrabCoolDown = Stopwatch.StartNew();
-    private void OnTransitionGrab(Vector3 pos)
+    private void OnTransitionGrab()
+    {
+        if (SettingsData.syncMode == TransitionManager.SyncMode.Async)
+        {
+            TransitionManager.Singleton.initializeTransitionClient(transform, TransitionManager.InteractionType.DISTANT_GRAB);
+        }
+    }
+
+    private bool IsHandInTransitionGrabBounds()
     {
         if (isInteractable)
         {
-            if (GetComponent<myBoundingBox>().contains(pos))
+            if (GetComponent<myBoundingBox>().contains(HandTracking.Singleton.getMiddleTip()))
             {
-                if (SettingsData.syncMode == TransitionManager.SyncMode.Async)
-                {
-                    transitionGrabCoolDown?.Stop();
-                    if (transitionGrabCoolDown?.ElapsedMilliseconds < 800)
-                    {
-                        transitionGrabCoolDown.Start();
-                        return;
-                    }
-                    TransitionManager.Singleton.initializeTransitionClient(transform, TransitionManager.InteractionType.DISTANT_GRAB);
-                    transitionGrabCoolDown.Restart();
-                }
+                return true;
             }
         }
+        return false;
     }
+
+
     public Quaternion relQuatBeforeTransition = Quaternion.identity;
 
     private void OnTransitionGrabRelease()
@@ -317,12 +318,58 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
-    public void setServerFocus(bool focus)
+    public void processHighlights(bool serverFocusOverride)
+    {
+        var outline = attachedModel.GetComponent<Outline>();
+        if (serverFocusOverride || isMarked || isGrabbed)
+        {
+            outline.enabled = true;
+        }
+        else
+        {
+            outline.enabled = false;
+            return;
+        }
+
+        if (isMarked)
+        {
+            outline.OutlineColor = chARpackColorPalette.ColorPalette.atomSelectionColor;
+
+        }
+        else if (serverFocusOverride)
+        {
+            outline.OutlineColor = FocusColors.getColor(-1);
+        }
+        else
+        {
+            outline.OutlineColor = chARpackColorPalette.ColorPalette.atomGrabColor;
+        }
+    }
+
+    public void setServerFocus(bool focus, bool useBlinkAnimation = false)
     {
         if (isServerFocused != focus)
         {
             isServerFocused = focus;
-            processHighlights();
+            if (!useBlinkAnimation)
+            {
+                processHighlights();
+            }
+            else
+            {
+                StartCoroutine(serverFocusBlinkAnimation());
+            }
+        }
+    }
+
+    private IEnumerator serverFocusBlinkAnimation()
+    {
+        bool current_state = true;
+        while (isServerFocused)
+        {
+            processHighlights(current_state);
+            current_state = !current_state;
+            yield return new WaitForSeconds(0.5f);
         }
     }
 
