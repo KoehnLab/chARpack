@@ -1,11 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System.Diagnostics;
 using System.IO;
 using chARpackStructs;
 using OpenBabel;
 using System.Collections;
-using System.Threading.Tasks;
 using SimpleFileBrowser;
 using System;
 
@@ -367,11 +365,14 @@ public class OpenBabelReadWrite : MonoBehaviour
                 }
             }
 
-            
+
             if (obmol.NumAtoms() > 0)
             {
                 var mol_id = Guid.NewGuid();
-                saveData.Add(new Tuple<Guid, OBMol>(mol_id, obmol).AsCML());
+                var chARpack_mol = new Tuple<Guid, OBMol>(mol_id, obmol).AsCML();
+                var mol_name = Path.GetFileName(fi.FullName) + "_" + mol_id.ToString().Substring(0, 5);
+                chARpack_mol.assignName(mol_name);
+                saveData.Add(chARpack_mol);
             }
         }
 

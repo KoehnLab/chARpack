@@ -134,13 +134,22 @@ public class ServerInputSystem : MonoBehaviour
                     }
                 }
             }
-            if (Input.GetKeyDown(KeyCode.Return))
+            if (!Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyDown(KeyCode.Return))
             {
                 if (StudyTaskManager.Singleton != null)
                 {
                     StudyTaskManager.Singleton.startAndFinishTask();
                 }
             }
+            if (Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyDown(KeyCode.Return))
+            {
+                if (StudyTaskManager.Singleton != null)
+                {
+                    StudyTaskManager.Singleton.restartTask();
+                }
+
+            }
+
             if (Input.GetMouseButtonDown(0))
             {
                 getObjectClickedOn();

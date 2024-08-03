@@ -6,13 +6,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 
 public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
 {
@@ -369,7 +366,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
         {
             processHighlights(current_state);
             current_state = !current_state;
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.1f);
         }
     }
 

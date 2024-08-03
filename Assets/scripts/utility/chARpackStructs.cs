@@ -156,6 +156,7 @@ namespace chARpackStructs
     [Serializable]
     public struct cmlData
     {
+        public string name;
         public SaveableVector3 molePos;
         public SaveableVector2 ssPos;
         public SaveableVector4 ssBounds;
@@ -189,6 +190,7 @@ namespace chARpackStructs
             ssBounds = Vector4.zero;
             moleTransitioned = false;
             transitionTriggeredBy = -1;
+            name = "";
         }
 
         public void assignRelativeQuaternion(Quaternion q)
@@ -214,6 +216,11 @@ namespace chARpackStructs
         public void setTransitionTriggeredBy(TransitionManager.InteractionType triggered_by)
         {
             transitionTriggeredBy = (int)triggered_by;
+        }
+
+        public void assignName(string name_)
+        {
+            name = name_;
         }
     }
 

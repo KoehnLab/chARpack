@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 
@@ -188,6 +187,7 @@ public class StudyTaskManager : MonoBehaviour
 
             var cam_to_spawn = GlobalCtrl.Singleton.getCurrentSpawnPos() - GlobalCtrl.Singleton.currentCamera.transform.position;
             ghostObject.position = GlobalCtrl.Singleton.currentCamera.transform.position + Quaternion.Euler(rnd_rot_x, rnd_rot_y, 0f) * cam_to_spawn;
+            StudyLogger.Singleton.write($"Object to transition: {ghostObject.name}");
         }
 
         if (NetworkManagerClient.Singleton != null)
@@ -218,6 +218,24 @@ public class StudyTaskManager : MonoBehaviour
     public void setObjectToTrack(Guid id)
     {
         objectToTrack = id;
+        string name;
+        if (GlobalCtrl.Singleton.List_curMolecules.ContainsKey(objectToTrack))
+        {
+            name = GlobalCtrl.Singleton.List_curMolecules[objectToTrack].name;
+        }
+        else if (GenericObject.objects.ContainsKey(objectToTrack))
+        {
+            name = GenericObject.objects[objectToTrack].name;
+        }
+        else
+        {
+            UnityEngine.Debug.LogError($"[setObjectToTrack] Could not find object to track");
+            return;
+        }
+        if (isTaskInProgress)
+        {
+            StudyLogger.Singleton.write($"Object to transition: {name}");
+        }
     }
 
     void Start()
@@ -443,7 +461,8 @@ public class StudyTaskManager : MonoBehaviour
                 GlobalCtrl.Singleton.DeleteAllUI();
                 isTaskInProgress = true;
                 hideDescriptionText();
-                GlobalCtrl.Singleton.currentCamera.Reset();
+                GlobalCtrl.Singleton.currentCamera.transform.position = Vector3.zero;
+                GlobalCtrl.Singleton.currentCamera.transform.rotation = Quaternion.identity;
                 stopwatch.Restart();
 
                 StudyLogger.Singleton.write($"(Task_{currentTaskID}) Started.");
@@ -458,6 +477,25 @@ public class StudyTaskManager : MonoBehaviour
                 {
                     EventManager.Singleton.SpawnObjectCollection(currentTaskID);
                 }
+            }
+        }
+    }
+
+    public void restartTask()
+    {
+        if (currentTaskID < currentTaskSet.Count)
+        {
+            if (isTaskInProgress) // finishing task
+            {
+                StudyLogger.Singleton.write($"(Task_{currentTaskID}) Restart.");
+
+                isTaskInProgress = false;
+
+                // clear scene and reset objects 
+                ghostObject = null;
+                objectToTrack = Guid.Empty;
+
+                activateTask(currentTaskSet[currentTaskID]);
             }
         }
     }
@@ -480,8 +518,37 @@ public class StudyTaskManager : MonoBehaviour
         grayOutInstance = Instantiate(grayOutPrefab);
         grayOutInstance.transform.SetParent(UICanvas.Singleton.transform);
         var gray_rect = grayOutInstance.transform as RectTransform;
+        gray_rect.anchorMin = Vector2.zero;
+        gray_rect.anchorMax = Vector2.one;
+        gray_rect.pivot = 0.5f * Vector2.one;
+        gray_rect.sizeDelta = Vector2.zero;
         gray_rect.anchoredPosition = Vector3.zero;
 
+        descriptionInstance.transform.SetAsLastSibling();
+    }
+
+
+    public void logTransitionGrab(Molecule mol, GenericObject go, TransitionManager.InteractionType trigger)
+    {
+        if (!isTaskInProgress) return;
+        if (mol != null)
+        {
+            StudyLogger.Singleton.write($"TransitionGrab successfull on Molecule {mol.gameObject.name}.", currentTaskID);
+        }
+        else if (go != null)
+        {
+            StudyLogger.Singleton.write($"TransitionGrab successfull on GenericObject {go.gameObject.name}.", currentTaskID);
+        }
+        else
+        {
+            StudyLogger.Singleton.write("Unsuccessfull TransitionGrab.", currentTaskID);
+        }
+    }
+
+    public void logTransition(string obj_name, TransitionManager.InteractionType trigger)
+    {
+        if (!isTaskInProgress) return;
+        StudyLogger.Singleton.write($"Object {obj_name} transitoned by {trigger}.", currentTaskID);
     }
 
     private void hideDescriptionText()

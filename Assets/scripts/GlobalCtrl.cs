@@ -1,21 +1,12 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using chARpackStructs;
-using System.IO;
 using System;
-using System.Globalization;
 using Microsoft.MixedReality.Toolkit.UI;
-using Microsoft.MixedReality.Toolkit.UI.BoundsControl;
-using System.Reflection;
-using Microsoft.MixedReality.Toolkit.Input;
 using System.Linq;
 using chARpackTypes;
-using chARpackColorPalette;
-using System.Xml.Serialization;
 
 /*! \mainpage 
  * API reference page for chARpack
@@ -396,7 +387,6 @@ public class GlobalCtrl : MonoBehaviour
         {
             var go = trans.GetComponent<GenericObject>();
             return go.GetComponent<myBoundingBox>().getSize().maxDimValue();
-
         }
     }
 

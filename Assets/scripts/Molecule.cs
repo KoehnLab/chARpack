@@ -5,14 +5,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using chARpackColorPalette;
 using UnityEngine.SceneManagement;
-using TMPro;
-using OpenBabel;
 
 public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 {
@@ -274,7 +271,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// molecule id
     /// </summary>
     private Guid _id;
-    public Guid m_id { get { return _id; } set { _id = value; name = "molecule_" + value.ToString().Substring(0, 5); } }
+    public Guid m_id { get { return _id; } set { _id = value; } }
 
 
     public bool isMarked;
@@ -314,6 +311,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         compMaterialB = Resources.Load("materials/ComparisonMaterialB") as Material;
 
         frozen_bond_mat = Resources.Load("materials/frozenBondMaterial") as Material;
+
+        if (mol_data.name == "")
+        {
+            name = "mol_" + m_id.ToString().Substring(0, 5);
+        }
 
         if (mol_data.keepConfig)
         {
@@ -575,7 +577,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 a.serverFocusHighlightUI(current_state);
             }
             current_state = !current_state;
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.1f);
         }
     }
 

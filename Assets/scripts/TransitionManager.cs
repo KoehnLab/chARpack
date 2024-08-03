@@ -182,7 +182,7 @@ public class TransitionManager : MonoBehaviour
         var wpos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f)); // z component is target distance from camera
 
         // debug blink
-        StartCoroutine(blinkOnScreen(ss_coords, wpos));
+        //StartCoroutine(blinkOnScreen(ss_coords, wpos));
 
         //Ray ray = new Ray();
         //ray.direction = GlobalCtrl.Singleton.currentCamera.transform.forward;
@@ -217,6 +217,10 @@ public class TransitionManager : MonoBehaviour
                 }
             }
 
+            if (StudyTaskManager.Singleton)
+            {
+                StudyTaskManager.Singleton.logTransitionGrab(mol_test, go_test, triggered_by);
+            }
 
             if (SettingsData.transitionMode == TransitionMode.FULL_3D)
             {
@@ -434,6 +438,10 @@ public class TransitionManager : MonoBehaviour
 
     private void getTransitionServer(Transform trans, InteractionType triggered_by)
     {
+        if (StudyTaskManager.Singleton)
+        {
+            StudyTaskManager.Singleton.logTransition(trans.name, triggered_by);
+        }
         if (triggered_by != InteractionType.CLOSE_GRAB)
         {
             if (current_ss_coords == null)
@@ -753,10 +761,7 @@ public class TransitionManager : MonoBehaviour
 
     private IEnumerator moveAway(Transform trans)
     {
-        var startTime = Time.time;
         var destination = GlobalCtrl.Singleton.getCurrentSpawnPos();
-        var old_pos = trans.position;
-        var dist = Vector3.Distance(trans.position, destination);
         AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         float elapsedTime = 0f;
         var start_pos = trans.position;

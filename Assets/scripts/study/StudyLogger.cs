@@ -116,9 +116,27 @@ public class StudyLogger : MonoBehaviour
             return;
         }
 
-        using (FileStream stream = new FileStream(currentLogFile, FileMode.Append))
+        using (FileStream stream = new FileStream(currentLogFile, fm))
         {
             var output = System.DateTime.Now.ToString("[yyyy-MM-dd_hh:mm:ss] ");
+            output += log + "\n";
+
+            byte[] bytes = Encoding.UTF8.GetBytes(output);
+            stream.Write(bytes, 0, bytes.Length);
+        }
+    }
+
+    public void write(string log, int task_id)
+    {
+        if (currentLogFile == null)
+        {
+            Debug.LogError("[StudyLogger] Cannot log anything. Study not initialized yet.");
+            return;
+        }
+
+        using (FileStream stream = new FileStream(currentLogFile, FileMode.Append))
+        {
+            var output = System.DateTime.Now.ToString($"[yyyy-MM-dd_hh:mm:ss] (Task_{task_id}) ");
             output += log + "\n";
 
             byte[] bytes = Encoding.UTF8.GetBytes(output);
@@ -133,8 +151,13 @@ public class StudyLogger : MonoBehaviour
         reader.Close();
 
         var split = file_content.Split("\n").ToList();
-        var last_task_line = split.Last(line => line.Contains("(Task_"));
-        var task_id = int.Parse(last_task_line.Split("(Task_")[1].Split(")")[0]);
+        var task_id = 0;
+        if (file_content.Contains("(Task_"))
+        {
+            var last_task_line = split.Last(line => line.Contains("(Task_"));
+            task_id = int.Parse(last_task_line.Split("(Task_")[1].Split(")")[0]);
+        }
+
 
         return task_id;
     }

@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Unity.VisualScripting;
 using Microsoft.MixedReality.Toolkit.Utilities;
 
 public class NetworkManagerClient : MonoBehaviour
