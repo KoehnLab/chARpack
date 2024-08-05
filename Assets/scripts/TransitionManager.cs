@@ -72,8 +72,13 @@ public class TransitionManager : MonoBehaviour
         Singleton = this;
     }
 
+    AudioClip doTransition;
+    AudioClip getTransition;
+
     private void Start()
     {
+        doTransition = Resources.Load<AudioClip>("audio/doTransition");
+        getTransition = Resources.Load<AudioClip>("audio/getTransition");
         if (EventManager.Singleton != null)
         {
             EventManager.Singleton.OnGrabOnScreen += grab;
@@ -199,21 +204,34 @@ public class TransitionManager : MonoBehaviour
             GenericObject go_test = null;
             if (mol_test != null)
             {
-                Debug.Log("[initializeTransitionServer] hit Molecule");
-                trans = mol_test.transform;
+                if (!mol_test.getIsInteractable())
+                {
+                    mol_test = null;
+                }
+                else
+                {
+                    Debug.Log("[initializeTransitionServer] hit Molecule");
+                    trans = mol_test.transform;
+                }
             }
             else
             {
                 go_test = hit.transform.GetComponentInParent<GenericObject>();
                 if (go_test != null)
                 {
-                    Debug.Log("[initializeTransitionServer] hit GenericObject");
-                    trans = go_test.transform;
+                    if (!go_test.getIsInteractable())
+                    {
+                        go_test = null;
+                    }
+                    else
+                    {
+                        Debug.Log("[initializeTransitionServer] hit GenericObject");
+                        trans = go_test.transform;
+                    }
                 }
                 else
                 {
-                    Debug.Log("[TransitionManager] Got Something unexpected.");
-                    return;
+                    return; // neither mol nor go hit, but some other type of object
                 }
             }
 
@@ -308,6 +326,7 @@ public class TransitionManager : MonoBehaviour
                 var go = trans.GetComponent<GenericObject>();
                 EventManager.Singleton.TransitionGenericObject(go, triggered_by);
             }
+            AudioSource.PlayClipAtPoint(doTransition, trans.position);
         } else if (SettingsData.transitionMode == TransitionMode.INSTANT)
         {
             // TODO check this pos and scale ...
@@ -323,6 +342,7 @@ public class TransitionManager : MonoBehaviour
                 var go = trans.GetComponent<GenericObject>();
                 EventManager.Singleton.TransitionGenericObject(go, triggered_by);
             }
+            AudioSource.PlayClipAtPoint(doTransition, trans.position);
         }
         else
         {
@@ -341,25 +361,26 @@ public class TransitionManager : MonoBehaviour
     public void getMoleculeTransitionClient(Molecule mol, InteractionType triggered_by)
     {
         Debug.Log("[getMoleculeTransitionClient] triggered");
-        getTransitionClient(mol.transform, triggered_by);
+        getTransitionClient(mol.transform, triggered_by, mol.initial_scale);
     }
 
     public void getGenericObjectTransitionClient(GenericObject go, InteractionType triggered_by)
     {
         Debug.Log("[getGenericObjectTransitionClient] triggered");
-        getTransitionClient(go.transform, triggered_by);
+        getTransitionClient(go.transform, triggered_by, go.initial_scale);
     }
 
-    private void getTransitionClient(Transform trans, InteractionType triggered_by)
+    private void getTransitionClient(Transform trans, InteractionType triggered_by, float initial_scale)
     {
         if (triggered_by == InteractionType.CLOSE_GRAB)
         {
             StartCoroutine(attachToGrip(trans));
+            screenAlignment.Singleton.addObjectToGrow(trans, initial_scale);
             return;
         }
         if (SettingsData.transitionMode == TransitionMode.INSTANT)
         {
-            if (SettingsData.immersiveTarget == ImmersiveTarget.HAND_FIXED || SettingsData.immersiveTarget == ImmersiveTarget.HAND_FIXED)
+            if (SettingsData.immersiveTarget == ImmersiveTarget.HAND_FIXED || SettingsData.immersiveTarget == ImmersiveTarget.HAND_FOLLOW)
             {
                 var index_pos = HandTracking.Singleton.getIndexTip();
                 var proj_index = screenAlignment.Singleton.projectWSPointToScreen(index_pos);
@@ -424,6 +445,7 @@ public class TransitionManager : MonoBehaviour
                 StartCoroutine(scaleWhileMoving(trans, 1f, override_grab_hold));
             }
         }
+        AudioSource.PlayClipAtPoint(getTransition, trans.position);
     }
 
     public void getMoleculeTransitionServer(Molecule mol, InteractionType triggered_by)
@@ -559,6 +581,7 @@ public class TransitionManager : MonoBehaviour
             var go = trans.GetComponent<GenericObject>();
             EventManager.Singleton.TransitionGenericObject(go, triggered_by);
         }
+        AudioSource.PlayClipAtPoint(doTransition, trans.position);
     }
 
     private IEnumerator moveToPos(Transform trans, Vector3 pos, bool override_grab_hold = false)
@@ -645,6 +668,7 @@ public class TransitionManager : MonoBehaviour
             var go = trans.GetComponent<GenericObject>();
             EventManager.Singleton.TransitionGenericObject(go, triggered_by);
         }
+        AudioSource.PlayClipAtPoint(doTransition, trans.position);
     }
 
     private IEnumerator moveToHand(Transform trans, bool override_grab_hold = false)

@@ -236,7 +236,7 @@ public class ServerInputSystem : MonoBehaviour
         if (Input.GetMouseButton(1))
         {
 #if UNITY_STANDALONE || UNITY_EDITOR
-            if (!Atom.anyArcball && !AttachedModel.anyArcball)
+            if (!Atom.anyArcball)
 #endif
             {
                 float delta_x = Input.GetAxis("Mouse X") * turnSpeed;

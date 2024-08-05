@@ -6922,6 +6922,7 @@ MonoBehaviour:
   pivot: 1
   centerType: 0
   scaleType: 0
+  scaleWithDistance: 0
   SetMoveType: 49
   SetRotateType: 50
   SetScaleType: 51

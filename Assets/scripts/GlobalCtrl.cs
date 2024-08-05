@@ -2212,6 +2212,7 @@ public class GlobalCtrl : MonoBehaviour
                 tempMolecule.f_Init(molecule.moleID, atomWorld.transform, molecule);
                 tempMolecule.transform.localPosition = molecule.molePos;
                 tempMolecule.transform.localRotation = molecule.moleQuat;
+                tempMolecule.initial_scale = molecule.moleScale.x;
                 List_curMolecules[tempMolecule.m_id] = tempMolecule;
 
                 for (int i = 0; i < molecule.atomArray.Length; i++)

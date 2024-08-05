@@ -138,6 +138,10 @@ public class StudyTaskManager : MonoBehaviour
             go.setServerFocus(true, true);
             object_to_track = go.id;
         }
+        if (StudyLogger.Singleton != null)
+        {
+            StudyLogger.Singleton.write($"Object to transition: {rnd_object.Item2.name}", currentTaskID);
+        }
         EventManager.Singleton.SpawnGhostObject(rnd_object.Item1);
         if (object_to_track != Guid.Empty)
         {
@@ -187,7 +191,7 @@ public class StudyTaskManager : MonoBehaviour
 
             var cam_to_spawn = GlobalCtrl.Singleton.getCurrentSpawnPos() - GlobalCtrl.Singleton.currentCamera.transform.position;
             ghostObject.position = GlobalCtrl.Singleton.currentCamera.transform.position + Quaternion.Euler(rnd_rot_x, rnd_rot_y, 0f) * cam_to_spawn;
-            StudyLogger.Singleton.write($"Object to transition: {ghostObject.name}");
+            StudyLogger.Singleton.write($"Object to transition: {ghostObject.name}", currentTaskID);
         }
 
         if (NetworkManagerClient.Singleton != null)
@@ -218,24 +222,6 @@ public class StudyTaskManager : MonoBehaviour
     public void setObjectToTrack(Guid id)
     {
         objectToTrack = id;
-        string name;
-        if (GlobalCtrl.Singleton.List_curMolecules.ContainsKey(objectToTrack))
-        {
-            name = GlobalCtrl.Singleton.List_curMolecules[objectToTrack].name;
-        }
-        else if (GenericObject.objects.ContainsKey(objectToTrack))
-        {
-            name = GenericObject.objects[objectToTrack].name;
-        }
-        else
-        {
-            UnityEngine.Debug.LogError($"[setObjectToTrack] Could not find object to track");
-            return;
-        }
-        if (isTaskInProgress)
-        {
-            StudyLogger.Singleton.write($"Object to transition: {name}");
-        }
     }
 
     void Start()

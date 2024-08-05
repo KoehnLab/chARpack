@@ -19,6 +19,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private cmlData before;
     private Vector3 pickupPos = Vector3.zero;
     private Quaternion pickupRot = Quaternion.identity;
+    public float initial_scale = 1f;
 
     private List<Tuple<ushort, Vector3>> atomState = new List<Tuple<ushort, Vector3>>();
 
@@ -31,8 +32,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         if (isInteractable)
         {
-
-
             pickupPos = transform.localPosition;
             pickupRot = transform.localRotation;
 
@@ -312,9 +311,13 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         frozen_bond_mat = Resources.Load("materials/frozenBondMaterial") as Material;
 
-        if (mol_data.name == "")
+        if (mol_data.name == null || mol_data.name == "")
         {
-            name = "mol_" + m_id.ToString().Substring(0, 5);
+            gameObject.name = "mol_" + m_id.ToString().Substring(0, 5);
+        }
+        else
+        {
+            gameObject.name = mol_data.name;
         }
 
         if (mol_data.keepConfig)

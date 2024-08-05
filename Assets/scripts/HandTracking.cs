@@ -1,6 +1,7 @@
 using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.Utilities;
+using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 
@@ -36,7 +37,10 @@ public class HandTracking : MonoBehaviour
 
     private void Start()
     {
+        middleInBoxClip = Resources.Load<AudioClip>("audio/middleInBox");
+        gameObject.AddComponent<AudioSource>();
         showFragmentIndicator(false);
+        particleSystemGO.SetActive(false);
         gameObject.SetActive(false);
     }
 
@@ -49,8 +53,11 @@ public class HandTracking : MonoBehaviour
     private MixedRealityPose middleTipPose = MixedRealityPose.ZeroIdentity;
     private MixedRealityPose thumbTipPose = MixedRealityPose.ZeroIdentity;
     public GameObject fragmentIndicator;
+    public GameObject particleSystemGO;
     bool middleFingerGrab = false;
     bool indexFingerGrab = false;
+    bool isMiddleInBox = false;
+    private AudioClip middleInBoxClip;
 
     private IMixedRealityHandJointService handJointService;
 
@@ -130,7 +137,27 @@ public class HandTracking : MonoBehaviour
         if (indexForward == Vector3.zero) return;
         transform.forward = indexForward;
         transform.position = indexKnucklePose.Position;
-        if (Vector3.Distance(middleTipPose.Position, thumbTipPose.Position) < 0.025f && Vector3.Distance(indexTipPose.Position, thumbTipPose.Position) > 0.025f)
+
+        //if (Vector3.Distance(indexTipPose.Position, thumbTipPose.Position) < 0.025f)
+        if (GestureUtils.IsIndexPinching(SettingsData.handedness))
+        {
+            if (!indexFingerGrab)
+            {
+                indexFingerGrab = true;
+                IndexFingerGrab(indexTipPose.Position);
+            }
+        }
+        else
+        {
+            if (indexFingerGrab)
+            {
+                indexFingerGrab = false;
+                IndexFingerGrabRelease();
+            }
+        }
+
+        //if (Vector3.Distance(middleTipPose.Position, thumbTipPose.Position) < 0.025f && Vector3.Distance(indexTipPose.Position, thumbTipPose.Position) > 0.025f)
+        if (GestureUtils.IsMiddlePinching(SettingsData.handedness) && !indexFingerGrab)
         {
             if (!middleFingerGrab)
             {
@@ -157,21 +184,59 @@ public class HandTracking : MonoBehaviour
             }
         }
 
-        if (Vector3.Distance(indexTipPose.Position, thumbTipPose.Position) < 0.025f)
+
+
+        // check if middle in bounds
+        List<Bounds> boundsInScene = new List<Bounds>();
+        if (GenericObject.objects != null)
         {
-            if (!indexFingerGrab)
+            foreach (var obj in GenericObject.objects.Values)
             {
-                indexFingerGrab = true;
-                IndexFingerGrab(middleTipPose.Position);
+                if (obj.getIsInteractable())
+                {
+                    boundsInScene.Add(obj.GetComponent<myBoundingBox>().localBounds);
+                }
             }
         }
-        else
+        if (GlobalCtrl.Singleton != null)
         {
-            if (indexFingerGrab)
+            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
             {
-                indexFingerGrab = false;
-                IndexFingerGrabRelease();
+                if (mol.getIsInteractable())
+                {
+                    boundsInScene.Add(mol.GetComponent<myBoundingBox>().localBounds);
+                }
             }
+        }
+        bool contained_in_any = false;
+        foreach (var bound in boundsInScene)
+        {
+            if (bound.Contains(middleTipPose.Position))
+            {
+                contained_in_any = true;
+                break;
+            }
+        }
+        if (contained_in_any && !isMiddleInBox)
+        {
+            isMiddleInBox = true;
+            particleSystemGO.SetActive(true);
+            particleSystemGO.GetComponent<ParticleSystem>().Play();
+            //AudioSource loopSound = GetComponent<AudioSource>();
+            //loopSound.clip = middleInBoxClip;
+            //loopSound.loop = true;
+            //loopSound.Play();
+        }
+        if (!contained_in_any && isMiddleInBox)
+        {
+            isMiddleInBox = false;
+            particleSystemGO.GetComponent<ParticleSystem>().Stop();
+            particleSystemGO.SetActive(false);
+            //GetComponent<AudioSource>().Stop();
+        }
+        if (isMiddleInBox)
+        {
+            particleSystemGO.transform.position = middleTipPose.Position;
         }
     }
 
@@ -336,7 +401,6 @@ public static class GestureUtils
         return pinchStrength;
     }
 
-    private const float MiddleThumbSqrMagnitudeThreshold = 0.0016f;
     public static float CalculateMiddlePinch(Handedness handedness)
     {
         HandJointUtils.TryGetJointPose(TrackedHandJoint.MiddleTip, handedness, out var middlePose);

@@ -21,6 +21,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
     public bool isServerFocused = false;
     private Stopwatch stopwatch;
     public Guid id;
+    public float initial_scale = 1f;
 
     public static GenericObject create(string name, Guid? _existingID = null)
     {
@@ -147,6 +148,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
     {
         var new_go = create(sgo.obj_name, sgo.ID);
         new_go.transform.localScale = sgo.scale;
+        new_go.initial_scale = sgo.scale.x;
         if (sgo.relQuat != Quaternion.identity)
         {
             new_go.relQuatBeforeTransition = sgo.relQuat;

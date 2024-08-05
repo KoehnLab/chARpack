@@ -5,6 +5,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.VFX;
 
 
 public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
@@ -45,13 +46,23 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
     }
 
     [HideInInspector] public AudioClip confirmClip;
+    AudioClip closeToScreenClip;
     [HideInInspector] public GameObject screenPrefab;
+    private GameObject arcPrefab;
+    private GameObject arcInstance;
 
     // Start is called before the first frame update
     void Start()
     {
         confirmClip = (AudioClip)Resources.Load("audio/confirmation");
+        closeToScreenClip = Resources.Load<AudioClip>("audio/longRing");
         screenPrefab = (GameObject)Resources.Load("prefabs/ScreenPrefab");
+        arcPrefab = (GameObject)Resources.Load("prefabs/vfx/vfx_arc_fixed_endpoints");
+        gameObject.AddComponent<AudioSource>();
+
+        arcInstance = Instantiate(arcPrefab);
+        arcInstance.transform.SetParent(transform);
+        arcInstance.gameObject.SetActive(false);
 
         screenQuad.SetActive(false);
         indicator1.SetActive(false);
@@ -200,7 +211,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
 
 
     GameObject projectionIndicator;
-    public Vector3? projectIndexOnScreen()
+    public Vector3? projectIndexKnuckleOnScreen()
     {
         if (!fullyInitialized)
         {
@@ -212,7 +223,24 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
             HandTracking.Singleton.gameObject.SetActive(true);
         }
 
-        var index_in_world_space = HandTracking.Singleton.getIndexKnuckle(); // for tracking use knuckle
+        var index_in_world_space = HandTracking.Singleton.getIndexKnuckle(); // for far tracking use knuckle
+
+        return projectWSPointToScreen(index_in_world_space);
+    }
+
+    public Vector3? projectIndexTipOnScreen()
+    {
+        if (!fullyInitialized)
+        {
+            Debug.LogError("[screenAlignment] Trying to access alignment of index finger, but screen is not initialized.");
+            return null;
+        }
+        if (!HandTracking.Singleton.gameObject.activeSelf)
+        {
+            HandTracking.Singleton.gameObject.SetActive(true);
+        }
+
+        var index_in_world_space = HandTracking.Singleton.getIndexTip();// for close tracking use index
 
         return projectWSPointToScreen(index_in_world_space);
     }
@@ -327,7 +355,29 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
     {
         if (fullyInitialized)
         {
-            var proj = projectIndexOnScreen();
+            Vector3? proj;
+            if (getDistanceFromScreen(HandTracking.Singleton.getIndexTip()) < (0.25f * getScreenSizeWS().y))
+            {
+                //AudioSource loopSound = GetComponent<AudioSource>();
+                //loopSound.clip = closeToScreenClip;
+                //loopSound.loop = true;
+                //loopSound.Play();
+                proj = projectIndexTipOnScreen();
+                arcInstance.gameObject.SetActive(true);
+                arcInstance.transform.position = proj.Value;
+                var diff_vec = proj.Value - HandTracking.Singleton.getIndexTip();
+
+                arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos1", HandTracking.Singleton.getIndexTip());
+                arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos2", HandTracking.Singleton.getIndexTip() + 0.25f * diff_vec);
+                arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos3", HandTracking.Singleton.getIndexTip() + 0.75f * diff_vec);
+                arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos4", proj.Value);
+            }
+            else
+            {
+                //GetComponent<AudioSource>().Stop();
+                proj = projectIndexKnuckleOnScreen();
+                arcInstance.gameObject.SetActive(false);
+            }
             //if (projectionIndicator == null)
             //{
             //    projectionIndicator = Instantiate(indicator1, transform);
@@ -452,11 +502,37 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    public void addObjectToGrow(Transform trans, float inital_scale)
+    {
+        if (!old_intersecting_objects.Contains(trans))
+        {
+            old_intersecting_objects.Add (trans);
+        }
+        initial_scale_of_intersecting_objects[trans] = inital_scale;
+    }
+
     private bool transition(Transform trans)
     {
         var box = trans.GetComponent<myBoundingBox>();
+        var tip = HandTracking.Singleton.getIndexTip();
         var obj_bounds = box.localBounds;
-        if (Vector3.Dot(screenNormal, obj_bounds.center - screenCenter) < 0f)
+        // get distance between grip point and furthes corner in direction of screen
+        Vector3 middle_point = obj_bounds.center;
+        float current_max_dist = 0f;
+        foreach (var corner in box.cornerHandles)
+        {
+            if (Vector3.Dot(screenNormal, tip - corner.transform.position) < 0f)
+            {
+                var dist = Vector3.Distance(tip, corner.transform.position);
+                if (dist > current_max_dist)
+                {
+                    current_max_dist = dist;
+                    middle_point = tip + 0.5f * (corner.transform.position - tip);
+                }
+            }
+        }
+
+        if (Vector3.Dot(screenNormal, middle_point - screenCenter) < 0f)
         {
             if (old_intersecting_objects.Contains(trans))
             {
@@ -465,6 +541,17 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
             TransitionManager.Singleton.initializeTransitionClient(trans, TransitionManager.InteractionType.CLOSE_GRAB);
             return true;
         }
+
+        // old implementation but reliable
+        //if (Vector3.Dot(screenNormal, obj_bounds.center - screenCenter) < 0f)
+        //{
+        //    if (old_intersecting_objects.Contains(trans))
+        //    {
+        //        to_remove_intersecting_objects.Add(trans);
+        //    }
+        //    TransitionManager.Singleton.initializeTransitionClient(trans, TransitionManager.InteractionType.CLOSE_GRAB);
+        //    return true;
+        //}
         return false;
     }
 
@@ -530,13 +617,13 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
 
     public Vector3 getCurrentProjectedIndexPos()
     {
-        var proj = projectIndexOnScreen();
+        var proj = projectIndexKnuckleOnScreen();
         return proj.Value;
     }
 
     public Vector2 getCurrentIndexSSPos()
     {
-        var proj = projectIndexOnScreen();
+        var proj = projectIndexKnuckleOnScreen();
         var ss_coords = getScreenSpaceCoords(proj.Value);
         return ss_coords.Value;
     }
@@ -567,7 +654,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
 
     public void OnDistantGrab()
     {
-        var proj = projectIndexOnScreen();
+        var proj = projectIndexKnuckleOnScreen();
         var viewport_coords = getScreenSpaceCoords(proj.Value);
         if (EventManager.Singleton)
         {
@@ -591,7 +678,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
     public void OnPointerDown(MixedRealityPointerEventData eventData)
     {
         // Intentionally empty
-        var proj = projectIndexOnScreen();
+        var proj = projectIndexKnuckleOnScreen();
         var viewport_coords = getScreenSpaceCoords(proj.Value);
         if (EventManager.Singleton)
         {
