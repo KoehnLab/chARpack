@@ -39,12 +39,12 @@ namespace RuntimeGizmos
 		public KeyCode UndoAction = KeyCode.Z;
 		public KeyCode RedoAction = KeyCode.Y;
 
-		public Color xColor = new Color(1, 0, 0, 0.8f);
-		public Color yColor = new Color(0, 1, 0, 0.8f);
-		public Color zColor = new Color(0, 0, 1, 0.8f);
-		public Color allColor = new Color(.7f, .7f, .7f, 0.8f);
-		public Color selectedColor = new Color(1, 1, 0, 0.8f);
-		public Color hoverColor = new Color(1, .75f, 0, 0.8f);
+        public Color xColor = new Color(1, 0, 0, 0.8f);
+        public Color yColor = new Color(0, 1, 0, 0.8f);
+        public Color zColor = new Color(0, 0, 1, 0.8f);
+        public Color allColor = new Color(.7f, .7f, .7f, 0.8f);
+        public Color selectedColor = new Color(1, 1, 0, 0.8f);
+        public Color hoverColor = new Color(1, .75f, 0, 0.8f);
 		public float planesOpacity = .5f;
 		//public Color rectPivotColor = new Color(0, 0, 1, 0.8f);
 		//public Color rectCornerColor = new Color(0, 0, 1, 0.8f);
@@ -704,6 +704,10 @@ namespace RuntimeGizmos
                         {
 							target = mol.transform;
                         }
+						else
+						{
+							return;
+						}
                     }
 					else if (go != null)
                     {
@@ -711,6 +715,10 @@ namespace RuntimeGizmos
                         {
 							target = go.transform;
                         }
+						else
+						{
+							return;
+						}
                     }
 					else                     
                     {

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,6 +8,13 @@ public class ServerInputSystem : MonoBehaviour
     private float moveSpeed = 0.04f;
     private float turnSpeed = 1f;
     private Transform lastObjectClickedOn = null;
+
+
+    private void Start()
+    {
+        var cursor_texture = Resources.Load<Texture2D>("customCursor/cursor");
+        Cursor.SetCursor(cursor_texture, Vector3.zero, CursorMode.ForceSoftware);
+    }
 
     private void getObjectClickedOn()
     {

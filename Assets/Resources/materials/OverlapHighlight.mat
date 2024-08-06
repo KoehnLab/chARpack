@@ -14,7 +14,7 @@ Material:
   m_ValidKeywords:
   - _EMISSION
   m_InvalidKeywords: []
-  m_LightmapFlags: 0
+  m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -292,13 +292,13 @@ Material:
     - _ZTest: 4
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0, g: 0.43586493, b: 1, a: 1}
+    - _BaseColor: {r: 0, g: 1, b: 0.60335493, a: 1}
     - _BaseColorAddSubDiff: {r: 1, g: 0, b: 0, a: 0}
     - _Base_Color_: {r: 0, g: 0.67700386, b: 1, a: 0.698}
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
-    - _Color: {r: 0, g: 0.4358649, b: 1, a: 1}
+    - _Color: {r: 0, g: 1, b: 0.6033549, a: 1}
     - _Edge_Color_: {r: 0.18823496, g: 0.18823496, b: 0.18823496, a: 0.502}
-    - _EmissionColor: {r: 0, g: 0.22745098, b: 1.4980392, a: 1}
+    - _EmissionColor: {r: 0, g: 8, b: 1.6196079, a: 1}
     - _Fill_Color_: {r: 0, g: 0.5922203, b: 1, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
     - _HueVariation: {r: 1, g: 0.5019608, b: 0, a: 0.1}

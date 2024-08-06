@@ -196,8 +196,9 @@ public class TransitionManager : MonoBehaviour
         // better use:
         var ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(new Vector3(ss_coords.x, ss_coords.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f));
 
+        var sphere_radius = triggered_by == InteractionType.CLOSE_GRAB? 0.1f : 0.04f;
         RaycastHit hit;
-        if (Physics.SphereCast(ray, 0.04f, out hit))
+        if (Physics.SphereCast(ray, sphere_radius, out hit))
         {
             Transform trans = null; 
             var mol_test = hit.transform.GetComponentInParent<Molecule>();

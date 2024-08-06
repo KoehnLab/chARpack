@@ -24,13 +24,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7362249118518364358}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &-68562748753425003
 MonoBehaviour:
@@ -49,8 +49,8 @@ MonoBehaviour:
   myLineGrabbedMaterial: {fileID: 2100000, guid: 7e4095c5609075846b657c8917aae797, type: 2}
   myHandleMaterialWithFade: {fileID: 2100000, guid: ae67c2f209bc7a2419f23d93bb808008, type: 2}
   myHandleMaterialWithoutFade: {fileID: 2100000, guid: 293d08e92db53e74f8e09534db3fc198, type: 2}
-  myHandleGrabbedMaterial: {fileID: 2100000, guid: bf37b5eab60b288498d02fd524325d10, type: 2}
-  cornerHandle: {fileID: 1361136173122186969, guid: ba9083550f965e545a628b53bfa80c9e, type: 3}
+  myHandleGrabbedMaterial: {fileID: 2100000, guid: adf8ecebf46ffd44d8ce148e37a2e553, type: 2}
+  cornerHandle: {fileID: 1361136173122186969, guid: 75a4df80a5114984ca0d8dd4cedc597c, type: 3}
   myLR: {fileID: 0}
   cornerHandles:
   - {fileID: 0}
@@ -61,3 +61,4 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  fade: 1
