@@ -65,8 +65,6 @@ public class resizeHandle : MonoBehaviour, IPointerDownHandler, IDragHandler
         rect.sizeDelta = sizeDelta;
 
         resizer.moveHandlesAndResize();
-
-        StructureFormulaManager.Singleton.updateInteractables(StructureFormulaManager.Singleton.getMolID(resizer.structureFormula), sizeDelta / originalSizeDelta);
     }
 
     public void movePivot(Corner corner)

@@ -50,6 +50,8 @@ public class StructureFormula : MonoBehaviour
         highlight_choice_dropdown.onValueChanged.AddListener(setHighlightOption);
         close_button.onClick.AddListener(close);
 
+        aspect = image.GetComponent<SVGImage>().sprite.rect.width / image.GetComponent<SVGImage>().sprite.rect.height;
+
         RectTransform rect = transform as RectTransform;
         if (localPosition != new Vector3(0, 0, 0))
         {
@@ -62,7 +64,6 @@ public class StructureFormula : MonoBehaviour
         }
 
         resizer.resizeImage();
-        aspect = image.GetComponent<SVGImage>().sprite.rect.width / image.GetComponent<SVGImage>().sprite.rect.height;
         StartCoroutine(WaitAndPositionHandles());
     }
 

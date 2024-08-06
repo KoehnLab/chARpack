@@ -309,7 +309,7 @@ public class StructureFormulaManager : MonoBehaviour
         sf.interactables = inter_list.ToArray();
     }
 
-    public void updateInteractables(Guid mol_id, Vector2 sizeDeltaRatio)
+    public void updateInteractables(Guid mol_id)
     {
         if (!GlobalCtrl.Singleton.List_curMolecules.ContainsKey(mol_id))
         {
