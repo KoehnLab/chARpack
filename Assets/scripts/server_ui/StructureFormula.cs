@@ -10,6 +10,8 @@ using System.Diagnostics;
 public class StructureFormula : MonoBehaviour
 {
     public SVGImage image;
+    [HideInInspector] public float aspect;
+    [HideInInspector] public SVGParser.SceneInfo sceneInfo;
     public Vector2 originalSize;
     public Button collapse_button;
     public Button close_button;
@@ -60,6 +62,7 @@ public class StructureFormula : MonoBehaviour
         }
 
         resizer.resizeImage();
+        aspect = image.GetComponent<SVGImage>().sprite.rect.width / image.GetComponent<SVGImage>().sprite.rect.height;
         StartCoroutine(WaitAndPositionHandles());
     }
 

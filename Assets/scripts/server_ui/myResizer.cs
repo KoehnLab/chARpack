@@ -45,7 +45,9 @@ public class myResizer : MonoBehaviour {
 
 	public void resizeImage()
     {
-		image.GetComponent<LayoutElement>().preferredHeight = image.GetComponent<SVGImage>().sprite.rect.height / image.GetComponent<SVGImage>().sprite.rect.width * panelRectTransform.rect.width;
+		image.GetComponent<LayoutElement>().preferredHeight = panelRectTransform.rect.width / structureFormula.aspect;
+		var image_rect = image.GetComponent<RectTransform>();
+		structureFormula.scaleFactor = Mathf.Min(image_rect.rect.height / structureFormula.sceneInfo.SceneViewport.height, image_rect.rect.width/ structureFormula.sceneInfo.SceneViewport.width);
 		
     }
 }
