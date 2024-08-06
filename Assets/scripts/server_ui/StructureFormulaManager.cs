@@ -330,6 +330,7 @@ public class StructureFormulaManager : MonoBehaviour
         {
             var rect = sf_go.transform as RectTransform;
             var atom_rect = atom.structure_interactible.transform as RectTransform;
+            atom_rect.sizeDelta = 17.5f * sf.scaleFactor * Vector2.one;
             var image_offset = Vector2.zero;
 
             if (sf.image.GetComponent<RectTransform>().rect.height < sf.image.GetComponent<RectTransform>().rect.width / sf.aspect)
