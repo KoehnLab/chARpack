@@ -161,6 +161,7 @@ public class StructureFormulaManager : MonoBehaviour
             var sf = svg_component.GetComponentInParent<StructureFormula>();
             sf.originalSize = new Vector2(sceneInfo.SceneViewport.width, sceneInfo.SceneViewport.height);
             sf.scaleFactor = scaling_factor;
+            sf.sceneInfo = sceneInfo;
             sf.newImageResize();
 
             var old_secondary_structures = svg_instances[mol_id].Item3;
@@ -216,6 +217,7 @@ public class StructureFormulaManager : MonoBehaviour
             sf.image.sprite = sprite;
             sf.originalSize = new Vector2(sceneInfo.SceneViewport.width, sceneInfo.SceneViewport.height);
             sf.scaleFactor = scaling_factor;
+            sf.sceneInfo = sceneInfo;
             sf.newImageResize();
 
             svg_instances[mol_id] = new Triple<GameObject, string, List<GameObject>>(sf.image.gameObject, svg_content, new List<GameObject>());
@@ -305,6 +307,45 @@ public class StructureFormulaManager : MonoBehaviour
             atom_rect.localPosition = offset;
         }
         sf.interactables = inter_list.ToArray();
+    }
+
+    public void updateInteractables(Guid mol_id)
+    {
+        if (!GlobalCtrl.Singleton.List_curMolecules.ContainsKey(mol_id))
+        {
+            Debug.LogError("[updateInteractables] Invalid Molecule ID.");
+            return;
+        }
+        var mol = GlobalCtrl.Singleton.List_curMolecules[mol_id];
+        if (!svg_instances.ContainsKey(mol_id))
+        {
+            Debug.LogError("[updateInteractables] No structure formula found.");
+            return;
+        }
+
+        var sf_go = svg_instances[mol_id].Item1;
+        var sf = sf_go.GetComponentInParent<StructureFormula>();
+
+        foreach (var atom in mol.atomList)
+        {
+            var rect = sf_go.transform as RectTransform;
+            var atom_rect = atom.structure_interactible.transform as RectTransform;
+            atom_rect.sizeDelta = 17.5f * sf.scaleFactor * Vector2.one;
+            var image_offset = Vector2.zero;
+
+            if (sf.image.GetComponent<RectTransform>().rect.height < sf.image.GetComponent<RectTransform>().rect.width / sf.aspect)
+            { // if window is wider than image
+                var x_offset_image = sf.image.GetComponent<RectTransform>().rect.width - sf.image.GetComponent<RectTransform>().rect.height * sf.aspect; // empty space to the left of the image
+                image_offset = new Vector2(x_offset_image - rect.sizeDelta.x, 0.5f * rect.sizeDelta.y) + 0.5f * new Vector2(-atom_rect.sizeDelta.x, atom_rect.sizeDelta.y); // position at upper left corner of image
+            }
+            else
+            {
+                var y_offset_image = (sf.image.GetComponent<RectTransform>().rect.height - sf.image.GetComponent<RectTransform>().rect.width / sf.aspect) * 0.5f; // for some reason, image is vertically centered
+                image_offset = new Vector2(-rect.sizeDelta.x, 0.5f * rect.sizeDelta.y - y_offset_image) + 0.5f * new Vector2(-atom_rect.sizeDelta.x, atom_rect.sizeDelta.y); // position at upper left corner of image
+            }
+            var offset = image_offset + sf.scaleFactor * new Vector2(atom.structure_coords.x, -atom.structure_coords.y);
+            atom_rect.localPosition = offset;
+        }
     }
 
     public Guid getMolID(StructureFormula in_sf)
