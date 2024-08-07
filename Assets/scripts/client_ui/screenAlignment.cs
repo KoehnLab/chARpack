@@ -50,6 +50,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public GameObject screenPrefab;
     private GameObject arcPrefab;
     private GameObject arcInstance;
+    private GameObject progressBarPrefab;
 
     // Start is called before the first frame update
     void Start()
@@ -63,6 +64,8 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         arcInstance = Instantiate(arcPrefab);
         arcInstance.transform.SetParent(transform);
         arcInstance.gameObject.SetActive(false);
+
+        progressBarPrefab = Resources.Load<GameObject>("prefabs/VerticalProgressBar");
 
         screenQuad.SetActive(false);
         indicator1.SetActive(false);
@@ -351,6 +354,10 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
     List<Transform> old_intersecting_objects = new List<Transform>();
     List<Transform> to_remove_intersecting_objects = new List<Transform>();
     Dictionary<Transform, float> initial_scale_of_intersecting_objects = new Dictionary<Transform, float>();
+    Dictionary<Transform, float> initial_distance_of_intersecting_objects = new Dictionary<Transform, float>();
+    Dictionary<Transform, GameObject> progressBarInstances = new Dictionary<Transform, GameObject>();
+    // Dictionary<Transform, GameObject> transitionPointIndicator = new Dictionary<Transform, GameObject>();
+    Dictionary<Transform, Vector3> localTransitionPoint = new Dictionary<Transform, Vector3>();
     private void FixedUpdate()
     {
         if (fullyInitialized)
@@ -363,14 +370,21 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                 //loopSound.loop = true;
                 //loopSound.Play();
                 proj = projectIndexTipOnScreen();
-                arcInstance.gameObject.SetActive(true);
                 arcInstance.transform.position = proj.Value;
                 var diff_vec = proj.Value - HandTracking.Singleton.getIndexTip();
 
-                arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos1", HandTracking.Singleton.getIndexTip());
-                arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos2", HandTracking.Singleton.getIndexTip() + 0.25f * diff_vec);
-                arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos3", HandTracking.Singleton.getIndexTip() + 0.75f * diff_vec);
-                arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos4", proj.Value);
+                if (Vector3.Dot(screenNormal, diff_vec) < 0)
+                {
+                    arcInstance.gameObject.SetActive(true);
+                    arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos1", HandTracking.Singleton.getIndexTip());
+                    arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos2", HandTracking.Singleton.getIndexTip() + 0.25f * diff_vec);
+                    arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos3", HandTracking.Singleton.getIndexTip() + 0.75f * diff_vec);
+                    arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos4", proj.Value);
+                }
+                else
+                {
+                    arcInstance.gameObject.SetActive(false);
+                }
             }
             else
             {
@@ -421,6 +435,27 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                             {
                                 initial_scale_of_intersecting_objects[obj.transform] = obj.transform.localScale.x;
                             }
+                            if (!initial_distance_of_intersecting_objects.Keys.Contains(obj.transform))
+                            {
+                                var box = obj.transform.GetComponent<myBoundingBox>();
+                                var tip = HandTracking.Singleton.getIndexTip();
+                                var local_trans_point = getTransitionPoint(box, tip);
+                                localTransitionPoint[obj.transform] = local_trans_point;
+                                var global_trans_point = obj.transform.TransformPoint(local_trans_point);
+                                var distance = Vector3.Distance(projectWSPointToScreen(global_trans_point), global_trans_point);
+                                initial_distance_of_intersecting_objects[obj.transform] = distance;
+
+                                //transitionPointIndicator[obj.transform] = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                                //transitionPointIndicator[obj.transform].GetComponent<Renderer>().material = Resources.Load<Material>("materials/UserMaterial");
+                                //transitionPointIndicator[obj.transform].transform.SetParent(transform);
+                                //transitionPointIndicator[obj.transform].transform.localScale = 0.01f * Vector3.one;
+                                //transitionPointIndicator[obj.transform].transform.position = global_trans_point;
+
+                                progressBarInstances[obj.transform] = Instantiate(progressBarPrefab);
+                                progressBarInstances[obj.transform].transform.SetParent(transform);
+                                progressBarInstances[obj.transform].transform.localScale = 0.1f * Vector3.one;
+                                progressBarInstances[obj.transform].gameObject.SetActive(false);
+                            }
                         }
                     }
                 }
@@ -434,6 +469,27 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                             if (!initial_scale_of_intersecting_objects.Keys.Contains(mol.transform))
                             {
                                 initial_scale_of_intersecting_objects[mol.transform] = mol.transform.localScale.x;
+                            }
+                            if (!localTransitionPoint.Keys.Contains(mol.transform))
+                            {
+                                var box = mol.transform.GetComponent<myBoundingBox>();
+                                var tip = HandTracking.Singleton.getIndexTip();
+                                var local_trans_point = getTransitionPoint(box, tip);
+                                localTransitionPoint[mol.transform] = local_trans_point;
+                                var global_trans_point = mol.transform.TransformPoint(local_trans_point);
+                                var distance = Vector3.Distance(projectWSPointToScreen(global_trans_point), global_trans_point);
+                                initial_distance_of_intersecting_objects[mol.transform] = distance;
+                                
+                                //transitionPointIndicator[mol.transform] = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                                //transitionPointIndicator[mol.transform].GetComponent<Renderer>().material = Resources.Load<Material>("materials/UserMaterial");
+                                //transitionPointIndicator[mol.transform].transform.SetParent(transform);
+                                //transitionPointIndicator[mol.transform].transform.localScale = 0.01f * Vector3.one;
+                                //transitionPointIndicator[mol.transform].transform.position = global_trans_point;
+
+                                progressBarInstances[mol.transform] = Instantiate(progressBarPrefab);
+                                progressBarInstances[mol.transform].transform.SetParent(transform);
+                                progressBarInstances[mol.transform].transform.localScale = 0.1f * Vector3.one;
+                                progressBarInstances[mol.transform].gameObject.SetActive(false);
                             }
                         }
                     }
@@ -495,6 +551,12 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                     {
                         old_intersecting_objects.Remove(obj);
                         initial_scale_of_intersecting_objects.Remove(obj);
+                        initial_distance_of_intersecting_objects.Remove(obj);
+                        Destroy(progressBarInstances[obj]);
+                        progressBarInstances.Remove(obj);
+                        //Destroy(transitionPointIndicator[obj]);
+                        //transitionPointIndicator.Remove(obj);
+                        localTransitionPoint.Remove(obj);
                     }
                     to_remove_intersecting_objects.Clear();
                 }
@@ -511,28 +573,71 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         initial_scale_of_intersecting_objects[trans] = inital_scale;
     }
 
+
+    private Vector3 getTransitionPoint(myBoundingBox box, Vector3 gripPos)
+    {
+        var obj_bounds = box.localBounds;
+        Vector3 middle_point = obj_bounds.center;
+        List<float> dist_list = new List<float>();
+        foreach (var corner in box.cornerHandles)
+        {
+            dist_list.Add(Vector3.Distance(corner.transform.position, projectWSPointToScreen(corner.transform.position)));
+
+            //if (Vector3.Dot(screenNormal, gripPos - corner.transform.position) < 0f)
+            //{
+            //    var dist = Vector3.Distance(gripPos, corner.transform.position);
+            //    if (dist > current_max_dist)
+            //    {
+            //        current_max_dist = dist;
+            //        middle_point = gripPos + 0.5f * (corner.transform.position - gripPos);
+            //    }
+            //}
+        }
+        var min_val = dist_list.Min();
+        var index = dist_list.IndexOf(min_val);
+        var global_transition_point = gripPos + 0.5f * (box.cornerHandles[index].transform.position - gripPos);
+        var local_transition_point = box.transform.InverseTransformPoint(global_transition_point);
+
+        return local_transition_point;
+    }
+
     private bool transition(Transform trans)
     {
         var box = trans.GetComponent<myBoundingBox>();
         var tip = HandTracking.Singleton.getIndexTip();
-        var obj_bounds = box.localBounds;
-        // get distance between grip point and furthes corner in direction of screen
-        Vector3 middle_point = obj_bounds.center;
-        float current_max_dist = 0f;
-        foreach (var corner in box.cornerHandles)
+        var transition_point = trans.transform.TransformPoint(localTransitionPoint[trans]);
+
+        // render progress bar
+        if (GlobalCtrl.Singleton != null)
         {
-            if (Vector3.Dot(screenNormal, tip - corner.transform.position) < 0f)
+            var current_distance = Vector3.Distance(transition_point, projectWSPointToScreen(transition_point));
+            if (current_distance > initial_distance_of_intersecting_objects[trans])
             {
-                var dist = Vector3.Distance(tip, corner.transform.position);
-                if (dist > current_max_dist)
+                progressBarInstances[trans].SetActive(false);
+            }
+            else
+            {
+                progressBarInstances[trans].SetActive(true);
+
+                var cam = GlobalCtrl.Singleton.currentCamera;
+
+                List<float> view_dist_list = new List<float>();
+                foreach (var corner in box.cornerHandles)
                 {
-                    current_max_dist = dist;
-                    middle_point = tip + 0.5f * (corner.transform.position - tip);
+                    view_dist_list.Add(Vector3.Distance(corner.transform.position, cam.transform.position));
                 }
+                float minVal = view_dist_list.Min();
+                int index = view_dist_list.IndexOf(minVal);
+
+                progressBarInstances[trans].transform.position = box.cornerHandles[index].transform.position - 0.01f * cam.transform.right;
+                progressBarInstances[trans].transform.forward = cam.transform.forward;
+                progressBarInstances[trans].GetComponent<VerticalProgressBar>().setProgress(1f - current_distance / initial_distance_of_intersecting_objects[trans]);
+                //transitionPointIndicator[trans].transform.position = transition_point;
+
             }
         }
 
-        if (Vector3.Dot(screenNormal, middle_point - screenCenter) < 0f)
+        if (Vector3.Dot(screenNormal, transition_point - projectWSPointToScreen(transition_point)) < 0f)
         {
             if (old_intersecting_objects.Contains(trans))
             {

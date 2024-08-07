@@ -46,7 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   myLineMaterialWithFade: {fileID: 2100000, guid: f6d3b07ceaa789e4095388982e77ab60, type: 2}
   myLineMaterialWithoutFade: {fileID: 2100000, guid: ccefc38fbfe5ebb46b190334570b12f0, type: 2}
-  myLineGrabbedMaterial: {fileID: 2100000, guid: 7e4095c5609075846b657c8917aae797, type: 2}
+  myLineGrabbedMaterial: {fileID: 2100000, guid: 030d3f65cfdb20c44bce9ee518d9c04d, type: 2}
   myHandleMaterialWithFade: {fileID: 2100000, guid: ae67c2f209bc7a2419f23d93bb808008, type: 2}
   myHandleMaterialWithoutFade: {fileID: 2100000, guid: 293d08e92db53e74f8e09534db3fc198, type: 2}
   myHandleGrabbedMaterial: {fileID: 2100000, guid: adf8ecebf46ffd44d8ce148e37a2e553, type: 2}

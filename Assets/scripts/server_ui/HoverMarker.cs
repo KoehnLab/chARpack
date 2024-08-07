@@ -34,8 +34,8 @@ public class HoverMarker : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        hover = Resources.Load<Sprite>("materials/hoverMarker/hover_sprite");
-        hover_grab = Resources.Load<Sprite>("materials/hoverMarker/hoverSelect_sprite");
+        hover = Resources.Load<Sprite>("hoverMarker/hover_sprite");
+        hover_grab = Resources.Load<Sprite>("hoverMarker/hoverSelect_sprite");
 
         gameObject.SetActive(false);
     }

@@ -373,7 +373,7 @@ public class GlobalCtrl : MonoBehaviour
             bounds = go.GetComponent<myBoundingBox>().localBounds;
 
         }
-        return currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, currentCamera.nearClipPlane + 0.0001f + bounds.extents.z));
+        return currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, currentCamera.nearClipPlane + 0.001f + bounds.extents.z));
     }
 
     public float getLongestBBoxEdge(Transform trans)

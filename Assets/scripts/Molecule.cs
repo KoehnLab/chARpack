@@ -496,14 +496,16 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         if (mol == this)
         {
+#if UNITY_STANDALONE || UNITY_EDITOR
+            GetComponent<myBoundingBox>().setNormalMaterial(false);
+#else
             if (GlobalCtrl.Singleton.List_curMolecules.ContainsValue(mol))
             {
                 StartCoroutine(adjustBBoxCoroutine());
             }
-        }
-#if UNITY_STANDALONE || UNITY_EDITOR
-        GetComponent<myBoundingBox>().setNormalMaterial(false);
 #endif
+        }
+
     }
 
     // Need coroutine to use sleep

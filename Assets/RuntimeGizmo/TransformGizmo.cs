@@ -21,6 +21,7 @@ namespace RuntimeGizmos
 		public CenterType centerType = CenterType.All;
 		public ScaleType scaleType = ScaleType.FromPoint;
 		public bool scaleWithDistance = false;
+		public float defaultScale = 1.0f;
 
 		//These are the same as the unity editor hotkeys
 		public KeyCode SetMoveType = KeyCode.W;
@@ -1191,7 +1192,7 @@ namespace RuntimeGizmos
                 if (myCamera.orthographic) return Mathf.Max(.01f, myCamera.orthographicSize * 2f);
                 return Mathf.Max(.01f, Mathf.Abs(ExtVector3.MagnitudeInDirection(pivotPoint - transform.position, myCamera.transform.forward)));
             }
-			return 1f;
+			return defaultScale;
 		}
 
 		void SetLines()

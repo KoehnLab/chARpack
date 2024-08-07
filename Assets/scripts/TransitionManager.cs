@@ -101,6 +101,14 @@ public class TransitionManager : MonoBehaviour
         grabScreenWPos = null;
     }
 
+    private bool transitionOnCooldown = false;
+    IEnumerator startCooldown()
+    {
+        transitionOnCooldown = true;
+        yield return new WaitForSeconds(1.5f);
+        transitionOnCooldown = false;
+    }
+
 
     private Molecule hoverMol;
     private GenericObject hoverGenericObject;
@@ -117,7 +125,7 @@ public class TransitionManager : MonoBehaviour
         var ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(new Vector3(ss_coords.x, ss_coords.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f));
 
         RaycastHit hit;
-        if (Physics.SphereCast(ray, 0.04f, out hit))
+        if (Physics.SphereCast(ray, 0.05f, out hit))
         {
             var mol = hit.transform.GetComponentInParent<Molecule>();
             var go = hit.transform.GetComponentInParent<GenericObject>();
@@ -183,6 +191,9 @@ public class TransitionManager : MonoBehaviour
 
     public void initializeTransitionServer(Vector2 ss_coords, InteractionType triggered_by)
     {
+        if (transitionOnCooldown) return;
+        StartCoroutine(startCooldown());
+
         grabHold = true;
         var wpos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f)); // z component is target distance from camera
 
@@ -196,7 +207,7 @@ public class TransitionManager : MonoBehaviour
         // better use:
         var ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(new Vector3(ss_coords.x, ss_coords.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f));
 
-        var sphere_radius = triggered_by == InteractionType.CLOSE_GRAB? 0.1f : 0.04f;
+        var sphere_radius = triggered_by == InteractionType.CLOSE_GRAB? 0.08f : 0.05f;
         RaycastHit hit;
         if (Physics.SphereCast(ray, sphere_radius, out hit))
         {
@@ -303,6 +314,9 @@ public class TransitionManager : MonoBehaviour
 
     public void initializeTransitionClient(Transform trans, InteractionType triggered_by)
     {
+        if (transitionOnCooldown) return;
+        StartCoroutine(startCooldown());
+
         grabHold = true;
         //get target size on screen
         // if object is larger than screen it should only take 0.5*screen_hight
@@ -373,6 +387,7 @@ public class TransitionManager : MonoBehaviour
 
     private void getTransitionClient(Transform trans, InteractionType triggered_by, float initial_scale)
     {
+        StartCoroutine(startCooldown());
         if (triggered_by == InteractionType.CLOSE_GRAB)
         {
             StartCoroutine(attachToGrip(trans));
@@ -461,6 +476,8 @@ public class TransitionManager : MonoBehaviour
 
     private void getTransitionServer(Transform trans, InteractionType triggered_by)
     {
+        StartCoroutine(startCooldown());
+
         if (StudyTaskManager.Singleton)
         {
             StudyTaskManager.Singleton.logTransition(trans.name, triggered_by);

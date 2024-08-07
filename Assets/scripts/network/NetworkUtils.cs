@@ -273,7 +273,6 @@ public static class NetworkUtils
         else if (state == "end")
         {
             // do the load
-            
             GenericObject.createFromSerialized(genericObject_);
         }
         else
