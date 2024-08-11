@@ -65,7 +65,8 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         arcInstance.transform.SetParent(transform);
         arcInstance.gameObject.SetActive(false);
 
-        progressBarPrefab = Resources.Load<GameObject>("prefabs/VerticalProgressBar");
+        //progressBarPrefab = Resources.Load<GameObject>("prefabs/VerticalProgressBar");
+        progressBarPrefab = Resources.Load<GameObject>("prefabs/RadialProgressBar");
 
         screenQuad.SetActive(false);
         indicator1.SetActive(false);
@@ -577,6 +578,15 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                         obj.GetComponent<AudioSource>().Stop();
                     }
                     to_remove_objects.Clear();
+
+                    foreach (var pbi in progressBarInstances.Keys)
+                    {
+                        if (!old_intersecting_objects.Contains(pbi) && !intersecting_objects.Contains(pbi))
+                        {
+                            Destroy(progressBarInstances[pbi]);
+                            progressBarInstances.Remove(pbi);
+                        }
+                    }
                 }
             }
         }
@@ -647,10 +657,12 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                 float minVal = view_dist_list.Min();
                 int index = view_dist_list.IndexOf(minVal);
 
-                progressBarInstances[trans].transform.position = box.cornerHandles[index].transform.position - 0.01f * cam.transform.right;
+                //progressBarInstances[trans].transform.position = box.cornerHandles[index].transform.position - 0.01f * cam.transform.right;
+                progressBarInstances[trans].transform.position = HandTracking.Singleton.getWristPose().position - 0.05f * cam.transform.right - 0.05f * cam.transform.forward;
                 progressBarInstances[trans].transform.forward = cam.transform.forward;
                 var current_progress = 1f - current_distance / initial_distance_of_intersecting_objects[trans];
-                progressBarInstances[trans].GetComponent<VerticalProgressBar>().setProgress(current_progress);
+                //progressBarInstances[trans].GetComponent<VerticalProgressBar>().setProgress(current_progress);
+                progressBarInstances[trans].GetComponent<RadialProgressBar>().setProgress(current_progress);
 
                 trans.GetComponent<AudioSource>().volume = Mathf.Clamp01(current_progress) * 0.75f;
                 //transitionPointIndicator[trans].transform.position = transition_point;

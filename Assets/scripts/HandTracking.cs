@@ -52,6 +52,7 @@ public class HandTracking : MonoBehaviour
     private MixedRealityPose indexTipPose = MixedRealityPose.ZeroIdentity;
     private MixedRealityPose middleTipPose = MixedRealityPose.ZeroIdentity;
     private MixedRealityPose thumbTipPose = MixedRealityPose.ZeroIdentity;
+    private MixedRealityPose wristPose = MixedRealityPose.ZeroIdentity;
     public GameObject fragmentIndicator;
     public GameObject particleSystemGO;
     bool middleFingerGrab = false;
@@ -264,6 +265,9 @@ public class HandTracking : MonoBehaviour
             var thumbTipTransform = HandJointService.RequestJointTransform(TrackedHandJoint.ThumbTip, SettingsData.handedness);
             thumbTipPose = new MixedRealityPose(thumbTipTransform.position, thumbTipTransform.rotation);
 
+            var wristTransform = HandJointService.RequestJointTransform(TrackedHandJoint.Wrist, SettingsData.handedness);
+            wristPose = new MixedRealityPose(wristTransform.position, wristTransform.rotation);
+
             indexForward = Vector3.Normalize(indexTipPose.Position - indexKnucklePose.Position);
 
         }
@@ -354,6 +358,14 @@ public class HandTracking : MonoBehaviour
     public Vector3 getMiddleTip()
     {
         return middleTipPose.Position;
+    }
+
+    public Pose getWristPose()
+    {
+        var pose = new Pose();
+        pose.position = wristPose.Position;
+        pose.rotation = wristPose.Rotation;
+        return pose;
     }
 }
 

@@ -1552,11 +1552,22 @@ public class NetworkManagerServer : MonoBehaviour
         var scale = message.GetFloat();
         if (StudyTaskManager.Singleton != null)
         {
-            StudyLogger.Singleton.write($"(Task_{task_id}) AngleError: {angle}");
-            StudyLogger.Singleton.write($"(Task_{task_id}) DistError: {dist}");
-            StudyLogger.Singleton.write($"(Task_{task_id}) ScaleError: {scale}");
+            StudyLogger.Singleton.write($"AngleError: {angle}",task_id);
+            StudyLogger.Singleton.write($"DistError: {dist}",task_id);
+            StudyLogger.Singleton.write($"ScaleError: {scale}",task_id);
             // log finised task
-            StudyLogger.Singleton.write($"(Task_{task_id}) finished.");
+            StudyLogger.Singleton.write($"finished.", task_id);
+        }
+    }
+
+    
+    [MessageHandler((ushort)ClientToServerID.transitionUnsuccessful)]
+    private static void getUnsuccessfulTransitionRequest(ushort fromClientId, Message message)
+    {
+        var triggered_by = (TransitionManager.InteractionType)message.GetInt();
+        if (StudyTaskManager.Singleton != null)
+        {
+            StudyTaskManager.Singleton.reportUnsuccessfullTransition(triggered_by);            
         }
     }
 

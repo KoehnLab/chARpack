@@ -48,7 +48,8 @@ public enum ClientToServerID : ushort
     transitionGenericObject = 1041,
     sendSpawnGhostObject = 1042,
     sendObjectToTrack = 1043,
-    sendResults = 1044
+    sendResults = 1044,
+    transitionUnsuccessful = 1045
 }
 
 public enum ServerToClientID : ushort

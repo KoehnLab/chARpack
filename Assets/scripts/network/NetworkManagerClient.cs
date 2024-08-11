@@ -1438,6 +1438,11 @@ public class NetworkManagerClient : MonoBehaviour
                 }
             }
         }
+
+        // nothing marked
+        Message return_msg = Message.Create(MessageSendMode.Reliable, ClientToServerID.transitionUnsuccessful);
+        return_msg.AddInt((int)triggered_by);
+        Singleton.Client.Send(return_msg);
     }
 
     [MessageHandler((ushort)ServerToClientID.bcastRequestDeleteMarked)]

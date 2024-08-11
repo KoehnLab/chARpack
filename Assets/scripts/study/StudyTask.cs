@@ -31,6 +31,9 @@ public class StudyTask
     public TransitionManager.ImmersiveTarget? DG_immersiveTarget = null;
     public bool? DG_holdGrab = null;
 
+    // close grab
+    // nothing
+
 
     public StudyTask(StudyTask input)
     {
@@ -49,99 +52,51 @@ public class StudyTask
 
     public static List<StudyTask> getAllTasks()
     {
-        var tasks = new List<StudyTask>();
+        // Distant Grab
+        var distant_grab_task = new StudyTask();
+        distant_grab_task.interactionType = TransitionManager.InteractionType.DISTANT_GRAB;
+        distant_grab_task.DG_holdGrab = false;
+        distant_grab_task.DG_desktopTarget = TransitionManager.DesktopTarget.CENTER_OF_SCREEN;
+        distant_grab_task.DG_immersiveTarget = TransitionManager.ImmersiveTarget.HAND_FIXED;
 
-        // Task0.1g
-        tasks.Add(new StudyTask());
-        tasks.Last().interactionType = TransitionManager.InteractionType.DISTANT_GRAB;
-        tasks.Last().DG_holdGrab = true;
-        tasks.Last().DG_desktopTarget = TransitionManager.DesktopTarget.HOVER;
-        tasks.Last().DG_immersiveTarget = TransitionManager.ImmersiveTarget.HAND_FOLLOW;
+        // Close Grab
+        var close_grab_task = new StudyTask();
+        close_grab_task.interactionType = TransitionManager.InteractionType.CLOSE_GRAB;
 
-        // Task0.2p
-        tasks.Add(new StudyTask());
-        tasks.Last().interactionType = TransitionManager.InteractionType.DISTANT_GRAB;
-        tasks.Last().DG_holdGrab = false;
-        tasks.Last().DG_desktopTarget = TransitionManager.DesktopTarget.HOVER;
-        tasks.Last().DG_immersiveTarget = TransitionManager.ImmersiveTarget.HAND_FIXED;
+        // Button Press
+        var button_press_task = new StudyTask();
+        button_press_task.interactionType = TransitionManager.InteractionType.BUTTON_PRESS;
+        button_press_task.B_desktopTarget = TransitionManager.DesktopTarget.CENTER_OF_SCREEN;
+        button_press_task.B_immersiveTarget = TransitionManager.ImmersiveTarget.FRONT_OF_SCREEN;
 
-        // Task0.3p
-        tasks.Add(new StudyTask());
-        tasks.Last().interactionType = TransitionManager.InteractionType.DISTANT_GRAB;
-        tasks.Last().DG_holdGrab = false;
-        tasks.Last().DG_desktopTarget = TransitionManager.DesktopTarget.CENTER_OF_SCREEN;
-        tasks.Last().DG_immersiveTarget = TransitionManager.ImmersiveTarget.HAND_FIXED;
-
-        // Task0.4p
-        tasks.Add(new StudyTask());
-        tasks.Last().interactionType = TransitionManager.InteractionType.DISTANT_GRAB;
-        tasks.Last().DG_holdGrab = false;
-        tasks.Last().DG_desktopTarget = TransitionManager.DesktopTarget.CURSOR_POSITION;
-        tasks.Last().DG_immersiveTarget = TransitionManager.ImmersiveTarget.HAND_FIXED;
-
-        // Task0.5p
-        tasks.Add(new StudyTask());
-        tasks.Last().interactionType = TransitionManager.InteractionType.DISTANT_GRAB;
-        tasks.Last().DG_holdGrab = false;
-        tasks.Last().DG_desktopTarget = TransitionManager.DesktopTarget.CENTER_OF_SCREEN;
-        tasks.Last().DG_immersiveTarget = TransitionManager.ImmersiveTarget.HAND_FOLLOW;
-
-        // Task0.6p
-        tasks.Add(new StudyTask());
-        tasks.Last().interactionType = TransitionManager.InteractionType.DISTANT_GRAB;
-        tasks.Last().DG_holdGrab = false;
-        tasks.Last().DG_desktopTarget = TransitionManager.DesktopTarget.CENTER_OF_SCREEN;
-        tasks.Last().DG_immersiveTarget = TransitionManager.ImmersiveTarget.FRONT_OF_SCREEN;
-
-        // Task0.7p
-        tasks.Add(new StudyTask());
-        tasks.Last().interactionType = TransitionManager.InteractionType.DISTANT_GRAB;
-        tasks.Last().DG_holdGrab = false;
-        tasks.Last().DG_desktopTarget = TransitionManager.DesktopTarget.CENTER_OF_SCREEN;
-        tasks.Last().DG_immersiveTarget = TransitionManager.ImmersiveTarget.CAMERA;
-
-        // Task1.1
-        tasks.Add(new StudyTask());
-        tasks.Last().interactionType = TransitionManager.InteractionType.CLOSE_GRAB;
-
-        // Task2.1
-        tasks.Add(new StudyTask());
-        tasks.Last().interactionType = TransitionManager.InteractionType.BUTTON_PRESS;
-        tasks.Last().B_desktopTarget= TransitionManager.DesktopTarget.CENTER_OF_SCREEN;
-        tasks.Last().B_immersiveTarget = TransitionManager.ImmersiveTarget.FRONT_OF_SCREEN;
-
-        // Task2.2
-        tasks.Add(new StudyTask());
-        tasks.Last().interactionType = TransitionManager.InteractionType.BUTTON_PRESS;
-        tasks.Last().B_desktopTarget = TransitionManager.DesktopTarget.CURSOR_POSITION;
-        tasks.Last().B_immersiveTarget = TransitionManager.ImmersiveTarget.FRONT_OF_SCREEN;
-
-        // Task2.3
-        tasks.Add(new StudyTask());
-        tasks.Last().interactionType = TransitionManager.InteractionType.BUTTON_PRESS;
-        tasks.Last().B_desktopTarget = TransitionManager.DesktopTarget.CENTER_OF_SCREEN;
-        tasks.Last().B_immersiveTarget = TransitionManager.ImmersiveTarget.CAMERA;
-
-        // Task2.4
-        tasks.Add(new StudyTask());
-        tasks.Last().interactionType = TransitionManager.InteractionType.BUTTON_PRESS;
-        tasks.Last().B_desktopTarget = TransitionManager.DesktopTarget.CURSOR_POSITION;
-        tasks.Last().B_immersiveTarget = TransitionManager.ImmersiveTarget.CAMERA;
-
-        var count = tasks.Count;
-        for (int i = 0; i < count; i++)
+        List<Tuple<bool, objectSpawnEnvironment>> conditions = new List<Tuple<bool, objectSpawnEnvironment>>
         {
-            var task = new StudyTask(tasks[i]);
-            tasks[i].withAnimation = true;
-            task.withAnimation = false;
-            tasks.Add(task);
+            new Tuple<bool, objectSpawnEnvironment>(true, objectSpawnEnvironment.DESKTOP ),
+            new Tuple<bool, objectSpawnEnvironment>(true, objectSpawnEnvironment.IMMERSIVE ),
+            new Tuple<bool, objectSpawnEnvironment>(false, objectSpawnEnvironment.DESKTOP ),
+            new Tuple<bool, objectSpawnEnvironment>(false, objectSpawnEnvironment.IMMERSIVE )
+        };
+
+
+        var interactions = new List<StudyTask>{distant_grab_task, close_grab_task, button_press_task};
+        interactions.Shuffle();
+
+        var tasks = new List<StudyTask>();
+        foreach (var interaction in interactions)
+        {
+            conditions.Shuffle();
+            foreach (var condition in conditions)
+            {
+                tasks.Add(interaction);
+                tasks.Last().withAnimation = condition.Item1;
+                tasks.Last().objectSpawn = condition.Item2;
+            }
         }
-        assignSpawnEnvironment(tasks);
+
         foreach(var task in tasks)
         {
             generateDescription(task);
         }
-        tasks.Shuffle();
 
         return tasks;
     }
@@ -216,6 +171,11 @@ public class StudyTask
                 {
                     SettingsData.transitionMode = TransitionManager.TransitionMode.INSTANT;
                     SettingsData.transitionAnimation = TransitionManager.TransitionAnimation.NONE;
+                }
+                if (task.interactionType == TransitionManager.InteractionType.CLOSE_GRAB)
+                {
+                    // reset for close grab
+                    SettingsData.transitionMode = TransitionManager.TransitionMode.DESKTOP_2D;
                 }
             }
             if (task.B_desktopTarget != null)

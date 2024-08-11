@@ -281,6 +281,14 @@ public class StudyTaskManager : MonoBehaviour
         }
     }
 
+    public void reportUnsuccessfullTransition(TransitionManager.InteractionType triggered_by)
+    {
+        if (isTaskInProgress)
+        {
+            StudyLogger.Singleton.write($"Unsuccessful transition triggered by {triggered_by}.", currentTaskID);
+        }
+    }
+
 
     bool isTaskInProgress = false;
     public void triggerNextTask()
@@ -313,11 +321,11 @@ public class StudyTaskManager : MonoBehaviour
             var angle = getErrorAngle();
             var dist = getErrorDist();
             var scale = getErrorScale();
-            StudyLogger.Singleton.write($"(Task_{currentTaskID}) AngleError: {angle}");
-            StudyLogger.Singleton.write($"(Task_{currentTaskID}) DistError: {dist}");
-            StudyLogger.Singleton.write($"(Task_{currentTaskID}) DistError: {scale}");
+            StudyLogger.Singleton.write($"AngleError: {angle}", currentTaskID);
+            StudyLogger.Singleton.write($"DistError: {dist}", currentTaskID);
+            StudyLogger.Singleton.write($"DistError: {scale}", currentTaskID);
             // log finised task
-            StudyLogger.Singleton.write($"(Task_{currentTaskID}) finished.");
+            StudyLogger.Singleton.write($"finished.", currentTaskID);
         }
     }
 
@@ -327,8 +335,8 @@ public class StudyTaskManager : MonoBehaviour
         {
             yield return null; // wait for next frame
         }
-        StudyLogger.Singleton.write($"(Task_{currentTaskID}) AngleError: {resultAngle.Value}");
-        StudyLogger.Singleton.write($"(Task_{currentTaskID}) DistError: {resultDist.Value}");
+        StudyLogger.Singleton.write($"AngleError: {resultAngle.Value}", currentTaskID);
+        StudyLogger.Singleton.write($"DistError: {resultDist.Value}", currentTaskID);
         resultAngle = null;
         resultDist = null;
     }
@@ -423,7 +431,7 @@ public class StudyTaskManager : MonoBehaviour
 
                 // process and log data
                 stopwatch.Stop();
-                StudyLogger.Singleton.write($"(Task_{currentTaskID}) Time: {stopwatch.ElapsedMilliseconds}");
+                StudyLogger.Singleton.write($"Time: {stopwatch.ElapsedMilliseconds}", currentTaskID);
                 evaluateCorrectness();
 
                 // clear scene and reset objects 
@@ -451,7 +459,7 @@ public class StudyTaskManager : MonoBehaviour
                 GlobalCtrl.Singleton.currentCamera.transform.rotation = Quaternion.identity;
                 stopwatch.Restart();
 
-                StudyLogger.Singleton.write($"(Task_{currentTaskID}) Started.");
+                StudyLogger.Singleton.write($"Started.", currentTaskID);
 
                 var task = currentTaskSet[currentTaskID];
                 StudyTask.activateTaskSettings(task);
@@ -473,7 +481,7 @@ public class StudyTaskManager : MonoBehaviour
         {
             if (isTaskInProgress) // finishing task
             {
-                StudyLogger.Singleton.write($"(Task_{currentTaskID}) Restart.");
+                StudyLogger.Singleton.write($"Restart.", currentTaskID);
 
                 isTaskInProgress = false;
 
@@ -519,15 +527,15 @@ public class StudyTaskManager : MonoBehaviour
         if (!isTaskInProgress) return;
         if (mol != null)
         {
-            StudyLogger.Singleton.write($"TransitionGrab successfull on Molecule {mol.gameObject.name}.", currentTaskID);
+            StudyLogger.Singleton.write($"TransitionGrab triggered by {trigger} successfull on Molecule {mol.gameObject.name}.", currentTaskID);
         }
         else if (go != null)
         {
-            StudyLogger.Singleton.write($"TransitionGrab successfull on GenericObject {go.gameObject.name}.", currentTaskID);
+            StudyLogger.Singleton.write($"TransitionGrab triggered by {trigger} successfull on GenericObject {go.gameObject.name}.", currentTaskID);
         }
         else
         {
-            StudyLogger.Singleton.write("Unsuccessfull TransitionGrab.", currentTaskID);
+            StudyLogger.Singleton.write($"Unsuccessfull TransitionGrab triggered by {trigger}.", currentTaskID);
         }
     }
 
@@ -553,7 +561,9 @@ public class StudyTaskManager : MonoBehaviour
 
     public void activateTask(StudyTask task)
     {
-        showDescriptionText(task.description);
+        var split = task.description.Split("\n");
+        var interaction = split.First(text => text.Contains("interactionType"));
+        showDescriptionText(interaction);
     }
 
     int currentTaskID = 0;

@@ -79,8 +79,8 @@ public class TransitionManager : MonoBehaviour
 
     private void Start()
     {
-        doTransition = Resources.Load<AudioClip>("audio/wine");
-        getTransition = Resources.Load<AudioClip>("audio/reverse_wine");
+        doTransition = Resources.Load<AudioClip>("audio/wine_short");
+        getTransition = Resources.Load<AudioClip>("audio/reverse_wine_short");
         moveToTransitionClip = Resources.Load<AudioClip>("audio/wine_loop");
         moveFromTransitionClip = Resources.Load<AudioClip>("audio/reverse_wine_loop");
         if (EventManager.Singleton != null)
@@ -248,6 +248,10 @@ public class TransitionManager : MonoBehaviour
                 }
                 else
                 {
+                    if (StudyTaskManager.Singleton)
+                    {
+                        StudyTaskManager.Singleton.logTransitionGrab(null, null, triggered_by);
+                    }
                     return; // neither mol nor go hit, but some other type of object
                 }
             }
@@ -256,6 +260,7 @@ public class TransitionManager : MonoBehaviour
             {
                 StudyTaskManager.Singleton.logTransitionGrab(mol_test, go_test, triggered_by);
             }
+
 
             if (SettingsData.transitionMode == TransitionMode.FULL_3D)
             {
@@ -275,6 +280,11 @@ public class TransitionManager : MonoBehaviour
                 }
             }
         }
+
+        if (StudyTaskManager.Singleton)
+        {
+            StudyTaskManager.Singleton.logTransitionGrab(null, null, triggered_by);
+        }
     }
 
     public void initializeTransitionServer(Molecule mol, InteractionType triggered_by)
@@ -286,6 +296,7 @@ public class TransitionManager : MonoBehaviour
         }
         else
         {
+            if (StudyTaskManager.Singleton) StudyTaskManager.Singleton.logTransition(mol.name, triggered_by);
             EventManager.Singleton.TransitionMolecule(mol, triggered_by);
         }
     }
@@ -299,10 +310,10 @@ public class TransitionManager : MonoBehaviour
         }
         else
         {
+            if (StudyTaskManager.Singleton) StudyTaskManager.Singleton.logTransition(go.name, triggered_by);
             EventManager.Singleton.TransitionGenericObject(go, triggered_by);
         }
     }
-
 
     private IEnumerator blinkOnScreen(Vector2 ss_coords, Vector3 wpos)
     {
@@ -616,11 +627,13 @@ public class TransitionManager : MonoBehaviour
         var mol = trans.GetComponent<Molecule>();
         if (mol != null)
         {
+            if (StudyTaskManager.Singleton) StudyTaskManager.Singleton.logTransition(mol.name, triggered_by);
             EventManager.Singleton.TransitionMolecule(mol, triggered_by);
         }
         else
         {
             var go = trans.GetComponent<GenericObject>();
+            if (StudyTaskManager.Singleton) StudyTaskManager.Singleton.logTransition(go.name, triggered_by);
             EventManager.Singleton.TransitionGenericObject(go, triggered_by);
         }
         AudioSource.PlayClipAtPoint(doTransition, trans.position);

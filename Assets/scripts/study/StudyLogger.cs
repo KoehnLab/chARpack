@@ -152,10 +152,17 @@ public class StudyLogger : MonoBehaviour
 
         var split = file_content.Split("\n").ToList();
         var task_id = 0;
-        if (file_content.Contains("(Task_"))
+        if (file_content.Contains("k_"))
         {
-            var last_task_line = split.Last(line => line.Contains("(Task_"));
-            task_id = int.Parse(last_task_line.Split("(Task_")[1].Split(")")[0]);
+            var last_task_line = split.Last(line => line.Contains("k_"));
+            task_id = int.Parse(last_task_line.Split("k_")[1].Split(")")[0]);
+            if (!last_task_line.Contains("finished")) {
+                task_id = task_id - 1;
+            }
+        }
+        else
+        {
+            task_id = -1;
         }
 
 
