@@ -63,16 +63,18 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
         var model = Instantiate(model_prefab);
         if (model.GetComponent<MeshRenderer>() != null)
         {
-            model.AddComponent<MeshCollider>().convex = true;
+            //model.AddComponent<MeshCollider>().convex = true;
+            model.AddComponent<BoxCollider>();
             model.AddComponent<NearInteractionGrabbable>();
             model.AddComponent<AttachedModel>().genericObject = genericObject;
-            model.AddComponent<MeshCollider>().convex = false; // in case the convex mesh generation has not worked, also better collider
+            //model.AddComponent<MeshCollider>().convex = false; // in case the convex mesh generation has not worked, also better collider
         }
         else
         {
             foreach (Transform child in model.transform)
             {
-                child.AddComponent<MeshCollider>().convex = true;
+                //child.AddComponent<MeshCollider>().convex = true;
+                child.AddComponent<BoxCollider>();
                 child.AddComponent<NearInteractionGrabbable>();
                 child.AddComponent<AttachedModel>().genericObject = genericObject;
             }

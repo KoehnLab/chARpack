@@ -75,7 +75,7 @@ public class GlobalCtrl : MonoBehaviour
     /// <summary>
     /// z distance objects spawn in fromt of the camera
     /// </summary>
-    public static float spawnZDistance = 0.75f;
+    public static float spawnZDistance = 0.5f;
 
     /// <summary>
     /// the space for creating molecules
@@ -326,7 +326,7 @@ public class GlobalCtrl : MonoBehaviour
 
         if(NetworkManagerClient.Singleton != null)
         {
-            spawnZDistance = 0.5f;
+            spawnZDistance = 0.25f;
         }
     }
 

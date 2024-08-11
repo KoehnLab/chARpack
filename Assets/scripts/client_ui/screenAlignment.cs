@@ -56,7 +56,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
     void Start()
     {
         confirmClip = (AudioClip)Resources.Load("audio/confirmation");
-        closeToScreenClip = Resources.Load<AudioClip>("audio/longRing");
+        closeToScreenClip = Resources.Load<AudioClip>("audio/wine_loop");
         screenPrefab = (GameObject)Resources.Load("prefabs/ScreenPrefab");
         arcPrefab = (GameObject)Resources.Load("prefabs/vfx/vfx_arc_fixed_endpoints");
         gameObject.AddComponent<AudioSource>();
@@ -352,7 +352,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
     }
 
     List<Transform> old_intersecting_objects = new List<Transform>();
-    List<Transform> to_remove_intersecting_objects = new List<Transform>();
+    List<Transform> to_remove_objects = new List<Transform>();
     Dictionary<Transform, float> initial_scale_of_intersecting_objects = new Dictionary<Transform, float>();
     Dictionary<Transform, float> initial_distance_of_intersecting_objects = new Dictionary<Transform, float>();
     Dictionary<Transform, GameObject> progressBarInstances = new Dictionary<Transform, GameObject>();
@@ -365,10 +365,6 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
             Vector3? proj;
             if (getDistanceFromScreen(HandTracking.Singleton.getIndexTip()) < (0.25f * getScreenSizeWS().y))
             {
-                //AudioSource loopSound = GetComponent<AudioSource>();
-                //loopSound.clip = closeToScreenClip;
-                //loopSound.loop = true;
-                //loopSound.Play();
                 proj = projectIndexTipOnScreen();
                 arcInstance.transform.position = proj.Value;
                 var diff_vec = proj.Value - HandTracking.Singleton.getIndexTip();
@@ -455,6 +451,16 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                                 progressBarInstances[obj.transform].transform.SetParent(transform);
                                 progressBarInstances[obj.transform].transform.localScale = 0.1f * Vector3.one;
                                 progressBarInstances[obj.transform].gameObject.SetActive(false);
+
+                                var audio_source = obj.GetComponent<AudioSource>();
+                                if (audio_source == null)
+                                {
+                                    audio_source = obj.AddComponent<AudioSource>();
+                                }
+                                audio_source.clip = closeToScreenClip;
+                                audio_source.loop = true;
+                                audio_source.volume = 0f;
+                                audio_source.Play();
                             }
                         }
                     }
@@ -490,6 +496,16 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                                 progressBarInstances[mol.transform].transform.SetParent(transform);
                                 progressBarInstances[mol.transform].transform.localScale = 0.1f * Vector3.one;
                                 progressBarInstances[mol.transform].gameObject.SetActive(false);
+
+                                var audio_source = mol.GetComponent<AudioSource>();
+                                if (audio_source == null)
+                                {
+                                    audio_source = mol.AddComponent<AudioSource>();
+                                }
+                                audio_source.clip = closeToScreenClip;
+                                audio_source.loop = true;
+                                audio_source.volume = 0f;
+                                audio_source.Play();
                             }
                         }
                     }
@@ -537,17 +553,18 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                                     else
                                     {
                                         // remove from list when not grabbed anymore
-                                        if (!to_remove_intersecting_objects.Contains(oio))
+                                        if (!to_remove_objects.Contains(oio))
                                         {
-                                            to_remove_intersecting_objects.Add(oio);
+                                            to_remove_objects.Add(oio);
                                         }
                                     }
                                 }
                             }
                         }
                     }
+
                     // Perform removing from list
-                    foreach (var obj in to_remove_intersecting_objects)
+                    foreach (var obj in to_remove_objects)
                     {
                         old_intersecting_objects.Remove(obj);
                         initial_scale_of_intersecting_objects.Remove(obj);
@@ -557,8 +574,9 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                         //Destroy(transitionPointIndicator[obj]);
                         //transitionPointIndicator.Remove(obj);
                         localTransitionPoint.Remove(obj);
+                        obj.GetComponent<AudioSource>().Stop();
                     }
-                    to_remove_intersecting_objects.Clear();
+                    to_remove_objects.Clear();
                 }
             }
         }
@@ -631,7 +649,10 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
 
                 progressBarInstances[trans].transform.position = box.cornerHandles[index].transform.position - 0.01f * cam.transform.right;
                 progressBarInstances[trans].transform.forward = cam.transform.forward;
-                progressBarInstances[trans].GetComponent<VerticalProgressBar>().setProgress(1f - current_distance / initial_distance_of_intersecting_objects[trans]);
+                var current_progress = 1f - current_distance / initial_distance_of_intersecting_objects[trans];
+                progressBarInstances[trans].GetComponent<VerticalProgressBar>().setProgress(current_progress);
+
+                trans.GetComponent<AudioSource>().volume = Mathf.Clamp01(current_progress) * 0.75f;
                 //transitionPointIndicator[trans].transform.position = transition_point;
 
             }
@@ -639,10 +660,18 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
 
         if (Vector3.Dot(screenNormal, transition_point - projectWSPointToScreen(transition_point)) < 0f)
         {
-            if (old_intersecting_objects.Contains(trans))
-            {
-                to_remove_intersecting_objects.Add(trans);
-            }
+            // directly remove stuff
+            trans.GetComponent<AudioSource>().Stop();
+            old_intersecting_objects.Remove(trans);
+            initial_scale_of_intersecting_objects.Remove(trans);
+            initial_distance_of_intersecting_objects.Remove(trans);
+            Destroy(progressBarInstances[trans]);
+            progressBarInstances.Remove(trans);
+            //Destroy(transitionPointIndicator[obj]);
+            //transitionPointIndicator.Remove(obj);
+            localTransitionPoint.Remove(trans);
+
+            // do the transition
             TransitionManager.Singleton.initializeTransitionClient(trans, TransitionManager.InteractionType.CLOSE_GRAB);
             return true;
         }
@@ -712,9 +741,9 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         }
         else
         {
-            if (!to_remove_intersecting_objects.Contains(trans))
+            if (!to_remove_objects.Contains(trans))
             {
-                to_remove_intersecting_objects.Add(trans);
+                to_remove_objects.Add(trans);
             }
         }
     }

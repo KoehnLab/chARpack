@@ -74,11 +74,15 @@ public class TransitionManager : MonoBehaviour
 
     AudioClip doTransition;
     AudioClip getTransition;
+    AudioClip moveToTransitionClip;
+    AudioClip moveFromTransitionClip;
 
     private void Start()
     {
-        doTransition = Resources.Load<AudioClip>("audio/doTransition");
-        getTransition = Resources.Load<AudioClip>("audio/getTransition");
+        doTransition = Resources.Load<AudioClip>("audio/wine");
+        getTransition = Resources.Load<AudioClip>("audio/reverse_wine");
+        moveToTransitionClip = Resources.Load<AudioClip>("audio/wine_loop");
+        moveFromTransitionClip = Resources.Load<AudioClip>("audio/reverse_wine_loop");
         if (EventManager.Singleton != null)
         {
             EventManager.Singleton.OnGrabOnScreen += grab;
@@ -127,8 +131,9 @@ public class TransitionManager : MonoBehaviour
         RaycastHit hit;
         if (Physics.SphereCast(ray, 0.05f, out hit))
         {
-            var mol = hit.transform.GetComponentInParent<Molecule>();
-            var go = hit.transform.GetComponentInParent<GenericObject>();
+
+            var mol = hit.collider.GetComponentInParent<Molecule>();
+            var go = hit.collider.GetComponentInParent<GenericObject>();
             if (mol != null)
             {
                 if (hoverMol != mol)
@@ -212,7 +217,7 @@ public class TransitionManager : MonoBehaviour
         if (Physics.SphereCast(ray, sphere_radius, out hit))
         {
             Transform trans = null; 
-            var mol_test = hit.transform.GetComponentInParent<Molecule>();
+            var mol_test = hit.collider.GetComponentInParent<Molecule>();
             GenericObject go_test = null;
             if (mol_test != null)
             {
@@ -228,7 +233,7 @@ public class TransitionManager : MonoBehaviour
             }
             else
             {
-                go_test = hit.transform.GetComponentInParent<GenericObject>();
+                go_test = hit.collider.GetComponentInParent<GenericObject>();
                 if (go_test != null)
                 {
                     if (!go_test.getIsInteractable())
@@ -392,6 +397,7 @@ public class TransitionManager : MonoBehaviour
         {
             StartCoroutine(attachToGrip(trans));
             screenAlignment.Singleton.addObjectToGrow(trans, initial_scale);
+            AudioSource.PlayClipAtPoint(getTransition, trans.position);
             return;
         }
         if (SettingsData.transitionMode == TransitionMode.INSTANT)
@@ -560,17 +566,30 @@ public class TransitionManager : MonoBehaviour
         }
     }
 
-    private IEnumerator moveAndTransition(Transform trans, Vector3 pos, InteractionType triggered_by, bool override_grab_hold = false)
+    private IEnumerator moveAndTransition(Transform trans, Vector3 target_pos, InteractionType triggered_by, bool override_grab_hold = false)
     {
+        var audio_source = trans.GetComponent<AudioSource>();
+        if (audio_source == null)
+        {
+            audio_source = trans.gameObject.AddComponent<AudioSource>();
+        }
+        audio_source.clip = moveFromTransitionClip;
+        audio_source.loop = true;
+        audio_source.volume = 0f;
+        audio_source.Play();
+
+
         AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         float elapsedTime = 0f;
         var start_pos = trans.position;
+        var initial_distance = Vector3.Distance(start_pos, target_pos);
         while (elapsedTime < SettingsData.transitionAnimationDuration)
         {
             if (SettingsData.requireGrabHold && !override_grab_hold)
             {
                 if (!grabHold)
                 {
+                    audio_source.Stop();
                     correctAnimationAbort(trans);
                     yield break;
                 }
@@ -585,10 +604,15 @@ public class TransitionManager : MonoBehaviour
             float curveValue = animationCurve.Evaluate(normalizedTime);
 
             // Interpolate between start and end points
-            trans.position = Vector3.Lerp(start_pos, pos, curveValue);
+            trans.position = Vector3.Lerp(start_pos, target_pos, curveValue);
+
+            var current_distance = Vector3.Distance(trans.position, target_pos);
+            audio_source.volume = Mathf.Clamp01(1f - current_distance / initial_distance) * 0.75f;
 
             yield return null; // wait for next frame
         }
+        audio_source.Stop();
+
         var mol = trans.GetComponent<Molecule>();
         if (mol != null)
         {
@@ -602,17 +626,30 @@ public class TransitionManager : MonoBehaviour
         AudioSource.PlayClipAtPoint(doTransition, trans.position);
     }
 
-    private IEnumerator moveToPos(Transform trans, Vector3 pos, bool override_grab_hold = false)
+    private IEnumerator moveToPos(Transform trans, Vector3 target_pos, bool override_grab_hold = false)
     {
+        var audio_source = trans.GetComponent<AudioSource>();
+        if (audio_source == null)
+        {
+            audio_source = trans.gameObject.AddComponent<AudioSource>();
+        }
+        audio_source.clip = moveFromTransitionClip;
+        audio_source.loop = true;
+        audio_source.volume = 0f;
+        audio_source.Play();
+
+
         AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         float elapsedTime = 0f;
         var start_pos = trans.position;
+        var initial_distance = Vector3.Distance(start_pos, target_pos);
         while (elapsedTime < SettingsData.transitionAnimationDuration)
         {
             if (SettingsData.requireGrabHold && !override_grab_hold)
             {
                 if (!grabHold)
                 {
+                    audio_source.Stop();
                     correctAnimationAbort(trans);
                     yield break;
                 }
@@ -627,10 +664,14 @@ public class TransitionManager : MonoBehaviour
             float curveValue = animationCurve.Evaluate(normalizedTime);
 
             // Interpolate between start and end points
-            trans.position = Vector3.Lerp(start_pos, pos, curveValue);
+            trans.position = Vector3.Lerp(start_pos, target_pos, curveValue);
+
+            var current_distance = Vector3.Distance(trans.position, target_pos);
+            audio_source.volume = Mathf.Clamp01(1f - current_distance / initial_distance) * 0.75f;
 
             yield return null; // wait for next frame
         }
+        audio_source.Stop();
     }
 
     private IEnumerator moveToScreenAndTransition(Transform trans, InteractionType triggered_by, bool override_grab_hold = false)
@@ -638,15 +679,27 @@ public class TransitionManager : MonoBehaviour
         var center = screenAlignment.Singleton.getScreenCenter();
         var target_pos = center;
 
+        var audio_source = trans.GetComponent<AudioSource>();
+        if (audio_source == null)
+        {
+            audio_source = trans.gameObject.AddComponent<AudioSource>();
+        }
+        audio_source.clip = moveFromTransitionClip;
+        audio_source.loop = true;
+        audio_source.volume = 0f;
+        audio_source.Play();
+
         AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         float elapsedTime = 0f;
         var start_pos = trans.position;
+        var initial_distance = Vector3.Distance(start_pos, target_pos);
         while (elapsedTime < SettingsData.transitionAnimationDuration)
         {
             if (SettingsData.requireGrabHold && !override_grab_hold)
             {
                 if (!grabHold)
                 {
+                    audio_source.Stop();
                     correctAnimationAbort(trans);
                     yield break;
                 }
@@ -673,8 +726,12 @@ public class TransitionManager : MonoBehaviour
             // Interpolate between start and end points
             trans.position = Vector3.Lerp(start_pos, target_pos, curveValue);
 
+            var current_distance = Vector3.Distance(trans.position, target_pos);
+            audio_source.volume = Mathf.Clamp01(1f - current_distance / initial_distance) * 0.75f;
+
             yield return null; // wait for next frame
         }
+        audio_source.Stop();
 
         var mol = trans.GetComponent<Molecule>();
         if (mol != null)
@@ -702,16 +759,29 @@ public class TransitionManager : MonoBehaviour
             var go = trans.GetComponent<GenericObject>();
             relQuat = go.relQuatBeforeTransition;
         }
+
+        var audio_source = trans.GetComponent<AudioSource>();
+        if (audio_source == null)
+        {
+            audio_source = trans.gameObject.AddComponent<AudioSource>();
+        }
+        audio_source.clip = moveFromTransitionClip;
+        audio_source.loop = true;
+        audio_source.volume = 0f;
+        audio_source.Play();
+
         AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         float elapsedTime = 0f;
         var start_pos = trans.position;
-        var pos = HandTracking.Singleton.getIndexTip();
+        var target_pos = HandTracking.Singleton.getIndexTip();
+        var initial_distance = Vector3.Distance(trans.position, target_pos);
         while (elapsedTime < SettingsData.transitionAnimationDuration)
         {
             if (SettingsData.requireGrabHold && !override_grab_hold)
             {
                 if (!grabHold)
                 {
+                    audio_source.Stop();
                     correctAnimationAbort(trans);
                     yield break;
                 }
@@ -725,9 +795,13 @@ public class TransitionManager : MonoBehaviour
             // Evaluate the curve at the normalized time
             float curveValue = animationCurve.Evaluate(normalizedTime);
 
-            pos = HandTracking.Singleton.getIndexTip();
+            target_pos = HandTracking.Singleton.getIndexTip();
             // Interpolate between start and end points
-            trans.position = Vector3.Lerp(start_pos, pos, curveValue);
+            trans.position = Vector3.Lerp(start_pos, target_pos, curveValue);
+
+            var current_distance = Vector3.Distance(trans.position, target_pos);
+            audio_source.volume = Mathf.Clamp01(1f - current_distance / initial_distance) * 0.75f;
+
             if (SettingsData.transitionAnimation == TransitionAnimation.ROTATION || SettingsData.transitionAnimation == TransitionAnimation.BOTH)
             {
                 Debug.Log("[moveToHand] Animating rotation.");
@@ -736,6 +810,7 @@ public class TransitionManager : MonoBehaviour
             }
             yield return null; // wait for next frame
         }
+        audio_source.Stop();
     }
 
     private void correctAnimationAbort(Transform trans)
@@ -752,7 +827,8 @@ public class TransitionManager : MonoBehaviour
 
     private IEnumerator moveToUser(Transform trans, bool override_grab_hold = false)
     {
-        var pos = GlobalCtrl.Singleton.getCurrentSpawnPos();
+        var target_pos = GlobalCtrl.Singleton.getCurrentSpawnPos();
+        var initial_distance = Vector3.Distance(target_pos, trans.position);
         var relQuat = Quaternion.identity;
         var mol = trans.GetComponent<Molecule>();
         if (mol != null)
@@ -765,6 +841,16 @@ public class TransitionManager : MonoBehaviour
             relQuat = go.relQuatBeforeTransition;
         }
 
+        var audio_source = trans.GetComponent<AudioSource>();
+        if (audio_source == null)
+        {
+            audio_source = trans.gameObject.AddComponent<AudioSource>();
+        }
+        audio_source.clip = moveFromTransitionClip;
+        audio_source.loop = true;
+        audio_source.volume = 0f;
+        audio_source.Play();
+
         AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         float elapsedTime = 0f;
         var start_pos = trans.position;
@@ -774,6 +860,7 @@ public class TransitionManager : MonoBehaviour
             {
                 if (!grabHold)
                 {
+                    audio_source.Stop();
                     correctAnimationAbort(trans);
                     yield break;
                 }
@@ -787,9 +874,12 @@ public class TransitionManager : MonoBehaviour
             // Evaluate the curve at the normalized time
             float curveValue = animationCurve.Evaluate(normalizedTime);
 
-            pos = GlobalCtrl.Singleton.getCurrentSpawnPos();
+            //target_pos = GlobalCtrl.Singleton.getCurrentSpawnPos();
             // Interpolate between start and end points
-            trans.position = Vector3.Lerp(start_pos, pos, curveValue);
+            trans.position = Vector3.Lerp(start_pos, target_pos, curveValue);
+
+            var current_distance = Vector3.Distance(trans.position, target_pos);
+            audio_source.volume = Mathf.Clamp01(1f - current_distance/initial_distance) * 0.75f;
 
             if (SettingsData.transitionAnimation == TransitionAnimation.ROTATION || SettingsData.transitionAnimation == TransitionAnimation.BOTH)
             {
@@ -799,6 +889,7 @@ public class TransitionManager : MonoBehaviour
             }
             yield return null; // wait for next frame
         }
+        audio_source.Stop();
     }
 
     private IEnumerator moveAway(Transform trans)
@@ -835,6 +926,7 @@ public class TransitionManager : MonoBehaviour
         var isGrabbed = true;
         while (isGrabbed)
         {
+            if(trans == null) yield break;
             isGrabbed = HandTracking.Singleton.isIndexGrabbed();
             trans.position = HandTracking.Singleton.getIndexTip();
             yield return null;

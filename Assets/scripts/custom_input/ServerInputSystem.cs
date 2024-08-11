@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
@@ -12,6 +13,8 @@ public class ServerInputSystem : MonoBehaviour
 
     private void Start()
     {
+        var names = QualitySettings.names.ToList();
+        QualitySettings.SetQualityLevel(names.IndexOf("Ultra"));
         var cursor_texture = Resources.Load<Texture2D>("customCursor/cursor");
         Cursor.SetCursor(cursor_texture, Vector3.zero, CursorMode.ForceSoftware);
     }
@@ -74,7 +77,7 @@ public class ServerInputSystem : MonoBehaviour
     {
         if (!Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl) && !CreateInputField.Singleton.gameObject.activeSelf)
         {
-            if (Input.GetKeyDown(KeyCode.F12))
+            if (Input.GetKeyDown(KeyCode.Space))
             {
                 var obj = GlobalCtrl.Singleton.getFirstMarkedObject();
                 if (obj != null)
@@ -226,11 +229,11 @@ public class ServerInputSystem : MonoBehaviour
                 rotated.y = 0f;
                 transform.position -= moveSpeed * rotated;
             }
-            if (Input.GetKey(KeyCode.F))
+            if (Input.GetKey(KeyCode.E))
             {
                 transform.position += moveSpeed * Vector3.up;
             }
-            if (Input.GetKey(KeyCode.C))
+            if (Input.GetKey(KeyCode.F))
             {
                 transform.position -= moveSpeed * Vector3.up;
             }
@@ -263,7 +266,7 @@ public class ServerInputSystem : MonoBehaviour
 
     private void createStuff()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.C))
         {
             CreateInputField.Singleton.gameObject.SetActive(true);
             CreateInputField.Singleton.input_field.Select();

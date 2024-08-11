@@ -245,7 +245,7 @@ public class StudyTaskManager : MonoBehaviour
         {
             if (fName.Contains("Resources/other"))
             {
-                UnityEngine.Debug.Log($"[TaskManager] resources: {fName}; extension: {Path.GetExtension(fName)}");
+                //UnityEngine.Debug.Log($"[TaskManager] resources: {fName}; extension: {Path.GetExtension(fName)}");
                 if (Path.GetExtension(fName) == ".fbx")
                 {
                     object_paths.Add(Path.GetFileName(fName));
