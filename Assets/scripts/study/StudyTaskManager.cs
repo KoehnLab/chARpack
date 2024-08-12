@@ -50,7 +50,8 @@ public class StudyTaskManager : MonoBehaviour
         objects.Clear();
         UnityEngine.Random.InitState(SettingsData.randomSeed + currentTaskID);
 
-        float longest_edge = 0;
+        //float longest_edge = 0;
+        var longest_edge_list = new List<float>();
         var object_paths_copy = new List<string>(object_paths);
 
         // instantiate 16 objects 
@@ -64,7 +65,8 @@ public class StudyTaskManager : MonoBehaviour
             {
                 var instance = GenericObject.create(path);
                 instance.gameObject.SetActive(false);
-                longest_edge = Mathf.Max(longest_edge, instance.GetComponent<myBoundingBox>().localBounds.size.maxDimValue());
+                //longest_edge = Mathf.Max(longest_edge, instance.GetComponent<myBoundingBox>().localBounds.size.maxDimValue());
+                longest_edge_list.Add(instance.GetComponent<myBoundingBox>().localBounds.size.maxDimValue());
                 objects.Add(new Tuple<string, Transform>(path, instance.transform));
             }
             else
@@ -72,13 +74,15 @@ public class StudyTaskManager : MonoBehaviour
                 UnityEngine.Debug.Log($"[TaskManager] Molecule path {path}");
                 var instance_list = GlobalCtrl.Singleton.LoadMolecule(path, true);
                 instance_list[0].gameObject.SetActive(false);
-                longest_edge = Mathf.Max(longest_edge, instance_list[0].GetComponent<myBoundingBox>().localBounds.size.maxDimValue());
+                //longest_edge = Mathf.Max(longest_edge, instance_list[0].GetComponent<myBoundingBox>().localBounds.size.maxDimValue());
+                longest_edge_list.Add(instance_list[0].GetComponent<myBoundingBox>().localBounds.size.maxDimValue());
                 objects.Add(new Tuple<string, Transform>(path, instance_list[0].transform));
             }
             object_paths_copy.RemoveAt(rnd_id);
         }
 
-        var spacing = 0.9f * longest_edge;
+        //var spacing = 0.9f * longest_edge;
+        var spacing = 0.9f * longest_edge_list.Max();
         var forward = (objects[0].Item2.transform.position - GlobalCtrl.Singleton.currentCamera.transform.position).normalized;
         var up = GlobalCtrl.Singleton.currentCamera.transform.up;
         var right = Vector3.Cross(forward, up).normalized;
@@ -96,11 +100,17 @@ public class StudyTaskManager : MonoBehaviour
             {
                 rotation = -rotation;
             }
-            forward = Quaternion.Euler(0f, rotation, 0f) * forward;
-            right = Quaternion.Euler(0f, rotation, 0f) * right;
-            var dist = (objects[0].Item2.transform.position - GlobalCtrl.Singleton.currentCamera.transform.position).magnitude;
-            start_pos = (GlobalCtrl.Singleton.currentCamera.transform.position - Mathf.Sign(rotation) * 1.5f * spacing * right) + dist * forward + 1.5f * spacing * up - 1.5f * spacing * right;
+            forward = -screenAlignment.Singleton.getScreenNormal();
+            right = Quaternion.Euler(0f, rotation, 0f) * forward;
+            var dist = Vector3.Distance(screenAlignment.Singleton.getScreenCenter(),GlobalCtrl.Singleton.currentCamera.transform.position);
+            start_pos = screenAlignment.Singleton.getScreenCenter() + screenAlignment.Singleton.getScreenSizeWS().x * right - dist * forward;
+            //var dist = (objects[0].Item2.transform.position - GlobalCtrl.Singleton.currentCamera.transform.position).magnitude;
+            //start_pos = (GlobalCtrl.Singleton.currentCamera.transform.position - Mathf.Sign(rotation) * 1.5f * spacing * right) + dist * forward + 1.5f * spacing * up - 1.5f * spacing * right;
 
+            // resetting parameters for grid generation
+            forward = right;
+            right = Quaternion.Euler(0f, rotation, 0f) * forward;
+            spacing = 1.1f * longest_edge_list.Average();
         }
 
         for (int i = 0; i < 4; i++)
@@ -165,6 +175,13 @@ public class StudyTaskManager : MonoBehaviour
                 var instance = GenericObject.create(path);
                 instance.setIntractable(false);
                 instance.setOpacity(0.5f);
+                var col = instance.GetComponent<BoxCollider>();
+                if (col != null) col.enabled = false;
+                foreach (Transform inst in instance.transform)
+                {
+                    col = inst.GetComponent<BoxCollider>();
+                    if (col != null) col.enabled = false;
+                }
                 ghostObject = instance.transform;
             }
             else
@@ -172,6 +189,13 @@ public class StudyTaskManager : MonoBehaviour
                 var instance_list = GlobalCtrl.Singleton.LoadMolecule(path, true);
                 instance_list[0].setIntractable(false);
                 instance_list[0].setOpacity(0.5f);
+                var col = instance_list[0].GetComponent<BoxCollider>();
+                if (col != null) col.enabled = false;
+                foreach (Transform inst in instance_list[0].transform)
+                {
+                    col = inst.GetComponent<BoxCollider>();
+                    if (col != null) col.enabled = false;
+                }
                 ghostObject = instance_list[0].transform;
             }
         }
@@ -463,6 +487,7 @@ public class StudyTaskManager : MonoBehaviour
 
                 var task = currentTaskSet[currentTaskID];
                 StudyTask.activateTaskSettings(task);
+                descriptionInstance.SetActive(true);
                 if (task.objectSpawn == StudyTask.objectSpawnEnvironment.DESKTOP)
                 {
                     generateObjects();
@@ -562,7 +587,7 @@ public class StudyTaskManager : MonoBehaviour
     public void activateTask(StudyTask task)
     {
         var split = task.description.Split("\n");
-        var interaction = split.First(text => text.Contains("interactionType"));
+        var interaction = split.First(text => text.Contains("interactionType")) + "\n" + split.First(text => text.Contains("withAnimation"));
         showDescriptionText(interaction);
     }
 

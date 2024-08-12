@@ -404,6 +404,7 @@ public class TransitionManager : MonoBehaviour
     private void getTransitionClient(Transform trans, InteractionType triggered_by, float initial_scale)
     {
         StartCoroutine(startCooldown());
+        Debug.Log($"[TransitionManager:getTransitionClient] trigger: {triggered_by}; immersive traget: {SettingsData.immersiveTarget}");
         if (triggered_by == InteractionType.CLOSE_GRAB)
         {
             StartCoroutine(attachToGrip(trans));
@@ -425,7 +426,6 @@ public class TransitionManager : MonoBehaviour
                 {
                     trans.position = GlobalCtrl.Singleton.getCurrentSpawnPos();
                 }
-
             }
             else if (SettingsData.immersiveTarget == ImmersiveTarget.CAMERA)
             {

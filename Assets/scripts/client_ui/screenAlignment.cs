@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.VFX;
 
 
-public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
+public class screenAlignment : MonoBehaviour
 {
 
     private static screenAlignment _singleton;
@@ -359,6 +359,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
     Dictionary<Transform, GameObject> progressBarInstances = new Dictionary<Transform, GameObject>();
     // Dictionary<Transform, GameObject> transitionPointIndicator = new Dictionary<Transform, GameObject>();
     Dictionary<Transform, Vector3> localTransitionPoint = new Dictionary<Transform, Vector3>();
+    bool handCloseToScreen = false;
     private void FixedUpdate()
     {
         if (fullyInitialized)
@@ -366,6 +367,15 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
             Vector3? proj;
             if (getDistanceFromScreen(HandTracking.Singleton.getIndexTip()) < (0.25f * getScreenSizeWS().y))
             {
+                if (!handCloseToScreen)
+                {
+                    handCloseToScreen = true;
+                    if (HandTracking.Singleton != null)
+                    {
+                        HandTracking.Singleton.OnIndexFingerGrab += OnCloseGrab;
+                        HandTracking.Singleton.OnIndexFingerGrabRelease += OnCloseGrabRelease;
+                    }
+                }
                 proj = projectIndexTipOnScreen();
                 arcInstance.transform.position = proj.Value;
                 var diff_vec = proj.Value - HandTracking.Singleton.getIndexTip();
@@ -385,6 +395,15 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
             }
             else
             {
+                if (handCloseToScreen)
+                {
+                    handCloseToScreen = false;
+                    if (HandTracking.Singleton != null)
+                    {
+                        HandTracking.Singleton.OnIndexFingerGrab -= OnCloseGrab;
+                        HandTracking.Singleton.OnIndexFingerGrabRelease -= OnCloseGrabRelease;
+                    }
+                }
                 //GetComponent<AudioSource>().Stop();
                 proj = projectIndexKnuckleOnScreen();
                 arcInstance.gameObject.SetActive(false);
@@ -658,7 +677,15 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
                 int index = view_dist_list.IndexOf(minVal);
 
                 //progressBarInstances[trans].transform.position = box.cornerHandles[index].transform.position - 0.01f * cam.transform.right;
-                progressBarInstances[trans].transform.position = HandTracking.Singleton.getWristPose().position - 0.05f * cam.transform.right - 0.05f * cam.transform.forward;
+                if (SettingsData.handedness == Microsoft.MixedReality.Toolkit.Utilities.Handedness.Left)
+                {
+                    progressBarInstances[trans].transform.position = HandTracking.Singleton.getWristPose().position + 0.05f * cam.transform.right + 0.05f * cam.transform.forward;
+                }
+                else
+                {
+                    progressBarInstances[trans].transform.position = HandTracking.Singleton.getWristPose().position - 0.05f * cam.transform.right + 0.05f * cam.transform.forward;
+                }
+                    
                 progressBarInstances[trans].transform.forward = cam.transform.forward;
                 var current_progress = 1f - current_distance / initial_distance_of_intersecting_objects[trans];
                 //progressBarInstances[trans].GetComponent<VerticalProgressBar>().setProgress(current_progress);
@@ -816,15 +843,11 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
-    public void OnPointerClicked(MixedRealityPointerEventData eventData)
+    public void OnCloseGrab(Vector3 ifpos)
     {
         // Intentionally empty
-    }
-
-    public void OnPointerDown(MixedRealityPointerEventData eventData)
-    {
-        // Intentionally empty
-        var proj = projectIndexKnuckleOnScreen();
+        //var proj = projectIndexKnuckleOnScreen();
+        var proj = projectIndexTipOnScreen();
         var viewport_coords = getScreenSpaceCoords(proj.Value);
         if (EventManager.Singleton)
         {
@@ -832,12 +855,7 @@ public class screenAlignment : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
-    public void OnPointerDragged(MixedRealityPointerEventData eventData)
-    {
-        // Intentionally empty
-    }
-
-    public void OnPointerUp(MixedRealityPointerEventData eventData)
+    public void OnCloseGrabRelease()
     {
         if (EventManager.Singleton)
         {

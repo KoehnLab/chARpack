@@ -87,7 +87,7 @@ public class StudyTask
             conditions.Shuffle();
             foreach (var condition in conditions)
             {
-                tasks.Add(interaction);
+                tasks.Add(new StudyTask(interaction));
                 tasks.Last().withAnimation = condition.Item1;
                 tasks.Last().objectSpawn = condition.Item2;
             }

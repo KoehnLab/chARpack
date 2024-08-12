@@ -592,17 +592,17 @@ public class NetworkManagerServer : MonoBehaviour
 
         var cml = mol.AsCML();
         cml.assignRelativeQuaternion(q);
+
+        var cam = GlobalCtrl.Singleton.currentCamera;
+        if (cam == null)
+        {
+            cam = Camera.main;
+        }
+        var ss_coords = cam.WorldToScreenPoint(mol.transform.position);
+        Debug.Log($"[TransitionCoords] {ss_coords}");
+        cml.assignSSPos(ss_coords);
         if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT)
         {
-            var cam = GlobalCtrl.Singleton.currentCamera;
-            if (cam == null)
-            {
-                cam = Camera.main;
-            }
-            var ss_coords = cam.WorldToScreenPoint(mol.transform.position);
-            Debug.Log($"[TransitionCoords] {ss_coords}");
-            cml.assignSSPos(ss_coords);
-
             var ss_bounds = mol.GetComponent<myBoundingBox>().getScreenSpaceBounds();
             cml.assignSSBounds(ss_bounds);
             Debug.Log($"[Transition] ss bounds: {ss_bounds}");
@@ -622,17 +622,17 @@ public class NetworkManagerServer : MonoBehaviour
 
         var sgo = go.AsSerializable();
         sgo.assignRelativeQuaternion(q);
+        var cam = GlobalCtrl.Singleton.currentCamera;
+        if (cam == null)
+        {
+            cam = Camera.main;
+        }
+        var ss_coords = cam.WorldToScreenPoint(go.transform.position);
+        Debug.Log($"[TransitionCoords] {ss_coords}");
+        sgo.assignSSPos(ss_coords);
+
         if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT)
         {
-            var cam = GlobalCtrl.Singleton.currentCamera;
-            if (cam == null)
-            {
-                cam = Camera.main;
-            }
-            var ss_coords = cam.WorldToScreenPoint(go.transform.position);
-            Debug.Log($"[TransitionCoords] {ss_coords}");
-            sgo.assignSSPos(ss_coords);
-
             var ss_bounds = go.GetComponent<myBoundingBox>().getScreenSpaceBounds();
             sgo.assignSSBounds(ss_bounds);
             Debug.Log($"[Transition] ss bounds: {ss_bounds}");
