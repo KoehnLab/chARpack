@@ -38,7 +38,6 @@ public class screenAlignment : MonoBehaviour
     public GameObject indicator2;
     public GameObject indicator3;
     public GameObject indicator4;
-    private BoxCollider collider;
 
     private void Awake()
     {
@@ -177,12 +176,13 @@ public class screenAlignment : MonoBehaviour
         }
     }
 
-
+    Bounds bounds;
     void OnInitializationComplete()
     {
         fullyInitialized = true;
-        // set correct collider
-        Bounds bounds = indicator1.GetComponent<BoxCollider>().bounds;
+
+        //// set correct collider
+        bounds = indicator1.GetComponent<BoxCollider>().bounds;
 
         var indicator_list = new GameObject[4] { indicator1, indicator2, indicator3, indicator4 };
         foreach (var ind in indicator_list)
@@ -194,9 +194,9 @@ public class screenAlignment : MonoBehaviour
             }
         }
 
-        collider = GetComponent<BoxCollider>();
-        collider.center = bounds.center;
-        collider.size = bounds.size;
+        //collider = GetComponent<BoxCollider>();
+        //collider.center = bounds.center;
+        //collider.size = bounds.size;
 
         // listen to distant grabs
         HandTracking.Singleton.OnMiddleFingerGrab.SetDefaultListener(OnDistantGrab);
@@ -417,7 +417,7 @@ public class screenAlignment : MonoBehaviour
             //    DestroyImmediate(projectionIndicator.GetComponent<BoxCollider>());
             //    projectionIndicator.GetComponent<Renderer>().material.color = new Color(0f, 1f, 0f, 1f);
             //}
-            if (GetComponent<BoxCollider>().bounds.Contains(proj.Value))
+            if (bounds.Contains(proj.Value))
             {
                 //projectionIndicator.SetActive(true);
                 //projectionIndicator.transform.position = proj.Value;
@@ -447,7 +447,7 @@ public class screenAlignment : MonoBehaviour
                 {
                     foreach (var obj in GenericObject.objects.Values)
                     {
-                        if (collider.bounds.Intersects(obj.GetComponent<myBoundingBox>().localBounds) && obj.isGrabbed)
+                        if (bounds.Intersects(obj.GetComponent<myBoundingBox>().localBounds) && obj.isGrabbed)
                         {
                             intersecting_objects.Add(obj.transform);
                             if (!initial_scale_of_intersecting_objects.Keys.Contains(obj.transform))
@@ -492,7 +492,7 @@ public class screenAlignment : MonoBehaviour
                 {
                     foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
                     {
-                        if (collider.bounds.Intersects(mol.GetComponent<myBoundingBox>().localBounds) && mol.isGrabbed)
+                        if (bounds.Intersects(mol.GetComponent<myBoundingBox>().localBounds) && mol.isGrabbed)
                         {
                             intersecting_objects.Add(mol.transform);
                             if (!initial_scale_of_intersecting_objects.Keys.Contains(mol.transform))
@@ -817,7 +817,11 @@ public class screenAlignment : MonoBehaviour
 
     public bool contains(Vector3 pos)
     {
-        return GetComponent<BoxCollider>().bounds.Contains(pos);
+        if (fullyInitialized)
+        {
+            return bounds.Contains(pos);
+        }
+        return false;
     }
 
 
