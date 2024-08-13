@@ -44,7 +44,8 @@ public class TransitionManager : MonoBehaviour
     {
         BUTTON_PRESS = 0,
         CLOSE_GRAB = 1,
-        DISTANT_GRAB = 2
+        DISTANT_GRAB = 2,
+        ALL = 3
     }
 
     private static TransitionManager _singleton;

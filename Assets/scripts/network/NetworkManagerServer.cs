@@ -490,6 +490,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddFloat(SettingsData.transitionAnimationDuration);
         message.AddInt((int)SettingsData.desktopTarget);
         message.AddInt(SettingsData.randomSeed);
+        message.AddInt((int)SettingsData.allowedTransitionInteractions);
         Server.SendToAll(message);
     }
 

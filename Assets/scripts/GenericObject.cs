@@ -263,7 +263,10 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
     {
         if (SettingsData.syncMode == TransitionManager.SyncMode.Async)
         {
-            TransitionManager.Singleton.initializeTransitionClient(transform, TransitionManager.InteractionType.DISTANT_GRAB);
+            if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.DISTANT_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
+            {
+                TransitionManager.Singleton.initializeTransitionClient(transform, TransitionManager.InteractionType.DISTANT_GRAB);
+            }
         }
     }
 

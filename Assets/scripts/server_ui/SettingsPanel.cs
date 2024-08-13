@@ -51,6 +51,7 @@ public class SettingsPanel : MonoBehaviour
     public GameObject transitionAnimationDurationSlider;
     public GameObject desktopTargetDropdown;
     public GameObject randomSeedInputField;
+    public GameObject allowedInteractionsDropdown;
 
     // save load buttons
     public GameObject saveSettingsButton;
@@ -173,6 +174,7 @@ public class SettingsPanel : MonoBehaviour
 
         useAsyncModeToggle.GetComponent<Toggle>().isOn = SettingsData.syncMode == TransitionManager.SyncMode.Async;
         transitionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().value = (int)SettingsData.transitionMode;
+        allowedInteractionsDropdown.GetComponent<TMPro.TMP_Dropdown>().value = (int)SettingsData.allowedTransitionInteractions;
         immersiveTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value = (int)SettingsData.immersiveTarget;
         desktopTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value = (int)SettingsData.desktopTarget;
         requireGrabHoldToggle.GetComponent<Toggle>().isOn = SettingsData.requireGrabHold;
@@ -238,6 +240,7 @@ public class SettingsPanel : MonoBehaviour
 
         SettingsData.syncMode = useAsyncModeToggle.GetComponent<Toggle>().isOn ? TransitionManager.SyncMode.Async : TransitionManager.SyncMode.Sync;
         SettingsData.transitionMode = (TransitionManager.TransitionMode)transitionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
+        SettingsData.allowedTransitionInteractions = (TransitionManager.InteractionType)allowedInteractionsDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
         SettingsData.immersiveTarget = (TransitionManager.ImmersiveTarget)immersiveTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
         SettingsData.desktopTarget = (TransitionManager.DesktopTarget)desktopTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
         SettingsData.requireGrabHold = requireGrabHoldToggle.GetComponent<Toggle>().isOn;

@@ -377,20 +377,23 @@ public class screenAlignment : MonoBehaviour
                     }
                 }
                 proj = projectIndexTipOnScreen();
-                arcInstance.transform.position = proj.Value;
-                var diff_vec = proj.Value - HandTracking.Singleton.getIndexTip();
 
-                if (Vector3.Dot(screenNormal, diff_vec) < 0)
+                if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.CLOSE_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
                 {
-                    arcInstance.gameObject.SetActive(true);
-                    arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos1", HandTracking.Singleton.getIndexTip());
-                    arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos2", HandTracking.Singleton.getIndexTip() + 0.25f * diff_vec);
-                    arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos3", HandTracking.Singleton.getIndexTip() + 0.75f * diff_vec);
-                    arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos4", proj.Value);
-                }
-                else
-                {
-                    arcInstance.gameObject.SetActive(false);
+                    arcInstance.transform.position = proj.Value;
+                    var diff_vec = proj.Value - HandTracking.Singleton.getIndexTip();
+                    if (Vector3.Dot(screenNormal, diff_vec) < 0)
+                    {
+                        arcInstance.gameObject.SetActive(true);
+                        arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos1", HandTracking.Singleton.getIndexTip());
+                        arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos2", HandTracking.Singleton.getIndexTip() + 0.25f * diff_vec);
+                        arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos3", HandTracking.Singleton.getIndexTip() + 0.75f * diff_vec);
+                        arcInstance.GetComponentInChildren<VisualEffect>().SetVector3("Pos4", proj.Value);
+                    }
+                    else
+                    {
+                        arcInstance.gameObject.SetActive(false);
+                    }
                 }
             }
             else
@@ -650,81 +653,74 @@ public class screenAlignment : MonoBehaviour
 
     private bool transition(Transform trans)
     {
-        var box = trans.GetComponent<myBoundingBox>();
-        var tip = HandTracking.Singleton.getIndexTip();
-        var transition_point = trans.transform.TransformPoint(localTransitionPoint[trans]);
-
-        // render progress bar
-        if (GlobalCtrl.Singleton != null)
+        if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.CLOSE_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
         {
-            var current_distance = Vector3.Distance(transition_point, projectWSPointToScreen(transition_point));
-            if (current_distance > initial_distance_of_intersecting_objects[trans])
+            var box = trans.GetComponent<myBoundingBox>();
+            var tip = HandTracking.Singleton.getIndexTip();
+            var transition_point = trans.transform.TransformPoint(localTransitionPoint[trans]);
+
+            // render progress bar
+            if (GlobalCtrl.Singleton != null)
             {
-                progressBarInstances[trans].SetActive(false);
-            }
-            else
-            {
-                progressBarInstances[trans].SetActive(true);
-
-                var cam = GlobalCtrl.Singleton.currentCamera;
-
-                List<float> view_dist_list = new List<float>();
-                foreach (var corner in box.cornerHandles)
+                var current_distance = Vector3.Distance(transition_point, projectWSPointToScreen(transition_point));
+                if (current_distance > initial_distance_of_intersecting_objects[trans])
                 {
-                    view_dist_list.Add(Vector3.Distance(corner.transform.position, cam.transform.position));
-                }
-                float minVal = view_dist_list.Min();
-                int index = view_dist_list.IndexOf(minVal);
-
-                //progressBarInstances[trans].transform.position = box.cornerHandles[index].transform.position - 0.01f * cam.transform.right;
-                if (SettingsData.handedness == Microsoft.MixedReality.Toolkit.Utilities.Handedness.Left)
-                {
-                    progressBarInstances[trans].transform.position = HandTracking.Singleton.getWristPose().position + 0.05f * cam.transform.right + 0.05f * cam.transform.forward;
+                    progressBarInstances[trans].SetActive(false);
                 }
                 else
                 {
-                    progressBarInstances[trans].transform.position = HandTracking.Singleton.getWristPose().position - 0.05f * cam.transform.right + 0.05f * cam.transform.forward;
+                    progressBarInstances[trans].SetActive(true);
+
+                    var cam = GlobalCtrl.Singleton.currentCamera;
+
+                    List<float> view_dist_list = new List<float>();
+                    foreach (var corner in box.cornerHandles)
+                    {
+                        view_dist_list.Add(Vector3.Distance(corner.transform.position, cam.transform.position));
+                    }
+                    float minVal = view_dist_list.Min();
+                    int index = view_dist_list.IndexOf(minVal);
+
+                    //progressBarInstances[trans].transform.position = box.cornerHandles[index].transform.position - 0.01f * cam.transform.right;
+                    if (SettingsData.handedness == Microsoft.MixedReality.Toolkit.Utilities.Handedness.Left)
+                    {
+                        progressBarInstances[trans].transform.position = HandTracking.Singleton.getWristPose().position + 0.05f * cam.transform.right + 0.05f * cam.transform.forward;
+                    }
+                    else
+                    {
+                        progressBarInstances[trans].transform.position = HandTracking.Singleton.getWristPose().position - 0.05f * cam.transform.right + 0.05f * cam.transform.forward;
+                    }
+
+                    progressBarInstances[trans].transform.forward = cam.transform.forward;
+                    var current_progress = 1f - current_distance / initial_distance_of_intersecting_objects[trans];
+                    //progressBarInstances[trans].GetComponent<VerticalProgressBar>().setProgress(current_progress);
+                    progressBarInstances[trans].GetComponent<RadialProgressBar>().setProgress(current_progress);
+
+                    trans.GetComponent<AudioSource>().volume = Mathf.Clamp01(current_progress) * 0.75f;
+                    //transitionPointIndicator[trans].transform.position = transition_point;
+
                 }
-                    
-                progressBarInstances[trans].transform.forward = cam.transform.forward;
-                var current_progress = 1f - current_distance / initial_distance_of_intersecting_objects[trans];
-                //progressBarInstances[trans].GetComponent<VerticalProgressBar>().setProgress(current_progress);
-                progressBarInstances[trans].GetComponent<RadialProgressBar>().setProgress(current_progress);
+            }
 
-                trans.GetComponent<AudioSource>().volume = Mathf.Clamp01(current_progress) * 0.75f;
-                //transitionPointIndicator[trans].transform.position = transition_point;
 
+            if (Vector3.Dot(screenNormal, transition_point - projectWSPointToScreen(transition_point)) < 0f)
+            {
+                // directly remove stuff
+                trans.GetComponent<AudioSource>().Stop();
+                old_intersecting_objects.Remove(trans);
+                initial_scale_of_intersecting_objects.Remove(trans);
+                initial_distance_of_intersecting_objects.Remove(trans);
+                Destroy(progressBarInstances[trans]);
+                progressBarInstances.Remove(trans);
+                //Destroy(transitionPointIndicator[obj]);
+                //transitionPointIndicator.Remove(obj);
+                localTransitionPoint.Remove(trans);
+
+                // do the transition
+                TransitionManager.Singleton.initializeTransitionClient(trans, TransitionManager.InteractionType.CLOSE_GRAB);
+                return true;
             }
         }
-
-        if (Vector3.Dot(screenNormal, transition_point - projectWSPointToScreen(transition_point)) < 0f)
-        {
-            // directly remove stuff
-            trans.GetComponent<AudioSource>().Stop();
-            old_intersecting_objects.Remove(trans);
-            initial_scale_of_intersecting_objects.Remove(trans);
-            initial_distance_of_intersecting_objects.Remove(trans);
-            Destroy(progressBarInstances[trans]);
-            progressBarInstances.Remove(trans);
-            //Destroy(transitionPointIndicator[obj]);
-            //transitionPointIndicator.Remove(obj);
-            localTransitionPoint.Remove(trans);
-
-            // do the transition
-            TransitionManager.Singleton.initializeTransitionClient(trans, TransitionManager.InteractionType.CLOSE_GRAB);
-            return true;
-        }
-
-        // old implementation but reliable
-        //if (Vector3.Dot(screenNormal, obj_bounds.center - screenCenter) < 0f)
-        //{
-        //    if (old_intersecting_objects.Contains(trans))
-        //    {
-        //        to_remove_intersecting_objects.Add(trans);
-        //    }
-        //    TransitionManager.Singleton.initializeTransitionClient(trans, TransitionManager.InteractionType.CLOSE_GRAB);
-        //    return true;
-        //}
         return false;
     }
 
@@ -827,39 +823,51 @@ public class screenAlignment : MonoBehaviour
 
     public void OnDistantGrab()
     {
-        var proj = projectIndexKnuckleOnScreen();
-        var viewport_coords = getScreenSpaceCoords(proj.Value);
-        if (EventManager.Singleton)
+        if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.DISTANT_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
         {
-            EventManager.Singleton.GrabOnScreen(viewport_coords.Value, true);
+            var proj = projectIndexKnuckleOnScreen();
+            var viewport_coords = getScreenSpaceCoords(proj.Value);
+            if (EventManager.Singleton)
+            {
+                EventManager.Singleton.GrabOnScreen(viewport_coords.Value, true);
+            }
         }
     }
 
     public void OnDistantGrabRelease()
     {
-        if (EventManager.Singleton)
+        if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.DISTANT_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
         {
-            EventManager.Singleton.ReleaseGrabOnScreen();
+            if (EventManager.Singleton)
+            {
+                EventManager.Singleton.ReleaseGrabOnScreen();
+            }
         }
     }
 
     public void OnCloseGrab(Vector3 ifpos)
     {
-        // Intentionally empty
-        //var proj = projectIndexKnuckleOnScreen();
-        var proj = projectIndexTipOnScreen();
-        var viewport_coords = getScreenSpaceCoords(proj.Value);
-        if (EventManager.Singleton)
+        if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.CLOSE_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
         {
-            EventManager.Singleton.GrabOnScreen(viewport_coords.Value, false);
+            // Intentionally empty
+            //var proj = projectIndexKnuckleOnScreen();
+            var proj = projectIndexTipOnScreen();
+            var viewport_coords = getScreenSpaceCoords(proj.Value);
+            if (EventManager.Singleton)
+            {
+                EventManager.Singleton.GrabOnScreen(viewport_coords.Value, false);
+            }
         }
     }
 
     public void OnCloseGrabRelease()
     {
-        if (EventManager.Singleton)
+        if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.CLOSE_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
         {
-            EventManager.Singleton.ReleaseGrabOnScreen();
+            if (EventManager.Singleton)
+            {
+                EventManager.Singleton.ReleaseGrabOnScreen();
+            }
         }
     }
 

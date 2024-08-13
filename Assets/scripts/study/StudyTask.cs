@@ -160,6 +160,14 @@ public class StudyTask
     {
         if (task != null)
         {
+            if (task.interactionType != null)
+            {
+                SettingsData.allowedTransitionInteractions = task.interactionType.Value;
+            }
+            else
+            {
+                SettingsData.allowedTransitionInteractions = TransitionManager.InteractionType.ALL;
+            }
             if (task.withAnimation != null)
             {
                 if (task.withAnimation.Value)

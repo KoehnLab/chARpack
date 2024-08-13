@@ -79,25 +79,28 @@ public class ServerInputSystem : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                var obj = GlobalCtrl.Singleton.getFirstMarkedObject();
-                if (obj != null)
+                if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.BUTTON_PRESS || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
                 {
-                    var mol = obj.GetComponent<Molecule>();
-                    if (mol != null)
+                    var obj = GlobalCtrl.Singleton.getFirstMarkedObject();
+                    if (obj != null)
                     {
-                        TransitionManager.Singleton.initializeTransitionServer(mol, TransitionManager.InteractionType.BUTTON_PRESS);
+                        var mol = obj.GetComponent<Molecule>();
+                        if (mol != null)
+                        {
+                            TransitionManager.Singleton.initializeTransitionServer(mol, TransitionManager.InteractionType.BUTTON_PRESS);
+                        }
+                        var go = obj.GetComponent<GenericObject>();
+                        if (go != null)
+                        {
+                            TransitionManager.Singleton.initializeTransitionServer(go, TransitionManager.InteractionType.BUTTON_PRESS);
+                        }
                     }
-                    var go = obj.GetComponent<GenericObject>();
-                    if (go != null)
+                    else
                     {
-                        TransitionManager.Singleton.initializeTransitionServer(go, TransitionManager.InteractionType.BUTTON_PRESS);
+                        // Nothing is marked in the server scene
+                        // send transition request to client
+                        EventManager.Singleton.RequestTransition(TransitionManager.InteractionType.BUTTON_PRESS);
                     }
-                }
-                else
-                {
-                    // Nothing is marked in the server scene
-                    // send transition request to client
-                    EventManager.Singleton.RequestTransition(TransitionManager.InteractionType.BUTTON_PRESS);
                 }
             }
             if (Input.GetKeyDown(KeyCode.Delete))

@@ -47,6 +47,7 @@ public class SettingsData
     [JsonProperty] public static float transitionAnimationDuration = 1.5f;
     [JsonProperty] public static TransitionManager.DesktopTarget desktopTarget = TransitionManager.DesktopTarget.CENTER_OF_SCREEN;
     [JsonProperty] public static int randomSeed = 666;
+    [JsonProperty] public static TransitionManager.InteractionType allowedTransitionInteractions = TransitionManager.InteractionType.ALL;
 
 
     public static int highlightColorMap { get => _highlightColorMap; set

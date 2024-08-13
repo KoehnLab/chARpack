@@ -1183,6 +1183,7 @@ public class NetworkManagerClient : MonoBehaviour
         var transitionAnimationDuration = message.GetFloat();
         var desktopTarget = (TransitionManager.DesktopTarget)message.GetInt();
         var randomSeed = message.GetInt();
+        var allowedInteractions = (TransitionManager.InteractionType)message.GetInt();
 
         // Get enum entries from strings
         Enum.TryParse(integrationMethodString, ignoreCase: true, out ForceField.Method integrationMethod);
@@ -1221,6 +1222,7 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.transitionAnimationDuration = transitionAnimationDuration;
             SettingsData.desktopTarget = desktopTarget;
             SettingsData.randomSeed = randomSeed;
+            SettingsData.allowedTransitionInteractions = allowedInteractions;
             settingsControl.Singleton.updateSettings();
             if (appSettings.Singleton != null)
             {

@@ -186,58 +186,60 @@ public class HandTracking : MonoBehaviour
         }
 
 
-
-        // check if middle in bounds
-        List<Bounds> boundsInScene = new List<Bounds>();
-        if (GenericObject.objects != null)
+        if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.DISTANT_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
         {
-            foreach (var obj in GenericObject.objects.Values)
+            // check if middle in bounds
+            List<Bounds> boundsInScene = new List<Bounds>();
+            if (GenericObject.objects != null)
             {
-                if (obj.getIsInteractable())
+                foreach (var obj in GenericObject.objects.Values)
                 {
-                    boundsInScene.Add(obj.GetComponent<myBoundingBox>().localBounds);
+                    if (obj.getIsInteractable())
+                    {
+                        boundsInScene.Add(obj.GetComponent<myBoundingBox>().localBounds);
+                    }
                 }
             }
-        }
-        if (GlobalCtrl.Singleton != null)
-        {
-            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
+            if (GlobalCtrl.Singleton != null)
             {
-                if (mol.getIsInteractable())
+                foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
                 {
-                    boundsInScene.Add(mol.GetComponent<myBoundingBox>().localBounds);
+                    if (mol.getIsInteractable())
+                    {
+                        boundsInScene.Add(mol.GetComponent<myBoundingBox>().localBounds);
+                    }
                 }
             }
-        }
-        bool contained_in_any = false;
-        foreach (var bound in boundsInScene)
-        {
-            if (bound.Contains(middleTipPose.Position))
+            bool contained_in_any = false;
+            foreach (var bound in boundsInScene)
             {
-                contained_in_any = true;
-                break;
+                if (bound.Contains(middleTipPose.Position))
+                {
+                    contained_in_any = true;
+                    break;
+                }
             }
-        }
-        if (contained_in_any && !isMiddleInBox)
-        {
-            isMiddleInBox = true;
-            particleSystemGO.SetActive(true);
-            particleSystemGO.GetComponent<ParticleSystem>().Play();
-            //AudioSource loopSound = GetComponent<AudioSource>();
-            //loopSound.clip = middleInBoxClip;
-            //loopSound.loop = true;
-            //loopSound.Play();
-        }
-        if (!contained_in_any && isMiddleInBox)
-        {
-            isMiddleInBox = false;
-            particleSystemGO.GetComponent<ParticleSystem>().Stop();
-            particleSystemGO.SetActive(false);
-            //GetComponent<AudioSource>().Stop();
-        }
-        if (isMiddleInBox)
-        {
-            particleSystemGO.transform.position = middleTipPose.Position;
+            if (contained_in_any && !isMiddleInBox)
+            {
+                isMiddleInBox = true;
+                particleSystemGO.SetActive(true);
+                particleSystemGO.GetComponent<ParticleSystem>().Play();
+                //AudioSource loopSound = GetComponent<AudioSource>();
+                //loopSound.clip = middleInBoxClip;
+                //loopSound.loop = true;
+                //loopSound.Play();
+            }
+            if (!contained_in_any && isMiddleInBox)
+            {
+                isMiddleInBox = false;
+                particleSystemGO.GetComponent<ParticleSystem>().Stop();
+                particleSystemGO.SetActive(false);
+                //GetComponent<AudioSource>().Stop();
+            }
+            if (isMiddleInBox)
+            {
+                particleSystemGO.transform.position = middleTipPose.Position;
+            }
         }
     }
 
