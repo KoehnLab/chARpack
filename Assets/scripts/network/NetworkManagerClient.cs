@@ -1521,7 +1521,7 @@ public class NetworkManagerClient : MonoBehaviour
         if (StudyTaskManager.Singleton != null)
         {
             var angle = StudyTaskManager.Singleton.getErrorAngle();
-            var dist = StudyTaskManager.Singleton.getErrorAngle();
+            var dist = StudyTaskManager.Singleton.getErrorDist();
             var scale = StudyTaskManager.Singleton.getErrorScale();
 
             Singleton.sendResults(task_id, angle, dist, scale);
