@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Net;
 using System.Collections;
+using System.Collections.Generic;
 
 /// <summary>
 /// This class provides the functionality of a scrollable list of available servers.
@@ -59,30 +60,29 @@ public class ServerList : myScrollObject
 
     private void addDefaultServers()
     {
+        var manualServers = new List<FindServer.ServerData>();
         var myServer1 = new FindServer.ServerData();
         myServer1.ip = IPAddress.Parse("129.69.205.43");
         myServer1.port = LoginData.port;
+        manualServers.Add(myServer1);
 
-        //var myServer2 = new FindServer.ServerData();
-        //myServer2.ip = IPAddress.Parse("192.168.178.33");
-        //myServer2.port = LoginData.port;
+        var myServer2 = new FindServer.ServerData();
+        myServer2.ip = IPAddress.Parse("192.168.188.22");
+        myServer2.port = LoginData.port;
+        manualServers.Add(myServer2);
 
         //var myServer3 = new FindServer.ServerData();
         //myServer3.ip = IPAddress.Parse("192.168.166.55");
         //myServer3.port = LoginData.port;
+        //manualServers.Add(myServer3);
 
-        if (!FindServer.manualServerList.Contains(myServer1))
+        foreach (var server in manualServers)
         {
-            FindServer.manualServerList.Add(myServer1);
+            if (!FindServer.manualServerList.Contains(server))
+            {
+                FindServer.manualServerList.Add(server);
+            }
         }
-        //if (!FindServer.manualServerList.Contains(myServer2))
-        //{
-        //    FindServer.manualServerList.Add(myServer2);
-        //}
-        //if (!FindServer.manualServerList.Contains(myServer3))
-        //{
-        //    FindServer.manualServerList.Add(myServer3);
-        //}
     }
 
     public void refresh()
