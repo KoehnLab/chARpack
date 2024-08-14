@@ -283,26 +283,27 @@ public class StudyTaskManager : MonoBehaviour
         }
         UnityEngine.Debug.Log($"[TaskManager] Number of detected objects {object_paths.Count}");
 
-        if (NetworkManagerServer.Singleton != null)
-        {
-            // Check for available settings 
-            if (settings_paths == null)
-            {
-                settings_paths = new List<string>();
-            }
-            settings_paths.Clear();
-            //The Resources folder path
-            string resourcsPath = Application.streamingAssetsPath + "/StudySettings";
+        // settings preparation
+        //if (NetworkManagerServer.Singleton != null)
+        //{
+        //    // Check for available settings 
+        //    if (settings_paths == null)
+        //    {
+        //        settings_paths = new List<string>();
+        //    }
+        //    settings_paths.Clear();
+        //    //The Resources folder path
+        //    string resourcsPath = Application.streamingAssetsPath + "/StudySettings";
 
-            //Get file names except the ".meta" extension
-            string[] fileNames = Directory.GetFiles(resourcsPath, "*.*", SearchOption.AllDirectories)
-                .Where(x => Path.GetExtension(x) != ".meta").ToArray();
+        //    //Get file names except the ".meta" extension
+        //    string[] fileNames = Directory.GetFiles(resourcsPath, "*.*", SearchOption.AllDirectories)
+        //        .Where(x => Path.GetExtension(x) != ".meta").ToArray();
 
-            foreach (var path in fileNames)
-            {
-                settings_paths.Add(path.Replace("\\", "/"));
-            }
-        }
+        //    foreach (var path in fileNames)
+        //    {
+        //        settings_paths.Add(path.Replace("\\", "/"));
+        //    }
+        //}
     }
 
     public void reportUnsuccessfullTransition(TransitionManager.InteractionType triggered_by)
