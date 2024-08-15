@@ -618,7 +618,7 @@ public class screenAlignment : MonoBehaviour
     {
         if (!old_intersecting_objects.Contains(trans))
         {
-            old_intersecting_objects.Add (trans);
+            old_intersecting_objects.Add(trans);
         }
         initial_scale_of_intersecting_objects[trans] = inital_scale;
     }

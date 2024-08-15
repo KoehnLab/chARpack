@@ -5,6 +5,7 @@ using System.Collections;
 using CommandUndoRedo;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
+using System.Diagnostics;
 
 namespace RuntimeGizmos
 {
@@ -147,7 +148,7 @@ namespace RuntimeGizmos
                 }
                 else if (_singleton != value)
                 {
-                    Debug.Log($"[{nameof(TransformGizmo)}] Instance already exists, destroying duplicate!");
+                    UnityEngine.Debug.Log($"[{nameof(TransformGizmo)}] Instance already exists, destroying duplicate!");
                     Destroy(value);
                 }
 
@@ -697,47 +698,10 @@ namespace RuntimeGizmos
 				{
 					Transform target = hitInfo.transform;
 
-                    var mol = target.GetComponentInParent<Molecule>();
-                    var go = target.GetComponentInParent<GenericObject>();
-                    if (mol != null)
-                    {
-                        if (mol.getIsInteractable())
-                        {
-							target = mol.transform;
-                        }
-						else
-						{
-							return;
-						}
-                    }
-					else if (go != null)
-                    {
-                        if (go.getIsInteractable())
-                        {
-							target = go.transform;
-                        }
-						else
-						{
-							return;
-						}
-                    }
-					else                     
-                    {
-						return;
-                    }
+					target = isMolOrGO(target);
+					if (target == null) return;
 
-                    if (isAdding)
-					{
-						AddTarget(target);
-					}
-					else if(isRemoving)
-					{
-						RemoveTarget(target);
-					}
-					else if(!isAdding && !isRemoving)
-					{
-						ClearAndAddTarget(target);
-					}
+					StartCoroutine(getTargetWaitForMouseUp(target, isAdding, isRemoving));
 				}
 				else
 				{
@@ -748,6 +712,63 @@ namespace RuntimeGizmos
 				}
 			}
 		}
+
+		Transform isMolOrGO(Transform target)
+		{
+            var mol = target.GetComponentInParent<Molecule>();
+            var go = target.GetComponentInParent<GenericObject>();
+            if (mol != null)
+            {
+                if (mol.getIsInteractable())
+                {
+                    return mol.transform;
+                }
+            }
+            else if (go != null)
+            {
+                if (go.getIsInteractable())
+                {
+                    return go.transform;
+                }
+            }
+            return null;
+        }
+
+		IEnumerator getTargetWaitForMouseUp(Transform target, bool isAdding, bool isRemoving)
+		{
+			Stopwatch timer = Stopwatch.StartNew();
+			while (!Input.GetMouseButtonUp(0))
+			{
+				yield return null;
+			}
+			timer.Stop();
+			if (timer.ElapsedMilliseconds > 200) yield break;
+
+            if (mouseIsOverUIElement()) yield break;
+
+            RaycastHit hitInfo;
+			if (Physics.Raycast(myCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, Mathf.Infinity, selectionMask))
+			{
+				var new_target = isMolOrGO(hitInfo.transform);
+
+
+                if (new_target != null && target == new_target)
+				{
+					if (isAdding)
+					{
+						AddTarget(target);
+					}
+					else if (isRemoving)
+					{
+						RemoveTarget(target);
+					}
+					else if (!isAdding && !isRemoving)
+					{
+						ClearAndAddTarget(target);
+					}
+				}
+			}
+        }
 
 		public void AddTarget(Transform target, bool addCommand = true)
 		{

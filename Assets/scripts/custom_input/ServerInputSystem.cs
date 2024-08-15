@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 // This script should be attached to the main camera of the server scene
@@ -19,30 +20,56 @@ public class ServerInputSystem : MonoBehaviour
         Cursor.SetCursor(cursor_texture, Vector3.zero, CursorMode.ForceSoftware);
     }
 
+    private Transform mouseIsOverUIElement()
+    {
+        //check if mouse position is over any active and visible UI object
+        foreach (MaskableGraphic uiElement in UICanvas.Singleton.GetComponentsInChildren<MaskableGraphic>())
+        {
+            if (uiElement.gameObject.activeInHierarchy && uiElement.enabled)
+            {
+                Vector2 tmpLocalPoint;
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(uiElement.rectTransform, Input.mousePosition, null, out tmpLocalPoint);
+                if (uiElement.rectTransform.rect.Contains(tmpLocalPoint))
+                {
+                    return uiElement.transform;
+                }
+            }
+        }
+        return null;
+    }
+
     private void getObjectClickedOn()
     {
+        var target = mouseIsOverUIElement();
+        if (target != null)
+        {
+            lastObjectClickedOn = target;
+            return;
+        }
         Ray ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit[] hits = Physics.RaycastAll(ray);
         for (int i = 0; i < hits.Length; i++)
         {
-            var mol = hits[i].transform.GetComponentInParent<Molecule>();
-            var go = hits[i].transform.GetComponentInParent<GenericObject>();
-            if (mol != null)
-            {
-                if (mol.getIsInteractable())
-                {
-                    lastObjectClickedOn = mol.transform;
-                    return;
-                }
-            }
-            if (go != null)
-            {
-                if (go.getIsInteractable())
-                {
-                    lastObjectClickedOn = go.transform;
-                    return;
-                }
-            }
+            lastObjectClickedOn = hits[i].transform;
+            return;
+            //var mol = hits[i].transform.GetComponentInParent<Molecule>();
+            //var go = hits[i].transform.GetComponentInParent<GenericObject>();
+            //if (mol != null)
+            //{
+            //    if (mol.getIsInteractable())
+            //    {
+            //        lastObjectClickedOn = mol.transform;
+            //        return;
+            //    }
+            //}
+            //if (go != null)
+            //{
+            //    if (go.getIsInteractable())
+            //    {
+            //        lastObjectClickedOn = go.transform;
+            //        return;
+            //    }
+            //}
         }
         lastObjectClickedOn = null;
     }

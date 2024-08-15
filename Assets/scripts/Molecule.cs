@@ -732,7 +732,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
         snapToolTip.GetComponent<ServerSnapTooltip>().snapButton.onClick.AddListener(delegate { snapUI(otherMolID); });
         snapToolTip.GetComponent<ServerSnapTooltip>().closeButton.onClick.AddListener(delegate { closeSnapUI(otherMolID); });
-        toolTipInstance.GetComponent<ServerMoleculeTooltip>().focus_id = focus_id;
+        if (toolTipInstance != null)
+        {
+            toolTipInstance.GetComponent<ServerMoleculeTooltip>().focus_id = focus_id;
+        }
 
         GlobalCtrl.Singleton.snapToolTipInstances[new Tuple<Guid, Guid>(m_id, otherMolID)] = snapToolTip;
     }
