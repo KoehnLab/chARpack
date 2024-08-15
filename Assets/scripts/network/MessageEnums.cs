@@ -102,7 +102,8 @@ public enum ServerToClientID : ushort
     sendSpawnGhostObject = 2045,
     sendObjectToTrack = 2046,
     sendSpawnObjectCollection = 2047,
-    requestResults = 2048
+    requestResults = 2048,
+    bcastScreenSizeChanged = 2049
 }
 
 public enum SimToServerID : ushort

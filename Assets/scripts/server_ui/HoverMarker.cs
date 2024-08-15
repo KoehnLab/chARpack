@@ -43,7 +43,7 @@ public class HoverMarker : MonoBehaviour
     public void setPosition(Vector2 pos)
     {
         var rect = transform as RectTransform;
-        rect.anchoredPosition = pos;
+        rect.position = pos;
     }
 
     public void setHover()

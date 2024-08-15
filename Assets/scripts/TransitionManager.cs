@@ -127,12 +127,13 @@ public class TransitionManager : MonoBehaviour
         //ray.origin = wpos;
         // using the forward vector of the camera is only properly working in the middle of the screen
         // better use:
-        var ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(new Vector3(ss_coords.x, ss_coords.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f));
 
+        var ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(ss_coords);
+        Debug.DrawRay(ray.origin, ray.direction, Color.green);
         RaycastHit hit;
         if (Physics.SphereCast(ray, 0.05f, out hit))
+        //if (Physics.Raycast(ray, out hit)) 
         {
-
             var mol = hit.collider.GetComponentInParent<Molecule>();
             var go = hit.collider.GetComponentInParent<GenericObject>();
             if (mol != null)
@@ -201,7 +202,7 @@ public class TransitionManager : MonoBehaviour
         StartCoroutine(startCooldown());
 
         grabHold = true;
-        var wpos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f)); // z component is target distance from camera
+        var wpos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.1f)); // z component is target distance from camera
 
         // debug blink
         //StartCoroutine(blinkOnScreen(ss_coords, wpos));
@@ -211,7 +212,8 @@ public class TransitionManager : MonoBehaviour
         //ray.origin = wpos;
         // using the forward vector of the camera is only properly working in the middle of the screen
         // better use:
-        var ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(new Vector3(ss_coords.x, ss_coords.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f));
+        //var ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(new Vector3(ss_coords.x, ss_coords.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f));
+        var ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(ss_coords);
 
         var sphere_radius = triggered_by == InteractionType.CLOSE_GRAB? 0.08f : 0.05f;
         RaycastHit hit;

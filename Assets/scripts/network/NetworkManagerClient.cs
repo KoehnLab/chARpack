@@ -1527,6 +1527,14 @@ public class NetworkManagerClient : MonoBehaviour
             Singleton.sendResults(task_id, angle, dist, scale);
         }
     }
-    #endregion
 
-}
+    [MessageHandler((ushort)ServerToClientID.bcastScreenSizeChanged)]
+    private static void getScreenSizeChanged(Message message)
+    {
+        var new_screen_size = message.GetVector2();
+        SettingsData.serverViewport = new_screen_size;
+    }
+
+#endregion
+
+    }

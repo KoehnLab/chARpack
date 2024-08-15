@@ -51,6 +51,13 @@ public class NetworkManagerServer : MonoBehaviour
     public GameObject UserWorld { get => _userWorld; private set => _userWorld = value; }
     private TransitionManager.SyncMode currentSyncMode = SettingsData.syncMode;
 
+    public delegate void OnScreenSizeChangedAction();
+    public event OnScreenSizeChangedAction OnScreenSizeChanged;
+    public void ScreenSizeChanged()
+    {
+        OnScreenSizeChanged?.Invoke();
+    }
+
     private void Awake()
     {
         Singleton = this;
@@ -73,6 +80,7 @@ public class NetworkManagerServer : MonoBehaviour
         EventManager.Singleton.OnSyncModeChanged += bcastSyncMode;
         EventManager.Singleton.OnForwardDeleteMarkedRequest += bcastDeleteMarkedRequest;
         EventManager.Singleton.OnDeleteEverything += bcastDeleteEverything;
+        OnScreenSizeChanged += bcastScreenSizeChanged;
         if (currentSyncMode == TransitionManager.SyncMode.Sync)
         {
             activateSync();
@@ -82,7 +90,8 @@ public class NetworkManagerServer : MonoBehaviour
             activateAsync();
         }
         // set actual server viewport
-        SettingsData.serverViewport = new Vector2(Camera.main.pixelRect.width, Camera.main.pixelRect.height);
+        //SettingsData.serverViewport = new Vector2(Camera.main.pixelRect.width, Camera.main.pixelRect.height);
+        SettingsData.serverViewport = new Vector2(Screen.width, Screen.height);
         Debug.Log($"[NetworkManagerServer] Server viewport set to: {SettingsData.serverViewport}");
     }
 
@@ -223,6 +232,13 @@ public class NetworkManagerServer : MonoBehaviour
     {
         if (ServerStarted)
         {
+            if (OnScreenSizeChanged == null) { return; }
+            if (SettingsData.serverViewport.x != Screen.width || SettingsData.serverViewport.y != Screen.height)
+            {
+                SettingsData.serverViewport.x = Screen.width;
+                SettingsData.serverViewport.y = Screen.height;
+                ScreenSizeChanged();
+            }
             bcastMousePosition();
             Server.Update();
         }
@@ -696,6 +712,13 @@ public class NetworkManagerServer : MonoBehaviour
         Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.requestResults);
         message.AddUShort(0);
         message.AddInt(task_id);
+        Server.SendToAll(message);
+    }
+
+    public void bcastScreenSizeChanged()
+    {
+        Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastScreenSizeChanged);
+        message.AddVector2(SettingsData.serverViewport);
         Server.SendToAll(message);
     }
 
