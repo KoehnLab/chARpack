@@ -348,22 +348,10 @@ public class StudyTaskManager : MonoBehaviour
             var scale = getErrorScale();
             StudyLogger.Singleton.write($"AngleError: {angle}", currentTaskID);
             StudyLogger.Singleton.write($"DistError: {dist}", currentTaskID);
-            StudyLogger.Singleton.write($"DistError: {scale}", currentTaskID);
+            StudyLogger.Singleton.write($"ScaleError: {scale}", currentTaskID);
             // log finised task
             StudyLogger.Singleton.write($"finished.", currentTaskID);
         }
-    }
-
-    IEnumerator checkForNetworkResults()
-    {
-        while (resultAngle == null && resultDist == null)
-        {
-            yield return null; // wait for next frame
-        }
-        StudyLogger.Singleton.write($"AngleError: {resultAngle.Value}", currentTaskID);
-        StudyLogger.Singleton.write($"DistError: {resultDist.Value}", currentTaskID);
-        resultAngle = null;
-        resultDist = null;
     }
 
     public float getErrorAngle()
