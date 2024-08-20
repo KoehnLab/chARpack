@@ -35,7 +35,7 @@ public class myResizer : MonoBehaviour {
 
 		resizeImage();
 
-		if(image.activeSelf) structureFormula.GetComponent<RectTransform>().sizeDelta = new Vector2(structureFormula.GetComponent<RectTransform>().sizeDelta.x, structureFormula.paddedHeightOfAllElements());
+		if(image.activeSelf) structureFormula.GetComponent<RectTransform>().sizeDelta = new Vector2(structureFormula.GetComponent<RectTransform>().sizeDelta.x, structureFormula.paddedHeightOfAllElements() + 15f);
 
 
 		if (resizeHandles.Count > 0)

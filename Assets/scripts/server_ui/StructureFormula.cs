@@ -134,7 +134,7 @@ public class StructureFormula : MonoBehaviour
         var vert_layout = GetComponent<VerticalLayoutGroup>();
         var highlight_dropdown = highlight_choice_dropdown.transform as RectTransform;
 
-        return image_rect.sizeDelta.y + 2*vert_layout.padding.top + 2*vert_layout.padding.bottom + button_rect.sizeDelta.y + label_rect.sizeDelta.y + highlight_dropdown.sizeDelta.y + vert_layout.spacing * 6;
+        return image_rect.sizeDelta.y + vert_layout.padding.top + vert_layout.padding.bottom + button_rect.sizeDelta.y + label_rect.sizeDelta.y + highlight_dropdown.sizeDelta.y + vert_layout.spacing *3;
 
     }
 
