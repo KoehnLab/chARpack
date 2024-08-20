@@ -577,6 +577,10 @@ MonoBehaviour:
     m_Key: AutoGenerateStructureFormula
     m_Metadata:
       m_Items: []
+  - m_Id: 151162096803364864
+    m_Key: ExclusiveFullscreen
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
