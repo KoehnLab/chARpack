@@ -63,27 +63,75 @@ public class resizeHandle : MonoBehaviour, IPointerDownHandler, IDragHandler
         localPointerPosition = data.position;
         Vector3 offsetToOriginal = localPointerPosition - originalLocalPointerPosition;
 
-        Vector2 sizeDelta = originalSizeDelta;
-        movePivot(corner);
+        Vector3 axis = Vector3.one;
+
+        // Keep aspect ratio
+
         switch (corner)
         {
             case Corner.UpperLeft:
-                sizeDelta = originalSizeDelta + new Vector2(-offsetToOriginal.x, offsetToOriginal.y) * 1.5f;
-                break;
-            case Corner.UpperRight:
-                sizeDelta = originalSizeDelta + new Vector2(offsetToOriginal.x, offsetToOriginal.y) * 1.5f;
+                axis = new Vector3(-1f, 1f, 0f);
                 break;
             case Corner.LowerLeft:
-                sizeDelta = originalSizeDelta + new Vector2(-offsetToOriginal.x, -offsetToOriginal.y) * 1.5f;
+                axis = new Vector3(-1f, -1f, 0f);
+                break;
+            case Corner.UpperRight:
+                axis = new Vector3(1f, 1f, 0f);
                 break;
             case Corner.LowerRight:
-                sizeDelta = originalSizeDelta + new Vector2(offsetToOriginal.x, -offsetToOriginal.y) * 1.5f;
+                axis = new Vector3(1f, -1f, 0f);
                 break;
         }
-        sizeDelta = new Vector2(
-            Mathf.Clamp(sizeDelta.x, minSize.x, maxSize.x),
-            Mathf.Clamp(sizeDelta.y, minSize.y, maxSize.y)
-        );
+        var projected = Vector3.Project(offsetToOriginal, axis);
+        var resultingOffset = Mathf.Sign(Vector3.Dot(projected, axis)) * Vector3.Magnitude(projected);
+
+        Vector2 sizeDelta = originalSizeDelta;
+        movePivot(corner);
+        sizeDelta = sizeDelta * (1 + resultingOffset / Mathf.Lerp(Screen.currentResolution.width, Screen.currentResolution.height, 0.5f) * 3f); 
+
+        // To make aspect ratio flexible, uncomment below
+
+        //switch (corner)
+        //{
+        //    case Corner.UpperLeft:
+        //        sizeDelta = originalSizeDelta + new Vector2(-offsetToOriginal.x, offsetToOriginal.y) * 1.5f;
+        //        break;
+        //    case Corner.UpperRight:
+        //        sizeDelta = originalSizeDelta + new Vector2(offsetToOriginal.x, offsetToOriginal.y) * 1.5f;
+        //        break;
+        //    case Corner.LowerLeft:
+        //        sizeDelta = originalSizeDelta + new Vector2(-offsetToOriginal.x, -offsetToOriginal.y) * 1.5f;
+        //        break;
+        //    case Corner.LowerRight:
+        //        sizeDelta = originalSizeDelta + new Vector2(offsetToOriginal.x, -offsetToOriginal.y) * 1.5f;
+        //        break;
+        //}
+        //sizeDelta = new Vector2(
+        //    Mathf.Clamp(sizeDelta.x, minSize.x, maxSize.x),
+        //    Mathf.Clamp(sizeDelta.y, minSize.y, maxSize.y)
+        //);
+
+        // Clamp while keeping aspect ratio
+        if(sizeDelta.x < minSize.x)
+        {
+            sizeDelta.x = minSize.x;
+            sizeDelta.y = minSize.x / resizer.structureFormula.windowAspect;
+        }
+        if (sizeDelta.y < minSize.y)
+        {
+            sizeDelta.y = minSize.y;
+            sizeDelta.x = minSize.y * resizer.structureFormula.windowAspect;
+        }
+        if (sizeDelta.x > maxSize.x)
+        {
+            sizeDelta.x = maxSize.x;
+            sizeDelta.y = maxSize.x / resizer.structureFormula.windowAspect;
+        }
+        if (sizeDelta.y > maxSize.y)
+        {
+            sizeDelta.y = maxSize.y;
+            sizeDelta.x = maxSize.y * resizer.structureFormula.windowAspect;
+        }
 
         rect.sizeDelta = sizeDelta;
 

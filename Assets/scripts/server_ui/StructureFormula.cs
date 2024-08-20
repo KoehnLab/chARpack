@@ -16,7 +16,8 @@ public class StructureFormula : MonoBehaviour
     /// The SVG image of the molecule structure
     /// </summary>
     public SVGImage image;
-    [HideInInspector] public float aspect;
+    [HideInInspector] public float imageAspect;
+    [HideInInspector] public float windowAspect;
     [HideInInspector] public SVGParser.SceneInfo sceneInfo;
     public Vector2 originalSize;
     public Button collapse_button;
@@ -59,7 +60,7 @@ public class StructureFormula : MonoBehaviour
         highlight_choice_dropdown.onValueChanged.AddListener(setHighlightOption);
         close_button.onClick.AddListener(close);
 
-        aspect = image.GetComponent<SVGImage>().sprite.rect.width / image.GetComponent<SVGImage>().sprite.rect.height;
+        imageAspect = image.GetComponent<SVGImage>().sprite.rect.width / image.GetComponent<SVGImage>().sprite.rect.height;
 
         RectTransform rect = transform as RectTransform;
         if (localPosition != new Vector3(0, 0, 0))
@@ -74,6 +75,8 @@ public class StructureFormula : MonoBehaviour
 
         resizer.resizeImage();
         StartCoroutine(WaitAndPositionHandles());
+
+        windowAspect = rect.rect.width / rect.rect.height;
     }
 
     /// <summary>
@@ -140,6 +143,18 @@ public class StructureFormula : MonoBehaviour
         heatMap.CanvasWidth = originalSize.x;
         heatMap.CanvasHeight = originalSize.y;
         heatMap.ResetCurrentHeatMap();
+    }
+
+    public float paddedHeightOfAllElements()
+    {
+        var image_rect = image.transform as RectTransform;
+        var button_rect = collapse_button.transform as RectTransform;
+        var label_rect = label.transform as RectTransform;
+        var vert_layout = GetComponent<VerticalLayoutGroup>();
+        var highlight_dropdown = highlight_choice_dropdown.transform as RectTransform;
+
+        return image_rect.sizeDelta.y + vert_layout.padding.top + vert_layout.padding.bottom + button_rect.sizeDelta.y + label_rect.sizeDelta.y + highlight_dropdown.sizeDelta.y + vert_layout.spacing *3;
+
     }
 
     /// <summary>
