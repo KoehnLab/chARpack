@@ -35,7 +35,7 @@ public class myResizer : MonoBehaviour {
 
 		resizeImage();
 
-		structureFormula.GetComponent<RectTransform>().sizeDelta = new Vector2(structureFormula.GetComponent<RectTransform>().sizeDelta.x, structureFormula.paddedHeightOfAllElements());
+		if(image.activeSelf) structureFormula.GetComponent<RectTransform>().sizeDelta = new Vector2(structureFormula.GetComponent<RectTransform>().sizeDelta.x, structureFormula.paddedHeightOfAllElements());
 
 
 		if (resizeHandles.Count > 0)
@@ -49,7 +49,7 @@ public class myResizer : MonoBehaviour {
 
 	public void resizeImage()
     {
-		image.GetComponent<LayoutElement>().minHeight = panelRectTransform.rect.width / structureFormula.imageAspect - 6f;
+		image.GetComponent<LayoutElement>().minHeight = panelRectTransform.rect.width / structureFormula.imageAspect;
 		var image_rect = image.GetComponent<RectTransform>();
 		structureFormula.scaleFactor = Mathf.Min(image_rect.rect.height / structureFormula.sceneInfo.SceneViewport.height, image_rect.rect.width/ structureFormula.sceneInfo.SceneViewport.width);
 		StructureFormulaManager.Singleton.updateInteractables(StructureFormulaManager.Singleton.getMolID(structureFormula));
