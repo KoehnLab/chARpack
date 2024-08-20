@@ -40,20 +40,27 @@ public class resizeHandle : MonoBehaviour, IPointerDownHandler, IDragHandler
         localPointerPosition = data.position;
         Vector3 offsetToOriginal = localPointerPosition - originalLocalPointerPosition;
 
+        Vector3 axis = Vector3.one;
+
         // Keep aspect ratio
-        var resultingOffset = Mathf.Sqrt(offsetToOriginal.x * offsetToOriginal.x + offsetToOriginal.y * offsetToOriginal.y);
 
         switch (corner)
         {
             case Corner.UpperLeft:
+                axis = new Vector3(-1f, 1f, 0f);
+                break;
             case Corner.LowerLeft:
-                if (offsetToOriginal.x > 0) resultingOffset *= -1; // Drag to right means smaller, to left means bigger
+                axis = new Vector3(-1f, -1f, 0f);
                 break;
             case Corner.UpperRight:
+                axis = new Vector3(1f, 1f, 0f);
+                break;
             case Corner.LowerRight:
-                if (offsetToOriginal.x < 0) resultingOffset *= -1; // Drag to left means smaller, to right means bigger
+                axis = new Vector3(1f, -1f, 0f);
                 break;
         }
+        var projected = Vector3.Project(offsetToOriginal, axis);
+        var resultingOffset = Mathf.Sign(Vector3.Dot(projected, axis)) * Vector3.Magnitude(projected);
 
         Vector2 sizeDelta = originalSizeDelta;
         movePivot(corner);
