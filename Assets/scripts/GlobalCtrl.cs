@@ -46,6 +46,12 @@ public class GlobalCtrl : MonoBehaviour
     /// </summary>
     [HideInInspector] public Dictionary<string, ElementData> Dic_ElementData { get; private set; }
 
+    /// <summary>
+    /// Gets the dictionary relating molecule IDs to every currently existing molecule.
+    /// </summary>
+    /// <value>
+    /// The dictionary relating molecule IDs to every currently existing molecule.
+    /// </value>
     [HideInInspector] public Dictionary<Guid, Molecule> List_curMolecules { get; private set; }
     //public Dictionary<int, Molecule> Dic_curMolecules { get; private set; }
 

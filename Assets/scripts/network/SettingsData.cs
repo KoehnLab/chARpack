@@ -37,6 +37,7 @@ public class SettingsData
     [JsonProperty] public static ColorScheme colorScheme = ColorScheme.GOLD;
     [JsonProperty] public static bool videoPassThrough = true;
     [JsonProperty] public static bool autogenerateStructureFormulas = false; // Only for server, not broadcast via network
+    [JsonProperty] static public bool exclusiveFullscreen = false; // Only for server, not broadcast via network
     public static Vector2 serverViewport = new Vector2(1920, 1080);
     [JsonProperty] public static TransitionManager.SyncMode syncMode = TransitionManager.SyncMode.Async;
     [JsonProperty] public static TransitionManager.TransitionMode transitionMode = TransitionManager.TransitionMode.DESKTOP_2D;
@@ -48,7 +49,6 @@ public class SettingsData
     [JsonProperty] public static TransitionManager.DesktopTarget desktopTarget = TransitionManager.DesktopTarget.CENTER_OF_SCREEN;
     [JsonProperty] public static int randomSeed = 666;
     [JsonProperty] public static TransitionManager.InteractionType allowedTransitionInteractions = TransitionManager.InteractionType.ALL;
-
 
     public static int highlightColorMap { get => _highlightColorMap; set
         {

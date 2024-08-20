@@ -7,10 +7,17 @@ using TMPro;
 using System;
 using System.Diagnostics;
 
+/// <summary>
+/// This class provides the behavior of single structure formula windows on the server.
+/// </summary>
 public class StructureFormula : MonoBehaviour
 {
+    /// <summary>
+    /// The SVG image of the molecule structure
+    /// </summary>
     public SVGImage image;
-    [HideInInspector] public float aspect;
+    [HideInInspector] public float imageAspect;
+    [HideInInspector] public float windowAspect;
     [HideInInspector] public SVGParser.SceneInfo sceneInfo;
     public Vector2 originalSize;
     public Button collapse_button;
@@ -19,6 +26,9 @@ public class StructureFormula : MonoBehaviour
     public TextMeshProUGUI label;
     public HeatMap2D heatMap;
     public TMP_Dropdown highlight_choice_dropdown;
+    /// <summary>
+    /// The resizer responsible for the resizability of this structure formula window
+    /// </summary>
     public myResizer resizer;
     [HideInInspector]
     public Atom2D[] interactables;
@@ -50,7 +60,7 @@ public class StructureFormula : MonoBehaviour
         highlight_choice_dropdown.onValueChanged.AddListener(setHighlightOption);
         close_button.onClick.AddListener(close);
 
-        aspect = image.GetComponent<SVGImage>().sprite.rect.width / image.GetComponent<SVGImage>().sprite.rect.height;
+        imageAspect = image.GetComponent<SVGImage>().sprite.rect.width / image.GetComponent<SVGImage>().sprite.rect.height;
 
         RectTransform rect = transform as RectTransform;
         if (localPosition != new Vector3(0, 0, 0))
@@ -65,15 +75,24 @@ public class StructureFormula : MonoBehaviour
 
         resizer.resizeImage();
         StartCoroutine(WaitAndPositionHandles());
+
+        windowAspect = rect.rect.width / rect.rect.height;
     }
 
+    /// <summary>
+    /// Waits to position handles after initial resizing has completed.
+    /// </summary>
+    /// <returns></returns>
     public IEnumerator WaitAndPositionHandles()
     {
         yield return new WaitForSeconds(0.25f);
         resizer.moveHandlesAndResize();
     }
 
-
+    /// <summary>
+    /// Sets the highlight option between heatmap and focus colors.
+    /// </summary>
+    /// <param name="choice">The chosen option.</param>
     public void setHighlightOption(Int32 choice)
     {
         current_highlight_choice = choice;
@@ -100,6 +119,9 @@ public class StructureFormula : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// Resizes the structure formula upon addition of a new image.
+    /// </summary>
     public void newImageResize()
     {
         var rect = transform as RectTransform;
@@ -123,6 +145,22 @@ public class StructureFormula : MonoBehaviour
         heatMap.ResetCurrentHeatMap();
     }
 
+    public float paddedHeightOfAllElements()
+    {
+        var image_rect = image.transform as RectTransform;
+        var button_rect = collapse_button.transform as RectTransform;
+        var label_rect = label.transform as RectTransform;
+        var vert_layout = GetComponent<VerticalLayoutGroup>();
+        var highlight_dropdown = highlight_choice_dropdown.transform as RectTransform;
+
+        return image_rect.sizeDelta.y + vert_layout.padding.top + vert_layout.padding.bottom + button_rect.sizeDelta.y + label_rect.sizeDelta.y + highlight_dropdown.sizeDelta.y + vert_layout.spacing *3;
+
+    }
+
+    /// <summary>
+    /// Resizes and repositions the structure formula window when it is collapsed.
+    /// </summary>
+    /// <param name="value">if set to <c>true</c> the image is deactivated and the structure formula reduced in appearance.</param>
     public void resizeCollapse(bool value)
     {
         var image_rect = image.transform as RectTransform;
