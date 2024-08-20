@@ -31,6 +31,7 @@ public class settingsControl : MonoBehaviour
     private void Awake()
     {
         Singleton = this;
+        setExclusiveFullscreen(SettingsData.exclusiveFullscreen); // In Awake to hopefully avoid strange blinking behavior
     }
 
     public void Start()
@@ -62,6 +63,7 @@ public class settingsControl : MonoBehaviour
         setCoopSettings(SettingsData.coop);
         setInteractionMode(SettingsData.interactionMode);
         setAutoGenerateStructureFormulas(SettingsData.autogenerateStructureFormulas);
+        setExclusiveFullscreen(SettingsData.exclusiveFullscreen);
         setSyncMode(SettingsData.syncMode);
         GlobalCtrl.Singleton.setLicoriceRendering(SettingsData.licoriceRendering);
         GlobalCtrl.Singleton.reloadShaders();
@@ -153,6 +155,25 @@ public class settingsControl : MonoBehaviour
         {
             if (value) EventManager.Singleton.OnMoleculeLoaded += StructureFormulaGenerator.Singleton.immediateRequestStructureFormula;
             else EventManager.Singleton.OnMoleculeLoaded -= StructureFormulaGenerator.Singleton.immediateRequestStructureFormula;
+        }
+#endif
+    }
+
+    private int windowWidth = 0;
+    private int windowHeight = 0;
+
+    private void setExclusiveFullscreen(bool value)
+    {
+#if UNITY_STANDALONE || UNITY_EDITOR
+        if (windowWidth == 0) windowWidth = Screen.currentResolution.width / 3; //Initialization
+        if (windowHeight == 0) windowHeight = Screen.currentResolution.height * 3 / 5;
+
+        if (!value) Screen.SetResolution(windowWidth, windowHeight, false);
+        else
+        {
+            windowWidth = Screen.width;
+            windowHeight = Screen.height;
+            Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, true);
         }
 #endif
     }
