@@ -11,6 +11,9 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
+/// <summary>
+/// This class manages spawning, updating and deleting structure formulas on the server.
+/// </summary>
 public class StructureFormulaManager : MonoBehaviour
 {
     private static StructureFormulaManager _singleton;
@@ -32,6 +35,10 @@ public class StructureFormulaManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Gets the IDs of the molecules with an active structure formula.
+    /// </summary>
+    /// <returns>A list of the IDs of the molecules with an active structure formula.</returns>
     public List<Guid> getMolIDs()
     {
         List<Guid> mol_ids = new List<Guid>();
@@ -47,6 +54,14 @@ public class StructureFormulaManager : MonoBehaviour
         Singleton = this;
     }
 
+    /// <summary>
+    /// Gets the dictionary relating a molecule ID to a primary structure formula, a string with the
+    /// corresponding SVG content and potential secondary structure formulas.
+    /// </summary>
+    /// <value>
+    /// The dictionary relating a molecule ID to a primary structure formula, a string with the
+    /// corresponding SVG content and potential secondary structure formulas.
+    /// </value>
     public Dictionary<Guid, Triple<GameObject, string, List<GameObject>>> svg_instances { get; private set; } // mol_id, primary_structure_formula, svg_content, secondary_structure_formulas
     private GameObject interactiblePrefab;
     private GameObject structureFormulaPrefab;
@@ -72,6 +87,10 @@ public class StructureFormulaManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Sets the color map used for the heatmaps in structure formulas.
+    /// </summary>
+    /// <param name="id">The identifier of the color map.</param>
     public void setColorMap(int id)
     {
         if (id >= heatMapNames.Count) return;
@@ -82,7 +101,11 @@ public class StructureFormulaManager : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// Pushes secondary structure formula content.
+    /// </summary>
+    /// <param name="mol_id">The molecule ID.</param>
+    /// <param name="focus_id">The focus identifier.</param>
     public void pushSecondaryContent(Guid mol_id, int focus_id)
     {
         if (!svg_instances.ContainsKey(mol_id))
@@ -108,6 +131,11 @@ public class StructureFormulaManager : MonoBehaviour
         svg_instances[mol_id].Item3.Add(new_go.GetComponentInChildren<SVGImage>().gameObject);
     }
 
+    /// <summary>
+    /// Updates the secondary structure formula content.
+    /// </summary>
+    /// <param name="mol_id">The molecule identifier.</param>
+    /// <param name="old_go">The game object to update.</param>
     public void updateSecondaryContent(Guid mol_id, GameObject old_go)
     {
         var old_sf = old_go.GetComponentInParent<StructureFormula>();
@@ -132,6 +160,12 @@ public class StructureFormulaManager : MonoBehaviour
         svg_instances[mol_id].Item3.Add(new_go.GetComponentInChildren<SVGImage>().gameObject);
     }
 
+    /// <summary>
+    /// Creates/updates a sprite from the structure formula SVG and creates/updates
+    /// the corresponding interactable 2D atom representatives.
+    /// </summary>
+    /// <param name="mol_id">The molecule identifier.</param>
+    /// <param name="svg_content">Content of the SVG.</param>
     public void pushContent(Guid mol_id, string svg_content)
     {
         if (svg_instances.ContainsKey(mol_id)) // UPDATE
@@ -227,6 +261,10 @@ public class StructureFormulaManager : MonoBehaviour
         validateMolecules();
     }
 
+    /// <summary>
+    /// Removes the structure formula of the specified molecule.
+    /// </summary>
+    /// <param name="mol_id">The molecule identifier.</param>
     public void removeContent(Guid mol_id)
     {
         if (!svg_instances.ContainsKey(mol_id))
@@ -242,6 +280,10 @@ public class StructureFormulaManager : MonoBehaviour
         svg_instances.Remove(mol_id);
     }
 
+    /// <summary>
+    /// Removes the interactable 2D atom representatives for the specified molecule.
+    /// </summary>
+    /// <param name="mol_id">The molecule identifier.</param>
     private void removeInteractables(Guid mol_id)
     {
         if (!GlobalCtrl.Singleton.List_curMolecules.ContainsKey(mol_id))
@@ -267,6 +309,11 @@ public class StructureFormulaManager : MonoBehaviour
         sf.interactables = null;
     }
 
+    /// <summary>
+    /// Creates the 2D atom representatives for the specified molecules using the
+    /// structure information from the SVG.
+    /// </summary>
+    /// <param name="mol_id">The molecule identifier.</param>
     public void createInteractables(Guid mol_id)
     {
         if (!GlobalCtrl.Singleton.List_curMolecules.ContainsKey(mol_id))
@@ -309,6 +356,11 @@ public class StructureFormulaManager : MonoBehaviour
         sf.interactables = inter_list.ToArray();
     }
 
+    /// <summary>
+    /// Updates the interactable 2D atom representatives (when resizing the structure formula window)
+    /// to ensure correct positioning relative to the image.
+    /// </summary>
+    /// <param name="mol_id">The molecule identifier.</param>
     public void updateInteractables(Guid mol_id)
     {
         if (!GlobalCtrl.Singleton.List_curMolecules.ContainsKey(mol_id))
@@ -348,6 +400,11 @@ public class StructureFormulaManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Gets the molecule ID corresponding to a structure formula.
+    /// </summary>
+    /// <param name="in_sf">The structure formula.</param>
+    /// <returns>The corresponding molecule ID.</returns>
     public Guid getMolID(StructureFormula in_sf)
     {
         foreach (var go in svg_instances)
@@ -361,6 +418,15 @@ public class StructureFormulaManager : MonoBehaviour
         return Guid.Empty;
     }
 
+    /// <summary>
+    /// Adds a focus highlight to a specified atom.
+    /// The color of the highlight depends on how many users are
+    /// in the scene and whether heat map mode is active.,
+    /// </summary>
+    /// <param name="mol_id">The molecule ID.</param>
+    /// <param name="atom">The atom.</param>
+    /// <param name="values">The values.</param>
+    /// <param name="cols">The colors.</param>
     public void addFocusHighlight(Guid mol_id, Atom atom, bool[] values, Color[] cols)
     {
         if (atom.isMarked) return;
@@ -425,6 +491,12 @@ public class StructureFormulaManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Adds a focus highlight after clicking on the server.
+    /// </summary>
+    /// <param name="mol_id">The molecule ID.</param>
+    /// <param name="atom">The atom.</param>
+    /// <param name="col">The colors.</param>
     public void addServerFocusHighlight(Guid mol_id, Atom atom, Color[] col)
     {
         if (svg_instances.ContainsKey(mol_id))
@@ -544,6 +616,10 @@ public class StructureFormulaManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Removes the substructures used by a specific user.
+    /// </summary>
+    /// <param name="focus_id">The focus identifier.</param>
     public void removeSubstrcutures(int focus_id)
     {
         foreach (var structure in svg_instances.Values)
@@ -577,6 +653,11 @@ public class StructureFormulaManager : MonoBehaviour
         return raysastResults;
     }
 
+    /// <summary>
+    /// Gets the molecule ID from raycast result.
+    /// </summary>
+    /// <param name="eventSystemRaysastResults">The event system raycast results.</param>
+    /// <returns></returns>
     private Guid getMolIDFromRaycastResult(List<RaycastResult> eventSystemRaysastResults)
     {
         foreach (var sf in svg_instances)
@@ -608,6 +689,11 @@ public class StructureFormulaManager : MonoBehaviour
         return Guid.Empty;
     }
 
+    /// <summary>
+    /// Gets the interactible 2D atom representative from a raycast result.
+    /// </summary>
+    /// <param name="eventSystemRaysastResults">The event system raycast results.</param>
+    /// <returns></returns>
     private Atom2D getInteractibleFromRaycastResult(List<RaycastResult> eventSystemRaysastResults)
     {
         var mol_id = getMolIDFromRaycastResult(eventSystemRaysastResults);
@@ -624,6 +710,9 @@ public class StructureFormulaManager : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// Validates that all structure formulas belong to existing molecules.
+    /// </summary>
     private void validateMolecules()
     {
         List<Guid> to_be_removed = new List<Guid>();
@@ -640,6 +729,10 @@ public class StructureFormulaManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Requests the removing of a structure formula.
+    /// </summary>
+    /// <param name="in_sf">The structure formula.</param>
     public void requestRemove(StructureFormula in_sf)
     {
         List<Guid> to_be_removed = new List<Guid>();
