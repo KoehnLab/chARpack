@@ -588,6 +588,10 @@ MonoBehaviour:
       structure formulas'
     m_Metadata:
       m_Items: []
+  - m_Id: 151162096803364864
+    m_Localized: Exclusive Fullscreen
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

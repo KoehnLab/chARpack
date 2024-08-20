@@ -7,8 +7,14 @@ using TMPro;
 using System;
 using System.Diagnostics;
 
+/// <summary>
+/// This class provides the behavior of single structure formula windows on the server.
+/// </summary>
 public class StructureFormula : MonoBehaviour
 {
+    /// <summary>
+    /// The SVG image of the molecule structure
+    /// </summary>
     public SVGImage image;
     [HideInInspector] public float imageAspect;
     [HideInInspector] public float windowAspect;
@@ -20,6 +26,9 @@ public class StructureFormula : MonoBehaviour
     public TextMeshProUGUI label;
     public HeatMap2D heatMap;
     public TMP_Dropdown highlight_choice_dropdown;
+    /// <summary>
+    /// The resizer responsible for the resizability of this structure formula window
+    /// </summary>
     public myResizer resizer;
     [HideInInspector]
     public Atom2D[] interactables;
@@ -70,13 +79,20 @@ public class StructureFormula : MonoBehaviour
         windowAspect = rect.rect.width / rect.rect.height;
     }
 
+    /// <summary>
+    /// Waits to position handles after initial resizing has completed.
+    /// </summary>
+    /// <returns></returns>
     public IEnumerator WaitAndPositionHandles()
     {
         yield return new WaitForSeconds(0.25f);
         resizer.moveHandlesAndResize();
     }
 
-
+    /// <summary>
+    /// Sets the highlight option between heatmap and focus colors.
+    /// </summary>
+    /// <param name="choice">The chosen option.</param>
     public void setHighlightOption(Int32 choice)
     {
         current_highlight_choice = choice;
@@ -103,6 +119,9 @@ public class StructureFormula : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// Resizes the structure formula upon addition of a new image.
+    /// </summary>
     public void newImageResize()
     {
         var rect = transform as RectTransform;
@@ -138,6 +157,10 @@ public class StructureFormula : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Resizes and repositions the structure formula window when it is collapsed.
+    /// </summary>
+    /// <param name="value">if set to <c>true</c> the image is deactivated and the structure formula reduced in appearance.</param>
     public void resizeCollapse(bool value)
     {
         var image_rect = image.transform as RectTransform;

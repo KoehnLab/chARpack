@@ -745,6 +745,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         return max_dist;
     }
 
+    /// <summary>
+    /// Gets the length of the longest bounding box edge.
+    /// </summary>
+    /// <returns>the length of the longest edge of the bounding box</returns>
     public float getLongestBBoxEdge()
     {
         return GetComponent<myBoundingBox>().getSize().maxDimValue();
@@ -940,6 +944,12 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
     }
 
+    /// <summary>
+    /// Creates a server tool tip (on the UI canvas) for a single bond that contains both static and dynamic information about
+    /// its length and buttons, including the option to change the bonds equilibrium parameters.
+    /// </summary>
+    /// <param name="term"></param>
+    /// <param name="focus_id"></param>
     public void createServerBondToolTip(ForceField.BondTerm term, int focus_id = -1)
     {
 #if UNITY_STANDALONE || UNITY_EDITOR

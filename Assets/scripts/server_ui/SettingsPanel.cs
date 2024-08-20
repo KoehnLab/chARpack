@@ -19,6 +19,7 @@ public class SettingsPanel : MonoBehaviour
     public GameObject handRayToggle;
     public GameObject handMenuToggle;
     public GameObject autoGenerateStructureFormulasToggle;
+    public GameObject exclusiveFullscreenToggle;
     public GameObject languageDropdown;
     public GameObject gazeHighlightingToggle;
     public GameObject pointerHighlightingToggle;
@@ -71,6 +72,8 @@ public class SettingsPanel : MonoBehaviour
         handMenuToggle.GetComponent<Toggle>().isOn = SettingsData.handMenu;
 
         autoGenerateStructureFormulasToggle.GetComponent<Toggle>().isOn = SettingsData.autogenerateStructureFormulas;
+
+        exclusiveFullscreenToggle.GetComponent<Toggle>().isOn = SettingsData.exclusiveFullscreen;
 
         gazeHighlightingToggle.GetComponent<Toggle>().isOn = SettingsData.gazeHighlighting;
 
@@ -129,6 +132,7 @@ public class SettingsPanel : MonoBehaviour
         SettingsData.handRay = handRayToggle.GetComponent<Toggle>().isOn;
         SettingsData.handMenu = handMenuToggle.GetComponent<Toggle>().isOn;
         SettingsData.autogenerateStructureFormulas = autoGenerateStructureFormulasToggle.GetComponent<Toggle>().isOn;
+        SettingsData.exclusiveFullscreen = exclusiveFullscreenToggle.GetComponent<Toggle>().isOn;
         SettingsData.gazeHighlighting = gazeHighlightingToggle.GetComponent<Toggle>().isOn;
         SettingsData.pointerHighlighting = pointerHighlightingToggle.GetComponent<Toggle>().isOn;
         SettingsData.showAllHighlightsOnClients = showAllHighlightsToggle.GetComponent<Toggle>().isOn;

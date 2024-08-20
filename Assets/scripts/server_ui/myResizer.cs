@@ -4,13 +4,29 @@ using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using Unity.VectorGraphics;
 
+/// <summary>
+/// This class contains functionality related to the resizing of structure formulas
+/// on the server.
+/// </summary>
 public class myResizer : MonoBehaviour {
-	public GameObject panel;
-	public List<GameObject> resizeHandles;
-	public GameObject image;
+    /// <summary>
+    /// The structure formula UI window this resizer refers to
+    /// </summary>
+    public GameObject panel;
+    /// <summary>
+    /// The resize handles for all four corners
+    /// </summary>
+    public List<GameObject> resizeHandles;
+    /// <summary>
+    /// The SVG structure formula image
+    /// </summary>
+    public GameObject image;
 
 	private RectTransform panelRectTransform;
-	public StructureFormula structureFormula;
+    /// <summary>
+    /// The structure formula this resizer belongs to
+    /// </summary>
+    public StructureFormula structureFormula;
 
 	void Awake () {
 		panelRectTransform = panel.GetComponent<RectTransform> ();
@@ -26,8 +42,12 @@ public class myResizer : MonoBehaviour {
 			}
         }
 	}
-	
-	public void moveHandlesAndResize () {
+
+    /// <summary>
+    /// Moves the handles to the corners of the structure formula UI window and resizes the 
+	/// image to fit.
+    /// </summary>
+    public void moveHandlesAndResize () {
 		if (panelRectTransform == null)
 			return;
 
@@ -47,7 +67,12 @@ public class myResizer : MonoBehaviour {
 		}
 	}
 
-	public void resizeImage()
+
+    /// <summary>
+    /// Resizes the image to fill the full width of the structure formula window.
+	/// Also requests and update of the clickable 2D atom representatives belonging to the structure formula.
+    /// </summary>
+    public void resizeImage()
     {
 		image.GetComponent<LayoutElement>().minHeight = panelRectTransform.rect.width / structureFormula.imageAspect;
 		var image_rect = image.GetComponent<RectTransform>();
