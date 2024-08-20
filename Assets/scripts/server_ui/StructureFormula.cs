@@ -10,7 +10,8 @@ using System.Diagnostics;
 public class StructureFormula : MonoBehaviour
 {
     public SVGImage image;
-    [HideInInspector] public float aspect;
+    [HideInInspector] public float imageAspect;
+    [HideInInspector] public float windowAspect;
     [HideInInspector] public SVGParser.SceneInfo sceneInfo;
     public Vector2 originalSize;
     public Button collapse_button;
@@ -50,7 +51,7 @@ public class StructureFormula : MonoBehaviour
         highlight_choice_dropdown.onValueChanged.AddListener(setHighlightOption);
         close_button.onClick.AddListener(close);
 
-        aspect = image.GetComponent<SVGImage>().sprite.rect.width / image.GetComponent<SVGImage>().sprite.rect.height;
+        imageAspect = image.GetComponent<SVGImage>().sprite.rect.width / image.GetComponent<SVGImage>().sprite.rect.height;
 
         RectTransform rect = transform as RectTransform;
         if (localPosition != new Vector3(0, 0, 0))
@@ -65,6 +66,8 @@ public class StructureFormula : MonoBehaviour
 
         resizer.resizeImage();
         StartCoroutine(WaitAndPositionHandles());
+
+        windowAspect = rect.rect.width / rect.rect.height;
     }
 
     public IEnumerator WaitAndPositionHandles()

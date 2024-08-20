@@ -45,7 +45,7 @@ public class myResizer : MonoBehaviour {
 
 	public void resizeImage()
     {
-		image.GetComponent<LayoutElement>().preferredHeight = panelRectTransform.rect.width / structureFormula.aspect;
+		image.GetComponent<LayoutElement>().preferredHeight = panelRectTransform.rect.width / structureFormula.imageAspect;
 		var image_rect = image.GetComponent<RectTransform>();
 		structureFormula.scaleFactor = Mathf.Min(image_rect.rect.height / structureFormula.sceneInfo.SceneViewport.height, image_rect.rect.width/ structureFormula.sceneInfo.SceneViewport.width);
 		StructureFormulaManager.Singleton.updateInteractables(StructureFormulaManager.Singleton.getMolID(structureFormula));

@@ -333,14 +333,14 @@ public class StructureFormulaManager : MonoBehaviour
             atom_rect.sizeDelta = 17.5f * sf.scaleFactor * Vector2.one;
             var image_offset = Vector2.zero;
 
-            if (sf.image.GetComponent<RectTransform>().rect.height < sf.image.GetComponent<RectTransform>().rect.width / sf.aspect)
+            if (sf.image.GetComponent<RectTransform>().rect.height < sf.image.GetComponent<RectTransform>().rect.width / sf.imageAspect)
             { // if window is wider than image
-                var x_offset_image = sf.image.GetComponent<RectTransform>().rect.width - sf.image.GetComponent<RectTransform>().rect.height * sf.aspect; // empty space to the left of the image
+                var x_offset_image = sf.image.GetComponent<RectTransform>().rect.width - sf.image.GetComponent<RectTransform>().rect.height * sf.imageAspect; // empty space to the left of the image
                 image_offset = new Vector2(x_offset_image - rect.sizeDelta.x, 0.5f * rect.sizeDelta.y) + 0.5f * new Vector2(-atom_rect.sizeDelta.x, atom_rect.sizeDelta.y); // position at upper left corner of image
             }
             else
             {
-                var y_offset_image = (sf.image.GetComponent<RectTransform>().rect.height - sf.image.GetComponent<RectTransform>().rect.width / sf.aspect) * 0.5f; // for some reason, image is vertically centered
+                var y_offset_image = (sf.image.GetComponent<RectTransform>().rect.height - sf.image.GetComponent<RectTransform>().rect.width / sf.imageAspect) * 0.5f; // for some reason, image is vertically centered
                 image_offset = new Vector2(-rect.sizeDelta.x, 0.5f * rect.sizeDelta.y - y_offset_image) + 0.5f * new Vector2(-atom_rect.sizeDelta.x, atom_rect.sizeDelta.y); // position at upper left corner of image
             }
             var offset = image_offset + sf.scaleFactor * new Vector2(atom.structure_coords.x, -atom.structure_coords.y);
