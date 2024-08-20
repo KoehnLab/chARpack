@@ -126,6 +126,18 @@ public class StructureFormula : MonoBehaviour
         heatMap.ResetCurrentHeatMap();
     }
 
+    public float paddedHeightOfAllElements()
+    {
+        var image_rect = image.transform as RectTransform;
+        var button_rect = collapse_button.transform as RectTransform;
+        var label_rect = label.transform as RectTransform;
+        var vert_layout = GetComponent<VerticalLayoutGroup>();
+        var highlight_dropdown = highlight_choice_dropdown.transform as RectTransform;
+
+        return image_rect.sizeDelta.y + 2*vert_layout.padding.top + 2*vert_layout.padding.bottom + button_rect.sizeDelta.y + label_rect.sizeDelta.y + highlight_dropdown.sizeDelta.y + vert_layout.spacing * 6;
+
+    }
+
     public void resizeCollapse(bool value)
     {
         var image_rect = image.transform as RectTransform;
