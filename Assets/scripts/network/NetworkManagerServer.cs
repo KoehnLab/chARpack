@@ -9,6 +9,7 @@ using System.Collections;
 using System;
 
 
+
 public class NetworkManagerServer : MonoBehaviour
 {
     private static NetworkManagerServer _singleton;
@@ -1472,8 +1473,8 @@ public class NetworkManagerServer : MonoBehaviour
 
     #region Async Setup
 
-    [MessageHandler((ushort)ClientToServerID.grabOnScreen)]
-    private static void getGrabOnScreen(ushort fromClientId, Message message)
+    [MessageHandler((ushort)ClientToServerID.transitionGrabOnScreen)]
+    private static void getTransitionGrabOnScreen(ushort fromClientId, Message message)
     {
         var ss_coords = message.GetVector2();
         var distant = message.GetBool();
@@ -1500,8 +1501,8 @@ public class NetworkManagerServer : MonoBehaviour
         }
     }
 
-    [MessageHandler((ushort)ClientToServerID.releaseGrabOnScreen)]
-    private static void getReleaseGrabOnScreen(ushort fromClientId, Message message)
+    [MessageHandler((ushort)ClientToServerID.releaseTransitionGrabOnScreen)]
+    private static void getReleaseTransitionGrabOnScreen(ushort fromClientId, Message message)
     {
         if (TransitionManager.Singleton != null)
         {
@@ -1584,14 +1585,77 @@ public class NetworkManagerServer : MonoBehaviour
         }
     }
 
-    
-    [MessageHandler((ushort)ClientToServerID.transitionUnsuccessful)]
-    private static void getUnsuccessfulTransitionRequest(ushort fromClientId, Message message)
+    private static Pose initialHandPose;
+    private static Transform objectToManipulate;
+    private static Quaternion initialObjectRotation;
+    [MessageHandler((ushort)ClientToServerID.grabOnScreen)]
+    private static void getGrabOnScreen(ushort fromClientId, Message message)
     {
-        var triggered_by = (TransitionManager.InteractionType)message.GetInt();
-        if (StudyTaskManager.Singleton != null)
+        initialHandPose = message.GetPose();
+        //initialHandPose.position = GlobalCtrl.Singleton.currentCamera.transform.TransformPoint(initialHandPose.position);
+
+        // identify object
+        objectToManipulate = TransitionManager.Singleton.getCurrentHoverTarget();
+        if (objectToManipulate != null)
         {
-            StudyTaskManager.Singleton.reportUnsuccessfullTransition(triggered_by);            
+            initialObjectRotation = objectToManipulate.rotation;
+            chARpackUtility.setObjectGrabbed(objectToManipulate, true);
+        }
+    }
+
+    [MessageHandler((ushort)ClientToServerID.releaseGrabOnScreen)]
+    private static void getReleaseGrabOnScreen(ushort fromClientId, Message message)
+    {
+        if (objectToManipulate  != null)
+        {
+            chARpackUtility.setObjectGrabbed(objectToManipulate, false);
+            objectToManipulate = null;
+        }
+    }
+
+    [MessageHandler((ushort)ClientToServerID.handPose)]
+    private static void getHandPose(ushort fromClientId, Message message)
+    {
+        var current_hand_pose = message.GetPose();
+        //current_hand_pose.position = GlobalCtrl.Singleton.currentCamera.transform.TransformPoint(current_hand_pose.position);
+
+        if (objectToManipulate == null) return;
+        var diff_vec = current_hand_pose.position - initialHandPose.position;
+        Debug.Log($"[getHandPos] diff: {diff_vec}");
+        var z_diff = Vector3.Dot(diff_vec, GlobalCtrl.Singleton.currentCamera.transform.forward);
+        Debug.Log($"[getHandPos] z_diff: {z_diff}");
+
+        //if (diff_vec.magnitude > 0.05f)
+        //{
+        //    objectToManipulate.position += 0.05f * diff_vec;
+        //}
+        var old_obj_pos = objectToManipulate.position;
+        var old_obj_pos_in_cam_coords = GlobalCtrl.Singleton.currentCamera.transform.InverseTransformPoint(old_obj_pos);
+        var cursor_pos = HoverMarker.Singleton.transform.position;
+        cursor_pos.z = (objectToManipulate.position - GlobalCtrl.Singleton.currentCamera.transform.position).magnitude;
+        //cursor_pos.z = GlobalCtrl.Singleton.currentCamera.nearClipPlane;
+
+        objectToManipulate.position = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(cursor_pos);
+        var obj_pos_in_cam_coords = GlobalCtrl.Singleton.currentCamera.transform.InverseTransformPoint(objectToManipulate.position);
+        obj_pos_in_cam_coords.z = old_obj_pos_in_cam_coords.z;
+        objectToManipulate.position = GlobalCtrl.Singleton.currentCamera.transform.TransformPoint(obj_pos_in_cam_coords);
+
+
+        if (Mathf.Abs(z_diff) > 0.05f)
+        {
+            objectToManipulate.position += 0.2f * z_diff * GlobalCtrl.Singleton.currentCamera.transform.forward;
+        }
+        
+
+        var relative_rotation = initialHandPose.rotation * Quaternion.Inverse(current_hand_pose.rotation);
+        //objectToManipulate.Rotate(relative_rotation.eulerAngles);
+        objectToManipulate.rotation = Quaternion.Inverse(relative_rotation) * initialObjectRotation;
+
+        // check if transition should happen
+        var near_point = GlobalCtrl.Singleton.currentCamera.transform.position + GlobalCtrl.Singleton.currentCamera.transform.forward * GlobalCtrl.Singleton.currentCamera.nearClipPlane;
+        if (objectToManipulate.GetComponent<myBoundingBox>().contains(near_point))
+        {
+            TransitionManager.Singleton.initializeTransitionServer(objectToManipulate, TransitionManager.InteractionType.ONSCREEN);
         }
     }
 

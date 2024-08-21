@@ -198,5 +198,28 @@ namespace Riptide.Utils
             return new Color(r,g,b,a);
         }
         #endregion
+
+        #region Pose
+        /// <inheritdoc cref="Add(Message, Pose)"/>
+        /// <remarks>Relying on the correct Add overload being chosen based on the parameter type can increase the odds of accidental type mismatches when retrieving data from a message. This method calls <see cref="Add(Message, Pose)"/> and simply provides an alternative type-explicit way to add a <see cref="Pose"/> to the message.</remarks>
+        public static Message AddPose(this Message message, Pose value) => Add(message, value);
+
+        /// <summary>Adds a <see cref="Pose"/> to the message.</summary>
+        /// <param name="value">The <see cref="Pose"/> to add.</param>
+        /// <returns>The message that the <see cref="Pose"/> was added to.</returns>
+        public static Message Add(this Message message, Pose value)
+        {
+            message.AddVector3(value.position);
+            message.AddQuaternion(value.rotation);
+            return message;
+        }
+
+        /// <summary>Retrieves a <see cref="Pose"/> from the message.</summary>
+        /// <returns>The <see cref="Pose"/> that was retrieved.</returns>
+        public static Pose GetPose(this Message message)
+        {
+            return new Pose(message.GetVector3(), message.GetQuaternion());
+        }
+        #endregion
     }
 }

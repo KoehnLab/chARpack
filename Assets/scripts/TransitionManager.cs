@@ -45,7 +45,8 @@ public class TransitionManager : MonoBehaviour
         BUTTON_PRESS = 0,
         CLOSE_GRAB = 1,
         DISTANT_GRAB = 2,
-        ALL = 3
+        ONSCREEN = 3,
+        ALL = 4
     }
 
     private static TransitionManager _singleton;
@@ -86,8 +87,8 @@ public class TransitionManager : MonoBehaviour
         moveFromTransitionClip = Resources.Load<AudioClip>("audio/reverse_wine_loop");
         if (EventManager.Singleton != null)
         {
-            EventManager.Singleton.OnGrabOnScreen += grab;
-            EventManager.Singleton.OnReleaseGrabOnScreen += release;
+            EventManager.Singleton.OnTransitionGrab += grab;
+            EventManager.Singleton.OnReleaseTransitionGrab += release;
         }
     }
 
@@ -195,6 +196,19 @@ public class TransitionManager : MonoBehaviour
         }
     }
 
+    public Transform getCurrentHoverTarget()
+    {
+        if (hoverMol != null)
+        {
+            return hoverMol.transform;
+        }
+        if (hoverGenericObject != null)
+        {
+            return hoverGenericObject.transform;
+        }
+        return null;
+    }
+
 
     public void initializeTransitionServer(Vector2 ss_coords, InteractionType triggered_by)
     {
@@ -287,6 +301,21 @@ public class TransitionManager : MonoBehaviour
         if (StudyTaskManager.Singleton)
         {
             StudyTaskManager.Singleton.logTransitionGrab(null, null, triggered_by);
+        }
+    }
+
+    public void initializeTransitionServer(Transform trans, InteractionType triggered_by)
+    {
+        var mol = trans.GetComponent<Molecule>();
+        if (mol != null)
+        {
+            initializeTransitionServer(mol, triggered_by);
+            return;
+        }
+        var go = trans.GetComponent<GenericObject>();
+        if (go != null)
+        {
+            initializeTransitionServer(go, triggered_by);
         }
     }
 

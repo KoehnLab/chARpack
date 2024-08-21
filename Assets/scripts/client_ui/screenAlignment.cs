@@ -199,8 +199,11 @@ public class screenAlignment : MonoBehaviour
         //collider.size = bounds.size;
 
         // listen to distant grabs
-        HandTracking.Singleton.OnMiddleFingerGrab.SetDefaultListener(OnDistantGrab);
-        HandTracking.Singleton.OnMiddleFingerGrabRelease += OnDistantGrabRelease;
+        HandTracking.Singleton.OnMiddleFingerGrab.SetDefaultListener(OnDistantTransitionGrab);
+        HandTracking.Singleton.OnMiddleFingerGrabRelease += OnDistantTransitionGrabRelease;
+
+        HandTracking.Singleton.OnEmptyIndexFingerGrab.SetDefaultListener(OnDistantGrab);
+        HandTracking.Singleton.OnIndexFingerGrabRelease += OnDistantGrabRelease;
 
         // turn off quad after 2 sec
         StartCoroutine(turnOffQuad());
@@ -825,7 +828,7 @@ public class screenAlignment : MonoBehaviour
     }
 
 
-    public void OnDistantGrab()
+    public void OnDistantTransitionGrab()
     {
         if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.DISTANT_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
         {
@@ -833,19 +836,41 @@ public class screenAlignment : MonoBehaviour
             var viewport_coords = getScreenSpaceCoords(proj.Value);
             if (EventManager.Singleton)
             {
-                EventManager.Singleton.GrabOnScreen(viewport_coords.Value, true);
+                EventManager.Singleton.TransitionGrab(viewport_coords.Value, true);
+            }
+        }
+    }
+
+    public void OnDistantTransitionGrabRelease()
+    {
+        if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.DISTANT_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
+        {
+            if (EventManager.Singleton)
+            {
+                EventManager.Singleton.ReleaseTransitionGrab();
+            }
+        }
+    }
+
+    public void OnDistantGrab()
+    {
+        if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ONSCREEN || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
+        {
+            if (EventManager.Singleton)
+            {
+                if (EventManager.Singleton)
+                {
+                    EventManager.Singleton.GrabOnScreen();
+                }
             }
         }
     }
 
     public void OnDistantGrabRelease()
     {
-        if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.DISTANT_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
+        if (EventManager.Singleton)
         {
-            if (EventManager.Singleton)
-            {
-                EventManager.Singleton.ReleaseGrabOnScreen();
-            }
+            EventManager.Singleton.ReleaseGrabOnScreen();
         }
     }
 
@@ -859,7 +884,7 @@ public class screenAlignment : MonoBehaviour
             var viewport_coords = getScreenSpaceCoords(proj.Value);
             if (EventManager.Singleton)
             {
-                EventManager.Singleton.GrabOnScreen(viewport_coords.Value, false);
+                EventManager.Singleton.TransitionGrab(viewport_coords.Value, false);
             }
         }
     }
@@ -870,7 +895,7 @@ public class screenAlignment : MonoBehaviour
         {
             if (EventManager.Singleton)
             {
-                EventManager.Singleton.ReleaseGrabOnScreen();
+                EventManager.Singleton.ReleaseTransitionGrab();
             }
         }
     }
@@ -881,8 +906,10 @@ public class screenAlignment : MonoBehaviour
         {
             if (HandTracking.Singleton)
             {
-                HandTracking.Singleton.OnMiddleFingerGrab.SetDefaultListener(OnDistantGrab);
-                HandTracking.Singleton.OnMiddleFingerGrabRelease += OnDistantGrabRelease;
+                HandTracking.Singleton.OnMiddleFingerGrab.SetDefaultListener(OnDistantTransitionGrab);
+                HandTracking.Singleton.OnMiddleFingerGrabRelease += OnDistantTransitionGrabRelease;
+                HandTracking.Singleton.OnEmptyIndexFingerGrab.SetDefaultListener(OnDistantGrab);
+                HandTracking.Singleton.OnIndexFingerGrabRelease += OnDistantGrabRelease;
             }
             else
             {
@@ -896,8 +923,10 @@ public class screenAlignment : MonoBehaviour
     {
         if (HandTracking.Singleton)
         {
-            HandTracking.Singleton.OnMiddleFingerGrab.RemoveListener(OnDistantGrab);
-            HandTracking.Singleton.OnMiddleFingerGrabRelease -= OnDistantGrabRelease;
+            HandTracking.Singleton.OnMiddleFingerGrab.RemoveListener(OnDistantTransitionGrab);
+            HandTracking.Singleton.OnMiddleFingerGrabRelease -= OnDistantTransitionGrabRelease;
+            HandTracking.Singleton.OnEmptyIndexFingerGrab.RemoveListener(OnDistantGrab);
+            HandTracking.Singleton.OnIndexFingerGrabRelease -= OnDistantGrabRelease;
         }
     }
 

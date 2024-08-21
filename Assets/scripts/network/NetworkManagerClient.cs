@@ -8,6 +8,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Microsoft.MixedReality.Toolkit.Utilities;
+using System.Collections;
 
 public class NetworkManagerClient : MonoBehaviour
 {
@@ -71,8 +72,8 @@ public class NetworkManagerClient : MonoBehaviour
 
         // subscribe to event manager events
         EventManager.Singleton.OnEnableForceField += sendEnableForceField;
-        EventManager.Singleton.OnGrabOnScreen += sendGrabOnScreen;
-        EventManager.Singleton.OnReleaseGrabOnScreen += sendReleaseGrabOnScreen;
+        EventManager.Singleton.OnTransitionGrab += sendGrabOnScreen;
+        EventManager.Singleton.OnReleaseTransitionGrab += sendReleaseGrabOnScreen;
         EventManager.Singleton.OnHoverOverScreen += sendHoverOverScreen;
         if (currentSyncMode == TransitionManager.SyncMode.Sync)
         {
@@ -111,6 +112,8 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnTransitionGenericObject += transitionGenericObject;
         EventManager.Singleton.OnSpawnGhostObject += sendSpawnGhostObject;
         EventManager.Singleton.OnObjectToTrack += sendObjectToTrack;
+        EventManager.Singleton.OnGrabOnScreen += sendDistantGrabOnScreen;
+        EventManager.Singleton.OnReleaseGrabOnScreen += sendReleaseDistantGrabOnScreen;
     }
 
     private void deactivateAsync()
@@ -121,6 +124,8 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnTransitionGenericObject -= transitionGenericObject;
         EventManager.Singleton.OnSpawnGhostObject -= sendSpawnGhostObject;
         EventManager.Singleton.OnObjectToTrack -= sendObjectToTrack;
+        EventManager.Singleton.OnGrabOnScreen -= sendDistantGrabOnScreen;
+        EventManager.Singleton.OnReleaseGrabOnScreen -= sendReleaseDistantGrabOnScreen;
     }
 
     private void activateSync()
@@ -593,7 +598,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     private void sendGrabOnScreen(Vector2 ss_coords, bool distant)
     {
-        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.grabOnScreen);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.transitionGrabOnScreen);
         message.AddVector2(ss_coords);
         message.AddBool(distant);
         Client.Send(message);
@@ -601,7 +606,7 @@ public class NetworkManagerClient : MonoBehaviour
 
     private void sendReleaseGrabOnScreen()
     {
-        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.releaseGrabOnScreen);
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.releaseTransitionGrabOnScreen);
         Client.Send(message);
     }
     
@@ -686,6 +691,39 @@ public class NetworkManagerClient : MonoBehaviour
         message.AddFloat(dist);
         message.AddFloat(scale);
         Client.Send(message);
+    }
+
+    bool indexGrabHold = false;
+    private void sendDistantGrabOnScreen()
+    {
+        indexGrabHold = true;
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.grabOnScreen);
+        var initial_pose = HandTracking.Singleton.getMiddleKnucklePose();
+        initial_pose.position = GlobalCtrl.Singleton.currentCamera.transform.InverseTransformPoint(initial_pose.position);
+        message.AddPose(initial_pose);
+        Client.Send(message);
+        // start continous send of hand pose
+        StartCoroutine(sendHandPosAndRot());
+    }
+
+    private void sendReleaseDistantGrabOnScreen()
+    {
+        indexGrabHold = false;
+        Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.releaseGrabOnScreen);
+        Client.Send(message);
+    }
+
+    private IEnumerator sendHandPosAndRot()
+    {
+        while (indexGrabHold)
+        {
+            var pose = HandTracking.Singleton.getMiddleKnucklePose();
+            pose.position = GlobalCtrl.Singleton.currentCamera.transform.InverseTransformPoint(pose.position);
+            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.handPose);
+            message.AddPose(pose);
+            Client.Send(message);
+            yield return null;
+        }
     }
 
     #endregion

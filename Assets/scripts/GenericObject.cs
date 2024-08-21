@@ -243,8 +243,9 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
     {
         if (HandTracking.Singleton)
         {
-            HandTracking.Singleton.OnMiddleFingerGrab.AddListener(OnTransitionGrab, IsHandInTransitionGrabBounds);
+            HandTracking.Singleton.OnMiddleFingerGrab.AddListener(OnTransitionGrab, IsMiddleFingerInTransitionGrabBounds);
             HandTracking.Singleton.OnMiddleFingerGrabRelease += OnTransitionGrabRelease;
+            HandTracking.Singleton.OnEmptyIndexFingerGrab.AddListener(OnNormalGrab, IsIndexFingerInTransitionGrabBounds);
             //HandTracking.Singleton.OnIndexFingerGrab += OnNormalGrab;
             //HandTracking.Singleton.OnIndexFingerGrabRelease += OnNormalGrabRelease;
         }
@@ -256,6 +257,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
         {
             HandTracking.Singleton.OnMiddleFingerGrab.RemoveListener(OnTransitionGrab);
             HandTracking.Singleton.OnMiddleFingerGrabRelease -= OnTransitionGrabRelease;
+            HandTracking.Singleton.OnEmptyIndexFingerGrab.RemoveListener(OnNormalGrab);
         }
     }
 
@@ -270,7 +272,24 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
-    private bool IsHandInTransitionGrabBounds()
+    private void OnNormalGrab()
+    {
+        // blocks default case of event
+    }
+
+    private bool IsIndexFingerInTransitionGrabBounds()
+    {
+        if (isInteractable)
+        {
+            if (GetComponent<myBoundingBox>().contains(HandTracking.Singleton.getIndexTip()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool IsMiddleFingerInTransitionGrabBounds()
     {
         if (isInteractable)
         {

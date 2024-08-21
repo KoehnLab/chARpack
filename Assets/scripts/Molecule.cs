@@ -370,8 +370,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         if (HandTracking.Singleton)
         {
             //HandTracking.Singleton.OnMiddleFingerGrab += OnTransitionGrab;
-            HandTracking.Singleton.OnMiddleFingerGrab.AddListener(OnTransitionGrab, IsHandInTransitionGrabBounds);
+            HandTracking.Singleton.OnMiddleFingerGrab.AddListener(OnTransitionGrab, IsMiddleFingerInTransitionGrabBounds);
             HandTracking.Singleton.OnMiddleFingerGrabRelease += OnTransitionGrabRelease;
+            HandTracking.Singleton.OnEmptyIndexFingerGrab.AddListener(OnNormalGrab, IsIndexFingerInTransitionGrabBounds);
             //HandTracking.Singleton.OnIndexFingerGrab += OnNormalGrab;
             //HandTracking.Singleton.OnIndexFingerGrabRelease += OnNormalGrabRelease;
         }
@@ -388,17 +389,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     }
 
     bool emptyGrab = false;
-    private void OnNormalGrab(Vector3 pos)
+    private void OnNormalGrab()
     {
-        if (screenAlignment.Singleton == null) return;
-        if (GetComponent<myBoundingBox>().contains(pos))
-        {
-            if (GetComponent<myBoundingBox>().containedInHandles(pos)) return;
-            if (containedInAtoms(pos)) return;
-
-            screenAlignment.Singleton.OnDistantGrab();
-            emptyGrab = true;
-        }
+        // blocks default case of event
     }
 
     private void OnNormalGrabRelease()
@@ -406,7 +399,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         if (screenAlignment.Singleton == null) return;
         if (emptyGrab)
         {
-            screenAlignment.Singleton.OnDistantGrabRelease();
+            screenAlignment.Singleton.OnDistantTransitionGrabRelease();
             emptyGrab = false;
         }
     }
@@ -422,8 +415,19 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    private bool IsIndexFingerInTransitionGrabBounds()
+    {
+        if (isInteractable)
+        {
+            if (GetComponent<myBoundingBox>().contains(HandTracking.Singleton.getIndexTip()))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
-    private bool IsHandInTransitionGrabBounds()
+    private bool IsMiddleFingerInTransitionGrabBounds()
     {
         if (isInteractable)
         {
@@ -2340,6 +2344,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             HandTracking.Singleton.OnMiddleFingerGrab.RemoveListener(OnTransitionGrab);
             HandTracking.Singleton.OnMiddleFingerGrabRelease -= OnTransitionGrabRelease;
+            HandTracking.Singleton.OnEmptyIndexFingerGrab.RemoveListener(OnNormalGrab);
             //HandTracking.Singleton.OnIndexFingerGrab -= OnNormalGrab;
             //HandTracking.Singleton.OnIndexFingerGrabRelease -= OnNormalGrabRelease;
         }

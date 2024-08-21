@@ -51,6 +51,7 @@ public class HandTracking : MonoBehaviour
     private MixedRealityPose indexKnucklePose = MixedRealityPose.ZeroIdentity;
     private MixedRealityPose indexTipPose = MixedRealityPose.ZeroIdentity;
     private MixedRealityPose middleTipPose = MixedRealityPose.ZeroIdentity;
+    private MixedRealityPose middleKnucklePose = MixedRealityPose.ZeroIdentity;
     private MixedRealityPose thumbTipPose = MixedRealityPose.ZeroIdentity;
     private MixedRealityPose wristPose = MixedRealityPose.ZeroIdentity;
     public GameObject fragmentIndicator;
@@ -109,6 +110,7 @@ public class HandTracking : MonoBehaviour
 
 
     public ConditionalEventWithCooldown OnMiddleFingerGrab = new ConditionalEventWithCooldown(0.2f);
+    public ConditionalEventWithCooldown OnEmptyIndexFingerGrab = new ConditionalEventWithCooldown(0.2f);
 
     public delegate void MiddleFingerGrabReleaseAction();
     public event MiddleFingerGrabReleaseAction OnMiddleFingerGrabRelease;
@@ -131,7 +133,6 @@ public class HandTracking : MonoBehaviour
         OnIndexFingerGrabRelease?.Invoke();
     }
 
-    Stopwatch middleFingerGrabCooldown = new Stopwatch();
     private void Update()
     {
         getPose();
@@ -146,6 +147,10 @@ public class HandTracking : MonoBehaviour
             {
                 indexFingerGrab = true;
                 IndexFingerGrab(indexTipPose.Position);
+                if (!SettingsData.handRay)
+                {
+                    OnEmptyIndexFingerGrab.Invoke();
+                }
             }
         }
         else
@@ -162,18 +167,8 @@ public class HandTracking : MonoBehaviour
         {
             if (!middleFingerGrab)
             {
-                middleFingerGrabCooldown.Stop();
-                if (middleFingerGrabCooldown.ElapsedMilliseconds > 200)
-                {
-                    middleFingerGrab = true;
-                    //MiddleFingerGrab(middleTipPose.Position);
-                    OnMiddleFingerGrab.Invoke();
-                    middleFingerGrabCooldown.Restart();
-                }
-                else
-                {
-                    middleFingerGrabCooldown.Start();
-                }
+                middleFingerGrab = true;
+                OnMiddleFingerGrab.Invoke();
             }
         }
         else
@@ -263,6 +258,9 @@ public class HandTracking : MonoBehaviour
 
             var middleTipTransform = HandJointService.RequestJointTransform(TrackedHandJoint.MiddleTip, SettingsData.handedness);
             middleTipPose = new MixedRealityPose(middleTipTransform.position, middleTipTransform.rotation);
+
+            var middleKnuckleTransform = HandJointService.RequestJointTransform(TrackedHandJoint.MiddleKnuckle, SettingsData.handedness);
+            middleKnucklePose = new MixedRealityPose(middleKnuckleTransform.position, middleKnuckleTransform.rotation);
 
             var thumbTipTransform = HandJointService.RequestJointTransform(TrackedHandJoint.ThumbTip, SettingsData.handedness);
             thumbTipPose = new MixedRealityPose(thumbTipTransform.position, thumbTipTransform.rotation);
@@ -367,6 +365,14 @@ public class HandTracking : MonoBehaviour
         var pose = new Pose();
         pose.position = wristPose.Position;
         pose.rotation = wristPose.Rotation;
+        return pose;
+    }
+
+    public Pose getMiddleKnucklePose()
+    {
+        var pose = new Pose();
+        pose.position = middleKnucklePose.Position;
+        pose.rotation = middleKnucklePose.Rotation;
         return pose;
     }
 }

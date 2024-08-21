@@ -14590,6 +14590,8 @@ MonoBehaviour:
       m_Image: {fileID: 0}
     - m_Text: Distant Grab
       m_Image: {fileID: 0}
+    - m_Text: On Screen
+      m_Image: {fileID: 0}
     - m_Text: All
       m_Image: {fileID: 0}
   m_OnValueChanged:

@@ -41,15 +41,18 @@ public enum ClientToServerID : ushort
     eyeCalibrationState = 1034,
     batteryState = 1035,
     grabAtom = 1036,
-    grabOnScreen = 1037,
-    releaseGrabOnScreen = 1038,
+    transitionGrabOnScreen = 1037,
+    releaseTransitionGrabOnScreen = 1038,
     hoverOverScreen = 1039,
     transitionMolecule = 1040,
     transitionGenericObject = 1041,
     sendSpawnGhostObject = 1042,
     sendObjectToTrack = 1043,
     sendResults = 1044,
-    transitionUnsuccessful = 1045
+    transitionUnsuccessful = 1045,
+    grabOnScreen = 1046,
+    releaseGrabOnScreen = 1047,
+    handPose = 1048
 }
 
 public enum ServerToClientID : ushort
