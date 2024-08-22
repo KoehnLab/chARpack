@@ -5299,7 +5299,7 @@ MonoBehaviour:
   lifetime: 0
   referenceDirection: 1
   minDistance: 0.4
-  maxDistance: 1
+  maxDistance: 0.5
   minViewDegrees: 0
   maxViewDegrees: 25
   aspectV: 1

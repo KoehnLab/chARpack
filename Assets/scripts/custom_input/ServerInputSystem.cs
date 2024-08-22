@@ -106,7 +106,7 @@ public class ServerInputSystem : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.BUTTON_PRESS || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
+                if (SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.BUTTON_PRESS))
                 {
                     var obj = GlobalCtrl.Singleton.getFirstMarkedObject();
                     if (obj != null)

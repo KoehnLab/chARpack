@@ -508,6 +508,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddInt((int)SettingsData.desktopTarget);
         message.AddInt(SettingsData.randomSeed);
         message.AddInt((int)SettingsData.allowedTransitionInteractions);
+        message.AddBool(SettingsData.allowThrowing);
         Server.SendToAll(message);
     }
 
@@ -1640,12 +1641,9 @@ public class NetworkManagerServer : MonoBehaviour
         obj_pos_in_cam_coords.z = old_obj_pos_in_cam_coords.z;
         objectToManipulate.position = GlobalCtrl.Singleton.currentCamera.transform.TransformPoint(obj_pos_in_cam_coords);
 
-
-        if (Mathf.Abs(z_diff) > 0.05f)
-        {
-            objectToManipulate.position += 0.2f * z_diff * GlobalCtrl.Singleton.currentCamera.transform.forward;
-        }
-        
+        var z_movement_threshold = 0.07f;
+        var z_movement = Mathf.Abs(z_diff) >= z_movement_threshold ? Mathf.Sign(z_diff) * 0.2f * Mathf.Pow(z_diff + z_movement_threshold, 2f) * GlobalCtrl.Singleton.currentCamera.transform.forward : Vector3.zero;
+        objectToManipulate.position += z_movement;
 
         var relative_rotation = initialHandPose.rotation * Quaternion.Inverse(current_hand_pose.rotation);
         //objectToManipulate.Rotate(relative_rotation.eulerAngles);
@@ -1655,7 +1653,7 @@ public class NetworkManagerServer : MonoBehaviour
         var near_point = GlobalCtrl.Singleton.currentCamera.transform.position + GlobalCtrl.Singleton.currentCamera.transform.forward * GlobalCtrl.Singleton.currentCamera.nearClipPlane;
         if (objectToManipulate.GetComponent<myBoundingBox>().contains(near_point))
         {
-            TransitionManager.Singleton.initializeTransitionServer(objectToManipulate, TransitionManager.InteractionType.ONSCREEN);
+            TransitionManager.Singleton.initializeTransitionServer(objectToManipulate, TransitionManager.InteractionType.ONSCREEN_PULL);
         }
     }
 

@@ -32,21 +32,25 @@ public class TransitionManager : MonoBehaviour
         CURSOR_POSITION = 2
     }
 
+    [System.Flags]
     public enum TransitionAnimation
     {
-        NONE = 0 << 0,
+        NONE = 0,
         SCALE = 1 << 0,
         ROTATION = 1 << 1,
         BOTH = SCALE | ROTATION
     }
 
+    [System.Flags]
     public enum InteractionType
     {
-        BUTTON_PRESS = 0,
-        CLOSE_GRAB = 1,
-        DISTANT_GRAB = 2,
-        ONSCREEN = 3,
-        ALL = 4
+        NONE = 0,
+        BUTTON_PRESS = 1 << 0,
+        CLOSE_GRAB = 1 << 1,
+        DISTANT_GRAB = 1 << 2,
+        ONSCREEN_PULL = 1 << 3,
+        THROW = 1 << 4,
+        ALL = BUTTON_PRESS | CLOSE_GRAB | DISTANT_GRAB | ONSCREEN_PULL | THROW
     }
 
     private static TransitionManager _singleton;
@@ -377,7 +381,7 @@ public class TransitionManager : MonoBehaviour
             target_scale_factor = SettingsData.serverViewport.y / (2f * ss_size_y);
             Debug.Log($"[initializeTransitionClient] Object larger than screen. Scale factor {target_scale_factor}");
         }
-        if (triggered_by == InteractionType.CLOSE_GRAB)
+        if (triggered_by == InteractionType.CLOSE_GRAB || triggered_by == InteractionType.THROW)
         {
             var mol = trans.GetComponent<Molecule>();
             if (mol != null)
@@ -409,7 +413,7 @@ public class TransitionManager : MonoBehaviour
         }
         else
         {
-            if (SettingsData.transitionAnimation == TransitionAnimation.SCALE || SettingsData.transitionAnimation == TransitionAnimation.BOTH)
+            if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.SCALE))
             {
                 Debug.Log("[initializeTransitionClient] Animating scale.");
                 StartCoroutine(scaleWhileMoving(trans, trans.localScale.x * target_scale_factor));
@@ -504,7 +508,7 @@ public class TransitionManager : MonoBehaviour
                 var fos_pos = trans.position + dist_to_move * screenAlignment.Singleton.getScreenNormal();
                 StartCoroutine(moveToPos(trans, fos_pos, true));
             }
-            if (SettingsData.transitionAnimation == TransitionAnimation.SCALE || SettingsData.transitionAnimation == TransitionAnimation.BOTH)
+            if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.SCALE))
             {
                 Debug.Log("[getTransitionClient] Animating scale.");
                 StartCoroutine(scaleWhileMoving(trans, 1f, override_grab_hold));
@@ -847,7 +851,7 @@ public class TransitionManager : MonoBehaviour
             var current_distance = Vector3.Distance(trans.position, target_pos);
             audio_source.volume = Mathf.Clamp01(1f - current_distance / initial_distance) * 0.75f;
 
-            if (SettingsData.transitionAnimation == TransitionAnimation.ROTATION || SettingsData.transitionAnimation == TransitionAnimation.BOTH)
+            if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.ROTATION))
             {
                 Debug.Log("[moveToHand] Animating rotation.");
                 var head_to_obj = Quaternion.LookRotation(trans.position - GlobalCtrl.Singleton.currentCamera.transform.position);
@@ -926,7 +930,7 @@ public class TransitionManager : MonoBehaviour
             var current_distance = Vector3.Distance(trans.position, target_pos);
             audio_source.volume = Mathf.Clamp01(1f - current_distance/initial_distance) * 0.75f;
 
-            if (SettingsData.transitionAnimation == TransitionAnimation.ROTATION || SettingsData.transitionAnimation == TransitionAnimation.BOTH)
+            if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.ROTATION))
             {
                 Debug.Log("[moveToUser] Animating rotation.");
                 var head_to_obj = Quaternion.LookRotation(trans.position - GlobalCtrl.Singleton.currentCamera.transform.position);

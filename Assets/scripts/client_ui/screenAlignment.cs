@@ -1,4 +1,5 @@
 using Microsoft.MixedReality.Toolkit.Input;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -375,13 +376,13 @@ public class screenAlignment : MonoBehaviour
                     handCloseToScreen = true;
                     if (HandTracking.Singleton != null)
                     {
-                        HandTracking.Singleton.OnIndexFingerGrab += OnCloseGrab;
+                        HandTracking.Singleton.OnEmptyCloseIndexFingerGrab.SetDefaultListener(OnCloseGrab);
                         HandTracking.Singleton.OnIndexFingerGrabRelease += OnCloseGrabRelease;
                     }
                 }
                 proj = projectIndexTipOnScreen();
 
-                if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.CLOSE_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
+                if (SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.CLOSE_GRAB))
                 {
                     arcInstance.transform.position = proj.Value;
                     var diff_vec = proj.Value - HandTracking.Singleton.getIndexTip();
@@ -406,7 +407,7 @@ public class screenAlignment : MonoBehaviour
                     handCloseToScreen = false;
                     if (HandTracking.Singleton != null)
                     {
-                        HandTracking.Singleton.OnIndexFingerGrab -= OnCloseGrab;
+                        HandTracking.Singleton.OnEmptyCloseIndexFingerGrab.RemoveDefaultListener();
                         HandTracking.Singleton.OnIndexFingerGrabRelease -= OnCloseGrabRelease;
                     }
                 }
@@ -445,14 +446,14 @@ public class screenAlignment : MonoBehaviour
             // check if object is getting pushed into the screen
             if (GlobalCtrl.Singleton != null)
             {
-                var intersecting_objects = new List<Transform>();
+                var intersecting_objects = new List<Tuple<Transform, bool>>();
                 if (GenericObject.objects != null && GenericObject.objects.Count > 0)
                 {
                     foreach (var obj in GenericObject.objects.Values)
                     {
                         if (bounds.Intersects(obj.GetComponent<myBoundingBox>().localBounds) && obj.isGrabbed)
                         {
-                            intersecting_objects.Add(obj.transform);
+                            var is_thrown = false;
                             if (!initial_scale_of_intersecting_objects.Keys.Contains(obj.transform))
                             {
                                 initial_scale_of_intersecting_objects[obj.transform] = obj.transform.localScale.x;
@@ -460,8 +461,17 @@ public class screenAlignment : MonoBehaviour
                             if (!initial_distance_of_intersecting_objects.Keys.Contains(obj.transform))
                             {
                                 var box = obj.transform.GetComponent<myBoundingBox>();
+                                var local_trans_point = box.transform.InverseTransformPoint(box.localBounds.center);
                                 var tip = HandTracking.Singleton.getIndexTip();
-                                var local_trans_point = getTransitionPoint(box, tip);
+                                if (box.contains(tip))
+                                {
+                                    local_trans_point = getTransitionPoint(box, tip);
+                                }
+                                else
+                                {
+                                    is_thrown = true;
+                                }
+
                                 localTransitionPoint[obj.transform] = local_trans_point;
                                 var global_trans_point = obj.transform.TransformPoint(local_trans_point);
                                 var distance = Vector3.Distance(projectWSPointToScreen(global_trans_point), global_trans_point);
@@ -488,6 +498,7 @@ public class screenAlignment : MonoBehaviour
                                 audio_source.volume = 0f;
                                 audio_source.Play();
                             }
+                            intersecting_objects.Add(new Tuple<Transform, bool>(obj.transform, is_thrown));
                         }
                     }
                 }
@@ -497,7 +508,7 @@ public class screenAlignment : MonoBehaviour
                     {
                         if (bounds.Intersects(mol.GetComponent<myBoundingBox>().localBounds) && mol.isGrabbed)
                         {
-                            intersecting_objects.Add(mol.transform);
+                            var is_thrown = false;
                             if (!initial_scale_of_intersecting_objects.Keys.Contains(mol.transform))
                             {
                                 initial_scale_of_intersecting_objects[mol.transform] = mol.transform.localScale.x;
@@ -505,8 +516,16 @@ public class screenAlignment : MonoBehaviour
                             if (!localTransitionPoint.Keys.Contains(mol.transform))
                             {
                                 var box = mol.transform.GetComponent<myBoundingBox>();
+                                var local_trans_point = box.transform.InverseTransformPoint(box.localBounds.center);
                                 var tip = HandTracking.Singleton.getIndexTip();
-                                var local_trans_point = getTransitionPoint(box, tip);
+                                if (box.contains(tip))
+                                {
+                                    local_trans_point = getTransitionPoint(box, tip);
+                                }
+                                else
+                                {
+                                    is_thrown = true;
+                                }
                                 localTransitionPoint[mol.transform] = local_trans_point;
                                 var global_trans_point = mol.transform.TransformPoint(local_trans_point);
                                 var distance = Vector3.Distance(projectWSPointToScreen(global_trans_point), global_trans_point);
@@ -533,23 +552,24 @@ public class screenAlignment : MonoBehaviour
                                 audio_source.volume = 0f;
                                 audio_source.Play();
                             }
+                            intersecting_objects.Add(new Tuple<Transform, bool>(mol.transform, is_thrown));
                         }
                     }
                 }
-
+                var intersecting_objects_list = intersecting_objects.Select(t => t.Item1).ToList();
                 // transition object if center pushed beyond screen
                 var is_transitioned = false;
                 foreach (var obj in intersecting_objects)
                 {
-                    is_transitioned = transition(obj);
+                    is_transitioned = transition(obj.Item1, obj.Item2);
                 }
 
-                if (SettingsData.transitionAnimation == TransitionManager.TransitionAnimation.BOTH || SettingsData.transitionAnimation == TransitionManager.TransitionAnimation.SCALE)
+                if (SettingsData.transitionAnimation.HasFlag(TransitionManager.TransitionAnimation.SCALE))
                 {
                     if (!is_transitioned)
                     {
                         // shrink object while getting pushed in the screen
-                        foreach (var obj in intersecting_objects)
+                        foreach (var obj in intersecting_objects_list)
                         {
                             shrink(obj);
                         }
@@ -558,7 +578,7 @@ public class screenAlignment : MonoBehaviour
                         {
                             foreach (var oio in old_intersecting_objects)
                             {
-                                if (!intersecting_objects.Contains(oio))
+                                if (!intersecting_objects_list.Contains(oio))
                                 {
                                     // only grow when grabbed
                                     bool isGrabbed = false;
@@ -606,7 +626,7 @@ public class screenAlignment : MonoBehaviour
 
                     foreach (var pbi in progressBarInstances.Keys)
                     {
-                        if (!old_intersecting_objects.Contains(pbi) && !intersecting_objects.Contains(pbi))
+                        if (!old_intersecting_objects.Contains(pbi) && !intersecting_objects_list.Contains(pbi))
                         {
                             Destroy(progressBarInstances[pbi]);
                             progressBarInstances.Remove(pbi);
@@ -654,76 +674,90 @@ public class screenAlignment : MonoBehaviour
         return local_transition_point;
     }
 
-    private bool transition(Transform trans)
+    private bool transition(Transform trans, bool is_thrown = false)
     {
-        if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.CLOSE_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
+        if (is_thrown)
         {
-            var box = trans.GetComponent<myBoundingBox>();
-            var tip = HandTracking.Singleton.getIndexTip();
-            var transition_point = trans.transform.TransformPoint(localTransitionPoint[trans]);
+            if (!SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.THROW)) return false;
+        }
+        else
+        {
+            if (!SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.CLOSE_GRAB)) return false;
+        }
 
-            // render progress bar
-            if (GlobalCtrl.Singleton != null)
+        var box = trans.GetComponent<myBoundingBox>();
+        var tip = HandTracking.Singleton.getIndexTip();
+        var transition_point = trans.transform.TransformPoint(localTransitionPoint[trans]);
+
+        // render progress bar
+        if (GlobalCtrl.Singleton != null)
+        {
+            var current_distance = Vector3.Distance(transition_point, projectWSPointToScreen(transition_point));
+            if (current_distance > initial_distance_of_intersecting_objects[trans])
             {
-                var current_distance = Vector3.Distance(transition_point, projectWSPointToScreen(transition_point));
-                if (current_distance > initial_distance_of_intersecting_objects[trans])
+                progressBarInstances[trans].SetActive(false);
+            }
+            else
+            {
+                progressBarInstances[trans].SetActive(true);
+
+                var cam = GlobalCtrl.Singleton.currentCamera;
+
+                List<float> view_dist_list = new List<float>();
+                foreach (var corner in box.cornerHandles)
                 {
-                    progressBarInstances[trans].SetActive(false);
+                    view_dist_list.Add(Vector3.Distance(corner.transform.position, cam.transform.position));
+                }
+                float minVal = view_dist_list.Min();
+                int index = view_dist_list.IndexOf(minVal);
+
+                //progressBarInstances[trans].transform.position = box.cornerHandles[index].transform.position - 0.01f * cam.transform.right;
+                if (SettingsData.handedness == Microsoft.MixedReality.Toolkit.Utilities.Handedness.Left)
+                {
+                    progressBarInstances[trans].transform.position = HandTracking.Singleton.getWristPose().position + 0.05f * cam.transform.right + 0.05f * cam.transform.forward;
                 }
                 else
                 {
-                    progressBarInstances[trans].SetActive(true);
-
-                    var cam = GlobalCtrl.Singleton.currentCamera;
-
-                    List<float> view_dist_list = new List<float>();
-                    foreach (var corner in box.cornerHandles)
-                    {
-                        view_dist_list.Add(Vector3.Distance(corner.transform.position, cam.transform.position));
-                    }
-                    float minVal = view_dist_list.Min();
-                    int index = view_dist_list.IndexOf(minVal);
-
-                    //progressBarInstances[trans].transform.position = box.cornerHandles[index].transform.position - 0.01f * cam.transform.right;
-                    if (SettingsData.handedness == Microsoft.MixedReality.Toolkit.Utilities.Handedness.Left)
-                    {
-                        progressBarInstances[trans].transform.position = HandTracking.Singleton.getWristPose().position + 0.05f * cam.transform.right + 0.05f * cam.transform.forward;
-                    }
-                    else
-                    {
-                        progressBarInstances[trans].transform.position = HandTracking.Singleton.getWristPose().position - 0.05f * cam.transform.right + 0.05f * cam.transform.forward;
-                    }
-
-                    progressBarInstances[trans].transform.forward = cam.transform.forward;
-                    var current_progress = 1f - current_distance / initial_distance_of_intersecting_objects[trans];
-                    //progressBarInstances[trans].GetComponent<VerticalProgressBar>().setProgress(current_progress);
-                    progressBarInstances[trans].GetComponent<RadialProgressBar>().setProgress(current_progress);
-
-                    trans.GetComponent<AudioSource>().volume = Mathf.Clamp01(current_progress) * 0.75f;
-                    //transitionPointIndicator[trans].transform.position = transition_point;
-
+                    progressBarInstances[trans].transform.position = HandTracking.Singleton.getWristPose().position - 0.05f * cam.transform.right + 0.05f * cam.transform.forward;
                 }
-            }
 
+                progressBarInstances[trans].transform.forward = cam.transform.forward;
+                var current_progress = 1f - current_distance / initial_distance_of_intersecting_objects[trans];
+                //progressBarInstances[trans].GetComponent<VerticalProgressBar>().setProgress(current_progress);
+                progressBarInstances[trans].GetComponent<RadialProgressBar>().setProgress(current_progress);
 
-            if (Vector3.Dot(screenNormal, transition_point - projectWSPointToScreen(transition_point)) < 0f)
-            {
-                // directly remove stuff
-                trans.GetComponent<AudioSource>().Stop();
-                old_intersecting_objects.Remove(trans);
-                initial_scale_of_intersecting_objects.Remove(trans);
-                initial_distance_of_intersecting_objects.Remove(trans);
-                Destroy(progressBarInstances[trans]);
-                progressBarInstances.Remove(trans);
-                //Destroy(transitionPointIndicator[obj]);
-                //transitionPointIndicator.Remove(obj);
-                localTransitionPoint.Remove(trans);
+                trans.GetComponent<AudioSource>().volume = Mathf.Clamp01(current_progress) * 0.75f;
+                //transitionPointIndicator[trans].transform.position = transition_point;
 
-                // do the transition
-                TransitionManager.Singleton.initializeTransitionClient(trans, TransitionManager.InteractionType.CLOSE_GRAB);
-                return true;
             }
         }
+
+
+        if (Vector3.Dot(screenNormal, transition_point - projectWSPointToScreen(transition_point)) < 0f)
+        {
+            // directly remove stuff
+            trans.GetComponent<AudioSource>().Stop();
+            old_intersecting_objects.Remove(trans);
+            initial_scale_of_intersecting_objects.Remove(trans);
+            initial_distance_of_intersecting_objects.Remove(trans);
+            Destroy(progressBarInstances[trans]);
+            progressBarInstances.Remove(trans);
+            //Destroy(transitionPointIndicator[obj]);
+            //transitionPointIndicator.Remove(obj);
+            localTransitionPoint.Remove(trans);
+
+            // do the transition
+            if (is_thrown)
+            {
+                TransitionManager.Singleton.initializeTransitionClient(trans, TransitionManager.InteractionType.THROW);
+            }
+            else
+            {
+                TransitionManager.Singleton.initializeTransitionClient(trans, TransitionManager.InteractionType.CLOSE_GRAB);
+            }
+            return true;
+        }
+
         return false;
     }
 
@@ -830,7 +864,7 @@ public class screenAlignment : MonoBehaviour
 
     public void OnDistantTransitionGrab()
     {
-        if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.DISTANT_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
+        if (SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.DISTANT_GRAB))
         {
             var proj = projectIndexKnuckleOnScreen();
             var viewport_coords = getScreenSpaceCoords(proj.Value);
@@ -843,7 +877,7 @@ public class screenAlignment : MonoBehaviour
 
     public void OnDistantTransitionGrabRelease()
     {
-        if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.DISTANT_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
+        if (SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.DISTANT_GRAB))
         {
             if (EventManager.Singleton)
             {
@@ -854,7 +888,7 @@ public class screenAlignment : MonoBehaviour
 
     public void OnDistantGrab()
     {
-        if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ONSCREEN || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
+        if (SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.ONSCREEN_PULL))
         {
             if (EventManager.Singleton)
             {
@@ -874,9 +908,9 @@ public class screenAlignment : MonoBehaviour
         }
     }
 
-    public void OnCloseGrab(Vector3 ifpos)
+    public void OnCloseGrab()
     {
-        if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.CLOSE_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
+        if (SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.CLOSE_GRAB))
         {
             // Intentionally empty
             //var proj = projectIndexKnuckleOnScreen();
@@ -891,7 +925,7 @@ public class screenAlignment : MonoBehaviour
 
     public void OnCloseGrabRelease()
     {
-        if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.CLOSE_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
+        if (SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.CLOSE_GRAB))
         {
             if (EventManager.Singleton)
             {

@@ -625,7 +625,9 @@ public class NetworkManagerClient : MonoBehaviour
         var cml = mol.AsCML();
         cml.assignRelativeQuaternion(q);
 
-        if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT || triggered_by == TransitionManager.InteractionType.CLOSE_GRAB)
+        if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT ||
+            triggered_by == TransitionManager.InteractionType.CLOSE_GRAB ||
+            triggered_by == TransitionManager.InteractionType.THROW)
         {
             var proj = screenAlignment.Singleton.projectWSPointToScreen(mol.transform.position);
             var mol_ss_pos = screenAlignment.Singleton.getScreenSpaceCoords(proj);
@@ -651,7 +653,9 @@ public class NetworkManagerClient : MonoBehaviour
         var sgo = go.AsSerializable();
         sgo.assignRelativeQuaternion(q);
 
-        if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT || triggered_by == TransitionManager.InteractionType.CLOSE_GRAB)
+        if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT ||
+            triggered_by == TransitionManager.InteractionType.CLOSE_GRAB ||
+            triggered_by == TransitionManager.InteractionType.THROW)
         {
             var proj = screenAlignment.Singleton.projectWSPointToScreen(go.transform.position);
             var go_ss_pos = screenAlignment.Singleton.getScreenSpaceCoords(proj);
@@ -1221,7 +1225,8 @@ public class NetworkManagerClient : MonoBehaviour
         var transitionAnimationDuration = message.GetFloat();
         var desktopTarget = (TransitionManager.DesktopTarget)message.GetInt();
         var randomSeed = message.GetInt();
-        var allowedInteractions = (TransitionManager.InteractionType)message.GetInt();
+        var allowedTransitionInteractions = (TransitionManager.InteractionType)message.GetInt();
+        var allowThrowing = message.GetBool();
 
         // Get enum entries from strings
         Enum.TryParse(integrationMethodString, ignoreCase: true, out ForceField.Method integrationMethod);
@@ -1260,7 +1265,9 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.transitionAnimationDuration = transitionAnimationDuration;
             SettingsData.desktopTarget = desktopTarget;
             SettingsData.randomSeed = randomSeed;
-            SettingsData.allowedTransitionInteractions = allowedInteractions;
+            SettingsData.allowedTransitionInteractions = allowedTransitionInteractions;
+            SettingsData.allowThrowing = allowThrowing;
+
             settingsControl.Singleton.updateSettings();
             if (appSettings.Singleton != null)
             {

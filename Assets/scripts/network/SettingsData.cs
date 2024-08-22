@@ -43,12 +43,13 @@ public class SettingsData
     [JsonProperty] public static TransitionManager.TransitionMode transitionMode = TransitionManager.TransitionMode.DESKTOP_2D;
     [JsonProperty] public static TransitionManager.ImmersiveTarget immersiveTarget = TransitionManager.ImmersiveTarget.HAND_FIXED;
     [JsonProperty] public static bool requireGrabHold = true;
-    [JsonProperty] public static Handedness handedness = Handedness.Right;
+    [JsonProperty] public static Handedness handedness = Handedness.Both;
     [JsonProperty] public static TransitionManager.TransitionAnimation transitionAnimation = TransitionManager.TransitionAnimation.BOTH;
     [JsonProperty] public static float transitionAnimationDuration = 1.5f;
     [JsonProperty] public static TransitionManager.DesktopTarget desktopTarget = TransitionManager.DesktopTarget.CENTER_OF_SCREEN;
     [JsonProperty] public static int randomSeed = 666;
     [JsonProperty] public static TransitionManager.InteractionType allowedTransitionInteractions = TransitionManager.InteractionType.ALL;
+    [JsonProperty] public static bool allowThrowing = true;
 
     public static int highlightColorMap { get => _highlightColorMap; set
         {

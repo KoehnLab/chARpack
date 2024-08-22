@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.PerformanceData;
 using System.IO;
 using System.Linq;
 using Unity.VisualScripting;
@@ -246,6 +247,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
             HandTracking.Singleton.OnMiddleFingerGrab.AddListener(OnTransitionGrab, IsMiddleFingerInTransitionGrabBounds);
             HandTracking.Singleton.OnMiddleFingerGrabRelease += OnTransitionGrabRelease;
             HandTracking.Singleton.OnEmptyIndexFingerGrab.AddListener(OnNormalGrab, IsIndexFingerInTransitionGrabBounds);
+            HandTracking.Singleton.OnEmptyCloseIndexFingerGrab.AddListener(OnNormalGrab, IsIndexFingerInTransitionGrabBounds);
             //HandTracking.Singleton.OnIndexFingerGrab += OnNormalGrab;
             //HandTracking.Singleton.OnIndexFingerGrabRelease += OnNormalGrabRelease;
         }
@@ -258,6 +260,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
             HandTracking.Singleton.OnMiddleFingerGrab.RemoveListener(OnTransitionGrab);
             HandTracking.Singleton.OnMiddleFingerGrabRelease -= OnTransitionGrabRelease;
             HandTracking.Singleton.OnEmptyIndexFingerGrab.RemoveListener(OnNormalGrab);
+            HandTracking.Singleton.OnEmptyCloseIndexFingerGrab.RemoveListener(OnNormalGrab);
         }
     }
 
@@ -265,7 +268,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
     {
         if (SettingsData.syncMode == TransitionManager.SyncMode.Async)
         {
-            if (SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.DISTANT_GRAB || SettingsData.allowedTransitionInteractions == TransitionManager.InteractionType.ALL)
+            if (SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.DISTANT_GRAB))
             {
                 TransitionManager.Singleton.initializeTransitionClient(transform, TransitionManager.InteractionType.DISTANT_GRAB);
             }
@@ -281,7 +284,9 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
     {
         if (isInteractable)
         {
-            if (GetComponent<myBoundingBox>().contains(HandTracking.Singleton.getIndexTip()))
+            var bounds = GetComponent<myBoundingBox>().getCopyOfBounds();
+            bounds.Expand(0.05f); // take pointer size into account
+            if (bounds.Contains(HandTracking.Singleton.getIndexTip()))
             {
                 return true;
             }
@@ -293,7 +298,9 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
     {
         if (isInteractable)
         {
-            if (GetComponent<myBoundingBox>().contains(HandTracking.Singleton.getMiddleTip()))
+            var bounds = GetComponent<myBoundingBox>().getCopyOfBounds();
+            bounds.Expand(0.05f); // take pointer size into account
+            if (bounds.Contains(HandTracking.Singleton.getMiddleTip()))
             {
                 return true;
             }
@@ -500,10 +507,35 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
                     toggleMarkObject();
                     // TODO open tool tip
                 }
+
+                if (SettingsData.allowThrowing)
+                {
+                    // support throwing
+                    StartCoroutine(continueMovement(HandTracking.Singleton.getHandVelocity()));
+                }
+
                 // change material back to normal
                 GetComponent<myBoundingBox>().setGrabbed(false);
                 processHighlights();
             }
         }
+    }
+
+    public IEnumerator continueMovement(Vector3 initial_velocity)
+    {
+        isGrabbed = true;
+        var current_velocity = initial_velocity * 0.9f;
+        var damping_coefficient = 0.98f;
+        while (!current_velocity.magnitude.approx(0f, 0.0001f))
+        {
+            transform.position += current_velocity;
+            current_velocity = current_velocity.multiply(damping_coefficient * Vector3.one);
+            if (current_velocity.magnitude < 0.005f)
+            {
+                damping_coefficient *= damping_coefficient;
+            }
+            yield return null;
+        }
+        isGrabbed = false;
     }
 }

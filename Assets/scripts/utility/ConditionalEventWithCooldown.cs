@@ -32,6 +32,11 @@ public class ConditionalEventWithCooldown
         _defaultHandler = handler;
     }
 
+    public void RemoveDefaultListener()
+    {
+        _defaultHandler = delegate { };
+    }
+
     public void Invoke()
     {
         if (_isOnCooldown)

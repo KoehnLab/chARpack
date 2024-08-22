@@ -2,11 +2,8 @@ using Microsoft.MixedReality.Toolkit.Utilities;
 using SimpleFileBrowser;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.IO;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -52,7 +49,8 @@ public class SettingsPanel : MonoBehaviour
     public GameObject transitionAnimationDurationSlider;
     public GameObject desktopTargetDropdown;
     public GameObject randomSeedInputField;
-    public GameObject allowedInteractionsDropdown;
+    public GameObject allowedTransitionInteractionsDropdown;
+    public GameObject allowThrowingToggle;
 
     // save load buttons
     public GameObject saveSettingsButton;
@@ -177,11 +175,20 @@ public class SettingsPanel : MonoBehaviour
 
         useAsyncModeToggle.GetComponent<Toggle>().isOn = SettingsData.syncMode == TransitionManager.SyncMode.Async;
         transitionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().value = (int)SettingsData.transitionMode;
-        allowedInteractionsDropdown.GetComponent<TMPro.TMP_Dropdown>().value = (int)SettingsData.allowedTransitionInteractions;
+        allowedTransitionInteractionsDropdown.GetComponent<TransitionInteractionTypeFlagEnumDropdown>().selectedOptions = SettingsData.allowedTransitionInteractions;
         immersiveTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value = (int)SettingsData.immersiveTarget;
         desktopTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value = (int)SettingsData.desktopTarget;
         requireGrabHoldToggle.GetComponent<Toggle>().isOn = SettingsData.requireGrabHold;
-        handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().value = SettingsData.handedness == Handedness.Right ? 0 : 1;
+        var handednessValue = 2; // Both
+        if (SettingsData.handedness == Handedness.Right)
+        {
+            handednessValue = 0;
+        }
+        else if (SettingsData.handedness == Handedness.Left)
+        {
+            handednessValue = 1;
+        }
+        handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().value =  handednessValue;
         var transitionAniValue = 0;
         if (SettingsData.transitionAnimation == TransitionManager.TransitionAnimation.BOTH)
         {
@@ -199,6 +206,7 @@ public class SettingsPanel : MonoBehaviour
         transitionAnimationDurationSlider.GetComponent<Slider>().value = SettingsData.transitionAnimationDuration;
         transitionAnimationDurationSlider.GetComponent<UpdateSliderLabel>().updateLabel();
         randomSeedInputField.GetComponent<TMP_InputField>().text = $"{SettingsData.randomSeed}";
+        allowThrowingToggle.GetComponent<Toggle>().isOn = SettingsData.allowThrowing;
     }
 
     /// <summary>
@@ -244,12 +252,24 @@ public class SettingsPanel : MonoBehaviour
 
         SettingsData.syncMode = useAsyncModeToggle.GetComponent<Toggle>().isOn ? TransitionManager.SyncMode.Async : TransitionManager.SyncMode.Sync;
         SettingsData.transitionMode = (TransitionManager.TransitionMode)transitionModeDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
-        SettingsData.allowedTransitionInteractions = (TransitionManager.InteractionType)allowedInteractionsDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
+
+        SettingsData.allowedTransitionInteractions = allowedTransitionInteractionsDropdown.GetComponent<TransitionInteractionTypeFlagEnumDropdown>().selectedOptions;
+        Debug.Log($"[FlagEnum] Current Options {SettingsData.allowedTransitionInteractions}");
+
         SettingsData.immersiveTarget = (TransitionManager.ImmersiveTarget)immersiveTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
         SettingsData.desktopTarget = (TransitionManager.DesktopTarget)desktopTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
         SettingsData.requireGrabHold = requireGrabHoldToggle.GetComponent<Toggle>().isOn;
         options = handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().options;
-        SettingsData.handedness = options[handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text == "Right" ? Handedness.Right : Handedness.Left;
+        var handedness = Handedness.Both;
+        if (options[handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text == "Right")
+        {
+            handedness = Handedness.Right;
+        }
+        else if (options[handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text == "Left")
+        {
+            handedness = Handedness.Left;
+        }
+        SettingsData.handedness = handedness;
         options = transitionAnimationDropdown.GetComponent<TMPro.TMP_Dropdown>().options;
         if (options[transitionAnimationDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text == "Both")
         {
@@ -269,6 +289,7 @@ public class SettingsPanel : MonoBehaviour
         }
         SettingsData.transitionAnimationDuration = transitionAnimationDurationSlider.GetComponent<Slider>().value;
         SettingsData.randomSeed = int.Parse(randomSeedInputField.GetComponent<TMP_InputField>().text);
+        SettingsData.allowThrowing = allowThrowingToggle.GetComponent<Toggle>().isOn;
 
 
         settingsControl.Singleton.updateSettings();

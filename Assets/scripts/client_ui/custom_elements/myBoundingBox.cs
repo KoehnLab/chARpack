@@ -1,4 +1,5 @@
 using Microsoft.MixedReality.Toolkit.Input;
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 
@@ -100,6 +101,11 @@ public class myBoundingBox : MonoBehaviour
     public bool contains(Vector3 pos)
     {
         return localBounds.Contains(pos);
+    }
+
+    public Bounds getCopyOfBounds()
+    {
+        return new Bounds(_localBounds.center, _localBounds.size);
     }
 
     public bool containedInHandles(Vector3 pos)

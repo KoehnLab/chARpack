@@ -5,6 +5,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 482541237737822506, guid: 478732197b53dee4694480aac1a7c98c, type: 3}
@@ -46,6 +47,10 @@ PrefabInstance:
     - target: {fileID: 482541237737822548, guid: 478732197b53dee4694480aac1a7c98c, type: 3}
       propertyPath: m_Mesh
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1281587130050934810, guid: 478732197b53dee4694480aac1a7c98c, type: 3}
+      propertyPath: maxDistance
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1281587130050934810, guid: 478732197b53dee4694480aac1a7c98c, type: 3}
       propertyPath: targetViewPercentV
@@ -464,6 +469,18 @@ PrefabInstance:
     - {fileID: 5673332199498733954, guid: 478732197b53dee4694480aac1a7c98c, type: 3}
     - {fileID: 8867171436110085206, guid: 478732197b53dee4694480aac1a7c98c, type: 3}
     - {fileID: 328259196050499789, guid: 478732197b53dee4694480aac1a7c98c, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 482541237284604122, guid: 478732197b53dee4694480aac1a7c98c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4782886916509207304}
+    - targetCorrespondingSourceObject: {fileID: 3677022320791072014, guid: 478732197b53dee4694480aac1a7c98c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5426126788329060586}
+    - targetCorrespondingSourceObject: {fileID: 5514614719163644309, guid: 478732197b53dee4694480aac1a7c98c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8062671990206113482}
   m_SourcePrefab: {fileID: 100100000, guid: 478732197b53dee4694480aac1a7c98c, type: 3}
 --- !u!1 &2088793922961523404 stripped
 GameObject:
