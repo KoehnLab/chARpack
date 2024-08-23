@@ -12,6 +12,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using chARpackTypes;
 using chARpackColorPalette;
+using RuntimeGizmos;
 
 /// <summary>
 /// A class that provides the functionalities of single atoms.
@@ -230,8 +231,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         if (m_molecule.getIsInteractable())
         {
-            // Handle server GUI interaction
             if (EventSystem.current.IsPointerOverGameObject()) { return; }
+            // Handle server GUI interaction
+            if (TransformGizmo.Singleton != null )
+            {
+                if (TransformGizmo.Singleton.hasAnyAxis()) { return; }
+            }
 
             m_molecule.saveAtomState();
 
@@ -257,6 +262,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
     {
         if (m_molecule.getIsInteractable())
         {
+            if (!isGrabbed) { return; }
             if (EventSystem.current.IsPointerOverGameObject()) { return; }
 
             if (!frozen && GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL)
@@ -274,6 +280,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         if (m_molecule.getIsInteractable())
         {
             if (EventSystem.current.IsPointerOverGameObject()) { return; }
+            if (!isGrabbed) { return; }
 
             isGrabbed = false;
             EventManager.Singleton.GrabAtom(this, false);

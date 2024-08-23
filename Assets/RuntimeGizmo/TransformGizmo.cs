@@ -392,14 +392,14 @@ namespace RuntimeGizmos
 			{
                 if (nearAxis != Axis.None && Input.GetMouseButtonDown(0))
 				{
-					if (mouseIsOverUIElement()) return;
+					if (isMouseOverUIElement()) return;
 
                     StartCoroutine(TransformSelected(translatingType));
 				}
 			}
 		}
 
-		private bool mouseIsOverUIElement()
+		public bool isMouseOverUIElement()
 		{
             //check if mouse position is over any active and visible UI object
             foreach (MaskableGraphic uiElement in UICanvas.Singleton.GetComponentsInChildren<MaskableGraphic>())
@@ -693,7 +693,7 @@ namespace RuntimeGizmos
 				bool isAdding = Input.GetKey(AddSelection);
 				bool isRemoving = Input.GetKey(RemoveSelection);
 
-                if (mouseIsOverUIElement()) return;
+                if (isMouseOverUIElement()) return;
 
                 RaycastHit hitInfo; 
 				if(Physics.Raycast(myCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, Mathf.Infinity, selectionMask))
@@ -746,7 +746,7 @@ namespace RuntimeGizmos
 			timer.Stop();
 			if (timer.ElapsedMilliseconds > 200) yield break;
 
-            if (mouseIsOverUIElement()) yield break;
+            if (isMouseOverUIElement()) yield break;
 
             RaycastHit hitInfo;
 			if (Physics.Raycast(myCamera.ScreenPointToRay(Input.mousePosition), out hitInfo, Mathf.Infinity, selectionMask))
@@ -1053,7 +1053,7 @@ namespace RuntimeGizmos
 		void SetNearAxis()
 		{
 			if(isTransforming) return;
-			if (mouseIsOverUIElement()) return;
+			if (isMouseOverUIElement()) return;
 
 			SetTranslatingAxis(transformType, Axis.None);
 
