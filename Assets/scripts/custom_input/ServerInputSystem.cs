@@ -1,3 +1,4 @@
+using RuntimeGizmos;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -46,6 +47,15 @@ public class ServerInputSystem : MonoBehaviour
             lastObjectClickedOn = target;
             return;
         }
+        if (TransformGizmo.Singleton != null)
+        {
+            if (TransformGizmo.Singleton.hasAnyAxis())
+            {
+                lastObjectClickedOn = TransformGizmo.Singleton.transform;
+                return;
+            }
+        }
+
         Ray ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit[] hits = Physics.RaycastAll(ray);
         for (int i = 0; i < hits.Length; i++)

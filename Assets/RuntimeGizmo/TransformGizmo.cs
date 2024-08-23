@@ -216,7 +216,9 @@ namespace RuntimeGizmos
 			if(manuallyHandleGizmo)
 			{
 				if(onDrawCustomGizmo != null) onDrawCustomGizmo();
-			}else{
+			}
+			else
+			{
 				SetLines();
 			}
 		}
@@ -1021,6 +1023,11 @@ namespace RuntimeGizmos
 				}
 			}
 		}
+
+		public bool hasAnyAxis()
+		{
+            return nearAxis != Axis.None || planeAxis != Axis.None;
+        }
 
 		public void SetTranslatingAxis(TransformType type, Axis axis, Axis planeAxis = Axis.None)
 		{
