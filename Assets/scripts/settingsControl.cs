@@ -63,6 +63,7 @@ public class settingsControl : MonoBehaviour
         setExclusiveFullscreen(SettingsData.exclusiveFullscreen);
         setSyncMode(SettingsData.syncMode);
         setRandomSeed(SettingsData.randomSeed);
+        setHoverGazeSelection(SettingsData.hoverGazeAsSelection);
         GlobalCtrl.Singleton.setLicoriceRendering(SettingsData.licoriceRendering);
         GlobalCtrl.Singleton.reloadShaders();
         GlobalCtrl.Singleton.regenerateSingleBondTooltips(); // Regenerate in case length unit was changed
@@ -231,5 +232,13 @@ public class settingsControl : MonoBehaviour
     private void setRandomSeed(int seed)
     {
         UnityEngine.Random.InitState(seed);
+    }
+
+    private void setHoverGazeSelection(bool value)
+    {
+        if (HeadRayHover.Singleton != null)
+        {
+            HeadRayHover.Singleton.enabled = value;
+        }
     }
 }

@@ -509,6 +509,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddInt(SettingsData.randomSeed);
         message.AddInt((int)SettingsData.allowedTransitionInteractions);
         message.AddBool(SettingsData.allowThrowing);
+        message.AddBool(SettingsData.hoverGazeAsSelection);
         Server.SendToAll(message);
     }
 
@@ -1498,7 +1499,7 @@ public class NetworkManagerServer : MonoBehaviour
             {
                 HoverMarker.Singleton.show();
             }
-            HoverMarker.Singleton.setGrab();
+            HoverMarker.Singleton.setMiddleGrab();
         }
     }
 
@@ -1600,7 +1601,15 @@ public class NetworkManagerServer : MonoBehaviour
         if (objectToManipulate != null)
         {
             initialObjectRotation = objectToManipulate.rotation;
-            chARpackUtility.setObjectGrabbed(objectToManipulate, true);
+            chARpackUtils.setObjectGrabbed(objectToManipulate, true);
+        }
+        if (HoverMarker.Singleton != null)
+        {
+            if (!HoverMarker.Singleton.isVisible())
+            {
+                HoverMarker.Singleton.show();
+            }
+            HoverMarker.Singleton.setIndexGrab();
         }
     }
 
@@ -1609,8 +1618,16 @@ public class NetworkManagerServer : MonoBehaviour
     {
         if (objectToManipulate  != null)
         {
-            chARpackUtility.setObjectGrabbed(objectToManipulate, false);
+            chARpackUtils.setObjectGrabbed(objectToManipulate, false);
             objectToManipulate = null;
+        }
+        if (HoverMarker.Singleton != null)
+        {
+            if (!HoverMarker.Singleton.isVisible())
+            {
+                HoverMarker.Singleton.show();
+            }
+            HoverMarker.Singleton.setHover();
         }
     }
 
@@ -1650,10 +1667,17 @@ public class NetworkManagerServer : MonoBehaviour
         objectToManipulate.rotation = Quaternion.Inverse(relative_rotation) * initialObjectRotation;
 
         // check if transition should happen
-        var near_point = GlobalCtrl.Singleton.currentCamera.transform.position + GlobalCtrl.Singleton.currentCamera.transform.forward * GlobalCtrl.Singleton.currentCamera.nearClipPlane;
-        if (objectToManipulate.GetComponent<myBoundingBox>().contains(near_point))
+        var forward = GlobalCtrl.Singleton.currentCamera.transform.forward;
+        var near_point = GlobalCtrl.Singleton.currentCamera.transform.position + forward * GlobalCtrl.Singleton.currentCamera.nearClipPlane;
+
+        foreach (var corner in objectToManipulate.GetComponent<myBoundingBox>().cornerHandles)
         {
-            TransitionManager.Singleton.initializeTransitionServer(objectToManipulate, TransitionManager.InteractionType.ONSCREEN_PULL);
+            var pos_projected_on_nearplane = Vector3.ProjectOnPlane(corner.transform.position, forward) + Vector3.Dot(near_point, forward) * forward;
+            if (Vector3.Dot(forward, corner.transform.position - pos_projected_on_nearplane) < 0f)
+            {
+                TransitionManager.Singleton.initializeTransitionServer(objectToManipulate, TransitionManager.InteractionType.ONSCREEN_PULL);
+                return;
+            }
         }
     }
 

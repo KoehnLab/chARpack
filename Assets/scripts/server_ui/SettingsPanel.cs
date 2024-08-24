@@ -51,6 +51,7 @@ public class SettingsPanel : MonoBehaviour
     public GameObject randomSeedInputField;
     public GameObject allowedTransitionInteractionsDropdown;
     public GameObject allowThrowingToggle;
+    public GameObject hoverGazeAsSelectionToggle;
 
     // save load buttons
     public GameObject saveSettingsButton;
@@ -207,6 +208,7 @@ public class SettingsPanel : MonoBehaviour
         transitionAnimationDurationSlider.GetComponent<UpdateSliderLabel>().updateLabel();
         randomSeedInputField.GetComponent<TMP_InputField>().text = $"{SettingsData.randomSeed}";
         allowThrowingToggle.GetComponent<Toggle>().isOn = SettingsData.allowThrowing;
+        hoverGazeAsSelectionToggle.GetComponent<Toggle>().isOn = SettingsData.hoverGazeAsSelection;
     }
 
     /// <summary>
@@ -290,6 +292,7 @@ public class SettingsPanel : MonoBehaviour
         SettingsData.transitionAnimationDuration = transitionAnimationDurationSlider.GetComponent<Slider>().value;
         SettingsData.randomSeed = int.Parse(randomSeedInputField.GetComponent<TMP_InputField>().text);
         SettingsData.allowThrowing = allowThrowingToggle.GetComponent<Toggle>().isOn;
+        SettingsData.hoverGazeAsSelection = hoverGazeAsSelectionToggle.GetComponent<Toggle>().isOn;
 
 
         settingsControl.Singleton.updateSettings();

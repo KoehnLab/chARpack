@@ -29,13 +29,16 @@ public class HoverMarker : MonoBehaviour
     }
 
     private Sprite hover;
-    private Sprite hover_grab;
+    private Sprite hoverMiddleGrab;
+    private Sprite hoverIndexGrab;
+
 
     // Start is called before the first frame update
     void Start()
     {
         hover = Resources.Load<Sprite>("hoverMarker/hover_sprite");
-        hover_grab = Resources.Load<Sprite>("hoverMarker/hoverSelect_sprite");
+        hoverMiddleGrab = Resources.Load<Sprite>("hoverMarker/hoverSelect_sprite");
+        hoverIndexGrab = Resources.Load<Sprite>("hoverMarker/hoverIndexSelect_sprite");
 
         gameObject.SetActive(false);
     }
@@ -51,9 +54,14 @@ public class HoverMarker : MonoBehaviour
         GetComponent<Image>().sprite = hover;
     }
 
-    public void setGrab()
+    public void setMiddleGrab()
     {
-        GetComponent<Image>().sprite = hover_grab;
+        GetComponent<Image>().sprite = hoverMiddleGrab;
+    }
+
+    public void setIndexGrab()
+    {
+        GetComponent<Image>().sprite = hoverIndexGrab;
     }
 
     public void show()

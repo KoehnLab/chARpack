@@ -310,6 +310,9 @@ public class TransitionManager : MonoBehaviour
 
     public void initializeTransitionServer(Transform trans, InteractionType triggered_by)
     {
+        if (transitionOnCooldown) return;
+        StartCoroutine(startCooldown());
+
         var mol = trans.GetComponent<Molecule>();
         if (mol != null)
         {

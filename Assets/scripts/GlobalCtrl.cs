@@ -1461,6 +1461,31 @@ public class GlobalCtrl : MonoBehaviour
         return null;
     }
 
+    public Transform getFirstHoveredObject()
+    {
+        if (GlobalCtrl.Singleton.List_curMolecules.Count > 0)
+        {
+            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
+            {
+                if (mol.isHovered)
+                {
+                    return mol.transform;
+                }
+            }
+        }
+        if (GenericObject.objects != null && GenericObject.objects.Count > 0)
+        {
+            foreach (var go in GenericObject.objects.Values)
+            {
+                if (go.isHovered)
+                {
+                    return go.transform;
+                }
+            }
+        }
+        return null;
+    }
+
     public List<Transform> getAllMarkedObjects()
     {
         var list = new List<Transform>();

@@ -17,6 +17,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
     public static Dictionary<Guid, GenericObject> objects = null;
     public string objectName = "";
     public GameObject attachedModel;
+    public bool isHovered = false;
     public bool isMarked = false;
     public bool isGrabbed = false;
     public bool isServerFocused = false;
@@ -237,7 +238,11 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
 
     public void Hover(bool value)
     {
-        GetComponent<myBoundingBox>().setHovering(value);
+        if (isInteractable)
+        {
+            isHovered = value;
+            GetComponent<myBoundingBox>().setHovering(value);
+        }
     }
 
     private void Start()

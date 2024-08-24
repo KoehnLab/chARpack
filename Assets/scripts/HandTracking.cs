@@ -261,8 +261,8 @@ public class HandTracking : MonoBehaviour
                 var leftIndexKnuckle = HandJointService.RequestJointTransform(TrackedHandJoint.IndexKnuckle, Handedness.Left);
                 var rightIndexKnuckle = HandJointService.RequestJointTransform(TrackedHandJoint.IndexKnuckle, Handedness.Right);
 
-                var leftDist = distanceToHeadRay(leftIndexKnuckle.position);
-                var rightDist = distanceToHeadRay(rightIndexKnuckle.position);
+                var leftDist = chARpackUtils.distanceToHeadRay(leftIndexKnuckle.position, currentCam);
+                var rightDist = chARpackUtils.distanceToHeadRay(rightIndexKnuckle.position, currentCam);
 
                 if (leftDist < rightDist)
                 {
@@ -320,20 +320,7 @@ public class HandTracking : MonoBehaviour
         return current_hand;
     }
 
-    private float distanceToHeadRay(Vector3 pos)
-    {
-        var distance = 2f;
-        var head_ray_startpoint = currentCam.transform.position;
-        var head_ray_endpoint = head_ray_startpoint + (currentCam.transform.forward * distance);
 
-        var t = ((pos.x - head_ray_endpoint.x) * (head_ray_startpoint.x - head_ray_endpoint.x) +
-            (pos.y - head_ray_endpoint.y) * (head_ray_startpoint.y - head_ray_endpoint.y) +
-            (pos.z - head_ray_endpoint.z) * (head_ray_startpoint.z - head_ray_endpoint.z)) / (distance * distance);
-
-        var intersection = head_ray_endpoint + t * (head_ray_startpoint - head_ray_endpoint);
-
-        return Vector3.Distance(pos, intersection);
-    }
     
     public Vector3 getForward()
     {

@@ -118,19 +118,19 @@ public class ServerInputSystem : MonoBehaviour
             {
                 if (SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.BUTTON_PRESS))
                 {
-                    var obj = GlobalCtrl.Singleton.getFirstMarkedObject();
+                    Transform obj;
+                    if (SettingsData.hoverGazeAsSelection)
+                    {
+                        obj = GlobalCtrl.Singleton.getFirstHoveredObject();
+                    }
+                    else
+                    {
+                        obj = GlobalCtrl.Singleton.getFirstMarkedObject();
+                    }
+
                     if (obj != null)
                     {
-                        var mol = obj.GetComponent<Molecule>();
-                        if (mol != null)
-                        {
-                            TransitionManager.Singleton.initializeTransitionServer(mol, TransitionManager.InteractionType.BUTTON_PRESS);
-                        }
-                        var go = obj.GetComponent<GenericObject>();
-                        if (go != null)
-                        {
-                            TransitionManager.Singleton.initializeTransitionServer(go, TransitionManager.InteractionType.BUTTON_PRESS);
-                        }
+                        TransitionManager.Singleton.initializeTransitionServer(obj, TransitionManager.InteractionType.BUTTON_PRESS);
                     }
                     else
                     {
@@ -138,6 +138,7 @@ public class ServerInputSystem : MonoBehaviour
                         // send transition request to client
                         EventManager.Singleton.RequestTransition(TransitionManager.InteractionType.BUTTON_PRESS);
                     }
+
                 }
             }
             if (Input.GetKeyDown(KeyCode.Delete))

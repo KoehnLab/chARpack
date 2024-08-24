@@ -131,6 +131,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         if (isInteractable)
         {
+            isHovered = value;
             GetComponent<myBoundingBox>().setHovering(value);
         }
     }
@@ -297,6 +298,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
 
     public bool isMarked;
+    public bool isHovered;
     /// <summary>
     /// atom list contains all atoms which belong to this molecule
     /// </summary>

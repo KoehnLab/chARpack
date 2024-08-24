@@ -1227,6 +1227,7 @@ public class NetworkManagerClient : MonoBehaviour
         var randomSeed = message.GetInt();
         var allowedTransitionInteractions = (TransitionManager.InteractionType)message.GetInt();
         var allowThrowing = message.GetBool();
+        var hoverGazeAsSelection = message.GetBool();
 
         // Get enum entries from strings
         Enum.TryParse(integrationMethodString, ignoreCase: true, out ForceField.Method integrationMethod);
@@ -1267,6 +1268,7 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.randomSeed = randomSeed;
             SettingsData.allowedTransitionInteractions = allowedTransitionInteractions;
             SettingsData.allowThrowing = allowThrowing;
+            SettingsData.hoverGazeAsSelection = hoverGazeAsSelection;
 
             settingsControl.Singleton.updateSettings();
             if (appSettings.Singleton != null)
@@ -1463,33 +1465,27 @@ public class NetworkManagerClient : MonoBehaviour
     private static void getRequestTransition(Message message)
     {
         var triggered_by = (TransitionManager.InteractionType)message.GetInt();
-        if (GlobalCtrl.Singleton.List_curMolecules.Count > 0)
+        Transform obj;
+        if (SettingsData.hoverGazeAsSelection)
         {
-            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
-            {
-                if (mol.isMarked)
-                {
-                    TransitionManager.Singleton.initializeTransitionClient(mol.transform, triggered_by);
-                    return;
-                }
-            }
+            obj = GlobalCtrl.Singleton.getFirstHoveredObject();
         }
-        if (GenericObject.objects != null && GenericObject.objects.Count > 0)
+        else
         {
-            foreach (var go in GenericObject.objects.Values)
-            {
-                if (go.isMarked)
-                {
-                    TransitionManager.Singleton.initializeTransitionClient(go.transform, triggered_by);
-                    return;
-                }
-            }
+            obj = GlobalCtrl.Singleton.getFirstMarkedObject();
         }
 
-        // nothing marked
-        Message return_msg = Message.Create(MessageSendMode.Reliable, ClientToServerID.transitionUnsuccessful);
-        return_msg.AddInt((int)triggered_by);
-        Singleton.Client.Send(return_msg);
+        if (obj != null)
+        {
+            TransitionManager.Singleton.initializeTransitionClient(obj, triggered_by);
+        }
+        else
+        {
+            // nothing marked
+            Message return_msg = Message.Create(MessageSendMode.Reliable, ClientToServerID.transitionUnsuccessful);
+            return_msg.AddInt((int)triggered_by);
+            Singleton.Client.Send(return_msg);
+        }
     }
 
     [MessageHandler((ushort)ServerToClientID.bcastRequestDeleteMarked)]

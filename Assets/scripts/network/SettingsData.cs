@@ -50,6 +50,7 @@ public class SettingsData
     [JsonProperty] public static int randomSeed = 666;
     [JsonProperty] public static TransitionManager.InteractionType allowedTransitionInteractions = TransitionManager.InteractionType.ALL;
     [JsonProperty] public static bool allowThrowing = true;
+    [JsonProperty] public static bool hoverGazeAsSelection = true;
 
     public static int highlightColorMap { get => _highlightColorMap; set
         {
