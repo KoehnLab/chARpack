@@ -291,11 +291,11 @@ public class HandTracking : MonoBehaviour
     IEnumerator checkForFlick()
     {
         float time = 0f;
-        while (time < 0.08f)
+        while (time < 0.1f)
         {
             var index_inner = indexMiddlePose.Position - indexKnucklePose.Position;
             var index_outer = indexTipPose.Position - indexDistalPose.Position;
-            if (Vector3.Angle(index_inner, index_outer) < 20f)
+            if (Vector3.Angle(index_inner, index_outer) < 15f)
             {
                 OnFlick.Invoke();
                 playWipeVFX();

@@ -596,11 +596,11 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
-    private void sendGrabOnScreen(Vector2 ss_coords, bool distant)
+    private void sendGrabOnScreen(Vector2 ss_coords, TransitionManager.InteractionType interType)
     {
         Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.transitionGrabOnScreen);
         message.AddVector2(ss_coords);
-        message.AddBool(distant);
+        message.AddInt((int)interType);
         Client.Send(message);
     }
 

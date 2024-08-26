@@ -1479,19 +1479,12 @@ public class NetworkManagerServer : MonoBehaviour
     private static void getTransitionGrabOnScreen(ushort fromClientId, Message message)
     {
         var ss_coords = message.GetVector2();
-        var distant = message.GetBool();
-        Debug.Log($"[GrabOnScreen] ss {ss_coords}");
+        var inter_type = (TransitionManager.InteractionType)message.GetInt();
+        Debug.Log($"[GrabOnScreen] ss {ss_coords}, inter_type {inter_type}");
 
         if (TransitionManager.Singleton != null)
         {
-            if (distant)
-            {
-                TransitionManager.Singleton.initializeTransitionServer(ss_coords, TransitionManager.InteractionType.DISTANT_GRAB);
-            }
-            else
-            {
-                TransitionManager.Singleton.initializeTransitionServer(ss_coords, TransitionManager.InteractionType.CLOSE_GRAB);
-            }
+            TransitionManager.Singleton.initializeTransitionServer(ss_coords, inter_type);
         }
         if (HoverMarker.Singleton != null)
         {
@@ -1600,7 +1593,8 @@ public class NetworkManagerServer : MonoBehaviour
         objectToManipulate = TransitionManager.Singleton.getCurrentHoverTarget();
         if (objectToManipulate != null)
         {
-            initialObjectRotation = objectToManipulate.rotation;
+            //initialObjectRotation = objectToManipulate.rotation;
+            initialObjectRotation = Quaternion.Inverse(Quaternion.LookRotation(objectToManipulate.transform.position - GlobalCtrl.Singleton.currentCamera.transform.position)) * objectToManipulate.transform.rotation;
             chARpackUtils.setObjectGrabbed(objectToManipulate, true);
         }
         if (HoverMarker.Singleton != null)
@@ -1639,9 +1633,8 @@ public class NetworkManagerServer : MonoBehaviour
 
         if (objectToManipulate == null) return;
         var diff_vec = current_hand_pose.position - initialHandPose.position;
-        Debug.Log($"[getHandPos] diff: {diff_vec}");
         var z_diff = Vector3.Dot(diff_vec, GlobalCtrl.Singleton.currentCamera.transform.forward);
-        Debug.Log($"[getHandPos] z_diff: {z_diff}");
+        z_diff = z_diff < 0f ? 2f * z_diff : z_diff; // make interaction more sensitive to pulling (less space)
 
         //if (diff_vec.magnitude > 0.05f)
         //{
@@ -1664,7 +1657,8 @@ public class NetworkManagerServer : MonoBehaviour
 
         var relative_rotation = initialHandPose.rotation * Quaternion.Inverse(current_hand_pose.rotation);
         //objectToManipulate.Rotate(relative_rotation.eulerAngles);
-        objectToManipulate.rotation = Quaternion.Inverse(relative_rotation) * initialObjectRotation;
+        //objectToManipulate.rotation = Quaternion.Inverse(relative_rotation) * initialObjectRotation;
+        objectToManipulate.rotation = GlobalCtrl.Singleton.currentCamera.transform.rotation * Quaternion.Euler(-relative_rotation.eulerAngles.x, -relative_rotation.eulerAngles.y, -relative_rotation.eulerAngles.z) * initialObjectRotation;
 
         // check if transition should happen
         var forward = GlobalCtrl.Singleton.currentCamera.transform.forward;

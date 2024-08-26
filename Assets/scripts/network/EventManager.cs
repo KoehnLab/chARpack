@@ -315,11 +315,11 @@ public class EventManager : MonoBehaviour
         OnSetNumOutlines?.Invoke(num_outlines);
     }
 
-    public delegate void TransitionGrabOnScreenAction(Vector2 ss_coords, bool distant);
+    public delegate void TransitionGrabOnScreenAction(Vector2 ss_coords, TransitionManager.InteractionType interType);
     public event TransitionGrabOnScreenAction OnTransitionGrab;
-    public void TransitionGrab(Vector2 ss_coords, bool distant)
+    public void TransitionGrab(Vector2 ss_coords, TransitionManager.InteractionType interType)
     {
-        OnTransitionGrab?.Invoke(ss_coords, distant);
+        OnTransitionGrab?.Invoke(ss_coords, interType);
     }
 
     public delegate void ReleaseTransitionGrabAction();

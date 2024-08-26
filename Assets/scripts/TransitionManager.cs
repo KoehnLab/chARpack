@@ -101,7 +101,7 @@ public class TransitionManager : MonoBehaviour
 
     static public float zDistance = 1f;
     private bool grabHold = false;
-    private void grab(Vector2 ss_coords, bool distant)
+    private void grab(Vector2 ss_coords, TransitionManager.InteractionType interType)
     {
         grabHold = true;
         grabScreenWPos = screenAlignment.Singleton.getCurrentProjectedIndexPos();
@@ -399,7 +399,8 @@ public class TransitionManager : MonoBehaviour
                 EventManager.Singleton.TransitionGenericObject(go, triggered_by);
             }
             AudioSource.PlayClipAtPoint(doTransition, trans.position);
-        } else if (SettingsData.transitionMode == TransitionMode.INSTANT)
+        }
+        else if (SettingsData.transitionMode == TransitionMode.INSTANT)
         {
             // TODO check this pos and scale ...
             trans.localScale *= target_scale_factor;
@@ -420,7 +421,6 @@ public class TransitionManager : MonoBehaviour
         {
             if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.SCALE))
             {
-                Debug.Log("[initializeTransitionClient] Animating scale.");
                 StartCoroutine(scaleWhileMoving(trans, trans.localScale.x * target_scale_factor));
             }
             StartCoroutine(moveToScreenAndTransition(trans, triggered_by));

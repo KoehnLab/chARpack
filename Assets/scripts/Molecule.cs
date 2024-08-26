@@ -2382,7 +2382,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         if (HandTracking.Singleton)
         {
             HandTracking.Singleton.OnMiddleFingerGrab.RemoveListener(OnTransitionGrab);
-            HandTracking.Singleton.OnFlick.RemoveListener(OnTransitionGrab);
+            HandTracking.Singleton.OnFlick.RemoveListener(OnTransitionFlick);
             HandTracking.Singleton.OnMiddleFingerGrabRelease -= OnTransitionGrabRelease;
             HandTracking.Singleton.OnEmptyIndexFingerGrab.RemoveListener(OnNormalGrab);
             HandTracking.Singleton.OnEmptyCloseIndexFingerGrab.RemoveListener(OnNormalGrab);

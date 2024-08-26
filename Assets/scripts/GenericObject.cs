@@ -254,8 +254,6 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
             HandTracking.Singleton.OnMiddleFingerGrabRelease += OnTransitionGrabRelease;
             HandTracking.Singleton.OnEmptyIndexFingerGrab.AddListener(OnNormalGrab, IsIndexFingerInTransitionGrabBounds);
             HandTracking.Singleton.OnEmptyCloseIndexFingerGrab.AddListener(OnNormalGrab, IsIndexFingerInTransitionGrabBounds);
-            //HandTracking.Singleton.OnIndexFingerGrab += OnNormalGrab;
-            //HandTracking.Singleton.OnIndexFingerGrabRelease += OnNormalGrabRelease;
         }
     }
 
@@ -264,7 +262,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
         if (HandTracking.Singleton)
         {
             HandTracking.Singleton.OnMiddleFingerGrab.RemoveListener(OnTransitionGrab);
-            HandTracking.Singleton.OnFlick.RemoveListener(OnTransitionGrab);
+            HandTracking.Singleton.OnFlick.RemoveListener(OnTransitionFlick);
             HandTracking.Singleton.OnMiddleFingerGrabRelease -= OnTransitionGrabRelease;
             HandTracking.Singleton.OnEmptyIndexFingerGrab.RemoveListener(OnNormalGrab);
             HandTracking.Singleton.OnEmptyCloseIndexFingerGrab.RemoveListener(OnNormalGrab);

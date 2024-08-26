@@ -210,7 +210,7 @@ public class screenAlignment : MonoBehaviour
         HandTracking.Singleton.OnEmptyIndexFingerGrab.SetDefaultListener(OnDistantGrab);
         HandTracking.Singleton.OnIndexFingerGrabRelease += OnDistantGrabRelease;
 
-        HandTracking.Singleton.OnCatch.SetDefaultListener(OnDistantTransitionGrab);
+        HandTracking.Singleton.OnCatch.SetDefaultListener(OnDistantTransitionCatch);
 
 
         // turn off quad after 2 sec
@@ -876,7 +876,20 @@ public class screenAlignment : MonoBehaviour
             var viewport_coords = getScreenSpaceCoords(proj.Value);
             if (EventManager.Singleton)
             {
-                EventManager.Singleton.TransitionGrab(viewport_coords.Value, true);
+                EventManager.Singleton.TransitionGrab(viewport_coords.Value, TransitionManager.InteractionType.DISTANT_GRAB);
+            }
+        }
+    }
+
+    public void OnDistantTransitionCatch()
+    {
+        if (SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.CATCH))
+        {
+            var proj = projectIndexKnuckleOnScreen();
+            var viewport_coords = getScreenSpaceCoords(proj.Value);
+            if (EventManager.Singleton)
+            {
+                EventManager.Singleton.TransitionGrab(viewport_coords.Value, TransitionManager.InteractionType.CATCH);
             }
         }
     }
@@ -924,7 +937,7 @@ public class screenAlignment : MonoBehaviour
             var viewport_coords = getScreenSpaceCoords(proj.Value);
             if (EventManager.Singleton)
             {
-                EventManager.Singleton.TransitionGrab(viewport_coords.Value, false);
+                EventManager.Singleton.TransitionGrab(viewport_coords.Value, TransitionManager.InteractionType.CLOSE_GRAB);
             }
         }
     }
@@ -950,7 +963,7 @@ public class screenAlignment : MonoBehaviour
                 HandTracking.Singleton.OnMiddleFingerGrabRelease += OnDistantTransitionGrabRelease;
                 HandTracking.Singleton.OnEmptyIndexFingerGrab.SetDefaultListener(OnDistantGrab);
                 HandTracking.Singleton.OnIndexFingerGrabRelease += OnDistantGrabRelease;
-                HandTracking.Singleton.OnCatch.SetDefaultListener(OnDistantTransitionGrab);
+                HandTracking.Singleton.OnCatch.SetDefaultListener(OnDistantTransitionCatch);
             }
             else
             {
