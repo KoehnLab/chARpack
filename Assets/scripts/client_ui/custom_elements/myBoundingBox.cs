@@ -294,8 +294,10 @@ public class myBoundingBox : MonoBehaviour
     /// Changes the visuals of lines and corners when the bounding box is grabbed.
     /// </summary>
     /// <param name="grabbed">whether the box is grabbed</param>
+    bool isGrabbed = false;
     public void setGrabbed(bool grabbed)
     {
+        isGrabbed = grabbed;
         if (grabbed)
         {
             if (myHandleGrabbedMaterial != null)
@@ -314,11 +316,11 @@ public class myBoundingBox : MonoBehaviour
         {
             setNormalMaterial(fade);
         }
-
     }
 
     public void setHovering(bool hovering)
     {
+        if (isGrabbed) return;
         if (hovering)
         {
             if (handleHoverMaterial != null)

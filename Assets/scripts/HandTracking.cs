@@ -1,9 +1,11 @@
 using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.Utilities;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
+using UnityEngine.VFX;
 
 /// <summary>
 /// This class provides a hand tracking functionality used in the chain interaction mode.
@@ -36,15 +38,26 @@ public class HandTracking : MonoBehaviour
     }
 
 
+    GameObject wipeVFX;
     Camera currentCam;
     private void Start()
     {
         middleInBoxClip = Resources.Load<AudioClip>("audio/middleInBox");
+        var wipe_vfx_prefab = Resources.Load<GameObject>("vfxGraph/explosionEffect");
+        wipeVFX = Instantiate(wipe_vfx_prefab);
+        wipeVFX.GetComponent<VisualEffect>().Stop();
         gameObject.AddComponent<AudioSource>();
         showFragmentIndicator(false);
         particleSystemGO.SetActive(false);
         currentCam = Camera.main;
         //gameObject.SetActive(false);
+    }
+
+
+    public void playWipeVFX()
+    {
+        wipeVFX.transform.position = indexTipPose.Position;
+        wipeVFX.GetComponent<VisualEffect>().Play();
     }
 
     //private MixedRealityPose indexTip = MixedRealityPose.ZeroIdentity;
@@ -53,9 +66,15 @@ public class HandTracking : MonoBehaviour
     public Vector3 indexForward { get => _indexForward; private set => _indexForward = value; }
     private MixedRealityPose indexKnucklePose = MixedRealityPose.ZeroIdentity;
     private MixedRealityPose indexTipPose = MixedRealityPose.ZeroIdentity;
+    private MixedRealityPose indexMiddlePose = MixedRealityPose.ZeroIdentity;
+    private MixedRealityPose indexDistalPose = MixedRealityPose.ZeroIdentity;
     private MixedRealityPose middleTipPose = MixedRealityPose.ZeroIdentity;
+    private MixedRealityPose middleMiddlePose = MixedRealityPose.ZeroIdentity;
+    private MixedRealityPose middleDistalPose = MixedRealityPose.ZeroIdentity;
     private MixedRealityPose middleKnucklePose = MixedRealityPose.ZeroIdentity;
     private MixedRealityPose thumbTipPose = MixedRealityPose.ZeroIdentity;
+    private MixedRealityPose thumbDistalPose = MixedRealityPose.ZeroIdentity;
+    private MixedRealityPose thumbProximalPose = MixedRealityPose.ZeroIdentity;
     private MixedRealityPose wristPose = MixedRealityPose.ZeroIdentity;
     public GameObject fragmentIndicator;
     public GameObject particleSystemGO;
@@ -64,6 +83,7 @@ public class HandTracking : MonoBehaviour
     bool isMiddleInBox = false;
     private AudioClip middleInBoxClip;
     private Vector3 handVelocity = Vector3.zero;
+    private Vector3 indexFingerVelocity = Vector3.zero;
 
     private IMixedRealityHandJointService handJointService;
 
@@ -116,6 +136,8 @@ public class HandTracking : MonoBehaviour
     public ConditionalEventWithCooldown OnMiddleFingerGrab = new ConditionalEventWithCooldown(0.2f);
     public ConditionalEventWithCooldown OnEmptyIndexFingerGrab = new ConditionalEventWithCooldown(0.2f);
     public ConditionalEventWithCooldown OnEmptyCloseIndexFingerGrab = new ConditionalEventWithCooldown(0.2f);
+    public ConditionalEventWithCooldown OnFlick = new ConditionalEventWithCooldown(0.4f);
+    public ConditionalEventWithCooldown OnCatch = new ConditionalEventWithCooldown(0.4f);
 
     public delegate void MiddleFingerGrabReleaseAction();
     public event MiddleFingerGrabReleaseAction OnMiddleFingerGrabRelease;
@@ -165,6 +187,7 @@ public class HandTracking : MonoBehaviour
             if (indexFingerGrab)
             {
                 indexFingerGrab = false;
+                StartCoroutine(checkForFlick());
                 IndexFingerGrabRelease();
             }
         }
@@ -184,6 +207,25 @@ public class HandTracking : MonoBehaviour
             {
                 middleFingerGrab = false;
                 MiddleFingerGrabRelease();
+            }
+        }
+
+        if (SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.CATCH))
+        {
+            var index_inner = indexMiddlePose.Position - indexKnucklePose.Position;
+            var index_outer = indexTipPose.Position - indexDistalPose.Position;
+
+            var middle_inner = middleMiddlePose.Position - middleKnucklePose.Position;
+            var middle_outer = middleTipPose.Position - middleDistalPose.Position;
+
+            var thumb_inner = thumbDistalPose.Position - thumbProximalPose.Position;
+            var thumb_outer = thumbTipPose.Position - thumbDistalPose.Position;
+
+            var angle_threshold = 10f;
+
+            if (Vector3.Angle(index_inner, index_outer) < angle_threshold && Vector3.Angle(middle_inner, middle_outer) < angle_threshold && Vector3.Angle(thumb_inner, thumb_outer) < 2f*angle_threshold)
+            {
+                OnCatch.Invoke();
             }
         }
 
@@ -245,6 +287,26 @@ public class HandTracking : MonoBehaviour
         }
     }
 
+
+    IEnumerator checkForFlick()
+    {
+        float time = 0f;
+        while (time < 0.08f)
+        {
+            var index_inner = indexMiddlePose.Position - indexKnucklePose.Position;
+            var index_outer = indexTipPose.Position - indexDistalPose.Position;
+            if (Vector3.Angle(index_inner, index_outer) < 20f)
+            {
+                OnFlick.Invoke();
+                playWipeVFX();
+                yield break;
+            }
+            time += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+
     public bool isIndexGrabbed()
     {
         return indexFingerGrab;
@@ -296,21 +358,40 @@ public class HandTracking : MonoBehaviour
 
         //var palmTransform = HandJointService.RequestJointTransform(TrackedHandJoint.Palm, current_hand);
 
-        var indexTopTransform = HandJointService.RequestJointTransform(TrackedHandJoint.IndexTip, current_hand);
-        indexTipPose = new MixedRealityPose(indexTopTransform.position, indexTopTransform.rotation);
+        var indexTipTransform = HandJointService.RequestJointTransform(TrackedHandJoint.IndexTip, current_hand);
+        indexFingerVelocity = indexTipTransform.position - indexTipPose.Position;
+        indexTipPose = new MixedRealityPose(indexTipTransform.position, indexTipTransform.rotation);
 
         var indexKnuckleTransform = HandJointService.RequestJointTransform(TrackedHandJoint.IndexKnuckle, current_hand);
         handVelocity = indexKnuckleTransform.position - indexKnucklePose.Position;
         indexKnucklePose = new MixedRealityPose(indexKnuckleTransform.position, indexKnuckleTransform.rotation);
 
+        var indexMiddleTransform = HandJointService.RequestJointTransform(TrackedHandJoint.IndexMiddleJoint, current_hand);
+        indexMiddlePose = new MixedRealityPose(indexMiddleTransform.position, indexMiddleTransform.rotation);
+
+        var indexDistalTransform = HandJointService.RequestJointTransform(TrackedHandJoint.IndexDistalJoint, current_hand);
+        indexDistalPose = new MixedRealityPose(indexDistalTransform.position, indexDistalTransform.rotation);
+
         var middleTipTransform = HandJointService.RequestJointTransform(TrackedHandJoint.MiddleTip, current_hand);
         middleTipPose = new MixedRealityPose(middleTipTransform.position, middleTipTransform.rotation);
+
+        var middleMiddleTransform = HandJointService.RequestJointTransform(TrackedHandJoint.MiddleMiddleJoint, current_hand);
+        middleMiddlePose = new MixedRealityPose(middleMiddleTransform.position, middleMiddleTransform.rotation);
+
+        var middleDistalTransform = HandJointService.RequestJointTransform(TrackedHandJoint.MiddleDistalJoint, current_hand);
+        middleDistalPose = new MixedRealityPose(middleDistalTransform.position, middleDistalTransform.rotation);
 
         var middleKnuckleTransform = HandJointService.RequestJointTransform(TrackedHandJoint.MiddleKnuckle, current_hand);
         middleKnucklePose = new MixedRealityPose(middleKnuckleTransform.position, middleKnuckleTransform.rotation);
 
         var thumbTipTransform = HandJointService.RequestJointTransform(TrackedHandJoint.ThumbTip, current_hand);
         thumbTipPose = new MixedRealityPose(thumbTipTransform.position, thumbTipTransform.rotation);
+
+        var thumbDistalTransform = HandJointService.RequestJointTransform(TrackedHandJoint.ThumbDistalJoint, current_hand);
+        thumbDistalPose = new MixedRealityPose(thumbDistalTransform.position, thumbDistalTransform.rotation);
+
+        var thumbProximalTransform = HandJointService.RequestJointTransform(TrackedHandJoint.ThumbProximalJoint, current_hand);
+        thumbProximalPose = new MixedRealityPose(thumbProximalTransform.position, thumbProximalTransform.rotation);
 
         var wristTransform = HandJointService.RequestJointTransform(TrackedHandJoint.Wrist, current_hand);
         wristPose = new MixedRealityPose(wristTransform.position, wristTransform.rotation);

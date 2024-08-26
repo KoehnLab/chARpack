@@ -112,7 +112,11 @@ public class screenAlignment : MonoBehaviour
         while (run_check)
         {
             var index_pos = HandTracking.Singleton.getIndexTip(); // for scanning screen use tip
+#if WINDOWS_UWP
+            if (Vector3.Distance(index_pos, oldIndexPos) <= 0.002f)
+#else
             if (Vector3.Distance(index_pos, oldIndexPos) <= 0.001f)
+#endif
             {
                 screenScanStopwatch.Stop();
                 if (screenScanStopwatch.ElapsedMilliseconds > 2000)
@@ -205,6 +209,9 @@ public class screenAlignment : MonoBehaviour
 
         HandTracking.Singleton.OnEmptyIndexFingerGrab.SetDefaultListener(OnDistantGrab);
         HandTracking.Singleton.OnIndexFingerGrabRelease += OnDistantGrabRelease;
+
+        HandTracking.Singleton.OnCatch.SetDefaultListener(OnDistantTransitionGrab);
+
 
         // turn off quad after 2 sec
         StartCoroutine(turnOffQuad());
@@ -686,7 +693,6 @@ public class screenAlignment : MonoBehaviour
         }
 
         var box = trans.GetComponent<myBoundingBox>();
-        var tip = HandTracking.Singleton.getIndexTip();
         var transition_point = trans.transform.TransformPoint(localTransitionPoint[trans]);
 
         // render progress bar
@@ -703,13 +709,13 @@ public class screenAlignment : MonoBehaviour
 
                 var cam = GlobalCtrl.Singleton.currentCamera;
 
-                List<float> view_dist_list = new List<float>();
-                foreach (var corner in box.cornerHandles)
-                {
-                    view_dist_list.Add(Vector3.Distance(corner.transform.position, cam.transform.position));
-                }
-                float minVal = view_dist_list.Min();
-                int index = view_dist_list.IndexOf(minVal);
+                //List<float> view_dist_list = new List<float>();
+                //foreach (var corner in box.cornerHandles)
+                //{
+                //    view_dist_list.Add(Vector3.Distance(corner.transform.position, cam.transform.position));
+                //}
+                //float minVal = view_dist_list.Min();
+                //int index = view_dist_list.IndexOf(minVal);
 
                 //progressBarInstances[trans].transform.position = box.cornerHandles[index].transform.position - 0.01f * cam.transform.right;
                 if (SettingsData.handedness == Microsoft.MixedReality.Toolkit.Utilities.Handedness.Left)
@@ -944,6 +950,7 @@ public class screenAlignment : MonoBehaviour
                 HandTracking.Singleton.OnMiddleFingerGrabRelease += OnDistantTransitionGrabRelease;
                 HandTracking.Singleton.OnEmptyIndexFingerGrab.SetDefaultListener(OnDistantGrab);
                 HandTracking.Singleton.OnIndexFingerGrabRelease += OnDistantGrabRelease;
+                HandTracking.Singleton.OnCatch.SetDefaultListener(OnDistantTransitionGrab);
             }
             else
             {
@@ -961,6 +968,7 @@ public class screenAlignment : MonoBehaviour
             HandTracking.Singleton.OnMiddleFingerGrabRelease -= OnDistantTransitionGrabRelease;
             HandTracking.Singleton.OnEmptyIndexFingerGrab.RemoveListener(OnDistantGrab);
             HandTracking.Singleton.OnIndexFingerGrabRelease -= OnDistantGrabRelease;
+            HandTracking.Singleton.OnCatch.RemoveDefaultListener();
         }
     }
 

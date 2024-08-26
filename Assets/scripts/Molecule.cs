@@ -394,13 +394,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         EventManager.Singleton.OnMolDataChanged += adjustBBox;
         if (HandTracking.Singleton)
         {
-            //HandTracking.Singleton.OnMiddleFingerGrab += OnTransitionGrab;
             HandTracking.Singleton.OnMiddleFingerGrab.AddListener(OnTransitionGrab, IsMiddleFingerInTransitionGrabBounds);
+            HandTracking.Singleton.OnFlick.AddListener(OnTransitionFlick, IsIndexFingerInTransitionGrabBounds);
             HandTracking.Singleton.OnMiddleFingerGrabRelease += OnTransitionGrabRelease;
             HandTracking.Singleton.OnEmptyIndexFingerGrab.AddListener(OnNormalGrab, IsIndexFingerInTransitionGrabBounds);
             HandTracking.Singleton.OnEmptyCloseIndexFingerGrab.AddListener(OnNormalGrab, IsIndexFingerInTransitionGrabBounds);
-            //HandTracking.Singleton.OnIndexFingerGrab += OnNormalGrab;
-            //HandTracking.Singleton.OnIndexFingerGrabRelease += OnNormalGrabRelease;
         }
     }
 
@@ -437,6 +435,17 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             if (SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.DISTANT_GRAB))
             {
                 TransitionManager.Singleton.initializeTransitionClient(transform, TransitionManager.InteractionType.DISTANT_GRAB);
+            }
+        }
+    }
+
+    private void OnTransitionFlick()
+    {
+        if (SettingsData.syncMode == TransitionManager.SyncMode.Async)
+        {
+            if (SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.FLICK))
+            {
+                TransitionManager.Singleton.initializeTransitionClient(transform, TransitionManager.InteractionType.FLICK);
             }
         }
     }
@@ -2373,6 +2382,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         if (HandTracking.Singleton)
         {
             HandTracking.Singleton.OnMiddleFingerGrab.RemoveListener(OnTransitionGrab);
+            HandTracking.Singleton.OnFlick.RemoveListener(OnTransitionGrab);
             HandTracking.Singleton.OnMiddleFingerGrabRelease -= OnTransitionGrabRelease;
             HandTracking.Singleton.OnEmptyIndexFingerGrab.RemoveListener(OnNormalGrab);
             HandTracking.Singleton.OnEmptyCloseIndexFingerGrab.RemoveListener(OnNormalGrab);

@@ -625,9 +625,7 @@ public class NetworkManagerClient : MonoBehaviour
         var cml = mol.AsCML();
         cml.assignRelativeQuaternion(q);
 
-        if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT ||
-            triggered_by == TransitionManager.InteractionType.CLOSE_GRAB ||
-            triggered_by == TransitionManager.InteractionType.THROW)
+        if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT)
         {
             var proj = screenAlignment.Singleton.projectWSPointToScreen(mol.transform.position);
             var mol_ss_pos = screenAlignment.Singleton.getScreenSpaceCoords(proj);
@@ -653,9 +651,7 @@ public class NetworkManagerClient : MonoBehaviour
         var sgo = go.AsSerializable();
         sgo.assignRelativeQuaternion(q);
 
-        if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT ||
-            triggered_by == TransitionManager.InteractionType.CLOSE_GRAB ||
-            triggered_by == TransitionManager.InteractionType.THROW)
+        if (SettingsData.transitionMode != TransitionManager.TransitionMode.INSTANT)
         {
             var proj = screenAlignment.Singleton.projectWSPointToScreen(go.transform.position);
             var go_ss_pos = screenAlignment.Singleton.getScreenSpaceCoords(proj);

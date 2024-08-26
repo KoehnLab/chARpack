@@ -50,7 +50,9 @@ public class TransitionManager : MonoBehaviour
         DISTANT_GRAB = 1 << 2,
         ONSCREEN_PULL = 1 << 3,
         THROW = 1 << 4,
-        ALL = BUTTON_PRESS | CLOSE_GRAB | DISTANT_GRAB | ONSCREEN_PULL | THROW
+        FLICK = 1 << 5,
+        CATCH = 1 << 6,
+        ALL = BUTTON_PRESS | CLOSE_GRAB | DISTANT_GRAB | ONSCREEN_PULL | THROW | FLICK | CATCH
     }
 
     private static TransitionManager _singleton;
