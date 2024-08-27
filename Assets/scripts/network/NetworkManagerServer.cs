@@ -608,7 +608,8 @@ public class NetworkManagerServer : MonoBehaviour
     public void transitionMol(Molecule mol, TransitionManager.InteractionType triggered_by)
     {
         //var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * mol.transform.rotation;
-        var q = Quaternion.Inverse(Quaternion.LookRotation(mol.transform.position - GlobalCtrl.Singleton.currentCamera.transform.position)) * mol.transform.rotation;
+        //var q = Quaternion.Inverse(Quaternion.LookRotation(mol.transform.position - GlobalCtrl.Singleton.currentCamera.transform.position)) * mol.transform.rotation;
+        var q = Quaternion.Inverse(Quaternion.LookRotation(GlobalCtrl.Singleton.currentCamera.transform.forward)) * mol.transform.rotation;
 
         var cml = mol.AsCML();
         cml.assignRelativeQuaternion(q);
@@ -1658,7 +1659,7 @@ public class NetworkManagerServer : MonoBehaviour
         var relative_rotation = initialHandPose.rotation * Quaternion.Inverse(current_hand_pose.rotation);
         //objectToManipulate.Rotate(relative_rotation.eulerAngles);
         //objectToManipulate.rotation = Quaternion.Inverse(relative_rotation) * initialObjectRotation;
-        objectToManipulate.rotation = GlobalCtrl.Singleton.currentCamera.transform.rotation * Quaternion.Euler(-relative_rotation.eulerAngles.x, -relative_rotation.eulerAngles.y, -relative_rotation.eulerAngles.z) * initialObjectRotation;
+        objectToManipulate.rotation = GlobalCtrl.Singleton.currentCamera.transform.rotation * Quaternion.Euler(relative_rotation.eulerAngles.x, -relative_rotation.eulerAngles.y, relative_rotation.eulerAngles.z) * initialObjectRotation;
 
         // check if transition should happen
         var forward = GlobalCtrl.Singleton.currentCamera.transform.forward;

@@ -2264,20 +2264,7 @@ public class GlobalCtrl : MonoBehaviour
                         }
                     }
                 }
-                if (molecule.relQuat != Quaternion.identity)
-                {
-                    tempMolecule.relQuatBeforeTransition = molecule.relQuat;
-                    if (NetworkManagerClient.Singleton != null)
-                    {
-                        var normal = screenAlignment.Singleton.getScreenNormal();
-                        var screen_quat = Quaternion.LookRotation(-normal);
-                        tempMolecule.transform.rotation = screen_quat * molecule.relQuat;
-                    }
-                    if (NetworkManagerServer.Singleton != null)
-                    {
-                        tempMolecule.transform.rotation = currentCamera.transform.rotation * molecule.relQuat;
-                    }
-                }
+
                 if (molecule.ssPos != Vector2.zero)
                 {
                     Debug.Log($"[Create:transition] Got SS coords: {molecule.ssPos.ToVector2()};");
@@ -2333,6 +2320,21 @@ public class GlobalCtrl : MonoBehaviour
                             Debug.Log($"[Create:transition] scale_factor {scale_factor}");
                             tempMolecule.transform.localScale *= scale_factor;
                         }
+                    }
+                }
+                if (molecule.relQuat != Quaternion.identity)
+                {
+                    tempMolecule.relQuatBeforeTransition = molecule.relQuat;
+                    if (NetworkManagerClient.Singleton != null)
+                    {
+                        var normal = screenAlignment.Singleton.getScreenNormal();
+                        var screen_quat = Quaternion.LookRotation(-normal);
+                        tempMolecule.transform.rotation = screen_quat * molecule.relQuat;
+                    }
+                    if (NetworkManagerServer.Singleton != null)
+                    {
+                        tempMolecule.transform.rotation = currentCamera.transform.rotation * molecule.relQuat;
+                        //tempMolecule.transform.rotation = Quaternion.LookRotation(currentCamera.transform.forward) * molecule.relQuat;
                     }
                 }
                 if (addToUndoStack) undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id, molecule));

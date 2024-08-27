@@ -620,7 +620,8 @@ public class NetworkManagerClient : MonoBehaviour
 
     private void transitionMolecule(Molecule mol, TransitionManager.InteractionType triggered_by)
     {
-        var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * mol.transform.rotation;
+        //var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * mol.transform.rotation;
+        var q = Quaternion.Inverse(Quaternion.LookRotation(-screenAlignment.Singleton.getScreenNormal())) * mol.transform.rotation;
 
         var cml = mol.AsCML();
         cml.assignRelativeQuaternion(q);
