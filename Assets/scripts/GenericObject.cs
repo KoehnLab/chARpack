@@ -98,7 +98,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
 
         var box = genericObject.GetComponent<myBoundingBox>();
         box.setNormalMaterial(false);
-        box.scaleCorners(0.02f + 0.05f * box.localBounds.size.maxDimValue());
+        //box.scaleCorners(0.02f + 0.05f * box.localBounds.size.maxDimValue());
 
         // initial positioning
         genericObject.transform.position = GlobalCtrl.Singleton.getIdealSpawnPos(genericObject.transform);

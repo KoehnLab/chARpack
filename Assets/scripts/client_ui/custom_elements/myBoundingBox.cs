@@ -246,6 +246,8 @@ public class myBoundingBox : MonoBehaviour
         {
             cornerHandles[i].transform.position = corners[i];
             cornerHandles[i].transform.rotation = cornerOrientation[i];
+            cornerHandles[i].transform.localScale = (0.02f + 0.05f * _localBounds.size.maxDimValue()) * Vector3.one;
+            
         }
     }
 
@@ -254,14 +256,14 @@ public class myBoundingBox : MonoBehaviour
     /// This is used to keep the corner size consistent with molecule size.
     /// </summary>
     /// <param name="scale"></param>
-    public void scaleCorners(float scale)
-    {
-        var vec_scale = Vector3.one * scale;
-        foreach (var corner in cornerHandles)
-        {
-            corner.transform.localScale = vec_scale;
-        }
-    }
+    //public void scaleCorners(float scale)
+    //{
+    //    var vec_scale = Vector3.one * scale;
+    //    foreach (var corner in cornerHandles)
+    //    {
+    //        corner.transform.localScale = vec_scale;
+    //    }
+    //}
 
     /// <summary>
     /// Sets the bounding box materials fade property.

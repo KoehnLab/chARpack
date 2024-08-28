@@ -559,7 +559,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         yield return new WaitForSeconds(0.1f);
         var current_size = getLongestBBoxEdge();
-        GetComponent<myBoundingBox>().scaleCorners(0.02f + 0.05f * current_size);
         if (current_size > 0.25f)
         {
             GetComponent<myBoundingBox>().setNormalMaterial(false);
@@ -568,7 +567,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             GetComponent<myBoundingBox>().setNormalMaterial(true);
         }
-
     }
 
     /// <summary>
