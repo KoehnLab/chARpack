@@ -248,36 +248,35 @@ public class ServerInputSystem : MonoBehaviour
     /// </summary>
     private void doCameraMovement()
     {
-        if (!Input.GetKey(KeyCode.LeftShift) || !Input.GetKey(KeyCode.LeftControl))
+        if (Input.GetKey(KeyCode.LeftControl)) return;
+
+        if (Input.GetKey(KeyCode.W))
         {
-            if (Input.GetKey(KeyCode.W))
-            {
-                transform.position += moveSpeed * transform.forward;
-            }
-            if (Input.GetKey(KeyCode.S))
-            {
-                transform.position -= moveSpeed * transform.forward;
-            }
-            if (Input.GetKey(KeyCode.D))
-            {
-                Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
-                rotated.y = 0;
-                transform.position += moveSpeed * rotated;
-            }
-            if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.RightShift))
-            {
-                Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
-                rotated.y = 0f;
-                transform.position -= moveSpeed * rotated;
-            }
-            if (Input.GetKey(KeyCode.E))
-            {
-                transform.position += moveSpeed * Vector3.up;
-            }
-            if (Input.GetKey(KeyCode.F))
-            {
-                transform.position -= moveSpeed * Vector3.up;
-            }
+            transform.position += moveSpeed * transform.forward;
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            transform.position -= moveSpeed * transform.forward;
+        }
+        if (Input.GetKey(KeyCode.D))
+        {
+            Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
+            rotated.y = 0;
+            transform.position += moveSpeed * rotated;
+        }
+        if (Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.RightShift))
+        {
+            Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
+            rotated.y = 0f;
+            transform.position -= moveSpeed * rotated;
+        }
+        if (Input.GetKey(KeyCode.E))
+        {
+            transform.position += moveSpeed * Vector3.up;
+        }
+        if (Input.GetKey(KeyCode.F))
+        {
+            transform.position -= moveSpeed * Vector3.up;
         }
     }
 
@@ -320,7 +319,7 @@ public class ServerInputSystem : MonoBehaviour
     /// </summary>
     private void selectWholeMolecule()
     {
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.A))
         {
             //get last marked atom
             if (Atom.markedAtoms.Count > 0)

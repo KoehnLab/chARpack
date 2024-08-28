@@ -688,7 +688,9 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                     !GlobalCtrl.Singleton.snapToolTipInstances.ContainsKey(new Tuple<Guid, Guid>(mol.m_id, m_id)))
                 {
                     if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
-                    { createServerSnapToolTip(mol.m_id); }
+                    {
+                        createServerSnapToolTip(mol.m_id);
+                    }
                     else
                     {
                         createSnapToolTip(mol.m_id);
@@ -809,6 +811,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
         var otherMol = GlobalCtrl.Singleton.List_curMolecules[otherMolID];
         // apply transformation
+        transform.localScale = otherMol.transform.localScale;
         transform.localPosition = otherMol.transform.localPosition;
         transform.localRotation = otherMol.transform.localRotation;
         // TODO: Add advanced alignment mode

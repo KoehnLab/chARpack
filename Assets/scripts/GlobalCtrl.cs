@@ -2241,7 +2241,7 @@ public class GlobalCtrl : MonoBehaviour
                 Molecule tempMolecule = Instantiate(myBoundingBoxPrefab).AddComponent<Molecule>();
                 tempMolecule.gameObject.transform.localScale = molecule.moleScale;
                 tempMolecule.f_Init(molecule.moleID, atomWorld.transform, molecule);
-                tempMolecule.transform.localPosition = molecule.molePos;
+                //tempMolecule.transform.localPosition = molecule.molePos;
                 tempMolecule.transform.localRotation = molecule.moleQuat;
                 tempMolecule.initial_scale = molecule.moleScale.x;
                 List_curMolecules[tempMolecule.m_id] = tempMolecule;
@@ -2265,6 +2265,7 @@ public class GlobalCtrl : MonoBehaviour
                     }
                 }
 
+
                 if (molecule.ssPos != Vector2.zero)
                 {
                     Debug.Log($"[Create:transition] Got SS coords: {molecule.ssPos.ToVector2()};");
@@ -2277,6 +2278,11 @@ public class GlobalCtrl : MonoBehaviour
                         tempMolecule.transform.position = getIdealSpawnPos(tempMolecule.transform, molecule.ssPos);
                     }
                 }
+                else
+                {
+                    tempMolecule.transform.position = getIdealSpawnPos(tempMolecule.transform);
+                }
+
                 if (molecule.ssBounds != Vector4.zero)
                 {
                     tempMolecule.transform.localScale = Vector3.one;
