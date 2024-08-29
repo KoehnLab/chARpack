@@ -590,6 +590,34 @@ MonoBehaviour:
     m_Localized: Vollbild
     m_Metadata:
       m_Items: []
+  - m_Id: 154478274112110592
+    m_Localized: "Molek\xFCl transferieren (asynchroner Modus)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154479721037938688
+    m_Localized: "Gizmos \xE4ndern (rotieren, bewegen, skalieren)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154481754180665344
+    m_Localized: UI verstecken
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154482174244405248
+    m_Localized: Entf
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154482279269777408
+    m_Localized: "Markierte Molek\xFCle l\xF6schen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154482895530475520
+    m_Localized: Links Strg + A
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154483147624923136
+    m_Localized: "Ganzes Molek\xFCl markieren"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
