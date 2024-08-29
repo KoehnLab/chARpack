@@ -53,6 +53,8 @@ public class SettingsPanel : MonoBehaviour
     public GameObject allowThrowingToggle;
     public GameObject hoverGazeAsSelectionToggle;
 
+    public GameObject hoverMarker;
+
     // save load buttons
     public GameObject saveSettingsButton;
     public GameObject loadSettingsButton;
@@ -308,6 +310,7 @@ public class SettingsPanel : MonoBehaviour
     {
         var active = gameObject.activeSelf;
         gameObject.SetActive(!active);
+        hoverMarker.GetComponent<HoverMarker>().setSettingsActive(gameObject.activeSelf);
     }
 
 

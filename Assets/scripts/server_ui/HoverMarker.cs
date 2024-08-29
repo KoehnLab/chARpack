@@ -32,6 +32,7 @@ public class HoverMarker : MonoBehaviour
     private Sprite hoverMiddleGrab;
     private Sprite hoverIndexGrab;
 
+    public bool settingsActive = false;
 
     // Start is called before the first frame update
     void Start()
@@ -72,6 +73,13 @@ public class HoverMarker : MonoBehaviour
     public void hide()
     {
         gameObject.SetActive(false);
+    }
+
+    public void setSettingsActive(bool value)
+    {
+        if (value) hide();
+        else show();
+        settingsActive = value;
     }
 
     public bool isVisible()

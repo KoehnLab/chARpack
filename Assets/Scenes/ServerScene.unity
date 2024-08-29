@@ -37466,6 +37466,7 @@ MonoBehaviour:
   allowedTransitionInteractionsDropdown: {fileID: 801574044}
   allowThrowingToggle: {fileID: 440401723}
   hoverGazeAsSelectionToggle: {fileID: 1785449968}
+  hoverMarker: {fileID: 1649780370}
   saveSettingsButton: {fileID: 462885602}
   loadSettingsButton: {fileID: 50636966}
 --- !u!114 &1915393806
