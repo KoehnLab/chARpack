@@ -590,21 +590,18 @@ MonoBehaviour:
     m_Localized: Vollbild
     m_Metadata:
       m_Items: []
-  - m_Id: 154796505704153088
-    m_Localized: "Die untere linke Ecke des Bildschirms mit der Zeigefingerspitze
-      ber\xFChren, bis ein kleiner W\xFCrfel erscheint."
+  - m_Id: 154834058461298688
+    m_Localized: Starten
     m_Metadata:
       m_Items: []
-  - m_Id: 154796868645666816
-    m_Localized: "Jetzt die obere linke Bildschirmecke ber\xFChren."
+  - m_Id: 154821961895624704
+    m_Localized: "Ber\xFChren Sie die Ecken des Bildschirms mit der Zeigefingerspitze
+      in der untenstehenden Reihenfolge. Halten Sie an jeder dieser Ecken Ihren Finger
+      solange still, bis ein Ger\xE4usch ert\xF6nt und eine kleine Box erscheint."
     m_Metadata:
       m_Items: []
-  - m_Id: 154797062753861632
-    m_Localized: "Zuletzt die untere rechte Ecke ber\xFChren."
-    m_Metadata:
-      m_Items: []
-  - m_Id: 154797491311067136
-    m_Localized: Bildschirm erfolgreich gescannt!
+  - m_Id: 154821894153420800
+    m_Localized: Bildschirm scannen
     m_Metadata:
       m_Items: []
   references:

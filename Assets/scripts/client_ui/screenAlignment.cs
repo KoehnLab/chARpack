@@ -61,7 +61,6 @@ public class screenAlignment : MonoBehaviour
         closeToScreenClip = Resources.Load<AudioClip>("audio/wine_loop");
         screenPrefab = (GameObject)Resources.Load("prefabs/ScreenPrefab");
         arcPrefab = (GameObject)Resources.Load("prefabs/vfx/vfx_arc_fixed_endpoints");
-        instructionPrefab = (GameObject)Resources.Load("prefabs/ScanCornerInstructions");
         gameObject.AddComponent<AudioSource>();
 
         arcInstance = Instantiate(arcPrefab);
@@ -103,8 +102,6 @@ public class screenAlignment : MonoBehaviour
             indicator3.SetActive(false);
             indicator4.SetActive(false);
         }
-        instructionInstance = Instantiate((GameObject)Resources.Load("prefabs/ScanCornerInstructions")); // For some reason, initialization is not yet complete here
-        instructionInstance.GetComponentInChildren<TextMeshPro>().text = localizationManager.Singleton.GetLocalizedString("ScanFirstCorner");
         HandTracking.Singleton.gameObject.SetActive(true);
         screenVertices = new Vector3[4] { Vector3.zero, Vector3.zero, Vector3.zero, Vector3.zero };
         screenScanStopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -128,7 +125,6 @@ public class screenAlignment : MonoBehaviour
                         AudioSource.PlayClipAtPoint(confirmClip, index_pos);
                         indicator1.SetActive(true);
                         indicator1.transform.position = index_pos;
-                        instructionInstance.GetComponentInChildren<TextMeshPro>().text = localizationManager.Singleton.GetLocalizedString("ScanSecondCorner");
                         screenScanStopwatch.Restart();
                     }
                     else if (screenVertices[1] == Vector3.zero)
@@ -137,7 +133,6 @@ public class screenAlignment : MonoBehaviour
                         AudioSource.PlayClipAtPoint(confirmClip, index_pos);
                         indicator2.SetActive(true);
                         indicator2.transform.position = index_pos;
-                        instructionInstance.GetComponentInChildren<TextMeshPro>().text = localizationManager.Singleton.GetLocalizedString("ScanThirdCorner");
                         screenScanStopwatch.Restart();
                     }
                     else
@@ -166,7 +161,6 @@ public class screenAlignment : MonoBehaviour
                         screenQuad.GetComponent<MeshFilter>().mesh.RecalculateNormals();
                         screenQuad.GetComponent<MeshFilter>().mesh.RecalculateBounds();
                         screenQuad.SetActive(true);
-                        instructionInstance.GetComponentInChildren<TextMeshPro>().text = localizationManager.Singleton.GetLocalizedString("ScreenScanSuccess");
                         OnScreenInitialized?.Invoke();
                         run_check = false;
                     }
@@ -213,7 +207,6 @@ public class screenAlignment : MonoBehaviour
 
         // turn off quad after 2 sec
         StartCoroutine(turnOffQuad());
-        StartCoroutine(turnOffInstruction());
     }
 
 
@@ -221,13 +214,6 @@ public class screenAlignment : MonoBehaviour
     {
         yield return new WaitForSeconds(2f);
         screenQuad.SetActive(false);
-    }
-
-    private IEnumerator turnOffInstruction()
-    {
-        yield return new WaitForSeconds(2f);
-        Destroy(instructionInstance);
-        instructionInstance = null;
     }
 
     GameObject projectionIndicator;
