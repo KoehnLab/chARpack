@@ -1489,7 +1489,7 @@ public class NetworkManagerServer : MonoBehaviour
         }
         if (HoverMarker.Singleton != null)
         {
-            if (!HoverMarker.Singleton.isVisible())
+            if (!HoverMarker.Singleton.isVisible() && !HoverMarker.Singleton.settingsActive)
             {
                 HoverMarker.Singleton.show();
             }
@@ -1506,7 +1506,7 @@ public class NetworkManagerServer : MonoBehaviour
         }
         if (HoverMarker.Singleton != null)
         {
-            if (!HoverMarker.Singleton.isVisible())
+            if (!HoverMarker.Singleton.isVisible() && !HoverMarker.Singleton.settingsActive)
             {
                 HoverMarker.Singleton.show();
             }
@@ -1524,7 +1524,7 @@ public class NetworkManagerServer : MonoBehaviour
         }
         if (HoverMarker.Singleton != null)
         {
-            if (!HoverMarker.Singleton.isVisible())
+            if (!HoverMarker.Singleton.isVisible() && !HoverMarker.Singleton.settingsActive)
             {
                 HoverMarker.Singleton.show();
             }
@@ -1600,7 +1600,7 @@ public class NetworkManagerServer : MonoBehaviour
         }
         if (HoverMarker.Singleton != null)
         {
-            if (!HoverMarker.Singleton.isVisible())
+            if (!HoverMarker.Singleton.isVisible() && !HoverMarker.Singleton.settingsActive)
             {
                 HoverMarker.Singleton.show();
             }
@@ -1618,7 +1618,7 @@ public class NetworkManagerServer : MonoBehaviour
         }
         if (HoverMarker.Singleton != null)
         {
-            if (!HoverMarker.Singleton.isVisible())
+            if (!HoverMarker.Singleton.isVisible() && !HoverMarker.Singleton.settingsActive)
             {
                 HoverMarker.Singleton.show();
             }

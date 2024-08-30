@@ -581,6 +581,34 @@ MonoBehaviour:
     m_Key: ExclusiveFullscreen
     m_Metadata:
       m_Items: []
+  - m_Id: 154478274112110592
+    m_Key: TransitionMolecule
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154479721037938688
+    m_Key: SwitchGizmos
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154481754180665344
+    m_Key: HideUI
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154482174244405248
+    m_Key: Del
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154482279269777408
+    m_Key: DeleteMarked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154482895530475520
+    m_Key: LeftCtrlA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154483147624923136
+    m_Key: MarkWholeMolecule
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

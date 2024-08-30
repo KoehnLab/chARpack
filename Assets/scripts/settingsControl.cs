@@ -60,6 +60,7 @@ public class settingsControl : MonoBehaviour
         setCoopSettings(SettingsData.coop);
         setInteractionMode(SettingsData.interactionMode);
         setAutoGenerateStructureFormulas(SettingsData.autogenerateStructureFormulas);
+        saveWindowSize();
         setExclusiveFullscreen(SettingsData.exclusiveFullscreen);
         setSyncMode(SettingsData.syncMode);
         setRandomSeed(SettingsData.randomSeed);
@@ -161,13 +162,28 @@ public class settingsControl : MonoBehaviour
     private int windowWidth = 0;
     private int windowHeight = 0;
 
+    private void saveWindowSize()
+    {
+#if UNITY_STANDALONE || UNITY_EDITOR
+        // save current size to avoid strange resize
+        if (!Screen.fullScreen && windowHeight != 0 && windowWidth != 0)
+            {
+                windowHeight = Screen.height;
+                windowWidth = Screen.width;
+            }
+#endif
+    }
+
     private void setExclusiveFullscreen(bool value)
     {
 #if UNITY_STANDALONE || UNITY_EDITOR
-        if (windowWidth == 0) windowWidth = Screen.currentResolution.width / 3; //Initialization
+        if (windowWidth == 0) windowWidth = Screen.currentResolution.width * 3 / 5; //Initialization
         if (windowHeight == 0) windowHeight = Screen.currentResolution.height * 3 / 5;
 
-        if (!value) Screen.SetResolution(windowWidth, windowHeight, false);
+        if (!value)
+        {
+                Screen.SetResolution(windowWidth, windowHeight, false);
+        }
         else
         {
             windowWidth = Screen.width;

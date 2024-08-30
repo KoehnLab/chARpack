@@ -539,7 +539,7 @@ public class OpenBabelReadWrite : MonoBehaviour
         }
         catch
         {
-            UnityEngine.Debug.LogError("Invalid SMILES string.");
+            UnityEngine.Debug.LogError("SMILES interpretation failed.");
             return false;
         }
         return true;
