@@ -190,7 +190,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 343989019177250526}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4684083f6dff4a1d8a790bccc354fcf4, type: 3}
   m_Name: 
@@ -202,17 +202,17 @@ MonoBehaviour:
   maintainScaleOnInitialization: 1
   smoothing: 1
   lifetime: 0
-  referenceDirection: 1
-  minDistance: 0.4
-  maxDistance: 1
+  referenceDirection: 2
+  minDistance: 0.6
+  maxDistance: 1.2
   minViewDegrees: 0
-  maxViewDegrees: 25
+  maxViewDegrees: 20
   aspectV: 1
   ignoreAngleClamp: 0
   ignoreDistanceClamp: 0
   useFixedVerticalPosition: 1
   fixedVerticalPosition: -0.2
-  orientToReferenceDirection: 0
+  orientToReferenceDirection: 1
 --- !u!65 &32410218976614005
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2611,7 +2611,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4069599398753316744}
   - component: {fileID: 658196248863413677}
-  - component: {fileID: 3284734510989437815}
   - component: {fileID: 8562950973813561088}
   - component: {fileID: 5723783675482151460}
   m_Layer: 0
@@ -2682,14 +2681,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!222 &3284734510989437815
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7422022621747615726}
-  m_CullTransparentMesh: 0
 --- !u!114 &8562950973813561088
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2861,7 +2852,6 @@ GameObject:
   m_Component:
   - component: {fileID: 9067164205398356950}
   - component: {fileID: 9067164205398356906}
-  - component: {fileID: 9067164205398356948}
   - component: {fileID: 9067164205398356949}
   - component: {fileID: 2391590929630569393}
   m_Layer: 0
@@ -2932,14 +2922,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!222 &9067164205398356948
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9067164205398356951}
-  m_CullTransparentMesh: 0
 --- !u!114 &9067164205398356949
 MonoBehaviour:
   m_ObjectHideFlags: 0
