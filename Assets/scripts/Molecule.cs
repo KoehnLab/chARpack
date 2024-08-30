@@ -685,13 +685,16 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 if (!GlobalCtrl.Singleton.snapToolTipInstances.ContainsKey(new Tuple<Guid, Guid>(m_id, mol.m_id)) &&
                     !GlobalCtrl.Singleton.snapToolTipInstances.ContainsKey(new Tuple<Guid, Guid>(mol.m_id, m_id)))
                 {
-                    if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
+                    if (mark)
                     {
-                        createServerSnapToolTip(mol.m_id);
-                    }
-                    else
-                    {
-                        createSnapToolTip(mol.m_id);
+                        if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
+                        {
+                            createServerSnapToolTip(mol.m_id);
+                        }
+                        else
+                        {
+                            createSnapToolTip(mol.m_id);
+                        }
                     }
                 }
                 else
