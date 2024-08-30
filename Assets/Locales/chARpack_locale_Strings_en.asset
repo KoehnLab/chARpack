@@ -590,6 +590,23 @@ MonoBehaviour:
     m_Localized: Exclusive Fullscreen
     m_Metadata:
       m_Items: []
+  - m_Id: 154796505704153088
+    m_Localized: Touch the lower left corner of your screen with your index finger
+      tip until a small cube appears.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154796868645666816
+    m_Localized: Now touch the upper left corner of the screen.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154797062753861632
+    m_Localized: Lastly, touch the lower right screen corner.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154797491311067136
+    m_Localized: Screen successfully scanned!
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
