@@ -111,6 +111,11 @@ public class screenAlignment : MonoBehaviour
         bool run_check = true;
         while (run_check)
         {
+            if (HandTracking.Singleton.getCurrentHand() == Microsoft.MixedReality.Toolkit.Utilities.Handedness.None)
+            {
+                yield return null;
+                continue;
+            }
             var index_pos = HandTracking.Singleton.getIndexTip(); // for scanning screen use tip
 #if WINDOWS_UWP
             if (Vector3.Distance(index_pos, oldIndexPos) <= 0.002f)

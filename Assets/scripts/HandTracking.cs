@@ -78,15 +78,15 @@ public class HandTracking : MonoBehaviour
     private MixedRealityPose wristPose = MixedRealityPose.ZeroIdentity;
     public GameObject fragmentIndicator;
     public GameObject particleSystemGO;
-    bool middleFingerGrab = false;
-    bool indexFingerGrab = false;
-    bool isMiddleInBox = false;
+    private bool middleFingerGrab = false;
+    private bool indexFingerGrab = false;
+    private bool isMiddleInBox = false;
     private AudioClip middleInBoxClip;
     private Vector3 handVelocity = Vector3.zero;
     private Vector3 indexFingerVelocity = Vector3.zero;
+    private Handedness currentHand = Handedness.None;
 
     private IMixedRealityHandJointService handJointService;
-
     private IMixedRealityHandJointService HandJointService =>
         handJointService ??
         (handJointService = CoreServices.GetInputSystemDataProvider<IMixedRealityHandJointService>());
@@ -162,14 +162,14 @@ public class HandTracking : MonoBehaviour
 
     private void Update()
     {
-        var current_hand = getPose();
-        if (current_hand == Handedness.None) return;
+        var currentHand = getPose();
+        if (currentHand == Handedness.None) return;
         if (indexForward == Vector3.zero) return;
         transform.forward = indexForward;
         transform.position = indexKnucklePose.Position;
 
         //if (Vector3.Distance(indexTipPose.Position, thumbTipPose.Position) < 0.025f)
-        if (GestureUtils.IsIndexPinching(current_hand))
+        if (GestureUtils.IsIndexPinching(currentHand))
         {
             if (!indexFingerGrab)
             {
@@ -193,7 +193,7 @@ public class HandTracking : MonoBehaviour
         }
 
         //if (Vector3.Distance(middleTipPose.Position, thumbTipPose.Position) < 0.025f && Vector3.Distance(indexTipPose.Position, thumbTipPose.Position) > 0.025f)
-        if (GestureUtils.IsMiddlePinching(current_hand) && !indexFingerGrab)
+        if (GestureUtils.IsMiddlePinching(currentHand) && !indexFingerGrab)
         {
             if (!middleFingerGrab)
             {
@@ -402,7 +402,11 @@ public class HandTracking : MonoBehaviour
     }
 
 
-    
+    public Handedness getCurrentHand()
+    {
+        return currentHand;
+    }
+
     public Vector3 getForward()
     {
         return indexForward;
