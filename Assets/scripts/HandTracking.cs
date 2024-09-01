@@ -162,7 +162,7 @@ public class HandTracking : MonoBehaviour
 
     private void Update()
     {
-        var currentHand = getPose();
+        currentHand = getPose();
         if (currentHand == Handedness.None) return;
         if (indexForward == Vector3.zero) return;
         transform.forward = indexForward;

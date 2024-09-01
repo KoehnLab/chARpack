@@ -113,6 +113,7 @@ public class screenAlignment : MonoBehaviour
         {
             if (HandTracking.Singleton.getCurrentHand() == Microsoft.MixedReality.Toolkit.Utilities.Handedness.None)
             {
+                screenScanStopwatch.Restart();
                 yield return null;
                 continue;
             }
