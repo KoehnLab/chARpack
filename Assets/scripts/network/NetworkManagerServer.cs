@@ -840,14 +840,15 @@ public class NetworkManagerServer : MonoBehaviour
         }
         GlobalCtrl.Singleton.MergeMolecule(mol1ID, atom1ID, mol2ID, atom2ID);
 
-        // Broadcast to other clients
-        Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastMoleculeMerged);
-        outMessage.AddUShort(fromClientId);
-        outMessage.AddGuid(mol1ID);
-        outMessage.AddUShort(atom1ID);
-        outMessage.AddGuid(mol2ID);
-        outMessage.AddUShort(atom2ID);
-        NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+        //// Broadcast to other clients
+        //Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastMoleculeMerged);
+        //outMessage.AddUShort(fromClientId);
+        //outMessage.AddGuid(mol1ID);
+        //outMessage.AddUShort(atom1ID);
+        //outMessage.AddGuid(mol2ID);
+        //outMessage.AddUShort(atom2ID);
+        //NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
+        NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld());
     }
 
 

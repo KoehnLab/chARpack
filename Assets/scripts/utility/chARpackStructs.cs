@@ -69,6 +69,7 @@ namespace chARpackStructs
         public string abbre;
         public ushort hybrid;
         public SaveableVector3 pos;
+
         public cmlAtom(ushort _id,string name, ushort hybridisation, SaveableVector3 _pos)
         {
             id = _id;
@@ -173,6 +174,7 @@ namespace chARpackStructs
         public cmlAngle[] angleArray;
         [XmlArray, DefaultValue(null)]
         public cmlTorsion[] torsionArray;
+        public bool frozen;
 
         public cmlData(SaveableVector3 pos, SaveableVector3 scale, SaveableQuaternion quat, Guid id, List<cmlAtom> a, List<cmlBond> b, List<cmlAngle> ang = null, List<cmlTorsion> tor = null, bool keepConfig_ = false)
         {
@@ -191,6 +193,7 @@ namespace chARpackStructs
             moleTransitioned = false;
             transitionTriggeredBy = -1;
             name = "";
+            frozen = false;
         }
 
         public void assignRelativeQuaternion(Quaternion q)
@@ -221,6 +224,11 @@ namespace chARpackStructs
         public void assignName(string name_)
         {
             name = name_;
+        }
+
+        public void setFrozen(bool value)
+        {
+            frozen = value;
         }
     }
 

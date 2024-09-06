@@ -109,6 +109,7 @@ public static class OpenBabelExtensions
         }
 
         saveData = new cmlData(mol.transform.localPosition, mol.transform.localScale, mol.transform.localRotation, mol.m_id, list_atom, list_bond, list_angle, list_torsion, true);
+        saveData.setFrozen(mol.frozen);
 
 
         return saveData;
