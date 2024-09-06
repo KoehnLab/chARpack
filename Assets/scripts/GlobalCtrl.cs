@@ -1191,6 +1191,7 @@ public class GlobalCtrl : MonoBehaviour
             Molecule tempMolecule = Instantiate(myBoundingBoxPrefab, new Vector3(0, 0, 0), Quaternion.identity).AddComponent<Molecule>();
             tempMolecule.transform.position = m.transform.position;
             tempMolecule.f_Init(Guid.NewGuid(), atomWorld.transform);
+            tempMolecule.transform.localScale = m.transform.localScale;
             addMoleculeList.Add(tempMolecule);
             foreach (Atom a in pair.Value)
             {
@@ -1813,9 +1814,9 @@ public class GlobalCtrl : MonoBehaviour
             molInHand.givingOrphans(molInAir);
         }
 
-        List_curMolecules.Remove(molInAir.m_id);
-        molInAir.m_id = Guid.NewGuid();
-        List_curMolecules.Add(molInAir.m_id, molInAir);
+        //List_curMolecules.Remove(molInAir.m_id);
+        //molInAir.m_id = Guid.NewGuid();
+        //List_curMolecules.Add(molInAir.m_id, molInAir);
 
         //Atom atom1 = List_curAtoms.Find((x) => x == bondInHand.findTheOther(dummyInHand));
         //Atom atom2 = List_curAtoms.Find((x) => x == bondInAir.findTheOther(dummyInAir));

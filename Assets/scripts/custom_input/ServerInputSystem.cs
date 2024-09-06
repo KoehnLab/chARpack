@@ -221,6 +221,11 @@ public class ServerInputSystem : MonoBehaviour
                 }
             }
 
+            if (Input.GetKeyDown(KeyCode.Tab))
+            {
+                TransformGizmo.Singleton.enabled = !TransformGizmo.Singleton.enabled;
+            }
+
             //if (Input.GetMouseButton(1) && Input.GetKey(KeyCode.LeftAlt))
             //{
             //    if (lastObjectClickedOn != null)
