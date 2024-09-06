@@ -32072,6 +32072,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32eef1d82d07cd94f90521c7c780885d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  settingsActive: 0
 --- !u!1 &1662428293
 GameObject:
   m_ObjectHideFlags: 0
@@ -37466,7 +37467,6 @@ MonoBehaviour:
   allowedTransitionInteractionsDropdown: {fileID: 801574044}
   allowThrowingToggle: {fileID: 440401723}
   hoverGazeAsSelectionToggle: {fileID: 1785449968}
-  hoverMarker: {fileID: 1649780370}
   saveSettingsButton: {fileID: 462885602}
   loadSettingsButton: {fileID: 50636966}
 --- !u!114 &1915393806
@@ -39767,10 +39767,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1915393804}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 1915393805}
+        m_TargetAssemblyTypeName: SettingsPanel, Assembly-CSharp
+        m_MethodName: togglePanel
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine

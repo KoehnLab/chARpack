@@ -298,7 +298,7 @@ public class SettingsPanel : MonoBehaviour
         settingsControl.Singleton.updateSettings();
         EventManager.Singleton.UpdateSettings();
 
-        gameObject.SetActive(false);
+        togglePanel();
     }
 
     /// <summary>
