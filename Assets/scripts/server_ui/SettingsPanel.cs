@@ -52,6 +52,7 @@ public class SettingsPanel : MonoBehaviour
     public GameObject allowedTransitionInteractionsDropdown;
     public GameObject allowThrowingToggle;
     public GameObject hoverGazeAsSelectionToggle;
+    public GameObject defaultMoleculeScaleSlider;
 
     // save load buttons
     public GameObject saveSettingsButton;
@@ -209,6 +210,8 @@ public class SettingsPanel : MonoBehaviour
         randomSeedInputField.GetComponent<TMP_InputField>().text = $"{SettingsData.randomSeed}";
         allowThrowingToggle.GetComponent<Toggle>().isOn = SettingsData.allowThrowing;
         hoverGazeAsSelectionToggle.GetComponent<Toggle>().isOn = SettingsData.hoverGazeAsSelection;
+        defaultMoleculeScaleSlider.GetComponent<Slider>().value = SettingsData.defaultMoleculeSize;
+        defaultMoleculeScaleSlider.GetComponent<UpdateSliderLabel>().updateLabel();
     }
 
     /// <summary>
@@ -293,6 +296,7 @@ public class SettingsPanel : MonoBehaviour
         SettingsData.randomSeed = int.Parse(randomSeedInputField.GetComponent<TMP_InputField>().text);
         SettingsData.allowThrowing = allowThrowingToggle.GetComponent<Toggle>().isOn;
         SettingsData.hoverGazeAsSelection = hoverGazeAsSelectionToggle.GetComponent<Toggle>().isOn;
+        SettingsData.defaultMoleculeSize = defaultMoleculeScaleSlider.GetComponent<Slider>().value;
 
 
         settingsControl.Singleton.updateSettings();

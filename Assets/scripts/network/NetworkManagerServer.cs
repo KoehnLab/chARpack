@@ -510,6 +510,7 @@ public class NetworkManagerServer : MonoBehaviour
         message.AddInt((int)SettingsData.allowedTransitionInteractions);
         message.AddBool(SettingsData.allowThrowing);
         message.AddBool(SettingsData.hoverGazeAsSelection);
+        message.AddFloat(SettingsData.defaultMoleculeSize);
         Server.SendToAll(message);
     }
 

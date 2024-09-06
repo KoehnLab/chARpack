@@ -241,12 +241,12 @@ public class myBoundingBox : MonoBehaviour
         corners[6] = _localBounds.min;
         corners[7] = new Vector3(_localBounds.max.x, _localBounds.min.y, _localBounds.min.z);
 
-
+        var scale_normalization = Vector3.one.divide(transform.localScale);
         for (int i = 0; i < corners.Length; i++)
         {
             cornerHandles[i].transform.position = corners[i];
             cornerHandles[i].transform.rotation = cornerOrientation[i];
-            cornerHandles[i].transform.localScale = (0.02f + 0.05f * _localBounds.size.maxDimValue()) * Vector3.one;
+            cornerHandles[i].transform.localScale = (0.02f + 0.05f * _localBounds.size.maxDimValue()) * scale_normalization;
             
         }
     }

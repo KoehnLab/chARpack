@@ -19,7 +19,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private cmlData before;
     private Vector3 pickupPos = Vector3.zero;
     private Quaternion pickupRot = Quaternion.identity;
-    public float initial_scale = 1f;
+    [HideInInspector] public float initial_scale = SettingsData.defaultMoleculeSize;
 
     private List<Tuple<ushort, Vector3>> atomState = new List<Tuple<ushort, Vector3>>();
 
@@ -140,8 +140,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     {
         cmlData before = this.AsCML();
         before.moleScale = new SaveableVector3(oldScale, oldScale, oldScale);
-        gameObject.transform.localScale = scalingSliderInstance.GetComponentInChildren<Slider>().value * startingScale;
-        oldScale = transform.localScale.x / startingScale.x; 
+        oldScale = transform.localScale.x; // / startingScale.x;
+        transform.localScale = scalingSliderInstance.GetComponentInChildren<Slider>().value * Vector3.one; // * startingScale;
         GlobalCtrl.Singleton.undoStack.AddChange(new ScaleMoleculeAction(before, this.AsCML()));
         // networking
         EventManager.Singleton.ChangeMoleculeScale(m_id, gameObject.transform.localScale.x);
@@ -160,7 +160,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             before.moleScale = eventData.OldValue * gameObject.transform.localScale / eventData.NewValue;
             GlobalCtrl.Singleton.undoStack.AddChange(new ScaleMoleculeAction(before, this.AsCML()));
         }
-        gameObject.transform.localScale = eventData.NewValue * startingScale;
+        gameObject.transform.localScale = eventData.NewValue * Vector3.one;// * startingScale;
         // networking
         EventManager.Singleton.ChangeMoleculeScale(m_id, gameObject.transform.localScale.x);
     }
@@ -318,6 +318,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         m_id = idInScene;
         isMarked = false;
         transform.parent = inputParent;
+        transform.localScale = SettingsData.defaultMoleculeSize * Vector3.one;
         startingScale = transform.localScale;
         atomList = new List<Atom>();
         bondList = new List<Bond>();
@@ -1093,9 +1094,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 scalingSliderInstance = Instantiate(serverScalingSliderPrefab);
                 scalingSliderInstance.GetComponentInChildren<Slider>().maxValue = 2;
                 scalingSliderInstance.GetComponentInChildren<Slider>().minValue = 0.1f;
-                var currentScale = transform.localScale.x / startingScale.x;
+                var currentScale = transform.localScale.x;// / startingScale.x;
                 scalingSliderInstance.GetComponentInChildren<Slider>().normalizedValue = (currentScale - scalingSliderInstance.GetComponentInChildren<Slider>().minValue) / (scalingSliderInstance.GetComponentInChildren<Slider>().maxValue - scalingSliderInstance.GetComponentInChildren<Slider>().minValue);
                 scalingSliderInstance.GetComponentInChildren<Slider>().onValueChanged.AddListener(delegate { OnServerSliderUpdated(); });
+                scalingSliderInstance.GetComponentInChildren<UpdateSliderLabel>().updateLabel();
             }
             else
             {
@@ -1103,7 +1105,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                 scalingSliderInstance = Instantiate(scalingSliderPrefab, gameObject.transform.position - 0.17f * GlobalCtrl.Singleton.currentCamera.transform.forward - 0.05f * Vector3.up, GlobalCtrl.Singleton.currentCamera.transform.rotation);
                 scalingSliderInstance.GetComponent<mySlider>().maxVal = 2;
                 scalingSliderInstance.GetComponent<mySlider>().minVal = 0.1f;
-                var currentScale = transform.localScale.x / startingScale.x;
+                var currentScale = transform.localScale.x; // / startingScale.x;
                 // Set effective starting value and default to 1
                 scalingSliderInstance.GetComponent<mySlider>().SliderValue = (currentScale - scalingSliderInstance.GetComponent<mySlider>().minVal) / (scalingSliderInstance.GetComponent<mySlider>().maxVal - scalingSliderInstance.GetComponent<mySlider>().minVal);
                 scalingSliderInstance.GetComponent<mySlider>().defaultVal = (1 - scalingSliderInstance.GetComponent<mySlider>().minVal) / (scalingSliderInstance.GetComponent<mySlider>().maxVal - scalingSliderInstance.GetComponent<mySlider>().minVal);

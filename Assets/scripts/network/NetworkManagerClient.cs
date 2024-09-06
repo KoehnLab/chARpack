@@ -1225,6 +1225,7 @@ public class NetworkManagerClient : MonoBehaviour
         var allowedTransitionInteractions = (TransitionManager.InteractionType)message.GetInt();
         var allowThrowing = message.GetBool();
         var hoverGazeAsSelection = message.GetBool();
+        var defaultMoleculeSize = message.GetFloat();
 
         // Get enum entries from strings
         Enum.TryParse(integrationMethodString, ignoreCase: true, out ForceField.Method integrationMethod);
@@ -1266,6 +1267,8 @@ public class NetworkManagerClient : MonoBehaviour
             SettingsData.allowedTransitionInteractions = allowedTransitionInteractions;
             SettingsData.allowThrowing = allowThrowing;
             SettingsData.hoverGazeAsSelection = hoverGazeAsSelection;
+            SettingsData.defaultMoleculeSize = defaultMoleculeSize;
+
 
             settingsControl.Singleton.updateSettings();
             if (appSettings.Singleton != null)

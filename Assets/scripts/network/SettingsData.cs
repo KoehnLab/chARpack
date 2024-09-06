@@ -51,6 +51,7 @@ public class SettingsData
     [JsonProperty] public static TransitionManager.InteractionType allowedTransitionInteractions = TransitionManager.InteractionType.ALL;
     [JsonProperty] public static bool allowThrowing = true;
     [JsonProperty] public static bool hoverGazeAsSelection = true;
+    [JsonProperty] public static float defaultMoleculeSize = 0.8f;
 
     public static int highlightColorMap { get => _highlightColorMap; set
         {

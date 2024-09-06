@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +8,7 @@ public class ServerScalingSlider : ServerTooltip
 {
     [HideInInspector] public Molecule linkedMolecule;
 
+    public Slider slider;
 
     public override void Start()
 
@@ -17,6 +19,6 @@ public class ServerScalingSlider : ServerTooltip
 
     public void resetScale()
     {
-        GetComponentInChildren<Slider>().value = 1.0f;
+        slider.value = SettingsData.defaultMoleculeSize;
     }
 }
