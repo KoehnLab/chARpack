@@ -2068,6 +2068,7 @@ public class GlobalCtrl : MonoBehaviour
 
         if(!onStack)
         {
+            System.IO.Directory.CreateDirectory(Application.streamingAssetsPath + "/SavedMolecules/");
             XMLFileHelper.SaveData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", saveData);
             Debug.Log($"[GlobalCtrl] Saved Molecule as: {name}.xml");
         } else
