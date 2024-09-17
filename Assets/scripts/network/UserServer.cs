@@ -114,6 +114,11 @@ public class UserServer : MonoBehaviour
         lineRenderer.material.color = FocusColors.getColor(focus_id);
 
         cubeUser.transform.parent = anchor.transform;
+        if (SettingsData.syncMode == TransitionManager.SyncMode.Async)
+        {
+            cubeUser.SetActive(false);
+        }
+
         user.head = cubeUser;
         user.highlightFocusID = focus_id;
 
@@ -260,6 +265,14 @@ public class UserServer : MonoBehaviour
                 bcastMessage.AddQuaternion(quat);
                 NetworkManagerServer.Singleton.Server.Send(bcastMessage, otherUser.ID);
             }
+        }
+    }
+
+    public static void showHeads(bool value)
+    {
+        foreach (var user in list.Values)
+        {
+            user.head.SetActive(value);
         }
     }
 

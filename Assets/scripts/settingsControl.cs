@@ -65,6 +65,10 @@ public class settingsControl : MonoBehaviour
         setSyncMode(SettingsData.syncMode);
         setRandomSeed(SettingsData.randomSeed);
         setHoverGazeSelection(SettingsData.hoverGazeAsSelection);
+        if (UserServer.list.Count > 0)
+        {
+            UserServer.showHeads(SettingsData.syncMode == TransitionManager.SyncMode.Sync);
+        }
         GlobalCtrl.Singleton.setLicoriceRendering(SettingsData.licoriceRendering);
         GlobalCtrl.Singleton.reloadShaders();
         GlobalCtrl.Singleton.regenerateSingleBondTooltips(); // Regenerate in case length unit was changed
