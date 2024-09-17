@@ -216,7 +216,7 @@ public class TransitionManager : MonoBehaviour
     }
 
 
-    public void initializeTransitionServer(Vector2 ss_coords, InteractionType triggered_by)
+    public void initializeTransitionServer(Vector2 ss_coords, InteractionType triggered_by, int from_id)
     {
         if (transitionOnCooldown) return;
         StartCoroutine(startCooldown());
@@ -293,12 +293,12 @@ public class TransitionManager : MonoBehaviour
             {
                 if (mol_test != null)
                 {
-                    EventManager.Singleton.TransitionMolecule(mol_test, triggered_by);
+                    EventManager.Singleton.TransitionMolecule(mol_test, triggered_by, from_id);
                     return;
                 }
                 if (go_test != null)
                 {
-                    EventManager.Singleton.TransitionGenericObject(go_test, triggered_by);
+                    EventManager.Singleton.TransitionGenericObject(go_test, triggered_by, from_id);
                     return;
                 }
             }
@@ -310,7 +310,7 @@ public class TransitionManager : MonoBehaviour
         }
     }
 
-    public void initializeTransitionServer(Transform trans, InteractionType triggered_by)
+    public void initializeTransitionServer(Transform trans, InteractionType triggered_by, int from_id)
     {
         if (transitionOnCooldown) return;
         StartCoroutine(startCooldown());
@@ -318,17 +318,17 @@ public class TransitionManager : MonoBehaviour
         var mol = trans.GetComponent<Molecule>();
         if (mol != null)
         {
-            initializeTransitionServer(mol, triggered_by);
+            initializeTransitionServer(mol, triggered_by, from_id);
             return;
         }
         var go = trans.GetComponent<GenericObject>();
         if (go != null)
         {
-            initializeTransitionServer(go, triggered_by);
+            initializeTransitionServer(go, triggered_by, from_id);
         }
     }
 
-    public void initializeTransitionServer(Molecule mol, InteractionType triggered_by)
+    public void initializeTransitionServer(Molecule mol, InteractionType triggered_by, int from_id)
     {
         var wpos = GlobalCtrl.Singleton.getIdealSpawnPos(mol.transform);
         if (SettingsData.transitionMode == TransitionMode.FULL_3D)
@@ -338,11 +338,11 @@ public class TransitionManager : MonoBehaviour
         else
         {
             if (StudyTaskManager.Singleton) StudyTaskManager.Singleton.logTransition(mol.name, triggered_by);
-            EventManager.Singleton.TransitionMolecule(mol, triggered_by);
+            EventManager.Singleton.TransitionMolecule(mol, triggered_by, from_id);
         }
     }
 
-    public void initializeTransitionServer(GenericObject go, InteractionType triggered_by)
+    public void initializeTransitionServer(GenericObject go, InteractionType triggered_by, int from_id)
     {
         var wpos = GlobalCtrl.Singleton.getIdealSpawnPos(go.transform);
         if (SettingsData.transitionMode == TransitionMode.FULL_3D)
@@ -352,7 +352,7 @@ public class TransitionManager : MonoBehaviour
         else
         {
             if (StudyTaskManager.Singleton) StudyTaskManager.Singleton.logTransition(go.name, triggered_by);
-            EventManager.Singleton.TransitionGenericObject(go, triggered_by);
+            EventManager.Singleton.TransitionGenericObject(go, triggered_by, from_id);
         }
     }
 
@@ -374,6 +374,9 @@ public class TransitionManager : MonoBehaviour
         if (transitionOnCooldown) return;
         StartCoroutine(startCooldown());
 
+        if (NetworkManagerClient.Singleton == null) return;
+        var from_id = NetworkManagerClient.Singleton.Client.Id;
+
         grabHold = true;
         //get target size on screen
         // if object is larger than screen it should only take 0.5*screen_hight
@@ -391,12 +394,12 @@ public class TransitionManager : MonoBehaviour
             var mol = trans.GetComponent<Molecule>();
             if (mol != null)
             {
-                EventManager.Singleton.TransitionMolecule(mol, triggered_by);
+                EventManager.Singleton.TransitionMolecule(mol, triggered_by, from_id);
             }
             else
             {
                 var go = trans.GetComponent<GenericObject>();
-                EventManager.Singleton.TransitionGenericObject(go, triggered_by);
+                EventManager.Singleton.TransitionGenericObject(go, triggered_by, from_id);
             }
             AudioSource.PlayClipAtPoint(doTransition, trans.position);
         }
@@ -408,12 +411,12 @@ public class TransitionManager : MonoBehaviour
             var mol = trans.GetComponent<Molecule>();
             if (mol != null)
             {
-                EventManager.Singleton.TransitionMolecule(mol, triggered_by);
+                EventManager.Singleton.TransitionMolecule(mol, triggered_by, from_id);
             }
             else
             {
                 var go = trans.GetComponent<GenericObject>();
-                EventManager.Singleton.TransitionGenericObject(go, triggered_by);
+                EventManager.Singleton.TransitionGenericObject(go, triggered_by, from_id);
             }
             AudioSource.PlayClipAtPoint(doTransition, trans.position);
         }
@@ -430,14 +433,16 @@ public class TransitionManager : MonoBehaviour
     private Vector3? grabScreenWPos = null;
 
 
-    public void getMoleculeTransitionClient(Molecule mol, InteractionType triggered_by)
+    public void getMoleculeTransitionClient(Molecule mol, InteractionType triggered_by, int from_id)
     {
+        if (NetworkManagerClient.Singleton.Client.Id != from_id) return;
         Debug.Log("[getMoleculeTransitionClient] triggered");
         getTransitionClient(mol.transform, triggered_by, mol.initial_scale);
     }
 
-    public void getGenericObjectTransitionClient(GenericObject go, InteractionType triggered_by)
+    public void getGenericObjectTransitionClient(GenericObject go, InteractionType triggered_by, int from_id)
     {
+        if (NetworkManagerClient.Singleton.Client.Id != from_id) return;
         Debug.Log("[getGenericObjectTransitionClient] triggered");
         getTransitionClient(go.transform, triggered_by, go.initial_scale);
     }
@@ -522,12 +527,12 @@ public class TransitionManager : MonoBehaviour
         AudioSource.PlayClipAtPoint(getTransition, trans.position);
     }
 
-    public void getMoleculeTransitionServer(Molecule mol, InteractionType triggered_by)
+    public void getMoleculeTransitionServer(Molecule mol, InteractionType triggered_by, int from_id)
     {
         getTransitionServer(mol.transform, triggered_by);
     }
 
-    public void getGenericObjectTransitionServer(GenericObject go, InteractionType triggered_by)
+    public void getGenericObjectTransitionServer(GenericObject go, InteractionType triggered_by, int from_id)
     {
         getTransitionServer(go.transform, triggered_by);
     }
@@ -594,12 +599,20 @@ public class TransitionManager : MonoBehaviour
             // Interpolate between start and end points
             trans.localScale = Mathf.Lerp(start_scale, target_scale, curveValue) * Vector3.one;
 
+            // sync if molecule
+            var mol = trans.GetComponent<Molecule>();
+            if (mol != null)
+            {
+                EventManager.Singleton.ChangeMoleculeScale(mol.m_id, trans.localScale.x);
+            }
+
             yield return null;  // wait for next frame
         }
     }
 
     private IEnumerator scaleAnimation(Transform trans, float target_scale = 1f)
     {
+        var mol = trans.GetComponent<Molecule>();
         float start_scale = trans.localScale.x;
         float elapsedTime = 0f;
         AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
@@ -613,6 +626,12 @@ public class TransitionManager : MonoBehaviour
             float curveValue = animationCurve.Evaluate(normalizedTime);
             // Interpolate between start and end points
             trans.localScale = Mathf.Lerp(start_scale, target_scale, curveValue) * Vector3.one;
+
+            // sync if molecule
+            if (mol != null)
+            {
+                EventManager.Singleton.ChangeMoleculeScale(mol.m_id, trans.localScale.x);
+            }
 
             yield return null;  // wait for next frame
         }
@@ -630,7 +649,7 @@ public class TransitionManager : MonoBehaviour
         audio_source.volume = 0f;
         audio_source.Play();
 
-
+        var mol = trans.GetComponent<Molecule>();
         AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         float elapsedTime = 0f;
         var start_pos = trans.position;
@@ -661,11 +680,16 @@ public class TransitionManager : MonoBehaviour
             var current_distance = Vector3.Distance(trans.position, target_pos);
             audio_source.volume = Mathf.Clamp01(1f - current_distance / initial_distance) * 0.75f;
 
+            // sync if molecule
+            if (mol != null)
+            {
+                EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
+            }
+
             yield return null; // wait for next frame
         }
         audio_source.Stop();
 
-        var mol = trans.GetComponent<Molecule>();
         if (mol != null)
         {
             if (StudyTaskManager.Singleton) StudyTaskManager.Singleton.logTransition(mol.name, triggered_by);
@@ -692,7 +716,7 @@ public class TransitionManager : MonoBehaviour
         audio_source.volume = 0f;
         audio_source.Play();
 
-
+        var mol = trans.GetComponent<Molecule>();
         AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         float elapsedTime = 0f;
         var start_pos = trans.position;
@@ -723,6 +747,12 @@ public class TransitionManager : MonoBehaviour
             var current_distance = Vector3.Distance(trans.position, target_pos);
             audio_source.volume = Mathf.Clamp01(1f - current_distance / initial_distance) * 0.75f;
 
+            // sync if molecule
+            if (mol != null)
+            {
+                EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
+            }
+
             yield return null; // wait for next frame
         }
         audio_source.Stop();
@@ -743,6 +773,7 @@ public class TransitionManager : MonoBehaviour
         audio_source.volume = 0f;
         audio_source.Play();
 
+        var mol = trans.GetComponent<Molecule>();
         AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         float elapsedTime = 0f;
         var start_pos = trans.position;
@@ -783,11 +814,16 @@ public class TransitionManager : MonoBehaviour
             var current_distance = Vector3.Distance(trans.position, target_pos);
             audio_source.volume = Mathf.Clamp01(1f - current_distance / initial_distance) * 0.75f;
 
+            // sync if molecule
+            if (mol != null)
+            {
+                EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
+            }
+
             yield return null; // wait for next frame
         }
         audio_source.Stop();
 
-        var mol = trans.GetComponent<Molecule>();
         if (mol != null)
         {
             EventManager.Singleton.TransitionMolecule(mol, triggered_by);
@@ -858,10 +894,16 @@ public class TransitionManager : MonoBehaviour
 
             if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.ROTATION))
             {
-                Debug.Log("[moveToHand] Animating rotation.");
                 var head_to_obj = Quaternion.LookRotation(trans.position - GlobalCtrl.Singleton.currentCamera.transform.position);
                 trans.rotation = head_to_obj * relQuat;
             }
+
+            // sync if molecule
+            if (mol != null)
+            {
+                EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
+            }
+
             yield return null; // wait for next frame
         }
         audio_source.Stop();
@@ -941,6 +983,13 @@ public class TransitionManager : MonoBehaviour
                 var head_to_obj = Quaternion.LookRotation(trans.position - GlobalCtrl.Singleton.currentCamera.transform.position);
                 trans.rotation = head_to_obj * relQuat;
             }
+
+            // sync if molecule
+            if (mol != null)
+            {
+                EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
+            }
+
             yield return null; // wait for next frame
         }
         audio_source.Stop();
@@ -976,6 +1025,19 @@ public class TransitionManager : MonoBehaviour
 
     private IEnumerator attachToGrip(Transform trans)
     {
+        var mol = trans.GetComponent<Molecule>();
+
+        var relQuat = Quaternion.identity;
+        if (mol != null)
+        {
+            relQuat = mol.relQuatBeforeTransition;
+        }
+        else
+        {
+            var go = trans.GetComponent<GenericObject>();
+            relQuat = go.relQuatBeforeTransition;
+        }
+
         manualSetGrip(trans, true);
         var isGrabbed = true;
         while (isGrabbed)
@@ -983,6 +1045,19 @@ public class TransitionManager : MonoBehaviour
             if(trans == null) yield break;
             isGrabbed = HandTracking.Singleton.isIndexGrabbed();
             trans.position = HandTracking.Singleton.getIndexTip();
+
+            if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.ROTATION))
+            {
+                var head_to_obj = Quaternion.LookRotation(trans.position - GlobalCtrl.Singleton.currentCamera.transform.position);
+                trans.rotation = head_to_obj * relQuat;
+            }
+
+            // sync if molecule
+            if (mol != null)
+            {
+                EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
+            }
+
             yield return null;
         }
         manualSetGrip(trans, false);

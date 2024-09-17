@@ -114,6 +114,36 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnObjectToTrack += sendObjectToTrack;
         EventManager.Singleton.OnGrabOnScreen += sendDistantGrabOnScreen;
         EventManager.Singleton.OnReleaseGrabOnScreen += sendReleaseDistantGrabOnScreen;
+        EventManager.Singleton.OnCreateAtom += sendAtomCreated;
+        EventManager.Singleton.OnMoveMolecule += sendMoleculeMoved;
+        EventManager.Singleton.OnMoveAtom += sendAtomMoved;
+        EventManager.Singleton.OnStopMoveAtom += sendStopMoveAtom;
+        EventManager.Singleton.OnMergeMolecule += sendMoleculeMerged;
+        EventManager.Singleton.OnDeviceLoadMolecule += sendDeviceMoleculeLoaded;
+        EventManager.Singleton.OnDeleteEverything += sendDeleteEverything;
+        EventManager.Singleton.OnDeleteAtom += sendDeleteAtom;
+        EventManager.Singleton.OnDeleteBond += sendDeleteBond;
+        EventManager.Singleton.OnDeleteMolecule += sendDeleteMolecule;
+        EventManager.Singleton.OnSelectAtom += sendSelectAtom;
+        EventManager.Singleton.OnSelectMolecule += sendSelectMolecule;
+        EventManager.Singleton.OnSelectBond += sendSelectBond;
+        EventManager.Singleton.OnChangeAtom += sendChangeAtom;
+        EventManager.Singleton.OnUndo += sendUndo;
+        EventManager.Singleton.OnChangeBondTerm += sendChangeBondTerm;
+        EventManager.Singleton.OnChangeAngleTerm += sendChangeAngleTerm;
+        EventManager.Singleton.OnChangeTorsionTerm += sendChangeTorsionTerm;
+        EventManager.Singleton.OnMarkTerm += sendMarkTerm;
+        EventManager.Singleton.OnModifyHyb += sendModifyHyb;
+        EventManager.Singleton.OnSetKeepConfig += sendKeepConfig;
+        EventManager.Singleton.OnReplaceDummies += sendReplaceDummies;
+        EventManager.Singleton.OnFocusHighlight += sendFocusHighlight;
+        EventManager.Singleton.OnChangeMoleculeScale += sendScaleMolecule;
+        EventManager.Singleton.OnFreezeAtom += sendFreezeAtom;
+        EventManager.Singleton.OnFreezeMolecule += sendFreezeMolecule;
+        EventManager.Singleton.OnSetSnapColors += sendSetSnapColor;
+        EventManager.Singleton.OnCreateMeasurement += sendCreateMeasurement;
+        EventManager.Singleton.OnClearMeasurements += sendClearMeasurements;
+        EventManager.Singleton.OnGrabAtom += sendGrabAtom;
     }
 
     private void deactivateAsync()
@@ -126,6 +156,36 @@ public class NetworkManagerClient : MonoBehaviour
         EventManager.Singleton.OnObjectToTrack -= sendObjectToTrack;
         EventManager.Singleton.OnGrabOnScreen -= sendDistantGrabOnScreen;
         EventManager.Singleton.OnReleaseGrabOnScreen -= sendReleaseDistantGrabOnScreen;
+        EventManager.Singleton.OnCreateAtom -= sendAtomCreated;
+        EventManager.Singleton.OnMoveMolecule -= sendMoleculeMoved;
+        EventManager.Singleton.OnMoveAtom -= sendAtomMoved;
+        EventManager.Singleton.OnStopMoveAtom -= sendStopMoveAtom;
+        EventManager.Singleton.OnMergeMolecule -= sendMoleculeMerged;
+        EventManager.Singleton.OnDeviceLoadMolecule -= sendDeviceMoleculeLoaded;
+        EventManager.Singleton.OnDeleteEverything -= sendDeleteEverything;
+        EventManager.Singleton.OnDeleteAtom -= sendDeleteAtom;
+        EventManager.Singleton.OnDeleteBond -= sendDeleteBond;
+        EventManager.Singleton.OnDeleteMolecule -= sendDeleteMolecule;
+        EventManager.Singleton.OnSelectAtom -= sendSelectAtom;
+        EventManager.Singleton.OnSelectMolecule -= sendSelectMolecule;
+        EventManager.Singleton.OnSelectBond -= sendSelectBond;
+        EventManager.Singleton.OnChangeAtom -= sendChangeAtom;
+        EventManager.Singleton.OnUndo -= sendUndo;
+        EventManager.Singleton.OnChangeBondTerm -= sendChangeBondTerm;
+        EventManager.Singleton.OnChangeAngleTerm -= sendChangeAngleTerm;
+        EventManager.Singleton.OnChangeTorsionTerm -= sendChangeTorsionTerm;
+        EventManager.Singleton.OnMarkTerm -= sendMarkTerm;
+        EventManager.Singleton.OnModifyHyb -= sendModifyHyb;
+        EventManager.Singleton.OnSetKeepConfig -= sendKeepConfig;
+        EventManager.Singleton.OnReplaceDummies -= sendReplaceDummies;
+        EventManager.Singleton.OnFocusHighlight -= sendFocusHighlight;
+        EventManager.Singleton.OnChangeMoleculeScale -= sendScaleMolecule;
+        EventManager.Singleton.OnFreezeAtom -= sendFreezeAtom;
+        EventManager.Singleton.OnFreezeMolecule -= sendFreezeMolecule;
+        EventManager.Singleton.OnSetSnapColors -= sendSetSnapColor;
+        EventManager.Singleton.OnCreateMeasurement -= sendCreateMeasurement;
+        EventManager.Singleton.OnClearMeasurements -= sendClearMeasurements;
+        EventManager.Singleton.OnGrabAtom -= sendGrabAtom;
     }
 
     private void activateSync()
@@ -618,7 +678,7 @@ public class NetworkManagerClient : MonoBehaviour
         Client.Send(message);
     }
 
-    private void transitionMolecule(Molecule mol, TransitionManager.InteractionType triggered_by)
+    private void transitionMolecule(Molecule mol, TransitionManager.InteractionType triggered_by, int from_id)
     {
         //var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * mol.transform.rotation;
         var q = Quaternion.Inverse(Quaternion.LookRotation(-screenAlignment.Singleton.getScreenNormal())) * mol.transform.rotation;
@@ -640,12 +700,14 @@ public class NetworkManagerClient : MonoBehaviour
         }
         cml.setTransitionFlag();
         cml.setTransitionTriggeredBy(triggered_by);
+        cml.setTriggeredFromId(Client.Id);
 
         NetworkUtils.serializeCmlData((ushort)ClientToServerID.transitionMolecule, new List<cmlData> { cml }, chunkSize, true);
+        EventManager.Singleton.DeleteMolecule(mol.m_id);
         GlobalCtrl.Singleton.deleteMolecule(mol);
     }
 
-    private void transitionGenericObject(GenericObject go, TransitionManager.InteractionType triggered_by)
+    private void transitionGenericObject(GenericObject go, TransitionManager.InteractionType triggered_by, int from_id)
     {
         var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * go.transform.rotation;
 
@@ -665,8 +727,10 @@ public class NetworkManagerClient : MonoBehaviour
         }
         sgo.setTransitionFlag();
         sgo.setTransitionTriggeredBy(triggered_by);
+        sgo.setTranstionTriggeredFromId(Client.Id);
 
         NetworkUtils.serializeGenericObject((ushort)ClientToServerID.transitionGenericObject, sgo, chunkSize, true);
+        // TODO: EventManager.Singleton.DeleteMolecule(mol.m_id);
         GenericObject.delete(go);
     }
 

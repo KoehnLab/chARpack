@@ -175,6 +175,7 @@ namespace chARpackStructs
         [XmlArray, DefaultValue(null)]
         public cmlTorsion[] torsionArray;
         public bool frozen;
+        public int TransitionTriggeredFromId;
 
         public cmlData(SaveableVector3 pos, SaveableVector3 scale, SaveableQuaternion quat, Guid id, List<cmlAtom> a, List<cmlBond> b, List<cmlAngle> ang = null, List<cmlTorsion> tor = null, bool keepConfig_ = false)
         {
@@ -194,6 +195,7 @@ namespace chARpackStructs
             transitionTriggeredBy = -1;
             name = "";
             frozen = false;
+            TransitionTriggeredFromId = -1;
         }
 
         public void assignRelativeQuaternion(Quaternion q)
@@ -230,6 +232,11 @@ namespace chARpackStructs
         {
             frozen = value;
         }
+
+        public void setTriggeredFromId(int id)
+        {
+            TransitionTriggeredFromId = id;
+        }
     }
 
     /// <summary>
@@ -248,6 +255,7 @@ namespace chARpackStructs
         public int transitionTriggeredBy;
         public SaveableQuaternion relQuat;
         public Guid ID;
+        public int TransitionTriggeredFromId;
 
         public sGenericObject(string obj_name_, Guid id_, SaveableVector3 pos_, SaveableVector3 scale_, SaveableQuaternion quat_)
         {
@@ -261,6 +269,7 @@ namespace chARpackStructs
             ssBounds = Vector4.zero;
             transitioned = false;
             transitionTriggeredBy = -1;
+            TransitionTriggeredFromId = -1;
         }
 
         public void assignRelativeQuaternion(Quaternion q)
@@ -285,6 +294,11 @@ namespace chARpackStructs
         public void setTransitionTriggeredBy(TransitionManager.InteractionType triggered_by)
         {
             transitionTriggeredBy = (int)triggered_by;
+        }
+
+        public void setTranstionTriggeredFromId(int id)
+        {
+            TransitionTriggeredFromId = id;
         }
     }
 

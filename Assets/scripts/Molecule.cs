@@ -122,6 +122,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             {
                 damping_coefficient *= damping_coefficient;
             }
+            EventManager.Singleton.MoveMolecule(m_id, transform.localPosition, transform.localRotation);
             yield return null;
         }
         isGrabbed = false;

@@ -231,7 +231,7 @@ public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
         UnityEngine.Debug.Log($"[GO:Create:transition] transitioned {sgo.transitioned}; triggered by {(TransitionManager.InteractionType)sgo.transitionTriggeredBy}");
         if (sgo.transitioned)
         {
-            EventManager.Singleton.ReceiveGenericObjectTransition(new_go, (TransitionManager.InteractionType)sgo.transitionTriggeredBy);
+            EventManager.Singleton.ReceiveGenericObjectTransition(new_go, (TransitionManager.InteractionType)sgo.transitionTriggeredBy, sgo.TransitionTriggeredFromId);
         }
     }
 

@@ -357,32 +357,32 @@ public class EventManager : MonoBehaviour
         OnHoverOverScreen?.Invoke(ss_coords);
     }
 
-    public delegate void TransitionMoleculeAction(Molecule mol, TransitionManager.InteractionType triggered_by);
+    public delegate void TransitionMoleculeAction(Molecule mol, TransitionManager.InteractionType triggered_by, int from_id = -1);
     public event TransitionMoleculeAction OnTransitionMolecule;
-    public void TransitionMolecule(Molecule mol, TransitionManager.InteractionType triggered_by)
+    public void TransitionMolecule(Molecule mol, TransitionManager.InteractionType triggered_by, int from_id = -1)
     {
-        OnTransitionMolecule?.Invoke(mol, triggered_by);
+        OnTransitionMolecule?.Invoke(mol, triggered_by, from_id);
     }
 
-    public delegate void ReceiveMoleculeTransitionAction(Molecule mol, TransitionManager.InteractionType triggered_by);
+    public delegate void ReceiveMoleculeTransitionAction(Molecule mol, TransitionManager.InteractionType triggered_by, int from_id);
     public event ReceiveMoleculeTransitionAction OnReceiveMoleculeTransition;
-    public void ReceiveMoleculeTransition(Molecule mol, TransitionManager.InteractionType triggered_by)
+    public void ReceiveMoleculeTransition(Molecule mol, TransitionManager.InteractionType triggered_by, int from_id)
     {
-        OnReceiveMoleculeTransition?.Invoke(mol, triggered_by);
+        OnReceiveMoleculeTransition?.Invoke(mol, triggered_by, from_id);
     }
 
-    public delegate void TransitionGenericObjectAction(GenericObject go, TransitionManager.InteractionType triggered_by);
+    public delegate void TransitionGenericObjectAction(GenericObject go, TransitionManager.InteractionType triggered_by, int from_id = -1);
     public event TransitionGenericObjectAction OnTransitionGenericObject;
-    public void TransitionGenericObject(GenericObject go, TransitionManager.InteractionType triggered_by)
+    public void TransitionGenericObject(GenericObject go, TransitionManager.InteractionType triggered_by, int from_id = -1)
     {
-        OnTransitionGenericObject?.Invoke(go, triggered_by);
+        OnTransitionGenericObject?.Invoke(go, triggered_by, from_id);
     }
 
-    public delegate void ReceiveGenericObjectTransitionAction(GenericObject go, TransitionManager.InteractionType triggered_by);
+    public delegate void ReceiveGenericObjectTransitionAction(GenericObject go, TransitionManager.InteractionType triggered_by, int from_id);
     public event ReceiveGenericObjectTransitionAction OnReceiveGenericObjectTransition;
-    public void ReceiveGenericObjectTransition(GenericObject go, TransitionManager.InteractionType triggered_by)
+    public void ReceiveGenericObjectTransition(GenericObject go, TransitionManager.InteractionType triggered_by, int from_id)
     {
-        OnReceiveGenericObjectTransition?.Invoke(go, triggered_by);
+        OnReceiveGenericObjectTransition?.Invoke(go, triggered_by, from_id);
     }
 
     public delegate void CreateGenericObjectAction(GenericObject go);

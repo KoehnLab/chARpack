@@ -130,7 +130,9 @@ public class ServerInputSystem : MonoBehaviour
 
                     if (obj != null)
                     {
-                        TransitionManager.Singleton.initializeTransitionServer(obj, TransitionManager.InteractionType.BUTTON_PRESS);
+                        var from_id = NetworkManagerServer.Singleton.Server.Clients.First();
+                        if (from_id == null) return;
+                        TransitionManager.Singleton.initializeTransitionServer(obj, TransitionManager.InteractionType.BUTTON_PRESS, from_id.Id);
                     }
                     else
                     {

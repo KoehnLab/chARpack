@@ -2312,7 +2312,7 @@ public class GlobalCtrl : MonoBehaviour
                 Debug.Log($"[Create:transition] moleTransitioned {molecule.moleTransitioned}; triggered by {(TransitionManager.InteractionType)molecule.transitionTriggeredBy}");
                 if (molecule.moleTransitioned)
                 {
-                    EventManager.Singleton.ReceiveMoleculeTransition(tempMolecule, (TransitionManager.InteractionType)molecule.transitionTriggeredBy);
+                    EventManager.Singleton.ReceiveMoleculeTransition(tempMolecule, (TransitionManager.InteractionType)molecule.transitionTriggeredBy, molecule.TransitionTriggeredFromId);
                 }
             }
         }
