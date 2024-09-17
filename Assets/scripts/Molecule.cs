@@ -261,6 +261,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     [HideInInspector] public static GameObject serverScalingSliderPrefab;
     [HideInInspector] public static GameObject freezeMeButtonPrefab;
     [HideInInspector] public static GameObject snapMeButtonPrefab;
+    [HideInInspector] public static GameObject mergeButtonPrefab;
     [HideInInspector] public static GameObject distanceMeasurementPrefab;
     [HideInInspector] public static GameObject angleMeasurementPrefab;
     [HideInInspector] public static GameObject serverMoleculeTooltipPrefab;
@@ -594,6 +595,11 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
             newParent.bondList.Add(b);
         }
 
+        foreach (var bond in newParent.bondList)
+        {
+            UnityEngine.Debug.Log($"Bond atom ids: {bond.atomID1} {bond.atomID2}");
+        }
+
         GlobalCtrl.Singleton.List_curMolecules.RemoveValue(this);
         Destroy(gameObject);
     }
@@ -754,6 +760,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         snapMoleculeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { snapUI(otherMolID); });
         snapToolTip.GetComponent<DoubleLineDynamicToolTip>().addContent(snapMoleculeButtonInstance);
 
+        var mergeMoleculeButtonInstance = Instantiate(mergeButtonPrefab);
+        mergeMoleculeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { GlobalCtrl.Singleton.MergeUnconnectedMolecules(m_id, otherMolID); });
+        snapToolTip.GetComponent<DoubleLineDynamicToolTip>().addContent(mergeMoleculeButtonInstance);
+
         var closeSnapButtonInstance = Instantiate(closeMeButtonPrefab);
         closeSnapButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { closeSnapUI(otherMolID); });
         snapToolTip.GetComponent<DoubleLineDynamicToolTip>().addContent(closeSnapButtonInstance);
@@ -779,6 +789,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         snapToolTip.GetComponent<ServerSnapTooltip>().ToolTipText.text = toolTipText;
 
         snapToolTip.GetComponent<ServerSnapTooltip>().snapButton.onClick.AddListener(delegate { snapUI(otherMolID); });
+        snapToolTip.GetComponent<ServerSnapTooltip>().mergeButton.onClick.AddListener(delegate { GlobalCtrl.Singleton.MergeUnconnectedMolecules(m_id, otherMolID); });
         snapToolTip.GetComponent<ServerSnapTooltip>().closeButton.onClick.AddListener(delegate { closeSnapUI(otherMolID); });
         if (toolTipInstance != null)
         {
@@ -848,7 +859,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
 
     private void closeSnapUI(Guid otherMolID)
     {
-        if (!GlobalCtrl.Singleton.List_curMolecules.ContainsKey(otherMolID))
+        if (GlobalCtrl.Singleton.List_curMolecules.ContainsKey(otherMolID))
         {
             UnityEngine.Debug.LogError($"[Molecule:closeSnapUI] Could not find Molecule with ID {otherMolID}");
             return;

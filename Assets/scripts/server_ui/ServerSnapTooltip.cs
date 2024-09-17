@@ -6,6 +6,7 @@ public class ServerSnapTooltip : ServerTooltip
 {
     public Button collapseButton;
     public Button snapButton;
+    public Button mergeButton;
     public Molecule mol1;
     public Molecule mol2;
 
@@ -24,6 +25,7 @@ public class ServerSnapTooltip : ServerTooltip
         {
             isSmall = false;
             snapButton.gameObject.SetActive(true);
+            mergeButton.gameObject.SetActive(true);
             infobox.SetActive(true);
             rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y - 160);
         }
@@ -31,6 +33,7 @@ public class ServerSnapTooltip : ServerTooltip
         {
             isSmall = true;
             snapButton.gameObject.SetActive(false);
+            mergeButton.gameObject.SetActive(false);
             infobox.SetActive(false);
             rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y + 160);
         }

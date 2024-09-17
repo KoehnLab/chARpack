@@ -126,11 +126,11 @@ public class GlobalCtrl : MonoBehaviour
     // measurmemt dict
     [HideInInspector] public Dictionary<DistanceMeasurement, Tuple<Atom, Atom>> distMeasurementDict = new Dictionary<DistanceMeasurement, Tuple<Atom, Atom>>();
     [HideInInspector] public Dictionary<AngleMeasurement, Triple<Atom, DistanceMeasurement, DistanceMeasurement>> angleMeasurementDict = new Dictionary<AngleMeasurement, Triple<Atom, DistanceMeasurement, DistanceMeasurement>>();
-    [HideInInspector] public GameObject measurmentInHand = null; 
+    [HideInInspector] public GameObject measurmentInHand = null;
 
     #region Interaction
     // Interaction modes
-    public enum InteractionModes {NORMAL, FRAGMENT_ROTATION, MEASUREMENT};
+    public enum InteractionModes { NORMAL, FRAGMENT_ROTATION, MEASUREMENT };
     private InteractionModes _currentInteractionMode = InteractionModes.NORMAL;
     // Setter can't be private because settingsControl needs to access it
     public InteractionModes currentInteractionMode { get => _currentInteractionMode; /*private*/ set => _currentInteractionMode = value; }
@@ -203,7 +203,7 @@ public class GlobalCtrl : MonoBehaviour
     {
         if (currentInteractionMode == mode) return;
         currentInteractionMode = mode;
-        if(mode == InteractionModes.FRAGMENT_ROTATION)
+        if (mode == InteractionModes.FRAGMENT_ROTATION)
         {
             if (HandTracking.Singleton)
             {
@@ -211,7 +211,7 @@ public class GlobalCtrl : MonoBehaviour
                 HandTracking.Singleton.showFragmentIndicator(true);
             }
             freezeWorld(false);
-        } else if(mode == InteractionModes.MEASUREMENT)
+        } else if (mode == InteractionModes.MEASUREMENT)
         {
             if (HandTracking.Singleton)
             {
@@ -305,6 +305,7 @@ public class GlobalCtrl : MonoBehaviour
         Molecule.serverScalingSliderPrefab = (GameObject)Resources.Load("prefabs/ServerScalingSlider");
         Molecule.freezeMeButtonPrefab = (GameObject)Resources.Load("prefabs/FreezeMeButton");
         Molecule.snapMeButtonPrefab = (GameObject)Resources.Load("prefabs/SnapMeButton");
+        Molecule.mergeButtonPrefab = (GameObject)Resources.Load("prefabs/mergeButton");
         Molecule.distanceMeasurementPrefab = (GameObject)Resources.Load("prefabs/DistanceMeasurementPrefab");
         Molecule.angleMeasurementPrefab = (GameObject)Resources.Load("prefabs/AngleMeasurementPrefab");
         Molecule.serverMoleculeTooltipPrefab = (GameObject)Resources.Load("prefabs/ServerMoleculeTooltip");
@@ -330,7 +331,7 @@ public class GlobalCtrl : MonoBehaviour
         currentCamera = mainCamera;
         Debug.Log($"DEVICE Type: {SystemInfo.deviceType}, Model: {SystemInfo.deviceModel}");
 
-        if(NetworkManagerClient.Singleton != null)
+        if (NetworkManagerClient.Singleton != null)
         {
             spawnZDistance = 0.25f;
         }
@@ -736,9 +737,9 @@ public class GlobalCtrl : MonoBehaviour
 
     public void reloadShaders()
     {
-        foreach(Molecule m in List_curMolecules.Values)
+        foreach (Molecule m in List_curMolecules.Values)
         {
-            foreach(Bond b in m.bondList)
+            foreach (Bond b in m.bondList)
             {
                 b.setShaderProperties();
             }
@@ -976,7 +977,7 @@ public class GlobalCtrl : MonoBehaviour
             distMeasurementDict.Remove(dist);
             if (dist)
             {
-                Destroy(dist.gameObject); 
+                Destroy(dist.gameObject);
             }
 
         }
@@ -1288,7 +1289,7 @@ public class GlobalCtrl : MonoBehaviour
     public bool moveAtom(Guid mol_id, ushort atom_id, Vector3 pos)
     {
         if (!List_curMolecules.ContainsKey(mol_id))
-        { 
+        {
             Debug.LogError($"[GlobalCtrl:moveAtom] Trying to move Atom {atom_id} of molecule {mol_id}, but it does not exist.");
             return false;
         }
@@ -1384,7 +1385,7 @@ public class GlobalCtrl : MonoBehaviour
 
         ushort atom_id = 0;
         Atom tempAtom = Instantiate(myAtomPrefab, new Vector3(0, 0, 0), Quaternion.identity).GetComponent<Atom>();
-        tempAtom.f_Init(tempData, tempMolecule, Vector3.zero , atom_id);
+        tempAtom.f_Init(tempData, tempMolecule, Vector3.zero, atom_id);
 
         // add dummies
         foreach (Vector3 posForDummy in tempAtom.m_posForDummies)
@@ -1401,7 +1402,7 @@ public class GlobalCtrl : MonoBehaviour
         }
 
         SaveMolecule(true);
-        undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id,tempMolecule.AsCML()));
+        undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id, tempMolecule.AsCML()));
 
         EventManager.Singleton.ChangeMolData(tempMolecule);
     }
@@ -1624,7 +1625,7 @@ public class GlobalCtrl : MonoBehaviour
     /// that can be reversed with undo
     /// </summary>
     /// <param name="idAtom">ID of the selected atom</param>
-    public bool switchDummyHydrogen(Guid mol_id, ushort atom_id, bool isDummy=true)
+    public bool switchDummyHydrogen(Guid mol_id, ushort atom_id, bool isDummy = true)
     {
         // TODO: do not overwrite runtime data
         if (!List_curMolecules.ContainsKey(mol_id))
@@ -1645,7 +1646,7 @@ public class GlobalCtrl : MonoBehaviour
         tempData.m_bondNum = calcNumBonds(tempData.m_hybridization, tempData.m_bondNum);
 
         chgAtom.f_Modify(tempData);
-        foreach(Bond b in chgAtom.connectedBonds())
+        foreach (Bond b in chgAtom.connectedBonds())
         {
             b.setShaderProperties();
         }
@@ -1705,7 +1706,7 @@ public class GlobalCtrl : MonoBehaviour
             if (a.name.StartsWith("Dummy"))
             { // no need to check for collisions with non-dummy atoms
                 var col = collisions.Where(m => (m.Item1.Equals(a) || m.Item2.Equals(a)));
-                foreach (var collision in col) molCollisions.Add(collision); 
+                foreach (var collision in col) molCollisions.Add(collision);
             }
         }
 
@@ -1750,12 +1751,12 @@ public class GlobalCtrl : MonoBehaviour
 
     private void resetMolCollisions(Molecule mol)
     {
-        foreach(Atom a in mol.atomList)
+        foreach (Atom a in mol.atomList)
         {
             if (a.name.StartsWith("Dummy"))
             {
                 var cols = collisions.Where(m => m.Item1.Equals(a) || m.Item2.Equals(a));
-                foreach(var col in cols)
+                foreach (var col in cols)
                 {
                     col.Item1.colorSwapSelect(0);
                     col.Item2.colorSwapSelect(0);
@@ -1767,9 +1768,9 @@ public class GlobalCtrl : MonoBehaviour
 
     private List<Tuple<Atom, Atom>> removeDuplicates(List<Tuple<Atom, Atom>> collisions)
     {
-         return collisions.Select(x => new[] { x.Item1, x.Item2 }.OrderBy(s => s.m_id).ToArray())
-            .Select(x => Tuple.Create(x[0], x[1]))
-            .Distinct().ToList();
+        return collisions.Select(x => new[] { x.Item1, x.Item2 }.OrderBy(s => s.m_id).ToArray())
+           .Select(x => Tuple.Create(x[0], x[1]))
+           .Distinct().ToList();
     }
 
     /// <summary>
@@ -1807,9 +1808,9 @@ public class GlobalCtrl : MonoBehaviour
         if (molInAir.m_id != molInHand.m_id) { before.Add(molInAir.AsCML()); }
         // scale before merge
         molInHand.transform.localScale = molInAir.transform.localScale;
-        Bond bondInHand = molInHand.bondList.Find(p=>p.atomID1 == dummyInHand.m_id || p.atomID2 == dummyInHand.m_id);
+        Bond bondInHand = molInHand.bondList.Find(p => p.atomID1 == dummyInHand.m_id || p.atomID2 == dummyInHand.m_id);
         Bond bondInAir = molInAir.bondList.Find(p => p.atomID1 == dummyInAir.m_id || p.atomID2 == dummyInAir.m_id);
-        if(molInHand != molInAir)
+        if (molInHand != molInAir)
         {
             molInHand.givingOrphans(molInAir);
         }
@@ -1844,7 +1845,7 @@ public class GlobalCtrl : MonoBehaviour
         // TODO differentiate between problematic and not problematic cases
         molInAir.markMolecule(false);
 
-        foreach(Bond bond in molInAir.bondList)
+        foreach (Bond bond in molInAir.bondList)
         {
             bond.setShaderProperties();
         }
@@ -1861,6 +1862,36 @@ public class GlobalCtrl : MonoBehaviour
     public void MergeMolecule(Guid molInHand, ushort dummyInHand, Guid molInAir, ushort dummyInAir)
     {
         MergeMolecule(List_curMolecules[molInHand].atomList[dummyInHand], List_curMolecules[molInAir].atomList[dummyInAir]);
+    }
+
+    public void MergeUnconnectedMolecules(Guid mol1_id, Guid mol2_id)
+    {
+        var mol1 = List_curMolecules[mol1_id];
+        var mol2 = List_curMolecules[mol2_id];
+        MergeUnconnectedMolecules(mol1, mol2);
+    }
+
+    public void MergeUnconnectedMolecules(Molecule mol1, Molecule mol2)
+    {
+        mol1.markMolecule(false);
+        mol2.markMolecule(false);
+
+        List<cmlData> before = new List<cmlData>();
+        before.Add(mol1.AsCML());
+        if (mol1.m_id != mol2.m_id) { before.Add(mol2.AsCML()); }
+
+        mol2.givingOrphans(mol1);
+
+        foreach (Bond bond in mol1.bondList)
+        {
+            bond.setShaderProperties();
+        }
+
+        SaveMolecule(true);
+        cmlData after = mol1.AsCML();
+        undoStack.AddChange(new MergeMoleculeAction(before, after));
+
+        EventManager.Singleton.ChangeMolData(mol1);
     }
 
     /// <summary>
