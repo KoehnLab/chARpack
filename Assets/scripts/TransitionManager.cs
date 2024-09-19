@@ -484,6 +484,11 @@ public class TransitionManager : MonoBehaviour
                 var dist_to_move = 0.3f * screenAlignment.Singleton.getScreenSizeWS().y;
                 trans.position += dist_to_move * screenAlignment.Singleton.getScreenNormal();
             }
+            var mol = trans.GetComponent<Molecule>();
+            if (mol != null)
+            {
+                EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
+            }
         }
         else
         {
