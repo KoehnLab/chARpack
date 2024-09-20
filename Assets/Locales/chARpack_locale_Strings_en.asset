@@ -590,6 +590,20 @@ MonoBehaviour:
     m_Localized: Exclusive Fullscreen
     m_Metadata:
       m_Items: []
+  - m_Id: 154834058461298688
+    m_Localized: Start
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154821961895624704
+    m_Localized: Touch the corners of your screen with your index finger tip in the
+      following order. At each corner, keep your finger still until you hear a confirmation
+      sound and a small box appears.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154821894153420800
+    m_Localized: Scan Screen
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -590,6 +590,20 @@ MonoBehaviour:
     m_Localized: Vollbild
     m_Metadata:
       m_Items: []
+  - m_Id: 154834058461298688
+    m_Localized: Starten
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154821961895624704
+    m_Localized: "Ber\xFChren Sie die Ecken des Bildschirms mit der Zeigefingerspitze
+      in der untenstehenden Reihenfolge. Halten Sie an jeder dieser Ecken Ihren Finger
+      solange still, bis ein Ger\xE4usch ert\xF6nt und eine kleine Box erscheint."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154821894153420800
+    m_Localized: Bildschirm scannen
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

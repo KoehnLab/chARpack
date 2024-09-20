@@ -581,6 +581,18 @@ MonoBehaviour:
     m_Key: ExclusiveFullscreen
     m_Metadata:
       m_Items: []
+  - m_Id: 154821894153420800
+    m_Key: ScanScreen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154821961895624704
+    m_Key: ScanScreenInstructions
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154834058461298688
+    m_Key: Start
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
