@@ -9,6 +9,7 @@ using UnityEngine.Networking;
 using System.Net.Http;
 using System.Security.Policy;
 using System.Collections;
+using System.Diagnostics.Eventing.Reader;
 
 
 public class PythonEnvironmentManager : MonoBehaviour
@@ -54,15 +55,24 @@ public class PythonEnvironmentManager : MonoBehaviour
         python_env_path = Path.Combine(base_path, "PythonEnv");
         thread = new Thread(() =>
         {
-            if (!Directory.Exists(python_env_path))
+            isInstalled = false;
+            if (!File.Exists(python_env_path + ".zip"))
             {
-                Debug.Log("[PythonEnvironmentManager] No PythonEnv found. Starting download...");
+                Debug.Log("[PythonEnvironmentManager] No PythonEnv.zip found. Starting download...");
                 downloadEnvironment();
+                extractEvironment();
             }
-            else
+            else if (!Directory.Exists(python_env_path))
             {
-                isInstalled = true;
+                Debug.Log("[PythonEnvironmentManager] PythonEnv.zip found. Starting extraction...");
+                extractEvironment();
             }
+            else if (!File.Exists(Path.Combine(python_env_path, "python.exe")))
+            {
+                Debug.Log("[PythonEnvironmentManager] Extraction incomplete. Restarting extraction...");
+                extractEvironment();
+            }
+            isInstalled = true;
         });
         thread.Start();
         StartCoroutine(waitForEnvironmentPrep());
@@ -184,13 +194,16 @@ public class PythonEnvironmentManager : MonoBehaviour
         {
             Debug.LogError($"[PythonEnvironmentManager] Failed to download PythonEnvironment.\nStatus code: {response.StatusCode}");
         }
+    }
 
+    private void extractEvironment()
+    {
         string extract_path = base_path + "/PythonEnv/";
+        string download_path = base_path + "/PythonEnv.zip";
         Debug.Log("[PythonEnvironmentManager] Extracting zip.");
 
         ZipFile.ExtractToDirectory(download_path, extract_path);
 
-        isInstalled = true;
         Debug.Log("[PythonEnvironmentManager] Python environment installed.");
     }
 
