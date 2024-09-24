@@ -76,6 +76,7 @@ public class PythonEnvironmentManager : MonoBehaviour
         });
         thread.Start();
         StartCoroutine(waitForEnvironmentPrep());
+        StartCoroutine(LoadingIndicator.Singleton.startLoading("Preparing Python Environment ..."));
     }
 
     IEnumerator waitForEnvironmentPrep()
@@ -86,6 +87,7 @@ public class PythonEnvironmentManager : MonoBehaviour
         }
         thread.Join();
         initEnvironment();
+        LoadingIndicator.Singleton.loadingFinished();
     }
 
     private void initEnvironment()
@@ -202,7 +204,7 @@ public class PythonEnvironmentManager : MonoBehaviour
         string download_path = base_path + "/PythonEnv.zip";
         Debug.Log("[PythonEnvironmentManager] Extracting zip.");
 
-        ZipFile.ExtractToDirectory(download_path, extract_path);
+        ZipFile.ExtractToDirectory(download_path, extract_path, true);
 
         Debug.Log("[PythonEnvironmentManager] Python environment installed.");
     }
