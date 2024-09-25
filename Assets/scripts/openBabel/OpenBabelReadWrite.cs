@@ -419,7 +419,7 @@ public class OpenBabelReadWrite : MonoBehaviour
         return null;
     }
 
-    public void generateSVG()
+    public void generateSVG() // currently unused
     {
         var mols = new List<Molecule>();
         foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
@@ -487,15 +487,12 @@ public class OpenBabelReadWrite : MonoBehaviour
 
         UnityEngine.Debug.Log($"minX: {min_x}, minY: {min_y}, minZ: {min_z}");
 
-
         var margin = 40f;
 
         foreach (var atom in newobmol.Atoms())
         {
             UnityEngine.Debug.Log($"vector: {(atom.GetVector().GetX() - min_x) + margin} {(atom.GetVector().GetY() - min_y) + margin} {(atom.GetVector().GetZ() - min_z) + margin}");
         }
-
-
     }
 
 

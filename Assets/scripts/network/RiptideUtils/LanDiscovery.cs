@@ -7,6 +7,7 @@ using System;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using UnityEngine;
 
 namespace Riptide.Utils
 {
@@ -88,6 +89,7 @@ namespace Riptide.Utils
             actionQueue = new ActionQueue();
             UniqueKey = uniqueKey;
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            socket.EnableBroadcast = true;
 
             localIPAdress = GetLocalIPAddress();
             subnetMask = GetBroadcastAddress(localIPAdress, GetSubnetMask(localIPAdress));
@@ -113,7 +115,14 @@ namespace Riptide.Utils
             Mode = BroadcastMode.broadcasting;
 
             SetBroadcastData();
-            socket.SendTo(broadcastSendBytes, broadcastEndPoint);
+            try
+            {
+                socket.SendTo(broadcastSendBytes, broadcastEndPoint);
+            }
+            catch (SocketException ex)
+            {
+                Debug.LogError($"SocketException: {ex.Message}");
+            }
         }
 
         /// <summary>Sends a response to a broadcast.</summary>

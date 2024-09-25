@@ -1883,7 +1883,7 @@ public class NetworkManagerServer : MonoBehaviour
             return;
         }
 
-        //write svg to file
+        //write svg to file (only executed on server anyway
         var file_path = Path.Combine(Application.streamingAssetsPath, $"{svg_content.Length}.svg") ;
         if (File.Exists(file_path))
         {
@@ -1938,7 +1938,7 @@ public class NetworkManagerServer : MonoBehaviour
 
         string filename = $"{mol_id}.xyz";
         //string path = Path.Combine(Application.persistentDataPath, filename);
-        string path = Path.Combine(Application.streamingAssetsPath, filename);
+        string path = Path.Combine(Application.streamingAssetsPath, filename); // only executed on server (no andriod special treatment necessary)
         var fi = new FileInfo(path);
         if (fi.Exists) fi.Delete();
 
