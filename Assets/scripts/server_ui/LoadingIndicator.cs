@@ -33,16 +33,27 @@ public class LoadingIndicator : MonoBehaviour
 
     private void Start()
     {
-        gameObject.SetActive(false);
+        //show(false);
     }
 
     public Image indicator;
     public TMP_Text label;
     private bool stillLoading = false;
 
-    public IEnumerator startLoading(string text = "Loading ...")
+    public void show(bool value)
     {
-        gameObject.SetActive(true);
+        indicator.gameObject.SetActive(value);
+        label.gameObject.SetActive(value);
+        GetComponent<Image>().enabled = value;
+    }
+
+    public void startLoading(string text = "Loading ...")
+    {
+        StartCoroutine(startLoadingCR(text));
+    }
+
+    private IEnumerator startLoadingCR(string text)
+    {
         label.text = text;
         stillLoading = true;
         int fill = 0;
@@ -53,20 +64,20 @@ public class LoadingIndicator : MonoBehaviour
             fill %= 100;
             yield return null;
         }
-        gameObject.SetActive(false);
     }
 
-    public IEnumerator showFinal(bool success, string message)
+    private IEnumerator showFinalCR(bool success, string message)
     {
-        gameObject.SetActive(true);
         label.text = message;
         indicator.fillAmount = success ? 1f : 0f;
         yield return new WaitForSeconds(5);
+        show(false);
     }
 
-    public void loadingFinished()
+    public void loadingFinished(bool success, string message)
     {
         stillLoading = false;
+        StartCoroutine(showFinalCR(success, message));
     }
 
 }

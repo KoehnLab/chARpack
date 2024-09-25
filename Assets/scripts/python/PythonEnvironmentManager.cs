@@ -76,7 +76,7 @@ public class PythonEnvironmentManager : MonoBehaviour
         });
         thread.Start();
         StartCoroutine(waitForEnvironmentPrep());
-        StartCoroutine(LoadingIndicator.Singleton.startLoading("Preparing Python Environment ..."));
+        LoadingIndicator.Singleton.startLoading("Preparing Python Environment ...");
     }
 
     IEnumerator waitForEnvironmentPrep()
@@ -87,7 +87,7 @@ public class PythonEnvironmentManager : MonoBehaviour
         }
         thread.Join();
         initEnvironment();
-        LoadingIndicator.Singleton.loadingFinished();
+        LoadingIndicator.Singleton.loadingFinished(true, "Python Environment Initialized.");
     }
 
     private void initEnvironment()

@@ -173,6 +173,8 @@ public class SettingsPanel : MonoBehaviour
         mpSlider.GetComponent<Slider>().value = SettingsData.timeFactors[3];
         mpSlider.GetComponent<UpdateSliderLabel>().updateLabel();
 
+        userBoxToggle.GetComponent<Toggle>().isOn = SettingsData.coop[0];
+        userRayToggle.GetComponent<Toggle>().isOn = SettingsData.coop[1];
         networkMeasurementsToggle.GetComponent<Toggle>().isOn = SettingsData.networkMeasurements;
 
         useAsyncModeToggle.GetComponent<Toggle>().isOn = SettingsData.syncMode == TransitionManager.SyncMode.Async;
