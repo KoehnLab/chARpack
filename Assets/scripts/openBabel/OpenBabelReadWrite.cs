@@ -2,10 +2,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using chARpackStructs;
-using OpenBabel;
 using System.Collections;
 using SimpleFileBrowser;
 using System;
+using System.Threading;
+using System.IO.Compression;
+using OpenBabel;
 
 /// <summary>
 /// This class provides methods to read molecule data from files using OpenBabel.
@@ -23,7 +25,7 @@ public class OpenBabelReadWrite : MonoBehaviour
                 _singleton = value;
             else if (_singleton != null)
             {
-                UnityEngine.Debug.Log($"{nameof(OpenBabelReadWrite)} instance already exists, destroying duplicate!");
+                Debug.Log($"{nameof(OpenBabelReadWrite)} instance already exists, destroying duplicate!");
                 Destroy(value);
             }
         }
@@ -35,26 +37,71 @@ public class OpenBabelReadWrite : MonoBehaviour
     private void Awake()
     {
         Singleton = this;
+    }
 
-        // set babel data dir environment variable
-        var path_to_plugins = Path.Combine(Application.dataPath, "plugins");
-        System.Environment.SetEnvironmentVariable("BABEL_DATADIR", path_to_plugins);
-        UnityEngine.Debug.Log($"[ReadMoleculeFile] Set env BABEL_DATADIR to {path_to_plugins}");
+    Thread thread;
+    bool directoryExists = false;
+    string openbabel_path;
+    void Start()
+    {
+        directoryExists = false;
+        openbabel_path = Path.GetFullPath(Path.Combine(Path.Combine(Application.dataPath, ".."), "openbabel"));
+        thread = new Thread(() =>
+        {
+            directoryExists = false;
+            if (!File.Exists(Path.Combine(openbabel_path, "openbabel_csharp.dll")))
+            {
+                Debug.Log("[OpenBabelReadWrite] openbabel not found. Trying to extract ...");
+                if (!File.Exists(openbabel_path + ".zip"))
+                {
+                    Debug.LogError("[OpenBabelReadWrite] No openbabel.zip found. Please install openbabel manually.");
+                    return;
+                }
+                extractEvironment();
+            }
+            directoryExists = true;
+        });
+        thread.Start();
+        StartCoroutine(waitForEnvironmentPrep());
+    }
 
-        // check for fragment files
-        // TODO: implement alternative
+    IEnumerator waitForEnvironmentPrep()
+    {
+        while (!directoryExists)
+        {
+            yield return new WaitForSeconds(1f);
+        }
+        thread.Join();
+        OpenBabelSetup.setEnvironmentForLocalOpenBabel();
+        initOpenBabel();
+    }
 
+    private void extractEvironment()
+    {
+        string extract_path = openbabel_path;
+        string download_path = openbabel_path + ".zip";
+        Debug.Log("[OpenBabelReadWrite] Extracting zip.");
+
+        ZipFile.ExtractToDirectory(download_path, extract_path, true);
+
+        Debug.Log("[OpenBabelReadWrite] openbabel installed.");
+    }
+
+    private void initOpenBabel()
+    {
         // setup OpenBabel
         if (!OpenBabelSetup.IsOpenBabelAvailable)
+        {
             OpenBabelSetup.ThrowOpenBabelNotFoundError();
+        }
 
         // get supported file formats
         var conv = new OBConversion();
         var inFormats = conv.GetSupportedInputFormat();
         var outFormats = conv.GetSupportedOutputFormat();
 
-        UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported input Formats {inFormats.Count}.");
-        UnityEngine.Debug.Log($"[ReadMoleculeFile] Supported output Formats {outFormats.Count}.");
+        Debug.Log($"[OpenBabelReadWrite] Supported input Formats {inFormats.Count}.");
+        Debug.Log($"[OpenBabelReadWrite] Supported output Formats {outFormats.Count}.");
 
         supportedInputFormats = new string[inFormats.Count + 1];
         supportedOutputFormats = new string[outFormats.Count + 1];
