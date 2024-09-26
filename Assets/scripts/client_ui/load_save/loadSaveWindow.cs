@@ -78,45 +78,57 @@ public class loadSaveWindow : myScrollObject
         //reset scale 
         scrollingObjectCollection.transform.parent.localScale = Vector3.one;
 
+#if UNITY_EDITOR || UNITY_STANDALONE || WINDOWS_UWP
         string path = Application.streamingAssetsPath + "/SavedMolecules/";
-        DirectoryInfo info = new DirectoryInfo(path);
-        FileInfo[] fileInfo = info.GetFiles();
-        foreach (FileInfo file in fileInfo)
+#else
+        string path = Application.persistentDataPath + "/SavedMolecules/";
+#endif
+        if (Directory.Exists(path))
         {
-
-            if (file.Extension.Equals(".xml"))
+            DirectoryInfo info = new DirectoryInfo(path);
+            FileInfo[] fileInfo = info.GetFiles();
+            foreach (FileInfo file in fileInfo)
             {
-                string name = file.Name.Substring(0, file.Name.Length - 4);
 
-                bool skip = false;
-                var currentLogEntries = gridObjectCollection.GetComponentsInChildren<showLoadConfirm>();
-                foreach (var entry in currentLogEntries)
+                if (file.Extension.Equals(".xml"))
                 {
-                    if (name == entry.mol_name)
+                    string name = Path.GetFileNameWithoutExtension(file.Name);
+                        //file.Name.Substring(0, file.Name.Length - 4);
+
+                    bool skip = false;
+                    var currentLogEntries = gridObjectCollection.GetComponentsInChildren<showLoadConfirm>();
+                    foreach (var entry in currentLogEntries)
                     {
-                        skip = true;
+                        if (name == entry.mol_name)
+                        {
+                            skip = true;
+                        }
+                    }
+
+                    if (!skip)
+                    {
+                        GameObject newLoadEntry = Instantiate(loadEntryPrefab, Vector3.zero, Quaternion.identity);
+                        newLoadEntry.GetComponent<showLoadConfirm>().mol_name = name;
+                        newLoadEntry.AddComponent<buttonMouseClick>();
+                        newLoadEntry.transform.parent = gridObjectCollection.transform;
                     }
                 }
-
-                if (!skip)
-                {
-                    GameObject newLoadEntry = Instantiate(loadEntryPrefab, Vector3.zero, Quaternion.identity);
-                    newLoadEntry.GetComponent<showLoadConfirm>().mol_name = name;
-                    newLoadEntry.AddComponent<buttonMouseClick>();
-                    newLoadEntry.transform.parent = gridObjectCollection.transform;
-                }
             }
+            // update on collection places all items in order
+            gridObjectCollection.GetComponent<GridObjectCollection>().UpdateCollection();
+            // update on scoll content makes the list scrollable
+            scrollingObjectCollection.GetComponent<ScrollingObjectCollection>().UpdateContent();
+            // update clipping for out of sight entries
+            updateClipping();
+            // scale after setting everything up
+            scrollingObjectCollection.transform.parent.localScale = oldScale;
+            // reset rotation
+            resetRotation();
         }
-        // update on collection places all items in order
-        gridObjectCollection.GetComponent<GridObjectCollection>().UpdateCollection();
-        // update on scoll content makes the list scrollable
-        scrollingObjectCollection.GetComponent<ScrollingObjectCollection>().UpdateContent();
-        // update clipping for out of sight entries
-        updateClipping();
-        // scale after setting everything up
-        scrollingObjectCollection.transform.parent.localScale = oldScale;
-        // reset rotation
-        resetRotation();
+        else
+        {
+            Debug.LogWarning($"[initSavedFiles] Could not find {path}");
+        }
     }
 
     /// <summary>
@@ -165,6 +177,7 @@ public class loadSaveWindow : myScrollObject
         GlobalCtrl.Singleton.SaveMolecule(false, name);
         Destroy(saveDialogInstance);
         gameObject.SetActive(true);
+        initSavedFiles();
     }
 
     private void OnClosedDialogEvent(DialogResult obj)

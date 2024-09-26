@@ -1,6 +1,8 @@
 using System;
+using System.IO;
 using System.Linq;
 using OpenBabel;
+using UnityEngine;
 
 /// <summary>
 /// Utility methods for setting up OpenBabel operations.
@@ -31,6 +33,28 @@ public static class OpenBabelSetup
             throw new OpenBabelException($"OpenBabel v{RequiredVersion}+ is required, " +
                                          $"v{openBabelVersion} was found.");
         throw new OpenBabelException($"OpenBabel v{RequiredVersion}+ not found, is it on your PATH?");
+    }
+
+
+    public static void setEnvironmentForLocalOpenBabel()
+    {
+#if UNITY_EDITOR
+        var scope = EnvironmentVariableTarget.Process; // or Machine, User
+#else
+        var scope = EnvironmentVariableTarget.User;
+#endif
+        var oldValue = Environment.GetEnvironmentVariable("PATH", scope);
+        var openbabel_bin = Path.GetFullPath(Path.Combine(Path.Combine(Application.dataPath, ".."), "openbabel"));
+        Debug.Log($"[OpenBabelSetup] Setting PATH: {openbabel_bin}");
+        if (!oldValue.Contains(openbabel_bin))
+        {
+            var newValue = $"{openbabel_bin};" + oldValue;
+            Environment.SetEnvironmentVariable("PATH", newValue, scope);
+        }
+
+        var babel_datadir = Path.GetFullPath(Path.Combine(Path.Combine(Path.Combine(Application.dataPath, ".."), "openbabel"), "data"));
+        Debug.Log($"[OpenBabelSetup] Setting BABEL_DATADIR: {babel_datadir}");
+        Environment.SetEnvironmentVariable("BABEL_DATADIR", babel_datadir, scope);
     }
 
     private static void CheckForOpenBabel()

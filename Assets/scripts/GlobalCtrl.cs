@@ -2083,8 +2083,14 @@ public class GlobalCtrl : MonoBehaviour
 
         if(!onStack)
         {
-            System.IO.Directory.CreateDirectory(Application.streamingAssetsPath + "/SavedMolecules/");
-            XMLFileHelper.SaveData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", saveData);
+#if UNITY_EDITOR || UNITY_STANDALONE || WINDOWS_UWP
+            var dir = Application.streamingAssetsPath + "/SavedMolecules/";
+#else
+            var dir = Application.persistentDataPath + "/SavedMolecules/";
+#endif
+            System.IO.Directory.CreateDirectory(dir);
+            XMLFileHelper.SaveData(dir + name + ".xml", saveData);
+
             Debug.Log($"[GlobalCtrl] Saved Molecule as: {name}.xml");
         } else
         {
@@ -2109,7 +2115,11 @@ public class GlobalCtrl : MonoBehaviour
         }
         else
         {
+#if UNITY_EDITOR || UNITY_STANDALONE || WINDOWS_UWP
             loadData = (List<cmlData>)XMLFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
+#else
+            loadData = (List<cmlData>)XMLFileHelper.LoadData(Application.persistentDataPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
+#endif
         }
         if (loadData != null)
         {
@@ -2202,7 +2212,11 @@ public class GlobalCtrl : MonoBehaviour
     /// <returns>a list of cmlData</returns>
     public List<cmlData> getMoleculeData(string name)
     {
+#if UNITY_EDITOR || UNITY_STANDALONE || WINDOWS_UWP
         return (List<cmlData>)XMLFileHelper.LoadData(Application.streamingAssetsPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
+#else
+        return (List<cmlData>)XMLFileHelper.LoadData(Application.persistentDataPath + "/SavedMolecules/" + name + ".xml", typeof(List<cmlData>));
+#endif
     }
 
     /// <summary>
@@ -2385,7 +2399,7 @@ public class GlobalCtrl : MonoBehaviour
         undoStack.SignalUndoSlider();
     }
 
-    #endregion
+#endregion
 
     #region ui functions
 

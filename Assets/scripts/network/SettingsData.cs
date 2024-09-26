@@ -39,7 +39,7 @@ public class SettingsData
     [JsonProperty] public static bool autogenerateStructureFormulas = false; // Only for server, not broadcast via network
     [JsonProperty] static public bool exclusiveFullscreen = false; // Only for server, not broadcast via network
     public static Vector2 serverViewport = new Vector2(1920, 1080);
-    [JsonProperty] public static TransitionManager.SyncMode syncMode = TransitionManager.SyncMode.Async;
+    [JsonProperty] public static TransitionManager.SyncMode syncMode = TransitionManager.SyncMode.Sync;
     [JsonProperty] public static TransitionManager.TransitionMode transitionMode = TransitionManager.TransitionMode.DESKTOP_2D;
     [JsonProperty] public static TransitionManager.ImmersiveTarget immersiveTarget = TransitionManager.ImmersiveTarget.HAND_FIXED;
     [JsonProperty] public static bool requireGrabHold = true;

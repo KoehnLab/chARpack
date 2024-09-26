@@ -1,6 +1,7 @@
 using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.SpatialAwareness;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
@@ -25,6 +26,7 @@ public class settingsControl : MonoBehaviour
 
         }
     }
+
     private void Awake()
     {
         Singleton = this;
@@ -33,7 +35,24 @@ public class settingsControl : MonoBehaviour
 
     public void Start()
     {
+        if (NetworkManagerServer.Singleton != null)
+        {
+            initDefaultSettings();
+        }
         updateSettings();
+    }
+
+    private void initDefaultSettings()
+    {
+        var default_file = Path.Combine(Path.Combine(Application.dataPath, ".."), "defaultSettings.json");
+        if (File.Exists(default_file))
+        {
+            SettingsData.readSettingsFromJSON(default_file);
+        }
+        else
+        {
+            SettingsData.dumpSettingsToJSON(default_file);
+        }
     }
 
     public void updateSettings()

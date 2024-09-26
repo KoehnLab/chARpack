@@ -7,6 +7,8 @@ using UnityEngine;
 using System.IO;
 using System.Collections;
 using System;
+using System.Net.Sockets;
+using System.Net;
 
 
 
@@ -217,6 +219,18 @@ public class NetworkManagerServer : MonoBehaviour
         Singleton.Server.Start(LoginData.port, LoginData.maxConnections);
         Singleton.Server.ClientDisconnected += Singleton.ClientDisconnected;
         Singleton.Server.ClientConnected += Singleton.ClientConnected; // client invokes sendName
+
+        // set IP address indicator
+        List<string> ips = new List<string>();
+        IPHostEntry HostEntry = Dns.GetHostEntry((Dns.GetHostName()));
+        foreach (IPAddress ip in HostEntry.AddressList)
+        {
+            if (ip.AddressFamily == AddressFamily.InterNetwork)
+            {
+                ips.Add(ip.ToString());
+            }
+        }
+        ServerIPindicator.Singleton.setIP(string.Join("\n", ips));
 
         Debug.Log("[NetworkManagerServer] Server started.");
 
@@ -1869,7 +1883,7 @@ public class NetworkManagerServer : MonoBehaviour
             return;
         }
 
-        //write svg to file
+        //write svg to file (only executed on server anyway
         var file_path = Path.Combine(Application.streamingAssetsPath, $"{svg_content.Length}.svg") ;
         if (File.Exists(file_path))
         {
@@ -1924,7 +1938,7 @@ public class NetworkManagerServer : MonoBehaviour
 
         string filename = $"{mol_id}.xyz";
         //string path = Path.Combine(Application.persistentDataPath, filename);
-        string path = Path.Combine(Application.streamingAssetsPath, filename);
+        string path = Path.Combine(Application.streamingAssetsPath, filename); // only executed on server (no andriod special treatment necessary)
         var fi = new FileInfo(path);
         if (fi.Exists) fi.Delete();
 
