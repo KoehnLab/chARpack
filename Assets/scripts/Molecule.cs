@@ -20,6 +20,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private Vector3 pickupPos = Vector3.zero;
     private Quaternion pickupRot = Quaternion.identity;
     [HideInInspector] public float initial_scale = SettingsData.defaultMoleculeSize;
+    private ObjectManipulator objectManipulator;
 
     private List<Tuple<ushort, Vector3>> atomState = new List<Tuple<ushort, Vector3>>();
 
@@ -95,8 +96,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
                     {
                         cmlData after = this.AsCML();
                         GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
-                        GlobalCtrl.Singleton.checkForCollisionsAndMerge(this);
-                        if (SettingsData.allowThrowing)
+                        var merge_occured = GlobalCtrl.Singleton.checkForCollisionsAndMerge(this);
+                        if (SettingsData.allowThrowing && !merge_occured)
                         {
                             // continue movement
                             StartCoroutine(continueMovement(HandTracking.Singleton.getHandVelocity()));
@@ -145,7 +146,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         transform.localScale = scalingSliderInstance.GetComponentInChildren<Slider>().value * Vector3.one; // * startingScale;
         GlobalCtrl.Singleton.undoStack.AddChange(new ScaleMoleculeAction(before, this.AsCML()));
         // networking
-        EventManager.Singleton.ChangeMoleculeScale(m_id, gameObject.transform.localScale.x);
+        EventManager.Singleton.ChangeMoleculeScale(m_id, transform.localScale.x);
     }
 
     /// <summary>
@@ -158,10 +159,10 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         if (eventData.Pointer != null) // exclude slider update on startup
         {
             cmlData before = this.AsCML();
-            before.moleScale = eventData.OldValue * gameObject.transform.localScale / eventData.NewValue;
+            before.moleScale = eventData.OldValue * transform.localScale / eventData.NewValue;
             GlobalCtrl.Singleton.undoStack.AddChange(new ScaleMoleculeAction(before, this.AsCML()));
         }
-        gameObject.transform.localScale = eventData.NewValue * Vector3.one;// * startingScale;
+        transform.localScale = eventData.NewValue * Vector3.one;// * startingScale;
         // networking
         EventManager.Singleton.ChangeMoleculeScale(m_id, gameObject.transform.localScale.x);
     }
@@ -279,6 +280,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     public GameObject changeBondWindowInstance;
     private float toolTipDistanceWeight = 0.01f;
     private Vector3 startingScale;
+    private float previousScale;
     public bool frozen = false;
     private Material frozen_bond_mat;
     private float oldScale = 1.0f;
@@ -330,8 +332,6 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         //collider.center = GetComponent<myBoundingBox>().cornerHandles[1].transform.position;
         // these objects take input from corner colliders and manipulate the moluecule
         var om = gameObject.AddComponent<ObjectManipulator>();
-        //om.OnManipulationStarted.AddListener(HandleOnManipulationStarted);
-
         gameObject.AddComponent<NearInteractionGrabbable>();
 
         compMaterialA = Resources.Load("materials/ComparisonMaterialA") as Material;
@@ -347,6 +347,18 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         {
             gameObject.name = mol_data.name;
         }
+
+        // add object manipulation methods to check for scaling using two hands
+        // Get the ObjectManipulator component
+        objectManipulator = GetComponent<ObjectManipulator>();
+
+        // Subscribe to the Manipulation events
+        objectManipulator.OnManipulationStarted.AddListener(OnManipulationStarted);
+        objectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
+
+        // Initialize the previous scale to the object's initial scale
+        previousScale = transform.localScale.x;
+
 
         if (mol_data.keepConfig)
         {
@@ -405,6 +417,32 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         }
     }
 
+    bool isManipulating = false;
+    private void OnManipulationStarted(ManipulationEventData eventData)
+    {
+        isManipulating = true;
+        StartCoroutine(HandleScaleChanges());
+    }
+
+    private IEnumerator HandleScaleChanges()
+    {
+        // Reset the previous scale when manipulation starts
+        previousScale = transform.localScale.x;
+        while(isManipulating)
+        {
+            if (transform.localScale.x != previousScale)
+            {
+                EventManager.Singleton.ChangeMoleculeScale(m_id, transform.localScale.x);
+                previousScale = transform.localScale.x;
+            }
+            yield return new WaitForSeconds(0.1f); // update 10 times per second
+        }
+    }
+
+    private void OnManipulationEnded(ManipulationEventData eventData)
+    {
+        isManipulating = false;
+    }
 
     public bool containedInAtoms(Vector3 pos)
     {
@@ -732,7 +770,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     /// <param name="showToolTip"></param>
     public void markMoleculeUI(bool mark, bool showToolTip = true)
     {
-        EventManager.Singleton.SelectMolecule(m_id, !isMarked);
+        EventManager.Singleton.SelectMolecule(m_id, mark);
         markMolecule(mark, showToolTip);
     }
 
@@ -2397,6 +2435,8 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         EventManager.Singleton.OnMolDataChanged -= triggerGenerateFF;
         EventManager.Singleton.OnMoleculeLoaded -= adjustBBox;
         EventManager.Singleton.OnMolDataChanged -= adjustBBox;
+        objectManipulator.OnManipulationStarted.RemoveListener(OnManipulationStarted);
+        objectManipulator.OnManipulationEnded.RemoveListener(OnManipulationEnded);
         if (HandTracking.Singleton)
         {
             HandTracking.Singleton.OnMiddleFingerGrab.RemoveListener(OnTransitionGrab);

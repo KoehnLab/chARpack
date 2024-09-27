@@ -185,6 +185,7 @@ public class StructureFormulaManager : MonoBehaviour
                 MaxCordDeviation = 0.5f,
                 MaxTanAngleDeviation = 0.1f
             });
+
             // Build a sprite
             var sprite = VectorUtils.BuildSprite(geometries, 100, VectorUtils.Alignment.Center, Vector2.zero, 128, true);
 
@@ -243,6 +244,9 @@ public class StructureFormulaManager : MonoBehaviour
                 MaxCordDeviation = 0.5f,
                 MaxTanAngleDeviation = 0.1f
             });
+
+            //// build mesh
+            //SVGTo3D.generate3DRepresentation(geometries);
 
             // Build a sprite
             var sprite = VectorUtils.BuildSprite(geometries, 100, VectorUtils.Alignment.Center, Vector2.zero, 128, true);

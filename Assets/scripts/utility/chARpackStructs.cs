@@ -69,13 +69,15 @@ namespace chARpackStructs
         public string abbre;
         public ushort hybrid;
         public SaveableVector3 pos;
+        public bool keepConfig;
 
-        public cmlAtom(ushort _id,string name, ushort hybridisation, SaveableVector3 _pos)
+        public cmlAtom(ushort _id,string name, ushort hybridisation, SaveableVector3 _pos, bool keep_config)
         {
             id = _id;
             abbre = name;
             hybrid = hybridisation;
             pos = _pos;
+            keepConfig = keep_config;
         }
     }
 

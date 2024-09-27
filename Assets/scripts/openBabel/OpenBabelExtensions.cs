@@ -42,7 +42,7 @@ public static class OpenBabelExtensions
         for (ushort i = 0; i < num_atoms; i++)
         {
             pos_vec[i] -= mean_pos;
-            list_atom.Add(new cmlAtom(i, symbols[i], hybridizatons[i], pos_vec[i]));
+            list_atom.Add(new cmlAtom(i, symbols[i], hybridizatons[i], pos_vec[i], true));
         }
 
         // init position is in front of current camera in atom world coordinates
@@ -89,7 +89,7 @@ public static class OpenBabelExtensions
         List<cmlAtom> list_atom = new List<cmlAtom>();
         foreach (Atom a in mol.atomList)
         {
-            list_atom.Add(new cmlAtom(a.m_id, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition));
+            list_atom.Add(new cmlAtom(a.m_id, a.m_data.m_abbre, a.m_data.m_hybridization, a.transform.localPosition, a.keepConfig));
         }
 
         List<cmlBond> list_bond = new List<cmlBond>();

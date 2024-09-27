@@ -1696,9 +1696,10 @@ public class GlobalCtrl : MonoBehaviour
         d2.colorSwapSelect(1);
     }
 
-    public void checkForCollisionsAndMerge(Molecule mol)
+    public bool checkForCollisionsAndMerge(Molecule mol)
     {
-        if (collisions.Count() == 0) return;
+        bool merge = false;
+        if (collisions.Count() == 0) return false;
 
         var molCollisions = new List<Tuple<Atom, Atom>>();
         foreach (Atom a in mol.atomList)
@@ -1726,27 +1727,29 @@ public class GlobalCtrl : MonoBehaviour
                     if (mol.atomList.Contains(d1))
                     {
                         EventManager.Singleton.MergeMolecule(d1.m_molecule.m_id, d1.m_id, d2.m_molecule.m_id, d2.m_id);
+                        merge = true;
                         if (!NetworkManagerClient.Singleton || SettingsData.syncMode == TransitionManager.SyncMode.Async)
                         {
-                            // only allowed to merge when not in sync or single mode
+                            // only allowed to merge when in async or solo mode
                             MergeMolecule(d1, d2);
                         }
                     }
                     else
                     {
                         EventManager.Singleton.MergeMolecule(d2.m_molecule.m_id, d2.m_id, d1.m_molecule.m_id, d1.m_id);
+                        merge = true;
                         if (!NetworkManagerClient.Singleton || SettingsData.syncMode == TransitionManager.SyncMode.Async)
                         {
-                            // only allowed to merge when not in sync or single mode
+                            // only allowed to merge when in async or solo mode
                             MergeMolecule(d2, d1);
                         }
                     }
                 }
-
             }
         }
 
         resetMolCollisions(mol);
+        return merge;
     }
 
     private void resetMolCollisions(Molecule mol)
@@ -2177,6 +2180,12 @@ public class GlobalCtrl : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// Rebuild old molecules using the undo functionality
+    /// </summary>
+    /// <param molecule="molecule">CML data of the molecule</param>
+    /// <param id="id">Guid of the molecule, if applicable</param>
+    /// <returns>a list of cmlData</returns>
     public Guid BuildMoleculeFromCML(cmlData molecule, Guid? id = null)
     {
         var freshMoleculeID = id.HasValue ? id.Value : Guid.NewGuid();
@@ -2188,7 +2197,6 @@ public class GlobalCtrl : MonoBehaviour
 
 
         //LOAD STRUCTURE CHECK LIST / DICTIONNARY
-
         for (int i = 0; i < molecule.atomArray.Length; i++)
         {
             RebuildAtom(molecule.atomArray[i].id, molecule.atomArray[i].abbre, molecule.atomArray[i].hybrid, molecule.atomArray[i].pos, tempMolecule);
@@ -2197,6 +2205,14 @@ public class GlobalCtrl : MonoBehaviour
         {
             CreateBond(tempMolecule.atomList.ElementAtOrDefault(molecule.bondArray[i].id1), tempMolecule.atomList.ElementAtOrDefault(molecule.bondArray[i].id2), tempMolecule);
         }
+        if (molecule.keepConfig)
+        {
+            for (int i = 0; i < molecule.atomArray.Length; i++)
+            {
+                tempMolecule.atomList[i].keepConfig = molecule.atomArray[i].keepConfig;
+            }
+        }
+
         tempMolecule.freeze(molecule.frozen);
         moveMolecule(freshMoleculeID, molecule.molePos, molecule.moleQuat);
         EventManager.Singleton.MoveMolecule(freshMoleculeID, molecule.molePos, molecule.moleQuat);
@@ -2236,7 +2252,7 @@ public class GlobalCtrl : MonoBehaviour
     }
 
     /// <summary>
-    /// Creates molecules from cmlData
+    /// Creates molecules from cmlData, usually used for creation of molecules via network
     /// </summary>
     /// <param name="data">list of cmlData that represents the world state to rebuild</param>
     public void createFromCML(List<cmlData> data, bool addToUndoStack = true)
@@ -2249,7 +2265,6 @@ public class GlobalCtrl : MonoBehaviour
                 Molecule tempMolecule = Instantiate(myBoundingBoxPrefab).AddComponent<Molecule>();
                 tempMolecule.gameObject.transform.localScale = molecule.moleScale;
                 tempMolecule.f_Init(molecule.moleID, atomWorld.transform, molecule);
-                //tempMolecule.transform.localPosition = molecule.molePos;
                 tempMolecule.transform.localRotation = molecule.moleQuat;
                 tempMolecule.initial_scale = molecule.moleScale.x;
                 List_curMolecules[tempMolecule.m_id] = tempMolecule;
@@ -2264,100 +2279,106 @@ public class GlobalCtrl : MonoBehaviour
                 }
                 if (molecule.keepConfig)
                 {
-                    foreach (var atom in tempMolecule.atomList)
+                    for (int i = 0; i < molecule.atomArray.Length; i++)
                     {
-                        if (atom.m_data.m_abbre.ToLower() != "dummy")
-                        {
-                            atom.keepConfig = true;
-                        }
+                        tempMolecule.atomList[i].keepConfig = molecule.atomArray[i].keepConfig;
                     }
                 }
 
-
-                if (molecule.ssPos != Vector2.zero)
+                if (SettingsData.syncMode == TransitionManager.SyncMode.Sync)
                 {
-                    Debug.Log($"[Create:transition] Got SS coords: {molecule.ssPos.ToVector2()};");
-                    if (screenAlignment.Singleton)
+                    tempMolecule.transform.localPosition = molecule.molePos;
+                    tempMolecule.freeze(molecule.frozen);
+                    if (addToUndoStack) undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id, molecule));
+                    EventManager.Singleton.MoleculeLoaded(tempMolecule);
+                }
+                else // Async
+                {
+                    if (molecule.ssPos != Vector2.zero)
                     {
-                        tempMolecule.transform.position = screenAlignment.Singleton.getWorldSpaceCoords(molecule.ssPos);
+                        Debug.Log($"[Create:transition] Got SS coords: {molecule.ssPos.ToVector2()};");
+                        if (screenAlignment.Singleton)
+                        {
+                            tempMolecule.transform.position = screenAlignment.Singleton.getWorldSpaceCoords(molecule.ssPos);
+                        }
+                        else
+                        {
+                            tempMolecule.transform.position = getIdealSpawnPos(tempMolecule.transform, molecule.ssPos);
+                        }
                     }
                     else
                     {
-                        tempMolecule.transform.position = getIdealSpawnPos(tempMolecule.transform, molecule.ssPos);
+                        tempMolecule.transform.position = getIdealSpawnPos(tempMolecule.transform);
                     }
-                }
-                else
-                {
-                    tempMolecule.transform.position = getIdealSpawnPos(tempMolecule.transform);
-                }
 
-                if (molecule.ssBounds != Vector4.zero)
-                {
-                    tempMolecule.transform.localScale = Vector3.one;
-                    if (NetworkManagerClient.Singleton != null)
+                    if (molecule.ssBounds != Vector4.zero)
                     {
-                        var ss_min = new Vector2(molecule.ssBounds.x, molecule.ssBounds.y);
-                        var ss_max = new Vector2(molecule.ssBounds.z, molecule.ssBounds.w);
-                        var aligned_dist = screenAlignment.Singleton.getScreenAlignedDistanceWS(ss_min, ss_max);
-                        var max_size = Mathf.Max(aligned_dist.x, aligned_dist.y);
-                        Debug.Log($"[Create:transition] max_size: {max_size}");
-
-                        var mol_bounds = tempMolecule.GetComponent<myBoundingBox>().localBounds;
-                        var proj_mol_size = screenAlignment.Singleton.sizeProjectedToScreenWS(mol_bounds);
-                        Debug.Log($"[Create:transition] proj_mol_size: {proj_mol_size}");
-                        var max_mol_size = Mathf.Max(proj_mol_size.x, proj_mol_size.y);
-                        Debug.Log($"[Create:transition] max_mol_size: {max_mol_size}");
-
-                        var scale_factor = max_size / max_mol_size;
-                        Debug.Log($"[Create:transition] scale_factor: {scale_factor}");
-                        tempMolecule.transform.localScale *= scale_factor;
-                    }
-                    if (NetworkManagerServer.Singleton != null)
-                    {
-                        //tempMolecule.transform.position = getIdealSpawnPos(tempMolecule.transform, molecule.ssPos);
-
-                        var ss_min = new Vector2(molecule.ssBounds.x, molecule.ssBounds.y);
-                        var ss_max = new Vector2(molecule.ssBounds.z, molecule.ssBounds.w);
-                        var ss_diff = ss_max - ss_min;
-                        var cml_max_size = Mathf.Max(ss_diff.x, ss_diff.y);
-
-                        var current_ss_bounds = tempMolecule.GetComponent<myBoundingBox>().getScreenSpaceBounds();
-                        var current_min = new Vector2(current_ss_bounds.x, current_ss_bounds.y);
-                        var current_max = new Vector2(current_ss_bounds.z, current_ss_bounds.w);
-                        var current_diff = current_max - current_min;
-                        var current_max_size = Mathf.Max(current_diff.x, current_diff.y);
-                        Debug.Log($"[Create:transition] cml_max_size {cml_max_size}; current_max_size {current_max_size}");
-
-                        if (!current_max_size.approx(0f))
+                        tempMolecule.transform.localScale = Vector3.one;
+                        if (NetworkManagerClient.Singleton != null)
                         {
-                            var scale_factor = cml_max_size / current_max_size;
-                            Debug.Log($"[Create:transition] scale_factor {scale_factor}");
+                            var ss_min = new Vector2(molecule.ssBounds.x, molecule.ssBounds.y);
+                            var ss_max = new Vector2(molecule.ssBounds.z, molecule.ssBounds.w);
+                            var aligned_dist = screenAlignment.Singleton.getScreenAlignedDistanceWS(ss_min, ss_max);
+                            var max_size = Mathf.Max(aligned_dist.x, aligned_dist.y);
+                            Debug.Log($"[Create:transition] max_size: {max_size}");
+
+                            var mol_bounds = tempMolecule.GetComponent<myBoundingBox>().localBounds;
+                            var proj_mol_size = screenAlignment.Singleton.sizeProjectedToScreenWS(mol_bounds);
+                            Debug.Log($"[Create:transition] proj_mol_size: {proj_mol_size}");
+                            var max_mol_size = Mathf.Max(proj_mol_size.x, proj_mol_size.y);
+                            Debug.Log($"[Create:transition] max_mol_size: {max_mol_size}");
+
+                            var scale_factor = max_size / max_mol_size;
+                            Debug.Log($"[Create:transition] scale_factor: {scale_factor}");
                             tempMolecule.transform.localScale *= scale_factor;
                         }
+                        if (NetworkManagerServer.Singleton != null)
+                        {
+                            //tempMolecule.transform.position = getIdealSpawnPos(tempMolecule.transform, molecule.ssPos);
+
+                            var ss_min = new Vector2(molecule.ssBounds.x, molecule.ssBounds.y);
+                            var ss_max = new Vector2(molecule.ssBounds.z, molecule.ssBounds.w);
+                            var ss_diff = ss_max - ss_min;
+                            var cml_max_size = Mathf.Max(ss_diff.x, ss_diff.y);
+
+                            var current_ss_bounds = tempMolecule.GetComponent<myBoundingBox>().getScreenSpaceBounds();
+                            var current_min = new Vector2(current_ss_bounds.x, current_ss_bounds.y);
+                            var current_max = new Vector2(current_ss_bounds.z, current_ss_bounds.w);
+                            var current_diff = current_max - current_min;
+                            var current_max_size = Mathf.Max(current_diff.x, current_diff.y);
+                            Debug.Log($"[Create:transition] cml_max_size {cml_max_size}; current_max_size {current_max_size}");
+
+                            if (!current_max_size.approx(0f))
+                            {
+                                var scale_factor = cml_max_size / current_max_size;
+                                Debug.Log($"[Create:transition] scale_factor {scale_factor}");
+                                tempMolecule.transform.localScale *= scale_factor;
+                            }
+                        }
                     }
-                }
-                if (molecule.relQuat != Quaternion.identity)
-                {
-                    tempMolecule.relQuatBeforeTransition = molecule.relQuat;
-                    if (NetworkManagerClient.Singleton != null)
+                    if (molecule.relQuat != Quaternion.identity)
                     {
-                        var normal = screenAlignment.Singleton.getScreenNormal();
-                        var screen_quat = Quaternion.LookRotation(-normal);
-                        tempMolecule.transform.rotation = screen_quat * molecule.relQuat;
+                        tempMolecule.relQuatBeforeTransition = molecule.relQuat;
+                        if (NetworkManagerClient.Singleton != null)
+                        {
+                            var normal = screenAlignment.Singleton.getScreenNormal();
+                            var screen_quat = Quaternion.LookRotation(-normal);
+                            tempMolecule.transform.rotation = screen_quat * molecule.relQuat;
+                        }
+                        if (NetworkManagerServer.Singleton != null)
+                        {
+                            tempMolecule.transform.rotation = currentCamera.transform.rotation * molecule.relQuat;
+                            //tempMolecule.transform.rotation = Quaternion.LookRotation(currentCamera.transform.forward) * molecule.relQuat;
+                        }
                     }
-                    if (NetworkManagerServer.Singleton != null)
+                    tempMolecule.freeze(molecule.frozen);
+                    if (addToUndoStack) undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id, molecule));
+                    EventManager.Singleton.MoleculeLoaded(tempMolecule);
+                    Debug.Log($"[Create:transition] moleTransitioned {molecule.moleTransitioned}; triggered by {(TransitionManager.InteractionType)molecule.transitionTriggeredBy}");
+                    if (molecule.moleTransitioned)
                     {
-                        tempMolecule.transform.rotation = currentCamera.transform.rotation * molecule.relQuat;
-                        //tempMolecule.transform.rotation = Quaternion.LookRotation(currentCamera.transform.forward) * molecule.relQuat;
+                        EventManager.Singleton.ReceiveMoleculeTransition(tempMolecule, (TransitionManager.InteractionType)molecule.transitionTriggeredBy, molecule.TransitionTriggeredFromId);
                     }
-                }
-                tempMolecule.freeze(molecule.frozen);
-                if (addToUndoStack) undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id, molecule));
-                EventManager.Singleton.MoleculeLoaded(tempMolecule);
-                Debug.Log($"[Create:transition] moleTransitioned {molecule.moleTransitioned}; triggered by {(TransitionManager.InteractionType)molecule.transitionTriggeredBy}");
-                if (molecule.moleTransitioned)
-                {
-                    EventManager.Singleton.ReceiveMoleculeTransition(tempMolecule, (TransitionManager.InteractionType)molecule.transitionTriggeredBy, molecule.TransitionTriggeredFromId);
                 }
             }
         }

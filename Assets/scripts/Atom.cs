@@ -357,6 +357,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
 
     #region hand_interaction
 
+    public bool breakActionConsumed = false;
     /// <summary>
     /// Handles the start of a grab gesture.
     /// The handling depends on the current interaction mode (e.g. in chain mode the correct chain of connected atoms is computed).
@@ -371,6 +372,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                 m_molecule.saveAtomState();
                 // give it a outline
                 grabHighlight(true);
+                breakActionConsumed = false;
 
                 stopwatch = Stopwatch.StartNew();
                 isGrabbed = true;
@@ -432,7 +434,7 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
         if (m_molecule.getIsInteractable())
         {
             // position relative to molecule position
-            if (!frozen)
+            if (!frozen && !breakActionConsumed) // no longer send position changes when break occurs
             {
                 EventManager.Singleton.MoveAtom(m_molecule.m_id, m_id, transform.localPosition);
             }
@@ -447,9 +449,12 @@ public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFoc
                     {
                         var term = m_molecule.bondTerms.Find(p => p.Contains(m_id, atom.m_id));
                         var current_dist = ((transform.localPosition - atom.transform.localPosition) / ForceField.scalingfactor).magnitude;
-                        if (current_dist > 3 * term.eqDist)
+                        if (current_dist > 3 * term.eqDist && !breakActionConsumed)
                         {
                             GlobalCtrl.Singleton.SeparateMolecule(this, atom);
+                            // make sure this action is only executed once and not many times over while waiting for a response from the server
+                            breakActionConsumed = true; 
+                            atom.breakActionConsumed = true;
                         }
                     }
                 }
