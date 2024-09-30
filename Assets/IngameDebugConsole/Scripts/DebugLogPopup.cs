@@ -69,18 +69,9 @@ namespace IngameDebugConsole
 				normalizedPosition = pos.normalized; // Respect the initial popup position set in the prefab
 			else
 				normalizedPosition = new Vector2( 0.5f, 0f ); // Right edge by default
-        }
+		}
 
-        private void Start()
-        {
-            canvasGroup.blocksRaycasts = false;
-            canvasGroup.alpha = 0f;
-
-            IsVisible = false;
-            isPopupBeingDragged = false;
-        }
-
-        public void NewLogsArrived( int newInfo, int newWarning, int newError )
+		public void NewLogsArrived( int newInfo, int newWarning, int newError )
 		{
 			if( newInfo > 0 )
 			{
@@ -278,10 +269,8 @@ namespace IngameDebugConsole
 			}
 
 			if( immediately )
-			{
-                //popupTransform.anchoredPosition = pos;
-            }
-            else
+				popupTransform.anchoredPosition = pos;
+			else
 			{
 				// Smoothly translate the popup to the specified position
 				moveToPosCoroutine = MoveToPosAnimation( pos );

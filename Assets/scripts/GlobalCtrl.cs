@@ -7,6 +7,7 @@ using System;
 using Microsoft.MixedReality.Toolkit.UI;
 using System.Linq;
 using chARpackTypes;
+using IngameDebugConsole;
 
 /*! \mainpage 
  * API reference page for chARpack
@@ -231,7 +232,6 @@ public class GlobalCtrl : MonoBehaviour
     }
     #endregion
 
-    // Start is called before the first frame update
     void Awake()
     {
         // create singleton
@@ -335,6 +335,16 @@ public class GlobalCtrl : MonoBehaviour
         {
             spawnZDistance = 0.25f;
         }
+        intializeDebugConsoleCommands();
+    }
+
+    private void intializeDebugConsoleCommands()
+    {
+#if UNITY_EDITOR || UNITY_STANDALONE
+        DebugLogConsole.AddCommand<string>("c", "Creates a molecule dummy using a chemical symbol", createAtomUI);
+        DebugLogConsole.AddCommand("getCurrentSpawnPos", "Gets current spawn pos dependet on the camera position and forward", getCurrentSpawnPos);
+
+#endif
     }
 
     public Vector3 getCurrentSpawnPos()

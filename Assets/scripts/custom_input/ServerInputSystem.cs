@@ -1,7 +1,11 @@
 using RuntimeGizmos;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.Experimental.Rendering;
+using UnityEngine.Rendering.VirtualTexturing;
 using UnityEngine.UI;
 
 
@@ -11,7 +15,7 @@ public class ServerInputSystem : MonoBehaviour
     private float moveSpeed = 0.04f;
     private float turnSpeed = 1f;
     private Transform lastObjectClickedOn = null;
-
+    private EventSystem system;
 
     private void Start()
     {
@@ -19,6 +23,7 @@ public class ServerInputSystem : MonoBehaviour
         QualitySettings.SetQualityLevel(names.IndexOf("Ultra"));
         var cursor_texture = Resources.Load<Texture2D>("customCursor/cursor");
         Cursor.SetCursor(cursor_texture, Vector3.zero, CursorMode.ForceSoftware);
+        system = EventSystem.current;
     }
 
     private Transform mouseIsOverUIElement()
@@ -87,6 +92,34 @@ public class ServerInputSystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (system == null)
+        {
+            system = EventSystem.current;
+            if (system == null) return;
+        }
+        GameObject currentObject = system.currentSelectedGameObject;
+        if (currentObject != null)
+        {
+            InputField inputField = currentObject.GetComponent<InputField>();
+            if (inputField != null)
+            {
+                if (inputField.isFocused)
+                {
+                    return;
+                }
+            }
+            else
+            {
+                TMP_InputField tmpInput = currentObject.GetComponent<TMP_InputField>();
+                if (tmpInput != null)
+                {
+                    if (tmpInput.isFocused)
+                    {
+                        return;
+                    }
+                }
+            }
+        }
         if (GlobalCtrl.Singleton.currentCamera == GlobalCtrl.Singleton.mainCamera)
         {
             if (!CreateInputField.Singleton.gameObject.activeSelf)

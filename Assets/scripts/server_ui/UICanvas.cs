@@ -1,3 +1,4 @@
+using IngameDebugConsole;
 using UnityEngine;
 
 public class UICanvas : MonoBehaviour
@@ -26,4 +27,20 @@ public class UICanvas : MonoBehaviour
     {
         Singleton = this;
     }
+
+    public GameObject inspector;
+    public GameObject hierarchy;
+
+    private void Start()
+    {
+        DebugLogConsole.AddCommand("hi", "Toggle Inspector and Hierarchy", toggleInspectorAndHierarchy);
+    }
+
+    private void toggleInspectorAndHierarchy()
+    {
+        inspector.SetActive(!inspector.activeSelf);
+        hierarchy.SetActive(!hierarchy.activeSelf);
+    }
+
+
 }
