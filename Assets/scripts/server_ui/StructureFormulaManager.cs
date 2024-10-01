@@ -245,8 +245,8 @@ public class StructureFormulaManager : MonoBehaviour
                 MaxTanAngleDeviation = 0.1f
             });
 
-            //// build mesh
-            //SVGTo3D.generate3DRepresentation(geometries);
+            // build mesh
+            SVGTo3D.generate3DRepresentation(geometries);
 
             // Build a sprite
             var sprite = VectorUtils.BuildSprite(geometries, 100, VectorUtils.Alignment.Center, Vector2.zero, 128, true);

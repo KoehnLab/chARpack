@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.VectorGraphics;
 using System.Collections.Generic;
 using System.IO;
+using Unity.PlasticSCM.Editor.WebApi;
 
 public class SVGTo3D : MonoBehaviour
 {
@@ -27,25 +28,44 @@ public class SVGTo3D : MonoBehaviour
         Debug.Log("[SVGTo3D] Extruding SVG...");
 
         // Extrude the geometry into 3D
-        Mesh extrudedMesh = Create3DMeshFromGeometry(geometry, 0.1f); // 0.1f is the extrusion depth
+        var extrudedMesh = Create3DMeshFromGeometry(geometry, 0.1f); // 0.1f is the extrusion depth
 
         // Create a GameObject to display the extruded mesh
-        var meshObj = new GameObject("Extruded SVG Mesh");
-        var meshFilter = meshObj.AddComponent<MeshFilter>();
-        var meshRenderer = meshObj.AddComponent<MeshRenderer>();
+        var mat = Resources.Load<Material>("materials/sfExtrude");
+        var meshCollection = new GameObject("Extruded SVG Mesh");
+        foreach (var (mesh, i) in extrudedMesh.WithIndex())
+        {
+            if (i == 0) continue; // omit background
+            var child = new GameObject($"Mesh_{i}");
+            var meshFilter = child.AddComponent<MeshFilter>();
+            var meshRenderer = child.AddComponent<MeshRenderer>();
+            meshFilter.mesh = mesh;
 
-        meshFilter.mesh = extrudedMesh;
-        //meshRenderer.material = meshMaterial; // Assign material to the extruded mesh
+            // material
+            var current_mat = Instantiate(mat) as Material;
+            current_mat.color = geometry[i].Color;
+            meshRenderer.material = current_mat;
+
+            if (MeshLine.IsMeshALine(meshFilter, 3f))
+            {
+                child.transform.parent = meshCollection.transform;
+            }
+        }
+
+
+
+        // // Assign material to the extruded mesh
     }
 
-    static Mesh Create3DMeshFromGeometry(List<VectorUtils.Geometry> geometries, float depth)
+    static List<Mesh> Create3DMeshFromGeometry(List<VectorUtils.Geometry> geometries, float depth)
     {
-        Mesh mesh = new Mesh();
-        List<Vector3> vertices = new List<Vector3>();
-        List<int> triangles = new List<int>();
-
+        var mesh_list = new List<Mesh>();
         foreach (var geom in geometries)
         {
+            Mesh mesh = new Mesh();
+            List<Vector3> vertices = new List<Vector3>();
+            List<int> triangles = new List<int>();
+
             int vertexOffset = vertices.Count;
 
             // Add front face vertices (Z = 0)
@@ -93,12 +113,13 @@ public class SVGTo3D : MonoBehaviour
                 triangles.Add(front2);
                 triangles.Add(back2);
             }
+            mesh.vertices = vertices.ToArray();
+            mesh.triangles = triangles.ToArray();
+            mesh.RecalculateNormals();
+
+            mesh_list.Add(mesh);
         }
 
-        mesh.vertices = vertices.ToArray();
-        mesh.triangles = triangles.ToArray();
-        mesh.RecalculateNormals();
-
-        return mesh;
+        return mesh_list;
     }
 }
