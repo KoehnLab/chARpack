@@ -1,32 +1,93 @@
 using UnityEngine;
 using Unity.Mathematics;
+using NUnit.Framework.Internal;
+using NUnit.Framework;
 
 public class MeshLine
 {
 
+    //public static void GetStartAndEndPoints(Transform trans, out Vector3 startPoint, out Vector3 endPoint)
+    //{
 
 
-    public static void GetStartAndEndPoints(Transform trans, out Vector3 startPoint, out Vector3 endPoint)
+    //}
+
+    public static Vector3[] ExtractLineEndpointsWithDegeneracy(Transform trans)
     {
         // Get the MeshFilter component
         var meshFilter = trans.GetComponent<MeshFilter>();
 
-        // Get the mesh and its bounds
+        // Get the mesh vertices in local space
         Mesh mesh = meshFilter.sharedMesh;
-        Bounds bounds = mesh.bounds;
+        Vector3[] vertices = mesh.vertices;
 
-        // Assuming the line stretches along the Z-axis in local space
-        // Start point is at the minimum Z of the bounds
-        // End point is at the maximum Z of the bounds
+        // Convert vertices to float3 array for math compatibility
+        float3[] floatVertices = new float3[vertices.Length];
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            floatVertices[i] = (float3)vertices[i];
+        }
 
-        Vector3 localStartPoint = new Vector3(0, 0, bounds.min.z);
-        Vector3 localEndPoint = new Vector3(0, 0, bounds.max.z);
+        // Step 1: Calculate covariance matrix
+        float3x3 covarianceMatrix = EigenDecomposition.CalculateCovarianceMatrix(floatVertices);
 
-        // Transform the points from local space to world space
-        startPoint = trans.TransformPoint(localStartPoint);
-        endPoint = trans.TransformPoint(localEndPoint);
+        // Step 2: Perform eigenvalue decomposition to find eigenvectors and eigenvalues
+        float3 eigenvalues = EigenDecomposition.ComputeEigenvalues(covarianceMatrix);
+        float3x3 eigenvectors = EigenDecomposition.GetEigenvectors(covarianceMatrix, eigenvalues);
+
+        // Project onto the principal axis
+        float3 primaryAxis = eigenvectors.c0;
+        float3 secondaryAxis = eigenvectors.c1;
+
+        // If the two eigenvectors are nearly identical, treat it as 2D in the plane
+        if (EigenDecomposition.AreEigenvectorsSimilar(eigenvectors.c0, eigenvectors.c1))
+        {
+            // Treat the mesh as planar
+            Debug.Log("Eigenvectors are similar, treating mesh as 2D in the plane of similar axes.");
+
+            // Project onto the dominant axis and calculate min/max along that axis
+            return EigenDecomposition.ProjectOntoDominantAxis(floatVertices, primaryAxis);
+        }
+        else
+        {
+            // Project onto both axes and calculate min/max in 3D space
+            return EigenDecomposition.ProjectOntoPrincipalAxes(floatVertices, eigenvectors);
+        }
     }
 
+    public static Vector3[] ExtractPrincipalAxisEndpoints(Transform trans)
+    {
+        // Get the MeshFilter component
+        var meshFilter = trans.GetComponent<MeshFilter>();
+
+        // Get the mesh vertices in local space
+        Mesh mesh = meshFilter.sharedMesh;
+        Vector3[] vertices = mesh.vertices;
+
+        // Convert vertices to float3 array for math compatibility
+        float3[] floatVertices = new float3[vertices.Length];
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            floatVertices[i] = (float3)vertices[i];
+        }
+
+        // Step 1: Calculate covariance matrix
+        float3x3 covarianceMatrix = EigenDecomposition.CalculateCovarianceMatrix(floatVertices);
+
+        // Step 2: Perform eigenvalue decomposition to find eigenvectors and eigenvalues
+        float3 eigenvalues = EigenDecomposition.ComputeEigenvalues(covarianceMatrix);
+        float3x3 eigenvectors = EigenDecomposition.GetEigenvectors(covarianceMatrix, eigenvalues);
+
+        // Step 3: Sort eigenvectors by eigenvalues (largest eigenvalue first)
+        EigenDecomposition.SortAndClampEigenVectors(ref eigenvalues, ref eigenvectors);
+
+        Debug.Log($"[MeshLine] Eigenvectors {eigenvectors.c0} {eigenvectors.c1} {eigenvectors.c2}");
+
+        // Step 4: Project vertices onto each principal axis and find min/max projections
+        return EigenDecomposition.ProjectOntoPrincipalAxes(floatVertices, eigenvectors);
+    }
+
+  
 
     public static void SetStartAndEndPoint(Transform trans, Vector3 startPoint, Vector3 endPoint)
     {
@@ -59,7 +120,7 @@ public class MeshLine
         }
 
         // Calculate the covariance matrix for the vertices
-        float3x3 covarianceMatrix = CalculateCovarianceMatrix(floatVertices);
+        float3x3 covarianceMatrix = EigenDecomposition.CalculateCovarianceMatrix(floatVertices);
 
         // Perform eigenvalue decomposition to find eigenvalues
         float3 eigenvalues = EigenDecomposition.ComputeEigenvalues(covarianceMatrix);
@@ -79,39 +140,6 @@ public class MeshLine
         }
 
         return false;  // The mesh is not a line
-    }
-
-    static float3x3 CalculateCovarianceMatrix(float3[] vertices)
-    {
-        // Calculate the mean (centroid) of the vertices
-        float3 mean = float3.zero;
-        foreach (float3 vertex in vertices)
-        {
-            mean += vertex;
-        }
-        mean /= vertices.Length;
-
-        // Initialize covariance matrix
-        float3x3 covariance = new float3x3();
-
-        // Calculate covariance matrix
-        foreach (float3 vertex in vertices)
-        {
-            float3 v = vertex - mean;
-            covariance.c0.x += v.x * v.x;
-            covariance.c0.y += v.x * v.y;
-            covariance.c0.z += v.x * v.z;
-
-            covariance.c1.x += v.y * v.x;
-            covariance.c1.y += v.y * v.y;
-            covariance.c1.z += v.y * v.z;
-
-            covariance.c2.x += v.z * v.x;
-            covariance.c2.y += v.z * v.y;
-            covariance.c2.z += v.z * v.z;
-        }
-
-        return covariance;
     }
 
 }
