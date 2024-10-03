@@ -1,6 +1,7 @@
 using chARpackStructs;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using UnityEngine;
 
 public class Molecule2D : MonoBehaviour
@@ -14,6 +15,7 @@ public class Molecule2D : MonoBehaviour
 
     public bool initialized = false;
 
+    public float lengthNormalization = 1f;
 
     private void Update()
     {
@@ -21,11 +23,35 @@ public class Molecule2D : MonoBehaviour
         {
             foreach (var bond in bonds)
             {
+                var a1_pos = bond.atom1.transform.position;
+                var a2_pos = bond.atom2.transform.position;
+                var offset1 = bond.atom1ConnectionOffset * transform.localScale.x;
+                var offset2 = bond.atom2ConnectionOffset * transform.localScale.x;
+                var direction = a1_pos - a2_pos;
+                var pos1 = a1_pos - direction.normalized * offset1;
+                var pos2 = a2_pos + direction.normalized * offset2;
+                var distance = Vector3.Distance(pos1, pos2);
 
-                var pos1 = bond.atom1.transform.position;// + transform.TransformVector(bond.atom1ConnectionOffset);
-                var pos2 = bond.atom2.transform.position;// + transform.TransformVector(bond.atom2ConnectionOffset);
+                //var pos1 = Vector3.MoveTowards(a1_pos, a2_pos, offset1);
+                //var pos2 = Vector3.MoveTowards(a2_pos, a1_pos, offset2);
+                //var pos1 = bond.atom1.transform.position + transform.TransformVector(bond.atom1ConnectionOffset);
+                //var pos2 = bond.atom2.transform.position + transform.TransformVector(bond.atom2ConnectionOffset);
+                //float distance = (Vector3.Distance(a1_pos, a2_pos) - offset1 - offset2);
+                // Calculate the direction and distance between the two points
+                //Vector3 direction = endPoint - startPoint;
+                //float distance = direction.magnitude;
 
-                MeshLine.SetStartAndEndPoint(bond.transform, pos1, pos2);
+                // Calculate the midpoint between the two points
+                Vector3 midpoint = (pos1 + pos2) / 2.0f;
+
+                // Set the position of the GameObject to the midpoint
+                bond.transform.position = midpoint;
+
+                // Rotate the GameObject to align with the direction
+                bond.transform.LookAt(pos1);
+
+                // Scale the GameObject along the X-axis to match the distance between the two points
+                bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, (distance * lengthNormalization) /transform.localScale.z);
             }
         }
     }

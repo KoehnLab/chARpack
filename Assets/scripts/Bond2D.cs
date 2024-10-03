@@ -12,8 +12,8 @@ public class Bond2D : MonoBehaviour
 
     public Bond bondReference;
 
-    public Vector3 atom1ConnectionOffset;
-    public Vector3 atom2ConnectionOffset;
+    public float atom1ConnectionOffset;
+    public float atom2ConnectionOffset;
 
     public Vector3 end1;
     public Vector3 end2;

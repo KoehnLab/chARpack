@@ -49,7 +49,7 @@ public class StructureFormulaTo3D : MonoBehaviour
         // Create a GameObject to display the extruded mesh
         var mat = Resources.Load<Material>("materials/sfExtrude");
         var mol2D = new GameObject($"extrude_{mol.name}").AddComponent<Molecule2D>();
-        mol2D.transform.Rotate(new Vector3(180f, 0f, 0f));
+        //mol2D.transform.Rotate(new Vector3(180f, 0f, 0f));
         mol2D.transform.position = total_bounds.center;
         mol2D.molReference = mol;
 
@@ -272,6 +272,18 @@ public class StructureFormulaTo3D : MonoBehaviour
         {
             var merge_bond = new GameObject("Bond");
             merge_bond.transform.position = bond_point_list[sl.Item1];
+            // get the other end point
+            var current_end_point_ids = bond_object_list.GetAllIndicesOf(bond_object_list[sl.Item1]);
+            Vector3 look_at_endpoint;
+            if (Vector3.Distance(bond_point_list[sl.Item1], bond_point_list[current_end_point_ids[0]]) > 0.1f)
+            {
+                look_at_endpoint = bond_point_list[current_end_point_ids[0]];
+            }
+            else
+            {
+                look_at_endpoint = bond_point_list[current_end_point_ids[1]];
+            }
+            merge_bond.transform.LookAt(look_at_endpoint);
             merge_bond.transform.parent = mol2D.transform;
             bond_object_list[sl.Item1].transform.parent = merge_bond.transform;
             bond_object_list[sl.Item2].transform.parent = merge_bond.transform;
@@ -319,14 +331,14 @@ public class StructureFormulaTo3D : MonoBehaviour
                 {
                     b2d.atom1ref = mol.atomList[res[0]];
                     b2d.atom1 = mol2D.atoms[res[0]];
-                    b2d.atom1ConnectionOffset = bond_point_list[ep_id] - atom_sf_coords[res[0]];
+                    b2d.atom1ConnectionOffset = Vector3.Distance(bond_point_list[ep_id], atom_sf_coords[res[0]]);
                     b2d.end1 = bond_point_list[ep_id];
                 }
                 if (i == 1)
                 {
                     b2d.atom2ref = mol.atomList[res[0]];
                     b2d.atom2 = mol2D.atoms[res[0]];
-                    b2d.atom2ConnectionOffset = bond_point_list[ep_id] - atom_sf_coords[res[0]];
+                    b2d.atom2ConnectionOffset = Vector3.Distance(bond_point_list[ep_id], atom_sf_coords[res[0]]);
                     b2d.end2 = bond_point_list[ep_id];
                 }
             }
@@ -346,8 +358,25 @@ public class StructureFormulaTo3D : MonoBehaviour
             {
                 var final_ep_ids = bond_object_list.GetAllIndicesOf(obj);
                 Debug.Log($"[SimpleBonds] final end point ids {final_ep_ids.ToArray().Print()}");
-                var b2d = obj.AddComponent<Bond2D>();
+                //var b2d = obj.AddComponent<Bond2D>();
+                var b2d = new GameObject().AddComponent<Bond2D>();
+                b2d.transform.position = obj.transform.position;
+                // get the other end point
+                var current_end_point_ids = bond_object_list.GetAllIndicesOf(obj);
+                Vector3 look_at_endpoint;
+                if (Vector3.Distance(bond_point_list[ep_id], bond_point_list[current_end_point_ids[0]]) > 0.1f)
+                {
+                    look_at_endpoint = bond_point_list[current_end_point_ids[0]];
+                }
+                else
+                {
+                    look_at_endpoint = bond_point_list[current_end_point_ids[1]];
+                }
+
+                b2d.transform.LookAt(look_at_endpoint);
                 b2d.name = "Bond";
+                b2d.transform.parent = mol2D.transform;
+                obj.transform.parent = b2d.transform;
 
                 foreach (var (fep_id, i) in final_ep_ids.WithIndex())
                 {
@@ -359,14 +388,14 @@ public class StructureFormulaTo3D : MonoBehaviour
                     {
                         b2d.atom1ref = mol.atomList[res[0]];
                         b2d.atom1 = mol2D.atoms[res[0]];
-                        b2d.atom1ConnectionOffset = bond_point_list[fep_id] - atom_sf_coords[res[0]];
+                        b2d.atom1ConnectionOffset = Vector3.Distance(bond_point_list[fep_id], atom_sf_coords[res[0]]);
                         b2d.end1 = bond_point_list[fep_id];
                     }
                     if (i == 1)
                     {
                         b2d.atom2ref = mol.atomList[res[0]];
                         b2d.atom2 = mol2D.atoms[res[0]];
-                        b2d.atom2ConnectionOffset = bond_point_list[fep_id] - atom_sf_coords[res[0]];
+                        b2d.atom2ConnectionOffset = Vector3.Distance(bond_point_list[fep_id], atom_sf_coords[res[0]]);
                         b2d.end2 = bond_point_list[fep_id];
                     }
                 }

@@ -105,6 +105,25 @@ public class MeshLine
         trans.rotation = rotation;
     }
 
+    public static void SetStartAndEndPoint2D(Transform trans, Vector3 startPoint, Vector3 endPoint)
+    {
+        // Calculate the direction and distance between the two points
+        Vector3 direction = endPoint - startPoint;
+        float distance = direction.magnitude;
+
+        // Calculate the midpoint between the two points
+        Vector3 midpoint = (startPoint + endPoint) / 2.0f;
+
+        // Set the position of the GameObject to the midpoint
+        trans.position = midpoint;
+
+        // Rotate the GameObject to align with the direction
+        trans.LookAt(startPoint);
+
+        // Scale the GameObject along the X-axis to match the distance between the two points
+        trans.localScale = new Vector3(distance, trans.localScale.y, trans.localScale.z);
+    }
+
 
     public static bool IsMeshALine(MeshFilter meshFilter, float lengthRatioThreshold = 5.0f, bool flat = true)
     {
