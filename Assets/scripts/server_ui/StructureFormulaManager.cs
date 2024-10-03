@@ -119,7 +119,7 @@ public class StructureFormulaManager : MonoBehaviour
         new_sf.label.transform.parent.GetComponent<Image>().color = FocusColors.getColor(focus_id);
         new_sf.onlyUser = focus_id;
         // Deactivate interactibles
-        var interactables = new_go.GetComponentInChildren<SVGImage>().gameObject.GetComponentsInChildren<Atom2D>();
+        var interactables = new_go.GetComponentInChildren<SVGImage>().gameObject.GetComponentsInChildren<AtomSF>();
         new_sf.interactables = interactables;
         foreach (var inter in new_sf.interactables)
         {
@@ -147,7 +147,7 @@ public class StructureFormulaManager : MonoBehaviour
         new_sf.onlyUser = old_sf.onlyUser;
         new_sf.setHighlightOption(old_sf.current_highlight_choice);
         // Deactivate interactibles
-        var interactables = new_go.GetComponentInChildren<SVGImage>().gameObject.GetComponentsInChildren<Atom2D>();
+        var interactables = new_go.GetComponentInChildren<SVGImage>().gameObject.GetComponentsInChildren<AtomSF>();
         new_sf.interactables = interactables;
         foreach (var inter in new_sf.interactables)
         {
@@ -246,7 +246,7 @@ public class StructureFormulaManager : MonoBehaviour
             });
 
             // build mesh
-            SVGTo3D.generate3DRepresentation(geometries, mol_id);
+            StructureFormulaTo3D.generate3DRepresentation(geometries, mol_id);
 
             // Build a sprite
             var sprite = VectorUtils.BuildSprite(geometries, 100, VectorUtils.Alignment.Center, Vector2.zero, 128, true);
@@ -333,7 +333,7 @@ public class StructureFormulaManager : MonoBehaviour
         var sf_go = svg_instances[mol_id].Item1;
         var sf = sf_go.GetComponentInParent<StructureFormula>();
 
-        List<Atom2D> inter_list = new List<Atom2D>();
+        List<AtomSF> inter_list = new List<AtomSF>();
 
         foreach (var atom in mol.atomList)
         {
@@ -343,8 +343,8 @@ public class StructureFormulaManager : MonoBehaviour
                 inter.transform.SetParent(sf_go.transform, true);
                 inter.transform.localScale = Vector3.one;
                 atom.structure_interactible = inter;
-                inter.GetComponent<Atom2D>().atom = atom;
-                inter_list.Add(inter.GetComponent<Atom2D>());
+                inter.GetComponent<AtomSF>().atom = atom;
+                inter_list.Add(inter.GetComponent<AtomSF>());
             }
 
 
@@ -449,8 +449,8 @@ public class StructureFormulaManager : MonoBehaviour
                 if (sf.current_highlight_choice == 0 && cols != null)
                 {
                     //var atom2d = atom.structure_interactible.GetComponent<Atom2D>();
-                    Atom2D atom2d = null;
-                    foreach (var inter in sf.gameObject.GetComponentsInChildren<Atom2D>())
+                    AtomSF atom2d = null;
+                    foreach (var inter in sf.gameObject.GetComponentsInChildren<AtomSF>())
                     {
                         if (inter.atom == atom)
                         {
@@ -503,7 +503,7 @@ public class StructureFormulaManager : MonoBehaviour
     {
         if (svg_instances.ContainsKey(mol_id))
         {
-            var atom2d = atom.structure_interactible.GetComponent<Atom2D>();
+            var atom2d = atom.structure_interactible.GetComponent<AtomSF>();
             atom2d.FociColors = col; // set full array to trigger set function
         }
     }
@@ -513,7 +513,7 @@ public class StructureFormulaManager : MonoBehaviour
 
         if (svg_instances.ContainsKey(mol_id))
         {
-            var atom2d = atom.structure_interactible.GetComponent<Atom2D>();
+            var atom2d = atom.structure_interactible.GetComponent<AtomSF>();
             atom2d.FociColors = selCol; // set full array to trigger set function
         }
     }
@@ -696,16 +696,16 @@ public class StructureFormulaManager : MonoBehaviour
     /// </summary>
     /// <param name="eventSystemRaysastResults">The event system raycast results.</param>
     /// <returns></returns>
-    private Atom2D getInteractibleFromRaycastResult(List<RaycastResult> eventSystemRaysastResults)
+    private AtomSF getInteractibleFromRaycastResult(List<RaycastResult> eventSystemRaysastResults)
     {
         var mol_id = getMolIDFromRaycastResult(eventSystemRaysastResults);
         if (mol_id != Guid.Empty)
         {
             foreach (var rr in eventSystemRaysastResults)
             {
-                if (rr.gameObject.GetComponent<Atom2D>() != null)
+                if (rr.gameObject.GetComponent<AtomSF>() != null)
                 {
-                    return rr.gameObject.GetComponent<Atom2D>();
+                    return rr.gameObject.GetComponent<AtomSF>();
                 }
             }
         }

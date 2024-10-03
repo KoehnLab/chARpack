@@ -31,7 +31,7 @@ public class StructureFormula : MonoBehaviour
     /// </summary>
     public myResizer resizer;
     [HideInInspector]
-    public Atom2D[] interactables;
+    public AtomSF[] interactables;
     public float scaleFactor = 1.0f;
     public int current_highlight_choice = 0;
     private static int _numFocusRegions = 1;

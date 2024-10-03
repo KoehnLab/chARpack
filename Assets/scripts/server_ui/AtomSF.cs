@@ -5,12 +5,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Atom2D : MonoBehaviour
+public class AtomSF : MonoBehaviour
 {
     [HideInInspector]
     public Atom atom;
     private Material focus2Dmaterial;
-    private static HashSet<Atom2D> registeredFocusComponents = new HashSet<Atom2D>();
+    private static HashSet<AtomSF> registeredFocusComponents = new HashSet<AtomSF>();
 
     private static int numFoci = 1;
 

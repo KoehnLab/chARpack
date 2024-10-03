@@ -1799,7 +1799,6 @@ public class GlobalCtrl : MonoBehaviour
         tempBond.f_Init(atom1, atom2, inputMole);
     }
 
-
     /// <summary>
     /// This method merges two molecules together
     /// This method is called when a bond will be created and two atoms are linked
@@ -2017,7 +2016,7 @@ public class GlobalCtrl : MonoBehaviour
     public void changeNumOutlines(int num)
     {
         OutlinePro.setNumOutlines(num);
-        Atom2D.setNumFoci(num);
+        AtomSF.setNumFoci(num);
     }
 
     public void setLicoriceRendering(bool set)

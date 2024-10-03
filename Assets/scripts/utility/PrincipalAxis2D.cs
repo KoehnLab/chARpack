@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
@@ -6,23 +7,29 @@ public class PrincipalAxis2D
 {
     public MeshFilter meshFilter;
 
-    public static Vector2[] ComputPrincipalAxis(Transform trans)
+    public static (Tuple<float, float>, Tuple<Vector2, Vector2>) ComputPrincipalAxis(Transform trans)
     {
         var meshFilter = trans.GetComponent<MeshFilter>();
+        return ComputPrincipalAxis(meshFilter);
+    }
 
+    public static (Tuple<float,float>,Tuple<Vector2, Vector2>) ComputPrincipalAxis(MeshFilter meshFilter)
+    {
         // Assuming the mesh is 2D in the xy-plane, we extract the vertices.
         Mesh mesh = meshFilter.mesh;
         Vector3[] vertices = mesh.vertices;
+        int[] triangles = mesh.triangles; // Mesh triangles
 
-        // Convert vertices to 2D points (ignoring the z-coordinate)
+        // Compute the weighted centroid of the mesh based on triangle areas
+        var centroid = ComputeAreaWeightedCentroid(vertices, triangles, meshFilter.transform);
+
+        // Convert vertices to 2D points (ignoring the z-coordinate) in world space
         List<Vector2> points2D = new List<Vector2>();
         foreach (Vector3 vertex in vertices)
         {
-            points2D.Add(new Vector2(vertex.x, vertex.y));
+            Vector3 worldVertex = meshFilter.transform.TransformPoint(vertex);
+            points2D.Add(new Vector2(worldVertex.x, worldVertex.y));
         }
-
-        // Compute the centroid of the mesh
-        Vector2 centroid = ComputeCentroid(points2D);
 
         // Translate points to the origin (centroid becomes the origin)
         List<Vector2> centeredPoints = new List<Vector2>();
@@ -43,19 +50,18 @@ public class PrincipalAxis2D
         Debug.Log($"Principal Axis 1: {eigenvector1}, Eigenvalue: {eigenvalue1}");
         Debug.Log($"Principal Axis 2: {eigenvector2}, Eigenvalue: {eigenvalue2}");
 
-        return new Vector2[] { eigenvector1, eigenvector2 };
+        return (new Tuple<float,float>(eigenvalue1,eigenvalue2),new Tuple<Vector2,Vector2>(eigenvector1, eigenvector2));
     }
 
     public static void GetEigenCenterEndpoints(Transform trans, out float eigenvalue1, out float eigenvalue2, out Vector2 eigenvector1, out Vector2 eigenvector2, out Vector2 centroid, out Vector2 startPoint, out Vector2 endPoint)
     {
         var meshFilter = trans.GetComponent<MeshFilter>();
-
         Mesh mesh = meshFilter.mesh;
         Vector3[] vertices = mesh.vertices;
         int[] triangles = mesh.triangles; // Mesh triangles
 
         // Compute the weighted centroid of the mesh based on triangle areas
-        centroid = ComputeAreaWeightedCentroid(vertices, triangles, meshFilter.transform);
+        centroid = ComputeAreaWeightedCentroid(vertices, triangles, trans);
 
         // Convert vertices to 2D points (ignoring the z-coordinate) in world space
         List<Vector2> points2D = new List<Vector2>();

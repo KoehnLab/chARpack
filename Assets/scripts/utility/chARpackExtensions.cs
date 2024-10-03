@@ -6,6 +6,8 @@ using System.Linq;
 using UnityEngine;
 using System.Threading.Tasks;
 using chARpackStructs;
+using NUnit.Framework;
+using UnityEditor.PackageManager.Requests;
 
 public static class chARpackExtensions
 {
@@ -285,6 +287,19 @@ TKey mol_id, params object[] argList)
 
     public static IEnumerable<(T item, int index)> WithIndex<T>(this IEnumerable<T> self) => self.Select((item, index) => (item, index));
 
+
+    public static List<int> GetAllIndicesOf<T>(this List<T> self, T item)
+    {
+        var return_list = new List<int>();
+        foreach (var (entry, i) in self.WithIndex())
+        {
+            if (entry.Equals(item))
+            {
+                return_list.Add(i);
+            }
+        }
+        return return_list;
+    }
 }
 
 public static class TaskExtensions
