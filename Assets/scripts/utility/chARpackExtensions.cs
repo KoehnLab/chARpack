@@ -298,6 +298,40 @@ TKey mol_id, params object[] argList)
         }
         return return_list;
     }
+
+    public static bool ContainedInChildren(this List<GameObject> self, GameObject obj)
+    {
+        bool found_match = false;
+        foreach (var go in self)
+        {
+            foreach (Transform child in go.transform)
+            {
+                if (child.gameObject == obj)
+                {
+                    found_match = true;
+                    return found_match;
+                }
+            }
+        }
+        return found_match;
+    }
+
+    public static bool ContainedInChildren(this List<Transform> self, Transform obj)
+    {
+        bool found_match = false;
+        foreach (var go in self)
+        {
+            foreach (Transform child in go)
+            {
+                if (child == obj)
+                {
+                    found_match = true;
+                    return found_match;
+                }
+            }
+        }
+        return found_match;
+    }
 }
 
 public static class TaskExtensions

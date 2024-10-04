@@ -43,7 +43,15 @@ public class Molecule2D : MonoBehaviour
                 bond.transform.position = midpoint;
 
                 // Rotate the GameObject to align with the direction
-                bond.transform.LookAt(pos1);
+                if (bond.initialLookAt == bond.atom1)
+                {
+                    bond.transform.LookAt(pos1);
+                }
+                else
+                {
+                    bond.transform.LookAt(pos2);
+                }
+
 
                 // Scale the GameObject along the X-axis to match the distance between the two points
                 // weighted with the inital length of the object and corrected for the molecule's current scale

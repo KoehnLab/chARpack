@@ -17,4 +17,6 @@ public class Bond2D : MonoBehaviour
     public Vector3 end2;
 
     public float initialLength;
+
+    public Atom2D initialLookAt;
 }

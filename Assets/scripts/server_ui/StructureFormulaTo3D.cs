@@ -4,6 +4,11 @@ using System.Collections.Generic;
 using System;
 using DataStructures.ViliWonka.KDTree;
 using chARpackTypes;
+using UnityEngine.UIElements;
+using System.Net;
+using NUnit.Framework.Internal.Commands;
+using UnityEditor.Search;
+using System.Linq;
 
 public class StructureFormulaTo3D : MonoBehaviour
 {
@@ -177,6 +182,16 @@ public class StructureFormulaTo3D : MonoBehaviour
         var nodes_ids = new List<List<int>>();
         var nodes_objects = new List<List<GameObject>>();
 
+
+        // sf coords tree
+        var sf_coords_tree = new KDTree();
+        var atom_sf_coords = new List<Vector3>();
+        foreach (var atom in GlobalCtrl.Singleton.List_curMolecules[mol_id].atomList)
+        {
+            atom_sf_coords.Add(atom.structure_coords);
+        }
+        sf_coords_tree.Build(atom_sf_coords);
+
         // check for nodes or split bonds
         foreach (var (endpoint,current_id) in bond_point_list.WithIndex())
         {
@@ -193,14 +208,33 @@ public class StructureFormulaTo3D : MonoBehaviour
             if (!skip) // prevent duplicates
             {
                 var results = new List<int>();
-                query.Radius(line_tree, endpoint, 1f, results);
+                query.Radius(line_tree, endpoint, 0.1f, results);
                 if (results.Count == 1) // endpoint (probably at symbol)
                 {
                     endpoints_ids.Add(results[0]);
                 }
                 else if (results.Count == 2) // split line/bond
                 {
-                    split_lines_ids.Add(new Tuple<int, int>(results[0], results[1]));
+                    var sf_query = new KDQuery();
+                    var res = new List<int>();
+                    sf_query.Radius(sf_coords_tree, endpoint, 8f, res);
+                    Debug.Log($"[splitLineOrNode] res count {res.Count}");
+                    if (res.Count == 0)
+                    {
+                        split_lines_ids.Add(new Tuple<int, int>(results[0], results[1]));
+                    }
+                    else
+                    {
+                        var tmp_list = new List<int>();
+                        var node_object_list = new List<GameObject>();
+                        for (int i = 0; i < results.Count; i++)
+                        {
+                            tmp_list.Add(results[i]);
+                            node_object_list.Add(bond_object_list[results[i]]);
+                        }
+                        nodes_ids.Add(tmp_list);
+                        nodes_objects.Add(node_object_list);
+                    }
                 }
                 else if (results.Count > 2) // carbon atom
                 {
@@ -236,23 +270,14 @@ public class StructureFormulaTo3D : MonoBehaviour
             }
         }
 
-        // sf coords tree
-        var sf_coords_tree = new KDTree();
-        var atom_sf_coords = new List<Vector3>();
-        foreach (var atom in GlobalCtrl.Singleton.List_curMolecules[mol_id].atomList)
-        {
-            atom_sf_coords.Add(atom.structure_coords);
-        }
-        sf_coords_tree.Build(atom_sf_coords);
-        query = new KDQuery();
-
         // create atoms at nodes
         foreach (var nd_id in nodes_ids)
         {
             var node_atom = new GameObject().AddComponent<Atom2D>();
             node_atom.transform.parent = mol2D.transform;
             List<int> res = new List<int>();
-            query.KNearest(sf_coords_tree, bond_point_list[nd_id[0]], 1, res);
+            var q = new KDQuery();
+            q.KNearest(sf_coords_tree, bond_point_list[nd_id[0]], 1, res);
             var ref_atom = mol.atomList[res[0]];
             node_atom.name = ref_atom.name;
             node_atom.atomReference = ref_atom;
@@ -269,159 +294,330 @@ public class StructureFormulaTo3D : MonoBehaviour
         }
         mol2D.atoms = atom2D_list_sorted;
 
+
         // process split bonds
         var bond_list = new List<Bond2D>();
-        List<Bond2D> merge_bond_list = new List<Bond2D>();
+        List<GameObject> merge_bond_list = new List<GameObject>();
+        var merge_bond_end_points = new List<Tuple<Vector3, Vector3>>();
         foreach (var sl in split_lines_ids)
         {
-            var merge_bond = new GameObject("Bond");
-            merge_bond.transform.position = bond_point_list[sl.Item1];
-            // get the other end point
-            var current_end_point_ids = bond_object_list.GetAllIndicesOf(bond_object_list[sl.Item1]);
-            Vector3 look_at_endpoint;
-            if (Vector3.Distance(bond_point_list[sl.Item1], bond_point_list[current_end_point_ids[0]]) > 0.1f)
-            {
-                look_at_endpoint = bond_point_list[current_end_point_ids[0]];
-            }
-            else
-            {
-                look_at_endpoint = bond_point_list[current_end_point_ids[1]];
-            }
-            // orient the empty object along length of bond
-            merge_bond.transform.LookAt(look_at_endpoint);
-            // make sure the rotation along the z-axis is well defined
-            Vector3 perp_vector = bond_point_perp_list[current_end_point_ids[0]] - bond_point_perp_list[current_end_point_ids[1]];
-            merge_bond.transform.Rotate(merge_bond.transform.forward, -Vector3.Angle(merge_bond.transform.up, perp_vector));
-            // put bond into empty object for correct pivot and orientation
-            merge_bond.transform.parent = mol2D.transform;
-            bond_object_list[sl.Item1].transform.parent = merge_bond.transform;
-            bond_object_list[sl.Item2].transform.parent = merge_bond.transform;
-            var b2d = merge_bond.AddComponent<Bond2D>();
-            merge_bond_list.Add(b2d);
-
             var endpoint_ids_obj1 = bond_object_list.GetAllIndicesOf(bond_object_list[sl.Item1]);
             var endpoint_ids_obj2 = bond_object_list.GetAllIndicesOf(bond_object_list[sl.Item2]);
-
             if (endpoint_ids_obj1.Count != 2 && endpoint_ids_obj2.Count != 2)
             {
                 Debug.LogError("[MergeHalfBonds] Could not retreive all end points.");
                 return;
             }
-            var finalEndPoint_ids = new List<int>();
+
+            Tuple<Vector3, Vector3> feps;
+            Tuple<int, int> fep_ids;
             if (Vector3.Distance(bond_point_list[endpoint_ids_obj1[0]], bond_point_list[endpoint_ids_obj2[0]]) < 0.1f)
             {
-                finalEndPoint_ids.Add(endpoint_ids_obj1[1]);
-                finalEndPoint_ids.Add(endpoint_ids_obj2[1]);
+                feps = new Tuple<Vector3, Vector3>(bond_point_list[endpoint_ids_obj1[1]], bond_point_list[endpoint_ids_obj2[1]]);
+                fep_ids = new Tuple<int, int>(endpoint_ids_obj1[1], endpoint_ids_obj2[1]);
+                //finalEndPoint_ids.Add(endpoint_ids_obj1[1]);
+                //finalEndPoint_ids.Add(endpoint_ids_obj2[1]);
             }
             else if (Vector3.Distance(bond_point_list[endpoint_ids_obj1[0]], bond_point_list[endpoint_ids_obj2[1]]) < 0.1f)
             {
-                finalEndPoint_ids.Add(endpoint_ids_obj1[1]);
-                finalEndPoint_ids.Add(endpoint_ids_obj2[0]);
+                feps = new Tuple<Vector3, Vector3>(bond_point_list[endpoint_ids_obj1[1]], bond_point_list[endpoint_ids_obj2[0]]);
+                fep_ids = new Tuple<int, int>(endpoint_ids_obj1[1], endpoint_ids_obj2[0]);
+                //finalEndPoint_ids.Add(endpoint_ids_obj1[1]);
+                //finalEndPoint_ids.Add(endpoint_ids_obj2[0]);
             }
             else if (Vector3.Distance(bond_point_list[endpoint_ids_obj1[1]], bond_point_list[endpoint_ids_obj2[0]]) < 0.1f)
             {
-                finalEndPoint_ids.Add(endpoint_ids_obj1[0]);
-                finalEndPoint_ids.Add(endpoint_ids_obj2[1]);
+                feps = new Tuple<Vector3, Vector3>(bond_point_list[endpoint_ids_obj1[0]], bond_point_list[endpoint_ids_obj2[1]]);
+                fep_ids = new Tuple<int, int>(endpoint_ids_obj1[0], endpoint_ids_obj2[1]);
+                //finalEndPoint_ids.Add(endpoint_ids_obj1[0]);
+                //finalEndPoint_ids.Add(endpoint_ids_obj2[1]);
             }
             else
             {
-                finalEndPoint_ids.Add(endpoint_ids_obj1[0]);
-                finalEndPoint_ids.Add(endpoint_ids_obj2[0]);
+                feps = new Tuple<Vector3, Vector3>(bond_point_list[endpoint_ids_obj1[0]], bond_point_list[endpoint_ids_obj2[0]]);
+                fep_ids = new Tuple<int, int>(endpoint_ids_obj1[0], endpoint_ids_obj2[0]);
+                //finalEndPoint_ids.Add(endpoint_ids_obj1[0]);
+                //finalEndPoint_ids.Add(endpoint_ids_obj2[0]);
             }
+            merge_bond_end_points.Add(feps);
 
-            var length = Vector3.Distance(bond_point_list[finalEndPoint_ids[0]], bond_point_list[finalEndPoint_ids[1]]);
+            var merge_bond = new GameObject("Bond");
+            merge_bond.transform.position = bond_point_list[sl.Item1];
+            Vector3 look_at_endpoint = feps.Item1.y > feps.Item2.y ? feps.Item1 : feps.Item2;
 
-            foreach (var (ep_id,i) in finalEndPoint_ids.WithIndex())
+            // orient the empty object along length of bond
+            merge_bond.transform.LookAt(look_at_endpoint);
+
+            // make sure the rotation along the z-axis is well defined
+            Vector3 perp_vector = bond_point_perp_list[fep_ids.Item1] - bond_point_perp_list[fep_ids.Item2];
+            if (Mathf.Abs(merge_bond.transform.forward.y).approx(1f))
             {
-
-                Debug.Log($"[Final endpoints] {ep_id} {i}");
-                List<int> res = new List<int>();
-                query.KNearest(sf_coords_tree, bond_point_list[ep_id], 1, res);
-
-                if (i ==  0)
-                {
-                    b2d.atom1ref = mol.atomList[res[0]];
-                    b2d.atom1 = mol2D.atoms[res[0]];
-                    b2d.atom1ConnectionOffset = Vector3.Distance(bond_point_list[ep_id], atom_sf_coords[res[0]]);
-                    b2d.end1 = bond_point_list[ep_id];
-                }
-                if (i == 1)
-                {
-                    b2d.atom2ref = mol.atomList[res[0]];
-                    b2d.atom2 = mol2D.atoms[res[0]];
-                    b2d.atom2ConnectionOffset = Vector3.Distance(bond_point_list[ep_id], atom_sf_coords[res[0]]);
-                    b2d.end2 = bond_point_list[ep_id];
-                }
+                merge_bond.transform.Rotate(Vector3.forward, 90f);
             }
-            b2d.bondReference = b2d.atom1ref.getBond(b2d.atom2ref);
-            b2d.initialLength = length;
-            bond_list.Add(b2d);
+            //merge_bond.transform.Rotate(Vector3.forward, -Vector3.Angle(merge_bond.transform.up, perp_vector));
+
+            // put bond into empty object for correct pivot and orientation
+            merge_bond.transform.parent = mol2D.transform;
+            bond_object_list[sl.Item1].transform.parent = merge_bond.transform;
+            bond_object_list[sl.Item2].transform.parent = merge_bond.transform;
+
+            merge_bond_list.Add(merge_bond);
+
+
+
+
         }
 
+
         // process simple bonds
-        var processed_bonds = new List<GameObject>();
+        var processed_objects = new List<GameObject>();
+        var simple_bond_list = new List<GameObject>();
+        var simple_bond_end_points = new List<Tuple<Vector3, Vector3>>();
         foreach (var ep_id in endpoints_ids)
         {
             var obj = bond_object_list[ep_id];
             bool skip = false;
-            if (processed_bonds.Contains(obj) || obj.GetComponentInParent<Bond2D>() != null) skip = true;
+
+            if (processed_objects.Contains(obj) || merge_bond_list.ContainedInChildren(obj)) skip = true;
 
             if (!skip)
             {
+                Debug.Log($"[SimpleBond] processing {ep_id}");
                 var final_ep_ids = bond_object_list.GetAllIndicesOf(obj);
-                Debug.Log($"[SimpleBonds] final end point ids {final_ep_ids.ToArray().Print()}");
+                var current_eps = new Tuple<Vector3, Vector3>(bond_point_list[final_ep_ids[0]], bond_point_list[final_ep_ids[1]]);
+                simple_bond_end_points.Add(current_eps);
+                //Debug.Log($"[SimpleBonds] final end point ids {final_ep_ids.ToArray().Print()}");
                 //var b2d = obj.AddComponent<Bond2D>();
-                var b2d = new GameObject().AddComponent<Bond2D>();
-                b2d.transform.position = obj.transform.position;
-                // get the other end point
-                var current_end_point_ids = bond_object_list.GetAllIndicesOf(obj);
-                var length = Vector3.Distance(bond_point_list[current_end_point_ids[0]], bond_point_list[current_end_point_ids[1]]);
-                Vector3 look_at_endpoint;
-                if (Vector3.Distance(bond_point_list[ep_id], bond_point_list[current_end_point_ids[0]]) > 0.1f)
-                {
-                    look_at_endpoint = bond_point_list[current_end_point_ids[0]];
-                }
-                else
-                {
-                    look_at_endpoint = bond_point_list[current_end_point_ids[1]];
-                }
+                var b2d_obj = new GameObject("Bond");
+                b2d_obj.transform.position = obj.transform.position;
+
+                Vector3 look_at_endpoint = current_eps.Item1.y > current_eps.Item2.y ? current_eps.Item1 : current_eps.Item2;
+
                 // orient the empty object along length of bond
-                b2d.transform.LookAt(look_at_endpoint);
+                b2d_obj.transform.LookAt(look_at_endpoint);
                 // make sure the rotation along the z-axis is well defined
-                Vector3 perp_vector = bond_point_perp_list[current_end_point_ids[0]] - bond_point_perp_list[current_end_point_ids[1]];
-                b2d.transform.Rotate(b2d.transform.forward, -Vector3.Angle(b2d.transform.up, perp_vector));
-                b2d.name = "Bond";
-                // put bond into empty object for correct pivot and orientation
-                b2d.transform.parent = mol2D.transform;
-                obj.transform.parent = b2d.transform;
-
-                foreach (var (fep_id, i) in final_ep_ids.WithIndex())
+                Vector3 perp_vector = bond_point_perp_list[final_ep_ids[0]] - bond_point_perp_list[final_ep_ids[1]];
+                //b2d_obj.transform.Rotate(Vector3.forward, -Vector3.Angle(b2d_obj.transform.up, perp_vector));
+                if (Mathf.Abs(b2d_obj.transform.forward.y).approx(1f))
                 {
-                    List<int> res = new List<int>();
-                    query.KNearest(sf_coords_tree, bond_point_list[fep_id], 1, res);
-
-                    if (i == 0)
-                    {
-                        b2d.atom1ref = mol.atomList[res[0]];
-                        b2d.atom1 = mol2D.atoms[res[0]];
-                        b2d.atom1ConnectionOffset = Vector3.Distance(bond_point_list[fep_id], atom_sf_coords[res[0]]);
-                        b2d.end1 = bond_point_list[fep_id];
-                    }
-                    if (i == 1)
-                    {
-                        b2d.atom2ref = mol.atomList[res[0]];
-                        b2d.atom2 = mol2D.atoms[res[0]];
-                        b2d.atom2ConnectionOffset = Vector3.Distance(bond_point_list[fep_id], atom_sf_coords[res[0]]);
-                        b2d.end2 = bond_point_list[fep_id];
-                    }
+                    b2d_obj.transform.Rotate(Vector3.forward, 90f);
                 }
-                b2d.bondReference = b2d.atom1ref.getBond(b2d.atom2ref);
-                b2d.initialLength = length;
 
-                bond_list.Add(b2d);
-                processed_bonds.Add(obj);
+                // put bond into empty object for correct pivot and orientation
+                b2d_obj.transform.parent = mol2D.transform;
+                obj.transform.parent = b2d_obj.transform;
+
+                processed_objects.Add(obj);
+                simple_bond_list.Add(b2d_obj);
             }
         }
+
+
+        // check for double bonds
+        var to_remove_mb = new List<GameObject>();
+        var to_remove_fep = new List<Tuple<Vector3,Vector3>>();
+        var double_bond_list = new List<GameObject>();
+        var double_bond_end_points = new List<Tuple<Vector3, Vector3>>();
+        foreach (var (mb, mb_id) in merge_bond_list.WithIndex())
+        {
+            var direction = merge_bond_end_points[mb_id].Item1 - merge_bond_end_points[mb_id].Item2;
+
+            foreach (var (other_mb, other_mb_id) in merge_bond_list.WithIndex())
+            {
+                if (other_mb != mb && !to_remove_mb.Contains(other_mb) && !to_remove_mb.Contains(mb))
+                {
+                    var bond_direction = merge_bond_end_points[other_mb_id].Item1 - merge_bond_end_points[other_mb_id].Item2;
+                    if (Mathf.Abs(Vector3.Dot(bond_direction.normalized, direction.normalized)).approx(1f, 0.001f) &&
+                        Vector3.Distance(mb.transform.position, other_mb.transform.position) < 10f)
+                    {
+                        to_remove_mb.Add(mb);
+                        to_remove_mb.Add(other_mb);
+                        to_remove_fep.Add(merge_bond_end_points[mb_id]);
+                        to_remove_fep.Add(merge_bond_end_points[other_mb_id]);
+                        var double_bond = new GameObject("DoubleBond");
+                        double_bond.transform.position = 0.5f * (mb.transform.position + other_mb.transform.position);
+                        double_bond.transform.rotation = mb.transform.rotation;
+
+                        double_bond.transform.parent = mol2D.transform;
+                        mb.transform.parent = double_bond.transform;
+                        other_mb.transform.parent = double_bond.transform;
+
+                        Debug.Log($"[DoubleBondEndPointAssignment] mb ({mb_id}) {merge_bond_end_points[mb_id].ToString()}  other mb ({other_mb_id}) {merge_bond_end_points[other_mb_id].ToString()}");
+
+                        // determine which end points belong together
+                        Vector3 start_point;
+                        Vector3 end_point;
+                        if (Vector3.Distance(merge_bond_end_points[mb_id].Item1, merge_bond_end_points[other_mb_id].Item1) < Vector3.Distance(merge_bond_end_points[mb_id].Item1, merge_bond_end_points[other_mb_id].Item2))
+                        {
+                            start_point = 0.5f * (merge_bond_end_points[mb_id].Item1 + merge_bond_end_points[other_mb_id].Item1);
+                            end_point = 0.5f * (merge_bond_end_points[mb_id].Item2 + merge_bond_end_points[other_mb_id].Item2);
+                        }
+                        else
+                        {
+                            start_point = 0.5f * (merge_bond_end_points[mb_id].Item1 + merge_bond_end_points[other_mb_id].Item2);
+                            end_point = 0.5f * (merge_bond_end_points[mb_id].Item2 + merge_bond_end_points[other_mb_id].Item1);
+                        }
+
+                        double_bond_end_points.Add(new Tuple<Vector3, Vector3>(start_point, end_point));
+                        double_bond_list.Add(double_bond);
+                    }
+                }
+            }
+        }
+        // remove double bonds from merge_bond list
+        for (int i = 0; i < to_remove_mb.Count; i++)
+        {
+            merge_bond_list.Remove(to_remove_mb[i]);
+            merge_bond_end_points.Remove(to_remove_fep[i]);
+        }
+
+
+        // cereate complete list of end points from processed bonds
+        var new_endpoints = new List<Vector3>();
+        foreach (var db_ep in double_bond_end_points)
+        {
+            new_endpoints.Add(db_ep.Item1);
+            new_endpoints.Add(db_ep.Item2);
+        }
+        foreach (var mb_ep in merge_bond_end_points)
+        {
+            new_endpoints.Add(mb_ep.Item1);
+            new_endpoints.Add(mb_ep.Item2);
+        }
+        foreach (var sb_ep in simple_bond_end_points)
+        {
+            new_endpoints.Add(sb_ep.Item1);
+            new_endpoints.Add(sb_ep.Item2);
+        }
+
+        //var ep_tree = new KDTree();
+        //ep_tree.Build(new_endpoints);
+        //nodes_ids.Clear();
+        //foreach (var (ep, ep_id) in new_endpoints.WithIndex())
+        //{
+        //    var skip = false;
+        //    foreach (var n_entry in nodes_ids)
+        //    {
+        //        if (n_entry.Contains(ep_id)) skip = true;
+        //    }
+        //    if (!skip) // prevent duplicates
+        //    {
+        //        var results = new List<int>();
+        //        query.Radius(ep_tree, ep, 2f, results);
+        //        nodes_ids.Add(results);
+        //        if (results.Count > 2) // carbon atom
+        //        {
+        //            var node_atom = new GameObject().AddComponent<Atom2D>();
+        //            node_atom.transform.parent = mol2D.transform;
+        //            List<int> res = new List<int>();
+        //            query.KNearest(sf_coords_tree, ep, 1, res);
+        //            var ref_atom = mol.atomList[res[0]];
+        //            node_atom.name = ref_atom.name;
+        //            node_atom.atomReference = ref_atom;
+        //            node_atom.transform.position = ref_atom.structure_coords;
+        //            atom2D_list.Add(node_atom);
+        //        }
+        //    }
+        //}
+
+        //// sort atom list and add to mol2d
+        //var atom2D_list_sorted = new List<Atom2D>();
+        //foreach (var atom in mol.atomList)
+        //{
+        //    var match = atom2D_list.Find(a => a.atomReference == atom);
+        //    atom2D_list_sorted.Add(match);
+        //}
+        //mol2D.atoms = atom2D_list_sorted;
+
+
+        // Find connected atoms for double bonds
+        foreach (var (db, db_id) in double_bond_list.WithIndex())
+        {
+            var b2d = db.AddComponent<Bond2D>();
+            var length = Vector3.Distance(double_bond_end_points[db_id].Item1, double_bond_end_points[db_id].Item2);
+
+            Debug.Log($"[DoubleBondAtomAssignment] end points {double_bond_end_points[db_id].ToString()}");
+
+            List<int> res = new List<int>();
+            var q = new KDQuery();
+            q.KNearest(sf_coords_tree, double_bond_end_points[db_id].Item1, 1, res);
+            b2d.atom1ref = mol.atomList[res[0]];
+            b2d.atom1 = mol2D.atoms[res[0]];
+            b2d.atom1ConnectionOffset = Vector3.Distance(double_bond_end_points[db_id].Item1, atom_sf_coords[res[0]]);
+            b2d.end1 = double_bond_end_points[db_id].Item1;
+
+            res.Clear();
+            q.KNearest(sf_coords_tree, double_bond_end_points[db_id].Item2, 1, res);
+            b2d.atom2ref = mol.atomList[res[0]];
+            b2d.atom2 = mol2D.atoms[res[0]];
+            b2d.atom2ConnectionOffset = Vector3.Distance(double_bond_end_points[db_id].Item2, atom_sf_coords[res[0]]);
+            b2d.end2 = double_bond_end_points[db_id].Item2;
+
+            b2d.bondReference = b2d.atom1ref.getBond(b2d.atom2ref);
+            b2d.initialLength = length;
+            b2d.initialLookAt = b2d.atom1.transform.position.y > b2d.atom2.transform.position.y ? b2d.atom1 : b2d.atom2;
+
+            bond_list.Add(b2d);
+        }
+
+        // Find connected atoms
+        foreach (var (mb, mb_id) in merge_bond_list.WithIndex())
+        {
+            var b2d = mb.AddComponent<Bond2D>();
+            var length = Vector3.Distance(merge_bond_end_points[mb_id].Item1, merge_bond_end_points[mb_id].Item2);
+
+            Debug.Log($"[MergeBond] length: {length}");
+
+            List<int> res = new List<int>();
+            query.KNearest(sf_coords_tree, merge_bond_end_points[mb_id].Item1, 1, res);
+            b2d.atom1ref = mol.atomList[res[0]];
+            b2d.atom1 = mol2D.atoms[res[0]];
+            b2d.atom1ConnectionOffset = Vector3.Distance(merge_bond_end_points[mb_id].Item1, atom_sf_coords[res[0]]);
+            b2d.end1 = merge_bond_end_points[mb_id].Item1;
+
+            res.Clear();
+            query.KNearest(sf_coords_tree, merge_bond_end_points[mb_id].Item2, 1, res);
+            b2d.atom2ref = mol.atomList[res[0]];
+            b2d.atom2 = mol2D.atoms[res[0]];
+            b2d.atom2ConnectionOffset = Vector3.Distance(merge_bond_end_points[mb_id].Item2, atom_sf_coords[res[0]]);
+            b2d.end2 = merge_bond_end_points[mb_id].Item2;
+
+            b2d.bondReference = b2d.atom1ref.getBond(b2d.atom2ref);
+            b2d.initialLength = length;
+            b2d.initialLookAt = b2d.atom1.transform.position.y > b2d.atom2.transform.position.y ? b2d.atom1 : b2d.atom2;
+
+            bond_list.Add(b2d);
+        }
+
+        foreach (var (sb,sb_id) in simple_bond_list.WithIndex())
+        {
+            var b2d = sb.AddComponent<Bond2D>();
+            // find connected atoms
+
+            List<int> res = new List<int>();
+            query.KNearest(sf_coords_tree, simple_bond_end_points[sb_id].Item1, 1, res);
+
+
+            b2d.atom1ref = mol.atomList[res[0]];
+            b2d.atom1 = mol2D.atoms[res[0]];
+            b2d.atom1ConnectionOffset = Vector3.Distance(simple_bond_end_points[sb_id].Item1, atom_sf_coords[res[0]]);
+            b2d.end1 = simple_bond_end_points[sb_id].Item1;
+
+            res.Clear();
+            query.KNearest(sf_coords_tree, simple_bond_end_points[sb_id].Item2, 1, res);
+            b2d.atom2ref = mol.atomList[res[0]];
+            b2d.atom2 = mol2D.atoms[res[0]];
+            b2d.atom2ConnectionOffset = Vector3.Distance(simple_bond_end_points[sb_id].Item2, atom_sf_coords[res[0]]);
+            b2d.end2 = simple_bond_end_points[sb_id].Item2;
+
+            b2d.bondReference = b2d.atom1ref.getBond(b2d.atom2ref);
+            var length = Vector3.Distance(simple_bond_end_points[sb_id].Item1, simple_bond_end_points[sb_id].Item2);
+            b2d.initialLength = length;
+            b2d.initialLookAt = b2d.atom1.transform.position.y > b2d.atom2.transform.position.y ? b2d.atom1 : b2d.atom2;
+
+            bond_list.Add(b2d);
+        }
+
         mol2D.bonds = bond_list;
         mol2D.transform.Rotate(new Vector3(180f, 0f, 0f));
 
