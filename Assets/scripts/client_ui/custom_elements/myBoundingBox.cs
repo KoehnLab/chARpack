@@ -1,5 +1,4 @@
 using Microsoft.MixedReality.Toolkit.Input;
-using System.Collections;
 using System.Linq;
 using UnityEngine;
 

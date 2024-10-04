@@ -4,8 +4,6 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Experimental.Rendering;
-using UnityEngine.Rendering.VirtualTexturing;
 using UnityEngine.UI;
 
 

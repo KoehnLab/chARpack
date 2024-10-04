@@ -1,12 +1,10 @@
 using Microsoft.MixedReality.Toolkit.Experimental.UI;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ChangeBond : MonoBehaviour
+public class ManipulateBondTerm : MonoBehaviour
 {
 
     public GameObject distInputField;

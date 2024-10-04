@@ -1,9 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using OpenBabel;
 using chARpackStructs;
-using System.Linq;
 using System;
 
 public static class OpenBabelExtensions

@@ -1,5 +1,6 @@
 using Unity.Mathematics;
 using UnityEngine;
+
 public class EigenDecomposition
 {
     // Compute the eigenvalues of a 3x3 symmetric matrix

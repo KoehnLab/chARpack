@@ -2671,7 +2671,7 @@ public class GlobalCtrl : MonoBehaviour
 
     public void regenerateChangeBondWindows()
     {
-        foreach(var cb in FindObjectsOfType<ChangeBond>())
+        foreach(var cb in FindObjectsOfType<ManipulateBondTerm>())
         {
             cb.reloadTextFieldsBT();
         }

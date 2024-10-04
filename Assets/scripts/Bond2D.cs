@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Bond2D : MonoBehaviour
@@ -18,5 +16,5 @@ public class Bond2D : MonoBehaviour
     public Vector3 end1;
     public Vector3 end2;
 
-
+    public float initialLength;
 }

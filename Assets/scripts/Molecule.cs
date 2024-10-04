@@ -1292,7 +1292,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private void createChangeBondWindow(ForceField.BondTerm bond)
     {
         changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
-        var cb = changeBondWindowInstance.GetComponent<ChangeBond>();
+        var cb = changeBondWindowInstance.GetComponent<ManipulateBondTerm>();
         cb.bt = bond;
         var id = bondTerms.IndexOf(bond);
         cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeBondParametersUI(changeBondWindowInstance, id); });
@@ -1320,7 +1320,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         cmlData before = this.AsCML();
         if (!SceneManager.GetActiveScene().name.Equals("ServerScene"))
         {
-            var cb = windowInstance.GetComponent<ChangeBond>();
+            var cb = windowInstance.GetComponent<ManipulateBondTerm>();
             cb.changeBondParametersBT();
             bt = cb.bt;
             var dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>();
@@ -1476,7 +1476,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private void createChangeAngleWindow(ForceField.AngleTerm bond)
     {
         changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
-        var cb = changeBondWindowInstance.GetComponent<ChangeBond>();
+        var cb = changeBondWindowInstance.GetComponent<ManipulateBondTerm>();
         cb.at = bond;
         var id = angleTerms.IndexOf(bond);
         cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeAngleParametersUI(changeBondWindowInstance, id); });
@@ -1500,7 +1500,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         ForceField.AngleTerm at;
         if (!SceneManager.GetActiveScene().name.Equals("ServerScene"))
         {
-            var cb = windowInstance.GetComponent<ChangeBond>();
+            var cb = windowInstance.GetComponent<ManipulateBondTerm>();
             cb.changeBondParametersAT();
             at = cb.at;
             string toolTipText = getAngleToolTipText(at.eqAngle, at.kAngle);
@@ -1656,7 +1656,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
     private void createChangeTorsionWindow(ForceField.TorsionTerm bond)
     {
         changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
-        var cb = changeBondWindowInstance.GetComponent<ChangeBond>();
+        var cb = changeBondWindowInstance.GetComponent<ManipulateBondTerm>();
         cb.tt = bond;
         var id = torsionTerms.IndexOf(bond);
         cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeTorsionParametersUI(changeBondWindowInstance, id); });
@@ -1682,7 +1682,7 @@ public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
         ForceField.TorsionTerm tt;
         if (!SceneManager.GetActiveScene().name.Equals("ServerScene"))
         {
-            var cb = windowInstance.GetComponent<ChangeBond>();
+            var cb = windowInstance.GetComponent<ManipulateBondTerm>();
             cb.changeBondParametersTT();
             tt = cb.tt;
             // Update tool tip

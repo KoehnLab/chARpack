@@ -1,7 +1,4 @@
-using chARpackStructs;
-using System.Collections;
 using System.Collections.Generic;
-using System.Net;
 using UnityEngine;
 
 public class Molecule2D : MonoBehaviour
@@ -14,8 +11,6 @@ public class Molecule2D : MonoBehaviour
     public List<Bond2D> bonds = new List<Bond2D>();
 
     public bool initialized = false;
-
-    public float lengthNormalization = 1f;
 
     private void Update()
     {
@@ -51,11 +46,12 @@ public class Molecule2D : MonoBehaviour
                 bond.transform.LookAt(pos1);
 
                 // Scale the GameObject along the X-axis to match the distance between the two points
-                bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, (distance * lengthNormalization) /transform.localScale.z);
+                // weighted with the inital length of the object and corrected for the molecule's current scale
+                bond.transform.localScale = new Vector3(
+                    bond.transform.localScale.x,
+                    bond.transform.localScale.y,
+                    distance / (bond.initialLength * transform.localScale.x));
             }
         }
     }
-
-
-
 }

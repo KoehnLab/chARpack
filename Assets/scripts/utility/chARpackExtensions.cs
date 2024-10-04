@@ -6,8 +6,6 @@ using System.Linq;
 using UnityEngine;
 using System.Threading.Tasks;
 using chARpackStructs;
-using NUnit.Framework;
-using UnityEditor.PackageManager.Requests;
 
 public static class chARpackExtensions
 {

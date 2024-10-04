@@ -88,6 +88,43 @@ public class PrincipalAxis2D
         CalculateLineEndpointsFromProjections(points2D, centroid, eigenvector1, out startPoint, out endPoint);
     }
 
+
+    public static void GetEigenCenterEndpoints(Transform trans, out float eigenvalue1, out float eigenvalue2, out Vector2 eigenvector1, out Vector2 eigenvector2, out Vector2 centroid, out Vector2 startPoint1, out Vector2 endPoint1, out Vector2 startPoint2, out Vector2 endPoint2)
+    {
+        var meshFilter = trans.GetComponent<MeshFilter>();
+        Mesh mesh = meshFilter.mesh;
+        Vector3[] vertices = mesh.vertices;
+        int[] triangles = mesh.triangles; // Mesh triangles
+
+        // Compute the weighted centroid of the mesh based on triangle areas
+        centroid = ComputeAreaWeightedCentroid(vertices, triangles, trans);
+
+        // Convert vertices to 2D points (ignoring the z-coordinate) in world space
+        List<Vector2> points2D = new List<Vector2>();
+        foreach (Vector3 vertex in vertices)
+        {
+            Vector3 worldVertex = meshFilter.transform.TransformPoint(vertex);
+            points2D.Add(new Vector2(worldVertex.x, worldVertex.y));
+        }
+
+        // Translate points to the origin (centroid becomes the origin)
+        List<Vector2> centeredPoints = new List<Vector2>();
+        foreach (Vector2 point in points2D)
+        {
+            centeredPoints.Add(point - centroid);
+        }
+
+        // Compute the covariance matrix
+        Matrix2x2 covarianceMatrix = ComputeCovarianceMatrix(centeredPoints);
+
+        // Compute the eigenvalues and eigenvectors (principal components)
+        ComputeEigenDecomposition(covarianceMatrix, out eigenvalue1, out eigenvalue2, out eigenvector1, out eigenvector2);
+
+        // Calculate the start and endpoint of the line segment using the mesh's projection onto the principal axis
+        CalculateLineEndpointsFromProjections(points2D, centroid, eigenvector1, out startPoint1, out endPoint1);
+        CalculateLineEndpointsFromProjections(points2D, centroid, eigenvector2, out startPoint2, out endPoint2);
+    }
+
     public static void GetEigenValuesAndEigenVectors(Transform trans, out float eigenvalue1, out float eigenvalue2, out Vector2 eigenvector1, out Vector2 eigenvector2, out Vector2 centroid)
     {
         var meshFilter = trans.GetComponent<MeshFilter>();
@@ -162,7 +199,7 @@ public class PrincipalAxis2D
         endPoint = centroid + direction * maxProjection;
     }
 
-    // Function to compute the centroid of the mesh points
+    // Naive approach for computing the centroid (mean of all vertices)
     static Vector2 ComputeCentroid(List<Vector2> points)
     {
         //Vector2 sum = Vector2.zero;
@@ -186,7 +223,7 @@ public class PrincipalAxis2D
         return center;
     }
 
-    // Function to compute the centroid of the mesh weighted by triangle areas
+    // Computation of the centroid that takes the area of triangles into account
     public static Vector2 ComputeAreaWeightedCentroid(Vector3[] vertices, int[] triangles, Transform meshTransform = null)
     {
         Vector2 weightedCentroid = Vector2.zero;

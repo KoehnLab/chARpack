@@ -4,12 +4,6 @@ using System.Collections.Generic;
 using System;
 using DataStructures.ViliWonka.KDTree;
 using chARpackTypes;
-using System.Linq;
-using Unity.Burst.CompilerServices;
-using UnityEditor.AddressableAssets.Build;
-using Microsoft.MixedReality.Toolkit.Extensions.Tracking;
-using Unity.Entities.UniversalDelegates;
-using UnityEngine.Analytics;
 
 public class StructureFormulaTo3D : MonoBehaviour
 {
@@ -58,6 +52,10 @@ public class StructureFormulaTo3D : MonoBehaviour
 
         var bond_object_list = new List<GameObject>();
         var bond_point_list = new List<Vector3>();
+        var bond_point_perp_list = new List<Vector3>();
+
+        var bond_eigenvector_list = new List<Vector3>();
+        var bond_eigenvalue_list = new List<float>();
 
         foreach (var (mesh, i) in extrudedMesh.WithIndex())
         {
@@ -93,8 +91,8 @@ public class StructureFormulaTo3D : MonoBehaviour
 
             Vector2 eigenvector1, eigenvector2, centroid;
             float eigenvalue1, eigenvalue2;
-            Vector2 startPoint, endPoint;
-            PrincipalAxis2D.GetEigenCenterEndpoints(child.transform, out eigenvalue1, out eigenvalue2, out eigenvector1, out eigenvector2, out centroid, out startPoint, out endPoint);
+            Vector2 startPoint, endPoint, startPointPerp, endPointPerp;
+            PrincipalAxis2D.GetEigenCenterEndpoints(child.transform, out eigenvalue1, out eigenvalue2, out eigenvector1, out eigenvector2, out centroid, out startPoint, out endPoint, out startPointPerp, out endPointPerp);
 
             if (PrincipalAxis2D.IsLine(eigenvalue1, eigenvalue2, 3f)) // line
             {
@@ -114,6 +112,12 @@ public class StructureFormulaTo3D : MonoBehaviour
                 bond_object_list.Add(child);
                 bond_point_list.Add(startPoint);
                 bond_point_list.Add(endPoint);
+                bond_point_perp_list.Add(startPointPerp);
+                bond_point_perp_list.Add(endPointPerp);
+                bond_eigenvalue_list.Add(eigenvalue1);
+                bond_eigenvalue_list.Add(eigenvalue2);
+                bond_eigenvector_list.Add(eigenvector1);
+                bond_eigenvector_list.Add(eigenvector2);
             }
             else // atom symbol (e.g. H, O, .. )
             {
@@ -189,7 +193,7 @@ public class StructureFormulaTo3D : MonoBehaviour
             if (!skip) // prevent duplicates
             {
                 var results = new List<int>();
-                query.Radius(line_tree, endpoint, 0.1f, results);
+                query.Radius(line_tree, endpoint, 1f, results);
                 if (results.Count == 1) // endpoint (probably at symbol)
                 {
                     endpoints_ids.Add(results[0]);
@@ -265,7 +269,7 @@ public class StructureFormulaTo3D : MonoBehaviour
         }
         mol2D.atoms = atom2D_list_sorted;
 
-
+        // process split bonds
         var bond_list = new List<Bond2D>();
         List<Bond2D> merge_bond_list = new List<Bond2D>();
         foreach (var sl in split_lines_ids)
@@ -283,7 +287,12 @@ public class StructureFormulaTo3D : MonoBehaviour
             {
                 look_at_endpoint = bond_point_list[current_end_point_ids[1]];
             }
+            // orient the empty object along length of bond
             merge_bond.transform.LookAt(look_at_endpoint);
+            // make sure the rotation along the z-axis is well defined
+            Vector3 perp_vector = bond_point_perp_list[current_end_point_ids[0]] - bond_point_perp_list[current_end_point_ids[1]];
+            merge_bond.transform.Rotate(merge_bond.transform.forward, -Vector3.Angle(merge_bond.transform.up, perp_vector));
+            // put bond into empty object for correct pivot and orientation
             merge_bond.transform.parent = mol2D.transform;
             bond_object_list[sl.Item1].transform.parent = merge_bond.transform;
             bond_object_list[sl.Item2].transform.parent = merge_bond.transform;
@@ -320,6 +329,8 @@ public class StructureFormulaTo3D : MonoBehaviour
                 finalEndPoint_ids.Add(endpoint_ids_obj2[0]);
             }
 
+            var length = Vector3.Distance(bond_point_list[finalEndPoint_ids[0]], bond_point_list[finalEndPoint_ids[1]]);
+
             foreach (var (ep_id,i) in finalEndPoint_ids.WithIndex())
             {
 
@@ -343,6 +354,7 @@ public class StructureFormulaTo3D : MonoBehaviour
                 }
             }
             b2d.bondReference = b2d.atom1ref.getBond(b2d.atom2ref);
+            b2d.initialLength = length;
             bond_list.Add(b2d);
         }
 
@@ -363,6 +375,7 @@ public class StructureFormulaTo3D : MonoBehaviour
                 b2d.transform.position = obj.transform.position;
                 // get the other end point
                 var current_end_point_ids = bond_object_list.GetAllIndicesOf(obj);
+                var length = Vector3.Distance(bond_point_list[current_end_point_ids[0]], bond_point_list[current_end_point_ids[1]]);
                 Vector3 look_at_endpoint;
                 if (Vector3.Distance(bond_point_list[ep_id], bond_point_list[current_end_point_ids[0]]) > 0.1f)
                 {
@@ -372,15 +385,18 @@ public class StructureFormulaTo3D : MonoBehaviour
                 {
                     look_at_endpoint = bond_point_list[current_end_point_ids[1]];
                 }
-
+                // orient the empty object along length of bond
                 b2d.transform.LookAt(look_at_endpoint);
+                // make sure the rotation along the z-axis is well defined
+                Vector3 perp_vector = bond_point_perp_list[current_end_point_ids[0]] - bond_point_perp_list[current_end_point_ids[1]];
+                b2d.transform.Rotate(b2d.transform.forward, -Vector3.Angle(b2d.transform.up, perp_vector));
                 b2d.name = "Bond";
+                // put bond into empty object for correct pivot and orientation
                 b2d.transform.parent = mol2D.transform;
                 obj.transform.parent = b2d.transform;
 
                 foreach (var (fep_id, i) in final_ep_ids.WithIndex())
                 {
-
                     List<int> res = new List<int>();
                     query.KNearest(sf_coords_tree, bond_point_list[fep_id], 1, res);
 
@@ -400,6 +416,8 @@ public class StructureFormulaTo3D : MonoBehaviour
                     }
                 }
                 b2d.bondReference = b2d.atom1ref.getBond(b2d.atom2ref);
+                b2d.initialLength = length;
+
                 bond_list.Add(b2d);
                 processed_bonds.Add(obj);
             }
@@ -411,7 +429,9 @@ public class StructureFormulaTo3D : MonoBehaviour
         mol2D.transform.position = GlobalCtrl.Singleton.getCurrentSpawnPos();
 
         mol2D.transform.parent = GlobalCtrl.Singleton.atomWorld.transform;
-        //mol2D.initialized = true;
+        mol2D.initialized = true;
+
+        Molecule2D.molecules.Add(mol2D);
     }
 
     static List<Mesh> Create3DMeshFromGeometry(List<VectorUtils.Geometry> geometries, float depth)
