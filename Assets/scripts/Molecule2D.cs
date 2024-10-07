@@ -64,5 +64,17 @@ namespace chARpack
                 }
             }
         }
+
+        public void setOpacity(float value)
+        {
+            foreach (var renderer in GetComponentsInChildren<Renderer>())
+            {
+                foreach (var mat in renderer.materials)
+                {
+                    var col = new Color(mat.color.r, mat.color.g, mat.color.b, value);
+                    mat.color = col;
+                }
+            }
+        }
     }
 }

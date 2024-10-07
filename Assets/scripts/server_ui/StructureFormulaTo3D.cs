@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using DataStructures.ViliWonka.KDTree;
 using chARpack.Types;
+using System.CodeDom;
 
 namespace chARpack
 {
@@ -59,6 +60,17 @@ namespace chARpack
             var bond_eigenvector_list = new List<Vector3>();
             var bond_eigenvalue_list = new List<float>();
 
+            // sf coords tree
+            var sf_coords_tree = new KDTree();
+            var atom_sf_coords = new List<Vector3>();
+            foreach (var atom in GlobalCtrl.Singleton.List_curMolecules[mol_id].atomList)
+            {
+                atom_sf_coords.Add(atom.structure_coords);
+            }
+            sf_coords_tree.Build(atom_sf_coords);
+
+            var list_uncategorized_small = new List<Transform>();
+            var list_uncategorized_large = new List<Transform>();
             foreach (var (mesh, i) in extrudedMesh.WithIndex())
             {
                 if (i == 0) continue; // omit background
@@ -96,6 +108,7 @@ namespace chARpack
                 Vector2 startPoint, endPoint, startPointPerp, endPointPerp;
                 PrincipalAxis2D.GetEigenCenterEndpoints(child.transform, out eigenvalue1, out eigenvalue2, out eigenvector1, out eigenvector2, out centroid, out startPoint, out endPoint, out startPointPerp, out endPointPerp);
 
+
                 if (PrincipalAxis2D.IsLine(eigenvalue1, eigenvalue2, 3f)) // line
                 {
                     //var points = new List<Vector3>();
@@ -110,16 +123,46 @@ namespace chARpack
                     //    debug_sphere.transform.localScale = 0.5f * Vector3.one;
                     //    debug_sphere.transform.position = point;
                     //}
-                    bond_object_list.Add(child);
-                    bond_object_list.Add(child);
-                    bond_point_list.Add(startPoint);
-                    bond_point_list.Add(endPoint);
-                    bond_point_perp_list.Add(startPointPerp);
-                    bond_point_perp_list.Add(endPointPerp);
-                    bond_eigenvalue_list.Add(eigenvalue1);
-                    bond_eigenvalue_list.Add(eigenvalue2);
-                    bond_eigenvector_list.Add(eigenvector1);
-                    bond_eigenvector_list.Add(eigenvector2);
+
+                    var q = new KDQuery();
+                    var res_start = new List<int>();
+                    var dist_start = new List<float>();
+                    q.KNearest(sf_coords_tree, startPoint, 1, res_start, dist_start);
+                    var res_end = new List<int>();
+                    var dist_end = new List<float>();
+                    q.KNearest(sf_coords_tree, endPoint, 1, res_end, dist_end);
+
+                    bool add = true;
+                    if (Vector3.Distance(startPoint, endPoint) < 5f)
+                    {
+                        list_uncategorized_small.Add(child.transform);
+                        add = false;
+                    }
+                    if (dist_start[0] > 1f && dist_end[0] > 1f &&
+                        res_start[0] != res_end[0] &&
+                        Vector3.Distance(startPoint, endPoint) > 20f) // checking for lines inside ring
+                    {
+                        list_uncategorized_large.Add(child.transform);
+                        add = false;
+                    }
+                    if (add)
+                    {
+                        bond_object_list.Add(child);
+                        bond_object_list.Add(child);
+                        bond_point_list.Add(startPoint);
+                        bond_point_list.Add(endPoint);
+                        bond_point_perp_list.Add(startPointPerp);
+                        bond_point_perp_list.Add(endPointPerp);
+                        bond_eigenvalue_list.Add(eigenvalue1);
+                        bond_eigenvalue_list.Add(eigenvalue2);
+                        bond_eigenvector_list.Add(eigenvector1);
+                        bond_eigenvector_list.Add(eigenvector2);
+                    }
+                    else
+                    {
+                        Debug.Log($"[Filter] Filtered {child.name}");
+                    }
+
                 }
                 else // atom symbol (e.g. H, O, .. )
                 {
@@ -179,16 +222,6 @@ namespace chARpack
             var nodes_ids = new List<List<int>>();
             var nodes_objects = new List<List<GameObject>>();
 
-
-            // sf coords tree
-            var sf_coords_tree = new KDTree();
-            var atom_sf_coords = new List<Vector3>();
-            foreach (var atom in GlobalCtrl.Singleton.List_curMolecules[mol_id].atomList)
-            {
-                atom_sf_coords.Add(atom.structure_coords);
-            }
-            sf_coords_tree.Build(atom_sf_coords);
-
             // check for nodes or split bonds
             foreach (var (endpoint, current_id) in bond_point_list.WithIndex())
             {
@@ -214,7 +247,7 @@ namespace chARpack
                     {
                         var sf_query = new KDQuery();
                         var res = new List<int>();
-                        sf_query.Radius(sf_coords_tree, endpoint, 8f, res);
+                        sf_query.Radius(sf_coords_tree, endpoint, 8f, res); // check for connected double bond
                         Debug.Log($"[splitLineOrNode] res count {res.Count}");
                         if (res.Count == 0)
                         {
@@ -340,18 +373,50 @@ namespace chARpack
 
                 var merge_bond = new GameObject("Bond");
                 merge_bond.transform.position = bond_point_list[sl.Item1];
-                Vector3 look_at_endpoint = feps.Item1.y > feps.Item2.y ? feps.Item1 : feps.Item2;
+                var look_at_endpoint = feps.Item1.y > feps.Item2.y ? feps.Item1 : feps.Item2;
+                var lower_at_endpoint = feps.Item1.y > feps.Item2.y ? feps.Item2 : feps.Item1;
+                var target_direction = look_at_endpoint - lower_at_endpoint;
+                // Normalize the target direction to avoid scaling issues
+                target_direction.Normalize();
 
-                // orient the empty object along length of bond
-                merge_bond.transform.LookAt(look_at_endpoint);
-
-                // make sure the rotation along the z-axis is well defined
-                Vector3 perp_vector = bond_point_perp_list[fep_ids.Item1] - bond_point_perp_list[fep_ids.Item2];
-                if (Mathf.Abs(merge_bond.transform.forward.y).approx(1f))
+                // Check if the forward vector is almost aligned with the up vector
+                if (Mathf.Abs(Vector3.Dot(target_direction, Vector3.up)) > 0.99f)
                 {
+                    // If almost aligned with up, use a different up vector to avoid gimbal lock
+                    Vector3 alternativeUp = Vector3.Cross(target_direction, Vector3.right);
+
+                    // If the cross product gives a zero vector (targetDirection is parallel to right), use world forward instead
+                    if (alternativeUp.sqrMagnitude < 0.001f)
+                    {
+                        alternativeUp = Vector3.Cross(target_direction, Vector3.forward);
+                    }
+
+                    // Set the rotation using the alternative up vector
+                    merge_bond.transform.rotation = Quaternion.LookRotation(target_direction, alternativeUp);
                     merge_bond.transform.Rotate(Vector3.forward, 90f);
                 }
-                //merge_bond.transform.Rotate(Vector3.forward, -Vector3.Angle(merge_bond.transform.up, perp_vector));
+                else
+                {
+                    // Align normally with the world up vector
+                    merge_bond.transform.rotation = Quaternion.LookRotation(target_direction, Vector3.up);
+                }
+                merge_bond.transform.Rotate(Vector3.forward, 180f);
+
+                // orient the empty object along length of bond
+                //merge_bond.transform.LookAt(look_at_endpoint);
+
+                // make sure the rotation along the z-axis is well defined
+                //if (merge_bond.transform.eulerAngles.x.approx(0f, 1f))
+                //{
+                //    Vector3 perp_vector = bond_point_perp_list[fep_ids.Item1] - bond_point_perp_list[fep_ids.Item2];
+                //    merge_bond.transform.Rotate(Vector3.forward, -Vector3.Angle(merge_bond.transform.up, perp_vector));
+                //}
+
+
+                //if (Mathf.Abs(merge_bond.transform.forward.y).approx(1f, 0.1f))
+                //{
+                //    merge_bond.transform.Rotate(Vector3.forward, 90f);
+                //}
 
                 // put bond into empty object for correct pivot and orientation
                 merge_bond.transform.parent = mol2D.transform;
@@ -388,17 +453,48 @@ namespace chARpack
                     var b2d_obj = new GameObject("Bond");
                     b2d_obj.transform.position = obj.transform.position;
 
-                    Vector3 look_at_endpoint = current_eps.Item1.y > current_eps.Item2.y ? current_eps.Item1 : current_eps.Item2;
+                    var look_at_endpoint = current_eps.Item1.y > current_eps.Item2.y ? current_eps.Item1 : current_eps.Item2;
+                    var lower_at_endpoint = current_eps.Item1.y > current_eps.Item2.y ? current_eps.Item2 : current_eps.Item1;
+                    var target_direction = look_at_endpoint - lower_at_endpoint;
+                    // Normalize the target direction to avoid scaling issues
+                    target_direction.Normalize();
 
-                    // orient the empty object along length of bond
-                    b2d_obj.transform.LookAt(look_at_endpoint);
-                    // make sure the rotation along the z-axis is well defined
-                    Vector3 perp_vector = bond_point_perp_list[final_ep_ids[0]] - bond_point_perp_list[final_ep_ids[1]];
-                    //b2d_obj.transform.Rotate(Vector3.forward, -Vector3.Angle(b2d_obj.transform.up, perp_vector));
-                    if (Mathf.Abs(b2d_obj.transform.forward.y).approx(1f))
+                    // Check if the forward vector is almost aligned with the up vector
+                    if (Mathf.Abs(Vector3.Dot(target_direction, Vector3.up)) > 0.99f)
                     {
+                        // If almost aligned with up, use a different up vector to avoid gimbal lock
+                        Vector3 alternativeUp = Vector3.Cross(target_direction, Vector3.right);
+
+                        // If the cross product gives a zero vector (targetDirection is parallel to right), use world forward instead
+                        if (alternativeUp.sqrMagnitude < 0.001f)
+                        {
+                            alternativeUp = Vector3.Cross(target_direction, Vector3.forward);
+                        }
+
+                        // Set the rotation using the alternative up vector
+                        b2d_obj.transform.rotation = Quaternion.LookRotation(target_direction, alternativeUp);
                         b2d_obj.transform.Rotate(Vector3.forward, 90f);
                     }
+                    else
+                    {
+                        // Align normally with the world up vector
+                        b2d_obj.transform.rotation = Quaternion.LookRotation(target_direction, Vector3.up);
+                    }
+                    b2d_obj.transform.Rotate(Vector3.forward, 180f);
+                    // orient the empty object along length of bond
+                    //b2d_obj.transform.LookAt(look_at_endpoint);
+
+
+                    // make sure the rotation along the z-axis is well defined
+                    //if (b2d_obj.transform.eulerAngles.x.approx(0f, 1f))
+                    //{
+                    //    Vector3 perp_vector = bond_point_perp_list[final_ep_ids[0]] - bond_point_perp_list[final_ep_ids[1]];
+                    //    b2d_obj.transform.Rotate(Vector3.forward, -Vector3.Angle(b2d_obj.transform.up, perp_vector));
+                    //}
+                    //if (Mathf.Abs(b2d_obj.transform.forward.y).approx(1f))
+                    //{
+                    //    b2d_obj.transform.Rotate(Vector3.forward, 90f);
+                    //}
 
                     // put bond into empty object for correct pivot and orientation
                     b2d_obj.transform.parent = mol2D.transform;
@@ -438,6 +534,7 @@ namespace chARpack
                             double_bond.transform.parent = mol2D.transform;
                             mb.transform.parent = double_bond.transform;
                             other_mb.transform.parent = double_bond.transform;
+                            double_bond.transform.Rotate(Vector3.forward, 180f);
 
                             Debug.Log($"[DoubleBondEndPointAssignment] mb ({mb_id}) {merge_bond_end_points[mb_id].ToString()}  other mb ({other_mb_id}) {merge_bond_end_points[other_mb_id].ToString()}");
 
@@ -614,6 +711,87 @@ namespace chARpack
 
                 bond_list.Add(b2d);
             }
+
+            // build tree for categorized items
+            var pos_list = new List<Vector3>();
+            var trans_list = new List<Transform>();
+            foreach (Transform t in mol2D.transform)
+            {
+                if (!t.name.Contains("Mesh_"))
+                {
+                    trans_list.Add(t);
+                    pos_list.Add(t.position);
+                }
+            }
+
+            var categorized_objects_tree = new KDTree();
+            categorized_objects_tree.Build(pos_list);
+
+            foreach (var t in list_uncategorized_small)
+            {
+                var q = new KDQuery();
+                var res = new List<int>();
+                q.KNearest(categorized_objects_tree, t.position, 2, res);
+                Transform new_parent;
+                if (trans_list[res[0]].GetComponent<Atom2D>() == null)
+                {
+                    if (trans_list[res[1]].GetComponent<Atom2D>() == null)
+                    {
+                        new_parent = trans_list[res[0]];
+                    }
+                    else
+                    {
+                        new_parent = trans_list[res[1]];
+                    }
+                }
+                else
+                {
+                    new_parent = trans_list[res[0]];
+                }
+                t.parent = new_parent;
+            }
+            foreach (var t in list_uncategorized_large)
+            {
+                var q = new KDQuery();
+                var res = new List<int>();
+                q.KNearest(categorized_objects_tree, t.position, 1, res);
+                t.parent = trans_list[res[0]];
+            }
+
+            // second pass: find still uncategorized items and assign them
+            // find unprocessed items and attach them to the closest obejct
+            var left_overs = new List<Transform>();
+            foreach (Transform t in mol2D.transform)
+            {
+                if (t.name.Contains("Mesh_"))
+                {
+                    left_overs.Add(t);
+                }
+            }
+            foreach (var t in left_overs)
+            {
+                var q = new KDQuery();
+                var res = new List<int>();
+                q.KNearest(categorized_objects_tree, t.position, 2, res);
+                Transform new_parent;
+                if (trans_list[res[0]].GetComponent<Atom2D>() == null)
+                {
+                    if (trans_list[res[1]].GetComponent<Atom2D>() == null)
+                    {
+                        new_parent = trans_list[res[0]];
+                    }
+                    else
+                    {
+                        new_parent = trans_list[res[1]];
+                    }
+                }
+                else
+                {
+                    new_parent = trans_list[res[0]];
+                }
+                t.parent = new_parent;
+            }
+
 
             mol2D.bonds = bond_list;
             mol2D.transform.Rotate(new Vector3(180f, 0f, 0f));
