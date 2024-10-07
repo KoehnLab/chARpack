@@ -8,55 +8,57 @@ using UnityEditor;
 
 
 
-
-[InitializeOnLoad]
-class PreBuildFileNamesSaver : IPreprocessBuildWithReport
+namespace chARpack
 {
-    public int callbackOrder { get { return 0; } }
-    public void OnPreprocessBuild(UnityEditor.Build.Reporting.BuildReport report)
+    [InitializeOnLoad]
+    class PreBuildFileNamesSaver : IPreprocessBuildWithReport
     {
-        createFileReference();
-    }
-
-    static PreBuildFileNamesSaver()
-    {
-        createFileReference();
-    }
-
-    static void createFileReference()
-    {
-        //The Resources folder path
-        string resourcsPath = Application.dataPath + "/Resources";
-
-        //Get file names except the ".meta" extension
-        string[] fileNames = Directory.GetFiles(resourcsPath, "*.*", SearchOption.AllDirectories)
-            .Where(x => Path.GetExtension(x) != ".meta").ToArray();
-
-        for (int i = 0; i < fileNames.Length; i++)
+        public int callbackOrder { get { return 0; } }
+        public void OnPreprocessBuild(UnityEditor.Build.Reporting.BuildReport report)
         {
-            fileNames[i] = fileNames[i].Replace("\\", "/");
+            createFileReference();
         }
 
-        //Convert the Names to Json to make it easier to access when reading it
-        FileNameInfo fileInfo = new FileNameInfo(fileNames);
-        string fileInfoJson = JsonUtility.ToJson(fileInfo, true);
+        static PreBuildFileNamesSaver()
+        {
+            createFileReference();
+        }
 
-        //Save the json to the Resources folder as "FileNames.txt"
-        File.WriteAllText(Application.dataPath + "/Resources/FileNames.txt", fileInfoJson);
+        static void createFileReference()
+        {
+            //The Resources folder path
+            string resourcsPath = Application.dataPath + "/Resources";
 
-        AssetDatabase.Refresh();
+            //Get file names except the ".meta" extension
+            string[] fileNames = Directory.GetFiles(resourcsPath, "*.*", SearchOption.AllDirectories)
+                .Where(x => Path.GetExtension(x) != ".meta").ToArray();
+
+            for (int i = 0; i < fileNames.Length; i++)
+            {
+                fileNames[i] = fileNames[i].Replace("\\", "/");
+            }
+
+            //Convert the Names to Json to make it easier to access when reading it
+            FileNameInfo fileInfo = new FileNameInfo(fileNames);
+            string fileInfoJson = JsonUtility.ToJson(fileInfo, true);
+
+            //Save the json to the Resources folder as "FileNames.txt"
+            File.WriteAllText(Application.dataPath + "/Resources/FileNames.txt", fileInfoJson);
+
+            AssetDatabase.Refresh();
+        }
     }
-}
 
 #endif
 
-[Serializable]
-public class FileNameInfo
-{
-    public string[] fileNames;
-
-    public FileNameInfo(string[] fileNames)
+    [Serializable]
+    public class FileNameInfo
     {
-        this.fileNames = fileNames;
+        public string[] fileNames;
+
+        public FileNameInfo(string[] fileNames)
+        {
+            fileNames = fileNames;
+        }
     }
 }

@@ -1,33 +1,33 @@
-using chARpackStructs;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using chARpack.Structs;
 
-public class MoveMoleculeAction : IUndoableAction
+namespace chARpack
 {
-    public cmlData before;
-    public cmlData after { get; private set; }
-
-    public MoveMoleculeAction(cmlData before, cmlData after)
+    public class MoveMoleculeAction : IUndoableAction
     {
-        this.before = before;
-        this.after = after;
-    }
+        public cmlData before;
+        public cmlData after { get; private set; }
 
-    public MoveMoleculeAction(MoveMoleculeAction action)
-    {
-        this.before = action.before;
-        this.after = action.after;
-    }
+        public MoveMoleculeAction(cmlData before, cmlData after)
+        {
+            this.before = before;
+            this.after = after;
+        }
 
-    public void Execute()
-    {
-        throw new System.NotImplementedException();
-    }
+        public MoveMoleculeAction(MoveMoleculeAction action)
+        {
+            this.before = action.before;
+            this.after = action.after;
+        }
 
-    public void Undo()
-    {
-        GlobalCtrl.Singleton.List_curMolecules[after.moleID].transform.localPosition = before.molePos;
-        GlobalCtrl.Singleton.List_curMolecules[after.moleID].transform.localRotation = before.moleQuat;
+        public void Execute()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Undo()
+        {
+            GlobalCtrl.Singleton.List_curMolecules[after.moleID].transform.localPosition = before.molePos;
+            GlobalCtrl.Singleton.List_curMolecules[after.moleID].transform.localRotation = before.moleQuat;
+        }
     }
 }

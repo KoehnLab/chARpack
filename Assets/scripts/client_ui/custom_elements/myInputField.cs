@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Microsoft.MixedReality.Toolkit.Experimental.UI;
-using UnityEngine.UI;
-using System;
 
-public class myInputField : MRTKTMPInputField
+
+namespace chARpack
 {
-    TouchScreenKeyboard keyboard;
+    public class myInputField : MRTKTMPInputField
+    {
+        TouchScreenKeyboard keyboard;
 
 #if WINDOWS_UWP
     public override void OnDeselect(BaseEventData eventData)
@@ -17,15 +18,16 @@ public class myInputField : MRTKTMPInputField
 #endif
 
 #if !WINDOWS_UWP
-    public override void OnSelect(BaseEventData eventData)
-    {
-        base.OnSelect(eventData);
-        SendOnFocus();
+        public override void OnSelect(BaseEventData eventData)
+        {
+            base.OnSelect(eventData);
+            SendOnFocus();
 
-        ActivateInputField();
+            ActivateInputField();
 
-        keyboard = TouchScreenKeyboard.Open(text);
-    }
+            keyboard = TouchScreenKeyboard.Open(text);
+        }
 #endif
 
+    }
 }

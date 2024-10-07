@@ -1,1085 +1,1088 @@
 using System.Collections;
 using UnityEngine;
 
-public class TransitionManager : MonoBehaviour
+namespace chARpack
 {
-
-    public enum SyncMode
+    public class TransitionManager : MonoBehaviour
     {
-        Sync = 0,
-        Async = 1
-    }
 
-    public enum TransitionMode
-    {
-        FULL_3D = 0,
-        DESKTOP_2D = 1,
-        INSTANT = 2
-    }
-
-    public enum ImmersiveTarget
-    {
-        HAND_FOLLOW = 0,
-        HAND_FIXED = 1,
-        CAMERA = 2,
-        FRONT_OF_SCREEN = 3
-    }
-
-    public enum DesktopTarget
-    {
-        CENTER_OF_SCREEN = 0,
-        HOVER = 1,
-        CURSOR_POSITION = 2
-    }
-
-    [System.Flags]
-    public enum TransitionAnimation
-    {
-        NONE = 0,
-        SCALE = 1 << 0,
-        ROTATION = 1 << 1,
-        BOTH = SCALE | ROTATION
-    }
-
-    [System.Flags]
-    public enum InteractionType
-    {
-        NONE = 0,
-        BUTTON_PRESS = 1 << 0,
-        CLOSE_GRAB = 1 << 1,
-        DISTANT_GRAB = 1 << 2,
-        ONSCREEN_PULL = 1 << 3,
-        THROW = 1 << 4,
-        FLICK = 1 << 5,
-        CATCH = 1 << 6,
-        ALL = BUTTON_PRESS | CLOSE_GRAB | DISTANT_GRAB | ONSCREEN_PULL | THROW | FLICK | CATCH
-    }
-
-    private static TransitionManager _singleton;
-
-    public static TransitionManager Singleton
-    {
-        get => _singleton;
-        private set
+        public enum SyncMode
         {
-            if (_singleton == null)
-            {
-                _singleton = value;
-            }
-            else if (_singleton != value)
-            {
-                Debug.Log($"[{nameof(TransitionManager)}] Instance already exists, destroying duplicate!");
-                Destroy(value);
-            }
+            Sync = 0,
+            Async = 1
         }
-    }
 
-
-    private void Awake()
-    {
-        Singleton = this;
-    }
-
-    AudioClip doTransition;
-    AudioClip getTransition;
-    AudioClip moveToTransitionClip;
-    AudioClip moveFromTransitionClip;
-
-    private void Start()
-    {
-        doTransition = Resources.Load<AudioClip>("audio/wine_short");
-        getTransition = Resources.Load<AudioClip>("audio/reverse_wine_short");
-        moveToTransitionClip = Resources.Load<AudioClip>("audio/wine_loop");
-        moveFromTransitionClip = Resources.Load<AudioClip>("audio/reverse_wine_loop");
-        if (EventManager.Singleton != null)
+        public enum TransitionMode
         {
-            EventManager.Singleton.OnTransitionGrab += grab;
-            EventManager.Singleton.OnReleaseTransitionGrab += release;
+            FULL_3D = 0,
+            DESKTOP_2D = 1,
+            INSTANT = 2
         }
-    }
 
-
-    static public float zDistance = 1f;
-    private bool grabHold = false;
-    private void grab(Vector2 ss_coords, TransitionManager.InteractionType interType)
-    {
-        grabHold = true;
-        grabScreenWPos = screenAlignment.Singleton.getCurrentProjectedIndexPos();
-    }
-
-    public void release()
-    {
-        grabHold = false;
-        grabScreenWPos = null;
-    }
-
-    private bool transitionOnCooldown = false;
-    IEnumerator startCooldown()
-    {
-        transitionOnCooldown = true;
-        yield return new WaitForSeconds(1.5f);
-        transitionOnCooldown = false;
-    }
-
-
-    private Molecule hoverMol;
-    private GenericObject hoverGenericObject;
-    Vector2? current_ss_coords = null;
-    public void hover(Vector2 ss_coords)
-    {
-        current_ss_coords = ss_coords;
-        // var wpos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f)); // z component is target distance from camera
-        //Ray ray = new Ray();
-        //ray.direction = GlobalCtrl.Singleton.currentCamera.transform.forward;
-        //ray.origin = wpos;
-        // using the forward vector of the camera is only properly working in the middle of the screen
-        // better use:
-
-        var ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(ss_coords);
-        Debug.DrawRay(ray.origin, ray.direction, Color.green);
-        RaycastHit hit;
-        if (Physics.SphereCast(ray, 0.05f, out hit))
-        //if (Physics.Raycast(ray, out hit)) 
+        public enum ImmersiveTarget
         {
-            var mol = hit.collider.GetComponentInParent<Molecule>();
-            var go = hit.collider.GetComponentInParent<GenericObject>();
-            if (mol != null)
-            {
-                if (hoverMol != mol)
-                {
-                    if (hoverMol != null) hoverMol.Hover(false);
-                    hoverMol = mol;
-                    hoverMol.Hover(true);
-                }
+            HAND_FOLLOW = 0,
+            HAND_FIXED = 1,
+            CAMERA = 2,
+            FRONT_OF_SCREEN = 3
+        }
 
-                if (hoverGenericObject != null)
-                {
-                    hoverGenericObject.Hover(false);
-                    hoverGenericObject = null;
-                }
-            }
-            else if (go != null)
-            {
-                if (hoverGenericObject != go)
-                {
-                    if (hoverGenericObject != null) hoverGenericObject.Hover(false);
-                    hoverGenericObject = go;
-                    hoverGenericObject.Hover(true);
-                }
+        public enum DesktopTarget
+        {
+            CENTER_OF_SCREEN = 0,
+            HOVER = 1,
+            CURSOR_POSITION = 2
+        }
 
-                if (hoverMol != null)
-                {
-                    hoverMol.Hover(false);
-                    hoverMol = null;
-                }
-            }
-            else // some kind of other object
+        [System.Flags]
+        public enum TransitionAnimation
+        {
+            NONE = 0,
+            SCALE = 1 << 0,
+            ROTATION = 1 << 1,
+            BOTH = SCALE | ROTATION
+        }
+
+        [System.Flags]
+        public enum InteractionType
+        {
+            NONE = 0,
+            BUTTON_PRESS = 1 << 0,
+            CLOSE_GRAB = 1 << 1,
+            DISTANT_GRAB = 1 << 2,
+            ONSCREEN_PULL = 1 << 3,
+            THROW = 1 << 4,
+            FLICK = 1 << 5,
+            CATCH = 1 << 6,
+            ALL = BUTTON_PRESS | CLOSE_GRAB | DISTANT_GRAB | ONSCREEN_PULL | THROW | FLICK | CATCH
+        }
+
+        private static TransitionManager _singleton;
+
+        public static TransitionManager Singleton
+        {
+            get => _singleton;
+            private set
             {
-                if (hoverMol != null)
+                if (_singleton == null)
                 {
-                    hoverMol.Hover(false);
-                    hoverMol = null;
+                    _singleton = value;
                 }
-                if (hoverGenericObject != null)
+                else if (_singleton != value)
                 {
-                    hoverGenericObject.Hover(false);
-                    hoverGenericObject = null;
+                    Debug.Log($"[{nameof(TransitionManager)}] Instance already exists, destroying duplicate!");
+                    Destroy(value);
                 }
             }
         }
-        else
+
+
+        private void Awake()
         {
-            if (hoverMol != null)
+            Singleton = this;
+        }
+
+        AudioClip doTransition;
+        AudioClip getTransition;
+        AudioClip moveToTransitionClip;
+        AudioClip moveFromTransitionClip;
+
+        private void Start()
+        {
+            doTransition = Resources.Load<AudioClip>("audio/wine_short");
+            getTransition = Resources.Load<AudioClip>("audio/reverse_wine_short");
+            moveToTransitionClip = Resources.Load<AudioClip>("audio/wine_loop");
+            moveFromTransitionClip = Resources.Load<AudioClip>("audio/reverse_wine_loop");
+            if (EventManager.Singleton != null)
             {
-                hoverMol.Hover(false);
-                hoverMol = null;
+                EventManager.Singleton.OnTransitionGrab += grab;
+                EventManager.Singleton.OnReleaseTransitionGrab += release;
             }
-            if (hoverGenericObject != null)
+        }
+
+
+        static public float zDistance = 1f;
+        private bool grabHold = false;
+        private void grab(Vector2 ss_coords, TransitionManager.InteractionType interType)
+        {
+            grabHold = true;
+            grabScreenWPos = screenAlignment.Singleton.getCurrentProjectedIndexPos();
+        }
+
+        public void release()
+        {
+            grabHold = false;
+            grabScreenWPos = null;
+        }
+
+        private bool transitionOnCooldown = false;
+        IEnumerator startCooldown()
+        {
+            transitionOnCooldown = true;
+            yield return new WaitForSeconds(1.5f);
+            transitionOnCooldown = false;
+        }
+
+
+        private Molecule hoverMol;
+        private GenericObject hoverGenericObject;
+        Vector2? current_ss_coords = null;
+        public void hover(Vector2 ss_coords)
+        {
+            current_ss_coords = ss_coords;
+            // var wpos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f)); // z component is target distance from camera
+            //Ray ray = new Ray();
+            //ray.direction = GlobalCtrl.Singleton.currentCamera.transform.forward;
+            //ray.origin = wpos;
+            // using the forward vector of the camera is only properly working in the middle of the screen
+            // better use:
+
+            var ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(ss_coords);
+            Debug.DrawRay(ray.origin, ray.direction, Color.green);
+            RaycastHit hit;
+            if (Physics.SphereCast(ray, 0.05f, out hit))
+            //if (Physics.Raycast(ray, out hit)) 
             {
-                hoverGenericObject.Hover(false);
-                hoverGenericObject = null;
-            }
-        }
-    }
-
-    public Transform getCurrentHoverTarget()
-    {
-        if (hoverMol != null)
-        {
-            return hoverMol.transform;
-        }
-        if (hoverGenericObject != null)
-        {
-            return hoverGenericObject.transform;
-        }
-        return null;
-    }
-
-
-    public void initializeTransitionServer(Vector2 ss_coords, InteractionType triggered_by, int from_id)
-    {
-        if (transitionOnCooldown) return;
-        StartCoroutine(startCooldown());
-
-        grabHold = true;
-        var wpos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.1f)); // z component is target distance from camera
-
-        // debug blink
-        //StartCoroutine(blinkOnScreen(ss_coords, wpos));
-
-        //Ray ray = new Ray();
-        //ray.direction = GlobalCtrl.Singleton.currentCamera.transform.forward;
-        //ray.origin = wpos;
-        // using the forward vector of the camera is only properly working in the middle of the screen
-        // better use:
-        //var ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(new Vector3(ss_coords.x, ss_coords.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f));
-        var ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(ss_coords);
-
-        var sphere_radius = triggered_by == InteractionType.CLOSE_GRAB? 0.08f : 0.05f;
-        RaycastHit hit;
-        if (Physics.SphereCast(ray, sphere_radius, out hit))
-        {
-            Transform trans = null; 
-            var mol_test = hit.collider.GetComponentInParent<Molecule>();
-            GenericObject go_test = null;
-            if (mol_test != null)
-            {
-                if (!mol_test.getIsInteractable())
+                var mol = hit.collider.GetComponentInParent<Molecule>();
+                var go = hit.collider.GetComponentInParent<GenericObject>();
+                if (mol != null)
                 {
-                    mol_test = null;
+                    if (hoverMol != mol)
+                    {
+                        if (hoverMol != null) hoverMol.Hover(false);
+                        hoverMol = mol;
+                        hoverMol.Hover(true);
+                    }
+
+                    if (hoverGenericObject != null)
+                    {
+                        hoverGenericObject.Hover(false);
+                        hoverGenericObject = null;
+                    }
                 }
-                else
+                else if (go != null)
                 {
-                    Debug.Log("[initializeTransitionServer] hit Molecule");
-                    trans = mol_test.transform;
+                    if (hoverGenericObject != go)
+                    {
+                        if (hoverGenericObject != null) hoverGenericObject.Hover(false);
+                        hoverGenericObject = go;
+                        hoverGenericObject.Hover(true);
+                    }
+
+                    if (hoverMol != null)
+                    {
+                        hoverMol.Hover(false);
+                        hoverMol = null;
+                    }
+                }
+                else // some kind of other object
+                {
+                    if (hoverMol != null)
+                    {
+                        hoverMol.Hover(false);
+                        hoverMol = null;
+                    }
+                    if (hoverGenericObject != null)
+                    {
+                        hoverGenericObject.Hover(false);
+                        hoverGenericObject = null;
+                    }
                 }
             }
             else
             {
-                go_test = hit.collider.GetComponentInParent<GenericObject>();
-                if (go_test != null)
+                if (hoverMol != null)
                 {
-                    if (!go_test.getIsInteractable())
+                    hoverMol.Hover(false);
+                    hoverMol = null;
+                }
+                if (hoverGenericObject != null)
+                {
+                    hoverGenericObject.Hover(false);
+                    hoverGenericObject = null;
+                }
+            }
+        }
+
+        public Transform getCurrentHoverTarget()
+        {
+            if (hoverMol != null)
+            {
+                return hoverMol.transform;
+            }
+            if (hoverGenericObject != null)
+            {
+                return hoverGenericObject.transform;
+            }
+            return null;
+        }
+
+
+        public void initializeTransitionServer(Vector2 ss_coords, InteractionType triggered_by, int from_id)
+        {
+            if (transitionOnCooldown) return;
+            StartCoroutine(startCooldown());
+
+            grabHold = true;
+            var wpos = GlobalCtrl.Singleton.currentCamera.ScreenToWorldPoint(new Vector3(ss_coords.x, ss_coords.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.1f)); // z component is target distance from camera
+
+            // debug blink
+            //StartCoroutine(blinkOnScreen(ss_coords, wpos));
+
+            //Ray ray = new Ray();
+            //ray.direction = GlobalCtrl.Singleton.currentCamera.transform.forward;
+            //ray.origin = wpos;
+            // using the forward vector of the camera is only properly working in the middle of the screen
+            // better use:
+            //var ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(new Vector3(ss_coords.x, ss_coords.y, GlobalCtrl.Singleton.currentCamera.nearClipPlane + 0.0001f));
+            var ray = GlobalCtrl.Singleton.currentCamera.ScreenPointToRay(ss_coords);
+
+            var sphere_radius = triggered_by == InteractionType.CLOSE_GRAB ? 0.08f : 0.05f;
+            RaycastHit hit;
+            if (Physics.SphereCast(ray, sphere_radius, out hit))
+            {
+                Transform trans = null;
+                var mol_test = hit.collider.GetComponentInParent<Molecule>();
+                GenericObject go_test = null;
+                if (mol_test != null)
+                {
+                    if (!mol_test.getIsInteractable())
                     {
-                        go_test = null;
+                        mol_test = null;
                     }
                     else
                     {
-                        Debug.Log("[initializeTransitionServer] hit GenericObject");
-                        trans = go_test.transform;
+                        Debug.Log("[initializeTransitionServer] hit Molecule");
+                        trans = mol_test.transform;
                     }
                 }
                 else
                 {
-                    if (StudyTaskManager.Singleton)
+                    go_test = hit.collider.GetComponentInParent<GenericObject>();
+                    if (go_test != null)
                     {
-                        StudyTaskManager.Singleton.logTransitionGrab(null, null, triggered_by);
+                        if (!go_test.getIsInteractable())
+                        {
+                            go_test = null;
+                        }
+                        else
+                        {
+                            Debug.Log("[initializeTransitionServer] hit GenericObject");
+                            trans = go_test.transform;
+                        }
                     }
-                    return; // neither mol nor go hit, but some other type of object
+                    else
+                    {
+                        if (StudyTaskManager.Singleton)
+                        {
+                            StudyTaskManager.Singleton.logTransitionGrab(null, null, triggered_by);
+                        }
+                        return; // neither mol nor go hit, but some other type of object
+                    }
+                }
+
+                if (StudyTaskManager.Singleton)
+                {
+                    StudyTaskManager.Singleton.logTransitionGrab(mol_test, go_test, triggered_by);
+                }
+
+
+                if (SettingsData.transitionMode == TransitionMode.FULL_3D)
+                {
+                    StartCoroutine(moveAndTransition(trans, wpos, triggered_by));
+                }
+                else
+                {
+                    if (mol_test != null)
+                    {
+                        EventManager.Singleton.TransitionMolecule(mol_test, triggered_by, from_id);
+                        return;
+                    }
+                    if (go_test != null)
+                    {
+                        EventManager.Singleton.TransitionGenericObject(go_test, triggered_by, from_id);
+                        return;
+                    }
                 }
             }
 
             if (StudyTaskManager.Singleton)
             {
-                StudyTaskManager.Singleton.logTransitionGrab(mol_test, go_test, triggered_by);
+                StudyTaskManager.Singleton.logTransitionGrab(null, null, triggered_by);
             }
+        }
 
+        public void initializeTransitionServer(Transform trans, InteractionType triggered_by, int from_id)
+        {
+            if (transitionOnCooldown) return;
+            StartCoroutine(startCooldown());
 
+            var mol = trans.GetComponent<Molecule>();
+            if (mol != null)
+            {
+                initializeTransitionServer(mol, triggered_by, from_id);
+                return;
+            }
+            var go = trans.GetComponent<GenericObject>();
+            if (go != null)
+            {
+                initializeTransitionServer(go, triggered_by, from_id);
+            }
+        }
+
+        public void initializeTransitionServer(Molecule mol, InteractionType triggered_by, int from_id)
+        {
+            var wpos = GlobalCtrl.Singleton.getIdealSpawnPos(mol.transform);
             if (SettingsData.transitionMode == TransitionMode.FULL_3D)
             {
-                StartCoroutine(moveAndTransition(trans, wpos, triggered_by));
+                StartCoroutine(moveAndTransition(mol.transform, wpos, triggered_by));
             }
             else
             {
-                if (mol_test != null)
-                {
-                    EventManager.Singleton.TransitionMolecule(mol_test, triggered_by, from_id);
-                    return;
-                }
-                if (go_test != null)
-                {
-                    EventManager.Singleton.TransitionGenericObject(go_test, triggered_by, from_id);
-                    return;
-                }
-            }
-        }
-
-        if (StudyTaskManager.Singleton)
-        {
-            StudyTaskManager.Singleton.logTransitionGrab(null, null, triggered_by);
-        }
-    }
-
-    public void initializeTransitionServer(Transform trans, InteractionType triggered_by, int from_id)
-    {
-        if (transitionOnCooldown) return;
-        StartCoroutine(startCooldown());
-
-        var mol = trans.GetComponent<Molecule>();
-        if (mol != null)
-        {
-            initializeTransitionServer(mol, triggered_by, from_id);
-            return;
-        }
-        var go = trans.GetComponent<GenericObject>();
-        if (go != null)
-        {
-            initializeTransitionServer(go, triggered_by, from_id);
-        }
-    }
-
-    public void initializeTransitionServer(Molecule mol, InteractionType triggered_by, int from_id)
-    {
-        var wpos = GlobalCtrl.Singleton.getIdealSpawnPos(mol.transform);
-        if (SettingsData.transitionMode == TransitionMode.FULL_3D)
-        {
-            StartCoroutine(moveAndTransition(mol.transform, wpos, triggered_by));
-        }
-        else
-        {
-            if (StudyTaskManager.Singleton) StudyTaskManager.Singleton.logTransition(mol.name, triggered_by);
-            EventManager.Singleton.TransitionMolecule(mol, triggered_by, from_id);
-        }
-    }
-
-    public void initializeTransitionServer(GenericObject go, InteractionType triggered_by, int from_id)
-    {
-        var wpos = GlobalCtrl.Singleton.getIdealSpawnPos(go.transform);
-        if (SettingsData.transitionMode == TransitionMode.FULL_3D)
-        {
-            StartCoroutine(moveAndTransition(go.transform, wpos, triggered_by));
-        }
-        else
-        {
-            if (StudyTaskManager.Singleton) StudyTaskManager.Singleton.logTransition(go.name, triggered_by);
-            EventManager.Singleton.TransitionGenericObject(go, triggered_by, from_id);
-        }
-    }
-
-    private IEnumerator blinkOnScreen(Vector2 ss_coords, Vector3 wpos)
-    {
-        // Debug Position
-        var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cube.transform.localScale = Vector3.one * 0.04f;
-        cube.GetComponent<Renderer>().material.color = new Color(1f, 0f, 0f, 1f);
-        cube.transform.position = wpos;
-        //Debug.Log($"[blink] ss: {ss_coords}; w: {wpos}");
-        yield return new WaitForSeconds(0.1f);
-        DestroyImmediate(cube);
-    }
-
-
-    public void initializeTransitionClient(Transform trans, InteractionType triggered_by)
-    {
-        if (transitionOnCooldown) return;
-        StartCoroutine(startCooldown());
-
-        if (NetworkManagerClient.Singleton == null) return;
-        var from_id = NetworkManagerClient.Singleton.Client.Id;
-
-        grabHold = true;
-        //get target size on screen
-        // if object is larger than screen it should only take 0.5*screen_hight
-        var box = trans.GetComponent<myBoundingBox>();
-        var ss_bounds = box.getScreenSpaceBounds();
-        var ss_size_y = ss_bounds.w - ss_bounds.y;
-        float target_scale_factor = 1.0f;
-        if (ss_size_y > 0.5f * SettingsData.serverViewport.y)
-        {
-            target_scale_factor = SettingsData.serverViewport.y / (2f * ss_size_y);
-            Debug.Log($"[initializeTransitionClient] Object larger than screen. Scale factor {target_scale_factor}");
-        }
-        if (triggered_by == InteractionType.CLOSE_GRAB || triggered_by == InteractionType.THROW)
-        {
-            var mol = trans.GetComponent<Molecule>();
-            if (mol != null)
-            {
+                if (StudyTaskManager.Singleton) StudyTaskManager.Singleton.logTransition(mol.name, triggered_by);
                 EventManager.Singleton.TransitionMolecule(mol, triggered_by, from_id);
             }
-            else
-            {
-                var go = trans.GetComponent<GenericObject>();
-                EventManager.Singleton.TransitionGenericObject(go, triggered_by, from_id);
-            }
-            AudioSource.PlayClipAtPoint(doTransition, trans.position);
         }
-        else if (SettingsData.transitionMode == TransitionMode.INSTANT)
+
+        public void initializeTransitionServer(GenericObject go, InteractionType triggered_by, int from_id)
         {
-            // TODO check this pos and scale ...
-            trans.localScale *= target_scale_factor;
-            trans.position = screenAlignment.Singleton.getScreenCenter();
-            var mol = trans.GetComponent<Molecule>();
-            if (mol != null)
+            var wpos = GlobalCtrl.Singleton.getIdealSpawnPos(go.transform);
+            if (SettingsData.transitionMode == TransitionMode.FULL_3D)
             {
-                EventManager.Singleton.TransitionMolecule(mol, triggered_by, from_id);
+                StartCoroutine(moveAndTransition(go.transform, wpos, triggered_by));
             }
             else
             {
-                var go = trans.GetComponent<GenericObject>();
+                if (StudyTaskManager.Singleton) StudyTaskManager.Singleton.logTransition(go.name, triggered_by);
                 EventManager.Singleton.TransitionGenericObject(go, triggered_by, from_id);
             }
-            AudioSource.PlayClipAtPoint(doTransition, trans.position);
         }
-        else
+
+        private IEnumerator blinkOnScreen(Vector2 ss_coords, Vector3 wpos)
         {
-            if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.SCALE))
+            // Debug Position
+            var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cube.transform.localScale = Vector3.one * 0.04f;
+            cube.GetComponent<Renderer>().material.color = new Color(1f, 0f, 0f, 1f);
+            cube.transform.position = wpos;
+            //Debug.Log($"[blink] ss: {ss_coords}; w: {wpos}");
+            yield return new WaitForSeconds(0.1f);
+            DestroyImmediate(cube);
+        }
+
+
+        public void initializeTransitionClient(Transform trans, InteractionType triggered_by)
+        {
+            if (transitionOnCooldown) return;
+            StartCoroutine(startCooldown());
+
+            if (NetworkManagerClient.Singleton == null) return;
+            var from_id = NetworkManagerClient.Singleton.Client.Id;
+
+            grabHold = true;
+            //get target size on screen
+            // if object is larger than screen it should only take 0.5*screen_hight
+            var box = trans.GetComponent<myBoundingBox>();
+            var ss_bounds = box.getScreenSpaceBounds();
+            var ss_size_y = ss_bounds.w - ss_bounds.y;
+            float target_scale_factor = 1.0f;
+            if (ss_size_y > 0.5f * SettingsData.serverViewport.y)
             {
-                StartCoroutine(scaleWhileMoving(trans, trans.localScale.x * target_scale_factor));
+                target_scale_factor = SettingsData.serverViewport.y / (2f * ss_size_y);
+                Debug.Log($"[initializeTransitionClient] Object larger than screen. Scale factor {target_scale_factor}");
             }
-            StartCoroutine(moveToScreenAndTransition(trans, triggered_by));
-        }
-    }
-
-    private Vector3? grabScreenWPos = null;
-
-
-    public void getMoleculeTransitionClient(Molecule mol, InteractionType triggered_by, int from_id)
-    {
-        if (NetworkManagerClient.Singleton.Client.Id != from_id) return;
-        Debug.Log("[getMoleculeTransitionClient] triggered");
-        getTransitionClient(mol.transform, triggered_by, mol.initial_scale);
-    }
-
-    public void getGenericObjectTransitionClient(GenericObject go, InteractionType triggered_by, int from_id)
-    {
-        if (NetworkManagerClient.Singleton.Client.Id != from_id) return;
-        Debug.Log("[getGenericObjectTransitionClient] triggered");
-        getTransitionClient(go.transform, triggered_by, go.initial_scale);
-    }
-
-    private void getTransitionClient(Transform trans, InteractionType triggered_by, float initial_scale)
-    {
-        StartCoroutine(startCooldown());
-        Debug.Log($"[TransitionManager:getTransitionClient] trigger: {triggered_by}; immersive traget: {SettingsData.immersiveTarget}");
-        if (triggered_by == InteractionType.CLOSE_GRAB)
-        {
-            StartCoroutine(attachToGrip(trans));
-            screenAlignment.Singleton.addObjectToGrow(trans, initial_scale);
-            AudioSource.PlayClipAtPoint(getTransition, trans.position);
-            return;
-        }
-        if (SettingsData.transitionMode == TransitionMode.INSTANT)
-        {
-            if (SettingsData.immersiveTarget == ImmersiveTarget.HAND_FIXED || SettingsData.immersiveTarget == ImmersiveTarget.HAND_FOLLOW)
+            if (triggered_by == InteractionType.CLOSE_GRAB || triggered_by == InteractionType.THROW)
             {
-                var index_pos = HandTracking.Singleton.getIndexTip();
-                var proj_index = screenAlignment.Singleton.projectWSPointToScreen(index_pos);
-                if (screenAlignment.Singleton.contains(proj_index))
+                var mol = trans.GetComponent<Molecule>();
+                if (mol != null)
                 {
-                    trans.position = index_pos;
+                    EventManager.Singleton.TransitionMolecule(mol, triggered_by, from_id);
                 }
                 else
                 {
-                    trans.position = GlobalCtrl.Singleton.getCurrentSpawnPos();
+                    var go = trans.GetComponent<GenericObject>();
+                    EventManager.Singleton.TransitionGenericObject(go, triggered_by, from_id);
                 }
+                AudioSource.PlayClipAtPoint(doTransition, trans.position);
             }
-            else if (SettingsData.immersiveTarget == ImmersiveTarget.CAMERA)
+            else if (SettingsData.transitionMode == TransitionMode.INSTANT)
             {
-                trans.position = GlobalCtrl.Singleton.getCurrentSpawnPos();
-            }
-            else // ImmersiveTarget.FRONT_OF_SCREEN
-            {
-                //var screenSize = screenAlignment.Singleton.getScreenSizeWS();
-                //float dist_to_move = GlobalCtrl.Singleton.getLongestBBoxEdge(trans);
-                var dist_to_move = 0.3f * screenAlignment.Singleton.getScreenSizeWS().y;
-                trans.position += dist_to_move * screenAlignment.Singleton.getScreenNormal();
-            }
-            var mol = trans.GetComponent<Molecule>();
-            if (mol != null)
-            {
-                EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
-            }
-        }
-        else
-        {
-            // TODO test if this is necessary
-            if (SettingsData.transitionMode == TransitionMode.FULL_3D)
-            {
-                // init position different from ss position
-                trans.position = grabScreenWPos.Value;
-            }
-
-            bool override_grab_hold = triggered_by == InteractionType.BUTTON_PRESS ? true : false;
-
-            if (SettingsData.immersiveTarget == ImmersiveTarget.HAND_FOLLOW)
-            {
-                StartCoroutine(moveToHand(trans, override_grab_hold));
-            }
-            else if (SettingsData.immersiveTarget == ImmersiveTarget.HAND_FIXED)
-            {
-                var index_pos = HandTracking.Singleton.getIndexTip();
-                StartCoroutine(moveToPos(trans, index_pos, override_grab_hold));
-            }
-            else if (SettingsData.immersiveTarget == ImmersiveTarget.CAMERA)
-            {
-                StartCoroutine(moveToUser(trans, override_grab_hold));
-            }
-            else // SettingsData.immersiveTarget == ImmersiveTarget.FRONT_OF_SCREEN
-            {
-                
-                //var longest_edge = GlobalCtrl.Singleton.getLongestBBoxEdge(trans);
-                var dist_to_move = 0.3f * screenAlignment.Singleton.getScreenSizeWS().y;
-                //float dist_to_move = // half_screen_y > longest_edge ? 3f * longest_edge : half_screen_y;
-                var fos_pos = trans.position + dist_to_move * screenAlignment.Singleton.getScreenNormal();
-                StartCoroutine(moveToPos(trans, fos_pos, true));
-            }
-            if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.SCALE))
-            {
-                Debug.Log("[getTransitionClient] Animating scale.");
-                StartCoroutine(scaleWhileMoving(trans, 1f, override_grab_hold));
-            }
-        }
-        AudioSource.PlayClipAtPoint(getTransition, trans.position);
-    }
-
-    public void getMoleculeTransitionServer(Molecule mol, InteractionType triggered_by, int from_id)
-    {
-        getTransitionServer(mol.transform, triggered_by);
-    }
-
-    public void getGenericObjectTransitionServer(GenericObject go, InteractionType triggered_by, int from_id)
-    {
-        getTransitionServer(go.transform, triggered_by);
-    }
-
-    private void getTransitionServer(Transform trans, InteractionType triggered_by)
-    {
-        StartCoroutine(startCooldown());
-
-        if (StudyTaskManager.Singleton)
-        {
-            StudyTaskManager.Singleton.logTransition(trans.name, triggered_by);
-        }
-        if (triggered_by != InteractionType.CLOSE_GRAB)
-        {
-            if (current_ss_coords == null)
-            {
-                trans.position = GlobalCtrl.Singleton.getIdealSpawnPos(trans);
+                // TODO check this pos and scale ...
+                trans.localScale *= target_scale_factor;
+                trans.position = screenAlignment.Singleton.getScreenCenter();
+                var mol = trans.GetComponent<Molecule>();
+                if (mol != null)
+                {
+                    EventManager.Singleton.TransitionMolecule(mol, triggered_by, from_id);
+                }
+                else
+                {
+                    var go = trans.GetComponent<GenericObject>();
+                    EventManager.Singleton.TransitionGenericObject(go, triggered_by, from_id);
+                }
+                AudioSource.PlayClipAtPoint(doTransition, trans.position);
             }
             else
             {
-                // TODO extra case for init by button?
-                if (SettingsData.desktopTarget == DesktopTarget.CENTER_OF_SCREEN)
+                if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.SCALE))
+                {
+                    StartCoroutine(scaleWhileMoving(trans, trans.localScale.x * target_scale_factor));
+                }
+                StartCoroutine(moveToScreenAndTransition(trans, triggered_by));
+            }
+        }
+
+        private Vector3? grabScreenWPos = null;
+
+
+        public void getMoleculeTransitionClient(Molecule mol, InteractionType triggered_by, int from_id)
+        {
+            if (NetworkManagerClient.Singleton.Client.Id != from_id) return;
+            Debug.Log("[getMoleculeTransitionClient] triggered");
+            getTransitionClient(mol.transform, triggered_by, mol.initial_scale);
+        }
+
+        public void getGenericObjectTransitionClient(GenericObject go, InteractionType triggered_by, int from_id)
+        {
+            if (NetworkManagerClient.Singleton.Client.Id != from_id) return;
+            Debug.Log("[getGenericObjectTransitionClient] triggered");
+            getTransitionClient(go.transform, triggered_by, go.initial_scale);
+        }
+
+        private void getTransitionClient(Transform trans, InteractionType triggered_by, float initial_scale)
+        {
+            StartCoroutine(startCooldown());
+            Debug.Log($"[TransitionManager:getTransitionClient] trigger: {triggered_by}; immersive traget: {SettingsData.immersiveTarget}");
+            if (triggered_by == InteractionType.CLOSE_GRAB)
+            {
+                StartCoroutine(attachToGrip(trans));
+                screenAlignment.Singleton.addObjectToGrow(trans, initial_scale);
+                AudioSource.PlayClipAtPoint(getTransition, trans.position);
+                return;
+            }
+            if (SettingsData.transitionMode == TransitionMode.INSTANT)
+            {
+                if (SettingsData.immersiveTarget == ImmersiveTarget.HAND_FIXED || SettingsData.immersiveTarget == ImmersiveTarget.HAND_FOLLOW)
+                {
+                    var index_pos = HandTracking.Singleton.getIndexTip();
+                    var proj_index = screenAlignment.Singleton.projectWSPointToScreen(index_pos);
+                    if (screenAlignment.Singleton.contains(proj_index))
+                    {
+                        trans.position = index_pos;
+                    }
+                    else
+                    {
+                        trans.position = GlobalCtrl.Singleton.getCurrentSpawnPos();
+                    }
+                }
+                else if (SettingsData.immersiveTarget == ImmersiveTarget.CAMERA)
+                {
+                    trans.position = GlobalCtrl.Singleton.getCurrentSpawnPos();
+                }
+                else // ImmersiveTarget.FRONT_OF_SCREEN
+                {
+                    //var screenSize = screenAlignment.Singleton.getScreenSizeWS();
+                    //float dist_to_move = GlobalCtrl.Singleton.getLongestBBoxEdge(trans);
+                    var dist_to_move = 0.3f * screenAlignment.Singleton.getScreenSizeWS().y;
+                    trans.position += dist_to_move * screenAlignment.Singleton.getScreenNormal();
+                }
+                var mol = trans.GetComponent<Molecule>();
+                if (mol != null)
+                {
+                    EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
+                }
+            }
+            else
+            {
+                // TODO test if this is necessary
+                if (SettingsData.transitionMode == TransitionMode.FULL_3D)
+                {
+                    // init position different from ss position
+                    trans.position = grabScreenWPos.Value;
+                }
+
+                bool override_grab_hold = triggered_by == InteractionType.BUTTON_PRESS ? true : false;
+
+                if (SettingsData.immersiveTarget == ImmersiveTarget.HAND_FOLLOW)
+                {
+                    StartCoroutine(moveToHand(trans, override_grab_hold));
+                }
+                else if (SettingsData.immersiveTarget == ImmersiveTarget.HAND_FIXED)
+                {
+                    var index_pos = HandTracking.Singleton.getIndexTip();
+                    StartCoroutine(moveToPos(trans, index_pos, override_grab_hold));
+                }
+                else if (SettingsData.immersiveTarget == ImmersiveTarget.CAMERA)
+                {
+                    StartCoroutine(moveToUser(trans, override_grab_hold));
+                }
+                else // SettingsData.immersiveTarget == ImmersiveTarget.FRONT_OF_SCREEN
+                {
+
+                    //var longest_edge = GlobalCtrl.Singleton.getLongestBBoxEdge(trans);
+                    var dist_to_move = 0.3f * screenAlignment.Singleton.getScreenSizeWS().y;
+                    //float dist_to_move = // half_screen_y > longest_edge ? 3f * longest_edge : half_screen_y;
+                    var fos_pos = trans.position + dist_to_move * screenAlignment.Singleton.getScreenNormal();
+                    StartCoroutine(moveToPos(trans, fos_pos, true));
+                }
+                if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.SCALE))
+                {
+                    Debug.Log("[getTransitionClient] Animating scale.");
+                    StartCoroutine(scaleWhileMoving(trans, 1f, override_grab_hold));
+                }
+            }
+            AudioSource.PlayClipAtPoint(getTransition, trans.position);
+        }
+
+        public void getMoleculeTransitionServer(Molecule mol, InteractionType triggered_by, int from_id)
+        {
+            getTransitionServer(mol.transform, triggered_by);
+        }
+
+        public void getGenericObjectTransitionServer(GenericObject go, InteractionType triggered_by, int from_id)
+        {
+            getTransitionServer(go.transform, triggered_by);
+        }
+
+        private void getTransitionServer(Transform trans, InteractionType triggered_by)
+        {
+            StartCoroutine(startCooldown());
+
+            if (StudyTaskManager.Singleton)
+            {
+                StudyTaskManager.Singleton.logTransition(trans.name, triggered_by);
+            }
+            if (triggered_by != InteractionType.CLOSE_GRAB)
+            {
+                if (current_ss_coords == null)
                 {
                     trans.position = GlobalCtrl.Singleton.getIdealSpawnPos(trans);
                 }
-                else if (SettingsData.desktopTarget == DesktopTarget.HOVER)
+                else
                 {
-                    trans.position = GlobalCtrl.Singleton.getIdealSpawnPos(trans, current_ss_coords.Value);
-                }
-                else // cursor position
-                {
-                    trans.position = GlobalCtrl.Singleton.getIdealSpawnPos(trans, Input.mousePosition);
+                    // TODO extra case for init by button?
+                    if (SettingsData.desktopTarget == DesktopTarget.CENTER_OF_SCREEN)
+                    {
+                        trans.position = GlobalCtrl.Singleton.getIdealSpawnPos(trans);
+                    }
+                    else if (SettingsData.desktopTarget == DesktopTarget.HOVER)
+                    {
+                        trans.position = GlobalCtrl.Singleton.getIdealSpawnPos(trans, current_ss_coords.Value);
+                    }
+                    else // cursor position
+                    {
+                        trans.position = GlobalCtrl.Singleton.getIdealSpawnPos(trans, Input.mousePosition);
+                    }
                 }
             }
-        }
 
-        if (SettingsData.transitionMode == TransitionMode.FULL_3D)
-        {
-            StartCoroutine(moveAway(trans));
-        }
-    }
-
-    private IEnumerator scaleWhileMoving(Transform trans, float target_scale = 1f, bool override_grab_hold = false)
-    {
-        float start_scale = trans.localScale.x;
-        float elapsedTime = 0f;
-        AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-        while (elapsedTime < SettingsData.transitionAnimationDuration)
-        {
-            if (SettingsData.requireGrabHold && !override_grab_hold)
+            if (SettingsData.transitionMode == TransitionMode.FULL_3D)
             {
-                if (!grabHold)
-                {
-                    StartCoroutine(scaleAnimation(trans, start_scale));
-                    yield break;
-                }
+                StartCoroutine(moveAway(trans));
             }
-            // Increment elapsed time
-            elapsedTime += Time.fixedDeltaTime;
-            // Calculate the normalized time (0 to 1)
-            float normalizedTime = Mathf.Clamp01(elapsedTime / SettingsData.transitionAnimationDuration);
-            // Evaluate the curve at the normalized time
-            float curveValue = animationCurve.Evaluate(normalizedTime);
-            // Interpolate between start and end points
-            trans.localScale = Mathf.Lerp(start_scale, target_scale, curveValue) * Vector3.one;
+        }
 
-            // sync if molecule
+        private IEnumerator scaleWhileMoving(Transform trans, float target_scale = 1f, bool override_grab_hold = false)
+        {
+            float start_scale = trans.localScale.x;
+            float elapsedTime = 0f;
+            AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+            while (elapsedTime < SettingsData.transitionAnimationDuration)
+            {
+                if (SettingsData.requireGrabHold && !override_grab_hold)
+                {
+                    if (!grabHold)
+                    {
+                        StartCoroutine(scaleAnimation(trans, start_scale));
+                        yield break;
+                    }
+                }
+                // Increment elapsed time
+                elapsedTime += Time.fixedDeltaTime;
+                // Calculate the normalized time (0 to 1)
+                float normalizedTime = Mathf.Clamp01(elapsedTime / SettingsData.transitionAnimationDuration);
+                // Evaluate the curve at the normalized time
+                float curveValue = animationCurve.Evaluate(normalizedTime);
+                // Interpolate between start and end points
+                trans.localScale = Mathf.Lerp(start_scale, target_scale, curveValue) * Vector3.one;
+
+                // sync if molecule
+                var mol = trans.GetComponent<Molecule>();
+                if (mol != null)
+                {
+                    EventManager.Singleton.ChangeMoleculeScale(mol.m_id, trans.localScale.x);
+                }
+
+                yield return null;  // wait for next frame
+            }
+        }
+
+        private IEnumerator scaleAnimation(Transform trans, float target_scale = 1f)
+        {
+            var mol = trans.GetComponent<Molecule>();
+            float start_scale = trans.localScale.x;
+            float elapsedTime = 0f;
+            AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+            while (elapsedTime < SettingsData.transitionAnimationDuration)
+            {
+                // Increment elapsed time
+                elapsedTime += Time.fixedDeltaTime;
+                // Calculate the normalized time (0 to 1)
+                float normalizedTime = Mathf.Clamp01(elapsedTime / SettingsData.transitionAnimationDuration);
+                // Evaluate the curve at the normalized time
+                float curveValue = animationCurve.Evaluate(normalizedTime);
+                // Interpolate between start and end points
+                trans.localScale = Mathf.Lerp(start_scale, target_scale, curveValue) * Vector3.one;
+
+                // sync if molecule
+                if (mol != null)
+                {
+                    EventManager.Singleton.ChangeMoleculeScale(mol.m_id, trans.localScale.x);
+                }
+
+                yield return null;  // wait for next frame
+            }
+        }
+
+        private IEnumerator moveAndTransition(Transform trans, Vector3 target_pos, InteractionType triggered_by, bool override_grab_hold = false)
+        {
+            var audio_source = trans.GetComponent<AudioSource>();
+            if (audio_source == null)
+            {
+                audio_source = trans.gameObject.AddComponent<AudioSource>();
+            }
+            audio_source.clip = moveFromTransitionClip;
+            audio_source.loop = true;
+            audio_source.volume = 0f;
+            audio_source.Play();
+
+            var mol = trans.GetComponent<Molecule>();
+            AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+            float elapsedTime = 0f;
+            var start_pos = trans.position;
+            var initial_distance = Vector3.Distance(start_pos, target_pos);
+            while (elapsedTime < SettingsData.transitionAnimationDuration)
+            {
+                if (SettingsData.requireGrabHold && !override_grab_hold)
+                {
+                    if (!grabHold)
+                    {
+                        audio_source.Stop();
+                        correctAnimationAbort(trans);
+                        yield break;
+                    }
+                }
+                // Increment elapsed time
+                elapsedTime += Time.fixedDeltaTime;
+
+                // Calculate the normalized time (0 to 1)
+                float normalizedTime = Mathf.Clamp01(elapsedTime / SettingsData.transitionAnimationDuration);
+
+                // Evaluate the curve at the normalized time
+                float curveValue = animationCurve.Evaluate(normalizedTime);
+
+                // Interpolate between start and end points
+                trans.position = Vector3.Lerp(start_pos, target_pos, curveValue);
+
+                var current_distance = Vector3.Distance(trans.position, target_pos);
+                audio_source.volume = Mathf.Clamp01(1f - current_distance / initial_distance) * 0.75f;
+
+                // sync if molecule
+                if (mol != null)
+                {
+                    EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
+                }
+
+                yield return null; // wait for next frame
+            }
+            audio_source.Stop();
+
+            if (mol != null)
+            {
+                if (StudyTaskManager.Singleton) StudyTaskManager.Singleton.logTransition(mol.name, triggered_by);
+                EventManager.Singleton.TransitionMolecule(mol, triggered_by);
+            }
+            else
+            {
+                var go = trans.GetComponent<GenericObject>();
+                if (StudyTaskManager.Singleton) StudyTaskManager.Singleton.logTransition(go.name, triggered_by);
+                EventManager.Singleton.TransitionGenericObject(go, triggered_by);
+            }
+            AudioSource.PlayClipAtPoint(doTransition, trans.position);
+        }
+
+        private IEnumerator moveToPos(Transform trans, Vector3 target_pos, bool override_grab_hold = false)
+        {
+            var audio_source = trans.GetComponent<AudioSource>();
+            if (audio_source == null)
+            {
+                audio_source = trans.gameObject.AddComponent<AudioSource>();
+            }
+            audio_source.clip = moveFromTransitionClip;
+            audio_source.loop = true;
+            audio_source.volume = 0f;
+            audio_source.Play();
+
+            var mol = trans.GetComponent<Molecule>();
+            AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+            float elapsedTime = 0f;
+            var start_pos = trans.position;
+            var initial_distance = Vector3.Distance(start_pos, target_pos);
+            while (elapsedTime < SettingsData.transitionAnimationDuration)
+            {
+                if (SettingsData.requireGrabHold && !override_grab_hold)
+                {
+                    if (!grabHold)
+                    {
+                        audio_source.Stop();
+                        correctAnimationAbort(trans);
+                        yield break;
+                    }
+                }
+                // Increment elapsed time
+                elapsedTime += Time.fixedDeltaTime;
+
+                // Calculate the normalized time (0 to 1)
+                float normalizedTime = Mathf.Clamp01(elapsedTime / SettingsData.transitionAnimationDuration);
+
+                // Evaluate the curve at the normalized time
+                float curveValue = animationCurve.Evaluate(normalizedTime);
+
+                // Interpolate between start and end points
+                trans.position = Vector3.Lerp(start_pos, target_pos, curveValue);
+
+                var current_distance = Vector3.Distance(trans.position, target_pos);
+                audio_source.volume = Mathf.Clamp01(1f - current_distance / initial_distance) * 0.75f;
+
+                // sync if molecule
+                if (mol != null)
+                {
+                    EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
+                }
+
+                yield return null; // wait for next frame
+            }
+            audio_source.Stop();
+        }
+
+        private IEnumerator moveToScreenAndTransition(Transform trans, InteractionType triggered_by, bool override_grab_hold = false)
+        {
+            var center = screenAlignment.Singleton.getScreenCenter();
+            var target_pos = center;
+
+            var audio_source = trans.GetComponent<AudioSource>();
+            if (audio_source == null)
+            {
+                audio_source = trans.gameObject.AddComponent<AudioSource>();
+            }
+            audio_source.clip = moveFromTransitionClip;
+            audio_source.loop = true;
+            audio_source.volume = 0f;
+            audio_source.Play();
+
+            var mol = trans.GetComponent<Molecule>();
+            AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+            float elapsedTime = 0f;
+            var start_pos = trans.position;
+            var initial_distance = Vector3.Distance(start_pos, target_pos);
+            while (elapsedTime < SettingsData.transitionAnimationDuration)
+            {
+                if (SettingsData.requireGrabHold && !override_grab_hold)
+                {
+                    if (!grabHold)
+                    {
+                        audio_source.Stop();
+                        correctAnimationAbort(trans);
+                        yield break;
+                    }
+                }
+                // Increment elapsed time
+                elapsedTime += Time.fixedDeltaTime;
+
+                // Calculate the normalized time (0 to 1)
+                float normalizedTime = Mathf.Clamp01(elapsedTime / SettingsData.transitionAnimationDuration);
+
+                // Evaluate the curve at the normalized time
+                float curveValue = animationCurve.Evaluate(normalizedTime);
+
+                if (SettingsData.desktopTarget == DesktopTarget.HOVER)
+                {
+                    target_pos = screenAlignment.Singleton.getCurrentProjectedIndexPos();
+                    //if (!screenAlignment.Singleton.contains(pos)) ...
+                }
+                if (SettingsData.desktopTarget == DesktopTarget.CURSOR_POSITION)
+                {
+                    target_pos = screenAlignment.Singleton.getWorldSpaceCoords(NetworkManagerClient.Singleton.ServerMousePosition);
+                }
+
+                // Interpolate between start and end points
+                trans.position = Vector3.Lerp(start_pos, target_pos, curveValue);
+
+                var current_distance = Vector3.Distance(trans.position, target_pos);
+                audio_source.volume = Mathf.Clamp01(1f - current_distance / initial_distance) * 0.75f;
+
+                // sync if molecule
+                if (mol != null)
+                {
+                    EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
+                }
+
+                yield return null; // wait for next frame
+            }
+            audio_source.Stop();
+
+            if (mol != null)
+            {
+                EventManager.Singleton.TransitionMolecule(mol, triggered_by);
+            }
+            else
+            {
+                var go = trans.GetComponent<GenericObject>();
+                EventManager.Singleton.TransitionGenericObject(go, triggered_by);
+            }
+            AudioSource.PlayClipAtPoint(doTransition, trans.position);
+        }
+
+        private IEnumerator moveToHand(Transform trans, bool override_grab_hold = false)
+        {
+            var relQuat = Quaternion.identity;
             var mol = trans.GetComponent<Molecule>();
             if (mol != null)
             {
-                EventManager.Singleton.ChangeMoleculeScale(mol.m_id, trans.localScale.x);
+                relQuat = mol.relQuatBeforeTransition;
+            }
+            else
+            {
+                var go = trans.GetComponent<GenericObject>();
+                relQuat = go.relQuatBeforeTransition;
             }
 
-            yield return null;  // wait for next frame
-        }
-    }
-
-    private IEnumerator scaleAnimation(Transform trans, float target_scale = 1f)
-    {
-        var mol = trans.GetComponent<Molecule>();
-        float start_scale = trans.localScale.x;
-        float elapsedTime = 0f;
-        AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-        while (elapsedTime < SettingsData.transitionAnimationDuration)
-        {
-            // Increment elapsed time
-            elapsedTime += Time.fixedDeltaTime;
-            // Calculate the normalized time (0 to 1)
-            float normalizedTime = Mathf.Clamp01(elapsedTime / SettingsData.transitionAnimationDuration);
-            // Evaluate the curve at the normalized time
-            float curveValue = animationCurve.Evaluate(normalizedTime);
-            // Interpolate between start and end points
-            trans.localScale = Mathf.Lerp(start_scale, target_scale, curveValue) * Vector3.one;
-
-            // sync if molecule
-            if (mol != null)
+            var audio_source = trans.GetComponent<AudioSource>();
+            if (audio_source == null)
             {
-                EventManager.Singleton.ChangeMoleculeScale(mol.m_id, trans.localScale.x);
+                audio_source = trans.gameObject.AddComponent<AudioSource>();
             }
+            audio_source.clip = moveFromTransitionClip;
+            audio_source.loop = true;
+            audio_source.volume = 0f;
+            audio_source.Play();
 
-            yield return null;  // wait for next frame
-        }
-    }
-
-    private IEnumerator moveAndTransition(Transform trans, Vector3 target_pos, InteractionType triggered_by, bool override_grab_hold = false)
-    {
-        var audio_source = trans.GetComponent<AudioSource>();
-        if (audio_source == null)
-        {
-            audio_source = trans.gameObject.AddComponent<AudioSource>();
-        }
-        audio_source.clip = moveFromTransitionClip;
-        audio_source.loop = true;
-        audio_source.volume = 0f;
-        audio_source.Play();
-
-        var mol = trans.GetComponent<Molecule>();
-        AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-        float elapsedTime = 0f;
-        var start_pos = trans.position;
-        var initial_distance = Vector3.Distance(start_pos, target_pos);
-        while (elapsedTime < SettingsData.transitionAnimationDuration)
-        {
-            if (SettingsData.requireGrabHold && !override_grab_hold)
+            AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+            float elapsedTime = 0f;
+            var start_pos = trans.position;
+            var target_pos = HandTracking.Singleton.getIndexTip();
+            var initial_distance = Vector3.Distance(trans.position, target_pos);
+            while (elapsedTime < SettingsData.transitionAnimationDuration)
             {
-                if (!grabHold)
+                if (SettingsData.requireGrabHold && !override_grab_hold)
                 {
-                    audio_source.Stop();
-                    correctAnimationAbort(trans);
-                    yield break;
+                    if (!grabHold)
+                    {
+                        audio_source.Stop();
+                        correctAnimationAbort(trans);
+                        yield break;
+                    }
                 }
-            }
-            // Increment elapsed time
-            elapsedTime += Time.fixedDeltaTime;
+                // Increment elapsed time
+                elapsedTime += Time.fixedDeltaTime;
 
-            // Calculate the normalized time (0 to 1)
-            float normalizedTime = Mathf.Clamp01(elapsedTime / SettingsData.transitionAnimationDuration);
+                // Calculate the normalized time (0 to 1)
+                float normalizedTime = Mathf.Clamp01(elapsedTime / SettingsData.transitionAnimationDuration);
 
-            // Evaluate the curve at the normalized time
-            float curveValue = animationCurve.Evaluate(normalizedTime);
+                // Evaluate the curve at the normalized time
+                float curveValue = animationCurve.Evaluate(normalizedTime);
 
-            // Interpolate between start and end points
-            trans.position = Vector3.Lerp(start_pos, target_pos, curveValue);
+                target_pos = HandTracking.Singleton.getIndexTip();
+                // Interpolate between start and end points
+                trans.position = Vector3.Lerp(start_pos, target_pos, curveValue);
 
-            var current_distance = Vector3.Distance(trans.position, target_pos);
-            audio_source.volume = Mathf.Clamp01(1f - current_distance / initial_distance) * 0.75f;
+                var current_distance = Vector3.Distance(trans.position, target_pos);
+                audio_source.volume = Mathf.Clamp01(1f - current_distance / initial_distance) * 0.75f;
 
-            // sync if molecule
-            if (mol != null)
-            {
-                EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
-            }
-
-            yield return null; // wait for next frame
-        }
-        audio_source.Stop();
-
-        if (mol != null)
-        {
-            if (StudyTaskManager.Singleton) StudyTaskManager.Singleton.logTransition(mol.name, triggered_by);
-            EventManager.Singleton.TransitionMolecule(mol, triggered_by);
-        }
-        else
-        {
-            var go = trans.GetComponent<GenericObject>();
-            if (StudyTaskManager.Singleton) StudyTaskManager.Singleton.logTransition(go.name, triggered_by);
-            EventManager.Singleton.TransitionGenericObject(go, triggered_by);
-        }
-        AudioSource.PlayClipAtPoint(doTransition, trans.position);
-    }
-
-    private IEnumerator moveToPos(Transform trans, Vector3 target_pos, bool override_grab_hold = false)
-    {
-        var audio_source = trans.GetComponent<AudioSource>();
-        if (audio_source == null)
-        {
-            audio_source = trans.gameObject.AddComponent<AudioSource>();
-        }
-        audio_source.clip = moveFromTransitionClip;
-        audio_source.loop = true;
-        audio_source.volume = 0f;
-        audio_source.Play();
-
-        var mol = trans.GetComponent<Molecule>();
-        AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-        float elapsedTime = 0f;
-        var start_pos = trans.position;
-        var initial_distance = Vector3.Distance(start_pos, target_pos);
-        while (elapsedTime < SettingsData.transitionAnimationDuration)
-        {
-            if (SettingsData.requireGrabHold && !override_grab_hold)
-            {
-                if (!grabHold)
+                if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.ROTATION))
                 {
-                    audio_source.Stop();
-                    correctAnimationAbort(trans);
-                    yield break;
+                    var head_to_obj = Quaternion.LookRotation(trans.position - GlobalCtrl.Singleton.currentCamera.transform.position);
+                    trans.rotation = head_to_obj * relQuat;
                 }
-            }
-            // Increment elapsed time
-            elapsedTime += Time.fixedDeltaTime;
 
-            // Calculate the normalized time (0 to 1)
-            float normalizedTime = Mathf.Clamp01(elapsedTime / SettingsData.transitionAnimationDuration);
-
-            // Evaluate the curve at the normalized time
-            float curveValue = animationCurve.Evaluate(normalizedTime);
-
-            // Interpolate between start and end points
-            trans.position = Vector3.Lerp(start_pos, target_pos, curveValue);
-
-            var current_distance = Vector3.Distance(trans.position, target_pos);
-            audio_source.volume = Mathf.Clamp01(1f - current_distance / initial_distance) * 0.75f;
-
-            // sync if molecule
-            if (mol != null)
-            {
-                EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
-            }
-
-            yield return null; // wait for next frame
-        }
-        audio_source.Stop();
-    }
-
-    private IEnumerator moveToScreenAndTransition(Transform trans, InteractionType triggered_by, bool override_grab_hold = false)
-    {
-        var center = screenAlignment.Singleton.getScreenCenter();
-        var target_pos = center;
-
-        var audio_source = trans.GetComponent<AudioSource>();
-        if (audio_source == null)
-        {
-            audio_source = trans.gameObject.AddComponent<AudioSource>();
-        }
-        audio_source.clip = moveFromTransitionClip;
-        audio_source.loop = true;
-        audio_source.volume = 0f;
-        audio_source.Play();
-
-        var mol = trans.GetComponent<Molecule>();
-        AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-        float elapsedTime = 0f;
-        var start_pos = trans.position;
-        var initial_distance = Vector3.Distance(start_pos, target_pos);
-        while (elapsedTime < SettingsData.transitionAnimationDuration)
-        {
-            if (SettingsData.requireGrabHold && !override_grab_hold)
-            {
-                if (!grabHold)
+                // sync if molecule
+                if (mol != null)
                 {
-                    audio_source.Stop();
-                    correctAnimationAbort(trans);
-                    yield break;
+                    EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
                 }
+
+                yield return null; // wait for next frame
             }
-            // Increment elapsed time
-            elapsedTime += Time.fixedDeltaTime;
+            audio_source.Stop();
+        }
 
-            // Calculate the normalized time (0 to 1)
-            float normalizedTime = Mathf.Clamp01(elapsedTime / SettingsData.transitionAnimationDuration);
-
-            // Evaluate the curve at the normalized time
-            float curveValue = animationCurve.Evaluate(normalizedTime);
-
-            if (SettingsData.desktopTarget == DesktopTarget.HOVER)
+        private void correctAnimationAbort(Transform trans)
+        {
+            var target_dist = 0.3f * screenAlignment.Singleton.getScreenSizeWS().y;
+            float current_dist = screenAlignment.Singleton.getDistanceFromScreen(trans.position);
+            if (current_dist < target_dist)
             {
-                target_pos = screenAlignment.Singleton.getCurrentProjectedIndexPos();
-                //if (!screenAlignment.Singleton.contains(pos)) ...
+                var target_proj = screenAlignment.Singleton.projectWSPointToScreen(trans.position);
+                var target_pos = target_proj + target_dist * screenAlignment.Singleton.getScreenNormal();
+                StartCoroutine(moveToPos(trans, target_pos, true));
             }
-            if (SettingsData.desktopTarget == DesktopTarget.CURSOR_POSITION)
-            {
-                target_pos = screenAlignment.Singleton.getWorldSpaceCoords(NetworkManagerClient.Singleton.ServerMousePosition);
-            }
+        }
 
-            // Interpolate between start and end points
-            trans.position = Vector3.Lerp(start_pos, target_pos, curveValue);
-
-            var current_distance = Vector3.Distance(trans.position, target_pos);
-            audio_source.volume = Mathf.Clamp01(1f - current_distance / initial_distance) * 0.75f;
-
-            // sync if molecule
+        private IEnumerator moveToUser(Transform trans, bool override_grab_hold = false)
+        {
+            var target_pos = GlobalCtrl.Singleton.getCurrentSpawnPos();
+            var initial_distance = Vector3.Distance(target_pos, trans.position);
+            var relQuat = Quaternion.identity;
+            var mol = trans.GetComponent<Molecule>();
             if (mol != null)
             {
-                EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
+                relQuat = mol.relQuatBeforeTransition;
+            }
+            else
+            {
+                var go = trans.GetComponent<GenericObject>();
+                relQuat = go.relQuatBeforeTransition;
             }
 
-            yield return null; // wait for next frame
-        }
-        audio_source.Stop();
-
-        if (mol != null)
-        {
-            EventManager.Singleton.TransitionMolecule(mol, triggered_by);
-        }
-        else
-        {
-            var go = trans.GetComponent<GenericObject>();
-            EventManager.Singleton.TransitionGenericObject(go, triggered_by);
-        }
-        AudioSource.PlayClipAtPoint(doTransition, trans.position);
-    }
-
-    private IEnumerator moveToHand(Transform trans, bool override_grab_hold = false)
-    {
-        var relQuat = Quaternion.identity;
-        var mol = trans.GetComponent<Molecule>();
-        if (mol != null)
-        {
-            relQuat = mol.relQuatBeforeTransition;
-        }
-        else
-        {
-            var go = trans.GetComponent<GenericObject>();
-            relQuat = go.relQuatBeforeTransition;
-        }
-
-        var audio_source = trans.GetComponent<AudioSource>();
-        if (audio_source == null)
-        {
-            audio_source = trans.gameObject.AddComponent<AudioSource>();
-        }
-        audio_source.clip = moveFromTransitionClip;
-        audio_source.loop = true;
-        audio_source.volume = 0f;
-        audio_source.Play();
-
-        AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-        float elapsedTime = 0f;
-        var start_pos = trans.position;
-        var target_pos = HandTracking.Singleton.getIndexTip();
-        var initial_distance = Vector3.Distance(trans.position, target_pos);
-        while (elapsedTime < SettingsData.transitionAnimationDuration)
-        {
-            if (SettingsData.requireGrabHold && !override_grab_hold)
+            var audio_source = trans.GetComponent<AudioSource>();
+            if (audio_source == null)
             {
-                if (!grabHold)
+                audio_source = trans.gameObject.AddComponent<AudioSource>();
+            }
+            audio_source.clip = moveFromTransitionClip;
+            audio_source.loop = true;
+            audio_source.volume = 0f;
+            audio_source.Play();
+
+            AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+            float elapsedTime = 0f;
+            var start_pos = trans.position;
+            while (elapsedTime < SettingsData.transitionAnimationDuration)
+            {
+                if (SettingsData.requireGrabHold && !override_grab_hold)
                 {
-                    audio_source.Stop();
-                    correctAnimationAbort(trans);
-                    yield break;
+                    if (!grabHold)
+                    {
+                        audio_source.Stop();
+                        correctAnimationAbort(trans);
+                        yield break;
+                    }
                 }
-            }
-            // Increment elapsed time
-            elapsedTime += Time.fixedDeltaTime;
+                // Increment elapsed time
+                elapsedTime += Time.fixedDeltaTime;
 
-            // Calculate the normalized time (0 to 1)
-            float normalizedTime = Mathf.Clamp01(elapsedTime / SettingsData.transitionAnimationDuration);
+                // Calculate the normalized time (0 to 1)
+                float normalizedTime = Mathf.Clamp01(elapsedTime / SettingsData.transitionAnimationDuration);
 
-            // Evaluate the curve at the normalized time
-            float curveValue = animationCurve.Evaluate(normalizedTime);
+                // Evaluate the curve at the normalized time
+                float curveValue = animationCurve.Evaluate(normalizedTime);
 
-            target_pos = HandTracking.Singleton.getIndexTip();
-            // Interpolate between start and end points
-            trans.position = Vector3.Lerp(start_pos, target_pos, curveValue);
+                //target_pos = GlobalCtrl.Singleton.getCurrentSpawnPos();
+                // Interpolate between start and end points
+                trans.position = Vector3.Lerp(start_pos, target_pos, curveValue);
 
-            var current_distance = Vector3.Distance(trans.position, target_pos);
-            audio_source.volume = Mathf.Clamp01(1f - current_distance / initial_distance) * 0.75f;
+                var current_distance = Vector3.Distance(trans.position, target_pos);
+                audio_source.volume = Mathf.Clamp01(1f - current_distance / initial_distance) * 0.75f;
 
-            if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.ROTATION))
-            {
-                var head_to_obj = Quaternion.LookRotation(trans.position - GlobalCtrl.Singleton.currentCamera.transform.position);
-                trans.rotation = head_to_obj * relQuat;
-            }
-
-            // sync if molecule
-            if (mol != null)
-            {
-                EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
-            }
-
-            yield return null; // wait for next frame
-        }
-        audio_source.Stop();
-    }
-
-    private void correctAnimationAbort(Transform trans)
-    {
-        var target_dist = 0.3f * screenAlignment.Singleton.getScreenSizeWS().y;
-        float current_dist = screenAlignment.Singleton.getDistanceFromScreen(trans.position);
-        if (current_dist < target_dist)
-        {
-            var target_proj = screenAlignment.Singleton.projectWSPointToScreen(trans.position);
-            var target_pos = target_proj + target_dist * screenAlignment.Singleton.getScreenNormal();
-            StartCoroutine(moveToPos(trans, target_pos, true));
-        }
-    }
-
-    private IEnumerator moveToUser(Transform trans, bool override_grab_hold = false)
-    {
-        var target_pos = GlobalCtrl.Singleton.getCurrentSpawnPos();
-        var initial_distance = Vector3.Distance(target_pos, trans.position);
-        var relQuat = Quaternion.identity;
-        var mol = trans.GetComponent<Molecule>();
-        if (mol != null)
-        {
-            relQuat = mol.relQuatBeforeTransition;
-        }
-        else
-        {
-            var go = trans.GetComponent<GenericObject>();
-            relQuat = go.relQuatBeforeTransition;
-        }
-
-        var audio_source = trans.GetComponent<AudioSource>();
-        if (audio_source == null)
-        {
-            audio_source = trans.gameObject.AddComponent<AudioSource>();
-        }
-        audio_source.clip = moveFromTransitionClip;
-        audio_source.loop = true;
-        audio_source.volume = 0f;
-        audio_source.Play();
-
-        AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-        float elapsedTime = 0f;
-        var start_pos = trans.position;
-        while (elapsedTime < SettingsData.transitionAnimationDuration)
-        {
-            if (SettingsData.requireGrabHold && !override_grab_hold)
-            {
-                if (!grabHold)
+                if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.ROTATION))
                 {
-                    audio_source.Stop();
-                    correctAnimationAbort(trans);
-                    yield break;
+                    Debug.Log("[moveToUser] Animating rotation.");
+                    var head_to_obj = Quaternion.LookRotation(trans.position - GlobalCtrl.Singleton.currentCamera.transform.position);
+                    trans.rotation = head_to_obj * relQuat;
                 }
+
+                // sync if molecule
+                if (mol != null)
+                {
+                    EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
+                }
+
+                yield return null; // wait for next frame
             }
-            // Increment elapsed time
-            elapsedTime += Time.fixedDeltaTime;
+            audio_source.Stop();
+        }
 
-            // Calculate the normalized time (0 to 1)
-            float normalizedTime = Mathf.Clamp01(elapsedTime / SettingsData.transitionAnimationDuration);
-
-            // Evaluate the curve at the normalized time
-            float curveValue = animationCurve.Evaluate(normalizedTime);
-
-            //target_pos = GlobalCtrl.Singleton.getCurrentSpawnPos();
-            // Interpolate between start and end points
-            trans.position = Vector3.Lerp(start_pos, target_pos, curveValue);
-
-            var current_distance = Vector3.Distance(trans.position, target_pos);
-            audio_source.volume = Mathf.Clamp01(1f - current_distance/initial_distance) * 0.75f;
-
-            if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.ROTATION))
+        private IEnumerator moveAway(Transform trans)
+        {
+            var destination = GlobalCtrl.Singleton.getCurrentSpawnPos();
+            AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+            float elapsedTime = 0f;
+            var start_pos = trans.position;
+            while (elapsedTime < SettingsData.transitionAnimationDuration)
             {
-                Debug.Log("[moveToUser] Animating rotation.");
-                var head_to_obj = Quaternion.LookRotation(trans.position - GlobalCtrl.Singleton.currentCamera.transform.position);
-                trans.rotation = head_to_obj * relQuat;
-            }
+                if (SettingsData.requireGrabHold)
+                {
+                    if (!grabHold) yield break;
+                }
+                // Increment elapsed time
+                elapsedTime += Time.fixedDeltaTime;
 
-            // sync if molecule
+                // Calculate the normalized time (0 to 1)
+                float normalizedTime = Mathf.Clamp01(elapsedTime / SettingsData.transitionAnimationDuration);
+
+                // Evaluate the curve at the normalized time
+                float curveValue = animationCurve.Evaluate(normalizedTime);
+
+                // Interpolate between start and end points
+                trans.position = Vector3.Lerp(start_pos, destination, curveValue);
+
+                yield return null; // wait for next frame
+            }
+        }
+
+        private IEnumerator attachToGrip(Transform trans)
+        {
+            var mol = trans.GetComponent<Molecule>();
+
+            var relQuat = Quaternion.identity;
             if (mol != null)
             {
-                EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
+                relQuat = mol.relQuatBeforeTransition;
             }
-
-            yield return null; // wait for next frame
-        }
-        audio_source.Stop();
-    }
-
-    private IEnumerator moveAway(Transform trans)
-    {
-        var destination = GlobalCtrl.Singleton.getCurrentSpawnPos();
-        AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-        float elapsedTime = 0f;
-        var start_pos = trans.position;
-        while (elapsedTime < SettingsData.transitionAnimationDuration)
-        {
-            if (SettingsData.requireGrabHold)
+            else
             {
-                if (!grabHold) yield break;
+                var go = trans.GetComponent<GenericObject>();
+                relQuat = go.relQuatBeforeTransition;
             }
-            // Increment elapsed time
-            elapsedTime += Time.fixedDeltaTime;
 
-            // Calculate the normalized time (0 to 1)
-            float normalizedTime = Mathf.Clamp01(elapsedTime / SettingsData.transitionAnimationDuration);
-
-            // Evaluate the curve at the normalized time
-            float curveValue = animationCurve.Evaluate(normalizedTime);
-
-            // Interpolate between start and end points
-            trans.position = Vector3.Lerp(start_pos, destination, curveValue);
-
-            yield return null; // wait for next frame
-        }
-    }
-
-    private IEnumerator attachToGrip(Transform trans)
-    {
-        var mol = trans.GetComponent<Molecule>();
-
-        var relQuat = Quaternion.identity;
-        if (mol != null)
-        {
-            relQuat = mol.relQuatBeforeTransition;
-        }
-        else
-        {
-            var go = trans.GetComponent<GenericObject>();
-            relQuat = go.relQuatBeforeTransition;
-        }
-
-        manualSetGrip(trans, true);
-        var isGrabbed = true;
-        while (isGrabbed)
-        {
-            if(trans == null) yield break;
-            isGrabbed = HandTracking.Singleton.isIndexGrabbed();
-            trans.position = HandTracking.Singleton.getIndexTip();
-
-            if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.ROTATION))
+            manualSetGrip(trans, true);
+            var isGrabbed = true;
+            while (isGrabbed)
             {
-                var head_to_obj = Quaternion.LookRotation(trans.position - GlobalCtrl.Singleton.currentCamera.transform.position);
-                trans.rotation = head_to_obj * relQuat;
-            }
+                if (trans == null) yield break;
+                isGrabbed = HandTracking.Singleton.isIndexGrabbed();
+                trans.position = HandTracking.Singleton.getIndexTip();
 
-            // sync if molecule
+                if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.ROTATION))
+                {
+                    var head_to_obj = Quaternion.LookRotation(trans.position - GlobalCtrl.Singleton.currentCamera.transform.position);
+                    trans.rotation = head_to_obj * relQuat;
+                }
+
+                // sync if molecule
+                if (mol != null)
+                {
+                    EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
+                }
+
+                yield return null;
+            }
+            manualSetGrip(trans, false);
+        }
+
+        private void manualSetGrip(Transform trans, bool isGrabbed)
+        {
+            var mol = trans.GetComponent<Molecule>();
             if (mol != null)
             {
-                EventManager.Singleton.MoveMolecule(mol.m_id, trans.localPosition, trans.localRotation);
+                mol.isGrabbed = isGrabbed;
             }
-
-            yield return null;
+            else
+            {
+                var go = trans.GetComponent<GenericObject>();
+                go.isGrabbed = isGrabbed;
+            }
         }
-        manualSetGrip(trans, false);
+
     }
-
-    private void manualSetGrip(Transform trans, bool isGrabbed)
-    {
-        var mol = trans.GetComponent<Molecule>();
-        if (mol != null)
-        {
-            mol.isGrabbed = isGrabbed;
-        }
-        else
-        {
-            var go = trans.GetComponent<GenericObject>();
-            go.isGrabbed = isGrabbed;
-        }
-    }
-
 }

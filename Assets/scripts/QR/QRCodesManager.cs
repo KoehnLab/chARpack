@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections;
-
-using System.Collections.Generic;
-
 using UnityEngine;
-
+using System.Collections.Generic;
 #if WINDOWS_UWP
 using Microsoft.MixedReality.QR;
 #endif

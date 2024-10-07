@@ -1,4 +1,4 @@
-namespace chARpackTypes
+namespace chARpack.Types
 {
     public class Triple<T1, T2, T3>
     {

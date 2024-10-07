@@ -1,38 +1,41 @@
 using UnityEngine;
 using TMPro;
 
-public class ServerIPindicator : MonoBehaviour
+namespace chARpack
 {
-
-    private static ServerIPindicator _singleton;
-
-    public static ServerIPindicator Singleton
+    public class ServerIPindicator : MonoBehaviour
     {
-        get => _singleton;
-        private set
+
+        private static ServerIPindicator _singleton;
+
+        public static ServerIPindicator Singleton
         {
-            if (_singleton == null)
+            get => _singleton;
+            private set
             {
-                _singleton = value;
-            }
-            else if (_singleton != value)
-            {
-                Debug.Log($"[{nameof(ServerIPindicator)}] Instance already exists, destroying duplicate!");
-                Destroy(value);
-            }
+                if (_singleton == null)
+                {
+                    _singleton = value;
+                }
+                else if (_singleton != value)
+                {
+                    Debug.Log($"[{nameof(ServerIPindicator)}] Instance already exists, destroying duplicate!");
+                    Destroy(value);
+                }
 
+            }
         }
+
+        private void Awake()
+        {
+            Singleton = this;
+        }
+
+
+        public void setIP(string ip_string)
+        {
+            GetComponent<TMP_Text>().text = ip_string;
+        }
+
     }
-
-    private void Awake()
-    {
-        Singleton = this;
-    }
-
-
-    public void setIP(string ip_string)
-    {
-        GetComponent<TMP_Text>().text = ip_string;
-    }
-
 }

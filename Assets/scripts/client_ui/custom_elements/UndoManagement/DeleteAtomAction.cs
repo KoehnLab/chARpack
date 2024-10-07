@@ -1,32 +1,33 @@
-using chARpackStructs;
-using System.Collections;
+using chARpack.Structs;
 using System.Collections.Generic;
-using UnityEngine;
 
-public class DeleteAtomAction : IUndoableAction
+namespace chARpack
 {
-    private cmlData before;
-    private List<cmlData> after;
+    public class DeleteAtomAction : IUndoableAction
+    {
+        private cmlData before;
+        private List<cmlData> after;
 
-    public DeleteAtomAction(cmlData before, List<cmlData> after)
-    {
-        this.before = before;
-        this.after = after;
-    }
-    public void Execute()
-    {
-        // Only needed if we decide to implement a redo system
-        throw new System.NotImplementedException();
-    }
-
-    public void Undo()
-    {
-        // Set position to that of one of the resulting molecules since
-        // they might have been moved anywhere separately
-        foreach (cmlData molecule in after)
+        public DeleteAtomAction(cmlData before, List<cmlData> after)
         {
-            GlobalCtrl.Singleton.deleteMolecule(molecule.moleID, false);
+            this.before = before;
+            this.after = after;
         }
-        GlobalCtrl.Singleton.BuildMoleculeFromCML(before, before.moleID);
+        public void Execute()
+        {
+            // Only needed if we decide to implement a redo system
+            throw new System.NotImplementedException();
+        }
+
+        public void Undo()
+        {
+            // Set position to that of one of the resulting molecules since
+            // they might have been moved anywhere separately
+            foreach (cmlData molecule in after)
+            {
+                GlobalCtrl.Singleton.deleteMolecule(molecule.moleID, false);
+            }
+            GlobalCtrl.Singleton.BuildMoleculeFromCML(before, before.moleID);
+        }
     }
 }

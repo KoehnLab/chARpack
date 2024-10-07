@@ -1,52 +1,54 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-
-public class ServerMoleculeTooltip : ServerTooltip
+namespace chARpack
 {
-    public Button collapseButton;
-    public Button deleteButton;
-    public Button freezeButton;
-    public Button scaleButton;
-    public Button copyButton;
-    public Button toggleDummiesButton;
-    public Button structureFormulaButton;
-    [HideInInspector] public Molecule linkedMolecule;
-
-
-    public override void Start()
-
+    public class ServerMoleculeTooltip : ServerTooltip
     {
-        base.Start();
-        collapseButton.onClick.AddListener(delegate { resize(); });
-    }
+        public Button collapseButton;
+        public Button deleteButton;
+        public Button freezeButton;
+        public Button scaleButton;
+        public Button copyButton;
+        public Button toggleDummiesButton;
+        public Button structureFormulaButton;
+        [HideInInspector] public Molecule linkedMolecule;
 
-    // Update is called once per frame
-    public void resize()
-    {
-        if (isSmall)
+
+        public override void Start()
+
         {
-            isSmall = false;
-            deleteButton.gameObject.SetActive(true);
-            freezeButton.gameObject.SetActive(true);
-            copyButton.gameObject.SetActive(true);
-            scaleButton.gameObject.SetActive(true);
-            toggleDummiesButton.gameObject.SetActive(true);
-            structureFormulaButton.gameObject.SetActive(true);
-            infobox.SetActive(true);
-            rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y - 285);
+            base.Start();
+            collapseButton.onClick.AddListener(delegate { resize(); });
         }
-        else
+
+        // Update is called once per frame
+        public void resize()
         {
-            isSmall = true;
-            deleteButton.gameObject.SetActive(false);
-            freezeButton.gameObject.SetActive(false);
-            copyButton.gameObject.SetActive(false);
-            scaleButton.gameObject.SetActive(false);
-            toggleDummiesButton.gameObject.SetActive(false);
-            structureFormulaButton.gameObject.SetActive(false);
-            infobox.SetActive(false);
-            rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y + 285);
+            if (isSmall)
+            {
+                isSmall = false;
+                deleteButton.gameObject.SetActive(true);
+                freezeButton.gameObject.SetActive(true);
+                copyButton.gameObject.SetActive(true);
+                scaleButton.gameObject.SetActive(true);
+                toggleDummiesButton.gameObject.SetActive(true);
+                structureFormulaButton.gameObject.SetActive(true);
+                infobox.SetActive(true);
+                rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y - 285);
+            }
+            else
+            {
+                isSmall = true;
+                deleteButton.gameObject.SetActive(false);
+                freezeButton.gameObject.SetActive(false);
+                copyButton.gameObject.SetActive(false);
+                scaleButton.gameObject.SetActive(false);
+                toggleDummiesButton.gameObject.SetActive(false);
+                structureFormulaButton.gameObject.SetActive(false);
+                infobox.SetActive(false);
+                rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y + 285);
+            }
         }
     }
 }

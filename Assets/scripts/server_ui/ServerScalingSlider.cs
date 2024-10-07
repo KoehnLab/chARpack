@@ -1,24 +1,24 @@
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ServerScalingSlider : ServerTooltip
+namespace chARpack
 {
-    [HideInInspector] public Molecule linkedMolecule;
-
-    public Slider slider;
-
-    public override void Start()
-
+    public class ServerScalingSlider : ServerTooltip
     {
-        base.Start();
-        closeButton.onClick.AddListener(delegate { Destroy(gameObject); });
-    }
+        [HideInInspector] public Molecule linkedMolecule;
 
-    public void resetScale()
-    {
-        slider.value = SettingsData.defaultMoleculeSize;
+        public Slider slider;
+
+        public override void Start()
+
+        {
+            base.Start();
+            closeButton.onClick.AddListener(delegate { Destroy(gameObject); });
+        }
+
+        public void resetScale()
+        {
+            slider.value = SettingsData.defaultMoleculeSize;
+        }
     }
 }

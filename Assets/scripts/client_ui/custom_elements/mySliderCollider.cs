@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace Microsoft.MixedReality.Toolkit.UI
+namespace chARpack
 {
     /// <summary>
     /// This script provides mouse interactability for a slider thumb.
@@ -26,7 +24,7 @@ namespace Microsoft.MixedReality.Toolkit.UI
             }
             distToCamera = Vector3.Dot(currentCam.transform.forward, transform.position - currentCam.transform.position);
             startingPosition = currentCam.ScreenToWorldPoint(
-                new Vector3(UnityEngine.Input.mousePosition.x, UnityEngine.Input.mousePosition.y, distToCamera));
+                new Vector3(Input.mousePosition.x, Input.mousePosition.y, distToCamera));
             slider.StartSliderValue = slider.SliderValue;
         }
 
@@ -42,7 +40,7 @@ namespace Microsoft.MixedReality.Toolkit.UI
                 currentCam = Camera.main;
             }
             Vector3 newPosition = currentCam.ScreenToWorldPoint(
-                new Vector3(UnityEngine.Input.mousePosition.x, UnityEngine.Input.mousePosition.y, distToCamera));
+                new Vector3(Input.mousePosition.x, Input.mousePosition.y, distToCamera));
             var delta = newPosition - startingPosition;
             var mouseDelta = Vector3.Dot(slider.SliderTrackDirection.normalized, delta);
 

@@ -1,28 +1,28 @@
-using chARpackStructs;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using chARpack.Structs;
 
-public class ChangeAtomAction : IUndoableAction
+namespace chARpack
 {
-    private cmlData before;
-    private cmlData after;
-
-    public ChangeAtomAction(cmlData before, cmlData after)
+    public class ChangeAtomAction : IUndoableAction
     {
-        this.before = before;
-        this.after = after;
-    }
+        private cmlData before;
+        private cmlData after;
 
-    public void Execute()
-    {
-        // Only needed if we decide to implement redo
-        throw new System.NotImplementedException();
-    }
+        public ChangeAtomAction(cmlData before, cmlData after)
+        {
+            this.before = before;
+            this.after = after;
+        }
 
-    public void Undo()
-    {
-        GlobalCtrl.Singleton.deleteMolecule(after.moleID, false);
-        GlobalCtrl.Singleton.BuildMoleculeFromCML(before, before.moleID);
+        public void Execute()
+        {
+            // Only needed if we decide to implement redo
+            throw new System.NotImplementedException();
+        }
+
+        public void Undo()
+        {
+            GlobalCtrl.Singleton.deleteMolecule(after.moleID, false);
+            GlobalCtrl.Singleton.BuildMoleculeFromCML(before, before.moleID);
+        }
     }
 }

@@ -1,9 +1,6 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-
 using UnityEngine.Events;
 
-namespace Microsoft.MixedReality.Toolkit.UI
+namespace chARpack
 {
     /// <summary>
     /// A UnityEvent callback containing a SliderEventData payload.

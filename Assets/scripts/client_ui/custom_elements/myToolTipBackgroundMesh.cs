@@ -1,10 +1,10 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 
-namespace Microsoft.MixedReality.Toolkit.UI
+namespace chARpack
 {
     /// <summary>
+    /// Modified MRTK script
     /// Renders a background mesh for a tool tip using a mesh renderer
     /// If the mesh has an offset anchor point you will get odd results
     /// </summary>

@@ -1,28 +1,29 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// This script hides the debug window upon showing the stack trace of a specific message.
-/// </summary>
-public class hideDebugLogOnStackTrace : MonoBehaviour
+namespace chARpack
 {
-    private GameObject debugLogGO;
-
-    // become active
-    void OnEnable()
+    /// <summary>
+    /// This script hides the debug window upon showing the stack trace of a specific message.
+    /// </summary>
+    public class hideDebugLogOnStackTrace : MonoBehaviour
     {
-        debugLogGO = FindObjectOfType<DebugWindow>().gameObject;
-        debugLogGO.SetActive(false);
-    }
+        private GameObject debugLogGO;
 
-    // get deactivated
-    void OnDisable()
-    {
-        if (debugLogGO != null)
+        // become active
+        void OnEnable()
         {
-            debugLogGO.SetActive(true);
-            debugLogGO.GetComponent<DebugWindow>().updateClipping();
+            debugLogGO = FindObjectOfType<DebugWindow>().gameObject;
+            debugLogGO.SetActive(false);
+        }
+
+        // get deactivated
+        void OnDisable()
+        {
+            if (debugLogGO != null)
+            {
+                debugLogGO.SetActive(true);
+                debugLogGO.GetComponent<DebugWindow>().updateClipping();
+            }
         }
     }
 }

@@ -1,41 +1,44 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-
-public class ServerSnapTooltip : ServerTooltip
+namespace chARpack
 {
-    public Button collapseButton;
-    public Button snapButton;
-    public Button mergeButton;
-    public Molecule mol1;
-    public Molecule mol2;
-
-
-    public override void Start()
-
+    public class ServerSnapTooltip : ServerTooltip
     {
-        base.Start();
-        collapseButton.onClick.AddListener(delegate { resize(); });
-    }
+        public Button collapseButton;
+        public Button snapButton;
+        public Button mergeButton;
+        public Molecule mol1;
+        public Molecule mol2;
 
 
-    public void resize()
-    {
-        if (isSmall)
+        public override void Start()
+
         {
-            isSmall = false;
-            snapButton.gameObject.SetActive(true);
-            mergeButton.gameObject.SetActive(true);
-            infobox.SetActive(true);
-            rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y - 160);
+            base.Start();
+            collapseButton.onClick.AddListener(delegate { resize(); });
         }
-        else
+
+
+        public void resize()
         {
-            isSmall = true;
-            snapButton.gameObject.SetActive(false);
-            mergeButton.gameObject.SetActive(false);
-            infobox.SetActive(false);
-            rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y + 160);
+            if (isSmall)
+            {
+                isSmall = false;
+                snapButton.gameObject.SetActive(true);
+                mergeButton.gameObject.SetActive(true);
+                infobox.SetActive(true);
+                rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y - 160);
+            }
+            else
+            {
+                isSmall = true;
+                snapButton.gameObject.SetActive(false);
+                mergeButton.gameObject.SetActive(false);
+                infobox.SetActive(false);
+                rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y + 160);
+            }
         }
     }
 }
+

@@ -1,16 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RadialProgressBar : MonoBehaviour
+namespace chARpack
 {
-
-    public Image image;
-
-    public void setProgress(float progress)
+    public class RadialProgressBar : MonoBehaviour
     {
-        progress = Mathf.Clamp01(progress);
-        image.fillAmount = progress;
+
+        public Image image;
+
+        public void setProgress(float progress)
+        {
+            progress = Mathf.Clamp01(progress);
+            image.fillAmount = progress;
+        }
     }
 }

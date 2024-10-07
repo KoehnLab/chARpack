@@ -1,12 +1,15 @@
+using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using Microsoft.MixedReality.Toolkit.Utilities.Solvers;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Microsoft.MixedReality.Toolkit.UI
+
+namespace chARpack
 {
     /// <summary>
+    /// Modified MRTK script
     /// A utility script for toggling the 'Follow Me' behavior by activating/deactivating the Follow Solver.
     /// This script also provides optional toggle at specified distance.
     /// </summary>

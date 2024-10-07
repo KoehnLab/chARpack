@@ -1,14 +1,15 @@
 using Microsoft.MixedReality.Toolkit.UI;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class initFollowMe : MonoBehaviour
+namespace chARpack
 {
-    // Start is called before the first frame update
-    void Start()
+    public class initFollowMe : MonoBehaviour
     {
-        gameObject.GetComponent<FollowMeToggle>().SetFollowMeBehavior(true);
-    }
+        // Start is called before the first frame update
+        void Start()
+        {
+            gameObject.GetComponent<FollowMeToggle>().SetFollowMeBehavior(true);
+        }
 
+    }
 }

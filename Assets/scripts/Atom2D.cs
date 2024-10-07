@@ -1,7 +1,10 @@
 using UnityEngine;
 
-public class Atom2D : MonoBehaviour
+namespace chARpack
 {
-    public Atom atomReference;
+    public class Atom2D : MonoBehaviour
+    {
+        public Atom atomReference;
 
+    }
 }

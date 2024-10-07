@@ -1,13 +1,13 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-
 using Microsoft.MixedReality.Toolkit.Input;
+using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit;
 using System;
 using UnityEngine;
 
-namespace Microsoft.MixedReality.Toolkit.UI
+namespace chARpack
 {
     /// <summary>
+    /// Modified MRTK script
     /// A slider that can be moved by grabbing / pinching a slider thumb
     /// </summary>
     public class mySlider : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFocusHandler, IMixedRealityTouchHandler
@@ -450,12 +450,12 @@ namespace Microsoft.MixedReality.Toolkit.UI
                 TickMarks.transform.localPosition = Vector3.zero;
                 TickMarks.transform.localRotation = Quaternion.identity;
 
-                var grid = TickMarks.GetComponent<Utilities.GridObjectCollection>();
+                var grid = TickMarks.GetComponent<Microsoft.MixedReality.Toolkit.Utilities.GridObjectCollection>();
                 if (grid)
                 {
                     // Update cellwidth or cellheight depending on what was the previous axis set to
                     var previousAxis = grid.Layout;
-                    if (previousAxis == Utilities.LayoutOrder.Vertical)
+                    if (previousAxis == Microsoft.MixedReality.Toolkit.Utilities.LayoutOrder.Vertical)
                     {
                         grid.CellWidth = grid.CellHeight;
                     }
@@ -464,7 +464,7 @@ namespace Microsoft.MixedReality.Toolkit.UI
                         grid.CellHeight = grid.CellWidth;
                     }
 
-                    grid.Layout = (sliderAxis == SliderAxis.YAxis) ? Utilities.LayoutOrder.Vertical : Utilities.LayoutOrder.Horizontal;
+                    grid.Layout = (sliderAxis == SliderAxis.YAxis) ? Microsoft.MixedReality.Toolkit.Utilities.LayoutOrder.Vertical : Microsoft.MixedReality.Toolkit.Utilities.LayoutOrder.Horizontal;
                     grid.UpdateCollection();
                 }
 

@@ -1,11 +1,8 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-
 using Microsoft.MixedReality.Toolkit.UI;
 using TMPro;
 using UnityEngine;
 
-namespace Microsoft.MixedReality.Toolkit.Examples.Demos
+namespace chARpack
 {
     /// <summary>
     /// This class updates the text of the slider label when the slider is moved.

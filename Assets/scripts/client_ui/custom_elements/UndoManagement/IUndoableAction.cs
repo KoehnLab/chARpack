@@ -1,9 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public interface IUndoableAction
+namespace chARpack
 {
-    public void Execute();
-    public void Undo();
+    public interface IUndoableAction
+    {
+        public void Execute();
+        public void Undo();
+    }
 }

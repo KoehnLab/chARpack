@@ -1,40 +1,42 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-
-public class ServerBondTooltip : ServerTooltip
+namespace chARpack
 {
-    public Button collapse_button;
-    public Button deleteButton;
-    public Button modifyButton;
-    public Bond linkedBond;
-
-
-    public override void Start()
-
+    public class ServerBondTooltip : ServerTooltip
     {
-        base.Start();
-        collapse_button.onClick.AddListener(delegate { resize(); });
-    }
+        public Button collapse_button;
+        public Button deleteButton;
+        public Button modifyButton;
+        public Bond linkedBond;
 
 
-    public void resize()
-    {
-        if (isSmall)
+        public override void Start()
+
         {
-            isSmall = false;
-            deleteButton.gameObject.SetActive(true);
-            modifyButton.gameObject.SetActive(true);
-            infobox.SetActive(true);
-            rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y - 160);
+            base.Start();
+            collapse_button.onClick.AddListener(delegate { resize(); });
         }
-        else
+
+
+        public void resize()
         {
-            isSmall = true;
-            deleteButton.gameObject.SetActive(false);
-            modifyButton.gameObject.SetActive(false);
-            infobox.SetActive(false);
-            rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y + 160);
+            if (isSmall)
+            {
+                isSmall = false;
+                deleteButton.gameObject.SetActive(true);
+                modifyButton.gameObject.SetActive(true);
+                infobox.SetActive(true);
+                rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y - 160);
+            }
+            else
+            {
+                isSmall = true;
+                deleteButton.gameObject.SetActive(false);
+                modifyButton.gameObject.SetActive(false);
+                infobox.SetActive(false);
+                rect.offsetMin = new Vector2(rect.offsetMin.x, rect.offsetMin.y + 160);
+            }
         }
     }
 }

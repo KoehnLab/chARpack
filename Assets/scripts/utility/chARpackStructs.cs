@@ -1,13 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Xml.Serialization;
 using System.ComponentModel;
 using System.Linq;
-using Unity.VisualScripting;
 
-namespace chARpackStructs
+namespace chARpack.Structs
 {
     /// <summary>
     /// elements with their order are saved here
