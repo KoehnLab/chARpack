@@ -29,6 +29,9 @@ namespace chARpack
         private static bool isOpenBabelAvailable;
         private static string openBabelVersion = null;
 
+        public static string openbabel_bin;
+        public static string babel_datadir;
+
         public static void ThrowOpenBabelNotFoundError()
         {
             if (openBabelVersion != null)
@@ -37,26 +40,43 @@ namespace chARpack
             throw new OpenBabelException($"OpenBabel v{RequiredVersion}+ not found, is it on your PATH?");
         }
 
-
         public static void setEnvironmentForLocalOpenBabel()
         {
-#if UNITY_EDITOR
-            var scope = EnvironmentVariableTarget.Process; // or Machine, User
-#else
-        var scope = EnvironmentVariableTarget.User;
-#endif
-            var oldValue = Environment.GetEnvironmentVariable("PATH", scope);
-            var openbabel_bin = Path.GetFullPath(Path.Combine(Path.Combine(Application.dataPath, ".."), "openbabel"));
-            Debug.Log($"[OpenBabelSetup] Setting PATH: {openbabel_bin}");
-            if (!oldValue.Contains(openbabel_bin))
-            {
-                var newValue = $"{openbabel_bin};" + oldValue;
-                Environment.SetEnvironmentVariable("PATH", newValue, scope);
-            }
+            //#if UNITY_EDITOR
+            //            var scope = EnvironmentVariableTarget.Process; // or Machine, User
+            //#else
+            //        var scope = EnvironmentVariableTarget.User;
+            //#endif
 
-            var babel_datadir = Path.GetFullPath(Path.Combine(Path.Combine(Path.Combine(Application.dataPath, ".."), "openbabel"), "data"));
-            Debug.Log($"[OpenBabelSetup] Setting BABEL_DATADIR: {babel_datadir}");
-            Environment.SetEnvironmentVariable("BABEL_DATADIR", babel_datadir, scope);
+            openbabel_bin = Path.GetFullPath(Path.Combine(Path.Combine(Application.dataPath, ".."), "openbabel"));
+            babel_datadir = Path.GetFullPath(Path.Combine(Path.Combine(Path.Combine(Application.dataPath, ".."), "openbabel"), "data"));
+            var scopes = new EnvironmentVariableTarget[] { EnvironmentVariableTarget.Process }; //, EnvironmentVariableTarget.User };
+            Environment.SetEnvironmentVariable("BABEL_LIBDIR", openbabel_bin, EnvironmentVariableTarget.Process);
+            foreach (var scope in scopes)
+            {
+                var currentPath = Environment.GetEnvironmentVariable("PATH", scope);
+
+                Debug.Log($"[OpenBabelSetup] Setting PATH: {openbabel_bin}");
+                if (!currentPath.Contains(openbabel_bin))
+                {
+                    var newPath = $"{openbabel_bin};" + currentPath;
+                    Environment.SetEnvironmentVariable("PATH", newPath, scope);
+                }
+                Debug.Log($"[OpenBabelSetup] Setting BABEL_DATADIR: {babel_datadir}");
+                var currentDataDir = Environment.GetEnvironmentVariable("BABEL_DATADIR", scope);
+                if (currentDataDir != null)
+                {
+                    if (!currentDataDir.Contains(babel_datadir))
+                    {
+                        var newDataDir = $"{babel_datadir};" + currentDataDir;
+                        Environment.SetEnvironmentVariable("BABEL_DATADIR", newDataDir, scope);
+                    }
+                }
+                else
+                {
+                    Environment.SetEnvironmentVariable("BABEL_DATADIR", babel_datadir, scope);
+                }
+            }
         }
 
         private static void CheckForOpenBabel()
@@ -72,6 +92,14 @@ namespace chARpack
             }
 
             checkedForOpenBabel = true;
+        }
+
+        public static void SetGlobalDataBase()
+        {
+            var data_base = new OBGlobalDataBase();
+            data_base.SetReadDirectory(babel_datadir);
+            data_base.Init();
+            OBEnv.setDataDir(babel_datadir); // only works in custom openbabel
         }
 
         /// <summary>
@@ -90,8 +118,6 @@ namespace chARpack
                 throw new OpenBabelException(message + "\n" + error);
             throw new OpenBabelException(message);
         }
-
-
     }
 
     /// <summary>

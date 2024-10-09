@@ -39,22 +39,21 @@ namespace chARpack
         private void Awake()
         {
             Singleton = this;
+            OpenBabelSetup.setEnvironmentForLocalOpenBabel();
         }
 
         Thread thread;
         bool directoryExists = false;
-        string openbabel_path;
         void Start()
         {
             directoryExists = false;
-            openbabel_path = Path.GetFullPath(Path.Combine(Path.Combine(Application.dataPath, ".."), "openbabel"));
             thread = new Thread(() =>
             {
                 directoryExists = false;
-                if (!File.Exists(Path.Combine(openbabel_path, "openbabel_csharp.dll")))
+                if (!File.Exists(Path.Combine(OpenBabelSetup.openbabel_bin, "openbabel_csharp.dll")))
                 {
                     Debug.Log("[OpenBabelReadWrite] openbabel not found. Trying to extract ...");
-                    if (!File.Exists(openbabel_path + ".zip"))
+                    if (!File.Exists(OpenBabelSetup.openbabel_bin + ".zip"))
                     {
                         Debug.LogError("[OpenBabelReadWrite] No openbabel.zip found. Please install openbabel manually.");
                         return;
@@ -74,14 +73,13 @@ namespace chARpack
                 yield return new WaitForSeconds(1f);
             }
             thread.Join();
-            OpenBabelSetup.setEnvironmentForLocalOpenBabel();
             initOpenBabel();
         }
 
         private void extractEvironment()
         {
-            string extract_path = openbabel_path;
-            string download_path = openbabel_path + ".zip";
+            string extract_path = OpenBabelSetup.openbabel_bin;
+            string download_path = OpenBabelSetup.openbabel_bin + ".zip";
             Debug.Log("[OpenBabelReadWrite] Extracting zip.");
 
             ZipFile.ExtractToDirectory(download_path, extract_path, true);
@@ -96,6 +94,7 @@ namespace chARpack
             {
                 OpenBabelSetup.ThrowOpenBabelNotFoundError();
             }
+            OpenBabelSetup.SetGlobalDataBase();
 
             // get supported file formats
             var conv = new OBConversion();
@@ -548,8 +547,8 @@ namespace chARpack
 
         public bool createSmiles(string smiles)
         {
-            try
-            {
+            //try
+            //{
                 var conv = new OBConversion();
                 conv.SetInFormat(OBFormat.FindType("smiles"));
                 var obmol = new OBMol();
@@ -583,12 +582,12 @@ namespace chARpack
                 {
                     NetworkManagerServer.Singleton.pushLoadMolecule(mol);
                 }
-            }
-            catch
-            {
-                UnityEngine.Debug.LogError("SMILES interpretation failed.");
-                return false;
-            }
+            //}
+            //catch
+            //{
+            //    UnityEngine.Debug.LogError("SMILES interpretation failed.");
+            //    return false;
+            //}
             return true;
         }
 
