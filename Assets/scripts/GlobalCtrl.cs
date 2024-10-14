@@ -1473,6 +1473,22 @@ public class GlobalCtrl : MonoBehaviour
         return null;
     }
 
+    public Transform GetLastMarkedMoleculeTransform()
+    {
+        Transform lastMarked = null;
+        if (GlobalCtrl.Singleton.List_curMolecules.Count > 0)
+        {
+            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
+            {
+                if (mol.isMarked)
+                {
+                    lastMarked = mol.transform;
+                }
+            }
+        }
+        return lastMarked;
+    }
+
     public Transform getFirstHoveredObject()
     {
         if (GlobalCtrl.Singleton.List_curMolecules.Count > 0)

@@ -259,6 +259,7 @@ public class ServerInputSystem : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Tab))
             {
                 TransformGizmo.Singleton.enabled = !TransformGizmo.Singleton.enabled;
+                if(TransformGizmo.Singleton.enabled) TransformGizmo.Singleton.AddTarget(GlobalCtrl.Singleton.GetLastMarkedMoleculeTransform());
             }
 
             //if (Input.GetMouseButton(1) && Input.GetKey(KeyCode.LeftAlt))
