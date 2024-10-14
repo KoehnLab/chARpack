@@ -68,6 +68,7 @@ public class SettingsPanel : MonoBehaviour
     private void OnEnable()
     {
         updateElements();
+        transform.SetAsLastSibling();
     }
 
     IEnumerator ShowSaveDialogCoroutine()
