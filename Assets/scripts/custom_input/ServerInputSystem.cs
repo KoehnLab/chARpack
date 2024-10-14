@@ -258,8 +258,12 @@ public class ServerInputSystem : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.Tab))
             {
+                Transform targetMolecule = GlobalCtrl.Singleton.GetLastMarkedMoleculeTransform();
+                if (TransformGizmo.Singleton.enabled && TransformGizmo.Singleton.mainTargetRoot) targetMolecule = TransformGizmo.Singleton.mainTargetRoot;
+
                 TransformGizmo.Singleton.enabled = !TransformGizmo.Singleton.enabled;
-                if(TransformGizmo.Singleton.enabled) TransformGizmo.Singleton.AddTarget(GlobalCtrl.Singleton.GetLastMarkedMoleculeTransform());
+
+                if(TransformGizmo.Singleton.enabled) TransformGizmo.Singleton.AddTarget(targetMolecule);
             }
 
             //if (Input.GetMouseButton(1) && Input.GetKey(KeyCode.LeftAlt))
