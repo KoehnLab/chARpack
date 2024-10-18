@@ -245,9 +245,6 @@ namespace chARpack
                     MaxTanAngleDeviation = 0.1f
                 });
 
-                // build mesh
-                StructureFormulaTo3D.generate3DRepresentation(geometries, mol_id);
-
                 // Build a sprite
                 var sprite = VectorUtils.BuildSprite(geometries, 100, VectorUtils.Alignment.Center, Vector2.zero, 128, true);
                 sf.image.sprite = sprite;

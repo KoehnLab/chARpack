@@ -13,6 +13,7 @@ using UnityEngine.SceneManagement;
 using chARpack.Types;
 using chARpack.ColorPalette;
 using RuntimeGizmos;
+using System.Collections;
 
 
 namespace chARpack
@@ -667,6 +668,13 @@ namespace chARpack
         [HideInInspector] public GameObject m_ActiveHand = null;
 
         #region manipulation
+        private IEnumerator delayTriggerActivation()
+        {
+            GetComponent<BoxCollider>().enabled = false;
+            yield return new WaitForSeconds(0.1f);
+            GetComponent<BoxCollider>().enabled = true;
+            GetComponent<BoxCollider>().isTrigger = true;
+        }
 
         /// <summary>
         /// initialises the atom with all it's attributes
@@ -687,7 +695,7 @@ namespace chARpack
             gameObject.tag = "Atom";
             //gameObject.layer = 6;
             //GetComponent<SphereCollider>().isTrigger = true;
-            GetComponent<BoxCollider>().isTrigger = true;
+            StartCoroutine(delayTriggerActivation());
 
             //I don't want to create the materials for all elements from the beginning,
             //so I only create a material for an element at the first time when I create this element,
@@ -1011,7 +1019,7 @@ namespace chARpack
         {
             if (m_molecule.getIsInteractable())
             {
-                // Debug.Log($"[Atom] Collision Detected: {collider.name}");
+                //UnityEngine.Debug.Log($"[Atom] Collision Detected: {m_molecule.m_id} {m_id}");
                 if (collider.name.StartsWith("Dummy") && name.StartsWith("Dummy"))
                 {
                     GlobalCtrl.Singleton.TryAddCollision(collider.GetComponent<Atom>(), GetComponent<Atom>());
@@ -1218,15 +1226,11 @@ namespace chARpack
                 Atom a;
                 if (m_id == b.atomID1)
                 {
-                    a = m_molecule.atomList.ElementAtOrDefault(b.atomID2);
+                    a = m_molecule.atomList.ElementAtOrNull(b.atomID2, null);
                 }
                 else
                 {
-                    a = m_molecule.atomList.ElementAtOrDefault(b.atomID1);
-                }
-                if (a == default)
-                {
-                    throw new Exception("[Atom:dummyFindMain] Could not find Atom on the other side of the bond.");
+                    a = m_molecule.atomList.ElementAtOrNull(b.atomID1, null);
                 }
                 return a;
             }

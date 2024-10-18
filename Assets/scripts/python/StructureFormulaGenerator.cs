@@ -4,6 +4,7 @@ using UnityEngine;
 using Python.Runtime;
 using System.Collections.Generic;
 using System.Collections;
+using IngameDebugConsole;
 
 namespace chARpack
 {
@@ -43,6 +44,7 @@ namespace chARpack
             {
                 EventManager.Singleton.OnMoleculeLoaded += immediateRequestStructureFormula;
             }
+            DebugLogConsole.AddCommand("generate2Drepresentaton", "Generate mesh from 2D representation", generate3DfromSelected);
         }
 
         public void requestStructureFormula(Molecule mol)
@@ -64,10 +66,60 @@ namespace chARpack
             generate(mol);
         }
 
+        private void generate3DfromSelected()
+        {
+            foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
+            {
+                if ( mol.isMarked ) 
+                {
+                    generate3D(mol);
+                }
+            }
+        }
+
+        private void generate3D(Molecule mol)
+        {
+  
+            var svg_content = fetchSVGContent(mol);
+            if (svg_content == "") return;
+
+            // push content
+            StructureFormulaTo3D.generateFromSVGContent(svg_content, mol.m_id);
+        }
+
         private void generate(Molecule mol)
         {
-            if (!PythonEnvironmentManager.Singleton) return;
-            if (!PythonEnvironmentManager.Singleton.isInitialized) return;
+            var svg_content = fetchSVGContent(mol);
+            if (svg_content == "") return;
+
+
+            if (StructureFormulaManager.Singleton)
+            {
+                StructureFormulaManager.Singleton.pushContent(mol.m_id, svg_content);
+            }
+            else
+            {
+                Debug.LogError("[structureReceiveComplete] Could not find StructureFormulaManager");
+                return;
+            }
+
+            //write svg to file
+            var file_path = Path.Combine(Application.streamingAssetsPath, $"{svg_content.Length}.svg");
+            if (File.Exists(file_path))
+            {
+                Debug.Log(file_path + " already exists.");
+                return;
+            }
+            var sr = File.CreateText(file_path);
+            sr.Write(svg_content);
+            sr.Close();
+        }
+
+
+        private string fetchSVGContent(Molecule mol)
+        {
+            if (!PythonEnvironmentManager.Singleton) return "";
+            if (!PythonEnvironmentManager.Singleton.isInitialized) return "";
             // Prepare lists
             List<Vector3> posList = new List<Vector3>();
             for (int i = 0; i < mol.atomList.Count; i++)
@@ -152,38 +204,15 @@ namespace chARpack
             catch (Exception ex)
             {
                 Debug.Log("[StructureFormulaGenerator] Could not generate a structure formula. This is expected for small Molecules.");
-                return;
+                return "";
             }
-
-
             // push content
             for (int i = 0; i < coordsArray.Count; i++)
             {
                 mol.atomList[i].structure_coords = coordsArray[i];
             }
-
-            if (StructureFormulaManager.Singleton)
-            {
-                StructureFormulaManager.Singleton.pushContent(mol.m_id, svgContent);
-            }
-            else
-            {
-                Debug.LogError("[structureReceiveComplete] Could not find StructureFormulaManager");
-                return;
-            }
-
-            //write svg to file
-            var file_path = Path.Combine(Application.streamingAssetsPath, $"{svgContent.Length}.svg");
-            if (File.Exists(file_path))
-            {
-                Debug.Log(file_path + " already exists.");
-                return;
-            }
-            var sr = File.CreateText(file_path);
-            sr.Write(svgContent);
-            sr.Close();
+            return svgContent;
         }
-
         private void OnDestroy()
         {
             //EventManager.Singleton.OnMolDataChanged -= requestStructureFormula;

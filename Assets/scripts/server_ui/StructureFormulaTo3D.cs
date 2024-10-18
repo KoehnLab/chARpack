@@ -4,13 +4,30 @@ using System.Collections.Generic;
 using System;
 using DataStructures.ViliWonka.KDTree;
 using chARpack.Types;
-using System.CodeDom;
+using System.IO;
 
 namespace chARpack
 {
     public class StructureFormulaTo3D : MonoBehaviour
     {
         public Material meshMaterial; // Material for the 3D mesh
+
+        public static void generateFromSVGContent(string svg_content, Guid mol_id)
+        {
+            var sceneInfo = SVGParser.ImportSVG(new StringReader(svg_content));
+
+
+            // Tessellate
+            var geometries = VectorUtils.TessellateScene(sceneInfo.Scene, new VectorUtils.TessellationOptions
+            {
+                StepDistance = 0.1f,
+                SamplingStepSize = 50,
+                MaxCordDeviation = 0.5f,
+                MaxTanAngleDeviation = 0.1f
+            });
+
+            generate3DRepresentation(geometries, mol_id);
+        }
 
         public static void generate3DRepresentation(List<VectorUtils.Geometry> geometry, Guid mol_id)
         {

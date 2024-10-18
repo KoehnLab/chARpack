@@ -878,8 +878,7 @@ namespace chARpack
                 GlobalCtrl.Singleton.MergeMolecule(mol1ID, atom1ID, mol2ID, atom2ID);
                 NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld());
             }
-
-            if (SettingsData.syncMode == TransitionManager.SyncMode.Async)
+            else
             {
                 //// Broadcast to other clients
                 Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastMoleculeMerged);
@@ -1047,9 +1046,9 @@ namespace chARpack
                     return;
                 }
                 GlobalCtrl.Singleton.deleteAtom(atom);
+                NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld());
             }
-
-            if (SettingsData.syncMode == TransitionManager.SyncMode.Async)
+            else
             {
                 // Broadcast to other clients
                 Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteAtom);
@@ -1058,7 +1057,6 @@ namespace chARpack
                 outMessage.AddUShort(atom_id);
                 NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
             }
-            NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld());
         }
 
         [MessageHandler((ushort)ClientToServerID.deleteMolecule)]
@@ -1105,9 +1103,9 @@ namespace chARpack
                     return;
                 }
                 GlobalCtrl.Singleton.deleteBond(bond);
+                NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld());
             }
-
-            if (SettingsData.syncMode == TransitionManager.SyncMode.Async)
+            else
             {
                 // Broadcast to other clients
                 Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteBond);
@@ -1116,7 +1114,6 @@ namespace chARpack
                 outMessage.AddGuid(mol_id);
                 NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
             }
-            NetworkManagerServer.Singleton.sendAtomWorld(GlobalCtrl.Singleton.saveAtomWorld());
         }
 
         [MessageHandler((ushort)ClientToServerID.syncMe)]

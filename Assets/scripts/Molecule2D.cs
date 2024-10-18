@@ -18,7 +18,7 @@ namespace chARpack
 
         public Vector3 molCenter = Vector3.zero;
 
-        public List<Atom2D> Atoms { get => atoms; set { atoms = value; calcCenter(); } }
+        public List<Atom2D> Atoms { get => atoms; set { atoms = value; } } // calcCenter(); } }
 
         private void calcCenter()
         {
@@ -42,7 +42,7 @@ namespace chARpack
         {
             if (initialized)
             {
-                transform.position += molReference.transform.position - molCenter;
+                transform.position = molReference.transform.position;
                 foreach (var bond in bonds)
                 {
                     //bond.atom1.transform.position = bond.atom1.atomReference.transform.position;

@@ -1737,6 +1737,10 @@ namespace chARpack
                     Atom d2 = tuple.Item2;
                     Atom a1 = d1.dummyFindMain();
                     Atom a2 = d2.dummyFindMain();
+                    if (a1 == null || a2 == null)
+                    {
+                        return merge;
+                    }
 
                     if (!a1.alreadyConnected(a2))
                     {
