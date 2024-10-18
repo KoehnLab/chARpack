@@ -322,7 +322,7 @@ namespace chARpack
                 var match = atom2D_list.Find(a => a.atomReference == atom);
                 atom2D_list_sorted.Add(match);
             }
-            mol2D.atoms = atom2D_list_sorted;
+            mol2D.Atoms = atom2D_list_sorted;
 
 
             // process split bonds
@@ -636,14 +636,14 @@ namespace chARpack
                 var q = new KDQuery();
                 q.KNearest(sf_coords_tree, double_bond_end_points[db_id].Item1, 1, res);
                 b2d.atom1ref = mol.atomList[res[0]];
-                b2d.atom1 = mol2D.atoms[res[0]];
+                b2d.atom1 = mol2D.Atoms[res[0]];
                 b2d.atom1ConnectionOffset = Vector3.Distance(double_bond_end_points[db_id].Item1, atom_sf_coords[res[0]]);
                 b2d.end1 = double_bond_end_points[db_id].Item1;
 
                 res.Clear();
                 q.KNearest(sf_coords_tree, double_bond_end_points[db_id].Item2, 1, res);
                 b2d.atom2ref = mol.atomList[res[0]];
-                b2d.atom2 = mol2D.atoms[res[0]];
+                b2d.atom2 = mol2D.Atoms[res[0]];
                 b2d.atom2ConnectionOffset = Vector3.Distance(double_bond_end_points[db_id].Item2, atom_sf_coords[res[0]]);
                 b2d.end2 = double_bond_end_points[db_id].Item2;
 
@@ -665,14 +665,14 @@ namespace chARpack
                 List<int> res = new List<int>();
                 query.KNearest(sf_coords_tree, merge_bond_end_points[mb_id].Item1, 1, res);
                 b2d.atom1ref = mol.atomList[res[0]];
-                b2d.atom1 = mol2D.atoms[res[0]];
+                b2d.atom1 = mol2D.Atoms[res[0]];
                 b2d.atom1ConnectionOffset = Vector3.Distance(merge_bond_end_points[mb_id].Item1, atom_sf_coords[res[0]]);
                 b2d.end1 = merge_bond_end_points[mb_id].Item1;
 
                 res.Clear();
                 query.KNearest(sf_coords_tree, merge_bond_end_points[mb_id].Item2, 1, res);
                 b2d.atom2ref = mol.atomList[res[0]];
-                b2d.atom2 = mol2D.atoms[res[0]];
+                b2d.atom2 = mol2D.Atoms[res[0]];
                 b2d.atom2ConnectionOffset = Vector3.Distance(merge_bond_end_points[mb_id].Item2, atom_sf_coords[res[0]]);
                 b2d.end2 = merge_bond_end_points[mb_id].Item2;
 
@@ -693,14 +693,14 @@ namespace chARpack
 
 
                 b2d.atom1ref = mol.atomList[res[0]];
-                b2d.atom1 = mol2D.atoms[res[0]];
+                b2d.atom1 = mol2D.Atoms[res[0]];
                 b2d.atom1ConnectionOffset = Vector3.Distance(simple_bond_end_points[sb_id].Item1, atom_sf_coords[res[0]]);
                 b2d.end1 = simple_bond_end_points[sb_id].Item1;
 
                 res.Clear();
                 query.KNearest(sf_coords_tree, simple_bond_end_points[sb_id].Item2, 1, res);
                 b2d.atom2ref = mol.atomList[res[0]];
-                b2d.atom2 = mol2D.atoms[res[0]];
+                b2d.atom2 = mol2D.Atoms[res[0]];
                 b2d.atom2ConnectionOffset = Vector3.Distance(simple_bond_end_points[sb_id].Item2, atom_sf_coords[res[0]]);
                 b2d.end2 = simple_bond_end_points[sb_id].Item2;
 

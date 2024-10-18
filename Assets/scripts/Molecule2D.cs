@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,17 +10,44 @@ namespace chARpack
 
         public Molecule molReference;
 
-        public List<Atom2D> atoms = new List<Atom2D>();
+        private List<Atom2D> atoms;
+
         public List<Bond2D> bonds = new List<Bond2D>();
 
         public bool initialized = false;
+
+        public Vector3 molCenter = Vector3.zero;
+
+        public List<Atom2D> Atoms { get => atoms; set { atoms = value; calcCenter(); } }
+
+        private void calcCenter()
+        {
+            var accum = Vector3.zero;
+            foreach (Transform child in transform)
+            {
+                accum = child.position;
+            }
+            accum /= transform.childCount;
+            molCenter = accum;
+            var debug_sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            debug_sphere.transform.parent = transform;
+            debug_sphere.transform.position = molCenter;
+
+            var debug_sphere2 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            debug_sphere2.transform.parent = transform;
+            debug_sphere2.transform.position = transform.position;
+        }
 
         private void Update()
         {
             if (initialized)
             {
+                transform.position += molReference.transform.position - molCenter;
                 foreach (var bond in bonds)
                 {
+                    //bond.atom1.transform.position = bond.atom1.atomReference.transform.position;
+                    //bond.atom2.transform.position = bond.atom2.atomReference.transform.position;
+
                     var a1_pos = bond.atom1.transform.position;
                     var a2_pos = bond.atom2.transform.position;
                     var offset1 = bond.atom1ConnectionOffset * transform.localScale.x;

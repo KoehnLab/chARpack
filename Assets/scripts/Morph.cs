@@ -9,21 +9,22 @@ namespace chARpack
 {
     public class Morph : MonoBehaviour
     {
-        bool opacityAfter = false;
+        bool opacitySeparate = false;
         Dictionary<Molecule, List<Tuple<Atom, Vector3>>> orig3Dpositions = new Dictionary<Molecule, List<Tuple<Atom, Vector3>>>();
         private void Start()
         {
-            DebugLogConsole.AddCommand("morph3D", "Morphs all Molecule2D", morph3D);
-            DebugLogConsole.AddCommand("morph2D", "Morphs all Molecule2D", morph2D);
-            DebugLogConsole.AddCommand("morphMol", "Morphs all Molecule2D", morphMolTo2D);
+            DebugLogConsole.AddCommand("morphSF3D", "Morphs all Molecule2D", morphSFto3D);
+            DebugLogConsole.AddCommand("morphSF2D", "Morphs all Molecule2D", morphSFto2D);
+            DebugLogConsole.AddCommand("morphMol2D", "Morphs all Molecule2D", morphMolTo2D);
+            DebugLogConsole.AddCommand("morphMol3D", "Morphs all Molecule2D", morphMolTo3D);
         }
 
-        public void morph3D()
+        public void morphSFto3D()
         {
             StartCoroutine(morphSFto3DSubroutine());
         }
 
-        public void morph2D()
+        public void morphSFto2D()
         {
             StartCoroutine(morphSFto2DSubroutine());
         }
@@ -31,6 +32,11 @@ namespace chARpack
         public void morphMolTo2D()
         {
             StartCoroutine(morphMolTo2DSubroutine());
+        }
+
+        public void morphMolTo3D()
+        {
+            StartCoroutine(morphMolTo3DSubroutine());
         }
 
         private IEnumerator morphSFto3DSubroutine()
@@ -43,7 +49,7 @@ namespace chARpack
                 // make real molecule transparent
                 mol2d.molReference.setOpacity(0f);
                 var list = new List<Triple<Atom2D, Vector3, Vector3>>();
-                foreach (var a in mol2d.atoms)
+                foreach (var a in mol2d.Atoms)
                 {
                     list.Add(new Triple<Atom2D, Vector3, Vector3>(a, a.transform.position, a.atomReference.transform.position));
                 }
@@ -102,38 +108,19 @@ namespace chARpack
                 // make real molecule transparent
                 mol2d.molReference.setOpacity(1f);
                 var list = new List<Triple<Atom2D, Vector3, Vector3>>();
-                foreach (var a in mol2d.atoms)
+                foreach (var a in mol2d.Atoms)
                 {
                     list.Add(new Triple<Atom2D, Vector3, Vector3>(a, a.transform.localPosition, a.atomReference.structure_coords));
                 }
 
                 float elapsedTime = 0f;
-                while (elapsedTime < duration)
+                if (opacitySeparate)
                 {
-                    // Increment elapsed time
-                    elapsedTime += Time.fixedDeltaTime;
-
-                    // Calculate the normalized time (0 to 1)
-                    float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
-
-                    // Evaluate the curve at the normalized time
-                    float curveValue = animationCurve.Evaluate(normalizedTime);
-
-                    // Interpolate between start and end points
-                    var opacity = Mathf.Lerp(0f, 1f, curveValue);
-                    mol2d.setOpacity(opacity);
-                    mol2d.molReference.setOpacity(1f - opacity);
-
-                    yield return null; // wait for next frame
-                }
-
-                elapsedTime = 0f;
-                while (elapsedTime < duration)
-                {
-                    // Increment elapsed time
-                    elapsedTime += Time.fixedDeltaTime;
-                    foreach (var entry in list)
+                    while (elapsedTime < duration)
                     {
+                        // Increment elapsed time
+                        elapsedTime += Time.fixedDeltaTime;
+
                         // Calculate the normalized time (0 to 1)
                         float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
 
@@ -141,7 +128,35 @@ namespace chARpack
                         float curveValue = animationCurve.Evaluate(normalizedTime);
 
                         // Interpolate between start and end points
+                        var opacity = Mathf.Lerp(0f, 1f, curveValue);
+                        mol2d.setOpacity(opacity);
+                        mol2d.molReference.setOpacity(1f - opacity);
+
+                        yield return null; // wait for next frame
+                    }
+                }
+
+
+                elapsedTime = 0f;
+                while (elapsedTime < duration)
+                {
+                    // Increment elapsed time
+                    elapsedTime += Time.fixedDeltaTime;
+                    // Calculate the normalized time (0 to 1)
+                    float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
+
+                    // Evaluate the curve at the normalized time
+                    float curveValue = animationCurve.Evaluate(normalizedTime);
+                    foreach (var entry in list)
+                    {
+                        // Interpolate between start and end points
                         entry.Item1.transform.localPosition = Vector3.Lerp(entry.Item2, entry.Item3, curveValue);
+                    }
+                    if (!opacitySeparate)
+                    {
+                        var opacity = Mathf.Lerp(0f, 1f, curveValue);
+                        mol2d.setOpacity(opacity);
+                        mol2d.molReference.setOpacity(1f - opacity);
                     }
                     yield return null; // wait for next frame
                 }
@@ -170,8 +185,35 @@ namespace chARpack
                     {
                         // Increment elapsed time
                         elapsedTime += Time.fixedDeltaTime;
-                        foreach (var a in mol2d.atoms)
+                        // Calculate the normalized time (0 to 1)
+                        float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
+                        // Evaluate the curve at the normalized time
+                        float curveValue = animationCurve.Evaluate(normalizedTime);
+                        foreach (var a in mol2d.Atoms)
                         {
+                            // Interpolate between start and end points
+                            var orig_pos = orig3Dpositions[mol].Find(e => e.Item1 == a.atomReference);
+                            a.atomReference.transform.position = Vector3.Lerp(orig_pos.Item2, mol2d.transform.TransformPoint(a.atomReference.structure_coords), curveValue);
+                            if (!opacitySeparate)
+                            {
+                                // Interpolate between start and end points
+                                var opacity = Mathf.Lerp(0f, 1f, curveValue);
+                                mol2d.setOpacity(opacity);
+                                mol.setOpacity(1f - opacity);
+                            }
+
+                        }
+                        yield return null; // wait for next frame
+                    }
+
+                    elapsedTime = 0f;
+                    if (opacitySeparate)
+                    {
+                        while (elapsedTime < duration)
+                        {
+                            // Increment elapsed time
+                            elapsedTime += Time.fixedDeltaTime;
+
                             // Calculate the normalized time (0 to 1)
                             float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
 
@@ -179,30 +221,12 @@ namespace chARpack
                             float curveValue = animationCurve.Evaluate(normalizedTime);
 
                             // Interpolate between start and end points
-                            var orig_pos = orig3Dpositions[mol].Find(e => e.Item1 == a.atomReference);
-                            a.atomReference.transform.position = Vector3.Lerp(orig_pos.Item2, a.transform.position, curveValue);
+                            var opacity = Mathf.Lerp(0f, 1f, curveValue);
+                            mol2d.setOpacity(opacity);
+                            mol.setOpacity(1f - opacity);
+
+                            yield return null; // wait for next frame
                         }
-                        yield return null; // wait for next frame
-                    }
-
-                    elapsedTime = 0f;
-                    while (elapsedTime < duration)
-                    {
-                        // Increment elapsed time
-                        elapsedTime += Time.fixedDeltaTime;
-
-                        // Calculate the normalized time (0 to 1)
-                        float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
-
-                        // Evaluate the curve at the normalized time
-                        float curveValue = animationCurve.Evaluate(normalizedTime);
-
-                        // Interpolate between start and end points
-                        var opacity = Mathf.Lerp(0f, 1f, curveValue);
-                        mol2d.setOpacity(opacity);
-                        mol.setOpacity(1f - opacity);
-
-                        yield return null; // wait for next frame
                     }
                 }
             }
@@ -224,23 +248,26 @@ namespace chARpack
                     mol.setOpacity(0f);
 
                     float elapsedTime = 0f;
-                    while (elapsedTime < duration)
+                    if (opacitySeparate)
                     {
-                        // Increment elapsed time
-                        elapsedTime += Time.fixedDeltaTime;
+                        while (elapsedTime < duration)
+                        {
+                            // Increment elapsed time
+                            elapsedTime += Time.fixedDeltaTime;
 
-                        // Calculate the normalized time (0 to 1)
-                        float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
+                            // Calculate the normalized time (0 to 1)
+                            float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
 
-                        // Evaluate the curve at the normalized time
-                        float curveValue = animationCurve.Evaluate(normalizedTime);
+                            // Evaluate the curve at the normalized time
+                            float curveValue = animationCurve.Evaluate(normalizedTime);
 
-                        // Interpolate between start and end points
-                        var opacity = Mathf.Lerp(0f, 1f, curveValue);
-                        mol.setOpacity(opacity);
-                        mol2d.setOpacity(1f - opacity);
+                            // Interpolate between start and end points
+                            var opacity = Mathf.Lerp(0f, 1f, curveValue);
+                            mol.setOpacity(opacity);
+                            mol2d.setOpacity(1f - opacity);
 
-                        yield return null; // wait for next frame
+                            yield return null; // wait for next frame
+                        }
                     }
 
 
@@ -249,17 +276,23 @@ namespace chARpack
                     {
                         // Increment elapsed time
                         elapsedTime += Time.fixedDeltaTime;
-                        foreach (var a in mol2d.atoms)
+                        // Calculate the normalized time (0 to 1)
+                        float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
+
+                        // Evaluate the curve at the normalized time
+                        float curveValue = animationCurve.Evaluate(normalizedTime);
+                        foreach (var a in mol2d.Atoms)
                         {
-                            // Calculate the normalized time (0 to 1)
-                            float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
-
-                            // Evaluate the curve at the normalized time
-                            float curveValue = animationCurve.Evaluate(normalizedTime);
-
                             // Interpolate between start and end points
                             var orig_pos = orig3Dpositions[mol].Find(e => e.Item1 == a.atomReference);
-                            a.atomReference.transform.position = Vector3.Lerp(a.transform.position, orig_pos.Item2, curveValue);
+                            a.atomReference.transform.position = Vector3.Lerp(mol2d.transform.TransformPoint(a.atomReference.structure_coords), orig_pos.Item2, curveValue);
+
+                            if (!opacitySeparate)
+                            {
+                                var opacity = Mathf.Lerp(0f, 1f, curveValue);
+                                mol.setOpacity(opacity);
+                                mol2d.setOpacity(1f - opacity);
+                            }
                         }
                         yield return null; // wait for next frame
                     }
@@ -286,7 +319,7 @@ namespace chARpack
 
         private void reset2Dpositions(Molecule2D mol2d)
         {
-            foreach (var a in mol2d.atoms)
+            foreach (var a in mol2d.Atoms)
             {
                 a.transform.localPosition = a.atomReference.structure_coords;
             }
