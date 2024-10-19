@@ -1,5 +1,6 @@
 using UnityEngine;
 #if WINDOWS_UWP
+using System.Linq;
 using UnityEngine.Windows.WebCam;
 #endif
 

@@ -5,11 +5,12 @@ using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor.Build;
 using UnityEditor;
-
+#endif
 
 
 namespace chARpack
 {
+#if UNITY_EDITOR
     [InitializeOnLoad]
     class PreBuildFileNamesSaver : IPreprocessBuildWithReport
     {
@@ -48,7 +49,6 @@ namespace chARpack
             AssetDatabase.Refresh();
         }
     }
-
 #endif
 
     [Serializable]
