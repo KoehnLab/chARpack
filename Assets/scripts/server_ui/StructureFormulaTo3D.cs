@@ -52,11 +52,11 @@ namespace chARpack
 
             // Extrude the geometry into 3D
             var extrudedMesh = CreateFlatMeshFromGeometry(geometry);
-            var total_bounds = new Bounds();
-            foreach (var exmesh in extrudedMesh)
-            {
-                total_bounds.Encapsulate(exmesh.Item2);
-            }
+            //var total_bounds = new Bounds();
+            //foreach (var exmesh in extrudedMesh)
+            //{
+            //    total_bounds.Encapsulate(exmesh.Item2);
+            //}
 
 
 
@@ -64,7 +64,7 @@ namespace chARpack
             var mat = Resources.Load<Material>("materials/sfExtrude");
             var mol2D = new GameObject($"extrude_{mol.name}").AddComponent<Molecule2D>();
             //mol2D.transform.Rotate(new Vector3(180f, 0f, 0f));
-            mol2D.transform.position = total_bounds.center;
+            //mol2D.transform.position = total_bounds.center;
             mol2D.molReference = mol;
 
             var symbol_object_list = new List<GameObject>();
@@ -80,11 +80,15 @@ namespace chARpack
             // sf coords tree
             var sf_coords_tree = new KDTree();
             var atom_sf_coords = new List<Vector3>();
+            var sf_coords_center = Vector3.zero;
             foreach (var atom in GlobalCtrl.Singleton.List_curMolecules[mol_id].atomList)
             {
                 atom_sf_coords.Add(atom.structure_coords);
+                sf_coords_center += new Vector3(atom.structure_coords.x, atom.structure_coords.y, 0f);
             }
             sf_coords_tree.Build(atom_sf_coords);
+            sf_coords_center /= GlobalCtrl.Singleton.List_curMolecules[mol_id].atomList.Count;
+            mol2D.transform.position = sf_coords_center;
 
             var list_uncategorized_small = new List<Transform>();
             var list_uncategorized_large = new List<Transform>();
@@ -389,7 +393,8 @@ namespace chARpack
                 merge_bond_end_points.Add(feps);
 
                 var merge_bond = new GameObject("Bond");
-                merge_bond.transform.position = bond_point_list[sl.Item1];
+                //merge_bond.transform.position = bond_point_list[sl.Item1];
+                merge_bond.transform.position = (feps.Item1 + feps.Item2) / 2f;
                 var look_at_endpoint = feps.Item1.y > feps.Item2.y ? feps.Item1 : feps.Item2;
                 var lower_at_endpoint = feps.Item1.y > feps.Item2.y ? feps.Item2 : feps.Item1;
                 var target_direction = look_at_endpoint - lower_at_endpoint;
@@ -814,7 +819,7 @@ namespace chARpack
             mol2D.transform.Rotate(new Vector3(180f, 0f, 0f));
 
             mol2D.transform.localScale = 0.002f * Vector3.one;
-            mol2D.transform.position = GlobalCtrl.Singleton.getCurrentSpawnPos();
+            mol2D.transform.position = mol.transform.position;//GlobalCtrl.Singleton.getCurrentSpawnPos();
 
             mol2D.transform.parent = GlobalCtrl.Singleton.atomWorld.transform;
             mol2D.initialized = true;

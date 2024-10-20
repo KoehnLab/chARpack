@@ -72,6 +72,7 @@ namespace chARpack
             {
                 if ( mol.isMarked ) 
                 {
+                    mol.markMolecule(false);
                     generate3D(mol);
                 }
             }

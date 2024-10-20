@@ -193,7 +193,7 @@ namespace chARpack
                         {
                             // Interpolate between start and end points
                             var orig_pos = orig3Dpositions[mol].Find(e => e.Item1 == a.atomReference);
-                            a.atomReference.transform.position = Vector3.Lerp(orig_pos.Item2, mol2d.transform.TransformPoint(a.atomReference.structure_coords), curveValue);
+                            a.atomReference.transform.position = Vector3.Lerp(orig_pos.Item2, mol2d.transform.TransformPoint(a.initialLocalPosition), curveValue);
                             if (!opacitySeparate)
                             {
                                 // Interpolate between start and end points
@@ -285,7 +285,7 @@ namespace chARpack
                         {
                             // Interpolate between start and end points
                             var orig_pos = orig3Dpositions[mol].Find(e => e.Item1 == a.atomReference);
-                            a.atomReference.transform.position = Vector3.Lerp(mol2d.transform.TransformPoint(a.atomReference.structure_coords), orig_pos.Item2, curveValue);
+                            a.atomReference.transform.position = Vector3.Lerp(mol2d.transform.TransformPoint(a.initialLocalPosition), orig_pos.Item2, curveValue);
 
                             if (!opacitySeparate)
                             {

@@ -561,8 +561,11 @@ namespace chARpack
                     var renderer = atom.GetComponent<Renderer>();
                     foreach (var mat in renderer.materials)
                     {
-                        var col = new Color(mat.color.r, mat.color.g, mat.color.b, value);
-                        mat.color = col;
+                        if (mat.HasProperty("_Color"))
+                        {
+                            var col = new Color(mat.color.r, mat.color.g, mat.color.b, value);
+                            mat.color = col;
+                        }
                     }
                 }
                 foreach (var bond in bondList)

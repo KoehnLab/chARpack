@@ -18,24 +18,14 @@ namespace chARpack
 
         public Vector3 molCenter = Vector3.zero;
 
-        public List<Atom2D> Atoms { get => atoms; set { atoms = value; } } // calcCenter(); } }
+        public List<Atom2D> Atoms { get => atoms; set { atoms = value; init(); } }
 
-        private void calcCenter()
+        private void init()
         {
-            var accum = Vector3.zero;
-            foreach (Transform child in transform)
+            foreach (var a in atoms)
             {
-                accum = child.position;
+                a.initialLocalPosition = a.transform.localPosition;
             }
-            accum /= transform.childCount;
-            molCenter = accum;
-            var debug_sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            debug_sphere.transform.parent = transform;
-            debug_sphere.transform.position = molCenter;
-
-            var debug_sphere2 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            debug_sphere2.transform.parent = transform;
-            debug_sphere2.transform.position = transform.position;
         }
 
         private void Update()
@@ -45,13 +35,16 @@ namespace chARpack
                 transform.position = molReference.transform.position;
                 foreach (var bond in bonds)
                 {
-                    //bond.atom1.transform.position = bond.atom1.atomReference.transform.position;
-                    //bond.atom2.transform.position = bond.atom2.atomReference.transform.position;
+                    bond.atom1.transform.localPosition = transform.InverseTransformPoint(bond.atom1.atomReference.transform.position);
+                    bond.atom2.transform.localPosition = transform.InverseTransformPoint(bond.atom2.atomReference.transform.position);
 
-                    var a1_pos = bond.atom1.transform.position;
-                    var a2_pos = bond.atom2.transform.position;
-                    var offset1 = bond.atom1ConnectionOffset * transform.localScale.x;
-                    var offset2 = bond.atom2ConnectionOffset * transform.localScale.x;
+                    var a1_pos = bond.atom1.transform.localPosition;
+                    var a2_pos = bond.atom2.transform.localPosition;
+                    //var offset1 = bond.atom1ConnectionOffset * transform.localScale.x;
+                    //var offset2 = bond.atom2ConnectionOffset * transform.localScale.x;
+                    var offset1 = bond.atom1ConnectionOffset;
+                    var offset2 = bond.atom2ConnectionOffset;
+
                     var direction = a1_pos - a2_pos;
                     var pos1 = a1_pos - direction.normalized * offset1;
                     var pos2 = a2_pos + direction.normalized * offset2;
@@ -70,25 +63,29 @@ namespace chARpack
                     Vector3 midpoint = (pos1 + pos2) / 2.0f;
 
                     // Set the position of the GameObject to the midpoint
-                    bond.transform.position = midpoint;
+                    bond.transform.localPosition = midpoint;
 
                     // Rotate the GameObject to align with the direction
                     if (bond.initialLookAt == bond.atom1)
                     {
-                        bond.transform.LookAt(pos1);
+                        bond.transform.LookAt(transform.TransformPoint(pos1));
                     }
                     else
                     {
-                        bond.transform.LookAt(pos2);
+                        bond.transform.LookAt(transform.TransformPoint(pos2));
                     }
 
 
                     // Scale the GameObject along the X-axis to match the distance between the two points
                     // weighted with the inital length of the object and corrected for the molecule's current scale
+                    //bond.transform.localScale = new Vector3(
+                    //    bond.transform.localScale.x,
+                    //    bond.transform.localScale.y,
+                    //    distance / (bond.initialLength * transform.localScale.x));
                     bond.transform.localScale = new Vector3(
                         bond.transform.localScale.x,
                         bond.transform.localScale.y,
-                        distance / (bond.initialLength * transform.localScale.x));
+                        distance / bond.initialLength);
                 }
             }
         }
