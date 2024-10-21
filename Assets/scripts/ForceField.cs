@@ -210,6 +210,12 @@ namespace chARpack
             SettingsData.forceField = enableForceField;
         }
 
+        public void enableForceFieldMethodUI(bool enable)
+        {
+            enableForceFieldMethod(enable);
+            EventManager.Singleton.EnableForceField(enableForceField);
+        }
+
         // Start is called before the first frame update
         void Start()
         {

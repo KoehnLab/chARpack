@@ -5,6 +5,7 @@ using System.Collections;
 using System;
 using System.Linq;
 using chARpack.Types;
+using IngameDebugConsole;
 
 
 namespace chARpack
@@ -40,6 +41,8 @@ namespace chARpack
         {
             isRunning = false;
             EventManager.Singleton.OnGrabAtom += applyConstraint;
+            DebugLogConsole.AddCommand("startSparrow", "starts a simulation using sparrow", startSim);
+            DebugLogConsole.AddCommand("stopSparrow", "stops the current simulation", stopSim);
         }
 
         public bool isRunning { get; private set; }
@@ -80,7 +83,8 @@ namespace chARpack
                 {
                     var atom = mol.atomList[i];
                     id_convert.Add(atom);
-                    var pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(atom.transform.position) * GlobalCtrl.u2aa / GlobalCtrl.scale;
+                    //var pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(atom.transform.position) * GlobalCtrl.u2aa / GlobalCtrl.scale;
+                    var pos = atom.transform.localPosition * GlobalCtrl.u2aa / GlobalCtrl.scale;
                     posList.Add(pos);
                     num_atoms++;
 
@@ -204,14 +208,14 @@ namespace chARpack
             isRunning = false;
         }
 
-        public void toggleSim()
+        public void startSim()
         {
-            ForceField.Singleton.toggleForceFieldUI();
             if (!isRunning)
             {
+                ForceField.Singleton.enableForceFieldMethodUI(false);
                 prepareSim();
+                isRunning = !isRunning;
             }
-            isRunning = !isRunning;
         }
 #endif
     }

@@ -4,6 +4,7 @@ using Python.Runtime;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
+using IngameDebugConsole;
 
 namespace chARpack
 {
@@ -38,6 +39,8 @@ namespace chARpack
         {
             isRunning = false;
             EventManager.Singleton.OnGrabAtom += applyConstraint;
+            DebugLogConsole.AddCommand("startMLsim", "starts a MD simulation with the current model", startSim);
+            DebugLogConsole.AddCommand("stopMLsim", "stops the current MD simulation", stopSim);
         }
 
         public bool isRunning { get; private set; }
@@ -211,14 +214,14 @@ namespace chARpack
             isRunning = false;
         }
 
-        public void toggleSim()
+        public void startSim()
         {
-            ForceField.Singleton.toggleForceFieldUI();
             if (!isRunning)
             {
+                ForceField.Singleton.enableForceFieldMethodUI(false);
                 prepareSim();
+                isRunning = !isRunning;
             }
-            isRunning = !isRunning;
         }
 #endif
     }
