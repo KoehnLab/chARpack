@@ -104,7 +104,8 @@ namespace chARpack
         sendObjectToTrack = 2046,
         sendSpawnObjectCollection = 2047,
         requestResults = 2048,
-        bcastScreenSizeChanged = 2049
+        bcastScreenSizeChanged = 2049,
+        sendFormula = 2050
     }
 
     public enum SimToServerID : ushort

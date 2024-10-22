@@ -132,13 +132,14 @@ namespace chARpack
             yield return sparrow.run();
             dynamic python_pos_return = sparrow.getPositions();
             int num_atoms = sparrow.getNumAtoms().As<int>();
-
+            //Debug.Log($"[RunSparrow] Sparrow has {num_atoms} atoms.");
             sim_result = new List<Vector3>();
             for (int i = 0; i < num_atoms; i++)
             {
                 sim_result.Add(GlobalCtrl.scale / GlobalCtrl.u2aa * new Vector3(python_pos_return[i][0].As<float>(), python_pos_return[i][1].As<float>(), python_pos_return[i][2].As<float>()));
+                //Debug.Log($"[RunSparrow] Sparrow atom {i} with position {sim_result[i]}");
             }
-            yield return null;
+            //yield return null;
         }
 
         public void applyConstraint(Atom a, bool value)
@@ -180,7 +181,8 @@ namespace chARpack
                     var atom = id_convert[i];
                     if (!atom.isGrabbed)
                     {
-                        atom.transform.position = GlobalCtrl.Singleton.atomWorld.transform.TransformPoint(sim_result[i]);
+                        //atom.transform.position = GlobalCtrl.Singleton.atomWorld.transform.TransformPoint(sim_result[i]);
+                        atom.transform.localPosition = sim_result[i];
                         EventManager.Singleton.MoveAtom(atom.m_molecule.m_id, atom.m_id, atom.transform.localPosition);
                     }
                 }
@@ -192,12 +194,14 @@ namespace chARpack
                 {
                     if (id_convert[i].isGrabbed)
                     {
-                        var pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(id_convert[i].transform.position) * GlobalCtrl.u2aa / GlobalCtrl.scale;
+                        //var pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(id_convert[i].transform.position) * GlobalCtrl.u2aa / GlobalCtrl.scale;
+                        var pos = id_convert[i].transform.localPosition * GlobalCtrl.u2aa / GlobalCtrl.scale;
                         var pyPos = new PyList();
                         pyPos.Append(new PyFloat(pos.x));
                         pyPos.Append(new PyFloat(pos.y));
                         pyPos.Append(new PyFloat(pos.z));
                         sparrow.changeAtomPosition(i, pyPos);
+                        //Debug.Log($"[RunSparrow] Pushing position change to sparrow. Atom {i} pos {pos}");
                     }
                 }
             }

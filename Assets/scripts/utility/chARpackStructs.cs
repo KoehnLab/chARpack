@@ -79,8 +79,6 @@ namespace chARpack.Structs
         }
     }
 
-    //Bindungsl�nge
-
     /// <summary>
     /// structure of a bond in cml
     /// </summary>
@@ -606,6 +604,17 @@ namespace chARpack.Structs
         }
     }
 
+    [Serializable]
+    public struct formulaCoords
+    {
+        public SaveableVector2[] coords;
+
+        public formulaCoords(List<SaveableVector2> _coords)
+        {
+            coords = _coords.ToArray();
+        }
+    }
+
     public struct AtomList
     {
         private List<Guid> ids;
@@ -645,7 +654,6 @@ namespace chARpack.Structs
             var local_inscene = in_scene;
             return atoms.Where((atom, index) => local_inscene[index]).ToList();
         }
-    
 
     }
 }

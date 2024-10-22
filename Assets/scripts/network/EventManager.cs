@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace chARpack
@@ -436,8 +437,16 @@ namespace chARpack
             OnRequestResults?.Invoke(task_id);
         }
 
+        public delegate void Generate3DFormulaAction(Guid mol_id, string svg_string, List<Vector2> coords);
+        public event Generate3DFormulaAction OnGenerate3DFormula;
+        public void Generate3DFormula(Guid mol_id, string svg_string, List<Vector2> coords)
+        {
+            OnGenerate3DFormula?.Invoke(mol_id, svg_string, coords);
+        }
+
         #endregion
 
 
     }
 }
+ 

@@ -174,6 +174,7 @@ namespace chARpack
             EventManager.Singleton.OnFreezeMolecule += bcastFreezeMolecule;
             EventManager.Singleton.OnSetSnapColors += bcastSetSnapColors;
             EventManager.Singleton.OnServerFocusHighlight += bcastServerFocusHighlight;
+            EventManager.Singleton.OnGenerate3DFormula += bcastFormula;
         }
 
         private void deactivateSync()
@@ -206,6 +207,7 @@ namespace chARpack
             EventManager.Singleton.OnFreezeMolecule -= bcastFreezeMolecule;
             EventManager.Singleton.OnSetSnapColors -= bcastSetSnapColors;
             EventManager.Singleton.OnServerFocusHighlight -= bcastServerFocusHighlight;
+            EventManager.Singleton.OnGenerate3DFormula -= bcastFormula;
         }
 
 
@@ -1795,6 +1797,13 @@ namespace chARpack
 
         #endregion
 
+        #region Representations
+
+        private void bcastFormula(Guid mol_id, string svg_string, List<Vector2> coords)
+        {
+            NetworkUtils.serializeFormula((ushort)ServerToClientID.sendFormula, mol_id, svg_string, coords, chunkSize);
+        }
+        #endregion
 
 
         #region StructureMessages
@@ -1847,8 +1856,7 @@ namespace chARpack
         private static void getStructureFormula(ushort fromClientId, Message message)
         {
             // unpack message
-            NetworkUtils.deserializeStructureData(message, ref svg_content, ref svg_coords);
-
+            //NetworkUtils.deserializeFormula(message, ref svg_content, ref svg_coords);
         }
 
         private void structureReceiveComplete(Guid mol_id)

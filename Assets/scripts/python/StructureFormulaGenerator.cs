@@ -44,7 +44,7 @@ namespace chARpack
             {
                 EventManager.Singleton.OnMoleculeLoaded += immediateRequestStructureFormula;
             }
-            DebugLogConsole.AddCommand("generate2Drepresentaton", "Generate mesh from 2D representation", generate3DfromSelected);
+            DebugLogConsole.AddCommand("generate3Dformula", "Generate mesh from 2D representation", generate3DfromSelected);
         }
 
         public void requestStructureFormula(Molecule mol)
@@ -80,19 +80,31 @@ namespace chARpack
 
         private void generate3D(Molecule mol)
         {
-  
-            var svg_content = fetchSVGContent(mol);
+            List<Vector2> coords;
+            var svg_content = fetchSVGContent(mol, out coords);
             if (svg_content == "") return;
 
+            // push 2D coords
+            for (int i = 0; i < coords.Count; i++)
+            {
+                mol.atomList[i].structure_coords = coords[i];
+            }
+
             // push content
-            StructureFormulaTo3D.generateFromSVGContent(svg_content, mol.m_id);
+            StructureFormulaTo3D.generateFromSVGContentUI(svg_content, mol.m_id, coords);
         }
 
         private void generate(Molecule mol)
         {
-            var svg_content = fetchSVGContent(mol);
+            List<Vector2> coords;
+            var svg_content = fetchSVGContent(mol, out coords);
             if (svg_content == "") return;
 
+            // push 2D coords
+            for (int i = 0; i < coords.Count; i++)
+            {
+                mol.atomList[i].structure_coords = coords[i];
+            }
 
             if (StructureFormulaManager.Singleton)
             {
@@ -117,8 +129,9 @@ namespace chARpack
         }
 
 
-        private string fetchSVGContent(Molecule mol)
+        private string fetchSVGContent(Molecule mol, out List<Vector2> coords)
         {
+            coords = new List<Vector2>();
             if (!PythonEnvironmentManager.Singleton) return "";
             if (!PythonEnvironmentManager.Singleton.isInitialized) return "";
             // Prepare lists
@@ -146,8 +159,6 @@ namespace chARpack
 
             // define outputs
             string svgContent = "";
-            var coordsArray = new List<Vector2>();
-
             // Acquire the GIL before using any Python APIs
             try
             {
@@ -198,7 +209,7 @@ namespace chARpack
                     for (int i = 0; i < coordsList.Length(); i++)
                     {
                         var coord = coordsList[i];
-                        coordsArray.Add(new Vector2(coord[0].As<float>(), coord[1].As<float>()));
+                        coords.Add(new Vector2(coord[0].As<float>(), coord[1].As<float>()));
                     }
                 }
             }
@@ -207,11 +218,7 @@ namespace chARpack
                 Debug.Log("[StructureFormulaGenerator] Could not generate a structure formula. This is expected for small Molecules.");
                 return "";
             }
-            // push content
-            for (int i = 0; i < coordsArray.Count; i++)
-            {
-                mol.atomList[i].structure_coords = coordsArray[i];
-            }
+
             return svgContent;
         }
         private void OnDestroy()

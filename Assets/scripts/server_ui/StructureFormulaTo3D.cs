@@ -12,12 +12,24 @@ namespace chARpack
     {
         public Material meshMaterial; // Material for the 3D mesh
 
-        public static void generateFromSVGContent(string svg_content, Guid mol_id)
-        {
-            var sceneInfo = SVGParser.ImportSVG(new StringReader(svg_content));
 
+        public static void generateFromSVGContent(Guid mol_id, string svg_content, List<Vector2> coords)
+        {
+            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id);
+            if (mol == null)
+            {
+                Debug.LogError($"[StructureFormulaTo3D] Molecule with id {mol_id} does not exist. Abort.");
+                return;
+            }
+
+            // push 2D coords
+            for (int i = 0; i < coords.Count; i++)
+            {
+                mol.atomList[i].structure_coords = coords[i];
+            }
 
             // Tessellate
+            var sceneInfo = SVGParser.ImportSVG(new StringReader(svg_content));
             var geometries = VectorUtils.TessellateScene(sceneInfo.Scene, new VectorUtils.TessellationOptions
             {
                 StepDistance = 0.1f,
@@ -27,6 +39,12 @@ namespace chARpack
             });
 
             generate3DRepresentation(geometries, mol_id);
+        }
+
+        public static void generateFromSVGContentUI(string svg_content, Guid mol_id, List<Vector2> coords)
+        {
+            generateFromSVGContent(mol_id, svg_content, coords);
+            EventManager.Singleton.Generate3DFormula(mol_id, svg_content, coords);
         }
 
         public static void generate3DRepresentation(List<VectorUtils.Geometry> geometry, Guid mol_id)

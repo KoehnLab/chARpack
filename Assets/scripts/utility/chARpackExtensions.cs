@@ -249,6 +249,26 @@ namespace chARpack
             return new SaveableQuaternion(q.x, q.y, q.z, q.w);
         }
 
+        public static SaveableVector2[] ToSaveableVector2Array(this List<Vector2> v2l)
+        {
+            SaveableVector2[] sva = new SaveableVector2[v2l.Count];
+            for (int i = 0; i < v2l.Count; i++)
+            {
+                sva[i] = v2l[i];
+            }
+            return sva;
+        }
+
+        public static List<SaveableVector2> ToSaveableVector2List(this List<Vector2> v2l)
+        {
+            var sva = new List<SaveableVector2>();
+            foreach (var v2 in v2l)
+            {
+                sva.Add(v2);
+            }
+            return sva;
+        }
+
         public static Vector3[] GetCorners(this Bounds b)
         {
             Vector3[] boundPoints = new Vector3[8];

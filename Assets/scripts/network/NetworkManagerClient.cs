@@ -37,6 +37,9 @@ namespace chARpack
         private static byte[] cmlTotalBytes;
         private static List<cmlData> cmlWorld;
         private static sGenericObject sGO;
+        private static byte[] formulaBytes;
+        private static string svg_content;
+        private static List<Vector2> svg_coords;
         private static ushort chunkSize = 255;
         public Client Client { get; private set; }
         [HideInInspector] public GameObject userWorld;
@@ -1640,6 +1643,12 @@ namespace chARpack
         {
             var new_screen_size = message.GetVector2();
             SettingsData.serverViewport = new_screen_size;
+        }
+
+        [MessageHandler((ushort)ServerToClientID.sendFormula)]
+        private static void listenStructureFormula(Message message)
+        {
+            NetworkUtils.deserializeFormula(message, ref formulaBytes, ref svg_content, ref svg_coords, chunkSize);
         }
 
         #endregion
