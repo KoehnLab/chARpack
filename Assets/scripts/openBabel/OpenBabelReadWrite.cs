@@ -39,56 +39,43 @@ namespace chARpack
         private void Awake()
         {
             Singleton = this;
-            OpenBabelSetup.setEnvironmentForLocalOpenBabel();
         }
 
         Thread thread;
-        bool directoryExists = false;
         void Start()
         {
-            directoryExists = false;
             thread = new Thread(() =>
             {
-                directoryExists = false;
-                if (!File.Exists(Path.Combine(OpenBabelSetup.openbabel_bin, "openbabel_csharp.dll")))
-                {
-                    Debug.Log("[OpenBabelReadWrite] openbabel not found. Trying to extract ...");
-                    if (!File.Exists(OpenBabelSetup.openbabel_bin + ".zip"))
-                    {
-                        Debug.LogError("[OpenBabelReadWrite] No openbabel.zip found. Please install openbabel manually.");
-                        return;
-                    }
-                    extractEvironment();
-                }
-                directoryExists = true;
+                OpenBabelInstaller.checkOpenBabelInstallation();
             });
             thread.Start();
+            
             StartCoroutine(waitForEnvironmentPrep());
+            var li_inst = LoadingIndicator.GetOpenBabelInstance();
+            if (li_inst != null)
+            {
+                li_inst.startLoading("Preparing OpenBabel ...");
+            }
         }
 
         IEnumerator waitForEnvironmentPrep()
         {
-            while (!directoryExists)
+            while (!OpenBabelInstaller.installationSuccessfull)
             {
                 yield return new WaitForSeconds(1f);
             }
             thread.Join();
             initOpenBabel();
-        }
-
-        private void extractEvironment()
-        {
-            string extract_path = OpenBabelSetup.openbabel_bin;
-            string download_path = OpenBabelSetup.openbabel_bin + ".zip";
-            Debug.Log("[OpenBabelReadWrite] Extracting zip.");
-
-            ZipFile.ExtractToDirectory(download_path, extract_path, true);
-
-            Debug.Log("[OpenBabelReadWrite] openbabel installed.");
+            var li_inst = LoadingIndicator.GetOpenBabelInstance();
+            if (li_inst != null)
+            {
+                li_inst.loadingFinished(true, "OpenBabel Initialized.");
+            }
         }
 
         private void initOpenBabel()
         {
+            OpenBabelSetup.setEnvironmentForLocalOpenBabel();
             // setup OpenBabel
             if (!OpenBabelSetup.IsOpenBabelAvailable)
             {

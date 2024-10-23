@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,29 +9,23 @@ namespace chARpack
     public class LoadingIndicator : MonoBehaviour
     {
 
-        private static LoadingIndicator _singleton;
+        private static List<LoadingIndicator> instances = new List<LoadingIndicator>();
 
-        public static LoadingIndicator Singleton
+        public static LoadingIndicator GetPythonInstance()
         {
-            get => _singleton;
-            private set
-            {
-                if (_singleton == null)
-                {
-                    _singleton = value;
-                }
-                else if (_singleton != value)
-                {
-                    Debug.Log($"[{nameof(LoadingIndicator)}] Instance already exists, destroying duplicate!");
-                    Destroy(value);
-                }
+            var python = instances.Find(x => x.type == Type.PYTHON);
+            return python;
+        }
 
-            }
+        public static LoadingIndicator GetOpenBabelInstance()
+        {
+            var openbabel = instances.Find(x => x.type == Type.OPENBABEL);
+            return openbabel;
         }
 
         private void Awake()
         {
-            Singleton = this;
+            instances.Add(this);
         }
 
         private void Start()
@@ -38,6 +33,13 @@ namespace chARpack
             //show(false);
         }
 
+        public enum Type
+        {
+            PYTHON,
+            OPENBABEL,
+            OTHER
+        }
+        public Type type;
         public Image indicator;
         public TMP_Text label;
         private bool stillLoading = false;

@@ -29,9 +29,6 @@ namespace chARpack
         private static bool isOpenBabelAvailable;
         private static string openBabelVersion = null;
 
-        public static string openbabel_bin;
-        public static string babel_datadir;
-
         public static void ThrowOpenBabelNotFoundError()
         {
             if (openBabelVersion != null)
@@ -48,33 +45,31 @@ namespace chARpack
             //        var scope = EnvironmentVariableTarget.User;
             //#endif
 
-            openbabel_bin = Path.GetFullPath(Path.Combine(Path.Combine(Application.dataPath, ".."), "openbabel"));
-            babel_datadir = Path.GetFullPath(Path.Combine(Path.Combine(Path.Combine(Application.dataPath, ".."), "openbabel"), "data"));
             var scopes = new EnvironmentVariableTarget[] { EnvironmentVariableTarget.Process }; //, EnvironmentVariableTarget.User };
-            Environment.SetEnvironmentVariable("BABEL_LIBDIR", openbabel_bin, EnvironmentVariableTarget.Process);
+            Environment.SetEnvironmentVariable("BABEL_LIBDIR", OpenBabelInstaller.openbabel_path, EnvironmentVariableTarget.Process);
             foreach (var scope in scopes)
             {
                 var currentPath = Environment.GetEnvironmentVariable("PATH", scope);
 
-                Debug.Log($"[OpenBabelSetup] Setting PATH: {openbabel_bin}");
-                if (!currentPath.Contains(openbabel_bin))
+                Debug.Log($"[OpenBabelSetup] Setting PATH: {OpenBabelInstaller.openbabel_path}");
+                if (!currentPath.Contains(OpenBabelInstaller.openbabel_path))
                 {
-                    var newPath = $"{openbabel_bin};" + currentPath;
+                    var newPath = $"{OpenBabelInstaller.openbabel_path};" + currentPath;
                     Environment.SetEnvironmentVariable("PATH", newPath, scope);
                 }
-                Debug.Log($"[OpenBabelSetup] Setting BABEL_DATADIR: {babel_datadir}");
+                Debug.Log($"[OpenBabelSetup] Setting BABEL_DATADIR: {OpenBabelInstaller.babel_datadir}");
                 var currentDataDir = Environment.GetEnvironmentVariable("BABEL_DATADIR", scope);
                 if (currentDataDir != null)
                 {
-                    if (!currentDataDir.Contains(babel_datadir))
+                    if (!currentDataDir.Contains(OpenBabelInstaller.babel_datadir))
                     {
-                        var newDataDir = $"{babel_datadir};" + currentDataDir;
+                        var newDataDir = $"{OpenBabelInstaller.babel_datadir};" + currentDataDir;
                         Environment.SetEnvironmentVariable("BABEL_DATADIR", newDataDir, scope);
                     }
                 }
                 else
                 {
-                    Environment.SetEnvironmentVariable("BABEL_DATADIR", babel_datadir, scope);
+                    Environment.SetEnvironmentVariable("BABEL_DATADIR", OpenBabelInstaller.babel_datadir, scope);
                 }
             }
         }
@@ -97,9 +92,9 @@ namespace chARpack
         public static void SetGlobalDataBase()
         {
             var data_base = new OBGlobalDataBase();
-            data_base.SetReadDirectory(babel_datadir);
+            data_base.SetReadDirectory(OpenBabelInstaller.babel_datadir);
             data_base.Init();
-            OBEnv.setDataDir(babel_datadir); // only works in custom openbabel
+            OBEnv.setDataDir(OpenBabelInstaller.babel_datadir); // only works in custom openbabel
         }
 
         /// <summary>

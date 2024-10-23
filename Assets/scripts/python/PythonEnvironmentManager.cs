@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Threading;
 using System.Net.Http;
 using System.Collections;
+using System.Threading.Tasks;
 
 namespace chARpack
 {
@@ -53,27 +54,36 @@ namespace chARpack
             thread = new Thread(() =>
             {
                 isInstalled = false;
-                if (!File.Exists(python_env_path + ".zip"))
-                {
-                    Debug.Log("[PythonEnvironmentManager] No PythonEnv.zip found. Starting download...");
-                    downloadEnvironment();
-                    extractEvironment();
-                }
-                else if (!Directory.Exists(python_env_path))
-                {
-                    Debug.Log("[PythonEnvironmentManager] PythonEnv.zip found. Starting extraction...");
-                    extractEvironment();
-                }
-                else if (!File.Exists(Path.Combine(python_env_path, "python.exe")))
-                {
-                    Debug.Log("[PythonEnvironmentManager] Extraction incomplete. Restarting extraction...");
-                    extractEvironment();
-                }
-                isInstalled = true;
+                checkPythonInstallation();
             });
             thread.Start();
             StartCoroutine(waitForEnvironmentPrep());
-            LoadingIndicator.Singleton.startLoading("Preparing Python Environment ...");
+            var li_inst = LoadingIndicator.GetPythonInstance();
+            if (li_inst != null )
+            {
+                li_inst.startLoading("Preparing Python Environment ...");
+            }
+        }
+
+        async void checkPythonInstallation()
+        {
+            if (!File.Exists(python_env_path + ".zip"))
+            {
+                Debug.Log("[PythonEnvironmentManager] No PythonEnv.zip found. Starting download...");
+                await downloadEnvironment();
+                extractEvironment();
+            }
+            else if (!Directory.Exists(python_env_path))
+            {
+                Debug.Log("[PythonEnvironmentManager] PythonEnv.zip found. Starting extraction...");
+                extractEvironment();
+            }
+            else if (!File.Exists(Path.Combine(python_env_path, "python.exe")))
+            {
+                Debug.Log("[PythonEnvironmentManager] Extraction incomplete. Restarting extraction...");
+                extractEvironment();
+            }
+            isInstalled = true;
         }
 
         IEnumerator waitForEnvironmentPrep()
@@ -84,7 +94,11 @@ namespace chARpack
             }
             thread.Join();
             initEnvironment();
-            LoadingIndicator.Singleton.loadingFinished(true, "Python Environment Initialized.");
+            var li_inst = LoadingIndicator.GetPythonInstance();
+            if (li_inst != null)
+            {
+                li_inst.loadingFinished(true, "Python Environment Initialized.");
+            }
         }
 
         private void initEnvironment()
@@ -167,9 +181,9 @@ namespace chARpack
             Debug.Log("[PythonEnvironmentManager] Python environment initialized.");
         }
 
-        async void downloadEnvironment()
+        async Task downloadEnvironment()
         {
-            string url = "https://cloud.visus.uni-stuttgart.de/index.php/s/eeffkl7NTKVLsMI/download";
+            string url = "https://cloud.visus.uni-stuttgart.de/index.php/s/UWVy9CVfQIcMqrO/download";
             // Send a GET request to the specified URL
             HttpResponseMessage response = await client.GetAsync(url);
             string download_path = base_path + "/PythonEnv.zip";
