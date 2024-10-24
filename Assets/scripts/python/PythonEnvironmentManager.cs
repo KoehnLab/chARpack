@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using UnityEngine;
 using Python.Runtime;
-using System.IO.Compression;
+using Ionic.Zip;
 using System.Threading;
 using System.Net.Http;
 using System.Collections;
@@ -48,6 +48,11 @@ namespace chARpack
         Thread thread;
         void Start()
         {
+            var li_inst = LoadingIndicator.GetPythonInstance();
+            if (li_inst != null)
+            {
+                li_inst.startLoading("Python", "Preparing ...");
+            }
             isInitialized = false;
             base_path = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
             python_env_path = Path.Combine(base_path, "PythonEnv");
@@ -58,11 +63,6 @@ namespace chARpack
             });
             thread.Start();
             StartCoroutine(waitForEnvironmentPrep());
-            var li_inst = LoadingIndicator.GetPythonInstance();
-            if (li_inst != null )
-            {
-                li_inst.startLoading("Preparing Python Environment ...");
-            }
         }
 
         async void checkPythonInstallation()
@@ -70,7 +70,8 @@ namespace chARpack
             if (!File.Exists(python_env_path + ".zip"))
             {
                 Debug.Log("[PythonEnvironmentManager] No PythonEnv.zip found. Starting download...");
-                await downloadEnvironment();
+                var li_inst = LoadingIndicator.GetPythonInstance();
+                await downloadEnvironment(li_inst.downloadProgressChanged);
                 extractEvironment();
             }
             else if (!Directory.Exists(python_env_path))
@@ -97,7 +98,7 @@ namespace chARpack
             var li_inst = LoadingIndicator.GetPythonInstance();
             if (li_inst != null)
             {
-                li_inst.loadingFinished(true, "Python Environment Initialized.");
+                li_inst.loadingFinished(true, "Initialized.");
             }
         }
 
@@ -105,15 +106,15 @@ namespace chARpack
         {
             string[] possibleDllNames = new string[]
             {
-        "python313.dll",
-        "python312.dll",
-        "python311.dll",
-        "python310.dll",
-        "python39.dll",
-        "python38.dll",
-        "python37.dll",
-        "python36.dll",
-        "python35.dll",
+                "python313.dll",
+                "python312.dll",
+                "python311.dll",
+                "python310.dll",
+                "python39.dll",
+                "python38.dll",
+                "python37.dll",
+                "python36.dll",
+                "python35.dll",
             };
 
             var path = python_env_path;
@@ -181,32 +182,78 @@ namespace chARpack
             Debug.Log("[PythonEnvironmentManager] Python environment initialized.");
         }
 
-        async Task downloadEnvironment()
+        async Task downloadEnvironment(Func<float?, bool> progressChanged)
         {
             string url = "https://cloud.visus.uni-stuttgart.de/index.php/s/UWVy9CVfQIcMqrO/download";
             // Send a GET request to the specified URL
-            HttpResponseMessage response = await client.GetAsync(url);
+            HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
             string download_path = base_path + "/PythonEnv.zip";
-            // Check if the response is successful (status code 200-299)
-            if (response.IsSuccessStatusCode)
-            {
-                // Get the file content as a stream
-                using (Stream fileStream = await response.Content.ReadAsStreamAsync())
-                {
-                    // Save the stream to the specified file
 
-                    using (FileStream outputFileStream = new FileStream(download_path, FileMode.Create))
+            // test
+            response.EnsureSuccessStatusCode();
+            var totalBytes = response.Content.Headers.ContentLength;
+
+            using var contentStream = await response.Content.ReadAsStreamAsync();
+            var totalBytesRead = 0L;
+            var readCount = 0L;
+            var buffer = new byte[8192];
+            var isMoreToRead = true;
+
+            static float? calculatePercentage(long? totalDownloadSize, long totalBytesRead) => 
+                totalDownloadSize.HasValue ? (float)Math.Round((float)totalBytesRead / totalDownloadSize.Value * 100, 2) : null;
+            using var fileStream = new FileStream(download_path, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
+
+            do
+            {
+                var bytesRead = await contentStream.ReadAsync(buffer);
+                if (bytesRead == 0)
+                {
+                    isMoreToRead = false;
+
+                    if (progressChanged(calculatePercentage(totalBytes, totalBytesRead)))
                     {
-                        await fileStream.CopyToAsync(outputFileStream);
+                        throw new OperationCanceledException();
                     }
 
-                    Debug.Log("[PythonEnvironmentManager] PythonEnvironment downloaded successfully.");
+                    continue;
+                }
+
+                await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+
+                totalBytesRead += bytesRead;
+                readCount++;
+
+                if (readCount % 100 == 0)
+                {
+                    if (progressChanged(calculatePercentage(totalBytes, totalBytesRead)))
+                    {
+                        throw new OperationCanceledException();
+                    }
                 }
             }
-            else
-            {
-                Debug.LogError($"[PythonEnvironmentManager] Failed to download PythonEnvironment.\nStatus code: {response.StatusCode}");
-            }
+            while (isMoreToRead);
+
+        // old
+        // Check if the response is successful (status code 200-299)
+        //if (response.IsSuccessStatusCode)
+        //{
+        //    // Get the file content as a stream
+        //    using (Stream fileStream = await response.Content.ReadAsStreamAsync())
+        //    {
+        //        // Save the stream to the specified file
+
+        //        using (FileStream outputFileStream = new FileStream(download_path, FileMode.Create))
+        //        {
+        //            await fileStream.CopyToAsync(outputFileStream);
+        //        }
+
+        //        Debug.Log("[PythonEnvironmentManager] PythonEnvironment downloaded successfully.");
+        //    }
+        //}
+        //else
+        //{
+        //    Debug.LogError($"[PythonEnvironmentManager] Failed to download PythonEnvironment.\nStatus code: {response.StatusCode}");
+        //}
         }
 
         private void extractEvironment()
@@ -215,7 +262,19 @@ namespace chARpack
             string download_path = base_path + "/PythonEnv.zip";
             Debug.Log("[PythonEnvironmentManager] Extracting zip.");
 
-            ZipFile.ExtractToDirectory(download_path, extract_path, true);
+            using (ZipFile zip = ZipFile.Read(download_path))
+            {
+                var li_inst = LoadingIndicator.GetPythonInstance();
+                if (li_inst != null)
+                {
+                    li_inst.setTotalFilesInZip(zip.Count);
+                    zip.ExtractProgress += new EventHandler<ExtractProgressEventArgs>(li_inst.extractProgressChanged);
+                }
+                zip.ExtractAll(extract_path, ExtractExistingFileAction.OverwriteSilently);
+            }
+
+            // old implementation uses System.IO.Compression
+            //ZipFile.ExtractToDirectory(download_path, extract_path, true);
 
             Debug.Log("[PythonEnvironmentManager] Python environment installed.");
         }

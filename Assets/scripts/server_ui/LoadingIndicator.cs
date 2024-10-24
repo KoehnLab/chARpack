@@ -1,8 +1,11 @@
+using Ionic.Zip;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 namespace chARpack
 {
@@ -42,17 +45,21 @@ namespace chARpack
         public Type type;
         public Image indicator;
         public TMP_Text label;
+        public TMP_Text title;
         private bool stillLoading = false;
+        Queue<string> stringUpdates = new Queue<string>();
 
         public void show(bool value)
         {
             indicator.gameObject.SetActive(value);
             label.gameObject.SetActive(value);
+            title.gameObject.SetActive(value);
             GetComponent<Image>().enabled = value;
         }
 
-        public void startLoading(string text = "Loading ...")
+        public void startLoading(string title_, string text = "Loading ...")
         {
+            title.text = title_;
             StartCoroutine(startLoadingCR(text));
         }
 
@@ -63,6 +70,10 @@ namespace chARpack
             int fill = 0;
             while (stillLoading)
             {
+                if (stringUpdates.Count > 0)
+                {
+                    label.text = stringUpdates.Dequeue();
+                }
                 indicator.fillAmount = fill / 100f;
                 fill += 1;
                 fill %= 100;
@@ -82,6 +93,37 @@ namespace chARpack
         {
             stillLoading = false;
             StartCoroutine(showFinalCR(success, message));
+        }
+
+        public bool downloadProgressChanged(float? percentage)
+        {
+            if (percentage.HasValue)
+            {
+                //Debug.Log($"Download progress {percentage.Value}%");
+                stringUpdates.Enqueue($"Download {percentage.Value}%");
+            }
+
+            return false; // return true if you want to cancel the download
+        }
+
+
+        private int numFilesToExtract = 0;
+        private int numFilesExtracted = 0;
+        public void extractProgressChanged(object sender, ExtractProgressEventArgs e)
+        {
+            if (e.EventType != ZipProgressEventType.Extracting_BeforeExtractEntry) return;
+            if (numFilesToExtract == 0) return;
+            numFilesExtracted++;
+            //var percent = Convert.ToInt32(100 * e.BytesTransferred / e.TotalBytesToTransfer);
+            var percent = 100 * numFilesExtracted / numFilesToExtract;
+            //Debug.Log($"Extract progress {percent}%");
+            stringUpdates.Enqueue($"Extract {percent}%");
+
+        }
+
+        public void setTotalFilesInZip(int value)
+        {
+            numFilesToExtract = value;
         }
 
     }

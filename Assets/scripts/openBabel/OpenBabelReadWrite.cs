@@ -44,18 +44,19 @@ namespace chARpack
         Thread thread;
         void Start()
         {
+            var li_inst = LoadingIndicator.GetOpenBabelInstance();
+            if (li_inst != null)
+            {
+                li_inst.startLoading("OpenBabel", "Preparing ...");
+            }
+
             thread = new Thread(() =>
             {
-                OpenBabelInstaller.checkOpenBabelInstallation();
+                OpenBabelInstaller.checkOpenBabelInstallation_withProgress(li_inst.downloadProgressChanged, li_inst.extractProgressChanged, li_inst.setTotalFilesInZip);
             });
             thread.Start();
             
             StartCoroutine(waitForEnvironmentPrep());
-            var li_inst = LoadingIndicator.GetOpenBabelInstance();
-            if (li_inst != null)
-            {
-                li_inst.startLoading("Preparing OpenBabel ...");
-            }
         }
 
         IEnumerator waitForEnvironmentPrep()
@@ -69,7 +70,7 @@ namespace chARpack
             var li_inst = LoadingIndicator.GetOpenBabelInstance();
             if (li_inst != null)
             {
-                li_inst.loadingFinished(true, "OpenBabel Initialized.");
+                li_inst.loadingFinished(true, "Initialized.");
             }
         }
 
