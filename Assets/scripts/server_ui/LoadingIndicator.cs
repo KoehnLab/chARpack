@@ -106,25 +106,10 @@ namespace chARpack
             return false; // return true if you want to cancel the download
         }
 
-
-        private int numFilesToExtract = 0;
-        private int numFilesExtracted = 0;
-        public void extractProgressChanged(object sender, ExtractProgressEventArgs e)
+        public void extractProgressChanged(float percent)
         {
-            if (e.EventType != ZipProgressEventType.Extracting_BeforeExtractEntry) return;
-            if (numFilesToExtract == 0) return;
-            numFilesExtracted++;
-            //var percent = Convert.ToInt32(100 * e.BytesTransferred / e.TotalBytesToTransfer);
-            var percent = 100 * numFilesExtracted / numFilesToExtract;
-            //Debug.Log($"Extract progress {percent}%");
-            stringUpdates.Enqueue($"Extract {percent}%");
-
+            stringUpdates.Clear();
+            stringUpdates.Enqueue($"Extract {percent.ToString("0.00")}%");
         }
-
-        public void setTotalFilesInZip(int value)
-        {
-            numFilesToExtract = value;
-        }
-
     }
 }

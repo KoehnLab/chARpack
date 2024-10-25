@@ -52,7 +52,7 @@ namespace chARpack
 
             thread = new Thread(() =>
             {
-                OpenBabelInstaller.checkOpenBabelInstallation_withProgress(li_inst.downloadProgressChanged, li_inst.extractProgressChanged, li_inst.setTotalFilesInZip);
+                OpenBabelInstaller.checkOpenBabelInstallation_withProgress(li_inst.downloadProgressChanged, li_inst.extractProgressChanged);
             });
             thread.Start();
             

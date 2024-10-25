@@ -2,11 +2,12 @@ using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using Ionic.Zip;
 using System.IO;
+using System.IO.Compression;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System;
+using System.Linq;
 
 #if UNITY_EDITOR
 [InitializeOnLoad]
@@ -39,7 +40,7 @@ public class OpenBabelInstaller
             }
             Debug.Log("[OpenBabelInstaller] Extracting openbabel.zip");
 
-            System.IO.Compression.ZipFile.ExtractToDirectory(path_to_zip, openbabel_path, true);
+            ZipFile.ExtractToDirectory(path_to_zip, openbabel_path, true);
         }
         else
         {
@@ -54,7 +55,7 @@ public class OpenBabelInstaller
             {
                 Debug.Log("[OpenBabelInstaller] Updating openbabel with content from zip.");
                 Directory.Delete(openbabel_path);
-                System.IO.Compression.ZipFile.ExtractToDirectory(path_to_zip, openbabel_path, true);
+                ZipFile.ExtractToDirectory(path_to_zip, openbabel_path, true);
             }
         }
 #if UNITY_EDITOR
@@ -79,7 +80,7 @@ public class OpenBabelInstaller
         installationSuccessfull = true;
     }
 
-    public async static void checkOpenBabelInstallation_withProgress(Func<float?, bool> downloadProgressChanged, Action<object, ExtractProgressEventArgs> extractProgressChanged, Action<int> setTotalFilesInZip)
+    public async static void checkOpenBabelInstallation_withProgress(Func<float?, bool> downloadProgressChanged, Action<float> extractProgressChanged)
     {
         // TODO: add download of zip file
         Debug.Log("[OpenBabelInstaller] Checking for openbabel.");
@@ -91,13 +92,30 @@ public class OpenBabelInstaller
             }
             Debug.Log("[OpenBabelInstaller] Extracting openbabel.zip");
 
-            //ZipFile.ExtractToDirectory(path_to_zip, openbabel_path, true);
-            using (ZipFile zip = ZipFile.Read(path_to_zip))
+            int numTotalFiles = 0;
+            using (ZipArchive archive = ZipFile.Open(path_to_zip, ZipArchiveMode.Read))
             {
-                setTotalFilesInZip(zip.Count);
-                zip.ExtractProgress += new EventHandler<ExtractProgressEventArgs>(extractProgressChanged);
-                zip.ExtractAll(openbabel_path, ExtractExistingFileAction.OverwriteSilently);
+                numTotalFiles = archive.Entries.Count(x => !string.IsNullOrWhiteSpace(x.Name));
             }
+
+            int extracted_files = 0;
+            var checking_task = Task.Run(async () =>
+            {
+                while (extracted_files < numTotalFiles)
+                {
+                    if (Directory.Exists(openbabel_path))
+                    {
+                        var dir_info = new DirectoryInfo(openbabel_path);
+                        var file_info = dir_info.GetFiles("*.*", SearchOption.AllDirectories);
+                        extracted_files = file_info.Length;
+                        float progress = 100f * extracted_files / numTotalFiles;
+                        extractProgressChanged(progress);
+                    }
+                    await Task.Delay(200);
+                }
+            });
+            var extract_task = Task.Run(() => { ZipFile.ExtractToDirectory(path_to_zip, openbabel_path, true); });
+            await Task.WhenAll(checking_task, extract_task);
         }
         else
         {
@@ -112,13 +130,31 @@ public class OpenBabelInstaller
             {
                 Debug.Log("[OpenBabelInstaller] Updating openbabel with content from zip.");
                 Directory.Delete(openbabel_path);
-                //ZipFile.ExtractToDirectory(path_to_zip, openbabel_path, true);
-                using (ZipFile zip = ZipFile.Read(path_to_zip))
+
+                int numTotalFiles = 0;
+                using (ZipArchive archive = ZipFile.Open(path_to_zip, ZipArchiveMode.Read))
                 {
-                    setTotalFilesInZip(zip.Count);
-                    zip.ExtractProgress += new EventHandler<ExtractProgressEventArgs>(extractProgressChanged);
-                    zip.ExtractAll(openbabel_path, ExtractExistingFileAction.OverwriteSilently);
+                    numTotalFiles = archive.Entries.Count(x => !string.IsNullOrWhiteSpace(x.Name));
                 }
+
+                int extracted_files = 0;
+                var checking_task = Task.Run(async () =>
+                {
+                    while (extracted_files < numTotalFiles)
+                    {
+                        if (Directory.Exists(openbabel_path))
+                        {
+                            var dir_info = new DirectoryInfo(openbabel_path);
+                            var file_info = dir_info.GetFiles("*.*", SearchOption.AllDirectories);
+                            extracted_files = file_info.Length;
+                            float progress = 100f * extracted_files / numTotalFiles;
+                            extractProgressChanged(progress);
+                        }
+                        await Task.Delay(200);
+                    }
+                });
+                var extract_task = Task.Run(() => { ZipFile.ExtractToDirectory(path_to_zip, openbabel_path, true); });
+                await Task.WhenAll(checking_task, extract_task);
             }
         }
 #if UNITY_EDITOR

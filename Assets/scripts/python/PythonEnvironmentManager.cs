@@ -2,11 +2,13 @@ using System;
 using System.IO;
 using UnityEngine;
 using Python.Runtime;
-using Ionic.Zip;
+using System.IO.Compression;
 using System.Threading;
 using System.Net.Http;
 using System.Collections;
 using System.Threading.Tasks;
+using System.Linq;
+
 
 namespace chARpack
 {
@@ -72,17 +74,17 @@ namespace chARpack
                 Debug.Log("[PythonEnvironmentManager] No PythonEnv.zip found. Starting download...");
                 var li_inst = LoadingIndicator.GetPythonInstance();
                 await downloadEnvironment(li_inst.downloadProgressChanged);
-                extractEvironment();
+                await extractEvironment();
             }
             else if (!Directory.Exists(python_env_path))
             {
                 Debug.Log("[PythonEnvironmentManager] PythonEnv.zip found. Starting extraction...");
-                extractEvironment();
+                await extractEvironment();
             }
             else if (!File.Exists(Path.Combine(python_env_path, "python.exe")))
             {
                 Debug.Log("[PythonEnvironmentManager] Extraction incomplete. Restarting extraction...");
-                extractEvironment();
+                await extractEvironment();
             }
             isInstalled = true;
         }
@@ -256,28 +258,43 @@ namespace chARpack
         //}
         }
 
-        private void extractEvironment()
+        private async Task extractEvironment()
         {
-            string extract_path = base_path + "/PythonEnv/";
-            string download_path = base_path + "/PythonEnv.zip";
-            Debug.Log("[PythonEnvironmentManager] Extracting zip.");
+            string destinationPath = base_path + "/PythonEnv/";
+            string zipPath = base_path + "/PythonEnv.zip";
 
-            using (ZipFile zip = ZipFile.Read(download_path))
+            int numTotalFiles = 0;
+            using (ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Read))
             {
-                var li_inst = LoadingIndicator.GetPythonInstance();
-                if (li_inst != null)
-                {
-                    li_inst.setTotalFilesInZip(zip.Count);
-                    zip.ExtractProgress += new EventHandler<ExtractProgressEventArgs>(li_inst.extractProgressChanged);
-                }
-                zip.ExtractAll(extract_path, ExtractExistingFileAction.OverwriteSilently);
+                numTotalFiles = archive.Entries.Count(x => !string.IsNullOrWhiteSpace(x.Name));
             }
 
-            // old implementation uses System.IO.Compression
-            //ZipFile.ExtractToDirectory(download_path, extract_path, true);
+            var li_inst = LoadingIndicator.GetPythonInstance();
+            int extracted_files = 0;
+            var checking_task = Task.Run(async () =>
+            {
+                while (extracted_files < numTotalFiles)
+                {
+                    if (Directory.Exists(destinationPath))
+                    {
+                        var dir_info = new DirectoryInfo(destinationPath);
+                        var file_info = dir_info.GetFiles("*.*", SearchOption.AllDirectories);
+                        extracted_files = file_info.Length;
+                        float progress = 100f * extracted_files / numTotalFiles;
+                        if (li_inst)
+                        {
+                            li_inst.extractProgressChanged(progress);
+                        }
+                    }
+                    await Task.Delay(1000);
+                }
+            });
 
-            Debug.Log("[PythonEnvironmentManager] Python environment installed.");
+            var extract_task = Task.Run(() => { ZipFile.ExtractToDirectory(zipPath, destinationPath, true); });
+
+            await Task.WhenAll(checking_task, extract_task);
         }
+
 
         private void OnDestroy()
         {
