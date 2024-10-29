@@ -45,6 +45,7 @@ namespace chARpack
 
         [HideInInspector] public GameObject labelPrefab;
         [HideInInspector] public GameObject screenAlignmentPrefab;
+        [HideInInspector] public GameObject instructionPrefab;
 
 
         private Transform cam;
@@ -67,7 +68,7 @@ namespace chARpack
             anchorPrefab = (GameObject)Resources.Load("prefabs/QR/QRAnchor");
             labelPrefab = (GameObject)Resources.Load("prefabs/3DLabelPrefab");
             screenAlignmentPrefab = (GameObject)Resources.Load("prefabs/ScreenAlignmentPrefab");
-
+            instructionPrefab = (GameObject)Resources.Load("prefabs/ScanCornerInstructions");
 
             cam = Camera.main.transform;
 
@@ -361,6 +362,17 @@ namespace chARpack
 
         public void startScanScreen()
         {
+            if (ScanCornerInstructions.Singleton) DestroyImmediate(ScanCornerInstructions.Singleton.gameObject);
+            Instantiate(instructionPrefab);
+            ScanCornerInstructions.Singleton.OnScreenScanCancel += stopScanScreen;
+            ScanCornerInstructions.Singleton.OnScreenScanStart += startActualScan;
+
+            gameObject.SetActive(false);
+        }
+
+        private void startActualScan()
+        {
+            ScanCornerInstructions.Singleton.OnScreenScanStart -= startActualScan;
             if (screenAlignment.Singleton)
             {
                 DestroyImmediate(screenAlignment.Singleton.gameObject);
@@ -369,12 +381,12 @@ namespace chARpack
 
             screenAlignment.Singleton.startScreenAlignment();
             screenAlignment.Singleton.OnScreenInitialized += stopScanScreen;
-            gameObject.SetActive(false);
         }
 
         private void stopScanScreen()
         {
-            screenAlignment.Singleton.OnScreenInitialized -= stopScanScreen;
+            ScanCornerInstructions.Singleton.OnScreenScanCancel -= stopScanScreen;
+            if(screenAlignment.Singleton) screenAlignment.Singleton.OnScreenInitialized -= stopScanScreen;
             gameObject.SetActive(true);
         }
     }
