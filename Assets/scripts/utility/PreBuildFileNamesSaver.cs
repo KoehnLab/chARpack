@@ -56,9 +56,9 @@ namespace chARpack
     {
         public string[] fileNames;
 
-        public FileNameInfo(string[] fileNames)
+        public FileNameInfo(string[] fileNames_)
         {
-            fileNames = fileNames;
+            fileNames = fileNames_;
         }
     }
 }
