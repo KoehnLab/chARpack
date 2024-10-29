@@ -632,6 +632,18 @@ MonoBehaviour:
     m_Localized: Bildschirm scannen
     m_Metadata:
       m_Items: []
+  - m_Id: 176588080566222848
+    m_Localized: "Alle l\xF6schen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176588316009283584
+    m_Localized: "L\xE4dt ..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176589498777845760
+    m_Localized: "Standard-Molek\xFClgr\xF6\xDFe"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

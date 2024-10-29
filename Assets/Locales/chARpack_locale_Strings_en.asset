@@ -632,6 +632,18 @@ MonoBehaviour:
     m_Localized: Scan Screen
     m_Metadata:
       m_Items: []
+  - m_Id: 176588080566222848
+    m_Localized: Clear
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176588316009283584
+    m_Localized: Loading ...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176589498777845760
+    m_Localized: Default Molecule Scale
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
