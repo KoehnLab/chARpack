@@ -117,7 +117,7 @@ namespace chARpack
 
         private void sendPositionAndRotation()
         {
-            Message message = Message.Create(MessageSendMode.Unreliable, ClientToServerID.positionAndRotation);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Unreliable, ClientToServerID.positionAndRotation);
 
             message.AddVector3(GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(GlobalCtrl.Singleton.mainCamera.transform.position));
             message.AddQuaternion(Quaternion.Inverse(GlobalCtrl.Singleton.atomWorld.transform.rotation) * GlobalCtrl.Singleton.mainCamera.transform.rotation);
@@ -129,7 +129,7 @@ namespace chARpack
         {
             var calibrationStatus = CoreServices.InputSystem?.EyeGazeProvider?.IsEyeCalibrationValid;
 
-            var out_message = Message.Create(MessageSendMode.Reliable, ClientToServerID.eyeCalibrationState);
+            var out_message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.eyeCalibrationState);
             out_message.AddBool(calibrationStatus.Value);
             NetworkManagerClient.Singleton.Client.Send(out_message);
         }
@@ -140,7 +140,7 @@ namespace chARpack
             var status = (ushort)SystemInfo.batteryStatus;
             var level = SystemInfo.batteryLevel;
 
-            var out_message = Message.Create(MessageSendMode.Reliable, ClientToServerID.batteryState);
+            var out_message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.batteryState);
             out_message.AddUShort(status);
             out_message.AddFloat(level);
             NetworkManagerClient.Singleton.Client.Send(out_message);

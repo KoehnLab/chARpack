@@ -1,5 +1,6 @@
 using Riptide;
 using Riptide.Utils;
+using Riptide.Transports.Tcp;
 using chARpack.Structs;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +8,9 @@ using UnityEngine;
 using System.IO;
 using System.Collections;
 using System;
-using System.Net.Sockets;
 using System.Net;
+using System.Net.Sockets;
+
 
 namespace chARpack
 {
@@ -30,7 +32,6 @@ namespace chARpack
                     Debug.Log($"[{nameof(NetworkManagerServer)}] Instance already exists, destroying duplicate!");
                     Destroy(value);
                 }
-
             }
         }
 
@@ -216,7 +217,15 @@ namespace chARpack
         /// </summary>
         public static void StartServer()
         {
-            Singleton.Server = new Server();
+            if (SettingsData.currentNetworkingProtocol == NetworkUtils.Protocol.TCP)
+            {
+                Singleton.Server = new Server(new TcpServer());
+            }
+            else
+            {
+                Singleton.Server = new Server();
+            }
+
             Singleton.Server.TimeoutTime = 20000;
             Singleton.Server.Start(LoginData.port, LoginData.maxConnections);
             Singleton.Server.ClientDisconnected += Singleton.ClientDisconnected;
@@ -224,7 +233,7 @@ namespace chARpack
 
             // set IP address indicator
             List<string> ips = new List<string>();
-            IPHostEntry HostEntry = Dns.GetHostEntry((Dns.GetHostName()));
+            IPHostEntry HostEntry = Dns.GetHostEntry(Dns.GetHostName());
             foreach (IPAddress ip in HostEntry.AddressList)
             {
                 if (ip.AddressFamily == AddressFamily.InterNetwork)
@@ -299,12 +308,12 @@ namespace chARpack
         #region Messages
         public void pushLoadMolecule(List<cmlData> molecule)
         {
-            NetworkUtils.serializeCmlData((ushort)ServerToClientID.bcastMoleculeLoad, molecule, chunkSize, false);
+            NetworkUtils.serializeCmlData(ServerToClientID.bcastMoleculeLoad, molecule, chunkSize, false);
         }
 
         public void sendMRCapture(ushort client_id, bool rec)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.MRCapture);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.MRCapture);
             message.AddBool(rec);
             Server.Send(message, client_id);
         }
@@ -312,7 +321,7 @@ namespace chARpack
         public void bcastMoveAtom(Guid mol_id, ushort atom_id, Vector3 pos)
         {
             // Broadcast to other clients
-            Message message = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastAtomMoved);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Unreliable, ServerToClientID.bcastAtomMoved);
             message.AddUShort(0);
             message.AddGuid(mol_id);
             message.AddUShort(atom_id);
@@ -323,7 +332,7 @@ namespace chARpack
         public void bcastStopMoveAtom(Guid mol_id, ushort atom_id)
         {
             // Broadcast to other clients
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastStopMoveAtom);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastStopMoveAtom);
             message.AddUShort(0);
             message.AddGuid(mol_id);
             message.AddUShort(atom_id);
@@ -333,7 +342,7 @@ namespace chARpack
         public void bcastMoveMolecule(Guid mol_id, Vector3 pos, Quaternion quat)
         {
             // Broadcast to other clients
-            Message message = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastMoleculeMoved);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Unreliable, ServerToClientID.bcastMoleculeMoved);
             message.AddUShort(0);
             message.AddGuid(mol_id);
             message.AddVector3(pos);
@@ -343,7 +352,7 @@ namespace chARpack
 
         public void bcastMergeMolecule(Guid mol1ID, ushort atom1ID, Guid mol2ID, ushort atom2ID)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastMoleculeMerged);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastMoleculeMerged);
             message.AddUShort(0);
             message.AddGuid(mol1ID);
             message.AddUShort(atom1ID);
@@ -354,7 +363,7 @@ namespace chARpack
 
         public void bcastSelectAtom(Guid mol_id, ushort atom_id, bool selected)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSelectAtom);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastSelectAtom);
             message.AddUShort(0);
             message.AddGuid(mol_id);
             message.AddUShort(atom_id);
@@ -364,7 +373,7 @@ namespace chARpack
 
         public void bcastSelectMolecule(Guid mol_id, bool selected)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSelectMolecule);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastSelectMolecule);
             message.AddUShort(0);
             message.AddGuid(mol_id);
             message.AddBool(selected);
@@ -373,7 +382,7 @@ namespace chARpack
 
         public void bcastSelectBond(ushort bond_id, Guid mol_id, bool selected)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSelectBond);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastSelectBond);
             message.AddUShort(0);
             message.AddUShort(bond_id);
             message.AddGuid(mol_id);
@@ -383,7 +392,7 @@ namespace chARpack
 
         public void bcastCreateAtom(Guid mol_id, string abbre, Vector3 pos, ushort hyb)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastAtomCreated);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastAtomCreated);
             message.AddUShort(0);
             message.AddGuid(mol_id);
             message.AddString(abbre);
@@ -394,7 +403,7 @@ namespace chARpack
 
         public void bcastDeleteAtom(Guid mol_id, ushort atom_id)
         {
-            //Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteAtom);
+            //Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastDeleteAtom);
             //message.AddUShort(0);
             //message.AddGuid(mol_id);
             //message.AddUShort(atom_id);
@@ -404,7 +413,7 @@ namespace chARpack
 
         public void bcastDeleteMolecule(Guid mol_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteMolecule);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastDeleteMolecule);
             message.AddUShort(0);
             message.AddGuid(mol_id);
             Server.SendToAll(message);
@@ -412,7 +421,7 @@ namespace chARpack
 
         public void bcastReplaceDummies(Guid mol_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastReplaceDummies);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastReplaceDummies);
             message.AddUShort(0);
             message.AddGuid(mol_id);
             Server.SendToAll(message);
@@ -420,7 +429,7 @@ namespace chARpack
 
         public void bcastMarkTerm(ushort term_type, Guid mol_id, ushort term_id, bool marked)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastMarkTerm);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastMarkTerm);
             message.AddUShort(0);
             message.AddUShort(term_type);
             message.AddGuid(mol_id);
@@ -431,7 +440,7 @@ namespace chARpack
 
         public void bcastChangeBondTerm(ForceField.BondTerm term, Guid mol_id, ushort term_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastChangeBondTerm);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastChangeBondTerm);
             message.AddUShort(0);
             message.AddGuid(mol_id);
             message.AddUShort(term_id);
@@ -441,7 +450,7 @@ namespace chARpack
 
         public void bcastChangeAngleTerm(ForceField.AngleTerm term, Guid mol_id, ushort term_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastChangeAngleTerm);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastChangeAngleTerm);
             message.AddUShort(0);
             message.AddGuid(mol_id);
             message.AddUShort(term_id);
@@ -451,7 +460,7 @@ namespace chARpack
 
         public void bcastChangeTorsionTerm(ForceField.TorsionTerm term, Guid mol_id, ushort term_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastChangeTorsionTerm);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastChangeTorsionTerm);
             message.AddUShort(0);
             message.AddGuid(mol_id);
             message.AddUShort(term_id);
@@ -461,7 +470,7 @@ namespace chARpack
 
         public void bcastModifyHyb(Guid mol_id, ushort atom_id, ushort hyb)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastModifyHyb);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastModifyHyb);
             message.AddUShort(0);
             message.AddGuid(mol_id);
             message.AddUShort(atom_id);
@@ -471,7 +480,7 @@ namespace chARpack
 
         public void bcastChangeAtom(Guid mol_id, ushort atom_id, string chemAbbre)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastChangeAtom);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastChangeAtom);
             message.AddUShort(0);
             message.AddGuid(mol_id);
             message.AddUShort(atom_id);
@@ -481,7 +490,7 @@ namespace chARpack
 
         public void bcastDeleteBond(ushort bond_id, Guid mol_id)
         {
-            //Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteBond);
+            //Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastDeleteBond);
             //message.AddUShort(0);
             //message.AddUShort(bond_id);
             //message.AddGuid(mol_id);
@@ -491,7 +500,7 @@ namespace chARpack
 
         public void bcastSettings()
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSettings);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastSettings);
             message.AddUShort(0);
             message.AddUShort(SettingsData.bondStiffness);
             message.AddFloat(SettingsData.repulsionScale);
@@ -532,7 +541,7 @@ namespace chARpack
 
         public void bcastScaleMolecule(Guid mol_id, float scale)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastScaleMolecule);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastScaleMolecule);
             message.AddUShort(0);
             message.AddGuid(mol_id);
             message.AddFloat(scale);
@@ -541,7 +550,7 @@ namespace chARpack
 
         public void bcastCreateMeasurement(Guid mol1_id, ushort atom1_id, Guid mol2_id, ushort atom2_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastCreateMeasurement);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastCreateMeasurement);
             message.AddUShort(0);
             message.AddGuid(mol1_id);
             message.AddUShort(atom1_id);
@@ -552,14 +561,14 @@ namespace chARpack
 
         public void bcastClearMeasurements()
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastClearMeasurements);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastClearMeasurements);
             message.AddUShort(0);
             Server.SendToAll(message);
         }
 
         public void bcastFreezeAtom(Guid mol_id, ushort atom_id, bool freeze)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastFreezeAtom);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastFreezeAtom);
             message.AddUShort(0);
             message.AddGuid(mol_id);
             message.AddUShort(atom_id);
@@ -569,7 +578,7 @@ namespace chARpack
 
         public void bcastFreezeMolecule(Guid mol_id, bool freeze)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastFreezeMolecule);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastFreezeMolecule);
             message.AddUShort(0);
             message.AddGuid(mol_id);
             message.AddBool(freeze);
@@ -578,7 +587,7 @@ namespace chARpack
 
         public void bcastSetSnapColors(Guid mol1_id, Guid mol2_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSnapMolecules);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastSnapMolecules);
             message.AddUShort(0);
             message.AddGuid(mol1_id);
             message.AddGuid(mol2_id);
@@ -587,7 +596,7 @@ namespace chARpack
 
         public void bcastServerFocusHighlight(Guid mol_id, ushort atom_id, bool active)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastServerFocusHighlight);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastServerFocusHighlight);
             message.AddGuid(mol_id);
             message.AddUShort(atom_id);
             message.AddBool(active);
@@ -596,28 +605,28 @@ namespace chARpack
 
         public void bcastNumOutlines(int num_outlines)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastNumOutlines);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastNumOutlines);
             message.AddInt(num_outlines);
             Server.SendToAll(message);
         }
 
         public void bcastServerViewport(Vector2 port)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastServerViewport);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastServerViewport);
             message.AddVector2(port);
             Server.SendToAll(message);
         }
 
         public void bcastSyncMode(TransitionManager.SyncMode mode)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSyncMode);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastSyncMode);
             message.AddInt((int)mode);
             Server.SendToAll(message);
         }
 
         public void bcastMousePosition()
         {
-            Message message = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastMousePosition);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Unreliable, ServerToClientID.bcastMousePosition);
             message.AddVector2(Input.mousePosition);
             Server.SendToAll(message);
         }
@@ -650,7 +659,7 @@ namespace chARpack
             Debug.Log($"[NetworkManagerServer] transition Mol: Triggered by {triggered_by}");
             cml.setTransitionTriggeredBy(triggered_by);
 
-            NetworkUtils.serializeCmlData((ushort)ServerToClientID.transitionMolecule, new List<cmlData> { cml }, chunkSize, false);
+            NetworkUtils.serializeCmlData(ServerToClientID.transitionMolecule, new List<cmlData> { cml }, chunkSize, false);
             GlobalCtrl.Singleton.deleteMolecule(mol);
         }
 
@@ -681,13 +690,13 @@ namespace chARpack
             Debug.Log($"[NetworkManagerServer] transition Mol: Triggered by {triggered_by}");
             sgo.setTransitionTriggeredBy(triggered_by);
 
-            NetworkUtils.serializeGenericObject((ushort)ServerToClientID.transitionGenericObject, sgo, chunkSize, false);
+            NetworkUtils.serializeGenericObject(ServerToClientID.transitionGenericObject, sgo, chunkSize, false);
             GenericObject.delete(go);
         }
 
         public void requestTransition(TransitionManager.InteractionType triggered_by)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.requestTransition);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.requestTransition);
             message.AddInt((int)triggered_by);
 
             // only send to one client
@@ -697,20 +706,20 @@ namespace chARpack
 
         public void bcastDeleteMarkedRequest()
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastRequestDeleteMarked);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastRequestDeleteMarked);
             Server.SendToAll(message);
         }
 
         public void bcastDeleteEverything()
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteEverything);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastDeleteEverything);
             message.AddUShort(0);
             Server.SendToAll(message);
         }
 
         public void sendSpawnGhostObject(string path)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.sendSpawnGhostObject);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.sendSpawnGhostObject);
             message.AddUShort(0);
             message.AddString(path);
             Server.SendToAll(message);
@@ -718,7 +727,7 @@ namespace chARpack
 
         public void sendObjectToTrack(Guid id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.sendObjectToTrack);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.sendObjectToTrack);
             message.AddUShort(0);
             message.AddGuid(id);
             Server.SendToAll(message);
@@ -727,7 +736,7 @@ namespace chARpack
         public void sendSpawnObjectCollection(int task_id)
         {
             Debug.Log("[NetworkManagerServer] Sending request to spawn obejct collection");
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.sendSpawnObjectCollection);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.sendSpawnObjectCollection);
             message.AddUShort(0);
             message.AddInt(task_id);
             Server.SendToAll(message);
@@ -735,7 +744,7 @@ namespace chARpack
 
         public void requestResults(int task_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.requestResults);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.requestResults);
             message.AddUShort(0);
             message.AddInt(task_id);
             Server.SendToAll(message);
@@ -743,7 +752,7 @@ namespace chARpack
 
         public void bcastScreenSizeChanged()
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastScreenSizeChanged);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastScreenSizeChanged);
             message.AddVector2(SettingsData.serverViewport);
             Server.SendToAll(message);
         }
@@ -767,7 +776,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastAtomCreated);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastAtomCreated);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol_id);
             outMessage.AddString(abbre);
@@ -795,7 +804,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastMoleculeMoved);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Unreliable, ServerToClientID.bcastMoleculeMoved);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(molecule_id);
             outMessage.AddVector3(pos);
@@ -822,7 +831,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastAtomMoved);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Unreliable, ServerToClientID.bcastAtomMoved);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol_id);
             outMessage.AddUShort(atom_id);
@@ -848,7 +857,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastStopMoveAtom);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastStopMoveAtom);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol_id);
             outMessage.AddUShort(atom_id);
@@ -883,7 +892,7 @@ namespace chARpack
             else
             {
                 //// Broadcast to other clients
-                Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastMoleculeMerged);
+                Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastMoleculeMerged);
                 outMessage.AddUShort(fromClientId);
                 outMessage.AddGuid(mol1ID);
                 outMessage.AddUShort(atom1ID);
@@ -897,7 +906,7 @@ namespace chARpack
         public void sendAtomWorld(List<cmlData> world, int toClientID = -1)
         {
             if (world.Count < 1) return;
-            NetworkUtils.serializeCmlData((ushort)ServerToClientID.sendAtomWorld, world, chunkSize, false, toClientID);
+            NetworkUtils.serializeCmlData(ServerToClientID.sendAtomWorld, world, chunkSize, false, toClientID);
         }
 
         // message not in use yet
@@ -922,7 +931,7 @@ namespace chARpack
                 {
                     if (client.ID != fromClientId)
                     {
-                        NetworkUtils.serializeCmlData((ushort)ServerToClientID.bcastMoleculeLoad, cmlWorld, chunkSize, false, client.ID);
+                        NetworkUtils.serializeCmlData(ServerToClientID.bcastMoleculeLoad, cmlWorld, chunkSize, false, client.ID);
                     }
                 }
             }
@@ -933,7 +942,7 @@ namespace chARpack
         {
             GlobalCtrl.Singleton.DeleteAll();
             GlobalCtrl.Singleton.SaveMolecule(true); // for working undo state
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteEverything);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastDeleteEverything);
             outMessage.AddUShort(fromClientId);
             NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
         }
@@ -963,7 +972,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSelectAtom);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastSelectAtom);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol_id);
             outMessage.AddUShort(atom_id);
@@ -992,7 +1001,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSelectMolecule);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastSelectMolecule);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol_id);
             outMessage.AddBool(selected);
@@ -1021,7 +1030,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSelectBond);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastSelectBond);
             outMessage.AddUShort(fromClientId);
             outMessage.AddUShort(bond_id);
             outMessage.AddGuid(mol_id);
@@ -1053,7 +1062,7 @@ namespace chARpack
             else
             {
                 // Broadcast to other clients
-                Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteAtom);
+                Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastDeleteAtom);
                 outMessage.AddUShort(fromClientId);
                 outMessage.AddGuid(mol_id);
                 outMessage.AddUShort(atom_id);
@@ -1081,7 +1090,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteMolecule);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastDeleteMolecule);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol_id);
             NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
@@ -1110,7 +1119,7 @@ namespace chARpack
             else
             {
                 // Broadcast to other clients
-                Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastDeleteBond);
+                Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastDeleteBond);
                 outMessage.AddUShort(fromClientId);
                 outMessage.AddUShort(bond_id);
                 outMessage.AddGuid(mol_id);
@@ -1143,7 +1152,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastChangeAtom);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Unreliable, ServerToClientID.bcastChangeAtom);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol_id);
             outMessage.AddUShort(atom_id);
@@ -1170,7 +1179,7 @@ namespace chARpack
             ForceField.Singleton.enableForceFieldMethod(ffEnabled);
 
             // Broadcast
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastEnableForceField);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastEnableForceField);
             outMessage.AddUShort(fromClientId);
             outMessage.AddBool(ffEnabled);
             NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
@@ -1196,7 +1205,7 @@ namespace chARpack
             }
 
             // Broadcast
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastChangeBondTerm);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastChangeBondTerm);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol_id);
             outMessage.AddUShort(term_id);
@@ -1224,7 +1233,7 @@ namespace chARpack
             }
 
             // Broadcast
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastChangeAngleTerm);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastChangeAngleTerm);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol_id);
             outMessage.AddUShort(term_id);
@@ -1252,7 +1261,7 @@ namespace chARpack
             }
 
             // Broadcast
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastChangeTorsionTerm);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastChangeTorsionTerm);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol_id);
             outMessage.AddUShort(term_id);
@@ -1298,7 +1307,7 @@ namespace chARpack
             }
 
             // Broadcast
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastMarkTerm);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastMarkTerm);
             outMessage.AddUShort(fromClientId);
             outMessage.AddUShort(term_type);
             outMessage.AddGuid(mol_id);
@@ -1326,7 +1335,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastModifyHyb);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastModifyHyb);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol_id);
             outMessage.AddUShort(atom_id);
@@ -1352,7 +1361,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastKeepConfig);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastKeepConfig);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol_id);
             outMessage.AddBool(keep_config);
@@ -1378,7 +1387,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastReplaceDummies);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastReplaceDummies);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol_id);
             NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
@@ -1404,7 +1413,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastFocusHighlight);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastFocusHighlight);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol_id);
             outMessage.AddUShort(atom_id);
@@ -1432,7 +1441,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastScaleMolecule);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastScaleMolecule);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol_id);
             outMessage.AddFloat(scale);
@@ -1460,7 +1469,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastFreezeAtom);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastFreezeAtom);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol_id);
             outMessage.AddUShort(atom_id);
@@ -1488,7 +1497,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastFreezeMolecule);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastFreezeMolecule);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol_id);
             outMessage.AddBool(freeze);
@@ -1516,7 +1525,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastSnapMolecules);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastSnapMolecules);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol1_id);
             outMessage.AddGuid(mol2_id);
@@ -1543,7 +1552,7 @@ namespace chARpack
             }
 
             // Broadcast to other clients
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastCreateMeasurement);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastCreateMeasurement);
             outMessage.AddUShort(fromClientId);
             outMessage.AddGuid(mol1ID);
             outMessage.AddUShort(atom1ID);
@@ -1557,7 +1566,7 @@ namespace chARpack
         {
             // TODO: What to do in async mode?
             GlobalCtrl.Singleton.deleteAllMeasurements();
-            Message outMessage = Message.Create(MessageSendMode.Reliable, ServerToClientID.bcastClearMeasurements);
+            Message outMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastClearMeasurements);
             outMessage.AddUShort(fromClientId);
             NetworkManagerServer.Singleton.Server.SendToAll(outMessage);
         }
@@ -1801,7 +1810,7 @@ namespace chARpack
 
         private void bcastFormula(Guid mol_id, string svg_string, List<Vector2> coords)
         {
-            NetworkUtils.serializeFormula((ushort)ServerToClientID.sendFormula, mol_id, svg_string, coords, chunkSize);
+            NetworkUtils.serializeFormula(ServerToClientID.sendFormula, mol_id, svg_string, coords, chunkSize);
         }
         #endregion
 
@@ -1824,7 +1833,7 @@ namespace chARpack
                 yield break;
             }
 
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToStructureID.requestStrucutreFormula);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToStructureID.requestStrucutreFormula);
             message.AddGuid(mol.m_id);
             message.AddUShort((ushort)mol.atomList.Count);
 

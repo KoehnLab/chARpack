@@ -54,6 +54,7 @@ namespace chARpack
         [JsonProperty] public static bool allowThrowing = true;
         [JsonProperty] public static bool hoverGazeAsSelection = true;
         [JsonProperty] public static float defaultMoleculeSize = 0.8f;
+        public static NetworkUtils.Protocol currentNetworkingProtocol = NetworkUtils.Protocol.TCP;
 
         public static int highlightColorMap
         {

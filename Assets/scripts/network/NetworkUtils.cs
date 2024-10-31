@@ -3,14 +3,19 @@ using chARpack.Structs;
 using System.Collections.Generic;
 using UnityEngine;
 using Riptide.Utils;
-using UnityEngine.UI.Extensions;
-using UnityEditor;
 using System;
 
 namespace chARpack
 {
+
     public static class NetworkUtils
     {
+        public enum Protocol
+        {
+            UDP,
+            TCP
+        }
+
         #region cmlData
 
         public static void deserializeCmlData(Message message, ref byte[] cmlBytes_, ref List<cmlData> cmlWorld_, ushort chunkSize_, bool clearScene = true)
@@ -55,10 +60,10 @@ namespace chARpack
             }
         }
 
-        public static void serializeCmlData(ushort messageSignature, List<cmlData> data, ushort chunkSize_, bool toServer = false, int toClientID = -1)
+        public static void serializeCmlData(Enum messageSignature, List<cmlData> data, ushort chunkSize_, bool toServer = false, int toClientID = -1)
         {
             // prepare clients for the messages'
-            Message startMessage = Message.Create(MessageSendMode.Reliable, messageSignature);
+            Message startMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, messageSignature);
             startMessage.AddString("start");
             if (toServer)
             {
@@ -106,7 +111,7 @@ namespace chARpack
                     var currentPieceID = j; // third
                     var piece = totalBytes[..bytesPerPiece[j]]; // forth
                     totalBytes = totalBytes[bytesPerPiece[j]..];
-                    Message message = Message.Create(MessageSendMode.Reliable, messageSignature);
+                    Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, messageSignature);
                     message.AddString("data");
                     message.AddUInt(totalLength);
                     message.AddUShort(numPieces);
@@ -129,7 +134,7 @@ namespace chARpack
                     }
                 }
             }
-            Message endMessage = Message.Create(MessageSendMode.Reliable, messageSignature);
+            Message endMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, messageSignature);
             endMessage.AddString("end");
             if (toServer)
             {
@@ -152,10 +157,10 @@ namespace chARpack
 
         #region formulaData
 
-        public static void serializeFormula(ushort messageSignature, Guid mol_id, string svg_content, List<Vector2> svg_coords, ushort chunkSize_, bool toServer = false, int toClientID = -1)
+        public static void serializeFormula(Enum messageSignature, Guid mol_id, string svg_content, List<Vector2> svg_coords, ushort chunkSize_, bool toServer = false, int toClientID = -1)
         {
             // prepare clients for the messages'
-            Message startMessage = Message.Create(MessageSendMode.Reliable, messageSignature);
+            Message startMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, messageSignature);
             startMessage.AddString("start");
             if (toServer)
             {
@@ -199,7 +204,7 @@ namespace chARpack
                 var currentPieceID = j; // third
                 var piece = totalBytes[..bytesPerPiece[j]]; // forth
                 totalBytes = totalBytes[bytesPerPiece[j]..];
-                Message message = Message.Create(MessageSendMode.Reliable, messageSignature);
+                Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, messageSignature);
                 message.AddString("coords");
                 message.AddUInt(totalLength);
                 message.AddUShort(numPieces);
@@ -253,7 +258,7 @@ namespace chARpack
                 var currentPieceID = j; // third
                 var piece = totalBytes[..bytesPerPiece[j]]; // forth
                 totalBytes = totalBytes[bytesPerPiece[j]..];
-                Message message = Message.Create(MessageSendMode.Reliable, messageSignature);
+                Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, messageSignature);
                 message.AddString("svg");
                 message.AddUInt(totalLength);
                 message.AddUShort(numPieces);
@@ -277,7 +282,7 @@ namespace chARpack
             }
 
 
-            Message endMessage = Message.Create(MessageSendMode.Reliable, messageSignature);
+            Message endMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, messageSignature);
             endMessage.AddString("end");
             endMessage.AddGuid(mol_id);
             if (toServer)
@@ -398,10 +403,10 @@ namespace chARpack
         #endregion
 
         #region genericObject
-        public static void serializeGenericObject(ushort messageSignature, sGenericObject data, ushort chunkSize_, bool toServer = false, int toClientID = -1)
+        public static void serializeGenericObject(Enum messageSignature, sGenericObject data, ushort chunkSize_, bool toServer = false, int toClientID = -1)
         {
             // prepare clients for the messages'
-            Message startMessage = Message.Create(MessageSendMode.Reliable, messageSignature);
+            Message startMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, messageSignature);
             startMessage.AddString("start");
             if (toServer)
             {
@@ -444,7 +449,7 @@ namespace chARpack
                 var currentPieceID = j; // third
                 var piece = totalBytes[..bytesPerPiece[j]]; // forth
                 totalBytes = totalBytes[bytesPerPiece[j]..];
-                Message message = Message.Create(MessageSendMode.Reliable, messageSignature);
+                Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, messageSignature);
                 message.AddString("data");
                 message.AddUInt(totalLength);
                 message.AddUShort(numPieces);
@@ -467,7 +472,7 @@ namespace chARpack
                 }
             }
 
-            Message endMessage = Message.Create(MessageSendMode.Reliable, messageSignature);
+            Message endMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, messageSignature);
             endMessage.AddString("end");
             if (toServer)
             {
@@ -524,5 +529,17 @@ namespace chARpack
 
 
         #endregion
+
+        public static Message createMessage(MessageSendMode mode, Enum id)
+        {
+            if (SettingsData.currentNetworkingProtocol == Protocol.TCP)
+            {
+                return Message.Create(MessageSendMode.Unreliable, id);
+            }
+            else
+            {
+                return Message.Create(mode, id);
+            }
+        }
     }
 }

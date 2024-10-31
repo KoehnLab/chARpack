@@ -194,7 +194,7 @@ namespace chARpack
 
         public void requestEyeCalibrationState()
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.requestEyeCalibrationState);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.requestEyeCalibrationState);
             NetworkManagerServer.Singleton.Server.Send(message, ID);
         }
 
@@ -208,7 +208,7 @@ namespace chARpack
 
         public void requestBatteryState()
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.requestBatteryState);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.requestBatteryState);
             NetworkManagerServer.Singleton.Server.Send(message, ID);
         }
 
@@ -238,14 +238,14 @@ namespace chARpack
 
         private void sendSpawned()
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.userSpawned);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.userSpawned);
 
             NetworkManagerServer.Singleton.Server.SendToAll(addSpawnData(message));
         }
 
         private void sendSpawned(ushort toClientID)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ServerToClientID.userSpawned);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.userSpawned);
 
             NetworkManagerServer.Singleton.Server.Send(addSpawnData(message), toClientID);
         }
@@ -274,7 +274,7 @@ namespace chARpack
             {
                 if (otherUser.ID != fromClientId)
                 {
-                    Message bcastMessage = Message.Create(MessageSendMode.Unreliable, ServerToClientID.bcastPositionAndRotation);
+                    Message bcastMessage = NetworkUtils.createMessage(MessageSendMode.Unreliable, ServerToClientID.bcastPositionAndRotation);
                     bcastMessage.AddUShort(fromClientId);
                     bcastMessage.AddVector3(pos);
                     bcastMessage.AddQuaternion(quat);

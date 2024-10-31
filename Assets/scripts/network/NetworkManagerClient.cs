@@ -1,6 +1,7 @@
 using Microsoft.MixedReality.Toolkit.UI;
 using Riptide;
 using Riptide.Utils;
+using Riptide.Transports.Tcp;
 using chARpack.Structs;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using System.Collections;
+
 
 namespace chARpack
 {
@@ -67,7 +69,15 @@ namespace chARpack
             RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
             showErrorPrefab = (GameObject)Resources.Load("prefabs/confirmDialog");
 
-            Client = new Client();
+            if (SettingsData.currentNetworkingProtocol == NetworkUtils.Protocol.TCP)
+            {
+                Client = new Client(new TcpClient());
+            }
+            else
+            {
+                Client = new Client();
+            }
+            
             Client.Connected += DidConnect;
             Client.ConnectionFailed += FailedToConnect;
             Client.ClientDisconnected += ClientDisconnnected;
@@ -384,7 +394,7 @@ namespace chARpack
         /// </summary>
         private void sendName()
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.deviceNameAndType);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.deviceNameAndType);
             message.AddString(SystemInfo.deviceName);
             message.AddUShort(getDeviceType());
             message.AddVector3(LoginData.offsetPos);
@@ -394,13 +404,13 @@ namespace chARpack
 
         public void sendSyncRequest()
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.syncMe);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.syncMe);
             Client.Send(message);
         }
 
         private void sendAtomCreated(Guid mol_id, string abbre, Vector3 pos, ushort hyb)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.atomCreated);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.atomCreated);
             message.AddGuid(mol_id);
             message.AddString(abbre);
             message.AddVector3(pos);
@@ -410,7 +420,7 @@ namespace chARpack
 
         private void sendMoleculeMoved(Guid mol_id, Vector3 pos, Quaternion quat)
         {
-            Message message = Message.Create(MessageSendMode.Unreliable, ClientToServerID.moleculeMoved);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Unreliable, ClientToServerID.moleculeMoved);
             message.AddGuid(mol_id);
             message.AddVector3(pos);
             message.AddQuaternion(quat);
@@ -419,7 +429,7 @@ namespace chARpack
 
         private void sendAtomMoved(Guid mol_id, ushort atom_id, Vector3 pos)
         {
-            Message message = Message.Create(MessageSendMode.Unreliable, ClientToServerID.atomMoved);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Unreliable, ClientToServerID.atomMoved);
             message.AddGuid(mol_id);
             message.AddUShort(atom_id);
             message.AddVector3(pos);
@@ -428,7 +438,7 @@ namespace chARpack
 
         private void sendStopMoveAtom(Guid mol_id, ushort atom_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.stopMoveAtom);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.stopMoveAtom);
             message.AddGuid(mol_id);
             message.AddUShort(atom_id);
             Client.Send(message);
@@ -436,7 +446,7 @@ namespace chARpack
 
         private void sendMoleculeMerged(Guid mol1ID, ushort atom1ID, Guid mol2ID, ushort atom2ID)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.moleculeMerged);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.moleculeMerged);
             message.AddGuid(mol1ID);
             message.AddUShort(atom1ID);
             message.AddGuid(mol2ID);
@@ -447,18 +457,18 @@ namespace chARpack
         private void sendDeviceMoleculeLoaded(string name)
         {
             var molData = GlobalCtrl.Singleton.getMoleculeData(name);
-            NetworkUtils.serializeCmlData((ushort)ClientToServerID.moleculeLoaded, molData, chunkSize, true);
+            NetworkUtils.serializeCmlData(ClientToServerID.moleculeLoaded, molData, chunkSize, true);
         }
 
         private void sendDeleteEverything()
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.deleteEverything);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.deleteEverything);
             Client.Send(message);
         }
 
         private void sendSelectAtom(Guid mol_id, ushort atom_id, bool selected)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.selectAtom);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.selectAtom);
             message.AddGuid(mol_id);
             message.AddUShort(atom_id);
             message.AddBool(selected);
@@ -467,7 +477,7 @@ namespace chARpack
 
         private void sendSelectMolecule(Guid mol_id, bool selected)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.selectMolecule);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.selectMolecule);
             message.AddGuid(mol_id);
             message.AddBool(selected);
             Client.Send(message);
@@ -475,7 +485,7 @@ namespace chARpack
 
         private void sendSelectBond(ushort bond_id, Guid mol_id, bool selected)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.selectBond);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.selectBond);
             message.AddUShort(bond_id);
             message.AddGuid(mol_id);
             message.AddBool(selected);
@@ -484,7 +494,7 @@ namespace chARpack
 
         private void sendDeleteAtom(Guid mol_id, ushort atom_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.deleteAtom);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.deleteAtom);
             message.AddGuid(mol_id);
             message.AddUShort(atom_id);
             Client.Send(message);
@@ -493,7 +503,7 @@ namespace chARpack
 
         private void sendDeleteMolecule(Guid mol_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.deleteMolecule);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.deleteMolecule);
             message.AddGuid(mol_id);
             Client.Send(message);
             UnityEngine.Debug.Log("[NetworkManagerClient] Sent delete molecule");
@@ -501,7 +511,7 @@ namespace chARpack
 
         private void sendDeleteBond(ushort bond_id, Guid mol_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.deleteBond);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.deleteBond);
             message.AddUShort(bond_id);
             message.AddGuid(mol_id);
             Client.Send(message);
@@ -510,7 +520,7 @@ namespace chARpack
 
         private void sendChangeAtom(Guid mol_id, ushort atom_id, string chemAbbre)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.changeAtom);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.changeAtom);
             message.AddGuid(mol_id);
             message.AddUShort(atom_id);
             message.AddString(chemAbbre);
@@ -520,13 +530,13 @@ namespace chARpack
 
         private void sendUndo()
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.undo);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.undo);
             Client.Send(message);
         }
 
         private void sendEnableForceField(bool enableForceField)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.enableForceField);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.enableForceField);
             message.AddBool(enableForceField);
             Client.Send(message);
         }
@@ -534,7 +544,7 @@ namespace chARpack
 
         private void sendChangeBondTerm(ForceField.BondTerm term, Guid mol_id, ushort term_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.changeBondTerm);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.changeBondTerm);
             message.AddGuid(mol_id);
             message.AddUShort(term_id);
             message.AddBondTerm(term);
@@ -543,7 +553,7 @@ namespace chARpack
 
         private void sendChangeAngleTerm(ForceField.AngleTerm term, Guid mol_id, ushort term_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.changeAngleTerm);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.changeAngleTerm);
             message.AddGuid(mol_id);
             message.AddUShort(term_id);
             message.AddAngleTerm(term);
@@ -552,7 +562,7 @@ namespace chARpack
 
         private void sendChangeTorsionTerm(ForceField.TorsionTerm term, Guid mol_id, ushort term_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.changeTorsionTerm);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.changeTorsionTerm);
             message.AddGuid(mol_id);
             message.AddUShort(term_id);
             message.AddTorsionTerm(term);
@@ -561,7 +571,7 @@ namespace chARpack
 
         private void sendMarkTerm(ushort term_type, Guid mol_id, ushort term_id, bool marked)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.markTerm);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.markTerm);
             message.AddUShort(term_type);
             message.AddGuid(mol_id);
             message.AddUShort(term_id);
@@ -571,7 +581,7 @@ namespace chARpack
 
         private void sendModifyHyb(Guid mol_id, ushort atom_id, ushort hyb)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.modifyHyb);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.modifyHyb);
             message.AddGuid(mol_id);
             message.AddUShort(atom_id);
             message.AddUShort(hyb);
@@ -580,7 +590,7 @@ namespace chARpack
 
         private void sendKeepConfig(Guid mol_id, bool keep_config)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.keepConfig);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.keepConfig);
             message.AddGuid(mol_id);
             message.AddBool(keep_config);
             Client.Send(message);
@@ -589,14 +599,14 @@ namespace chARpack
 
         private void sendReplaceDummies(Guid mol_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.replaceDummies);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.replaceDummies);
             message.AddGuid(mol_id);
             Client.Send(message);
         }
 
         private void sendFocusHighlight(Guid mol_id, ushort atom_id, bool active)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.focusHighlight);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.focusHighlight);
             message.AddGuid(mol_id);
             message.AddUShort(atom_id);
             message.AddBool(active);
@@ -605,7 +615,7 @@ namespace chARpack
 
         private void sendScaleMolecule(Guid mol_id, float scale)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.scaleMolecule);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.scaleMolecule);
             message.AddGuid(mol_id);
             message.AddFloat(scale);
             Client.Send(message);
@@ -613,7 +623,7 @@ namespace chARpack
 
         private void sendFreezeAtom(Guid mol_id, ushort atom_id, bool value)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.freezeAtom);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.freezeAtom);
             message.AddGuid(mol_id);
             message.AddUShort(atom_id);
             message.AddBool(value);
@@ -622,7 +632,7 @@ namespace chARpack
 
         private void sendFreezeMolecule(Guid mol_id, bool value)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.freezeMolecule);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.freezeMolecule);
             message.AddGuid(mol_id);
             message.AddBool(value);
             Client.Send(message);
@@ -630,7 +640,7 @@ namespace chARpack
 
         private void sendSetSnapColor(Guid mol1_id, Guid mol2_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.snapMolecules);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.snapMolecules);
             message.AddGuid(mol1_id);
             message.AddGuid(mol2_id);
             Client.Send(message);
@@ -638,7 +648,7 @@ namespace chARpack
 
         private void sendCreateMeasurement(Guid mol1_id, ushort atom1_id, Guid mol2_id, ushort atom2_id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.createMeasurement);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.createMeasurement);
             message.AddGuid(mol1_id);
             message.AddUShort(atom1_id);
             message.AddGuid(mol2_id);
@@ -648,13 +658,13 @@ namespace chARpack
 
         private void sendClearMeasurements()
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.clearMeasurements);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.clearMeasurements);
             Client.Send(message);
         }
 
         private void sendGrabAtom(Atom a, bool value)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.grabAtom);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.grabAtom);
             message.AddGuid(a.m_molecule.m_id);
             message.AddUShort(a.m_id);
             message.AddBool(value);
@@ -663,7 +673,7 @@ namespace chARpack
 
         private void sendGrabOnScreen(Vector2 ss_coords, TransitionManager.InteractionType interType)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.transitionGrabOnScreen);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.transitionGrabOnScreen);
             message.AddVector2(ss_coords);
             message.AddInt((int)interType);
             Client.Send(message);
@@ -671,14 +681,14 @@ namespace chARpack
 
         private void sendReleaseGrabOnScreen()
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.releaseTransitionGrabOnScreen);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.releaseTransitionGrabOnScreen);
             Client.Send(message);
         }
 
 
         private void sendHoverOverScreen(Vector2 ss_coords)
         {
-            Message message = Message.Create(MessageSendMode.Unreliable, ClientToServerID.hoverOverScreen);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Unreliable, ClientToServerID.hoverOverScreen);
             message.AddVector2(ss_coords);
             Client.Send(message);
         }
@@ -707,7 +717,7 @@ namespace chARpack
             cml.setTransitionTriggeredBy(triggered_by);
             cml.setTriggeredFromId(Client.Id);
 
-            NetworkUtils.serializeCmlData((ushort)ClientToServerID.transitionMolecule, new List<cmlData> { cml }, chunkSize, true);
+            NetworkUtils.serializeCmlData(ClientToServerID.transitionMolecule, new List<cmlData> { cml }, chunkSize, true);
             EventManager.Singleton.DeleteMolecule(mol.m_id);
             GlobalCtrl.Singleton.deleteMolecule(mol);
         }
@@ -734,28 +744,28 @@ namespace chARpack
             sgo.setTransitionTriggeredBy(triggered_by);
             sgo.setTranstionTriggeredFromId(Client.Id);
 
-            NetworkUtils.serializeGenericObject((ushort)ClientToServerID.transitionGenericObject, sgo, chunkSize, true);
+            NetworkUtils.serializeGenericObject(ClientToServerID.transitionGenericObject, sgo, chunkSize, true);
             // TODO: EventManager.Singleton.DeleteMolecule(mol.m_id);
             GenericObject.delete(go);
         }
 
         private void sendSpawnGhostObject(string path)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.sendSpawnGhostObject);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.sendSpawnGhostObject);
             message.AddString(path);
             Client.Send(message);
         }
 
         private void sendObjectToTrack(Guid id)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.sendObjectToTrack);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.sendObjectToTrack);
             message.AddGuid(id);
             Client.Send(message);
         }
 
         private void sendResults(int task_id, float angle, float dist, float scale)
         {
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.sendResults);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.sendResults);
             message.AddInt(task_id);
             message.AddFloat(angle);
             message.AddFloat(dist);
@@ -767,7 +777,7 @@ namespace chARpack
         private void sendDistantGrabOnScreen()
         {
             indexGrabHold = true;
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.grabOnScreen);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.grabOnScreen);
             var initial_pose = HandTracking.Singleton.getMiddleKnucklePose();
             initial_pose.position = GlobalCtrl.Singleton.currentCamera.transform.InverseTransformPoint(initial_pose.position);
             message.AddPose(initial_pose);
@@ -779,7 +789,7 @@ namespace chARpack
         private void sendReleaseDistantGrabOnScreen()
         {
             indexGrabHold = false;
-            Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.releaseGrabOnScreen);
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.releaseGrabOnScreen);
             Client.Send(message);
         }
 
@@ -789,7 +799,7 @@ namespace chARpack
             {
                 var pose = HandTracking.Singleton.getMiddleKnucklePose();
                 pose.position = GlobalCtrl.Singleton.currentCamera.transform.InverseTransformPoint(pose.position);
-                Message message = Message.Create(MessageSendMode.Reliable, ClientToServerID.handPose);
+                Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.handPose);
                 message.AddPose(pose);
                 Client.Send(message);
                 yield return null;
@@ -1551,7 +1561,7 @@ namespace chARpack
             else
             {
                 // nothing marked
-                Message return_msg = Message.Create(MessageSendMode.Reliable, ClientToServerID.transitionUnsuccessful);
+                Message return_msg = NetworkUtils.createMessage(MessageSendMode.Reliable, ClientToServerID.transitionUnsuccessful);
                 return_msg.AddInt((int)triggered_by);
                 Singleton.Client.Send(return_msg);
             }
