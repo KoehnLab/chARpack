@@ -6872,6 +6872,7 @@ GameObject:
   - component: {fileID: 1162280584}
   - component: {fileID: 1162280586}
   - component: {fileID: 1162280585}
+  - component: {fileID: 1162280587}
   m_Layer: 0
   m_Name: TextMeshPro
   m_TagString: Untagged
@@ -7033,6 +7034,44 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &1162280587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1162280583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69beb381e244f92449b8c4cf954630e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TrackedObjects:
+  - rid: 2131400093055320108
+  references:
+    version: 2
+    RefIds:
+    - rid: 2131400093055320108
+      type: {class: TrackedUGuiGraphic, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
+      data:
+        m_Target: {fileID: 1162280585}
+        m_TrackedProperties:
+          items:
+          - rid: 2131400093055320109
+        m_UpdateType: 0
+    - rid: 2131400093055320109
+      type: {class: LocalizedStringProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
+      data:
+        m_Localized:
+          m_TableReference:
+            m_TableCollectionName: GUID:2803bb8940043bb409c4ccb29a5926e2
+          m_TableEntryReference:
+            m_KeyId: 154821894153420800
+            m_Key: 
+          m_FallbackState: 0
+          m_WaitForCompletion: 0
+          m_LocalVariables: []
+        m_PropertyPath: m_text
 --- !u!1 &1273760704
 GameObject:
   m_ObjectHideFlags: 0
@@ -9470,7 +9509,7 @@ MonoBehaviour:
           m_TableReference:
             m_TableCollectionName: GUID:2803bb8940043bb409c4ccb29a5926e2
           m_TableEntryReference:
-            m_KeyId: 121766478708457472
+            m_KeyId: 3999708725248
             m_Key: 
           m_FallbackState: 0
           m_WaitForCompletion: 0
@@ -16635,6 +16674,7 @@ MonoBehaviour:
   anchorPrefab: {fileID: 0}
   labelPrefab: {fileID: 0}
   screenAlignmentPrefab: {fileID: 0}
+  instructionPrefab: {fileID: 0}
 --- !u!114 &9002824700177712317
 MonoBehaviour:
   m_ObjectHideFlags: 0

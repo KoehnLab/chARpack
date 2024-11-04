@@ -1,39 +1,40 @@
 using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
-using Microsoft.MixedReality.Toolkit.Utilities;
 using UnityEngine;
 
-public class GazeHighlightAtoms : MonoBehaviour
+namespace chARpack
 {
-    Atom lastAtom = null;
-    private void Update()
+    public class GazeHighlightAtoms : MonoBehaviour
     {
-        var eyeGazeProvider = CoreServices.InputSystem?.EyeGazeProvider;
-        if (eyeGazeProvider != null && SettingsData.gazeHighlighting)
+        Atom lastAtom = null;
+        private void Update()
         {
-            EyeTrackingTarget lookedAtEyeTarget = EyeTrackingTarget.LookedAtEyeTarget;
-
-            // Update GameObject to the current eye gaze position at a given distance
-            if (lookedAtEyeTarget != null)
+            var eyeGazeProvider = CoreServices.InputSystem?.EyeGazeProvider;
+            if (eyeGazeProvider != null && SettingsData.gazeHighlighting)
             {
-                Debug.Log("[GazeHighlightAtoms] OBJECT HIT");
-                // check if object is atom
-                Atom atom = lookedAtEyeTarget.GetComponent<Atom>();
-                if (atom != null)
+                EyeTrackingTarget lookedAtEyeTarget = EyeTrackingTarget.LookedAtEyeTarget;
+
+                // Update GameObject to the current eye gaze position at a given distance
+                if (lookedAtEyeTarget != null)
                 {
-                    if (atom != lastAtom)
+                    Debug.Log("[GazeHighlightAtoms] OBJECT HIT");
+                    // check if object is atom
+                    Atom atom = lookedAtEyeTarget.GetComponent<Atom>();
+                    if (atom != null)
                     {
-                        lastAtom.proccessFocusUI(false);
-                        atom.proccessFocusUI(true);
-                        lastAtom = atom;
+                        if (atom != lastAtom)
+                        {
+                            lastAtom.proccessFocusUI(false);
+                            atom.proccessFocusUI(true);
+                            lastAtom = atom;
+                        }
                     }
                 }
-            }
-            else
-            {
-                lastAtom.proccessFocusUI(false);
+                else
+                {
+                    lastAtom.proccessFocusUI(false);
+                }
             }
         }
     }
 }
-

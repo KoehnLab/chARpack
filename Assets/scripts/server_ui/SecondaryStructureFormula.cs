@@ -1,42 +1,44 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System;
 
-public class SecondaryStructureFormula : MonoBehaviour
+namespace chARpack
 {
-    [HideInInspector]
-    public int focus_id;
-    public TMP_Dropdown mol_dropdown;
-    public Button okButton;
-    public Button cancelButton;
-
-    private void Start()
+    public class SecondaryStructureFormula : MonoBehaviour
     {
-        cancelButton.onClick.AddListener(onCancel);
-        okButton.onClick.AddListener(onOK);
+        [HideInInspector]
+        public int focus_id;
+        public TMP_Dropdown mol_dropdown;
+        public Button okButton;
+        public Button cancelButton;
 
-        // fill dropdown
-        List<string> mol_options = new List<string>();
-        foreach (var mol_id in  StructureFormulaManager.Singleton.getMolIDs())
+        private void Start()
         {
-            mol_options.Add($"{mol_id}");
+            cancelButton.onClick.AddListener(onCancel);
+            okButton.onClick.AddListener(onOK);
+
+            // fill dropdown
+            List<string> mol_options = new List<string>();
+            foreach (var mol_id in StructureFormulaManager.Singleton.getMolIDs())
+            {
+                mol_options.Add($"{mol_id}");
+            }
+            mol_dropdown.AddOptions(mol_options);
         }
-        mol_dropdown.AddOptions(mol_options);
-    }
 
-    private void onOK()
-    {
-        
-        var mol_id = Guid.Parse(mol_dropdown.options[mol_dropdown.value].text);
-        StructureFormulaManager.Singleton.pushSecondaryContent(mol_id, focus_id);
-        Destroy(gameObject);
-    }
+        private void onOK()
+        {
 
-    private void onCancel()
-    {
-        Destroy(gameObject);
+            var mol_id = Guid.Parse(mol_dropdown.options[mol_dropdown.value].text);
+            StructureFormulaManager.Singleton.pushSecondaryContent(mol_id, focus_id);
+            Destroy(gameObject);
+        }
+
+        private void onCancel()
+        {
+            Destroy(gameObject);
+        }
     }
 }

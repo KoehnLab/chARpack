@@ -1,40 +1,40 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 #if WINDOWS_UWP
+using System.Linq;
 using UnityEngine.Windows.WebCam;
 #endif
 
-public class MRCaptureManager : MonoBehaviour
+namespace chARpack
 {
-    private static MRCaptureManager _singleton;
-    public static MRCaptureManager Singleton
+    public class MRCaptureManager : MonoBehaviour
     {
-        get => _singleton;
-        private set
-
+        private static MRCaptureManager _singleton;
+        public static MRCaptureManager Singleton
         {
-            if (_singleton == null)
-                _singleton = value;
-            else if (_singleton != null)
+            get => _singleton;
+            private set
+
             {
-                Debug.Log($"{nameof(MRCaptureManager)} instance already exists, destroying duplicate!");
-                Destroy(value);
+                if (_singleton == null)
+                    _singleton = value;
+                else if (_singleton != null)
+                {
+                    Debug.Log($"{nameof(MRCaptureManager)} instance already exists, destroying duplicate!");
+                    Destroy(value);
+                }
             }
         }
-    }
-    public void Awake()
-    {
-        Singleton = this;
-    }
+        public void Awake()
+        {
+            Singleton = this;
+        }
 
 #if WINDOWS_UWP
     VideoCapture m_VideoCapture = null;
 #endif
 
-    public void setRecording(bool record)
-    {
+        public void setRecording(bool record)
+        {
 #if WINDOWS_UWP
         if (record)
         {
@@ -48,21 +48,21 @@ public class MRCaptureManager : MonoBehaviour
             }
         }
 #endif
-    }
+        }
 
-    public bool isRecording()
-    {
+        public bool isRecording()
+        {
 #if WINDOWS_UWP
         if (m_VideoCapture != null)
         {
             return m_VideoCapture.IsRecording;
         }
 #endif
-        return false;
-    }
+            return false;
+        }
 
-    public void StartVideoCapture()
-    {
+        public void StartVideoCapture()
+        {
 #if WINDOWS_UWP
         Resolution cameraResolution = VideoCapture.SupportedResolutions.OrderByDescending((res) => res.width * res.height).First();
         Debug.Log(cameraResolution);
@@ -93,7 +93,7 @@ public class MRCaptureManager : MonoBehaviour
             }
         });
 #endif
-    }
+        }
 
 #if WINDOWS_UWP
 
@@ -124,4 +124,5 @@ public class MRCaptureManager : MonoBehaviour
     }
 
 #endif
+    }
 }

@@ -4,216 +4,304 @@ using UnityEngine;
 using Python.Runtime;
 using System.IO.Compression;
 using System.Threading;
-using System.Threading.Tasks;
-using UnityEngine.Networking;
 using System.Net.Http;
-using System.Security.Policy;
 using System.Collections;
-using System.Diagnostics.Eventing.Reader;
+using System.Threading.Tasks;
+using System.Linq;
 
 
-public class PythonEnvironmentManager : MonoBehaviour
+namespace chARpack
 {
-    private static PythonEnvironmentManager _singleton;
-
-    public static PythonEnvironmentManager Singleton
+    public class PythonEnvironmentManager : MonoBehaviour
     {
-        get => _singleton;
-        private set
+        private static PythonEnvironmentManager _singleton;
+
+        public static PythonEnvironmentManager Singleton
         {
-            if (_singleton == null)
+            get => _singleton;
+            private set
             {
-                _singleton = value;
-            }
-            else if (_singleton != value)
-            {
-                Debug.Log($"[{nameof(PythonEnvironmentManager)}] Instance already exists, destroying duplicate!");
-                Destroy(value);
-            }
+                if (_singleton == null)
+                {
+                    _singleton = value;
+                }
+                else if (_singleton != value)
+                {
+                    Debug.Log($"[{nameof(PythonEnvironmentManager)}] Instance already exists, destroying duplicate!");
+                    Destroy(value);
+                }
 
+            }
         }
-    }
 
-    private void Awake()
-    {
-        Singleton = this;
-    }
+        private void Awake()
+        {
+            Singleton = this;
+        }
 
-    public bool isInitialized { get; private set; }
+        public bool isInitialized { get; private set; }
 
 #if UNITY_STANDALONE || UNITY_EDITOR
 
-    string base_path;
-    string python_env_path;
-    bool isInstalled = false;
-    private static readonly HttpClient client = new HttpClient();
-    Thread thread;
-    void Start()
-    {
-        isInitialized = false;
-        base_path = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
-        python_env_path = Path.Combine(base_path, "PythonEnv");
-        thread = new Thread(() =>
+        string base_path;
+        string python_env_path;
+        bool isInstalled = false;
+        private static readonly HttpClient client = new HttpClient();
+        Thread thread;
+        void Start()
         {
-            isInstalled = false;
+            var li_inst = LoadingIndicator.GetPythonInstance();
+            if (li_inst != null)
+            {
+                li_inst.startLoading("Python", "Preparing ...");
+            }
+            isInitialized = false;
+            base_path = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+            python_env_path = Path.Combine(base_path, "PythonEnv");
+            thread = new Thread(() =>
+            {
+                isInstalled = false;
+                checkPythonInstallation();
+            });
+            thread.Start();
+            StartCoroutine(waitForEnvironmentPrep());
+        }
+
+        async void checkPythonInstallation()
+        {
             if (!File.Exists(python_env_path + ".zip"))
             {
                 Debug.Log("[PythonEnvironmentManager] No PythonEnv.zip found. Starting download...");
-                downloadEnvironment();
-                extractEvironment();
+                var li_inst = LoadingIndicator.GetPythonInstance();
+                await downloadEnvironment(li_inst.downloadProgressChanged);
+                await extractEvironment();
             }
             else if (!Directory.Exists(python_env_path))
             {
                 Debug.Log("[PythonEnvironmentManager] PythonEnv.zip found. Starting extraction...");
-                extractEvironment();
+                await extractEvironment();
             }
             else if (!File.Exists(Path.Combine(python_env_path, "python.exe")))
             {
                 Debug.Log("[PythonEnvironmentManager] Extraction incomplete. Restarting extraction...");
-                extractEvironment();
+                await extractEvironment();
             }
             isInstalled = true;
-        });
-        thread.Start();
-        StartCoroutine(waitForEnvironmentPrep());
-        LoadingIndicator.Singleton.startLoading("Preparing Python Environment ...");
-    }
-
-    IEnumerator waitForEnvironmentPrep()
-    {   
-        while (!isInstalled)
-        {
-            yield return new WaitForSeconds(1f);
         }
-        thread.Join();
-        initEnvironment();
-        LoadingIndicator.Singleton.loadingFinished(true, "Python Environment Initialized.");
-    }
 
-    private void initEnvironment()
-    {
-        string[] possibleDllNames = new string[]
+        IEnumerator waitForEnvironmentPrep()
         {
-        "python313.dll",
-        "python312.dll",
-        "python311.dll",
-        "python310.dll",
-        "python39.dll",
-        "python38.dll",
-        "python37.dll",
-        "python36.dll",
-        "python35.dll",
-        };
-
-        var path = python_env_path;
-        string pythonHome = null;
-        string pythonExe = null;
-        foreach (var p in path.Split(';'))
-        {
-            var fullPath = Path.Combine(p, "python.exe");
-            if (File.Exists(fullPath))
+            while (!isInstalled)
             {
-                pythonHome = Path.GetDirectoryName(fullPath);
-                pythonExe = fullPath;
-                break;
+                yield return new WaitForSeconds(1f);
+            }
+            thread.Join();
+            initEnvironment();
+            var li_inst = LoadingIndicator.GetPythonInstance();
+            if (li_inst != null)
+            {
+                li_inst.loadingFinished(true, "Initialized.");
             }
         }
 
-        string dll_path = null;
-        string zip_path = null;
-        if (pythonHome != null)
+        private void initEnvironment()
         {
-            // check for the dll
-            foreach (var dllName in possibleDllNames)
+            string[] possibleDllNames = new string[]
             {
-                var fullPath = Path.Combine(pythonHome, dllName);
+                "python313.dll",
+                "python312.dll",
+                "python311.dll",
+                "python310.dll",
+                "python39.dll",
+                "python38.dll",
+                "python37.dll",
+                "python36.dll",
+                "python35.dll",
+            };
+
+            var path = python_env_path;
+            string pythonHome = null;
+            string pythonExe = null;
+            foreach (var p in path.Split(';'))
+            {
+                var fullPath = Path.Combine(p, "python.exe");
                 if (File.Exists(fullPath))
                 {
-                    dll_path = fullPath;
-                    zip_path = fullPath.Split('.')[0] + ".zip";
+                    pythonHome = Path.GetDirectoryName(fullPath);
+                    pythonExe = fullPath;
                     break;
                 }
             }
-            if (dll_path == null)
+
+            string dll_path = null;
+            string zip_path = null;
+            if (pythonHome != null)
             {
-                throw new Exception("[PythonEnvironmentManager] Couldn't find python DLL");
-            }
-        }
-        else
-        {
-            throw new Exception("[PythonEnvironmentManager] Couldn't find python.exe");
-        }
-
-        //// Set the path to the embedded Python environment
-        var pythonPath = pythonHome + ";" + Path.Combine(pythonHome, "Lib\\site-packages") + ";" + zip_path + ";" + Path.Combine(pythonHome, "DLLs") + ";" + Path.Combine(Application.streamingAssetsPath, "PythonScripts") + ";" + Path.Combine(Application.streamingAssetsPath, "md");
-        Environment.SetEnvironmentVariable("PYTHONHOME", null);
-        Environment.SetEnvironmentVariable("PYTHONPATH", null);
-
-        // Display Python runtime details
-        Debug.Log($"Python DLL: {dll_path}");
-        Debug.Log($"Python zip: {zip_path}");
-        Debug.Log($"Python executable: {pythonExe}");
-        Debug.Log($"Python home: {pythonHome}");
-        Debug.Log($"Python path: {pythonPath}");
-
-
-        // Initialize the Python runtime
-        Runtime.PythonDLL = dll_path;
-
-        // Initialize the Python engine with the embedded Python environment
-        PythonEngine.PythonHome = pythonHome;
-        PythonEngine.PythonPath = pythonPath;
-        
-        PythonEngine.Initialize();
-        isInitialized = true;
-
-        Debug.Log("[PythonEnvironmentManager] Python environment initialized.");
-    }
-
-    async void downloadEnvironment()
-    {
-        string url = "https://cloud.visus.uni-stuttgart.de/index.php/s/eeffkl7NTKVLsMI/download";
-        // Send a GET request to the specified URL
-        HttpResponseMessage response = await client.GetAsync(url);
-        string download_path = base_path + "/PythonEnv.zip";
-        // Check if the response is successful (status code 200-299)
-        if (response.IsSuccessStatusCode)
-        {
-            // Get the file content as a stream
-            using (Stream fileStream = await response.Content.ReadAsStreamAsync())
-            {
-                // Save the stream to the specified file
-
-                using (FileStream outputFileStream = new FileStream(download_path, FileMode.Create))
+                // check for the dll
+                foreach (var dllName in possibleDllNames)
                 {
-                    await fileStream.CopyToAsync(outputFileStream);
+                    var fullPath = Path.Combine(pythonHome, dllName);
+                    if (File.Exists(fullPath))
+                    {
+                        dll_path = fullPath;
+                        zip_path = fullPath.Split('.')[0] + ".zip";
+                        break;
+                    }
+                }
+                if (dll_path == null)
+                {
+                    throw new Exception("[PythonEnvironmentManager] Couldn't find python DLL");
+                }
+            }
+            else
+            {
+                throw new Exception("[PythonEnvironmentManager] Couldn't find python.exe");
+            }
+
+            //// Set the path to the embedded Python environment
+            var pythonPath = pythonHome + ";" + Path.Combine(pythonHome, "Lib\\site-packages") + ";" + zip_path + ";" + Path.Combine(pythonHome, "DLLs") + ";" + Path.Combine(Application.streamingAssetsPath, "PythonScripts") + ";" + Path.Combine(Application.streamingAssetsPath, "md");
+            Environment.SetEnvironmentVariable("PYTHONHOME", null);
+            Environment.SetEnvironmentVariable("PYTHONPATH", null);
+
+            // Display Python runtime details
+            Debug.Log($"Python DLL: {dll_path}");
+            Debug.Log($"Python zip: {zip_path}");
+            Debug.Log($"Python executable: {pythonExe}");
+            Debug.Log($"Python home: {pythonHome}");
+            Debug.Log($"Python path: {pythonPath}");
+
+
+            // Initialize the Python runtime
+            Runtime.PythonDLL = dll_path;
+
+            // Initialize the Python engine with the embedded Python environment
+            PythonEngine.PythonHome = pythonHome;
+            PythonEngine.PythonPath = pythonPath;
+
+            PythonEngine.Initialize();
+            isInitialized = true;
+
+            Debug.Log("[PythonEnvironmentManager] Python environment initialized.");
+        }
+
+        async Task downloadEnvironment(Func<float?, bool> progressChanged)
+        {
+            string url = "https://cloud.visus.uni-stuttgart.de/index.php/s/UWVy9CVfQIcMqrO/download";
+            // Send a GET request to the specified URL
+            HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+            string download_path = base_path + "/PythonEnv.zip";
+
+            // test
+            response.EnsureSuccessStatusCode();
+            var totalBytes = response.Content.Headers.ContentLength;
+
+            using var contentStream = await response.Content.ReadAsStreamAsync();
+            var totalBytesRead = 0L;
+            var readCount = 0L;
+            var buffer = new byte[8192];
+            var isMoreToRead = true;
+
+            static float? calculatePercentage(long? totalDownloadSize, long totalBytesRead) => 
+                totalDownloadSize.HasValue ? (float)Math.Round((float)totalBytesRead / totalDownloadSize.Value * 100, 2) : null;
+            using var fileStream = new FileStream(download_path, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
+
+            do
+            {
+                var bytesRead = await contentStream.ReadAsync(buffer);
+                if (bytesRead == 0)
+                {
+                    isMoreToRead = false;
+
+                    if (progressChanged(calculatePercentage(totalBytes, totalBytesRead)))
+                    {
+                        throw new OperationCanceledException();
+                    }
+
+                    continue;
                 }
 
-                Debug.Log("[PythonEnvironmentManager] PythonEnvironment downloaded successfully.");
+                await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+
+                totalBytesRead += bytesRead;
+                readCount++;
+
+                if (readCount % 100 == 0)
+                {
+                    if (progressChanged(calculatePercentage(totalBytes, totalBytesRead)))
+                    {
+                        throw new OperationCanceledException();
+                    }
+                }
             }
+            while (isMoreToRead);
+
+        // old
+        // Check if the response is successful (status code 200-299)
+        //if (response.IsSuccessStatusCode)
+        //{
+        //    // Get the file content as a stream
+        //    using (Stream fileStream = await response.Content.ReadAsStreamAsync())
+        //    {
+        //        // Save the stream to the specified file
+
+        //        using (FileStream outputFileStream = new FileStream(download_path, FileMode.Create))
+        //        {
+        //            await fileStream.CopyToAsync(outputFileStream);
+        //        }
+
+        //        Debug.Log("[PythonEnvironmentManager] PythonEnvironment downloaded successfully.");
+        //    }
+        //}
+        //else
+        //{
+        //    Debug.LogError($"[PythonEnvironmentManager] Failed to download PythonEnvironment.\nStatus code: {response.StatusCode}");
+        //}
         }
-        else
+
+        private async Task extractEvironment()
         {
-            Debug.LogError($"[PythonEnvironmentManager] Failed to download PythonEnvironment.\nStatus code: {response.StatusCode}");
+            string destinationPath = base_path + "/PythonEnv/";
+            string zipPath = base_path + "/PythonEnv.zip";
+
+            int numTotalFiles = 0;
+            using (ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Read))
+            {
+                numTotalFiles = archive.Entries.Count(x => !string.IsNullOrWhiteSpace(x.Name));
+            }
+
+            var li_inst = LoadingIndicator.GetPythonInstance();
+            int extracted_files = 0;
+            var checking_task = Task.Run(async () =>
+            {
+                while (extracted_files < numTotalFiles)
+                {
+                    if (Directory.Exists(destinationPath))
+                    {
+                        var dir_info = new DirectoryInfo(destinationPath);
+                        var file_info = dir_info.GetFiles("*.*", SearchOption.AllDirectories);
+                        extracted_files = file_info.Length;
+                        float progress = 100f * extracted_files / numTotalFiles;
+                        if (li_inst)
+                        {
+                            li_inst.extractProgressChanged(progress);
+                        }
+                    }
+                    await Task.Delay(1000);
+                }
+            });
+
+            var extract_task = Task.Run(() => { ZipFile.ExtractToDirectory(zipPath, destinationPath, true); });
+
+            await Task.WhenAll(checking_task, extract_task);
         }
-    }
 
-    private void extractEvironment()
-    {
-        string extract_path = base_path + "/PythonEnv/";
-        string download_path = base_path + "/PythonEnv.zip";
-        Debug.Log("[PythonEnvironmentManager] Extracting zip.");
 
-        ZipFile.ExtractToDirectory(download_path, extract_path, true);
-
-        Debug.Log("[PythonEnvironmentManager] Python environment installed.");
-    }
-
-    private void OnDestroy()
-    {
-        // Shutdown the Python engine
-        PythonEngine.Shutdown();
-    }
+        private void OnDestroy()
+        {
+            // Shutdown the Python engine
+            PythonEngine.Shutdown();
+        }
 
 #endif
+    }
 }

@@ -1,6 +1,6 @@
 import scine_utilities as su
 import scine_sparrow
-
+import numpy as np
 
 element_dict = {"H": su.ElementType.H,
                 "C": su.ElementType.C,
@@ -17,8 +17,8 @@ class chARpackSparrow:
 
     def setData(self, positions, symbols, indices = None, mol_id = None):
         self.mol_id = mol_id
-        self.structure.elements = [su.ElementType[x] for x in symbols]
-        pos_in_bohr = [ang_to_bohr(x) for x in positions]
+        self.structure.elements = [element_dict[x] for x in symbols]
+        pos_in_bohr = [self.ang_to_bohr(x) for x in positions]
         self.structure.positions = pos_in_bohr
 
         # Get calculator
@@ -26,34 +26,34 @@ class chARpackSparrow:
         self.calculator = manager.get('calculator', 'PM6')
 
         # Configure calculator
-        self.calculator.structure = structure
+        self.calculator.structure = self.structure
         self.calculator.set_required_properties([su.Property.Energy,
                                     su.Property.Gradients])
 
 
     def run(self, steps = 1):
+        print(f"{self.calculator.positions}")
         results = self.calculator.calculate()
+        print(f"{self.calculator.positions}")
 
-    def ang_to_bohr(pos):
-        return pos / 0.529177210903
+    def ang_to_bohr(self, pos):
+        return np.array(pos) / 0.529177210903
 
-    def bohr_to_ang(pos):
-        return pos * 0.529177210903
+    def bohr_to_ang(self, pos):
+        return np.array(pos) * 0.529177210903
 
     def getPositions(self):
-        pos_in_ang = [bohr_to_ang(x) for x in self.calculator.positions]
+        pos_in_ang = [self.bohr_to_ang(x) for x in self.calculator.positions]
         return pos_in_ang
     
     # def getIndices(self):
     #     return [x.index for x in self.atoms]
 
     def getNumAtoms(self):
-        return len(self.calculator.elements)
+        return len(self.calculator.structure.elements)
 
     def changeAtomPosition(self, id, pos):
-        new_pos = self.calculator.positions
-        new_pos[id] = ang_to_bohr(pos)
-        self.calculator.positions = new_pos
+        self.calculator.structure.set_position(id, self.ang_to_bohr(pos))
 
 
 

@@ -1,42 +1,45 @@
 using UnityEngine;
 
-public static class chARpackUtils
+namespace chARpack
 {
-
-    public static void setObjectGrabbed(Transform obj, bool value)
+    public static class chARpackUtils
     {
-        var mol = obj.GetComponent<Molecule>();
-        if (mol != null)
+
+        public static void setObjectGrabbed(Transform obj, bool value)
         {
-            mol.isGrabbed = value;
-            return;
+            var mol = obj.GetComponent<Molecule>();
+            if (mol != null)
+            {
+                mol.isGrabbed = value;
+                return;
+            }
+            var go = obj.GetComponent<GenericObject>();
+            if (go != null)
+            {
+                go.isGrabbed = value;
+            }
         }
-        var go = obj.GetComponent<GenericObject>();
-        if (go != null)
+
+        public static float distanceToHeadRay(Vector3 pos, Camera cam)
         {
-            go.isGrabbed = value;
+
+            var intersection = getHeadRayIntersection(pos, cam);
+            return Vector3.Distance(pos, intersection);
         }
-    }
 
-    public static float distanceToHeadRay(Vector3 pos, Camera cam)
-    {
+        public static Vector3 getHeadRayIntersection(Vector3 pos, Camera cam)
+        {
+            var distance = 2f;
+            var head_ray_startpoint = cam.transform.position;
+            var head_ray_endpoint = head_ray_startpoint + (cam.transform.forward * distance);
 
-        var intersection = getHeadRayIntersection(pos, cam);
-        return Vector3.Distance(pos, intersection);
-    }
+            var t = ((pos.x - head_ray_endpoint.x) * (head_ray_startpoint.x - head_ray_endpoint.x) +
+                (pos.y - head_ray_endpoint.y) * (head_ray_startpoint.y - head_ray_endpoint.y) +
+                (pos.z - head_ray_endpoint.z) * (head_ray_startpoint.z - head_ray_endpoint.z)) / (distance * distance);
 
-    public static Vector3 getHeadRayIntersection(Vector3 pos, Camera cam)
-    {
-        var distance = 2f;
-        var head_ray_startpoint = cam.transform.position;
-        var head_ray_endpoint = head_ray_startpoint + (cam.transform.forward * distance);
+            var intersection = head_ray_endpoint + t * (head_ray_startpoint - head_ray_endpoint);
 
-        var t = ((pos.x - head_ray_endpoint.x) * (head_ray_startpoint.x - head_ray_endpoint.x) +
-            (pos.y - head_ray_endpoint.y) * (head_ray_startpoint.y - head_ray_endpoint.y) +
-            (pos.z - head_ray_endpoint.z) * (head_ray_startpoint.z - head_ray_endpoint.z)) / (distance * distance);
-
-        var intersection = head_ray_endpoint + t * (head_ray_startpoint - head_ray_endpoint);
-
-        return intersection;
+            return intersection;
+        }
     }
 }

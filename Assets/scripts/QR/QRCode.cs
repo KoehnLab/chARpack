@@ -1,13 +1,8 @@
-﻿using System.Collections;
-
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿using UnityEngine;
 #if WINDOWS_UWP
-
 using Windows.Perception.Spatial;
-
 #endif
+
 namespace QRTracking
 {
     [RequireComponent(typeof(QRTracking.SpatialGraphCoordinateSystem))]

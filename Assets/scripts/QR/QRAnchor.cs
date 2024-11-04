@@ -1,32 +1,33 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class QRAnchor : MonoBehaviour
+namespace chARpack
 {
-    private static QRAnchor _singleton;
-
-    public static QRAnchor Singleton
+    public class QRAnchor : MonoBehaviour
     {
-        get => _singleton;
-        private set
+        private static QRAnchor _singleton;
+
+        public static QRAnchor Singleton
         {
-            if (_singleton == null)
+            get => _singleton;
+            private set
             {
-                _singleton = value;
-            }
-            else if (_singleton != value)
-            {
-                Debug.Log($"[{nameof(QRAnchor)}] Instance already exists, destroying duplicate!");
-                Destroy(value);
-            }
+                if (_singleton == null)
+                {
+                    _singleton = value;
+                }
+                else if (_singleton != value)
+                {
+                    Debug.Log($"[{nameof(QRAnchor)}] Instance already exists, destroying duplicate!");
+                    Destroy(value);
+                }
 
+            }
         }
-    }
 
-    private void Awake()
-    {
-        Singleton = this;
-        DontDestroyOnLoad(gameObject);
+        private void Awake()
+        {
+            Singleton = this;
+            DontDestroyOnLoad(gameObject);
+        }
     }
 }

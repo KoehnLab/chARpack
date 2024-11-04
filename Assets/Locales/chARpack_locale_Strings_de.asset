@@ -98,18 +98,6 @@ MonoBehaviour:
     m_Localized: Bindungssteifigkeit
     m_Metadata:
       m_Items: []
-  - m_Id: 5168279568384
-    m_Localized: Einstellungen
-    m_Metadata:
-      m_Items: []
-  - m_Id: 5229776453632
-    m_Localized: Folgen
-    m_Metadata:
-      m_Items: []
-  - m_Id: 5275636973568
-    m_Localized: "Schlie\xDFen"
-    m_Metadata:
-      m_Items: []
   - m_Id: 5358243790848
     m_Localized: Beenden
     m_Metadata:
@@ -138,10 +126,6 @@ MonoBehaviour:
     m_Localized: Datei
     m_Metadata:
       m_Items: []
-  - m_Id: 6182353223680
-    m_Localized: Speichern
-    m_Metadata:
-      m_Items: []
   - m_Id: 6434724495360
     m_Localized: "Schlie\xDFen"
     m_Metadata:
@@ -160,10 +144,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 7687953170432
     m_Localized: "L\xF6schen"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7845721915392
-    m_Localized: Aktuelle Hybridisierung
     m_Metadata:
       m_Items: []
   - m_Id: 7903775277056
@@ -216,10 +196,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 120037694275584
     m_Localized: Platzhalter
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1891008693911552
-    m_Localized: Englische Version
     m_Metadata:
       m_Items: []
   - m_Id: 1893316106371072
@@ -403,11 +379,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 121766265797197824
-    m_Localized: QR Scannen
-    m_Metadata:
-      m_Items: []
-  - m_Id: 121766478708457472
-    m_Localized: Einstellungen
+    m_Localized: QR scannen
     m_Metadata:
       m_Items: []
   - m_Id: 121767231506333696
@@ -616,6 +588,188 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 154483147624923136
     m_Localized: "Ganzes Molek\xFCl markieren"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154834058461298688
+    m_Localized: Starten
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154821961895624704
+    m_Localized: "Ber\xFChren Sie die Ecken des Bildschirms mit der Zeigefingerspitze
+      in der untenstehenden Reihenfolge. Halten Sie an jeder dieser Ecken Ihren Finger
+      solange still, bis ein Ger\xE4usch ert\xF6nt und eine kleine Box erscheint."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 154821894153420800
+    m_Localized: Bildschirm scannen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176588080566222848
+    m_Localized: "Alle l\xF6schen"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176588316009283584
+    m_Localized: "L\xE4dt ..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 176589498777845760
+    m_Localized: "Standard-Molek\xFClgr\xF6\xDFe"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178688279187013632
+    m_Localized: Asynch. Modus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178688487857831936
+    m_Localized: Interaktion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178688675930423296
+    m_Localized: Speichern/ Laden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178688851654983680
+    m_Localized: Sonstiges
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178690102736175104
+    m_Localized: Asynch. Modus verwenden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178690265668108288
+    m_Localized: Erlaubte Interaktionen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178690387571359744
+    m_Localized: Transitionsmodus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178690526960664576
+    m_Localized: Immtersives Ziel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178690640374644736
+    m_Localized: Desktopziel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178690792879538176
+    m_Localized: Halten erforderlich beim Greifen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178691237006000128
+    m_Localized: Animationsparameter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178691358171054080
+    m_Localized: Animation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178691451318157312
+    m_Localized: Auswahl durch Schwebecursor/Blick
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178692094791499776
+    m_Localized: Alle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178692810331373568
+    m_Localized: Keine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178692821152677888
+    m_Localized: Knopfdruck
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178692842338107392
+    m_Localized: Greifen (nah)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178692865956233216
+    m_Localized: Greifen (Distanz)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178692890882981888
+    m_Localized: Ziehen (Bildschirm)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178692919655907328
+    m_Localized: Werfen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178692994205466624
+    m_Localized: "Vollst\xE4ndig 3D"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693043928940544
+    m_Localized: Sofort
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693066251026432
+    m_Localized: Hand folgen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693099562188800
+    m_Localized: Hand fixiert
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693149990305792
+    m_Localized: Kamera
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693162225090560
+    m_Localized: Vor Bildschirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693184693977088
+    m_Localized: Bildschirmmitte
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693222291718144
+    m_Localized: Schwebecursor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693279233589248
+    m_Localized: Cursorposition
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693350742278144
+    m_Localized: "Gr\xF6\xDFe"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693364122107904
+    m_Localized: Rotation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693382082117632
+    m_Localized: Beide
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178694184326643712
+    m_Localized: "H\xE4ndigkeit"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178694275858939904
+    m_Localized: Objekte werfen erlauben
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178694427667578880
+    m_Localized: Rechts
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178694439747174400
+    m_Localized: Links
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178694525071900672
+    m_Localized: Einstellungen speichern
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178694640968908800
+    m_Localized: Einstellungen laden
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178695132675555328
+    m_Localized: "Seed f\xFCr Zufallszahlen"
     m_Metadata:
       m_Items: []
   references:

@@ -6,6 +6,7 @@ using CommandUndoRedo;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
 using System.Diagnostics;
+using chARpack;
 
 namespace RuntimeGizmos
 {

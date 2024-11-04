@@ -104,3 +104,11 @@ crashlytics-build.properties
 # imported examples
 /Assets/Packages
 /Assets/Packages.meta
+
+# specific ignores
+/Assets/StreamingAssets/*.svg
+/Assets/StreamingAssets/md/
+/Assets/Resources/FileNames.txt*
+/PythonEnv/
+/openbabel/
+/*build*/

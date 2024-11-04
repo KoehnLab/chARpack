@@ -1,29 +1,32 @@
 using UnityEngine;
 
-public class UserPanel : MonoBehaviour
+namespace chARpack
 {
-    private static UserPanel _singleton;
-
-    public static UserPanel Singleton
+    public class UserPanel : MonoBehaviour
     {
-        get => _singleton;
-        private set
+        private static UserPanel _singleton;
+
+        public static UserPanel Singleton
         {
-            if (_singleton == null)
+            get => _singleton;
+            private set
             {
-                _singleton = value;
-            }
-            else if (_singleton != value)
-            {
-                Debug.Log($"[{nameof(UserPanel)}] Instance already exists, destroying duplicate!");
-                Destroy(value);
-            }
+                if (_singleton == null)
+                {
+                    _singleton = value;
+                }
+                else if (_singleton != value)
+                {
+                    Debug.Log($"[{nameof(UserPanel)}] Instance already exists, destroying duplicate!");
+                    Destroy(value);
+                }
 
+            }
         }
-    }
 
-    private void Awake()
-    {
-        Singleton = this;
+        private void Awake()
+        {
+            Singleton = this;
+        }
     }
 }

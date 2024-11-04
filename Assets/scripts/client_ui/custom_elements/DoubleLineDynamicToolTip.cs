@@ -1,15 +1,15 @@
-﻿//
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-//
-using Microsoft.MixedReality.Toolkit.Utilities;
+﻿using Microsoft.MixedReality.Toolkit.Utilities;
+using Microsoft.MixedReality.Toolkit.UI;
+using Microsoft.MixedReality.Toolkit;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-namespace Microsoft.MixedReality.Toolkit.UI
+
+namespace chARpack
 {
     /// <summary>
+    /// Modified MRTK script
     /// Class for Tooltip object
     /// Creates a floating tooltip that is attached to an object and moves to stay in view as object rotates with respect to the view.
     /// </summary>
@@ -589,62 +589,6 @@ namespace Microsoft.MixedReality.Toolkit.UI
             }
         }
 
-        //protected virtual bool EnforceHierarchy()
-        //{
-        //    Transform pivotTransform = transform.Find("Pivot");
-        //    Transform anchorTransform = transform.Find("Anchor");
-
-        //    if (pivotTransform == null || anchorTransform == null)
-        //    {
-        //        if (Application.isPlaying)
-        //        {
-        //            Debug.LogError("Found error in hierarchy, disabling.");
-        //            enabled = false;
-        //        }
-
-        //        return false;
-        //    }
-        //    Transform contentParentTransform = pivotTransform.Find("ContentParent");
-
-        //    if (contentParentTransform == null)
-        //    {
-        //        if (Application.isPlaying)
-        //        {
-        //            Debug.LogError("Found error in hierarchy, disabling.");
-        //            enabled = false;
-        //        }
-
-        //        return false;
-        //    }
-
-        //    Transform labelTransform = contentParentTransform.Find("Label");
-        //    if (labelTransform == null)
-        //    {
-        //        if (Application.isPlaying)
-        //        {
-        //            Debug.LogError("Found error in hierarchy, disabling.");
-        //            enabled = false;
-        //        }
-
-        //        return false;
-        //    }
-
-        //    contentParentTransform.localPosition = Vector3.zero;
-        //    contentParentTransform.localRotation = Quaternion.identity;
-        //    contentParentTransform.localScale = Vector3.one * contentScale;
-        //    labelTransform.localPosition = Vector3.zero;
-        //    labelTransform.localScale = Vector3.one * 0.025f;
-        //    labelTransform.localRotation = Quaternion.identity;
-        //    pivotTransform.localScale = Vector3.one;
-
-        //    pivot = pivotTransform.gameObject;
-        //    anchor = anchorTransform.gameObject;
-        //    contentParent = contentParentTransform.gameObject;
-        //    label = labelTransform.gameObject;
-
-        //    return true;
-        //}
-
         public static Vector3 GetTextMeshLocalScale(TextMesh textMesh)
         {
             Vector3 localScale = Vector3.zero;
@@ -689,70 +633,5 @@ namespace Microsoft.MixedReality.Toolkit.UI
 
             return localScale;
         }
-
-    //    private void ValidateHeirarchy()
-    //    {
-    //        // Generate default objects if we haven't set up our tooltip yet
-    //        if (anchor == null)
-    //        {
-    //            Transform anchorTransform = transform.Find("Anchor");
-    //            if (anchorTransform == null)
-    //            {
-    //                anchorTransform = new GameObject("Anchor").transform;
-    //                anchorTransform.SetParent(transform);
-    //                anchorTransform.localPosition = Vector3.zero;
-    //            }
-    //            anchor = anchorTransform.gameObject;
-    //        }
-
-    //        if (anchor.transform.parent != transform)
-    //            anchor.transform.SetParent(transform);
-
-    //        if (pivot == null)
-    //        {
-    //            Transform pivotTransform = transform.Find("Pivot");
-    //            if (pivotTransform == null)
-    //            {
-    //                pivotTransform = new GameObject("Pivot").transform;
-    //                pivotTransform.SetParent(transform);
-    //                pivotTransform.localPosition = Vector3.up;
-    //            }
-    //            pivot = pivotTransform.gameObject;
-    //        }
-
-    //        if (pivot.transform.parent != transform)
-    //            pivot.transform.SetParent(transform, true);
-
-    //        if (contentParent == null)
-    //        {
-    //            Transform contentParentTransform = pivot.transform.Find("ContentParent");
-    //            if (contentParentTransform == null)
-    //            {
-    //                contentParentTransform = new GameObject("ContentParent").transform;
-    //                contentParentTransform.SetParent(pivot.transform);
-    //                contentParentTransform.localPosition = Vector3.zero;
-    //            }
-    //            contentParent = contentParentTransform.gameObject;
-    //        }
-
-    //        if (contentParent.transform.parent != pivot.transform)
-    //            contentParent.transform.SetParent(pivot.transform, true);
-
-    //        if (label == null)
-    //        {
-    //            Transform labelTransform = contentParent.transform.Find("Label");
-    //            if (labelTransform == null)
-    //            {
-    //                labelTransform = new GameObject("Label").transform;
-    //                labelTransform.SetParent(contentParent.transform);
-    //                labelTransform.localScale = Vector3.one * 0.005f;
-    //                labelTransform.localPosition = Vector3.zero;
-    //            }
-    //            label = labelTransform.gameObject;
-    //        }
-
-    //        if (label.transform.parent != contentParent.transform)
-    //            label.transform.SetParent(contentParent.transform.parent, true);
-    //    }
     }
 }

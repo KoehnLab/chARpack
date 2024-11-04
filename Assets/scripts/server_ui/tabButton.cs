@@ -1,34 +1,35 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using chARpackColorPalette;
+using chARpack.ColorPalette;
 
-public class tabButton : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, IPointerExitHandler
+namespace chARpack
 {
-    public TabGroup group;
-    [HideInInspector] public TextMeshProUGUI text;
-    public void OnPointerClick(PointerEventData eventData)
+    public class tabButton : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, IPointerExitHandler
     {
-        group.OnTabSelected(this);
-    }
+        public TabGroup group;
+        [HideInInspector] public TextMeshProUGUI text;
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            group.OnTabSelected(this);
+        }
 
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        group.OnTabHover(this);
-    }
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            group.OnTabHover(this);
+        }
 
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        group.OnTabExit(this);
-    }
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            group.OnTabExit(this);
+        }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        text = GetComponent<TextMeshProUGUI>();
-        text.color = chARpackColors.gray;
-        group.Subscribe(this);
+        // Start is called before the first frame update
+        void Start()
+        {
+            text = GetComponent<TextMeshProUGUI>();
+            text.color = chARpackColors.gray;
+            group.Subscribe(this);
+        }
     }
 }

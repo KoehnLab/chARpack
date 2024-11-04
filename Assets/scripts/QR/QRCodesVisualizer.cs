@@ -1,10 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-
 #if WINDOWS_UWP
 using Microsoft.MixedReality.QR;
 #endif
+
 namespace QRTracking
 {
     public class QRCodesVisualizer : MonoBehaviour
@@ -12,7 +11,7 @@ namespace QRTracking
 
         public GameObject qrCodePrefab;
 
-        public System.Collections.Generic.SortedDictionary<System.Guid, GameObject> qrCodesObjectsList;
+        public SortedDictionary<System.Guid, GameObject> qrCodesObjectsList;
 
         private bool clearExisting = false;
 
@@ -34,7 +33,7 @@ namespace QRTracking
             }
         }
 
-        private System.Collections.Generic.Queue<ActionData> pendingActions = new Queue<ActionData>();
+        private Queue<ActionData> pendingActions = new Queue<ActionData>();
 
 
 

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace chARpackColorPalette
+namespace chARpack.ColorPalette
 {
     public struct chARpackColors
     {

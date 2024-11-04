@@ -1,10 +1,6 @@
-//
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-//
 using Microsoft.MixedReality.Toolkit.Input;
 
-namespace Microsoft.MixedReality.Toolkit.UI
+namespace chARpack
 {
     /// <summary>
     /// A custom slider event data class that provides the ability to 

@@ -1,13 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Xml.Serialization;
 using System.ComponentModel;
 using System.Linq;
-using Unity.VisualScripting;
 
-namespace chARpackStructs
+namespace chARpack.Structs
 {
     /// <summary>
     /// elements with their order are saved here
@@ -80,8 +78,6 @@ namespace chARpackStructs
             keepConfig = keep_config;
         }
     }
-
-    //Bindungsl�nge
 
     /// <summary>
     /// structure of a bond in cml
@@ -608,6 +604,17 @@ namespace chARpackStructs
         }
     }
 
+    [Serializable]
+    public struct formulaCoords
+    {
+        public SaveableVector2[] coords;
+
+        public formulaCoords(List<SaveableVector2> _coords)
+        {
+            coords = _coords.ToArray();
+        }
+    }
+
     public struct AtomList
     {
         private List<Guid> ids;
@@ -647,7 +654,6 @@ namespace chARpackStructs
             var local_inscene = in_scene;
             return atoms.Where((atom, index) => local_inscene[index]).ToList();
         }
-    
 
     }
 }

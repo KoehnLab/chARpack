@@ -1,44 +1,46 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-
-public class Draggable : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+namespace chARpack
 {
-    public Transform target;
-    private bool isMouseDown = false;
-    private Vector3 startMousePosition;
-    private Vector3 startPosition;
-    public bool shouldReturn;
-
-    public void OnPointerDown(PointerEventData dt)
+    public class Draggable : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        isMouseDown = true;
+        public Transform target;
+        private bool isMouseDown = false;
+        private Vector3 startMousePosition;
+        private Vector3 startPosition;
+        public bool shouldReturn;
 
-        startPosition = target.position;
-        startMousePosition = Input.mousePosition;
-    }
-
-    public void OnPointerUp(PointerEventData dt)
-    {
-        isMouseDown = false;
-
-        if (shouldReturn)
+        public void OnPointerDown(PointerEventData dt)
         {
-            target.position = startPosition;
+            isMouseDown = true;
+
+            startPosition = target.position;
+            startMousePosition = Input.mousePosition;
         }
-    }
 
-    void Update()
-    {
-        if (isMouseDown)
+        public void OnPointerUp(PointerEventData dt)
         {
-            Vector3 currentPosition = Input.mousePosition;
+            isMouseDown = false;
 
-            Vector3 diff = currentPosition - startMousePosition;
+            if (shouldReturn)
+            {
+                target.position = startPosition;
+            }
+        }
 
-            Vector3 pos = startPosition + diff;
+        void Update()
+        {
+            if (isMouseDown)
+            {
+                Vector3 currentPosition = Input.mousePosition;
 
-            target.position = pos;
+                Vector3 diff = currentPosition - startMousePosition;
+
+                Vector3 pos = startPosition + diff;
+
+                target.position = pos;
+            }
         }
     }
 }

@@ -1,12 +1,11 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-
 using Microsoft.MixedReality.Toolkit.Utilities;
+using Microsoft.MixedReality.Toolkit.UI;
 using UnityEngine;
 
-namespace Microsoft.MixedReality.Toolkit.UI
+namespace chARpack
 {
     /// <summary>
+    /// Modified MRTK script
     /// Connects a ToolTip to a target
     /// Maintains that connection even if the target moves
     /// </summary>
