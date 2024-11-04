@@ -644,6 +644,170 @@ MonoBehaviour:
     m_Localized: Default Molecule Scale
     m_Metadata:
       m_Items: []
+  - m_Id: 178688279187013632
+    m_Localized: Async Mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178688487857831936
+    m_Localized: Interaction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178688675930423296
+    m_Localized: Save/Load
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178688851654983680
+    m_Localized: Misc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178690102736175104
+    m_Localized: Use Async Mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178690265668108288
+    m_Localized: Allowed Interactions
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178690387571359744
+    m_Localized: Transition Mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178690526960664576
+    m_Localized: Immersive Target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178690640374644736
+    m_Localized: Desktop Target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178690792879538176
+    m_Localized: Require Grab Hold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178691237006000128
+    m_Localized: Animation Parameters
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178691358171054080
+    m_Localized: Animation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178691451318157312
+    m_Localized: Hover/Gaze as Selection
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178692094791499776
+    m_Localized: All
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178692810331373568
+    m_Localized: None
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178692821152677888
+    m_Localized: BUTTON_PRESS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178692842338107392
+    m_Localized: CLOSE_GRAB
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178692865956233216
+    m_Localized: DISTANT_GRAB
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178692890882981888
+    m_Localized: ONSCREEN_PULL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178692919655907328
+    m_Localized: THROW
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178692994205466624
+    m_Localized: Full3D
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693043928940544
+    m_Localized: Instant
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693066251026432
+    m_Localized: Hand Follow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693099562188800
+    m_Localized: Hand Fixed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693149990305792
+    m_Localized: Camera
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693162225090560
+    m_Localized: Front of Screen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693184693977088
+    m_Localized: Center of Screen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693222291718144
+    m_Localized: Hover
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693279233589248
+    m_Localized: Cursor Position
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693325224132608
+    m_Localized: None
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693350742278144
+    m_Localized: Scale
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693364122107904
+    m_Localized: Rotation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178693382082117632
+    m_Localized: Both
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178694184326643712
+    m_Localized: Handedness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178694275858939904
+    m_Localized: Allow Throwing Objects
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178694427667578880
+    m_Localized: Right
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178694439747174400
+    m_Localized: Left
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178694450614616064
+    m_Localized: Both
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178694525071900672
+    m_Localized: Save Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178694640968908800
+    m_Localized: Load Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 178695132675555328
+    m_Localized: Random Seed
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -406,7 +406,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 121767314264145920
-    m_Key: Quit
+    m_Key: LoginScreenScene/LoginMenu/TitleBar/Buttons/Quit/IconAndText/TextMeshPro
     m_Metadata:
       m_Items: []
   - m_Id: 121767377900126208
@@ -581,6 +581,7 @@ MonoBehaviour:
     m_Key: ExclusiveFullscreen
     m_Metadata:
       m_Items: []
+<<<<<<< HEAD
   - m_Id: 154478274112110592
     m_Key: TransitionMolecule
     m_Metadata:
@@ -607,8 +608,7 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 154483147624923136
     m_Key: MarkWholeMolecule
-    m_Metadata:
-      m_Items: []
+=======
   - m_Id: 154821894153420800
     m_Key: ScanScreen
     m_Metadata:
@@ -619,198 +619,7 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 154834058461298688
     m_Key: Start
-    m_Metadata:
-      m_Items: []
-  - m_Id: 176588080566222848
-    m_Key: Clear
-    m_Metadata:
-      m_Items: []
-  - m_Id: 176588316009283584
-    m_Key: Loading
-    m_Metadata:
-      m_Items: []
-  - m_Id: 176589498777845760
-    m_Key: DefaultMoleculeScale
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178688279187013632
-    m_Key: AsyncMode
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178688487857831936
-    m_Key: Interaction
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178688675930423296
-    m_Key: SaveLoad
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178688851654983680
-    m_Key: Misc
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178690102736175104
-    m_Key: UseAsyncMode
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178690265668108288
-    m_Key: AllowedInteractions
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178690387571359744
-    m_Key: TransitionMode
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178690526960664576
-    m_Key: ImmersiveTarget
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178690640374644736
-    m_Key: DesktopTarget
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178690792879538176
-    m_Key: RequireGrabHold
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178691237006000128
-    m_Key: AnimationParameters
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178691358171054080
-    m_Key: Animation
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178691451318157312
-    m_Key: HoverGazeAsSelection
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178692094791499776
-    m_Key: All
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178692810331373568
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/allowedInteractionsDropdown
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178692821152677888
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/allowedInteractionsDropdown
-      1
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178692842338107392
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/allowedInteractionsDropdown
-      2
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178692865956233216
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/allowedInteractionsDropdown
-      3
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178692890882981888
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/allowedInteractionsDropdown
-      4
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178692919655907328
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/allowedInteractionsDropdown
-      5
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178692994205466624
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/transitionModeDropdown
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693043928940544
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/transitionModeDropdown
-      1
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693066251026432
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/immersiveTargetDropdown
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693099562188800
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/immersiveTargetDropdown
-      1
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693149990305792
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/immersiveTargetDropdown
-      2
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693162225090560
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/immersiveTargetDropdown
-      3
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693184693977088
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/desktopTargetDropdown
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693222291718144
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/desktopTargetDropdown
-      1
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693279233589248
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/desktopTargetDropdown
-      2
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693325224132608
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/transitionAnimationDropdown
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693350742278144
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/transitionAnimationDropdown
-      1
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693364122107904
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/transitionAnimationDropdown
-      2
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693382082117632
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/AsyncMode/Hgroup/InteractiveElements/transitionAnimationDropdown
-      3
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178694184326643712
-    m_Key: Handedness
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178694275858939904
-    m_Key: AllowThrowingObjects
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178694427667578880
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/Interaction/Hgroup/InteractiveElements/handednessDropdown
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178694439747174400
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/Interaction/Hgroup/InteractiveElements/handednessDropdown
-      1
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178694450614616064
-    m_Key: ServerScene/UICanvas/SettingsPanel/Pages/Interaction/Hgroup/InteractiveElements/handednessDropdown
-      2
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178694525071900672
-    m_Key: SaveSettings
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178694640968908800
-    m_Key: LoadSettings
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178695132675555328
-    m_Key: RandomSeed
+>>>>>>> fd666cfc652150370aac22d269107622db1c85f4
     m_Metadata:
       m_Items: []
   m_Metadata:

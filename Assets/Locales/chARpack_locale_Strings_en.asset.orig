@@ -10,200 +10,200 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
-  m_Name: chARpack_locale_Strings_de
+  m_Name: chARpack_locale_Strings_en
   m_EditorClassIdentifier: 
   m_LocaleId:
-    m_Code: de
+    m_Code: en
   m_SharedData: {fileID: 11400000, guid: 2803bb8940043bb409c4ccb29a5926e2, type: 2}
   m_Metadata:
     m_Items: []
   m_TableData:
   - m_Id: 98988588040192
-    m_Localized: Tot.Masse
+    m_Localized: TotMass
     m_Metadata:
       m_Items: []
   - m_Id: 98924700401664
-    m_Localized: Bindungen
+    m_Localized: NumBonds
     m_Metadata:
       m_Items: []
   - m_Id: 98848846413824
-    m_Localized: Atomanzahl
+    m_Localized: NumAtoms
     m_Metadata:
       m_Items: []
   - m_Id: 3901570400256
-    m_Localized: Atom erstellen
+    m_Localized: Create Atom
     m_Metadata:
       m_Items: []
   - m_Id: 3929072451584
-    m_Localized: "Alle Molek\xFCle l\xF6schen"
+    m_Localized: Clear All Molecules
     m_Metadata:
       m_Items: []
   - m_Id: 3965957160960
-    m_Localized: 'Speichern/Laden
+    m_Localized: 'Save/Load
 
 '
     m_Metadata:
       m_Items: []
   - m_Id: 3999708725248
-    m_Localized: Einstellungen
+    m_Localized: Settings
     m_Metadata:
       m_Items: []
   - m_Id: 4030889181184
-    m_Localized: "R\xFCckg\xE4ngig"
+    m_Localized: Undo
     m_Metadata:
       m_Items: []
   - m_Id: 4088984485888
-    m_Localized: Aktuelle Hybridisierung
+    m_Localized: Current Hybridization
     m_Metadata:
       m_Items: []
   - m_Id: 4259612966912
-    m_Localized: "Atommen\xFC"
+    m_Localized: Atom Menu
     m_Metadata:
       m_Items: []
   - m_Id: 4632532729856
-    m_Localized: Gitter
+    m_Localized: ToggleMesh
     m_Metadata:
       m_Items: []
   - m_Id: 4739831414784
-    m_Localized: 'Debug Log
+    m_Localized: 'DebugLog
 
 '
     m_Metadata:
       m_Items: []
   - m_Id: 4763302739968
-    m_Localized: Kraftfeld
+    m_Localized: ForceField
     m_Metadata:
       m_Items: []
   - m_Id: 4797146578944
-    m_Localized: 'Hand: Gitter'
+    m_Localized: Hand Mesh
     m_Metadata:
       m_Items: []
   - m_Id: 4837789384704
-    m_Localized: 'Hand: Gelenk'
+    m_Localized: Hand Joint
     m_Metadata:
       m_Items: []
   - m_Id: 4927312609280
-    m_Localized: 'Hand: Strahl'
+    m_Localized: Hand Ray
     m_Metadata:
       m_Items: []
   - m_Id: 4954957266944
-    m_Localized: "Hand: Men\xFC"
+    m_Localized: Hand Menu
     m_Metadata:
       m_Items: []
   - m_Id: 5021294379008
-    m_Localized: "Absto\xDFung"
+    m_Localized: Repulsion Scale
     m_Metadata:
       m_Items: []
   - m_Id: 5094665338880
-    m_Localized: Bindungssteifigkeit
+    m_Localized: Bond Stiffness
     m_Metadata:
       m_Items: []
   - m_Id: 5168279568384
-    m_Localized: Einstellungen
+    m_Localized: Settings
     m_Metadata:
       m_Items: []
   - m_Id: 5229776453632
-    m_Localized: Folgen
+    m_Localized: Follow Me
     m_Metadata:
       m_Items: []
   - m_Id: 5275636973568
-    m_Localized: "Schlie\xDFen"
+    m_Localized: Close
     m_Metadata:
       m_Items: []
   - m_Id: 5358243790848
-    m_Localized: Beenden
+    m_Localized: Exit
     m_Metadata:
       m_Items: []
   - m_Id: 5496316084224
-    m_Localized: "Molek\xFCldaten laden/speichern"
+    m_Localized: Load/Save Molecule Data
     m_Metadata:
       m_Items: []
   - m_Id: 5572186849280
-    m_Localized: Speichern
+    m_Localized: Save
     m_Metadata:
       m_Items: []
   - m_Id: 5799014809600
-    m_Localized: Platzhalter ersetzen
+    m_Localized: "Toggle \nDummies"
     m_Metadata:
       m_Items: []
   - m_Id: 5940799062016
-    m_Localized: Reparatur versuchen
+    m_Localized: Try Repair
     m_Metadata:
       m_Items: []
   - m_Id: 6046524882944
-    m_Localized: "Aktuelle Molek\xFCle speichern"
+    m_Localized: Save current Molecules
     m_Metadata:
       m_Items: []
   - m_Id: 6111733727232
-    m_Localized: Datei
+    m_Localized: File
     m_Metadata:
       m_Items: []
   - m_Id: 6182353223680
-    m_Localized: Speichern
+    m_Localized: Save
     m_Metadata:
       m_Items: []
   - m_Id: 6434724495360
-    m_Localized: "Schlie\xDFen"
+    m_Localized: Close
     m_Metadata:
       m_Items: []
   - m_Id: 7238218924032
-    m_Localized: "Server manuell hinzuf\xFCgen"
+    m_Localized: Manually add Server to List
     m_Metadata:
       m_Items: []
   - m_Id: 7381420851200
-    m_Localized: IP-Adresse
+    m_Localized: Enter IP...
     m_Metadata:
       m_Items: []
   - m_Id: 7472147841024
-    m_Localized: "Hinzuf\xFCgen"
+    m_Localized: Add
     m_Metadata:
       m_Items: []
   - m_Id: 7687953170432
-    m_Localized: "L\xF6schen"
+    m_Localized: Delete
     m_Metadata:
       m_Items: []
   - m_Id: 7845721915392
-    m_Localized: Aktuelle Hybridisierung
+    m_Localized: Current Hybridization
     m_Metadata:
       m_Items: []
   - m_Id: 7903775277056
-    m_Localized: "\xC4ndern"
+    m_Localized: Modify
     m_Metadata:
       m_Items: []
   - m_Id: 8301739229184
-    m_Localized: Serverliste
+    m_Localized: Server List
     m_Metadata:
       m_Items: []
   - m_Id: 111727175827456
-    m_Localized: Einfachbindung
+    m_Localized: Single Bond
     m_Metadata:
       m_Items: []
   - m_Id: 111910873759744
-    m_Localized: Winkelbindung
+    m_Localized: Angle Bond
     m_Metadata:
       m_Items: []
   - m_Id: 112048224632832
-    m_Localized: Torsionsbindung
+    m_Localized: Torsion Bond
     m_Metadata:
       m_Items: []
   - m_Id: 112147172458496
-    m_Localized: Vielfachheit
+    m_Localized: Order
     m_Metadata:
       m_Items: []
   - m_Id: 112923764621312
-    m_Localized: GG Abstand
+    m_Localized: Equi. dist
     m_Metadata:
       m_Items: []
   - m_Id: 114869443526656
-    m_Localized: GG Winkel
+    m_Localized: Equi. Angle
     m_Metadata:
       m_Items: []
   - m_Id: 115486283038720
-    m_Localized: k Winkel
+    m_Localized: kAngle
     m_Metadata:
       m_Items: []
   - m_Id: 119833477808128
-    m_Localized: Masse
+    m_Localized: Mass
     m_Metadata:
       m_Items: []
   - m_Id: 119869385244672
@@ -215,95 +215,95 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 120037694275584
-    m_Localized: Platzhalter
+    m_Localized: Dummy
     m_Metadata:
       m_Items: []
   - m_Id: 1891008693911552
-    m_Localized: Englische Version
+    m_Localized: German Version
     m_Metadata:
       m_Items: []
   - m_Id: 1893316106371072
-    m_Localized: Englische Version
+    m_Localized: German Version
     m_Metadata:
       m_Items: []
   - m_Id: 5142275573186560
-    m_Localized: Fragment-rotation
+    m_Localized: Fragment Rotation
     m_Metadata:
       m_Items: []
   - m_Id: 5165129048031232
-    m_Localized: Kopieren
+    m_Localized: Copy
     m_Metadata:
       m_Items: []
   - m_Id: 16334419667222528
-    m_Localized: "Molek\xFCl \nskalieren"
+    m_Localized: "Scale \nMolecule"
     m_Metadata:
       m_Items: []
   - m_Id: 25041727584190464
-    m_Localized: Schnappen
+    m_Localized: Snap
     m_Metadata:
       m_Items: []
   - m_Id: 25041763416129536
-    m_Localized: Einfrieren
+    m_Localized: Freeze
     m_Metadata:
       m_Items: []
   - m_Id: 116694264099356672
-    m_Localized: Messen
+    m_Localized: Measurement
     m_Metadata:
       m_Items: []
   - m_Id: 25042481984290816
-    m_Localized: Alle Messungen entfernen
+    m_Localized: Clear All Measurements
     m_Metadata:
       m_Items: []
   - m_Id: 25066698989617152
-    m_Localized: "Zur\xFCcksetzen"
+    m_Localized: Reset
     m_Metadata:
       m_Items: []
   - m_Id: 28314155435982848
-    m_Localized: Blick- hervorhebung
+    m_Localized: Gaze Highlighting
     m_Metadata:
       m_Items: []
   - m_Id: 38470251307892736
-    m_Localized: Aktuell
+    m_Localized: Current
     m_Metadata:
       m_Items: []
   - m_Id: 40611639874535424
-    m_Localized: "Handmen\xFC rechts"
+    m_Localized: Menu On Right Hand
     m_Metadata:
       m_Items: []
   - m_Id: 40617137625612288
-    m_Localized: Hand Einstellungen
+    m_Localized: Hand Settings
     m_Metadata:
       m_Items: []
   - m_Id: 40637782321250304
-    m_Localized: Kooperations-einstellungen
+    m_Localized: Cooperation Settings
     m_Metadata:
       m_Items: []
   - m_Id: 40638709660893184
-    m_Localized: Kooperationseinstellungen
+    m_Localized: Cooperation Settings
     m_Metadata:
       m_Items: []
   - m_Id: 40640045014040576
-    m_Localized: Nutzer Strahl
+    m_Localized: User Ray
     m_Metadata:
       m_Items: []
   - m_Id: 40640217840336896
-    m_Localized: Nutzer Box
+    m_Localized: User Box
     m_Metadata:
       m_Items: []
   - m_Id: 43185531663138816
-    m_Localized: Finger-hervorhebung
+    m_Localized: Pointer Highlighting
     m_Metadata:
       m_Items: []
   - m_Id: 50767666435571712
-    m_Localized: Integrations-methode
+    m_Localized: Integration Method
     m_Metadata:
       m_Items: []
   - m_Id: 50767914994221056
-    m_Localized: Integrationsmethode
+    m_Localized: Integration Method
     m_Metadata:
       m_Items: []
   - m_Id: 50768774994313216
-    m_Localized: Mittelpunkt
+    m_Localized: Midpoint
     m_Metadata:
       m_Items: []
   - m_Id: 50768981853192192
@@ -327,23 +327,23 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 63518995004243968
-    m_Localized: Messungen synchronisieren
+    m_Localized: Network Measurements
     m_Metadata:
       m_Items: []
   - m_Id: 82701048467668992
-    m_Localized: Visuelle Einstellungen
+    m_Localized: Visual Settings
     m_Metadata:
       m_Items: []
   - m_Id: 82701371655569408
-    m_Localized: Bindungsfarbe interpolieren
+    m_Localized: Interpolate Bond Colors
     m_Metadata:
       m_Items: []
   - m_Id: 93195326913019904
-    m_Localized: Gleichgewichtsabstand
+    m_Localized: Equilibrium Distance
     m_Metadata:
       m_Items: []
   - m_Id: 93203354865401856
-    m_Localized: "L\xE4ngeneinheit"
+    m_Localized: Length Unit
     m_Metadata:
       m_Items: []
   - m_Id: 93217280147619840
@@ -351,23 +351,23 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 115292427869732864
-    m_Localized: Stab-darstellung
+    m_Localized: Licorice (Stick) Rendering
     m_Metadata:
       m_Items: []
   - m_Id: 104054137766264832
-    m_Localized: Farbpalette
+    m_Localized: Color Palette
     m_Metadata:
       m_Items: []
   - m_Id: 104054415286583296
-    m_Localized: Dunkelblau
+    m_Localized: Dark Blue
     m_Metadata:
       m_Items: []
   - m_Id: 104054531082928128
-    m_Localized: Hellblau
+    m_Localized: Light Blue
     m_Metadata:
       m_Items: []
   - m_Id: 104054582219882496
-    m_Localized: Violett
+    m_Localized: Violet
     m_Metadata:
       m_Items: []
   - m_Id: 104054650805141504
@@ -379,433 +379,258 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 104077707544346624
-    m_Localized: Hitze
+    m_Localized: Heat
     m_Metadata:
       m_Items: []
   - m_Id: 104082784506068992
-    m_Localized: Silber
+    m_Localized: Silver
     m_Metadata:
       m_Items: []
   - m_Id: 104086272925483008
-    m_Localized: "Gr\xFCn"
+    m_Localized: Green
     m_Metadata:
       m_Items: []
   - m_Id: 105933965497499648
-    m_Localized: Monochrom
+    m_Localized: Monochrome
     m_Metadata:
       m_Items: []
   - m_Id: 105938896715546624
-    m_Localized: "T\xFCrkis"
+    m_Localized: Turquoise
     m_Metadata:
       m_Items: []
   - m_Id: 121766119395016704
-    m_Localized: Verbinden
+    m_Localized: Connect
     m_Metadata:
       m_Items: []
   - m_Id: 121766265797197824
-    m_Localized: QR Scannen
+    m_Localized: Scan QR
     m_Metadata:
       m_Items: []
   - m_Id: 121766478708457472
-    m_Localized: Einstellungen
+    m_Localized: Settings
     m_Metadata:
       m_Items: []
   - m_Id: 121767231506333696
-    m_Localized: Folgen
+    m_Localized: Follow Me
     m_Metadata:
       m_Items: []
   - m_Id: 121767314264145920
-    m_Localized: "Schlie\xDFen"
+    m_Localized: Quit
     m_Metadata:
       m_Items: []
   - m_Id: 121767377900126208
-    m_Localized: "Login-Men\xFC"
+    m_Localized: Login Menu
     m_Metadata:
       m_Items: []
   - m_Id: 121818269168943104
-    m_Localized: Laden
+    m_Localized: Load
     m_Metadata:
       m_Items: []
   - m_Id: 121818554914291712
-    m_Localized: Nutzer weiter
+    m_Localized: Next User
     m_Metadata:
       m_Items: []
   - m_Id: 121818665476145152
-    m_Localized: "Nutzer zur\xFCck"
+    m_Localized: Prev User
     m_Metadata:
       m_Items: []
   - m_Id: 121819028501544960
-    m_Localized: Text eingeben...
+    m_Localized: Enter text...
     m_Metadata:
       m_Items: []
   - m_Id: 121819235968598016
-    m_Localized: Leertaste
+    m_Localized: Space
     m_Metadata:
       m_Items: []
   - m_Id: 121819288380620800
-    m_Localized: Rechtsklick
+    m_Localized: Right Mouse
     m_Metadata:
       m_Items: []
   - m_Id: 121819358941396992
-    m_Localized: Mittlere Maustaste
+    m_Localized: Middle Mouse
     m_Metadata:
       m_Items: []
   - m_Id: 121819508090847232
-    m_Localized: Umschalt + Rechtsklick
+    m_Localized: Left Shift + Right Click
     m_Metadata:
       m_Items: []
   - m_Id: 121819868633219072
-    m_Localized: Kamera bewegen
+    m_Localized: Move camera
     m_Metadata:
       m_Items: []
   - m_Id: 121819978125524992
-    m_Localized: Kamera hoch/runter
+    m_Localized: Move camera up/down
     m_Metadata:
       m_Items: []
   - m_Id: 121820102004293632
-    m_Localized: Texteingabe aktivieren
+    m_Localized: Activate text input
     m_Metadata:
       m_Items: []
   - m_Id: 121820335278899200
-    m_Localized: Kamera drehen
+    m_Localized: Rotate camera
     m_Metadata:
       m_Items: []
   - m_Id: 121820496205955072
-    m_Localized: Kamera in Ebene bewegen
+    m_Localized: Pan camera (move in plane)
     m_Metadata:
       m_Items: []
   - m_Id: 121820642767519744
-    m_Localized: Um Atom drehen
+    m_Localized: Rotate around atom
     m_Metadata:
       m_Items: []
   - m_Id: 121835333887705088
-    m_Localized: Hybridisierung
+    m_Localized: Hybridization
     m_Metadata:
       m_Items: []
   - m_Id: 121835968263602176
-    m_Localized: "Molek\xFCl"
+    m_Localized: Molecule
     m_Metadata:
       m_Items: []
   - m_Id: 121837265507303424
-    m_Localized: Platzhalter
+    m_Localized: Toggle Dummies
     m_Metadata:
       m_Items: []
   - m_Id: 121838116850352128
-    m_Localized: Mol. skalieren
+    m_Localized: Scale Molecule
     m_Metadata:
       m_Items: []
   - m_Id: 121839426114928640
-    m_Localized: Abbrechen
+    m_Localized: Cancel
     m_Metadata:
       m_Items: []
   - m_Id: 121839568347971584
-    m_Localized: Allgemein
+    m_Localized: General
     m_Metadata:
       m_Items: []
   - m_Id: 121839681724203008
-    m_Localized: Netzwerk
+    m_Localized: Network
     m_Metadata:
       m_Items: []
   - m_Id: 121839819934908416
-    m_Localized: Highlights
+    m_Localized: Highlighting
     m_Metadata:
       m_Items: []
   - m_Id: 121840340364148736
-    m_Localized: Raumgitter
+    m_Localized: Spatial Mesh
     m_Metadata:
       m_Items: []
   - m_Id: 121840640479182848
-    m_Localized: Sprache
+    m_Localized: Language
     m_Metadata:
       m_Items: []
   - m_Id: 121840774424281088
-    m_Localized: Interaktionsmodus
+    m_Localized: Interaction Mode
     m_Metadata:
       m_Items: []
   - m_Id: 121842217126445056
-    m_Localized: Euler Zeitfaktor
+    m_Localized: Euler Time Factor
     m_Metadata:
       m_Items: []
   - m_Id: 121842288937123840
-    m_Localized: SV Zeitfaktor
+    m_Localized: SV Time Factor
     m_Metadata:
       m_Items: []
   - m_Id: 121842431879004160
-    m_Localized: RK Zeitfaktor
+    m_Localized: RK Time Factor
     m_Metadata:
       m_Items: []
   - m_Id: 121842511969239040
-    m_Localized: MP Zeitfaktor
+    m_Localized: MP Time Factor
     m_Metadata:
       m_Items: []
   - m_Id: 121842847412895744
-    m_Localized: "Alle Highlights auf Ger\xE4ten zeigen"
+    m_Localized: Show all highlights on Clients
     m_Metadata:
       m_Items: []
   - m_Id: 121843110450282496
-    m_Localized: Farbzuordnung
+    m_Localized: Color Map
     m_Metadata:
       m_Items: []
   - m_Id: 121844364782059520
-    m_Localized: Stabdarstellung
+    m_Localized: Licorice (Stick) Rendering
     m_Metadata:
       m_Items: []
   - m_Id: 121845540726489088
-    m_Localized: Blickhervorhebung
+    m_Localized: Gaze Highlighting
     m_Metadata:
       m_Items: []
   - m_Id: 121845710746796032
-    m_Localized: Fingerhervorhebung
+    m_Localized: Pointer Highlighting
     m_Metadata:
       m_Items: []
   - m_Id: 123029884014465024
-    m_Localized: "\xD6ffnet den Debug Log"
+    m_Localized: Opens Debug Log
     m_Metadata:
       m_Items: []
   - m_Id: 123267836716027904
-    m_Localized: StrukturFormel
+    m_Localized: StructureFormula
     m_Metadata:
       m_Items: []
   - m_Id: 124461757766852608
-    m_Localized: Mess-Modus
+    m_Localized: MeasurementMode
     m_Metadata:
       m_Items: []
   - m_Id: 126551723915853824
-    m_Localized: Bindungsparameter
+    m_Localized: Bond Parameter
     m_Metadata:
       m_Items: []
   - m_Id: 126576652212224000
-    m_Localized: Wasserstoff
+    m_Localized: To Hydrogen
     m_Metadata:
       m_Items: []
   - m_Id: 126576784383131648
-    m_Localized: Platzhalter
+    m_Localized: To Dummy
     m_Metadata:
       m_Items: []
   - m_Id: 131626782116265984
-    m_Localized: Strukturformeln auto gen.
+    m_Localized: Auto gen. struc. formulas
     m_Metadata:
       m_Items: []
   - m_Id: 151162096803364864
-    m_Localized: Vollbild
+    m_Localized: Exclusive Fullscreen
     m_Metadata:
       m_Items: []
+<<<<<<< HEAD
   - m_Id: 154478274112110592
-    m_Localized: "Molek\xFCl transferieren (asynchroner Modus)"
+    m_Localized: Transition molecule (async mode)
     m_Metadata:
       m_Items: []
   - m_Id: 154479721037938688
-    m_Localized: "Gizmos \xE4ndern (rotieren, bewegen, skalieren)"
+    m_Localized: Switch Gizmos (rotate, translate, scale)
     m_Metadata:
       m_Items: []
   - m_Id: 154481754180665344
-    m_Localized: UI verstecken
+    m_Localized: Hide UI
     m_Metadata:
       m_Items: []
   - m_Id: 154482174244405248
-    m_Localized: Entf
+    m_Localized: Del
     m_Metadata:
       m_Items: []
   - m_Id: 154482279269777408
-    m_Localized: "Markierte Molek\xFCle l\xF6schen"
+    m_Localized: Delete marked molecules
     m_Metadata:
       m_Items: []
   - m_Id: 154482895530475520
-    m_Localized: Links Strg + A
+    m_Localized: Left Ctrl + A
     m_Metadata:
       m_Items: []
   - m_Id: 154483147624923136
-    m_Localized: "Ganzes Molek\xFCl markieren"
-    m_Metadata:
-      m_Items: []
+    m_Localized: Mark whole molecule
+=======
   - m_Id: 154834058461298688
-    m_Localized: Starten
+    m_Localized: Start
     m_Metadata:
       m_Items: []
   - m_Id: 154821961895624704
-    m_Localized: "Ber\xFChren Sie die Ecken des Bildschirms mit der Zeigefingerspitze
-      in der untenstehenden Reihenfolge. Halten Sie an jeder dieser Ecken Ihren Finger
-      solange still, bis ein Ger\xE4usch ert\xF6nt und eine kleine Box erscheint."
+    m_Localized: Touch the corners of your screen with your index finger tip in the
+      following order. At each corner, keep your finger still until you hear a confirmation
+      sound and a small box appears.
     m_Metadata:
       m_Items: []
   - m_Id: 154821894153420800
-    m_Localized: Bildschirm scannen
-    m_Metadata:
-      m_Items: []
-  - m_Id: 176588080566222848
-    m_Localized: "Alle l\xF6schen"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 176588316009283584
-    m_Localized: "L\xE4dt ..."
-    m_Metadata:
-      m_Items: []
-  - m_Id: 176589498777845760
-    m_Localized: "Standard-Molek\xFClgr\xF6\xDFe"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178688279187013632
-    m_Localized: Asynch. Modus
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178688487857831936
-    m_Localized: Interaktion
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178688675930423296
-    m_Localized: Speichern/ Laden
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178688851654983680
-    m_Localized: Sonstiges
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178690102736175104
-    m_Localized: Asynch. Modus verwenden
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178690265668108288
-    m_Localized: Erlaubte Interaktionen
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178690387571359744
-    m_Localized: Transitionsmodus
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178690526960664576
-    m_Localized: Immtersives Ziel
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178690640374644736
-    m_Localized: Desktopziel
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178690792879538176
-    m_Localized: Halten erforderlich beim Greifen
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178691237006000128
-    m_Localized: Animationsparameter
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178691358171054080
-    m_Localized: Animation
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178691451318157312
-    m_Localized: Auswahl durch Verweilen/Blick
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178692094791499776
-    m_Localized: Alle
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178692810331373568
-    m_Localized: Keine
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178692821152677888
-    m_Localized: Knopfdruck
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178692842338107392
-    m_Localized: Greifen (nah)
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178692865956233216
-    m_Localized: Greifen (Distanz)
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178692890882981888
-    m_Localized: Ziehen (Bildschirm)
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178692919655907328
-    m_Localized: Werfen
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178692994205466624
-    m_Localized: "Vollst\xE4ndig 3D"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693043928940544
-    m_Localized: Sofort
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693066251026432
-    m_Localized: Hand folgen
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693099562188800
-    m_Localized: Hand fixiert
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693149990305792
-    m_Localized: Kamera
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693162225090560
-    m_Localized: Vor Bildschirm
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693184693977088
-    m_Localized: Bildschirmmitte
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693222291718144
-    m_Localized: Schwebecursor
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693279233589248
-    m_Localized: Cursorposition
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693325224132608
-    m_Localized: Keine
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693350742278144
-    m_Localized: "Gr\xF6\xDFe"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693364122107904
-    m_Localized: Rotation
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178693382082117632
-    m_Localized: Beides
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178694184326643712
-    m_Localized: "H\xE4ndigkeit"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178694275858939904
-    m_Localized: Objekte werfen erlauben
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178694427667578880
-    m_Localized: Rechts
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178694439747174400
-    m_Localized: Links
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178694450614616064
-    m_Localized: Beide
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178694525071900672
-    m_Localized: Einstellungen speichern
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178694640968908800
-    m_Localized: Einstellungen laden
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178695132675555328
-    m_Localized: "Seed f\xFCr Zufallszahlen"
+    m_Localized: Scan Screen
+>>>>>>> fd666cfc652150370aac22d269107622db1c85f4
     m_Metadata:
       m_Items: []
   references:
