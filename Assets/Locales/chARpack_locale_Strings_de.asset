@@ -98,18 +98,6 @@ MonoBehaviour:
     m_Localized: Bindungssteifigkeit
     m_Metadata:
       m_Items: []
-  - m_Id: 5168279568384
-    m_Localized: Einstellungen
-    m_Metadata:
-      m_Items: []
-  - m_Id: 5229776453632
-    m_Localized: Folgen
-    m_Metadata:
-      m_Items: []
-  - m_Id: 5275636973568
-    m_Localized: "Schlie\xDFen"
-    m_Metadata:
-      m_Items: []
   - m_Id: 5358243790848
     m_Localized: Beenden
     m_Metadata:
@@ -138,10 +126,6 @@ MonoBehaviour:
     m_Localized: Datei
     m_Metadata:
       m_Items: []
-  - m_Id: 6182353223680
-    m_Localized: Speichern
-    m_Metadata:
-      m_Items: []
   - m_Id: 6434724495360
     m_Localized: "Schlie\xDFen"
     m_Metadata:
@@ -160,10 +144,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 7687953170432
     m_Localized: "L\xF6schen"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7845721915392
-    m_Localized: Aktuelle Hybridisierung
     m_Metadata:
       m_Items: []
   - m_Id: 7903775277056
@@ -216,10 +196,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 120037694275584
     m_Localized: Platzhalter
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1891008693911552
-    m_Localized: Englische Version
     m_Metadata:
       m_Items: []
   - m_Id: 1893316106371072
@@ -403,11 +379,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 121766265797197824
-    m_Localized: QR Scannen
-    m_Metadata:
-      m_Items: []
-  - m_Id: 121766478708457472
-    m_Localized: Einstellungen
+    m_Localized: QR scannen
     m_Metadata:
       m_Items: []
   - m_Id: 121767231506333696
@@ -693,7 +665,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 178691451318157312
-    m_Localized: Auswahl durch Verweilen/Blick
+    m_Localized: Auswahl durch Schwebecursor/Blick
     m_Metadata:
       m_Items: []
   - m_Id: 178692094791499776
@@ -760,10 +732,6 @@ MonoBehaviour:
     m_Localized: Cursorposition
     m_Metadata:
       m_Items: []
-  - m_Id: 178693325224132608
-    m_Localized: Keine
-    m_Metadata:
-      m_Items: []
   - m_Id: 178693350742278144
     m_Localized: "Gr\xF6\xDFe"
     m_Metadata:
@@ -773,7 +741,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 178693382082117632
-    m_Localized: Beides
+    m_Localized: Beide
     m_Metadata:
       m_Items: []
   - m_Id: 178694184326643712
@@ -790,10 +758,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 178694439747174400
     m_Localized: Links
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178694450614616064
-    m_Localized: Beide
     m_Metadata:
       m_Items: []
   - m_Id: 178694525071900672

@@ -98,18 +98,6 @@ MonoBehaviour:
     m_Localized: Bond Stiffness
     m_Metadata:
       m_Items: []
-  - m_Id: 5168279568384
-    m_Localized: Settings
-    m_Metadata:
-      m_Items: []
-  - m_Id: 5229776453632
-    m_Localized: Follow Me
-    m_Metadata:
-      m_Items: []
-  - m_Id: 5275636973568
-    m_Localized: Close
-    m_Metadata:
-      m_Items: []
   - m_Id: 5358243790848
     m_Localized: Exit
     m_Metadata:
@@ -138,10 +126,6 @@ MonoBehaviour:
     m_Localized: File
     m_Metadata:
       m_Items: []
-  - m_Id: 6182353223680
-    m_Localized: Save
-    m_Metadata:
-      m_Items: []
   - m_Id: 6434724495360
     m_Localized: Close
     m_Metadata:
@@ -160,10 +144,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 7687953170432
     m_Localized: Delete
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7845721915392
-    m_Localized: Current Hybridization
     m_Metadata:
       m_Items: []
   - m_Id: 7903775277056
@@ -216,10 +196,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 120037694275584
     m_Localized: Dummy
-    m_Metadata:
-      m_Items: []
-  - m_Id: 1891008693911552
-    m_Localized: German Version
     m_Metadata:
       m_Items: []
   - m_Id: 1893316106371072
@@ -404,10 +380,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 121766265797197824
     m_Localized: Scan QR
-    m_Metadata:
-      m_Items: []
-  - m_Id: 121766478708457472
-    m_Localized: Settings
     m_Metadata:
       m_Items: []
   - m_Id: 121767231506333696
@@ -760,10 +732,6 @@ MonoBehaviour:
     m_Localized: Cursor Position
     m_Metadata:
       m_Items: []
-  - m_Id: 178693325224132608
-    m_Localized: None
-    m_Metadata:
-      m_Items: []
   - m_Id: 178693350742278144
     m_Localized: Scale
     m_Metadata:
@@ -790,10 +758,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 178694439747174400
     m_Localized: Left
-    m_Metadata:
-      m_Items: []
-  - m_Id: 178694450614616064
-    m_Localized: Both
     m_Metadata:
       m_Items: []
   - m_Id: 178694525071900672

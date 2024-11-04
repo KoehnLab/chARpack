@@ -24208,7 +24208,7 @@ MonoBehaviour:
           m_TableReference:
             m_TableCollectionName: GUID:2803bb8940043bb409c4ccb29a5926e2
           m_TableEntryReference:
-            m_KeyId: 178693325224132608
+            m_KeyId: 178692810331373568
             m_Key: 
           m_FallbackState: 0
           m_WaitForCompletion: 0
@@ -37773,7 +37773,7 @@ MonoBehaviour:
           m_TableReference:
             m_TableCollectionName: GUID:2803bb8940043bb409c4ccb29a5926e2
           m_TableEntryReference:
-            m_KeyId: 178694450614616064
+            m_KeyId: 178693382082117632
             m_Key: 
           m_FallbackState: 0
           m_WaitForCompletion: 0
@@ -46281,6 +46281,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2080178969}
   - component: {fileID: 2080178970}
+  - component: {fileID: 2080178971}
   m_Layer: 5
   m_Name: Hgroup
   m_TagString: Untagged
@@ -46335,6 +46336,45 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &2080178971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2080178968}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69beb381e244f92449b8c4cf954630e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TrackedObjects:
+  - rid: 2131400093055320110
+  references:
+    version: 2
+    RefIds:
+    - rid: 2131400093055320110
+      type: {class: TrackedMonoBehaviourObject, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
+      data:
+        m_Target: {fileID: 2080178970}
+        m_TrackedProperties:
+          items:
+          - rid: 2131400093055320111
+        m_UpdateType: 0
+        m_Changed:
+          m_PersistentCalls:
+            m_Calls: []
+    - rid: 2131400093055320111
+      type: {class: FloatTrackedProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
+      data:
+        m_PropertyPath: m_Spacing
+        m_VariantData:
+        - localeIdentifier:
+            m_Code: en
+          value: 28.73
+        - localeIdentifier:
+            m_Code: de
+          value: 46.5
 --- !u!1 &2082012909
 GameObject:
   m_ObjectHideFlags: 0
