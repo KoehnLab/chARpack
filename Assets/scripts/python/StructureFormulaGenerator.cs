@@ -5,6 +5,7 @@ using Python.Runtime;
 using System.Collections.Generic;
 using System.Collections;
 using IngameDebugConsole;
+using System.Threading.Tasks;
 
 namespace chARpack
 {
@@ -78,11 +79,13 @@ namespace chARpack
             }
         }
 
-        private void generate3D(Molecule mol)
+        private async Task generate3D(Molecule mol)
         {
-            List<Vector2> coords;
-            var svg_content = fetchSVGContent(mol, out coords);
-            if (svg_content == "") return;
+            var res = await fetchSVGContent(mol);
+            if (res == null) return;
+
+            var svg_content = res.Item1;
+            var coords = res.Item2;
 
             // push 2D coords
             for (int i = 0; i < coords.Count; i++)
@@ -94,11 +97,13 @@ namespace chARpack
             StructureFormulaTo3D.generateFromSVGContentUI(svg_content, mol.m_id, coords);
         }
 
-        private void generate(Molecule mol)
+        private async Task generate(Molecule mol)
         {
-            List<Vector2> coords;
-            var svg_content = fetchSVGContent(mol, out coords);
-            if (svg_content == "") return;
+            var res = await fetchSVGContent(mol);
+            if (res == null) return;
+
+            var svg_content = res.Item1;
+            var coords = res.Item2;
 
             // push 2D coords
             for (int i = 0; i < coords.Count; i++)
@@ -129,11 +134,11 @@ namespace chARpack
         }
 
 
-        private string fetchSVGContent(Molecule mol, out List<Vector2> coords)
+        private async Task<Tuple<string, List<Vector2>>> fetchSVGContent(Molecule mol)
         {
-            coords = new List<Vector2>();
-            if (!PythonEnvironmentManager.Singleton) return "";
-            if (!PythonEnvironmentManager.Singleton.isInitialized) return "";
+            var coords = new List<Vector2>();
+            if (!PythonEnvironmentManager.Singleton) return null;
+            if (!PythonEnvironmentManager.Singleton.isInitialized) return null;
             // Prepare lists
             List<Vector3> posList = new List<Vector3>();
             for (int i = 0; i < mol.atomList.Count; i++)
@@ -159,67 +164,70 @@ namespace chARpack
 
             // define outputs
             string svgContent = "";
-            // Acquire the GIL before using any Python APIs
-            try
+            await Task.Run(() =>
             {
-                using (Py.GIL())
+                try
                 {
-                    // Convert the C# float array to a Python list
-                    var pyPosList = new PyList();
-                    foreach (var p in posList)
+                    // Acquire the GIL before using any Python APIs
+                    using (Py.GIL())
                     {
-                        var pos = new PyList();
-                        pos.Append(new PyFloat(p.x));
-                        pos.Append(new PyFloat(p.y));
-                        pos.Append(new PyFloat(p.z));
-                        pyPosList.Append(pos);
-                    }
+                        // Convert the C# float array to a Python list
+                        var pyPosList = new PyList();
+                        foreach (var p in posList)
+                        {
+                            var pos = new PyList();
+                            pos.Append(new PyFloat(p.x));
+                            pos.Append(new PyFloat(p.y));
+                            pos.Append(new PyFloat(p.z));
+                            pyPosList.Append(pos);
+                        }
 
-                    var pySymbolList = new PyList();
-                    foreach (var s in symbolList)
-                    {
-                        pySymbolList.Append(new PyString(s));
-                    }
+                        var pySymbolList = new PyList();
+                        foreach (var s in symbolList)
+                        {
+                            pySymbolList.Append(new PyString(s));
+                        }
 
-                    //// Import and run the Python script
-                    //dynamic sys = Py.Import("sys");
-                    //sys.path.append(Path.Combine(Application.streamingAssetsPath + "PythonScripts"));
+                        //// Import and run the Python script
+                        //dynamic sys = Py.Import("sys");
+                        //sys.path.append(Path.Combine(Application.streamingAssetsPath + "PythonScripts"));
 
-                    //// Import the built-in module
-                    //dynamic builtins = Py.Import("builtins");
+                        //// Import the built-in module
+                        //dynamic builtins = Py.Import("builtins");
 
-                    // Import your Python script
-                    dynamic script = Py.Import("StructureFormulaPythonBackend");
+                        // Import your Python script
+                        dynamic script = Py.Import("StructureFormulaPythonBackend");
 
-                    //// Print the attributes of the imported module
-                    //Debug.Log("Attributes of the imported module:");
-                    //foreach (string key in builtins.dir(script))
-                    //{
-                    //    Debug.Log(key);
-                    //}
+                        //// Print the attributes of the imported module
+                        //Debug.Log("Attributes of the imported module:");
+                        //foreach (string key in builtins.dir(script))
+                        //{
+                        //    Debug.Log(key);
+                        //}
 
-                    // Call the function from the Python script
-                    dynamic result = script.gen_structure_formula(pyPosList, pySymbolList);
+                        // Call the function from the Python script
+                        dynamic result = script.gen_structure_formula(pyPosList, pySymbolList);
 
-                    // Extract values from the returned tuple
-                    svgContent = result[0].ToString();
-                    dynamic coordsList = result[1];
+                        // Extract values from the returned tuple
+                        svgContent = result[0].ToString();
+                        dynamic coordsList = result[1];
 
-                    // Convert the Python list of coordinates to a C# array
-                    for (int i = 0; i < coordsList.Length(); i++)
-                    {
-                        var coord = coordsList[i];
-                        coords.Add(new Vector2(coord[0].As<float>(), coord[1].As<float>()));
+                        // Convert the Python list of coordinates to a C# array
+                        for (int i = 0; i < coordsList.Length(); i++)
+                        {
+                            var coord = coordsList[i];
+                            coords.Add(new Vector2(coord[0].As<float>(), coord[1].As<float>()));
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.Log("[StructureFormulaGenerator] Could not generate a structure formula. This is expected for small Molecules.");
-                return "";
-            }
+                catch (Exception ex)
+                {
+                    Debug.Log("[StructureFormulaGenerator] Could not generate a structure formula. This is expected for small Molecules.");
+                    return;
+                }
+            });
 
-            return svgContent;
+            return new Tuple<string, List<Vector2>>(svgContent,coords);
         }
         private void OnDestroy()
         {

@@ -179,6 +179,7 @@ namespace chARpack
             PythonEngine.PythonPath = pythonPath;
 
             PythonEngine.Initialize();
+            PythonEngine.BeginAllowThreads();
             isInitialized = true;
 
             Debug.Log("[PythonEnvironmentManager] Python environment initialized.");
