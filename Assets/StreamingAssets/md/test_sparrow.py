@@ -8,12 +8,23 @@ element_dict = {"H": su.ElementType.H,
                 "N": su.ElementType.N,
                 "Cl": su.ElementType.Cl}
 
+available_methods = ['MNDO', 'AM1', 'RM1', 'PM3', 'PM6', 'DFTB0', 'DFTB2', 'DFTB3']
 
 class chARpackSparrow:
     def __init__(self):
         self.structure = su.AtomCollection()
         self.mol_id = None
         self.calculator = None
+        self.method = 'PM6'
+        self.initialized = False
+        self.ss_lambda = 1.0
+
+    def setMethod(self, method):
+        if (method == self.method): return
+        if (method in available_methods):
+            self.method = method
+            self.__reInit()
+
 
     def setData(self, positions, symbols, indices = None, mol_id = None):
         self.mol_id = mol_id
@@ -23,18 +34,26 @@ class chARpackSparrow:
 
         # Get calculator
         manager = su.core.ModuleManager.get_instance()
-        self.calculator = manager.get('calculator', 'PM6')
+        self.calculator = manager.get('calculator', self.method)
 
         # Configure calculator
         self.calculator.structure = self.structure
-        self.calculator.set_required_properties([su.Property.Energy,
-                                    su.Property.Gradients])
+        self.calculator.set_required_properties([su.Property.Gradients])
+
+    def __reInit(self):
+        if (self.initialized):
+            self.structure = self.calculator.structure
+            # Get calculator
+            manager = su.core.ModuleManager.get_instance()
+            self.calculator = manager.get('calculator', self.method)
+            # Configure calculator
+            self.calculator.structure = self.structure
+            self.calculator.set_required_properties([su.Property.Gradients])
 
 
     def run(self, steps = 1):
-        print(f"{self.calculator.positions}")
         results = self.calculator.calculate()
-        print(f"{self.calculator.positions}")
+        self.steepestDescent(results)
 
     def ang_to_bohr(self, pos):
         return np.array(pos) / 0.529177210903
@@ -46,6 +65,14 @@ class chARpackSparrow:
         pos_in_ang = [self.bohr_to_ang(x) for x in self.calculator.positions]
         return pos_in_ang
     
+    def steepestDescent(self, results):
+        new_positions = []
+        for i in range(len(self.structure.elements)):
+            pos = self.calculator.structure.positions[i] + self.ss_lambda * results.gradients[i]
+            new_positions.append(pos)
+
+        self.calculator.structure.positions = new_positions
+
     # def getIndices(self):
     #     return [x.index for x in self.atoms]
 

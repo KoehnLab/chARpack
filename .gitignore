@@ -107,7 +107,6 @@ crashlytics-build.properties
 
 # specific ignores
 /[Aa]ssets/[Ss]treaming[Aa]ssets/*.svg
-/[Aa]ssets/[Ss]treaming[Aa]ssets/md/
 /[Aa]ssets/Resources/[Ff]ile[Nn]ames.txt*
 /[Pp]ython[Ee]nv/
 /[Oo]pen[Bb]abel/
