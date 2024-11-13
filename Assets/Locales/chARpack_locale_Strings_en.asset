@@ -772,6 +772,18 @@ MonoBehaviour:
     m_Localized: Random Seed
     m_Metadata:
       m_Items: []
+  - m_Id: 181980198273007616
+    m_Localized: Toggle Gizmos
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181980674947268608
+    m_Localized: Left Ctrl + K
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181981324561072128
+    m_Localized: Toggle FPS
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

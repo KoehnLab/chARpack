@@ -16,6 +16,8 @@ namespace chARpack
         private Transform lastObjectClickedOn = null;
         private EventSystem system;
 
+        public GameObject showFPS;
+
         private void Start()
         {
             var names = QualitySettings.names.ToList();
@@ -279,6 +281,11 @@ namespace chARpack
 
                 //    }
                 //}
+            }
+
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                showFPS.SetActive(!showFPS.activeSelf);
             }
         }
 
