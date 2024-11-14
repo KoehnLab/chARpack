@@ -1,9 +1,10 @@
+#if CHARPACK_MRTK_2_8
 using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.Utilities;
+#endif
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -58,26 +59,24 @@ namespace chARpack
 
         public void playWipeVFX()
         {
-            wipeVFX.transform.position = indexTipPose.Position;
+            wipeVFX.transform.position = indexTipPose.position;
             wipeVFX.GetComponent<VisualEffect>().Play();
         }
 
-        //private MixedRealityPose indexTip = MixedRealityPose.ZeroIdentity;
-
         private Vector3 _indexForward = Vector3.zero;
         public Vector3 indexForward { get => _indexForward; private set => _indexForward = value; }
-        private MixedRealityPose indexKnucklePose = MixedRealityPose.ZeroIdentity;
-        private MixedRealityPose indexTipPose = MixedRealityPose.ZeroIdentity;
-        private MixedRealityPose indexMiddlePose = MixedRealityPose.ZeroIdentity;
-        private MixedRealityPose indexDistalPose = MixedRealityPose.ZeroIdentity;
-        private MixedRealityPose middleTipPose = MixedRealityPose.ZeroIdentity;
-        private MixedRealityPose middleMiddlePose = MixedRealityPose.ZeroIdentity;
-        private MixedRealityPose middleDistalPose = MixedRealityPose.ZeroIdentity;
-        private MixedRealityPose middleKnucklePose = MixedRealityPose.ZeroIdentity;
-        private MixedRealityPose thumbTipPose = MixedRealityPose.ZeroIdentity;
-        private MixedRealityPose thumbDistalPose = MixedRealityPose.ZeroIdentity;
-        private MixedRealityPose thumbProximalPose = MixedRealityPose.ZeroIdentity;
-        private MixedRealityPose wristPose = MixedRealityPose.ZeroIdentity;
+        private Pose indexKnucklePose = Pose.identity;
+        private Pose indexTipPose = Pose.identity;
+        private Pose indexMiddlePose = Pose.identity;
+        private Pose indexDistalPose = Pose.identity;
+        private Pose middleTipPose = Pose.identity;
+        private Pose middleMiddlePose = Pose.identity;
+        private Pose middleDistalPose = Pose.identity;
+        private Pose middleKnucklePose = Pose.identity;
+        private Pose thumbTipPose = Pose.identity;
+        private Pose thumbDistalPose = Pose.identity;
+        private Pose thumbProximalPose = Pose.identity;
+        private Pose wristPose = Pose.identity;
         public GameObject fragmentIndicator;
         public GameObject particleSystemGO;
         private bool middleFingerGrab = false;
@@ -93,9 +92,9 @@ namespace chARpack
             handJointService ??
             (handJointService = CoreServices.GetInputSystemDataProvider<IMixedRealityHandJointService>());
 
-        private MixedRealityPose? previousLeftHandPose;
+        private Pose? previousLeftHandPose;
 
-        private MixedRealityPose? previousRightHandPose;
+        private Pose? previousRightHandPose;
 
 
         public void showFragmentIndicator(bool show)
@@ -105,35 +104,6 @@ namespace chARpack
                 fragmentIndicator.SetActive(show);
             }
         }
-
-        // check hand pose to pick which end of chain to move
-        //public void OnSourceDetected(SourceStateEventData eventData)
-        //{
-        //    var hand = eventData.Controller as IMixedRealityHand;
-        //    if (hand != null)
-        //    {
-        //        Debug.Log("[HandTracking] Controller found");
-        //        if (hand.TryGetJoint(TrackedHandJoint.IndexTip, out MixedRealityPose jointPose))
-        //        {
-        //            indexForward = jointPose.Forward;
-        //        }
-        //    } else {
-        //        var handVisualizer = eventData.Controller.Visualizer as IMixedRealityHandVisualizer;
-        //        if (handVisualizer != null)
-        //        {
-        //            Debug.Log("[HandTracking] Visualizer found");
-        //            if (HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexTip, Handedness.Both, out MixedRealityPose jointPose))
-        //            {
-        //                indexForward = jointPose.Forward;
-        //            }
-        //            //if (handVisualizer.TryGetJointTransform(TrackedHandJoint.IndexTip, out Transform jointTransform))
-        //            //{
-        //            //    indexForward = jointTransform.forward;
-        //            //}
-        //        }
-        //    }
-        //}
-
 
         public ConditionalEventWithCooldown OnMiddleFingerGrab = new ConditionalEventWithCooldown(0.2f);
         public ConditionalEventWithCooldown OnEmptyIndexFingerGrab = new ConditionalEventWithCooldown(0.2f);
@@ -168,7 +138,7 @@ namespace chARpack
             if (currentHand == Handedness.None) return;
             if (indexForward == Vector3.zero) return;
             transform.forward = indexForward;
-            transform.position = indexKnucklePose.Position;
+            transform.position = indexKnucklePose.position;
 
             //if (Vector3.Distance(indexTipPose.Position, thumbTipPose.Position) < 0.025f)
             if (GestureUtils.IsIndexPinching(currentHand))
@@ -176,7 +146,7 @@ namespace chARpack
                 if (!indexFingerGrab)
                 {
                     indexFingerGrab = true;
-                    IndexFingerGrab(indexTipPose.Position);
+                    IndexFingerGrab(indexTipPose.position);
                     if (!SettingsData.handRay)
                     {
                         OnEmptyIndexFingerGrab.Invoke();
@@ -189,7 +159,10 @@ namespace chARpack
                 if (indexFingerGrab)
                 {
                     indexFingerGrab = false;
-                    StartCoroutine(checkForFlick());
+                    if (SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.FLICK))
+                    {
+                        StartCoroutine(checkForFlick());
+                    }
                     IndexFingerGrabRelease();
                 }
             }
@@ -214,14 +187,14 @@ namespace chARpack
 
             if (SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.CATCH))
             {
-                var index_inner = indexMiddlePose.Position - indexKnucklePose.Position;
-                var index_outer = indexTipPose.Position - indexDistalPose.Position;
+                var index_inner = indexMiddlePose.position - indexKnucklePose.position;
+                var index_outer = indexTipPose.position - indexDistalPose.position;
 
-                var middle_inner = middleMiddlePose.Position - middleKnucklePose.Position;
-                var middle_outer = middleTipPose.Position - middleDistalPose.Position;
+                var middle_inner = middleMiddlePose.position - middleKnucklePose.position;
+                var middle_outer = middleTipPose.position - middleDistalPose.position;
 
-                var thumb_inner = thumbDistalPose.Position - thumbProximalPose.Position;
-                var thumb_outer = thumbTipPose.Position - thumbDistalPose.Position;
+                var thumb_inner = thumbDistalPose.position - thumbProximalPose.position;
+                var thumb_outer = thumbTipPose.position - thumbDistalPose.position;
 
                 var angle_threshold = 10f;
 
@@ -259,7 +232,7 @@ namespace chARpack
                 bool contained_in_any = false;
                 foreach (var bound in boundsInScene)
                 {
-                    if (bound.Contains(middleTipPose.Position))
+                    if (bound.Contains(middleTipPose.position))
                     {
                         contained_in_any = true;
                         break;
@@ -284,7 +257,7 @@ namespace chARpack
                 }
                 if (isMiddleInBox)
                 {
-                    particleSystemGO.transform.position = middleTipPose.Position;
+                    particleSystemGO.transform.position = middleTipPose.position;
                 }
             }
         }
@@ -295,8 +268,8 @@ namespace chARpack
             float time = 0f;
             while (time < 0.1f)
             {
-                var index_inner = indexMiddlePose.Position - indexKnucklePose.Position;
-                var index_outer = indexTipPose.Position - indexDistalPose.Position;
+                var index_inner = indexMiddlePose.position - indexKnucklePose.position;
+                var index_outer = indexTipPose.position - indexDistalPose.position;
                 if (Vector3.Angle(index_inner, index_outer) < 15f)
                 {
                     OnFlick.Invoke();
@@ -361,44 +334,44 @@ namespace chARpack
             //var palmTransform = HandJointService.RequestJointTransform(TrackedHandJoint.Palm, current_hand);
 
             var indexTipTransform = HandJointService.RequestJointTransform(TrackedHandJoint.IndexTip, current_hand);
-            indexFingerVelocity = indexTipTransform.position - indexTipPose.Position;
-            indexTipPose = new MixedRealityPose(indexTipTransform.position, indexTipTransform.rotation);
+            indexFingerVelocity = indexTipTransform.position - indexTipPose.position;
+            indexTipPose = new Pose(indexTipTransform.position, indexTipTransform.rotation);
 
             var indexKnuckleTransform = HandJointService.RequestJointTransform(TrackedHandJoint.IndexKnuckle, current_hand);
-            handVelocity = indexKnuckleTransform.position - indexKnucklePose.Position;
-            indexKnucklePose = new MixedRealityPose(indexKnuckleTransform.position, indexKnuckleTransform.rotation);
+            handVelocity = indexKnuckleTransform.position - indexKnucklePose.position;
+            indexKnucklePose = new Pose(indexKnuckleTransform.position, indexKnuckleTransform.rotation);
 
             var indexMiddleTransform = HandJointService.RequestJointTransform(TrackedHandJoint.IndexMiddleJoint, current_hand);
-            indexMiddlePose = new MixedRealityPose(indexMiddleTransform.position, indexMiddleTransform.rotation);
+            indexMiddlePose = new Pose(indexMiddleTransform.position, indexMiddleTransform.rotation);
 
             var indexDistalTransform = HandJointService.RequestJointTransform(TrackedHandJoint.IndexDistalJoint, current_hand);
-            indexDistalPose = new MixedRealityPose(indexDistalTransform.position, indexDistalTransform.rotation);
+            indexDistalPose = new Pose(indexDistalTransform.position, indexDistalTransform.rotation);
 
             var middleTipTransform = HandJointService.RequestJointTransform(TrackedHandJoint.MiddleTip, current_hand);
-            middleTipPose = new MixedRealityPose(middleTipTransform.position, middleTipTransform.rotation);
+            middleTipPose = new Pose(middleTipTransform.position, middleTipTransform.rotation);
 
             var middleMiddleTransform = HandJointService.RequestJointTransform(TrackedHandJoint.MiddleMiddleJoint, current_hand);
-            middleMiddlePose = new MixedRealityPose(middleMiddleTransform.position, middleMiddleTransform.rotation);
+            middleMiddlePose = new Pose(middleMiddleTransform.position, middleMiddleTransform.rotation);
 
             var middleDistalTransform = HandJointService.RequestJointTransform(TrackedHandJoint.MiddleDistalJoint, current_hand);
-            middleDistalPose = new MixedRealityPose(middleDistalTransform.position, middleDistalTransform.rotation);
+            middleDistalPose = new Pose(middleDistalTransform.position, middleDistalTransform.rotation);
 
             var middleKnuckleTransform = HandJointService.RequestJointTransform(TrackedHandJoint.MiddleKnuckle, current_hand);
-            middleKnucklePose = new MixedRealityPose(middleKnuckleTransform.position, middleKnuckleTransform.rotation);
+            middleKnucklePose = new Pose(middleKnuckleTransform.position, middleKnuckleTransform.rotation);
 
             var thumbTipTransform = HandJointService.RequestJointTransform(TrackedHandJoint.ThumbTip, current_hand);
-            thumbTipPose = new MixedRealityPose(thumbTipTransform.position, thumbTipTransform.rotation);
+            thumbTipPose = new Pose(thumbTipTransform.position, thumbTipTransform.rotation);
 
             var thumbDistalTransform = HandJointService.RequestJointTransform(TrackedHandJoint.ThumbDistalJoint, current_hand);
-            thumbDistalPose = new MixedRealityPose(thumbDistalTransform.position, thumbDistalTransform.rotation);
+            thumbDistalPose = new Pose(thumbDistalTransform.position, thumbDistalTransform.rotation);
 
             var thumbProximalTransform = HandJointService.RequestJointTransform(TrackedHandJoint.ThumbProximalJoint, current_hand);
-            thumbProximalPose = new MixedRealityPose(thumbProximalTransform.position, thumbProximalTransform.rotation);
+            thumbProximalPose = new Pose(thumbProximalTransform.position, thumbProximalTransform.rotation);
 
             var wristTransform = HandJointService.RequestJointTransform(TrackedHandJoint.Wrist, current_hand);
-            wristPose = new MixedRealityPose(wristTransform.position, wristTransform.rotation);
+            wristPose = new Pose(wristTransform.position, wristTransform.rotation);
 
-            indexForward = Vector3.Normalize(indexTipPose.Position - indexKnucklePose.Position);
+            indexForward = Vector3.Normalize(indexTipPose.position - indexKnucklePose.position);
 
             return current_hand;
         }
@@ -416,32 +389,32 @@ namespace chARpack
 
         public Vector3 getIndexTip()
         {
-            return indexTipPose.Position;
+            return indexTipPose.position;
         }
 
         public Vector3 getIndexKnuckle()
         {
-            return indexKnucklePose.Position;
+            return indexKnucklePose.position;
         }
 
         public Vector3 getMiddleTip()
         {
-            return middleTipPose.Position;
+            return middleTipPose.position;
         }
 
         public Pose getWristPose()
         {
             var pose = new Pose();
-            pose.position = wristPose.Position;
-            pose.rotation = wristPose.Rotation;
+            pose.position = wristPose.position;
+            pose.rotation = wristPose.rotation;
             return pose;
         }
 
         public Pose getMiddleKnucklePose()
         {
             var pose = new Pose();
-            pose.position = middleKnucklePose.Position;
-            pose.rotation = middleKnucklePose.Rotation;
+            pose.position = middleKnucklePose.position;
+            pose.rotation = middleKnucklePose.rotation;
             return pose;
         }
 
@@ -456,7 +429,7 @@ namespace chARpack
     {
         private const float PinchThreshold = 0.7f;
         private const float GrabThreshold = 0.4f;
-
+#if CHARPACK_MRTK_2_8
         public static bool IsIndexPinching(Handedness trackedHand)
         {
             return CalculateIndexPinch(trackedHand) > PinchThreshold;
@@ -482,7 +455,6 @@ namespace chARpack
         /// </summary>
         /// <param name="handedness">Handedness to query joint pose against.</param>
         /// <returns> Float ranging from 0 to 1. 0 if the thumb and finger are not pinched together, 1 if thumb finger are pinched together</returns>
-
         private const float IndexThumbSqrMagnitudeThreshold = 0.0016f;
         public static float CalculateIndexPinch(Handedness handedness)
         {
@@ -507,5 +479,6 @@ namespace chARpack
             float pinchStrength = Mathf.Clamp(1 - middleThumbSqrMagnitude / IndexThumbSqrMagnitudeThreshold, 0.0f, 1.0f);
             return pinchStrength;
         }
+#endif
     }
 }

@@ -1,5 +1,7 @@
+#if CHARPACK_MRTK_2_8
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.UI;
+#endif
 using chARpack.Structs;
 using System;
 using System.Collections.Generic;
@@ -22,7 +24,10 @@ namespace chARpack
     /// A class that provides the functionalities of single atoms.
     /// </summary>
     [Serializable]
-    public class Atom : MonoBehaviour, IMixedRealityPointerHandler, IMixedRealityFocusHandler
+    public class Atom : MonoBehaviour
+#if CHARPACK_MRTK_2_8
+        ,IMixedRealityPointerHandler, IMixedRealityFocusHandler
+#endif
     {
         // prefabs initialized in GlobalCtrl
         [HideInInspector] public static GameObject myAtomToolTipPrefab;
@@ -362,6 +367,8 @@ namespace chARpack
         #region hand_interaction
 
         public bool breakActionConsumed = false;
+#if CHARPACK_MRTK_2_8
+
         /// <summary>
         /// Handles the start of a grab gesture.
         /// The handling depends on the current interaction mode (e.g. in chain mode the correct chain of connected atoms is computed).
@@ -579,7 +586,8 @@ namespace chARpack
                 }
             }
         }
-        #endregion
+#endif
+#endregion
 
         /// <summary>
         /// This method is used in measurement mode to start, end and document distance and angle measurements.
@@ -1633,9 +1641,11 @@ namespace chARpack
 
         private void Start()
         {
+#if CHARPACK_MRTK_2_8
             var et = GetComponent<EyeTrackingTarget>();
             et.OnLookAtStart.AddListener(delegate { onLookStart(); });
             et.OnLookAway.AddListener(delegate { onLookAway(); });
+#endif
         }
 
         // Handle Gaze events
@@ -1668,6 +1678,8 @@ namespace chARpack
                 }
             }
         }
+
+#if CHARPACK_MRTK_2_8
 
         // Handle mrtk focus events
         void IMixedRealityFocusHandler.OnFocusEnter(FocusEventData eventData)
@@ -1710,7 +1722,7 @@ namespace chARpack
                 EventManager.Singleton.FocusHighlight(m_molecule.m_id, m_id, false);
             }
         }
-
+#endif
         public void networkSetFocus(bool focus, int focus_id)
         {
             if (NetworkManagerServer.Singleton != null || SettingsData.showAllHighlightsOnClients)
@@ -1901,8 +1913,10 @@ namespace chARpack
         /// <param name="value"></param>
         public void freeze(bool value)
         {
+#if CHARPACK_MRTK_2_8
             GetComponent<NearInteractionGrabbable>().enabled = !value;
             GetComponent<ObjectManipulator>().enabled = !value;
+#endif
             if (value)
             {
                 m_data.m_mass = -1f;

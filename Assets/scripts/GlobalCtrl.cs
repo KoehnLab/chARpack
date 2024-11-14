@@ -4,7 +4,9 @@ using UnityEditor;
 using UnityEngine.SceneManagement;
 using chARpack.Structs;
 using System;
+#if CHARPACK_MRTK_2_8
 using Microsoft.MixedReality.Toolkit.UI;
+#endif
 using System.Linq;
 using chARpack.Types;
 using IngameDebugConsole;
@@ -2589,8 +2591,14 @@ namespace chARpack
                     if (a.toolTipInstance)
                     {
                         //Destroy(a.toolTipInstance);
-                        if (SceneManager.GetActiveScene().name.Equals("ServerScene")) { a.createServerToolTip(); }
-                        else { a.createToolTip(); }
+                        if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
+                        {
+                            a.createServerToolTip();
+                        }
+                        else
+                        {
+                            a.createToolTip();
+                        }
                     }
                 }
 
@@ -2705,6 +2713,7 @@ namespace chARpack
             return null;
         }
 
+#if CHARPACK_MRTK_2_8
         /// <summary>
         /// Starts the process of exiting the main scene and returning to the login screen.
         /// Prompts the user to confirm their wish to exit.
@@ -2739,6 +2748,7 @@ namespace chARpack
             }
         }
 
+#endif
         /// <summary>
         /// when the application quits, reset color scheme to default (for visual consistency in editor)
         /// </summary>

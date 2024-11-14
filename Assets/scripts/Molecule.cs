@@ -1,5 +1,7 @@
+#if CHARPACK_MRTK_2_8
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.UI;
+#endif
 using chARpack.Structs;
 using System;
 using System.Collections;
@@ -11,9 +13,13 @@ using UnityEngine.UI;
 using chARpack.ColorPalette;
 using UnityEngine.SceneManagement;
 
+
 namespace chARpack
 {
-    public class Molecule : MonoBehaviour, IMixedRealityPointerHandler
+    public class Molecule : MonoBehaviour
+#if CHARPACK_MRTK_2_8
+        , IMixedRealityPointerHandler
+#endif
     {
         private Stopwatch stopwatch;
         [HideInInspector] public bool isGrabbed = false;
@@ -22,10 +28,10 @@ namespace chARpack
         private Vector3 pickupPos = Vector3.zero;
         private Quaternion pickupRot = Quaternion.identity;
         [HideInInspector] public float initial_scale = SettingsData.defaultMoleculeSize;
-        private ObjectManipulator objectManipulator;
 
         private List<Tuple<ushort, Vector3>> atomState = new List<Tuple<ushort, Vector3>>();
 
+#if CHARPACK_MRTK_2_8
         /// <summary>
         /// This method is triggered when a grab/select gesture is started.
         /// Sets the molecule to grabbed unless measurement mode is active.
@@ -111,6 +117,7 @@ namespace chARpack
                 }
             }
         }
+#endif
 
         private IEnumerator continueMovement(Vector3 initial_velocity)
         {
@@ -332,9 +339,6 @@ namespace chARpack
             var collider = gameObject.AddComponent<BoxCollider>();
             collider.size = new Vector3(0.001f, 0.001f, 0.001f);
             //collider.center = GetComponent<myBoundingBox>().cornerHandles[1].transform.position;
-            // these objects take input from corner colliders and manipulate the moluecule
-            var om = gameObject.AddComponent<ObjectManipulator>();
-            gameObject.AddComponent<NearInteractionGrabbable>();
 
             compMaterialA = Resources.Load("materials/ComparisonMaterialA") as Material;
             compMaterialB = Resources.Load("materials/ComparisonMaterialB") as Material;
@@ -350,13 +354,17 @@ namespace chARpack
                 gameObject.name = mol_data.name;
             }
 
-            // add object manipulation methods to check for scaling using two hands
-            // Get the ObjectManipulator component
-            objectManipulator = GetComponent<ObjectManipulator>();
 
+#if CHARPACK_MRTK_2_8
+            // these objects take input from corner colliders and manipulate the moluecule
+            var om = gameObject.AddComponent<ObjectManipulator>();
+            gameObject.AddComponent<NearInteractionGrabbable>();
+
+            // add object manipulation methods to check for scaling using two hands
             // Subscribe to the Manipulation events
-            objectManipulator.OnManipulationStarted.AddListener(OnManipulationStarted);
-            objectManipulator.OnManipulationEnded.AddListener(OnManipulationEnded);
+            om.OnManipulationStarted.AddListener(OnManipulationStarted);
+            om.OnManipulationEnded.AddListener(OnManipulationEnded);
+#endif
 
             // Initialize the previous scale to the object's initial scale
             previousScale = transform.localScale.x;
@@ -420,11 +428,13 @@ namespace chARpack
         }
 
         bool isManipulating = false;
+#if CHARPACK_MRTK_2_8
         private void OnManipulationStarted(ManipulationEventData eventData)
         {
             isManipulating = true;
             StartCoroutine(HandleScaleChanges());
         }
+#endif
 
         private IEnumerator HandleScaleChanges()
         {
@@ -441,10 +451,12 @@ namespace chARpack
             }
         }
 
+#if CHARPACK_MRTK_2_8
         private void OnManipulationEnded(ManipulationEventData eventData)
         {
             isManipulating = false;
         }
+#endif
 
         public bool containedInAtoms(Vector3 pos)
         {
@@ -534,12 +546,14 @@ namespace chARpack
             if (isInteractable != value)
             {
                 isInteractable = value;
+#if CHARPACK_MRTK_2_8
                 GetComponent<ObjectManipulator>().enabled = value;
                 GetComponent<NearInteractionGrabbable>().enabled = value;
                 foreach (var nag in GetComponentsInChildren<NearInteractionGrabbable>())
                 {
                     nag.enabled = value;
                 }
+#endif
                 GetComponent<myBoundingBox>().show(value);
                 GetComponent<myBoundingBox>().enabled = value;
             }
@@ -788,6 +802,7 @@ namespace chARpack
         /// <param name="otherMolID">ID of the other selected molecule</param>
         public void createSnapToolTip(Guid otherMolID)
         {
+#if CHARPACK_MRTK_2_8
             // create tool tip
             var snapToolTip = Instantiate(mySnapToolTipPrefab);
 
@@ -812,6 +827,7 @@ namespace chARpack
             snapToolTip.GetComponent<DoubleLineDynamicToolTip>().addContent(closeSnapButtonInstance);
 
             GlobalCtrl.Singleton.snapToolTipInstances[new Tuple<Guid, Guid>(m_id, otherMolID)] = snapToolTip;
+#endif
         }
 
         /// <summary>
@@ -1059,6 +1075,7 @@ namespace chARpack
         /// </summary>
         public void createToolTip()
         {
+#if CHARPACK_MRTK_2_8
             // create tool tip
             toolTipInstance = Instantiate(myToolTipPrefab);
             type = toolTipType.MOLECULE;
@@ -1108,6 +1125,7 @@ namespace chARpack
 
             // Starting color for indicators
             setFrozenVisual(frozen);
+#endif
         }
 
         public void createServerToolTip(int focus_id = -1)
@@ -1182,6 +1200,7 @@ namespace chARpack
         public void createBondToolTip(ForceField.BondTerm term)
         {
             markBondTerm(term, true);
+#if CHARPACK_MRTK_2_8
             var bond = atomList[term.Atom1].getBond(atomList[term.Atom2]);
             // create tool tip
             toolTipInstance = Instantiate(Atom.myAtomToolTipPrefab);
@@ -1229,6 +1248,7 @@ namespace chARpack
             var closeButtonInstance = Instantiate(closeMeButtonPrefab);
             closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markBondTermUI(term, false); });
             toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
+#endif
         }
 
         /// <summary>
@@ -1397,6 +1417,7 @@ namespace chARpack
         public void createAngleToolTip(ForceField.AngleTerm term)
         {
             markAngleTerm(term, true);
+#if CHARPACK_MRTK_2_8
             var middleAtom = atomList[term.Atom2];
             // create tool tip
             toolTipInstance = Instantiate(Atom.myAtomToolTipPrefab);
@@ -1419,6 +1440,7 @@ namespace chARpack
             var closeButtonInstance = Instantiate(closeMeButtonPrefab);
             closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markAngleTermUI(term, false); });
             toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
+#endif
         }
 
         public void createServerAngleToolTip(ForceField.AngleTerm term, int focus_id = -1)
@@ -1578,6 +1600,7 @@ namespace chARpack
         public void createTorsionToolTip(ForceField.TorsionTerm term)
         {
             markTorsionTerm(term, true);
+#if CHARPACK_MRTK_2_8
             var middlebond = atomList[term.Atom2].getBond(atomList[term.Atom3]);
             // create tool tip
             toolTipInstance = Instantiate(Atom.myAtomToolTipPrefab);
@@ -1601,7 +1624,7 @@ namespace chARpack
             var closeButtonInstance = Instantiate(closeMeButtonPrefab);
             closeButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { markTorsionTermUI(term, false); });
             toolTipInstance.GetComponent<DynamicToolTip>().addContent(closeButtonInstance);
-
+#endif
         }
 
         public void createServerTorsionToolTip(ForceField.TorsionTerm term, int focus_id = -1)
@@ -1825,8 +1848,10 @@ namespace chARpack
                     setFrozenMaterialOnBond(bond, value);
                 }
             }
+#if CHARPACK_MRTK_2_8
             GetComponent<NearInteractionGrabbable>().enabled = !value;
             GetComponent<ObjectManipulator>().enabled = !value;
+#endif
             frozen = value;
             if (freezeButton)
             {
@@ -2440,8 +2465,11 @@ namespace chARpack
             EventManager.Singleton.OnMolDataChanged -= triggerGenerateFF;
             EventManager.Singleton.OnMoleculeLoaded -= adjustBBox;
             EventManager.Singleton.OnMolDataChanged -= adjustBBox;
-            objectManipulator.OnManipulationStarted.RemoveListener(OnManipulationStarted);
-            objectManipulator.OnManipulationEnded.RemoveListener(OnManipulationEnded);
+#if CHARPACK_MRTK_2_8
+            var om = GetComponent<ObjectManipulator>();
+            om.OnManipulationStarted.RemoveListener(OnManipulationStarted);
+            om.OnManipulationEnded.RemoveListener(OnManipulationEnded);
+#endif
             if (HandTracking.Singleton)
             {
                 HandTracking.Singleton.OnMiddleFingerGrab.RemoveListener(OnTransitionGrab);

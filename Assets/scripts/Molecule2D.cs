@@ -75,7 +75,6 @@ namespace chARpack
                         bond.transform.LookAt(transform.TransformPoint(pos2));
                     }
 
-
                     // Scale the GameObject along the X-axis to match the distance between the two points
                     // weighted with the inital length of the object and corrected for the molecule's current scale
                     //bond.transform.localScale = new Vector3(
@@ -86,6 +85,12 @@ namespace chARpack
                         bond.transform.localScale.x,
                         bond.transform.localScale.y,
                         distance / bond.initialLength);
+
+                }
+                foreach (var atom in atoms)
+                {
+                    // Make atoms face the camera
+                    atom.transform.forward = GlobalCtrl.Singleton.currentCamera.transform.forward;
                 }
             }
         }

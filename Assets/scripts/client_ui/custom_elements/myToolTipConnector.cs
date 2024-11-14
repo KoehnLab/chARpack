@@ -1,3 +1,4 @@
+#if CHARPACK_MRTK_2_8
 using Microsoft.MixedReality.Toolkit.UI;
 using Microsoft.MixedReality.Toolkit.Utilities;
 using UnityEngine;
@@ -318,3 +319,4 @@ namespace chARpack
         }
     }
 }
+#endif
