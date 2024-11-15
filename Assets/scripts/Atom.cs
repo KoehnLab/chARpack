@@ -318,7 +318,7 @@ namespace chARpack
 
                     else
                     {
-                        resetMolPositionAfterMove();
+                        m_molecule.resetMolPositionAfterMove();
                         cmlData after = m_molecule.AsCML();
                         GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
                         EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
@@ -538,7 +538,7 @@ namespace chARpack
                                 Destroy(atom.GetComponent<ParentConstraint>());
                             }
                             currentChain.Clear();
-                            resetMolPositionAfterMove();
+                            m_molecule.resetMolPositionAfterMove();
                             cmlData after = m_molecule.AsCML();
                             GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
                             EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
@@ -551,7 +551,7 @@ namespace chARpack
                             if (stopwatch?.ElapsedMilliseconds < 200)
                             {
                                 m_molecule.popAtomState();
-                                resetMolPositionAfterMove();
+                                m_molecule.resetMolPositionAfterMove();
                                 EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
                                 EventManager.Singleton.MoveMolecule(m_molecule.m_id, m_molecule.transform.localPosition, m_molecule.transform.localRotation);
                                 if (m_molecule.isMarked)
@@ -565,7 +565,7 @@ namespace chARpack
                             }
                             else
                             {
-                                resetMolPositionAfterMove();
+                                m_molecule.resetMolPositionAfterMove();
                                 cmlData after = m_molecule.AsCML();
                                 GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
                                 EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
@@ -836,44 +836,6 @@ namespace chARpack
             }
 
             // Debug.Log(string.Format("Modified latest {0}:  rad={1}   scale={2} ", m_data.m_abbre, m_data.m_radius, GlobalCtrl.Singleton.atomScale));
-        }
-
-        /// <summary>
-        /// Handles the transfer of the movement of a single atom (with 
-        /// consequences because of the force field) to the containing molecule.
-        /// </summary>
-        public void resetMolPositionAfterMove()
-        {
-
-            // reset molecule position
-            Vector3 molCenter = m_molecule.getCenterInAtomWorld();
-            var mol_rot = m_molecule.transform.localRotation;
-            m_molecule.transform.localRotation = Quaternion.identity;
-            var mol_center_rotated = m_molecule.getCenterInAtomWorld();
-            // positions relative to the molecule center
-            foreach (Atom a in m_molecule.atomList)
-            {
-                a.transform.localPosition = (GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a.transform.position) - mol_center_rotated) * (1f / m_molecule.transform.localScale.x);
-            }
-            // rotate back
-            m_molecule.transform.localRotation = mol_rot;
-            m_molecule.transform.localPosition = molCenter;
-            // scale, position and orient bonds
-            foreach (Bond bond in m_molecule.bondList)
-            {
-                Atom a1 = m_molecule.atomList.ElementAtOrDefault(bond.atomID1);
-                Atom a2 = m_molecule.atomList.ElementAtOrDefault(bond.atomID2);
-                var a1_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a1.transform.position);
-                var a2_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a2.transform.position);
-                float offset1 = a1.m_data.m_radius * ForceField.scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * m_molecule.transform.localScale.x;
-                float offset2 = a2.m_data.m_radius * ForceField.scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * m_molecule.transform.localScale.x;
-                float distance = (Vector3.Distance(a1_pos, a2_pos) - offset1 - offset2) / m_molecule.transform.localScale.x;
-                bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
-                Vector3 pos1 = Vector3.MoveTowards(a1_pos, a2_pos, offset1);
-                Vector3 pos2 = Vector3.MoveTowards(a2_pos, a1_pos, offset2);
-                bond.transform.position = (pos1 + pos2) / 2;
-                bond.transform.LookAt(a2.transform.position);
-            }
         }
 
         /// <summary>

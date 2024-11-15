@@ -8,6 +8,8 @@ using System;
 using System.Threading;
 using System.IO.Compression;
 using OpenBabel;
+using System.Web;
+using Unity.VisualScripting;
 
 namespace chARpack
 {
@@ -59,6 +61,11 @@ namespace chARpack
             StartCoroutine(waitForEnvironmentPrep());
         }
 
+        private void OnDestroy()
+        {
+            FileDragAndDrop.OnFileDrop -= openFiles;
+        }
+
         IEnumerator waitForEnvironmentPrep()
         {
             while (!OpenBabelInstaller.installationSuccessfull)
@@ -72,6 +79,7 @@ namespace chARpack
             {
                 li_inst.loadingFinished(true, "Initialized.");
             }
+            FileDragAndDrop.OnFileDrop += openFiles;
         }
 
         private void initOpenBabel()
@@ -163,6 +171,21 @@ namespace chARpack
                     yield break;
                 }
                 yield return loadMoleculeUI(fi);
+            }
+        }
+
+        public void openFiles(string[] files)
+        {
+            foreach (var file in files)
+            {
+                FileInfo fi = new FileInfo(file);
+                Debug.Log($"[ReadMoleculeFile] Current extension: {fi.Extension}");
+                if (!fi.Exists)
+                {
+                    Debug.LogError("[ReadMoleculeFile] Something went wrong during path conversion. Abort.");
+                    return;
+                }
+                StartCoroutine(loadMoleculeUI(fi));
             }
         }
 

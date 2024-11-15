@@ -1342,7 +1342,7 @@ namespace chARpack
                 return false;
             }
 
-            atom.resetMolPositionAfterMove();
+            List_curMolecules[mol_id].resetMolPositionAfterMove();
             return true;
 
         }

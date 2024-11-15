@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -90,7 +91,7 @@ namespace chARpack
                 foreach (var atom in atoms)
                 {
                     // Make atoms face the camera
-                    atom.transform.forward = GlobalCtrl.Singleton.currentCamera.transform.forward;
+                    atom.transform.forward = -GlobalCtrl.Singleton.currentCamera.transform.forward;
                 }
             }
         }
@@ -105,6 +106,31 @@ namespace chARpack
                     mat.color = col;
                 }
             }
+        }
+
+        public void align3D()
+        {
+            StartCoroutine(alignAndRelax());
+        }
+
+        private IEnumerator alignAndRelax()
+        {
+            for (int i = 0; i < atoms.Count; i++)
+            {
+                var atom3D = molReference.atomList[i];
+                var atom2D = atoms[i];
+                // put 3D atoms on formula positions
+                atom3D.transform.position = atom2D.transform.position; 
+            }
+            // relax using force field
+            var ff_before = SettingsData.forceField;
+            ForceField.Singleton.enableForceFieldMethod(true);
+            yield return new WaitForSeconds(2f);
+
+            ForceField.Singleton.enableForceFieldMethod(ff_before);
+            molReference.resetMolPositionAfterMove();
+            
+            initialized = true;
         }
     }
 }

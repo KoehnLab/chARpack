@@ -840,7 +840,7 @@ namespace chARpack
             mol2D.transform.position = mol.transform.position;//GlobalCtrl.Singleton.getCurrentSpawnPos();
 
             mol2D.transform.parent = GlobalCtrl.Singleton.atomWorld.transform;
-            mol2D.initialized = true;
+            mol2D.align3D();
 
             Molecule2D.molecules.Add(mol2D);
         }

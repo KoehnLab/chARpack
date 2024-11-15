@@ -1,5 +1,6 @@
 using chARpack.Types;
 using IngameDebugConsole;
+using OpenBabel;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -193,7 +194,8 @@ namespace chARpack
                         {
                             // Interpolate between start and end points
                             var orig_pos = orig3Dpositions[mol].Find(e => e.Item1 == a.atomReference);
-                            a.atomReference.transform.position = Vector3.Lerp(orig_pos.Item2, mol2d.transform.TransformPoint(a.initialLocalPosition), curveValue);
+                            var target_pos = mol2d.molReference.transform.InverseTransformPoint(mol2d.transform.TransformPoint(a.initialLocalPosition));
+                            a.atomReference.transform.localPosition = Vector3.Lerp(orig_pos.Item2, target_pos, curveValue);
                             if (!opacitySeparate)
                             {
                                 // Interpolate between start and end points
@@ -284,8 +286,9 @@ namespace chARpack
                         foreach (var a in mol2d.Atoms)
                         {
                             // Interpolate between start and end points
-                            var orig_pos = orig3Dpositions[mol].Find(e => e.Item1 == a.atomReference);
-                            a.atomReference.transform.position = Vector3.Lerp(mol2d.transform.TransformPoint(a.initialLocalPosition), orig_pos.Item2, curveValue);
+                            var target_pos = orig3Dpositions[mol].Find(e => e.Item1 == a.atomReference);
+                            var current_pos = mol2d.molReference.transform.InverseTransformPoint(mol2d.transform.TransformPoint(a.initialLocalPosition));
+                            a.atomReference.transform.localPosition = Vector3.Lerp(current_pos, target_pos.Item2, curveValue);
 
                             if (!opacitySeparate)
                             {
@@ -310,7 +313,7 @@ namespace chARpack
                     var tmp = new List<Tuple<Atom, Vector3>>();
                     foreach (var atom in mol.atomList)
                     {
-                        tmp.Add(new Tuple<Atom, Vector3>(atom, atom.transform.position));
+                        tmp.Add(new Tuple<Atom, Vector3>(atom, atom.transform.localPosition));
                     }
                     orig3Dpositions.Add(mol, tmp);
                 }

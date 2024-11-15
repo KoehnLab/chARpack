@@ -789,8 +789,11 @@ namespace chARpack
         /// <param name="showToolTip"></param>
         public void markMoleculeUI(bool mark, bool showToolTip = true)
         {
-            EventManager.Singleton.SelectMolecule(m_id, mark);
-            markMolecule(mark, showToolTip);
+            if (currentOpacity != 0f)
+            {
+                EventManager.Singleton.SelectMolecule(m_id, mark);
+                markMolecule(mark, showToolTip);
+            }
         }
 
         /// <summary>
@@ -1066,6 +1069,44 @@ namespace chARpack
             }
             mass = tot_mass;
 
+        }
+
+        /// <summary>
+        /// Handles the transfer of the movement of a single atom (with 
+        /// consequences because of the force field) to the containing molecule.
+        /// </summary>
+        public void resetMolPositionAfterMove()
+        {
+
+            // reset molecule position
+            Vector3 molCenter = getCenterInAtomWorld();
+            var mol_rot = transform.localRotation;
+            transform.localRotation = Quaternion.identity;
+            var mol_center_rotated = getCenterInAtomWorld();
+            // positions relative to the molecule center
+            foreach (Atom a in atomList)
+            {
+                a.transform.localPosition = (GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a.transform.position) - mol_center_rotated) * (1f / transform.localScale.x);
+            }
+            // rotate back
+            transform.localRotation = mol_rot;
+            transform.localPosition = molCenter;
+            // scale, position and orient bonds
+            foreach (Bond bond in bondList)
+            {
+                Atom a1 = atomList.ElementAtOrDefault(bond.atomID1);
+                Atom a2 = atomList.ElementAtOrDefault(bond.atomID2);
+                var a1_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a1.transform.position);
+                var a2_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a2.transform.position);
+                float offset1 = a1.m_data.m_radius * ForceField.scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * transform.localScale.x;
+                float offset2 = a2.m_data.m_radius * ForceField.scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * transform.localScale.x;
+                float distance = (Vector3.Distance(a1_pos, a2_pos) - offset1 - offset2) / transform.localScale.x;
+                bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
+                Vector3 pos1 = Vector3.MoveTowards(a1_pos, a2_pos, offset1);
+                Vector3 pos2 = Vector3.MoveTowards(a2_pos, a1_pos, offset2);
+                bond.transform.position = (pos1 + pos2) / 2;
+                bond.transform.LookAt(a2.transform.position);
+            }
         }
 
         #region ToolTips
@@ -2451,6 +2492,12 @@ namespace chARpack
 
         public void OnDestroy()
         {
+            var mol2d = Molecule2D.molecules.Find(x => x.molReference == this);
+            if (mol2d != null)
+            {
+                mol2d.initialized = false;
+                Destroy(mol2d.gameObject);
+            }
             if (toolTipInstance)
             {
                 Destroy(toolTipInstance);
