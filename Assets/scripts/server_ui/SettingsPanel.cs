@@ -70,6 +70,7 @@ namespace chARpack
         private void OnEnable()
         {
             updateElements();
+            transform.SetAsLastSibling();
         }
 
         IEnumerator ShowSaveDialogCoroutine()

@@ -1481,6 +1481,22 @@ namespace chARpack
             return null;
         }
 
+        public Transform GetLastMarkedMoleculeTransform()
+        {
+            Transform lastMarked = null;
+            if (GlobalCtrl.Singleton.List_curMolecules.Count > 0)
+            {
+                foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
+                {
+                    if (mol.isMarked)
+                    {
+                        lastMarked = mol.transform;
+                    }
+                }
+            }
+            return lastMarked;
+        }
+
         public Transform getFirstHoveredObject()
         {
             if (GlobalCtrl.Singleton.List_curMolecules.Count > 0)
@@ -1564,6 +1580,8 @@ namespace chARpack
             tempData.m_bondNum = calcNumBonds(tempData.m_hybridization, tempData.m_bondNum);
 
             atom.f_Modify(tempData);
+
+            if (atom.frozen) atom.m_data.m_mass = -1f; // Reset to frozen mass (no interaction with force field)
 
             cmlData after = List_curMolecules[mol_id].AsCML();
             undoStack.AddChange(new ChangeAtomAction(before, after));
@@ -1664,6 +1682,8 @@ namespace chARpack
             tempData.m_bondNum = calcNumBonds(tempData.m_hybridization, tempData.m_bondNum);
 
             chgAtom.f_Modify(tempData);
+            if (chgAtom.frozen) chgAtom.m_data.m_mass = -1f; // Reset to frozen mass (no interaction with force field)
+
             foreach (Bond b in chgAtom.connectedBonds())
             {
                 b.setShaderProperties();
