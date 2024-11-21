@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using chARpack.ColorPalette;
 using Unity.VisualScripting;
-
+using TMPro;
 
 namespace chARpack
 {
@@ -59,6 +59,7 @@ namespace chARpack
         public GameObject debugWindow;
         public GameObject logEntryPrefab;
         public GameObject debugIndicator;
+        public GameObject fpsIndicator;
 
         private bool isEnabled = false;
         private bool showStackTrace = false;
@@ -219,6 +220,13 @@ namespace chARpack
             // scrolls down by as many elements as there are in the log stack
             // this is usually too much, but ScrollingObjectCollection handles scrolling too far in either direction
             ScrollByTier(logStack.Count);
+        }
+
+        public void toggleFPS()
+        {
+            var FPS = FindObjectOfType<showFPS>().gameObject;
+            FPS.GetComponent<TextMeshPro>().enabled = !FPS.GetComponent<TextMeshPro>().enabled;
+            setVisual(fpsIndicator, FPS.GetComponent<TextMeshPro>().enabled);
         }
     }
 }

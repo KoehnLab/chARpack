@@ -759,6 +759,22 @@ MonoBehaviour:
     m_Key: RandomSeed
     m_Metadata:
       m_Items: []
+  - m_Id: 181980198273007616
+    m_Key: ToggleGizmos
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181980674947268608
+    m_Key: LeftCtrlK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181981324561072128
+    m_Key: ToggleFPS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181991907301769216
+    m_Key: DebugWindow/DebugWindow/SettingsButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
