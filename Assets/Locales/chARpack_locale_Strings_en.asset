@@ -784,6 +784,10 @@ MonoBehaviour:
     m_Localized: Toggle FPS
     m_Metadata:
       m_Items: []
+  - m_Id: 181991907301769216
+    m_Localized: Show FPS
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

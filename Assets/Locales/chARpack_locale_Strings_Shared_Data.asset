@@ -771,6 +771,10 @@ MonoBehaviour:
     m_Key: ToggleFPS
     m_Metadata:
       m_Items: []
+  - m_Id: 181991907301769216
+    m_Key: DebugWindow/DebugWindow/SettingsButton/IconAndText/TextMeshPro
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
