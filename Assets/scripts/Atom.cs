@@ -41,7 +41,7 @@ namespace chARpack
         [HideInInspector] public static GameObject serverTooltipPrefab;
 
         private Stopwatch stopwatch;
-        public GameObject toolTipInstance = null;
+        [HideInInspector] public GameObject toolTipInstance = null;
         private GameObject freezeButton;
         private static float toolTipDistanceWeight = 2.5f;
         private static Color grabColor = ColorPalette.ColorPalette.atomGrabColor;

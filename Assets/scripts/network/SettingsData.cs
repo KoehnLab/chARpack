@@ -55,6 +55,7 @@ namespace chARpack
         [JsonProperty] public static bool hoverGazeAsSelection = true;
         [JsonProperty] public static float defaultMoleculeSize = 0.8f;
         public static NetworkUtils.Protocol currentNetworkingProtocol = NetworkUtils.Protocol.TCP;
+        [JsonProperty] public static bool UseKabsch = false;
 
         public static int highlightColorMap
         {
