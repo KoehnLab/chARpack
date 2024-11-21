@@ -12,8 +12,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using chARpack.ColorPalette;
 using UnityEngine.SceneManagement;
-using MathNet.Numerics.LinearAlgebra.Factorization;
-using MathNet.Numerics.LinearAlgebra;
 
 
 namespace chARpack
@@ -1123,8 +1121,8 @@ namespace chARpack
                 var a2_pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(a2.transform.position);
                 //float offset1 = a1.m_data.m_radius * ForceField.scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * transform.localScale.x;
                 //float offset2 = a2.m_data.m_radius * ForceField.scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * transform.localScale.x;
-                float offset1 = SettingsData.licoriceRendering ? 0f : a1.m_data.m_radius * ForceField.scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * m_molecule.transform.localScale.x;
-                float offset2 = SettingsData.licoriceRendering ? 0f : a2.m_data.m_radius * ForceField.scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * m_molecule.transform.localScale.x;
+                float offset1 = SettingsData.licoriceRendering ? 0f : a1.m_data.m_radius * ForceField.scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * transform.localScale.x;
+                float offset2 = SettingsData.licoriceRendering ? 0f : a2.m_data.m_radius * ForceField.scalingfactor * GlobalCtrl.atomScale * GlobalCtrl.scale * 0.8f * transform.localScale.x;
                 float distance = (Vector3.Distance(a1_pos, a2_pos) - offset1 - offset2) / transform.localScale.x;
                 bond.transform.localScale = new Vector3(bond.transform.localScale.x, bond.transform.localScale.y, distance);
                 Vector3 pos1 = Vector3.MoveTowards(a1_pos, a2_pos, offset1);
@@ -1511,8 +1509,6 @@ namespace chARpack
             for (var i = 0; i < atomList.Count(); i++) { positions[i] = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(atomList[i].transform.position); }
             return positions;
         }
-
-
 
 
         /// <summary>

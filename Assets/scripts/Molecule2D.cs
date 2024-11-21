@@ -110,7 +110,21 @@ namespace chARpack
 
         public void align3D()
         {
-            StartCoroutine(alignAndRelax());
+            var atoms3D = new Vector3[atoms.Count];
+            var atoms2D = new Vector3[atoms.Count];
+            for (var i = 0; i < atoms.Count; i++)
+            {
+                atoms3D[i] = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(molReference.atomList[i].transform.position);
+                atoms2D[i] = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(atoms[i].transform.position);
+            }
+
+            var rotationMatrix = Kabsch.kabschRotationMatrix(atoms3D, atoms2D);
+            molReference.transform.localRotation = Quaternion.LookRotation(rotationMatrix.GetRow(2), rotationMatrix.GetRow(1)) * molReference.transform.localRotation;
+            molReference.resetMolRotation();
+            molReference.transform.localPosition = transform.localPosition;
+            initialized = true;
+
+            //StartCoroutine(alignAndRelax());
         }
 
         private IEnumerator alignAndRelax()
