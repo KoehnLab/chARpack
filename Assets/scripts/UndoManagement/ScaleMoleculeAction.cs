@@ -28,18 +28,22 @@ namespace chARpack
         {
             bool hasSlider = false;
             var ratio = 1.0f;
+#if CHARPACK_MRTK_2_8
             if (GlobalCtrl.Singleton.List_curMolecules[after.moleID].scalingSliderInstance)
             {
                 ratio = after.moleScale.x / GlobalCtrl.Singleton.List_curMolecules[after.moleID].scalingSliderInstance.GetComponent<mySlider>().SliderValue;
                 hasSlider = true;
             }
+#endif
             GlobalCtrl.Singleton.deleteMolecule(after.moleID, false);
             GlobalCtrl.Singleton.BuildMoleculeFromCML(before, before.moleID);
+#if CHARPACK_MRTK_2_8
             if (hasSlider)
             {
                 GlobalCtrl.Singleton.List_curMolecules[before.moleID].toggleScalingSlider();
                 GlobalCtrl.Singleton.List_curMolecules[before.moleID].scalingSliderInstance.GetComponent<mySlider>().StartSliderValue = before.moleScale.x / ratio;
             }
+#endif
             GlobalCtrl.Singleton.SignalUndoScaling();
         }
     }

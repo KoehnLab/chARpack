@@ -73,7 +73,7 @@ namespace chARpack
             // update connect button with number of servers
             if (connectButtonText != null)
             {
-                connectButtonText.GetComponent<TextMeshPro>().text = $"{localizationManager.Singleton.GetLocalizedString("Connect")} ({serverList.Count})";
+                connectButtonText.GetComponent<TextMeshPro>().text = $"{localizationManager.GetLocalizedString("Connect")} ({serverList.Count})";
             }
             serverList.Clear();
             lanDiscovery.SendBroadcast();

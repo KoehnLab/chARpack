@@ -15,10 +15,8 @@ namespace chARpack
         {
             if (EventSystem.current.IsPointerOverGameObject()) { return; }
 
-            Scene activeScene = SceneManager.GetActiveScene();
-
             // Avoid double pressing with mouse and finger click; special case for canvas buttons that don't have buttonConfigHelper and OnClick
-            if (GameObject.FindObjectOfType(typeof(Microsoft.MixedReality.Toolkit.Input.RiggedHandVisualizer)) != null || gameObject.GetComponent<CanvasRenderer>() || activeScene.name == "ServerScene")
+            if (GameObject.FindObjectOfType(typeof(Microsoft.MixedReality.Toolkit.Input.RiggedHandVisualizer)) != null || gameObject.GetComponent<CanvasRenderer>() || LoginData.isServer)
             {
                 GetComponent<PressableButtonHoloLens2>().ButtonPressed.Invoke();
             }

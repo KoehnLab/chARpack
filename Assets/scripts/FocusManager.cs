@@ -118,13 +118,14 @@ namespace chARpack
 
         public static int getMyFocusID()
         {
+#if CHARPACK_NETWORKING
             if (NetworkManagerClient.Singleton)
             {
                 return UserClient.list[NetworkManagerClient.Singleton.Client.Id].highlightFocusID;
             }
             else
             {
-                if (NetworkManagerServer.Singleton)
+                if (LoginData.isServer)
                 {
                     return -1;
                 }
@@ -133,9 +134,19 @@ namespace chARpack
                     return 0;
                 }
             }
+#else
+            if (LoginData.isServer)
+            {
+                return -1;
+            }
+            else
+            {
+                return 0;
+            }
+#endif
         }
 
-        #endregion
+#endregion
 
 
     }

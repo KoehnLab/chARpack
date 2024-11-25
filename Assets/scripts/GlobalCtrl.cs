@@ -9,7 +9,9 @@ using Microsoft.MixedReality.Toolkit.UI;
 #endif
 using System.Linq;
 using chARpack.Types;
+#if CHARPACK_DEBUG_CONSOLE
 using IngameDebugConsole;
+#endif
 
 /*! \mainpage 
  * API reference page for chARpack
@@ -146,6 +148,7 @@ namespace chARpack
         /// </summary>
         public void toggleFragmentRotationMode()
         {
+
             if (currentInteractionMode != InteractionModes.FRAGMENT_ROTATION)
             {
                 currentInteractionMode = InteractionModes.FRAGMENT_ROTATION;
@@ -164,9 +167,10 @@ namespace chARpack
                     HandTracking.Singleton.gameObject.SetActive(false);
                 }
             }
-
+#if CHARPACK_MRTK_2_8
             // Update visuals on hand menu toggle buttons
             handMenu.Singleton.setVisuals();
+#endif
         }
 
         /// <summary>
@@ -194,9 +198,10 @@ namespace chARpack
                 }
                 freezeWorld(false);
             }
-
+#if CHARPACK_MRTK_2_8
             // Update visuals on hand menu toggle buttons
             handMenu.Singleton.setVisuals();
+#endif
         }
 
         /// <summary>
@@ -234,7 +239,9 @@ namespace chARpack
                 }
                 freezeWorld(false);
             }
+#if CHARPACK_MRTK_2_8
             handMenu.Singleton?.setVisuals();
+#endif
         }
         #endregion
 
@@ -337,7 +344,7 @@ namespace chARpack
             currentCamera = mainCamera;
             Debug.Log($"DEVICE Type: {SystemInfo.deviceType}, Model: {SystemInfo.deviceModel}");
 
-            if (NetworkManagerClient.Singleton != null)
+            if (!LoginData.isServer)
             {
                 spawnZDistance = 0.25f;
             }
@@ -346,10 +353,9 @@ namespace chARpack
 
         private void intializeDebugConsoleCommands()
         {
-#if UNITY_EDITOR || UNITY_STANDALONE
+#if (UNITY_EDITOR || UNITY_STANDALONE) && CHARPACK_DEBUG_CONSOLE
             DebugLogConsole.AddCommand<string>("c", "Creates a molecule dummy using a chemical symbol", createAtomUI);
             DebugLogConsole.AddCommand("getCurrentSpawnPos", "Gets current spawn pos dependet on the camera position and forward", getCurrentSpawnPos);
-
 #endif
         }
 
@@ -626,7 +632,7 @@ namespace chARpack
                 var atom2 = to_delete.m_molecule.atomList[to_delete.atomID2];
                 if (atom1.isMarked) atom1.markAtomUI(false);
                 if (atom2.isMarked) atom2.markAtomUI(false);
-                if (!NetworkManagerClient.Singleton || SettingsData.syncMode == TransitionManager.SyncMode.Async)
+                if (LoginData.singlePlayer || LoginData.isServer || SettingsData.syncMode == TransitionManager.SyncMode.Async)
                 {
                     if (!deleteBond(to_delete))
                     {
@@ -857,7 +863,7 @@ namespace chARpack
             try
             {
                 if (to_delete.isMarked) to_delete.markAtomUI(false);
-                if (!NetworkManagerClient.Singleton || SettingsData.syncMode == TransitionManager.SyncMode.Async)
+                if (LoginData.singlePlayer || LoginData.isServer || SettingsData.syncMode == TransitionManager.SyncMode.Async)
                 {
                     deleteAtom(to_delete);
                 }
@@ -1770,7 +1776,7 @@ namespace chARpack
                         {
                             EventManager.Singleton.MergeMolecule(d1.m_molecule.m_id, d1.m_id, d2.m_molecule.m_id, d2.m_id);
                             merge = true;
-                            if (!NetworkManagerClient.Singleton || SettingsData.syncMode == TransitionManager.SyncMode.Async)
+                            if (LoginData.singlePlayer || LoginData.isServer || SettingsData.syncMode == TransitionManager.SyncMode.Async)
                             {
                                 // only allowed to merge when in async or solo mode
                                 MergeMolecule(d1, d2);
@@ -1780,7 +1786,7 @@ namespace chARpack
                         {
                             EventManager.Singleton.MergeMolecule(d2.m_molecule.m_id, d2.m_id, d1.m_molecule.m_id, d1.m_id);
                             merge = true;
-                            if (!NetworkManagerClient.Singleton || SettingsData.syncMode == TransitionManager.SyncMode.Async)
+                            if (LoginData.singlePlayer || LoginData.isServer || SettingsData.syncMode == TransitionManager.SyncMode.Async)
                             {
                                 // only allowed to merge when in async or solo mode
                                 MergeMolecule(d2, d1);
@@ -2337,6 +2343,7 @@ namespace chARpack
                     }
                     else // Async
                     {
+#if CHARPACK_MRTK_2_8
                         if (molecule.ssPos != Vector2.zero)
                         {
                             Debug.Log($"[Create:transition] Got SS coords: {molecule.ssPos.ToVector2()};");
@@ -2422,6 +2429,7 @@ namespace chARpack
                         {
                             EventManager.Singleton.ReceiveMoleculeTransition(tempMolecule, (TransitionManager.InteractionType)molecule.transitionTriggeredBy, molecule.TransitionTriggeredFromId);
                         }
+#endif
                     }
                 }
             }
@@ -2433,7 +2441,7 @@ namespace chARpack
         /// </summary>
         public void undoUI()
         {
-            if (LoginData.normal_mode)
+            if (LoginData.singlePlayer)
             {
                 undo();
             }
@@ -2554,10 +2562,12 @@ namespace chARpack
         /// </summary>
         public void toggleDebugWindow()
         {
+#if CHARPACK_MRTK_2_8
             if (DebugWindow.Singleton)
             {
                 DebugWindow.Singleton.toggleVisible();
             }
+#endif
         }
 
         /// <summary>
@@ -2592,7 +2602,9 @@ namespace chARpack
         /// </summary>
         public void toggleHandMenu()
         {
+#if CHARPACK_MRTK_2_8
             handMenu.Singleton.toggleVisible();
+#endif
         }
         #endregion
 
@@ -2611,7 +2623,7 @@ namespace chARpack
                     if (a.toolTipInstance)
                     {
                         //Destroy(a.toolTipInstance);
-                        if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
+                        if (LoginData.isServer)
                         {
                             a.createServerToolTip();
                         }
@@ -2626,8 +2638,9 @@ namespace chARpack
                 if (mol.toolTipInstance)
                 {
                     Molecule.toolTipType type = mol.type;
-                    if (!SceneManager.GetActiveScene().name.Equals("ServerScene"))
+                    if (!LoginData.isServer)
                     {
+#if CHARPACK_MRTK_2_8
                         var target = mol.toolTipInstance.GetComponent<myToolTipConnector>().Target;
                         //Destroy(mol.toolTipInstance);
                         if (type == Molecule.toolTipType.MOLECULE)
@@ -2645,6 +2658,7 @@ namespace chARpack
                             Atom a = target.GetComponent<Atom>();
                             a.markConnections(true);
                         }
+#endif
                     }
                     else
                     {
@@ -2681,18 +2695,21 @@ namespace chARpack
                     Molecule.toolTipType type = mol.type;
                     if (type != Molecule.toolTipType.SINGLE) return;
                     Atom a;
-                    if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
+                    if (LoginData.isServer)
                     {
                         a = mol.atomList[mol.toolTipInstance.GetComponent<ServerBondTooltip>().linkedBond.GetComponent<Bond>().atomID1];
+                        a.markConnections(true);
                     }
                     else
                     {
+#if CHARPACK_MRTK_2_8
                         var target = mol.toolTipInstance.GetComponent<myToolTipConnector>().Target;
                         //Destroy(mol.toolTipInstance);
                         ushort id = target.GetComponent<Bond>().atomID1;
                         a = mol.atomList[id];
+                        a.markConnections(true);
+#endif
                     }
-                    a.markConnections(true);
                 }
             }
         }
@@ -2706,8 +2723,14 @@ namespace chARpack
                     if (a.toolTipInstance)
                     {
                         //Destroy(a.toolTipInstance);
-                        if (SceneManager.GetActiveScene().name.Equals("ServerScene")) a.createServerToolTip();
-                        else a.createToolTip();
+                        if (LoginData.isServer)
+                        {
+                            a.createServerToolTip();
+                        }
+                        else
+                        {
+                            a.createToolTip();
+                        }
                     }
                 }
             }
@@ -2715,10 +2738,12 @@ namespace chARpack
 
         public void regenerateChangeBondWindows()
         {
+#if CHARPACK_MRTK_2_8
             foreach (var cb in FindObjectsOfType<ManipulateBondTerm>())
             {
                 cb.reloadTextFieldsBT();
             }
+#endif
         }
 
         private Atom findAtomById(Molecule m, ushort id)
@@ -2756,7 +2781,7 @@ namespace chARpack
         {
             if (obj.Result == DialogButtonType.Yes)
             {
-                if (!LoginData.normal_mode)
+                if (!LoginData.singlePlayer)
                 {
                     NetworkManagerClient.Singleton.controlledExit = true;
                 }

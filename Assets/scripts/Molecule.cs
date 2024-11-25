@@ -158,6 +158,7 @@ namespace chARpack
             EventManager.Singleton.ChangeMoleculeScale(m_id, transform.localScale.x);
         }
 
+#if CHARPACK_MRTK_2_8
         /// <summary>
         /// Scales the molecule based on the slider value and invokes a 
         /// change molecule scale event.
@@ -175,13 +176,15 @@ namespace chARpack
                                                                     // networking
             EventManager.Singleton.ChangeMoleculeScale(m_id, gameObject.transform.localScale.x);
         }
+#endif
 
         public void Update()
         {
             if (toolTipInstance)
             {
-                if (!SceneManager.GetActiveScene().name.Equals("ServerScene"))
+                if (!LoginData.isServer)
                 {
+#if CHARPACK_MRTK_2_8
                     if (type == toolTipType.SINGLE)
                     {
                         string[] text = toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText.Split("\n");
@@ -215,6 +218,7 @@ namespace chARpack
 
                         toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = string.Join("\n", text);
                     }
+#endif
                 }
                 else
                 {
@@ -475,12 +479,14 @@ namespace chARpack
 
         private void OnNormalGrabRelease()
         {
+#if CHARPACK_MRTK_2_8
             if (screenAlignment.Singleton == null) return;
             if (emptyGrab)
             {
                 screenAlignment.Singleton.OnDistantTransitionGrabRelease();
                 emptyGrab = false;
             }
+#endif
         }
 
         private void OnTransitionGrab()
@@ -732,7 +738,7 @@ namespace chARpack
             {
                 if (!toolTipInstance && showToolTip)
                 {
-                    if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
+                    if (LoginData.isServer)
                     {
                         createServerToolTip();
                     }
@@ -752,7 +758,7 @@ namespace chARpack
                     {
                         if (mark)
                         {
-                            if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
+                            if (LoginData.isServer)
                             {
                                 createServerSnapToolTip(mol.m_id);
                             }
@@ -1226,7 +1232,7 @@ namespace chARpack
         {
             if (!scalingSliderInstance)
             {
-                if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
+                if (LoginData.isServer)
                 {
                     scalingSliderInstance = Instantiate(serverScalingSliderPrefab);
                     scalingSliderInstance.GetComponentInChildren<Slider>().maxValue = 2;
@@ -1238,6 +1244,7 @@ namespace chARpack
                 }
                 else
                 {
+#if CHARPACK_MRTK_2_8
                     // position needs to be optimized
                     scalingSliderInstance = Instantiate(scalingSliderPrefab, gameObject.transform.position - 0.17f * GlobalCtrl.Singleton.currentCamera.transform.forward - 0.05f * Vector3.up, GlobalCtrl.Singleton.currentCamera.transform.rotation);
                     scalingSliderInstance.GetComponent<mySlider>().maxVal = 2;
@@ -1248,6 +1255,7 @@ namespace chARpack
                     scalingSliderInstance.GetComponent<mySlider>().defaultVal = (1 - scalingSliderInstance.GetComponent<mySlider>().minVal) / (scalingSliderInstance.GetComponent<mySlider>().maxVal - scalingSliderInstance.GetComponent<mySlider>().minVal);
                     //startingScale = gameObject.transform.localScale;
                     scalingSliderInstance.GetComponent<mySlider>().OnValueUpdated.AddListener(OnSliderUpdated);
+#endif
                 }
             }
             else
@@ -1380,11 +1388,13 @@ namespace chARpack
         }
         private void createChangeBondWindow(ForceField.BondTerm bond)
         {
+#if CHARPACK_MRTK_2_8
             changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
             var cb = changeBondWindowInstance.GetComponent<ManipulateBondTerm>();
             cb.bt = bond;
             var id = bondTerms.IndexOf(bond);
             cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeBondParametersUI(changeBondWindowInstance, id); });
+#endif
         }
         private void createServerChangeBondWindow(ForceField.BondTerm bond)
         {
@@ -1407,14 +1417,18 @@ namespace chARpack
         {
             ForceField.BondTerm bt;
             cmlData before = this.AsCML();
-            if (!SceneManager.GetActiveScene().name.Equals("ServerScene"))
+            if (!LoginData.isServer)
             {
+#if CHARPACK_MRTK_2_8
                 var cb = windowInstance.GetComponent<ManipulateBondTerm>();
                 cb.changeBondParametersBT();
                 bt = cb.bt;
                 var dist = toolTipInstance.transform.Find("Distance Measurement").GetComponent<DistanceMeasurement>();
                 string toolTipText = getBondToolTipText(bt.eqDist, dist.getDistanceInAngstrom(), bt.kBond, bt.order);
                 toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+#else
+                return;
+#endif
             }
             else
             {
@@ -1604,11 +1618,13 @@ namespace chARpack
 
         private void createChangeAngleWindow(ForceField.AngleTerm bond)
         {
+#if CHARPACK_MRTK_2_8
             changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
             var cb = changeBondWindowInstance.GetComponent<ManipulateBondTerm>();
             cb.at = bond;
             var id = angleTerms.IndexOf(bond);
             cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeAngleParametersUI(changeBondWindowInstance, id); });
+#endif
         }
         private void createServerChangeAngleWindow(ForceField.AngleTerm bond)
         {
@@ -1627,13 +1643,17 @@ namespace chARpack
         {
             cmlData before = this.AsCML();
             ForceField.AngleTerm at;
-            if (!SceneManager.GetActiveScene().name.Equals("ServerScene"))
+            if (!LoginData.isServer)
             {
+#if CHARPACK_MRTK_2_8
                 var cb = windowInstance.GetComponent<ManipulateBondTerm>();
                 cb.changeBondParametersAT();
                 at = cb.at;
                 string toolTipText = getAngleToolTipText(at.eqAngle, at.kAngle);
                 toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+#else
+                return;
+#endif
             }
             else
             {
@@ -1785,11 +1805,13 @@ namespace chARpack
 
         private void createChangeTorsionWindow(ForceField.TorsionTerm bond)
         {
+#if CHARPACK_MRTK_2_8
             changeBondWindowInstance = Instantiate(changeBondWindowPrefab);
             var cb = changeBondWindowInstance.GetComponent<ManipulateBondTerm>();
             cb.tt = bond;
             var id = torsionTerms.IndexOf(bond);
             cb.okButton.GetComponent<Button>().onClick.AddListener(delegate { changeTorsionParametersUI(changeBondWindowInstance, id); });
+#endif
         }
 
         private void createServerChangeTorsionWindow(ForceField.TorsionTerm bond)
@@ -1810,14 +1832,18 @@ namespace chARpack
             cmlData before = this.AsCML();
 
             ForceField.TorsionTerm tt;
-            if (!SceneManager.GetActiveScene().name.Equals("ServerScene"))
+            if (!LoginData.isServer)
             {
+#if CHARPACK_MRTK_2_8
                 var cb = windowInstance.GetComponent<ManipulateBondTerm>();
                 cb.changeBondParametersTT();
                 tt = cb.tt;
                 // Update tool tip
                 string toolTipText = getTorsionToolTipText(tt.eqAngle, tt.vk, tt.nn);
                 toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
+#else
+                return;
+#endif
             }
             else
             {
@@ -1883,19 +1909,19 @@ namespace chARpack
         // Helper methods to generate localized tool tip text
         private string getAtomToolTipText(double totMass, double maxDist)
         {
-            string numAtoms = localizationManager.Singleton.GetLocalizedString("NUM_ATOMS");
-            string numBonds = localizationManager.Singleton.GetLocalizedString("NUM_BONDS");
-            string mass = localizationManager.Singleton.GetLocalizedString("TOT_MASS");
+            string numAtoms = localizationManager.GetLocalizedString("NUM_ATOMS");
+            string numBonds = localizationManager.GetLocalizedString("NUM_BONDS");
+            string mass = localizationManager.GetLocalizedString("TOT_MASS");
             string toolTipText = $"{numAtoms}: {atomList.Count}\n{numBonds}: {bondList.Count}\n{mass}: {totMass:0.00}\nMaxRadius: {maxDist:0.00}";
             return toolTipText;
         }
 
         private string getBondToolTipText(double eqDist, double curDist, double kBond, double order)
         {
-            string dist = localizationManager.Singleton.GetLocalizedString("EQ_DIST");
-            string singleBond = localizationManager.Singleton.GetLocalizedString("SINGLE_BOND");
-            string current = localizationManager.Singleton.GetLocalizedString("CURRENT");
-            string ord = localizationManager.Singleton.GetLocalizedString("ORDER");
+            string dist = localizationManager.GetLocalizedString("EQ_DIST");
+            string singleBond = localizationManager.GetLocalizedString("SINGLE_BOND");
+            string current = localizationManager.GetLocalizedString("CURRENT");
+            string ord = localizationManager.GetLocalizedString("ORDER");
             string distanceInCorrectUnit = SettingsData.useAngstrom ? $"{dist}: {eqDist: 0.00}\u00C5" : $"{dist}: {eqDist * 100:0}pm";
             string curDistanceInCorrectUnit = SettingsData.useAngstrom ? $"{current}: {curDist: 0.00}\u00C5" : $"{current}: {curDist * 100:0}pm";
             string toolTipText = $"{singleBond}\n{distanceInCorrectUnit}\n{curDistanceInCorrectUnit}\nk: {kBond:0.00}\n{ord}: {order:0.00}";
@@ -1904,10 +1930,10 @@ namespace chARpack
 
         private string getAngleToolTipText(double eqAngle, double kAngle, double curAngle = 0)
         {
-            string angleBond = localizationManager.Singleton.GetLocalizedString("ANGLE_BOND");
-            string eqAngleStr = localizationManager.Singleton.GetLocalizedString("EQUI_ANGLE");
-            string kAngleStr = localizationManager.Singleton.GetLocalizedString("K_ANGLE");
-            string current = localizationManager.Singleton.GetLocalizedString("CURRENT");
+            string angleBond = localizationManager.GetLocalizedString("ANGLE_BOND");
+            string eqAngleStr = localizationManager.GetLocalizedString("EQUI_ANGLE");
+            string kAngleStr = localizationManager.GetLocalizedString("K_ANGLE");
+            string current = localizationManager.GetLocalizedString("CURRENT");
             string toolTipText = $"{angleBond}\n{kAngleStr}: {kAngle:0.00}\n{eqAngleStr}: {eqAngle:0.00}\u00B0\n{current}: {curAngle:0.00}\u00B0";
             return toolTipText;
         }
@@ -1915,9 +1941,9 @@ namespace chARpack
         private string getTorsionToolTipText(double eqAngle, double vk, double nn, double curAngle = 0f)
         {
             //$"Torsion Bond\nEqui. Angle: {term.eqAngle}\nvk: {term.vk}\nnn: {term.nn}"
-            string torsionBond = localizationManager.Singleton.GetLocalizedString("TORSION_BOND");
-            string eqAngleStr = localizationManager.Singleton.GetLocalizedString("EQUI_ANGLE");
-            string current = localizationManager.Singleton.GetLocalizedString("CURRENT");
+            string torsionBond = localizationManager.GetLocalizedString("TORSION_BOND");
+            string eqAngleStr = localizationManager.GetLocalizedString("EQUI_ANGLE");
+            string current = localizationManager.GetLocalizedString("CURRENT");
             string toolTipText = $"{torsionBond}\n{eqAngleStr}: {eqAngle:0.00}\u00B0\n{current}: {curAngle:0.00}\u00B0\nvk: {vk:0.00}\nnn: {nn:0.00}";
             return toolTipText;
         }
@@ -1995,7 +2021,7 @@ namespace chARpack
             }
         }
 
-        #endregion
+#endregion
 
         #region atom_state
         public void saveAtomState()
@@ -2589,7 +2615,7 @@ namespace chARpack
                 //HandTracking.Singleton.OnIndexFingerGrabRelease -= OnNormalGrabRelease;
             }
 #if UNITY_STANDALONE || UNITY_EDITOR
-            if (NetworkManagerServer.Singleton)
+            if (LoginData.isServer)
             {
                 StructureFormulaManager.Singleton.removeContent(m_id);
             }

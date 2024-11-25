@@ -726,7 +726,7 @@ namespace chARpack
             var text = method.ToString();
             if (localizationManager.Singleton != null)
             {
-                text = localizationManager.Singleton.GetLocalizedString(method.ToString());
+                text = localizationManager.GetLocalizedString(method.ToString());
             }
             integrationMethodGO.GetComponent<TextMeshPro>().text = text;
         }
@@ -736,7 +736,7 @@ namespace chARpack
             var text = colorScheme.ToString();
             if (localizationManager.Singleton != null)
             {
-                text = localizationManager.Singleton.GetLocalizedString(colorScheme.ToString());
+                text = localizationManager.GetLocalizedString(colorScheme.ToString());
             }
             colorPaletteGO.GetComponent<TextMeshPro>().text = text;
         }

@@ -1,4 +1,6 @@
+#if CHARPACK_MRTK_2_8
 using Microsoft.MixedReality.Toolkit.Input;
+#endif
 using System.Linq;
 using UnityEngine;
 
@@ -56,7 +58,7 @@ namespace chARpack
         public Vector4 getScreenSpaceBounds()
         {
             getBounds();
-            if (NetworkManagerServer.Singleton != null)
+            if (LoginData.isServer)
             {
                 var cam = GlobalCtrl.Singleton.currentCamera;
                 if (cam == null)
@@ -75,8 +77,9 @@ namespace chARpack
                 }
                 return new Vector4(ss_min.x, ss_min.y, ss_max.x, ss_max.y);
             }
-            if (NetworkManagerClient.Singleton != null)
+            else
             {
+#if CHARPACK_MRTK_2_8
                 var corners = _localBounds.GetCorners();
                 Vector2 ss_min = Vector2.one * float.MaxValue;
                 Vector2 ss_max = Vector2.zero;
@@ -91,8 +94,10 @@ namespace chARpack
                 }
 
                 return new Vector4(ss_min.x, ss_min.y, ss_max.x, ss_max.y);
+#else
+                return Vector4.zero;
+#endif
             }
-            return Vector4.zero;
         }
 
         public Vector3 getSize()
@@ -214,7 +219,9 @@ namespace chARpack
                 cornerHandles[i].transform.position = corners[i];
                 cornerHandles[i].transform.rotation = cornerOrientation[i];
                 cornerHandles[i].AddComponent<BoxCollider>();
+#if CHARPACK_MRTK_2_8
                 cornerHandles[i].AddComponent<NearInteractionGrabbable>();
+#endif
                 cornerHandles[i].AddComponent<cornerClickScript>();
 
                 if (myHandleMaterialWithFade != null)

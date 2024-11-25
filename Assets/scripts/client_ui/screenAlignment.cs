@@ -114,7 +114,7 @@ namespace chARpack
             bool run_check = true;
             while (run_check)
             {
-                if (HandTracking.Singleton.getCurrentHand() == Microsoft.MixedReality.Toolkit.Utilities.Handedness.None)
+                if (HandTracking.Singleton.getCurrentHand() == HandTracking.Handedness.None)
                 {
                     screenScanStopwatch.Restart();
                     yield return null;
@@ -727,7 +727,7 @@ namespace chARpack
                     //int index = view_dist_list.IndexOf(minVal);
 
                     //progressBarInstances[trans].transform.position = box.cornerHandles[index].transform.position - 0.01f * cam.transform.right;
-                    if (SettingsData.handedness == Microsoft.MixedReality.Toolkit.Utilities.Handedness.Left)
+                    if (SettingsData.handedness == HandTracking.Handedness.Left)
                     {
                         progressBarInstances[trans].transform.position = HandTracking.Singleton.getWristPose().position + 0.05f * cam.transform.right + 0.05f * cam.transform.forward;
                     }

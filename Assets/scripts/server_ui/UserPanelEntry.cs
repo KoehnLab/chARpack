@@ -101,23 +101,23 @@ namespace chARpack
             UserServer.list[client_id].requestEyeCalibrationState();
         }
 
-        public void updateDeviceType(myDeviceType type)
+        public void updateDeviceType(SettingsData.DeviceType type)
         {
             switch (type)
             {
-                case myDeviceType.AR:
+                case SettingsData.DeviceType.AR:
                     device_type_label.text = "AR";
                     break;
-                case myDeviceType.PC:
+                case SettingsData.DeviceType.PC:
                     device_type_label.text = "PC";
                     break;
-                case myDeviceType.Mobile:
+                case SettingsData.DeviceType.Mobile:
                     device_type_label.text = "MO";
                     break;
-                case myDeviceType.VR:
+                case SettingsData.DeviceType.VR:
                     device_type_label.text = "VR";
                     break;
-                case myDeviceType.XR:
+                case SettingsData.DeviceType.XR:
                     device_type_label.text = "XR";
                     break;
             }

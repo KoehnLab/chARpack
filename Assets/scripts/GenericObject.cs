@@ -1,19 +1,23 @@
 using chARpack.ColorPalette;
 using chARpack.Structs;
+#if CHARPACK_MRTK_2_8
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.UI;
+#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace chARpack
 {
-    public class GenericObject : MonoBehaviour, IMixedRealityPointerHandler
+    public class GenericObject : MonoBehaviour
+#if CHARPACK_MRTK_2_8
+        , IMixedRealityPointerHandler
+#endif
     {
         public static Dictionary<Guid, GenericObject> objects = null;
         public string objectName = "";
@@ -68,7 +72,9 @@ namespace chARpack
             {
                 //model.AddComponent<MeshCollider>().convex = true;
                 model.AddComponent<BoxCollider>();
+#if CHARPACK_MRTK_2_8
                 model.AddComponent<NearInteractionGrabbable>();
+#endif
                 model.AddComponent<AttachedModel>().genericObject = genericObject;
                 //model.AddComponent<MeshCollider>().convex = false; // in case the convex mesh generation has not worked, also better collider
             }
@@ -77,9 +83,11 @@ namespace chARpack
                 foreach (Transform child in model.transform)
                 {
                     //child.AddComponent<MeshCollider>().convex = true;
-                    child.AddComponent<BoxCollider>();
-                    child.AddComponent<NearInteractionGrabbable>();
-                    child.AddComponent<AttachedModel>().genericObject = genericObject;
+                    child.gameObject.AddComponent<BoxCollider>();
+#if CHARPACK_MRTK_2_8
+                    child.gameObject.AddComponent<NearInteractionGrabbable>();
+#endif
+                    child.gameObject.AddComponent<AttachedModel>().genericObject = genericObject;
                 }
             }
             var outline = model.AddComponent<Outline>();
@@ -92,10 +100,12 @@ namespace chARpack
             genericObject.objectName = name;
 
             // TODO: we need the collider but we dont want it
-            var col = genericObject.AddComponent<BoxCollider>();
+            var col = genericObject.gameObject.AddComponent<BoxCollider>();
             col.size = new Vector3(0.001f, 0.001f, 0.001f);
-            genericObject.AddComponent<ObjectManipulator>();
-            genericObject.AddComponent<NearInteractionGrabbable>();
+#if CHARPACK_MRTK_2_8
+            genericObject.gameObject.AddComponent<ObjectManipulator>();
+            genericObject.gameObject.AddComponent<NearInteractionGrabbable>();
+#endif
 
             var box = genericObject.GetComponent<myBoundingBox>();
             box.setNormalMaterial(false);
@@ -155,6 +165,7 @@ namespace chARpack
             new_go.transform.localScale = sgo.scale;
             new_go.initial_scale = sgo.scale.x;
 
+#if CHARPACK_MRTK_2_8
             if (sgo.relQuat != Quaternion.identity)
             {
                 new_go.relQuatBeforeTransition = sgo.relQuat;
@@ -228,6 +239,7 @@ namespace chARpack
                     }
                 }
             }
+#endif
             // EventManager.Singleton.MoleculeLoaded(tempMolecule); TODO: implement for sync mode
             UnityEngine.Debug.Log($"[GO:Create:transition] transitioned {sgo.transitioned}; triggered by {(TransitionManager.InteractionType)sgo.transitionTriggeredBy}");
             if (sgo.transitioned)
@@ -428,12 +440,14 @@ namespace chARpack
             if (isInteractable != value)
             {
                 isInteractable = value;
+#if CHARPACK_MRTK_2_8
                 GetComponent<ObjectManipulator>().enabled = value;
                 GetComponent<NearInteractionGrabbable>().enabled = value;
                 foreach (var nag in GetComponentsInChildren<NearInteractionGrabbable>())
                 {
                     nag.enabled = value;
                 }
+#endif
                 GetComponent<myBoundingBox>().show(value);
                 GetComponent<myBoundingBox>().enabled = value;
             }
@@ -464,6 +478,7 @@ namespace chARpack
 
         private Vector3 pickupPos = Vector3.zero;
         private Quaternion pickupRot = Quaternion.identity;
+#if CHARPACK_MRTK_2_8
         /// <summary>
         /// This method is triggered when a grab/select gesture is started.
         /// Sets the generic object to grabbed.
@@ -539,6 +554,7 @@ namespace chARpack
             }
         }
 
+#endif
         public IEnumerator continueMovement(Vector3 initial_velocity)
         {
             isGrabbed = true;

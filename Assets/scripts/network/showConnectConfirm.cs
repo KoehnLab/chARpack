@@ -37,7 +37,7 @@ namespace chARpack
             if (obj.Result == DialogButtonType.Yes)
             {
                 LoginData.ip = ip;
-                LoginData.normal_mode = false;
+                LoginData.singlePlayer = false;
                 SceneManager.LoadScene("MainScene");
             }
             else

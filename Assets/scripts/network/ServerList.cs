@@ -103,7 +103,7 @@ namespace chARpack
         public void connectLocal()
         {
             LoginData.ip = "127.0.0.1";
-            LoginData.normal_mode = false;
+            LoginData.singlePlayer = false;
             SceneManager.LoadScene("MainScene");
         }
 

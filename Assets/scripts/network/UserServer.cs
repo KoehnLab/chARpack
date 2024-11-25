@@ -72,8 +72,8 @@ namespace chARpack
                 }
             }
         }
-        private myDeviceType _deviceType;
-        public myDeviceType deviceType
+        private SettingsData.DeviceType _deviceType;
+        public SettingsData.DeviceType deviceType
         {
             get => _deviceType; set
             {
@@ -85,7 +85,7 @@ namespace chARpack
             }
         }
 
-        public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_, Vector3 offset_pos, Quaternion offset_rot)
+        public static void spawn(ushort id_, string deviceName_, SettingsData.DeviceType deviceType_, Vector3 offset_pos, Quaternion offset_rot)
         {
             foreach (UserServer otherUser in list.Values)
             {
@@ -150,7 +150,7 @@ namespace chARpack
             // perodically request status from devices
             if (id_ > 0)
             {
-                if (deviceType_ != myDeviceType.PC)
+                if (deviceType_ != SettingsData.DeviceType.PC)
                 {
                     user.requestEyeCalibrationState();
                     user.periodicStatusRequests();
@@ -229,7 +229,7 @@ namespace chARpack
         private static void getName(ushort fromClientId, Message message)
         {
             var name = message.GetString();
-            myDeviceType type = (myDeviceType)message.GetUShort();
+            SettingsData.DeviceType type = (SettingsData.DeviceType)message.GetUShort();
             var offset_pos = message.GetVector3();
             var offset_rot = message.GetQuaternion();
             Debug.Log($"[UserServer] Got name {name}, and device type {type} from client {fromClientId}");

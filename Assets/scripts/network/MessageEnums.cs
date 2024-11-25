@@ -133,14 +133,4 @@ namespace chARpack
     {
         requestStrucutreFormula = 6000
     }
-
-    public enum myDeviceType : ushort
-    {
-        Unknown = 0,
-        AR = 1,
-        Mobile = 2,
-        PC = 3,
-        VR = 4,
-        XR = 5
-    }
 }

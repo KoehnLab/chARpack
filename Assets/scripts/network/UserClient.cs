@@ -15,7 +15,7 @@ namespace chARpack
         public static Dictionary<ushort, UserClient> list = new Dictionary<ushort, UserClient>();
         public ushort ID;
         public string deviceName { get; private set; }
-        public myDeviceType deviceType { get; private set; }
+        public SettingsData.DeviceType deviceType { get; private set; }
         public bool isLocal;
         public int highlightFocusID;
 
@@ -39,7 +39,7 @@ namespace chARpack
         /// <param name="id_"></param>
         /// <param name="deviceName_"></param>
         /// <param name="deviceType_"></param>
-        public static void spawn(ushort id_, string deviceName_, myDeviceType deviceType_, int focus_id)
+        public static void spawn(ushort id_, string deviceName_, SettingsData.DeviceType deviceType_, int focus_id)
         {
             Debug.Log($"[UserClient:spawn] Id from function call {id_}, id from NetworkManager {NetworkManagerClient.Singleton.Client.Id}");
             UserClient user;
@@ -109,7 +109,7 @@ namespace chARpack
         {
             var id = message.GetUShort();
             var name = message.GetString();
-            var type = (myDeviceType)message.GetUShort();
+            var type = (SettingsData.DeviceType)message.GetUShort();
             var focus_id = message.GetInt();
 
             spawn(id, name, type, focus_id);

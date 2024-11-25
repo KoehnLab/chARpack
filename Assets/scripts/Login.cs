@@ -81,7 +81,7 @@ namespace chARpack
         /// </summary>
         public void normal()
         {
-            LoginData.normal_mode = true;
+            LoginData.singlePlayer = true;
             SceneManager.LoadScene("MainScene");
         }
 

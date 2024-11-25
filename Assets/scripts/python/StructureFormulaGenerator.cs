@@ -4,7 +4,9 @@ using UnityEngine;
 using Python.Runtime;
 using System.Collections.Generic;
 using System.Collections;
+#if CHARPACK_DEBUG_CONSOLE
 using IngameDebugConsole;
+#endif
 using System.Threading.Tasks;
 
 namespace chARpack
@@ -45,7 +47,9 @@ namespace chARpack
             {
                 EventManager.Singleton.OnMoleculeLoaded += immediateRequestStructureFormula;
             }
+#if CHARPACK_DEBUG_CONSOLE
             DebugLogConsole.AddCommand("generate3Dformula", "Generate mesh from 2D representation", generate3DfromSelected);
+#endif
         }
 
         public void requestStructureFormula(Molecule mol)
@@ -235,5 +239,5 @@ namespace chARpack
             //EventManager.Singleton.OnMoleculeLoaded -= immediateRequestStructureFormula;
         }
 #endif
+        }
     }
-}

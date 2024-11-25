@@ -247,7 +247,7 @@ namespace chARpack
             bool userBox = coop[0];
             bool userRay = coop[1];
             // We want to keep seeing the boxes in the server scene
-            if (!SceneManager.GetActiveScene().name.Equals("ServerScene"))
+            if (!LoginData.isServer)
             {
                 var userBoxes = GameObject.FindGameObjectsWithTag("User Box");
                 foreach (GameObject box in userBoxes)

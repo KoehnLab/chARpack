@@ -64,6 +64,7 @@ namespace chARpack
 
         private void Awake()
         {
+            LoginData.isServer = true;
             Singleton = this;
             // create user world
             UserWorld = new GameObject("UserWorld");
@@ -217,7 +218,7 @@ namespace chARpack
         /// </summary>
         public static void StartServer()
         {
-            if (SettingsData.currentNetworkingProtocol == NetworkUtils.Protocol.TCP)
+            if (SettingsData.currentNetworkingProtocol == SettingsData.Protocol.TCP)
             {
                 Singleton.Server = new Server(new TcpServer());
             }

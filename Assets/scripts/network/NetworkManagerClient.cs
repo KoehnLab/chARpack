@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Microsoft.MixedReality.Toolkit.Utilities;
 using System.Collections;
 
 
@@ -51,7 +50,7 @@ namespace chARpack
 
         private void Awake()
         {
-            if (LoginData.normal_mode)
+            if (LoginData.singlePlayer)
             {
                 Debug.Log($"[{nameof(NetworkManagerClient)}] No network connection reqested - shutting down.");
                 Destroy(gameObject);
@@ -69,7 +68,7 @@ namespace chARpack
             RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
             showErrorPrefab = (GameObject)Resources.Load("prefabs/confirmDialog");
 
-            if (SettingsData.currentNetworkingProtocol == NetworkUtils.Protocol.TCP)
+            if (SettingsData.currentNetworkingProtocol == SettingsData.Protocol.TCP)
             {
                 Client = new Client(new TcpClient());
             }
@@ -375,17 +374,17 @@ namespace chARpack
         {
             if (SystemInfo.deviceModel.ToLower().Contains("hololens"))
             {
-                return (ushort)myDeviceType.AR;
+                return (ushort)SettingsData.DeviceType.AR;
             }
             if (SystemInfo.deviceModel.ToLower().Contains("quest"))
             {
-                return (ushort)myDeviceType.XR;
+                return (ushort)SettingsData.DeviceType.XR;
             }
             if (SystemInfo.deviceType == DeviceType.Desktop)
             {
-                return (ushort)myDeviceType.PC;
+                return (ushort)SettingsData.DeviceType.PC;
             }
-            return (ushort)myDeviceType.Unknown;
+            return (ushort)SettingsData.DeviceType.Unknown;
         }
 
         #region Sends
@@ -1296,7 +1295,7 @@ namespace chARpack
             var transitionMode = (TransitionManager.TransitionMode)message.GetInt();
             var immersiveTarget = (TransitionManager.ImmersiveTarget)message.GetInt();
             var requireGrabHold = message.GetBool();
-            var handedness = (Handedness)message.GetInt();
+            var handedness = (HandTracking.Handedness)message.GetInt();
             var transitionAnimation = (TransitionManager.TransitionAnimation)message.GetInt();
             var transitionAnimationDuration = message.GetFloat();
             var desktopTarget = (TransitionManager.DesktopTarget)message.GetInt();

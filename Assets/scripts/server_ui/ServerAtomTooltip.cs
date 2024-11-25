@@ -59,14 +59,14 @@ namespace chARpack
             if (linkedAtom.m_data.m_abbre == "Dummy")
             {
                 modify.gameObject.SetActive(true);
-                modify.GetComponentInChildren<TextMeshProUGUI>().text = localizationManager.Singleton.GetLocalizedString("ToHydrogen");
+                modify.GetComponentInChildren<TextMeshProUGUI>().text = localizationManager.GetLocalizedString("ToHydrogen");
                 modify.onClick.AddListener(delegate { linkedAtom.toolTipHelperChangeAtom("H"); });
                 modify.onClick.AddListener(delegate { updateModifyText(); });
             }
             else if (linkedAtom.m_data.m_abbre == "H")
             {
                 modify.gameObject.SetActive(true);
-                modify.GetComponentInChildren<TextMeshProUGUI>().text = localizationManager.Singleton.GetLocalizedString("ToDummy");
+                modify.GetComponentInChildren<TextMeshProUGUI>().text = localizationManager.GetLocalizedString("ToDummy");
                 modify.onClick.AddListener(delegate { linkedAtom.toolTipHelperChangeAtom("Dummy"); });
                 modify.onClick.AddListener(delegate { updateModifyText(); });
             }
@@ -99,12 +99,12 @@ namespace chARpack
         {
             if (linkedAtom.m_data.m_abbre == "Dummy")
             {
-                modify.GetComponentInChildren<TextMeshProUGUI>().text = localizationManager.Singleton.GetLocalizedString("ToHydrogen");
+                modify.GetComponentInChildren<TextMeshProUGUI>().text = localizationManager.GetLocalizedString("ToHydrogen");
                 modify.onClick.AddListener(delegate { linkedAtom.toolTipHelperChangeAtom("H"); });
             }
             else if (linkedAtom.m_data.m_abbre == "H")
             {
-                modify.GetComponentInChildren<TextMeshProUGUI>().text = localizationManager.Singleton.GetLocalizedString("ToDummy");
+                modify.GetComponentInChildren<TextMeshProUGUI>().text = localizationManager.GetLocalizedString("ToDummy");
                 modify.onClick.AddListener(delegate { linkedAtom.toolTipHelperChangeAtom("Dummy"); });
             }
         }

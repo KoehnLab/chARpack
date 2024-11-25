@@ -208,7 +208,9 @@ namespace chARpack
                     SettingsData.requireGrabHold = task.DG_holdGrab.Value;
                 }
             }
+#if CHARPACK_GUI
             settingsControl.Singleton.updateSettings();
+#endif
             EventManager.Singleton.UpdateSettings();
         }
     }

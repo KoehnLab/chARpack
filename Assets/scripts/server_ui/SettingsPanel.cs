@@ -1,4 +1,3 @@
-using Microsoft.MixedReality.Toolkit.Utilities;
 using SimpleFileBrowser;
 using System;
 using System.Collections;
@@ -187,11 +186,11 @@ namespace chARpack
             desktopTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value = (int)SettingsData.desktopTarget;
             requireGrabHoldToggle.GetComponent<Toggle>().isOn = SettingsData.requireGrabHold;
             var handednessValue = 2; // Both
-            if (SettingsData.handedness == Handedness.Right)
+            if (SettingsData.handedness == HandTracking.Handedness.Right)
             {
                 handednessValue = 0;
             }
-            else if (SettingsData.handedness == Handedness.Left)
+            else if (SettingsData.handedness == HandTracking.Handedness.Left)
             {
                 handednessValue = 1;
             }
@@ -270,14 +269,14 @@ namespace chARpack
             SettingsData.desktopTarget = (TransitionManager.DesktopTarget)desktopTargetDropdown.GetComponent<TMPro.TMP_Dropdown>().value;
             SettingsData.requireGrabHold = requireGrabHoldToggle.GetComponent<Toggle>().isOn;
             options = handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().options;
-            var handedness = Handedness.Both;
+            var handedness = HandTracking.Handedness.Both;
             if (options[handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text == "Right")
             {
-                handedness = Handedness.Right;
+                handedness = HandTracking.Handedness.Right;
             }
             else if (options[handednessDropdown.GetComponent<TMPro.TMP_Dropdown>().value].text == "Left")
             {
-                handedness = Handedness.Left;
+                handedness = HandTracking.Handedness.Left;
             }
             SettingsData.handedness = handedness;
             options = transitionAnimationDropdown.GetComponent<TMPro.TMP_Dropdown>().options;

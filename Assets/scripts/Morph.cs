@@ -1,6 +1,7 @@
 using chARpack.Types;
+#if CHARPACK_DEBUG_CONSOLE
 using IngameDebugConsole;
-using OpenBabel;
+#endif
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,10 +15,12 @@ namespace chARpack
         Dictionary<Molecule, List<Tuple<Atom, Vector3>>> orig3Dpositions = new Dictionary<Molecule, List<Tuple<Atom, Vector3>>>();
         private void Start()
         {
+#if CHARPACK_DEBUG_CONSOLE
             DebugLogConsole.AddCommand("morphSF3D", "Morphs all Molecule2D", morphSFto3D);
             DebugLogConsole.AddCommand("morphSF2D", "Morphs all Molecule2D", morphSFto2D);
             DebugLogConsole.AddCommand("morphMol2D", "Morphs all Molecule2D", morphMolTo2D);
             DebugLogConsole.AddCommand("morphMol3D", "Morphs all Molecule2D", morphMolTo3D);
+#endif
         }
 
         public void morphSFto3D()

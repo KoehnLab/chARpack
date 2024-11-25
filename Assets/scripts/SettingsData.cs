@@ -1,5 +1,4 @@
 using chARpack.ColorPalette;
-using Microsoft.MixedReality.Toolkit.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -14,6 +13,22 @@ namespace chARpack
     [JsonObject(MemberSerialization.OptIn)]
     public class SettingsData
     {
+        public enum Protocol
+        {
+            UDP,
+            TCP
+        }
+
+        public enum DeviceType : ushort
+        {
+            Unknown = 0,
+            AR = 1,
+            Mobile = 2,
+            PC = 3,
+            VR = 4,
+            XR = 5
+        }
+
         [JsonProperty] public static ushort bondStiffness = 1;
         [JsonProperty] public static float repulsionScale = 0.5f;
         [JsonProperty] public static bool forceField = true;
@@ -45,7 +60,7 @@ namespace chARpack
         [JsonProperty] public static TransitionManager.TransitionMode transitionMode = TransitionManager.TransitionMode.DESKTOP_2D;
         [JsonProperty] public static TransitionManager.ImmersiveTarget immersiveTarget = TransitionManager.ImmersiveTarget.HAND_FIXED;
         [JsonProperty] public static bool requireGrabHold = true;
-        [JsonProperty] public static Handedness handedness = Handedness.Both;
+        [JsonProperty] public static HandTracking.Handedness handedness = HandTracking.Handedness.Both;
         [JsonProperty] public static TransitionManager.TransitionAnimation transitionAnimation = TransitionManager.TransitionAnimation.BOTH;
         [JsonProperty] public static float transitionAnimationDuration = 1.5f;
         [JsonProperty] public static TransitionManager.DesktopTarget desktopTarget = TransitionManager.DesktopTarget.CENTER_OF_SCREEN;
@@ -54,7 +69,7 @@ namespace chARpack
         [JsonProperty] public static bool allowThrowing = true;
         [JsonProperty] public static bool hoverGazeAsSelection = true;
         [JsonProperty] public static float defaultMoleculeSize = 0.8f;
-        public static NetworkUtils.Protocol currentNetworkingProtocol = NetworkUtils.Protocol.TCP;
+        public static Protocol currentNetworkingProtocol = Protocol.TCP;
         [JsonProperty] public static bool UseKabsch = false;
 
         public static int highlightColorMap

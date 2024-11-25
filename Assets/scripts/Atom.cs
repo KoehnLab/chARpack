@@ -9,12 +9,15 @@ using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Animations;
+#if CHARPACK_LOCALIZATION
 using UnityEngine.Localization.Settings;
+#endif
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 using chARpack.Types;
 using chARpack.ColorPalette;
+#if CHARPACK_RUNTIME_GIZMOS
 using RuntimeGizmos;
+#endif
 using System.Collections;
 
 
@@ -151,7 +154,7 @@ namespace chARpack
         private Vector3 newMousePosition;
         public void Update()
         {
-            if (SceneManager.GetActiveScene().name == "ServerScene" && m_molecule.getIsInteractable())
+            if (LoginData.isServer && m_molecule.getIsInteractable())
             {
                 if (Input.GetMouseButtonDown(1) && Input.GetKey(KeyCode.LeftShift) && mouseOverAtom())
                 {
@@ -220,7 +223,7 @@ namespace chARpack
 
         private Vector3 getArcballVector(Vector3 inputPos)
         {
-            Vector3 vector = CameraSwitcher.Singleton.currentCam.ScreenToViewportPoint(inputPos);
+            Vector3 vector = GlobalCtrl.Singleton.currentCamera.ScreenToViewportPoint(inputPos);
             vector = -vector;
             if (vector.x * vector.x + vector.y * vector.y <= 1)
             {
@@ -241,11 +244,13 @@ namespace chARpack
             if (m_molecule.getIsInteractable())
             {
                 if (EventSystem.current.IsPointerOverGameObject()) { return; }
+#if CHARPACK_RUNTIME_GIZMOS
                 // Handle server GUI interaction
                 if (TransformGizmo.Singleton != null)
                 {
                     if (TransformGizmo.Singleton.hasAnyAxis()) { return; }
                 }
+#endif
 
                 m_molecule.saveAtomState();
 
@@ -362,9 +367,9 @@ namespace chARpack
         }
 
 #endif
-        #endregion
+#endregion
 
-        #region hand_interaction
+                #region hand_interaction
 
         public bool breakActionConsumed = false;
 #if CHARPACK_MRTK_2_8
@@ -1255,7 +1260,7 @@ namespace chARpack
                 colorSwapSelect(mark_case);
                 if (!toolTipInstance && toolTip)
                 {
-                    if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
+                    if (LoginData.isServer)
                     {
                         createServerToolTip(focus_id);
 
@@ -1315,7 +1320,7 @@ namespace chARpack
             if (markedList.Count == 1)
             {
                 markedList[0].markAtom(true, 2, toolTip);
-                if (SceneManager.GetActiveScene().name == "ServerScene")
+                if (LoginData.isServer)
                 {
                     var rectSave = Vector3.zero;
                     if (m_molecule.toolTipInstance != null)
@@ -1338,7 +1343,7 @@ namespace chARpack
                     {
                         if (toolTip)
                         {
-                            if (SceneManager.GetActiveScene().name == "ServerScene")
+                            if (LoginData.isServer)
                             {
                                 m_molecule.createServerBondToolTip(bond, focus_id);
                             }
@@ -1365,7 +1370,7 @@ namespace chARpack
                     {
                         if (toolTip)
                         {
-                            if (!(SceneManager.GetActiveScene().name == "ServerScene"))
+                            if (!LoginData.isServer)
                             {
                                 m_molecule.createAngleToolTip(angle);
                             }
@@ -1394,7 +1399,7 @@ namespace chARpack
                     {
                         if (toolTip)
                         {
-                            if (!(SceneManager.GetActiveScene().name == "ServerScene"))
+                            if (!LoginData.isServer)
                             {
                                 m_molecule.createTorsionToolTip(torsion);
                             }
@@ -1464,6 +1469,7 @@ namespace chARpack
         /// </summary>
         public void createToolTip()
         {
+#if CHARPACK_MRTK_2_8
             if (toolTipInstance)
             {
                 Destroy(toolTipInstance);
@@ -1483,8 +1489,7 @@ namespace chARpack
             toolTipInstance.transform.position = ttpos;
             // add atom as connector
             toolTipInstance.GetComponent<myToolTipConnector>().Target = gameObject;
-            var con_atoms = connectedAtoms();
-            string toolTipText = getToolTipText(m_data.m_name, m_data.m_mass, m_data.m_radius, con_atoms.Count);
+            var con_atoms = connectedAtoms();           string toolTipText = getToolTipText(m_data.m_name, m_data.m_mass, m_data.m_radius, con_atoms.Count);
             toolTipInstance.GetComponent<DynamicToolTip>().ToolTipText = toolTipText;
             GameObject modifyHybridizationInstance = null;
             if (m_data.m_abbre != "Dummy")
@@ -1494,7 +1499,7 @@ namespace chARpack
                 {
                     var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
                     modifyButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { toolTipHelperChangeAtom("Dummy"); });
-                    modifyButtonInstance.GetComponent<ButtonConfigHelper>().MainLabelText = localizationManager.Singleton.GetLocalizedString("ToDummy");
+                    modifyButtonInstance.GetComponent<ButtonConfigHelper>().MainLabelText = localizationManager.GetLocalizedString("ToDummy");
                     toolTipInstance.GetComponent<DynamicToolTip>().addContent(modifyButtonInstance);
                 }
 
@@ -1509,7 +1514,7 @@ namespace chARpack
             {
                 var modifyButtonInstance = Instantiate(modifyMeButtonPrefab);
                 modifyButtonInstance.GetComponent<ButtonConfigHelper>().OnClick.AddListener(delegate { toolTipHelperChangeAtom("H"); });
-                modifyButtonInstance.GetComponent<ButtonConfigHelper>().MainLabelText = localizationManager.Singleton.GetLocalizedString("ToHydrogen");
+                modifyButtonInstance.GetComponent<ButtonConfigHelper>().MainLabelText = localizationManager.GetLocalizedString("ToHydrogen");
                 toolTipInstance.GetComponent<DynamicToolTip>().addContent(modifyButtonInstance);
             }
             var freezeButtonInstance = Instantiate(freezeMePrefab);
@@ -1529,7 +1534,7 @@ namespace chARpack
 
             // Starting color for indicator
             setFrozenVisual(frozen);
-
+#endif
         }
 
 
@@ -1554,11 +1559,11 @@ namespace chARpack
         private string getToolTipText(string name, double mass, double radius, int bondNum)
         {
             //$"Name: {m_data.m_name}\nMass: {m_data.m_mass}\nRadius: {m_data.m_radius}\nNumBonds: {m_data.m_bondNum}"
-            string rad = localizationManager.Singleton.GetLocalizedString("RADIUS");
-            string numBonds = localizationManager.Singleton.GetLocalizedString("NUM_BONDS");
-            string massStr = localizationManager.Singleton.GetLocalizedString("MASS");
-            string nameStr = localizationManager.Singleton.GetLocalizedString("NAME");
-            name = GetLocalizedElementName(name);
+            string rad = localizationManager.GetLocalizedString("RADIUS");
+            string numBonds = localizationManager.GetLocalizedString("NUM_BONDS");
+            string massStr = localizationManager.GetLocalizedString("MASS");
+            string nameStr = localizationManager.GetLocalizedString("NAME");
+            name = localizationManager.GetLocalizedElementName(name);
             double radius_in_angstrom = radius * 0.01f;
             string radiusInCorrectUnit = SettingsData.useAngstrom ? $"{radius_in_angstrom:0.00}" : $"{radius:0}";
             string unit = SettingsData.useAngstrom ? "\u00C5" : "pm";
@@ -1566,15 +1571,6 @@ namespace chARpack
             return toolTipText;
         }
 
-        /// <summary>
-        /// Gets the localized version of the atom's element name.
-        /// </summary>
-        /// <param name="text">the key corresponding to the correct entry in the "Elements" table</param>
-        /// <returns>a string with the localized element name</returns>
-        public string GetLocalizedElementName(string text)
-        {
-            return LocalizationSettings.StringDatabase.GetLocalizedString("Elements", text);
-        }
         public void createServerToolTip(int focus_id = -1)
         {
             Vector2? oldPos = null;
@@ -1597,7 +1593,7 @@ namespace chARpack
             toolTipInstance.GetComponent<ServerAtomTooltip>().freezeButton.onClick.AddListener(delegate { freezeUI(!frozen); });
         }
 
-        #endregion
+#endregion
 
         #region focus_highlight
 
@@ -1687,7 +1683,7 @@ namespace chARpack
 #endif
         public void networkSetFocus(bool focus, int focus_id)
         {
-            if (NetworkManagerServer.Singleton != null || SettingsData.showAllHighlightsOnClients)
+            if (LoginData.isServer || SettingsData.showAllHighlightsOnClients)
             {
                 proccessFocus(focus, focus_id);
             }

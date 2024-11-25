@@ -449,10 +449,12 @@ namespace chARpack
             var mol = loadMolecule(fi);
             if (mol == null) yield break;
             GlobalCtrl.Singleton.createFromCML(mol);
+#if CHARPACK_NETWORKING
             if (SettingsData.syncMode == TransitionManager.SyncMode.Sync)
             {
                 NetworkManagerServer.Singleton.pushLoadMolecule(mol);
             }
+#endif
         }
 
         /// <summary>
@@ -589,10 +591,12 @@ namespace chARpack
                     }
                 }
                 GlobalCtrl.Singleton.createFromCML(mol);
+#if CHARPACK_NETWORKING
                 if (SettingsData.syncMode == TransitionManager.SyncMode.Sync)
                 {
                     NetworkManagerServer.Singleton.pushLoadMolecule(mol);
                 }
+#endif
             //}
             //catch
             //{

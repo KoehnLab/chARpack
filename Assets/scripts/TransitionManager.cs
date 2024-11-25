@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace chARpack
@@ -106,7 +107,9 @@ namespace chARpack
         private void grab(Vector2 ss_coords, TransitionManager.InteractionType interType)
         {
             grabHold = true;
+#if CHARPACK_MRTK_2_8
             grabScreenWPos = screenAlignment.Singleton.getCurrentProjectedIndexPos();
+#endif
         }
 
         public void release()
@@ -376,8 +379,13 @@ namespace chARpack
             if (transitionOnCooldown) return;
             StartCoroutine(startCooldown());
 
+#if CHARPACK_NETWORKING
             if (NetworkManagerClient.Singleton == null) return;
             var from_id = NetworkManagerClient.Singleton.Client.Id;
+#else
+            if (LoginData.isServer || LoginData.singlePlayer) return;
+            var from_id = 1;
+#endif
 
             grabHold = true;
             //get target size on screen
@@ -409,7 +417,9 @@ namespace chARpack
             {
                 // TODO check this pos and scale ...
                 trans.localScale *= target_scale_factor;
+#if CHARPACK_MRTK_2_8
                 trans.position = screenAlignment.Singleton.getScreenCenter();
+#endif
                 var mol = trans.GetComponent<Molecule>();
                 if (mol != null)
                 {
@@ -437,16 +447,20 @@ namespace chARpack
 
         public void getMoleculeTransitionClient(Molecule mol, InteractionType triggered_by, int from_id)
         {
+#if CHARPACK_NETWORKING
             if (NetworkManagerClient.Singleton.Client.Id != from_id) return;
             Debug.Log("[getMoleculeTransitionClient] triggered");
             getTransitionClient(mol.transform, triggered_by, mol.initial_scale);
+#endif
         }
 
         public void getGenericObjectTransitionClient(GenericObject go, InteractionType triggered_by, int from_id)
         {
+#if CHARPACK_NETWORKING
             if (NetworkManagerClient.Singleton.Client.Id != from_id) return;
             Debug.Log("[getGenericObjectTransitionClient] triggered");
             getTransitionClient(go.transform, triggered_by, go.initial_scale);
+#endif
         }
 
         private void getTransitionClient(Transform trans, InteractionType triggered_by, float initial_scale)
@@ -456,7 +470,9 @@ namespace chARpack
             if (triggered_by == InteractionType.CLOSE_GRAB)
             {
                 StartCoroutine(attachToGrip(trans));
+#if CHARPACK_MRTK_2_8
                 screenAlignment.Singleton.addObjectToGrow(trans, initial_scale);
+#endif
                 AudioSource.PlayClipAtPoint(getTransition, trans.position);
                 return;
             }
@@ -465,6 +481,7 @@ namespace chARpack
                 if (SettingsData.immersiveTarget == ImmersiveTarget.HAND_FIXED || SettingsData.immersiveTarget == ImmersiveTarget.HAND_FOLLOW)
                 {
                     var index_pos = HandTracking.Singleton.getIndexTip();
+#if CHARPACK_MRTK_2_8
                     var proj_index = screenAlignment.Singleton.projectWSPointToScreen(index_pos);
                     if (screenAlignment.Singleton.contains(proj_index))
                     {
@@ -474,6 +491,9 @@ namespace chARpack
                     {
                         trans.position = GlobalCtrl.Singleton.getCurrentSpawnPos();
                     }
+#else
+                    trans.position = GlobalCtrl.Singleton.getCurrentSpawnPos();
+#endif
                 }
                 else if (SettingsData.immersiveTarget == ImmersiveTarget.CAMERA)
                 {
@@ -483,8 +503,10 @@ namespace chARpack
                 {
                     //var screenSize = screenAlignment.Singleton.getScreenSizeWS();
                     //float dist_to_move = GlobalCtrl.Singleton.getLongestBBoxEdge(trans);
+#if CHARPACK_MRTK_2_8
                     var dist_to_move = 0.3f * screenAlignment.Singleton.getScreenSizeWS().y;
                     trans.position += dist_to_move * screenAlignment.Singleton.getScreenNormal();
+#endif
                 }
                 var mol = trans.GetComponent<Molecule>();
                 if (mol != null)
@@ -520,10 +542,12 @@ namespace chARpack
                 {
 
                     //var longest_edge = GlobalCtrl.Singleton.getLongestBBoxEdge(trans);
+#if CHARPACK_MRTK_2_8
                     var dist_to_move = 0.3f * screenAlignment.Singleton.getScreenSizeWS().y;
                     //float dist_to_move = // half_screen_y > longest_edge ? 3f * longest_edge : half_screen_y;
                     var fos_pos = trans.position + dist_to_move * screenAlignment.Singleton.getScreenNormal();
                     StartCoroutine(moveToPos(trans, fos_pos, true));
+#endif
                 }
                 if (SettingsData.transitionAnimation.HasFlag(TransitionAnimation.SCALE))
                 {
@@ -767,7 +791,11 @@ namespace chARpack
 
         private IEnumerator moveToScreenAndTransition(Transform trans, InteractionType triggered_by, bool override_grab_hold = false)
         {
+#if CHARPACK_MRTK_2_8
             var center = screenAlignment.Singleton.getScreenCenter();
+#else
+            var center = Vector3.zero;
+#endif
             var target_pos = center;
 
             var audio_source = trans.GetComponent<AudioSource>();
@@ -807,12 +835,16 @@ namespace chARpack
 
                 if (SettingsData.desktopTarget == DesktopTarget.HOVER)
                 {
+#if CHARPACK_MRTK_2_8
                     target_pos = screenAlignment.Singleton.getCurrentProjectedIndexPos();
                     //if (!screenAlignment.Singleton.contains(pos)) ...
+#endif
                 }
                 if (SettingsData.desktopTarget == DesktopTarget.CURSOR_POSITION)
                 {
+#if CHARPACK_NETWORKING
                     target_pos = screenAlignment.Singleton.getWorldSpaceCoords(NetworkManagerClient.Singleton.ServerMousePosition);
+#endif
                 }
 
                 // Interpolate between start and end points
@@ -918,6 +950,7 @@ namespace chARpack
 
         private void correctAnimationAbort(Transform trans)
         {
+#if CHARPACK_MRTK_2_8
             var target_dist = 0.3f * screenAlignment.Singleton.getScreenSizeWS().y;
             float current_dist = screenAlignment.Singleton.getDistanceFromScreen(trans.position);
             if (current_dist < target_dist)
@@ -926,6 +959,7 @@ namespace chARpack
                 var target_pos = target_proj + target_dist * screenAlignment.Singleton.getScreenNormal();
                 StartCoroutine(moveToPos(trans, target_pos, true));
             }
+#endif
         }
 
         private IEnumerator moveToUser(Transform trans, bool override_grab_hold = false)

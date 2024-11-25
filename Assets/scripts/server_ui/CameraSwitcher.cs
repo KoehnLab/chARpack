@@ -91,21 +91,21 @@ namespace chARpack
 
                 user_panel_entry.user_name_label.text = id == 0 ? "ServerCamera" : UserServer.list[id].deviceName;
                 if (id == 0) user_panel_entry.focusColorImage.color = FocusColors.getColor(-1);
-                var device_type = id == 0 ? myDeviceType.PC : UserServer.list[id].deviceType;
+                var device_type = id == 0 ? SettingsData.DeviceType.PC : UserServer.list[id].deviceType;
 
-                if (device_type == myDeviceType.PC)
+                if (device_type == SettingsData.DeviceType.PC)
                 {
                     user_panel_entry.canRecord(false);
                     user_panel_entry.hasEyeTracking(false);
                     user_panel_entry.hasBattery(false);
                 }
-                else if (device_type == myDeviceType.AR)
+                else if (device_type == SettingsData.DeviceType.AR)
                 {
                     user_panel_entry.canRecord(true);
                     user_panel_entry.hasEyeTracking(true);
                     user_panel_entry.hasBattery(true);
                 }
-                else if (device_type == myDeviceType.XR)
+                else if (device_type == SettingsData.DeviceType.XR)
                 {
                     user_panel_entry.canRecord(false);
                     user_panel_entry.hasEyeTracking(false);

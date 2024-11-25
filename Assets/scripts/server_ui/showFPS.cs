@@ -14,7 +14,7 @@ namespace chARpack
         {
             deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
             float fps = 1.0f / deltaTime;
-            if (SceneManager.GetActiveScene().name.Equals("ServerScene"))
+            if (LoginData.isServer)
             {
                 GetComponent<TextMeshProUGUI>().text = $"{Mathf.Ceil(fps)} fps";
             }

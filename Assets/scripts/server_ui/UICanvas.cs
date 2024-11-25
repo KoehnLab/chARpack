@@ -1,4 +1,6 @@
+#if CHARPACK_DEBUG_CONSOLE
 using IngameDebugConsole;
+#endif
 using UnityEngine;
 
 namespace chARpack
@@ -35,7 +37,9 @@ namespace chARpack
 
         private void Start()
         {
+#if CHARPACK_DEBUG_CONSOLE
             DebugLogConsole.AddCommand("hi", "Toggle Inspector and Hierarchy", toggleInspectorAndHierarchy);
+#endif
         }
 
         private void toggleInspectorAndHierarchy()

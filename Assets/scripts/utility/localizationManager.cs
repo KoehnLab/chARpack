@@ -1,7 +1,9 @@
-using System.Globalization;
 using UnityEngine;
+#if CHARPACK_LOCALIZATION
+using System.Globalization;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+#endif
 using UnityEngine.SceneManagement;
 
 namespace chARpack
@@ -28,6 +30,7 @@ namespace chARpack
             }
         }
 
+#if CHARPACK_LOCALIZATION
         private Locale currentLocale;
 
         private void Awake()
@@ -39,9 +42,15 @@ namespace chARpack
 
             currentLocale = LocalizationSettings.SelectedLocale;
         }
+#else
+        private void Awake()
+        {
+            Singleton = this;
+        }
+#endif
 
 
-
+#if CHARPACK_LOCALIZATION
         private void Update()
         {
             if (currentLocale != LocalizationSettings.SelectedLocale && GlobalCtrl.Singleton != null)
@@ -54,15 +63,34 @@ namespace chARpack
                 }
             }
         }
+#endif
 
         /// <summary>
         /// Gets the appropriate version of given text for the current loacle.
         /// </summary>
         /// <param name="text"></param>
         /// <returns>a localized version of the given text</returns>
-        public string GetLocalizedString(string text)
+        public static string GetLocalizedString(string text)
         {
+#if CHARPACK_LOCALIZATION
             return LocalizationSettings.StringDatabase.GetLocalizedString("My Strings", text);
+#else
+            return text;
+#endif
+        }
+
+        /// <summary>
+        /// Gets the localized version of the atom's element name.
+        /// </summary>
+        /// <param name="text">the key corresponding to the correct entry in the "Elements" table</param>
+        /// <returns>a string with the localized element name</returns>
+        public static string GetLocalizedElementName(string text)
+        {
+#if CHARPACK_LOCALIZATION
+            return LocalizationSettings.StringDatabase.GetLocalizedString("Elements", text);
+#else
+            return text;
+#endif
         }
     }
 }

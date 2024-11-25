@@ -90,7 +90,7 @@ namespace chARpack
             var right = Vector3.Cross(forward, up).normalized;
 
             var start_pos = objects[0].Item2.transform.position + 1.5f * spacing * up - 1.5f * spacing * right;
-            if (NetworkManagerServer.Singleton)
+            if (LoginData.isServer)
             {
                 var start_dist = (start_pos - objects[0].Item2.transform.position).magnitude;
                 start_pos += start_dist * forward;
@@ -98,16 +98,18 @@ namespace chARpack
             else
             {
                 var rotation = 90f;
-                if (SettingsData.handedness == Microsoft.MixedReality.Toolkit.Utilities.Handedness.Left)
+                if (SettingsData.handedness == HandTracking.Handedness.Left)
                 {
                     rotation = -rotation;
                 }
+#if CHARPACK_MRTK_2_8
                 forward = -screenAlignment.Singleton.getScreenNormal();
                 right = Quaternion.Euler(0f, rotation, 0f) * forward;
                 var dist = Vector3.Distance(screenAlignment.Singleton.getScreenCenter(), GlobalCtrl.Singleton.currentCamera.transform.position);
                 start_pos = screenAlignment.Singleton.getScreenCenter() + screenAlignment.Singleton.getScreenSizeWS().x * right - dist * forward;
                 //var dist = (objects[0].Item2.transform.position - GlobalCtrl.Singleton.currentCamera.transform.position).magnitude;
                 //start_pos = (GlobalCtrl.Singleton.currentCamera.transform.position - Mathf.Sign(rotation) * 1.5f * spacing * right) + dist * forward + 1.5f * spacing * up - 1.5f * spacing * right;
+#endif
 
                 // resetting parameters for grid generation
                 forward = right;
@@ -210,7 +212,7 @@ namespace chARpack
             ghostObject.rotation = Quaternion.Euler(getRandomRotation());
             ghostObject.localScale = UnityEngine.Random.Range(0.8f * ghostObject.localScale.x, 1.2f * ghostObject.localScale.x) * Vector3.one;
 
-            if (NetworkManagerServer.Singleton != null)
+            if (LoginData.isServer)
             {
                 var rnd_rot_x = UnityEngine.Random.Range(0, 20f);
                 var rnd_rot_y = UnityEngine.Random.Range(0, 20f);
@@ -219,18 +221,19 @@ namespace chARpack
                 ghostObject.position = GlobalCtrl.Singleton.currentCamera.transform.position + Quaternion.Euler(rnd_rot_x, rnd_rot_y, 0f) * cam_to_spawn;
                 StudyLogger.Singleton.write($"Object to transition: {ghostObject.name}", currentTaskID);
             }
-
-            if (NetworkManagerClient.Singleton != null)
+            else
             {
+#if CHARPACK_MRTK_2_8
                 var cam_to_screen = screenAlignment.Singleton.getScreenCenter() - GlobalCtrl.Singleton.currentCamera.transform.position;
                 var rnd_angle = UnityEngine.Random.Range(45f, 90f);
-                if (SettingsData.handedness == Microsoft.MixedReality.Toolkit.Utilities.Handedness.Left)
+                if (SettingsData.handedness == HandTracking.Handedness.Left)
                 {
                     rnd_angle = UnityEngine.Random.Range(-45f, -90f);
                 }
 
                 var rnd_dist = UnityEngine.Random.Range(0.5f * cam_to_screen.magnitude, cam_to_screen.magnitude);
                 ghostObject.position = GlobalCtrl.Singleton.currentCamera.transform.position + rnd_dist * (Quaternion.Euler(0f, rnd_angle, 0f) * cam_to_screen);
+#endif
             }
         }
 
@@ -597,7 +600,9 @@ namespace chARpack
                 if (File.Exists(settings_file_path))
                 {
                     SettingsData.readSettingsFromJSON(settings_file_path);
+#if CHARPACK_GUI
                     settingsControl.Singleton.updateSettings();
+#endif
                 }
                 else
                 {

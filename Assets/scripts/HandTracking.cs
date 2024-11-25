@@ -1,20 +1,70 @@
 #if CHARPACK_MRTK_2_8
 using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
-using Microsoft.MixedReality.Toolkit.Utilities;
+using TrackedHandJoint = Microsoft.MixedReality.Toolkit.Utilities.TrackedHandJoint;
+using MRTKHandedness = Microsoft.MixedReality.Toolkit.Utilities.Handedness;
+using HandPoseUtils = Microsoft.MixedReality.Toolkit.Utilities.HandPoseUtils;
 #endif
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
+using System;
+
 
 namespace chARpack
 {
+    public static class HandTrackingExtensions
+    {
+#if CHARPACK_MRTK_2_8
+        public static MRTKHandedness toMRTK(this HandTracking.Handedness input)
+        {
+            return (MRTKHandedness)(int)input;
+        }
+
+        public static HandTracking.Handedness toCharpack(this MRTKHandedness input)
+        {
+            return (HandTracking.Handedness)(int)input;
+        }
+#endif
+    }
+
     /// <summary>
     /// This class provides a hand tracking functionality used in the chain interaction mode.
     /// </summary>
     public class HandTracking : MonoBehaviour
     {
+
+        [Flags]
+        public enum Handedness : byte
+        {
+            /// <summary>
+            /// No hand specified by the SDK for the controller
+            /// </summary>
+            None = 0 << 0,
+            /// <summary>
+            /// The controller is identified as being provided in a Left hand
+            /// </summary>
+            Left = 1 << 0,
+            /// <summary>
+            /// The controller is identified as being provided in a Right hand
+            /// </summary>
+            Right = 1 << 1,
+            /// <summary>
+            /// The controller is identified as being either left and/or right handed.
+            /// </summary>
+            Both = Left | Right,
+            /// <summary>
+            /// Reserved, for systems that provide alternate hand state.
+            /// </summary>
+            Other = 1 << 2,
+            /// <summary>
+            /// Global catchall, used to map actions to any controller (provided the controller supports it)
+            /// </summary>
+            /// <remarks>Note, by default the specific hand actions will override settings mapped as both</remarks>
+            Any = Other | Left | Right,
+        }
+
         private static HandTracking _singleton;
 
         public static HandTracking Singleton
@@ -87,10 +137,12 @@ namespace chARpack
         private Vector3 indexFingerVelocity = Vector3.zero;
         private Handedness currentHand = Handedness.None;
 
+#if CHARPACK_MRTK_2_8
         private IMixedRealityHandJointService handJointService;
         private IMixedRealityHandJointService HandJointService =>
             handJointService ??
             (handJointService = CoreServices.GetInputSystemDataProvider<IMixedRealityHandJointService>());
+#endif
 
         private Pose? previousLeftHandPose;
 
@@ -134,6 +186,7 @@ namespace chARpack
 
         private void Update()
         {
+#if CHARPACK_MRTK_2_8
             currentHand = getPose();
             if (currentHand == Handedness.None) return;
             if (indexForward == Vector3.zero) return;
@@ -141,7 +194,7 @@ namespace chARpack
             transform.position = indexKnucklePose.position;
 
             //if (Vector3.Distance(indexTipPose.Position, thumbTipPose.Position) < 0.025f)
-            if (GestureUtils.IsIndexPinching(currentHand))
+            if (GestureUtils.IsIndexPinching(currentHand.toMRTK()))
             {
                 if (!indexFingerGrab)
                 {
@@ -168,7 +221,7 @@ namespace chARpack
             }
 
             //if (Vector3.Distance(middleTipPose.Position, thumbTipPose.Position) < 0.025f && Vector3.Distance(indexTipPose.Position, thumbTipPose.Position) > 0.025f)
-            if (GestureUtils.IsMiddlePinching(currentHand) && !indexFingerGrab)
+            if (GestureUtils.IsMiddlePinching(currentHand.toMRTK()) && !indexFingerGrab)
             {
                 if (!middleFingerGrab)
                 {
@@ -260,6 +313,7 @@ namespace chARpack
                     particleSystemGO.transform.position = middleTipPose.position;
                 }
             }
+#endif
         }
 
 
@@ -287,38 +341,39 @@ namespace chARpack
             return indexFingerGrab;
         }
 
+#if CHARPACK_MRTK_2_8
         private Handedness getPose()
         {
-            var current_hand = Handedness.None;
+            var current_hand = MRTKHandedness.None;
             if (SettingsData.handedness == Handedness.Both)
             {
-                if (HandJointService.IsHandTracked(Handedness.Left) && HandJointService.IsHandTracked(Handedness.Right)) // both hands are currently tracked
+                if (HandJointService.IsHandTracked(MRTKHandedness.Left) && HandJointService.IsHandTracked(MRTKHandedness.Right)) // both hands are currently tracked
                 {
                     // Find which hand is closer to the head view ray
-                    var leftIndexKnuckle = HandJointService.RequestJointTransform(TrackedHandJoint.IndexKnuckle, Handedness.Left);
-                    var rightIndexKnuckle = HandJointService.RequestJointTransform(TrackedHandJoint.IndexKnuckle, Handedness.Right);
+                    var leftIndexKnuckle = HandJointService.RequestJointTransform(TrackedHandJoint.IndexKnuckle, MRTKHandedness.Left);
+                    var rightIndexKnuckle = HandJointService.RequestJointTransform(TrackedHandJoint.IndexKnuckle, MRTKHandedness.Right);
 
                     var leftDist = chARpackUtils.distanceToHeadRay(leftIndexKnuckle.position, currentCam);
                     var rightDist = chARpackUtils.distanceToHeadRay(rightIndexKnuckle.position, currentCam);
 
                     if (leftDist < rightDist)
                     {
-                        current_hand = Handedness.Left;
+                        current_hand = MRTKHandedness.Left;
                     }
                     else
                     {
-                        current_hand = Handedness.Right;
+                        current_hand = MRTKHandedness.Right;
                     }
                 }
                 else // only one hand is currently tracked: find out which
                 {
-                    if (HandJointService.IsHandTracked(Handedness.Right))
+                    if (HandJointService.IsHandTracked(MRTKHandedness.Right))
                     {
-                        current_hand = Handedness.Right;
+                        current_hand = MRTKHandedness.Right;
                     }
-                    else if (HandJointService.IsHandTracked(Handedness.Left))
+                    else if (HandJointService.IsHandTracked(MRTKHandedness.Left))
                     {
-                        current_hand = Handedness.Left;
+                        current_hand = MRTKHandedness.Left;
                     }
                     else // no hand is tracked
                     {
@@ -373,8 +428,9 @@ namespace chARpack
 
             indexForward = Vector3.Normalize(indexTipPose.position - indexKnucklePose.position);
 
-            return current_hand;
+            return current_hand.toCharpack();
         }
+#endif
 
 
         public Handedness getCurrentHand()
@@ -430,17 +486,17 @@ namespace chARpack
         private const float PinchThreshold = 0.7f;
         private const float GrabThreshold = 0.4f;
 #if CHARPACK_MRTK_2_8
-        public static bool IsIndexPinching(Handedness trackedHand)
+        public static bool IsIndexPinching(MRTKHandedness trackedHand)
         {
             return CalculateIndexPinch(trackedHand) > PinchThreshold;
         }
 
-        public static bool IsMiddlePinching(Handedness trackedHand)
+        public static bool IsMiddlePinching(MRTKHandedness trackedHand)
         {
             return CalculateMiddlePinch(trackedHand) > PinchThreshold;
         }
 
-        public static bool IsGrabbing(Handedness trackedHand)
+        public static bool IsGrabbing(MRTKHandedness trackedHand)
         {
             return !IsIndexPinching(trackedHand) &&
                    HandPoseUtils.MiddleFingerCurl(trackedHand) > GrabThreshold &&
@@ -456,7 +512,7 @@ namespace chARpack
         /// <param name="handedness">Handedness to query joint pose against.</param>
         /// <returns> Float ranging from 0 to 1. 0 if the thumb and finger are not pinched together, 1 if thumb finger are pinched together</returns>
         private const float IndexThumbSqrMagnitudeThreshold = 0.0016f;
-        public static float CalculateIndexPinch(Handedness handedness)
+        public static float CalculateIndexPinch(MRTKHandedness handedness)
         {
             HandJointUtils.TryGetJointPose(TrackedHandJoint.IndexTip, handedness, out var indexPose);
             HandJointUtils.TryGetJointPose(TrackedHandJoint.ThumbTip, handedness, out var thumbPose);
@@ -468,7 +524,7 @@ namespace chARpack
             return pinchStrength;
         }
 
-        public static float CalculateMiddlePinch(Handedness handedness)
+        public static float CalculateMiddlePinch(MRTKHandedness handedness)
         {
             HandJointUtils.TryGetJointPose(TrackedHandJoint.MiddleTip, handedness, out var middlePose);
             HandJointUtils.TryGetJointPose(TrackedHandJoint.ThumbTip, handedness, out var thumbPose);

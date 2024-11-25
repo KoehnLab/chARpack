@@ -10,12 +10,6 @@ namespace chARpack
 
     public static class NetworkUtils
     {
-        public enum Protocol
-        {
-            UDP,
-            TCP
-        }
-
         #region cmlData
 
         public static void deserializeCmlData(Message message, ref byte[] cmlBytes_, ref List<cmlData> cmlWorld_, ushort chunkSize_, bool clearScene = true)
@@ -63,7 +57,7 @@ namespace chARpack
         public static void serializeCmlData(Enum messageSignature, List<cmlData> data, ushort chunkSize_, bool toServer = false, int toClientID = -1)
         {
             // prepare clients for the messages'
-            Message startMessage = NetworkUtils.createMessage(MessageSendMode.Reliable, messageSignature);
+            Message startMessage = createMessage(MessageSendMode.Reliable, messageSignature);
             startMessage.AddString("start");
             if (toServer)
             {
@@ -532,7 +526,7 @@ namespace chARpack
 
         public static Message createMessage(MessageSendMode mode, Enum id)
         {
-            if (SettingsData.currentNetworkingProtocol == Protocol.TCP)
+            if (SettingsData.currentNetworkingProtocol == SettingsData.Protocol.TCP)
             {
                 return Message.Create(MessageSendMode.Unreliable, id);
             }
