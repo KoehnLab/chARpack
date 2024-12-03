@@ -121,14 +121,21 @@ namespace chARpack
                     }
                 }
             }
-            if (GlobalCtrl.Singleton.currentCamera == GlobalCtrl.Singleton.mainCamera)
+            if (!GlobalCtrl.Singleton.currentCamera.orthographic) // do not allow camera manipulation in orthographic mode
             {
-                if (!CreateInputField.Singleton.gameObject.activeSelf)
+                if (GlobalCtrl.Singleton.currentCamera == GlobalCtrl.Singleton.mainCamera)
                 {
-                    doCameraMovement();
+                    if (!CreateInputField.Singleton.gameObject.activeSelf)
+                    {
+                        doCameraMovement();
+                    }
                 }
+                cameraMouseManipulation();
             }
-            cameraMouseManipulation();
+            else
+            {
+                mouseWheelZoom();
+            }
             createStuff();
             selectWholeMolecule();
             otherShortcuts();
@@ -140,6 +147,19 @@ namespace chARpack
             else
             {
                 moveSpeed = 0.04f;
+            }
+        }
+
+        void mouseWheelZoom()
+        {
+            if (!Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl) && !CreateInputField.Singleton.gameObject.activeSelf)
+            {
+                var scroll_amount = Input.GetAxis("Mouse ScrollWheel");
+                if (scroll_amount != 0f)
+                {
+                    var new_size = Mathf.Clamp(GlobalCtrl.Singleton.currentCamera.orthographicSize + 0.1f * scroll_amount, 0.1f, 5f);
+                    GlobalCtrl.Singleton.currentCamera.orthographicSize = new_size;
+                }
             }
         }
 
@@ -259,12 +279,17 @@ namespace chARpack
 
                 if (Input.GetKeyDown(KeyCode.Tab))
                 {
-                Transform targetMolecule = GlobalCtrl.Singleton.GetLastMarkedMoleculeTransform();
-                if (TransformGizmo.Singleton.enabled && TransformGizmo.Singleton.mainTargetRoot) targetMolecule = TransformGizmo.Singleton.mainTargetRoot;
-
+                    Transform targetMolecule = GlobalCtrl.Singleton.GetLastMarkedMoleculeTransform();
+                    if (TransformGizmo.Singleton.enabled && TransformGizmo.Singleton.mainTargetRoot)
+                    {
+                        targetMolecule = TransformGizmo.Singleton.mainTargetRoot;
+                    }
                     TransformGizmo.Singleton.enabled = !TransformGizmo.Singleton.enabled;
 
-                if(TransformGizmo.Singleton.enabled) TransformGizmo.Singleton.AddTarget(targetMolecule);
+                    if (TransformGizmo.Singleton.enabled)
+                    {
+                        TransformGizmo.Singleton.AddTarget(targetMolecule);
+                    }
                 }
 
                 //if (Input.GetMouseButton(1) && Input.GetKey(KeyCode.LeftAlt))

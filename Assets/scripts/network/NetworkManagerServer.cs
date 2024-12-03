@@ -537,6 +537,7 @@ namespace chARpack
             message.AddBool(SettingsData.allowThrowing);
             message.AddBool(SettingsData.hoverGazeAsSelection);
             message.AddFloat(SettingsData.defaultMoleculeSize);
+            message.AddBool(SettingsData.twoDimensionalMode);
             Server.SendToAll(message);
         }
 
@@ -632,8 +633,18 @@ namespace chARpack
             Server.SendToAll(message);
         }
 
+        private bool transitionOnCooldown = false;
+        IEnumerator startCooldown()
+        {
+            transitionOnCooldown = true;
+            yield return new WaitForSeconds(1.5f);
+            transitionOnCooldown = false;
+        }
         public void transitionMol(Molecule mol, TransitionManager.InteractionType triggered_by, int from_id)
         {
+            if (transitionOnCooldown) return;
+            StartCoroutine(startCooldown());
+
             //var q = Quaternion.Inverse(GlobalCtrl.Singleton.currentCamera.transform.rotation) * mol.transform.rotation;
             //var q = Quaternion.Inverse(Quaternion.LookRotation(mol.transform.position - GlobalCtrl.Singleton.currentCamera.transform.position)) * mol.transform.rotation;
             var q = Quaternion.Inverse(Quaternion.LookRotation(GlobalCtrl.Singleton.currentCamera.transform.forward)) * mol.transform.rotation;
@@ -659,6 +670,23 @@ namespace chARpack
             cml.setTriggeredFromId(from_id);
             Debug.Log($"[NetworkManagerServer] transition Mol: Triggered by {triggered_by}");
             cml.setTransitionTriggeredBy(triggered_by);
+            if (SettingsData.twoDimensionalMode)
+            {
+                if (mol.svgFormula != string.Empty)
+                {
+                    cml.setFormulaString(mol.svgFormula);
+                    var coords = new List<Vector2>();
+                    foreach (var atom in mol.atomList)
+                    {
+                        coords.Add(atom.structure_coords);
+                    }
+                    cml.setFormulaCoords(coords);
+                }
+                else
+                {
+                    Debug.LogError("[NetworkManagerServer] transition Mol: 2D mode active but no svg formua found.");
+                }
+            }
 
             NetworkUtils.serializeCmlData(ServerToClientID.transitionMolecule, new List<cmlData> { cml }, chunkSize, false);
             GlobalCtrl.Singleton.deleteMolecule(mol);

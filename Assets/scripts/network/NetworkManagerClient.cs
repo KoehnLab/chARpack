@@ -1304,6 +1304,7 @@ namespace chARpack
             var allowThrowing = message.GetBool();
             var hoverGazeAsSelection = message.GetBool();
             var defaultMoleculeSize = message.GetFloat();
+            var twoDmode = message.GetBool();
 
             // Get enum entries from strings
             Enum.TryParse(integrationMethodString, ignoreCase: true, out ForceField.Method integrationMethod);
@@ -1346,7 +1347,7 @@ namespace chARpack
                 SettingsData.allowThrowing = allowThrowing;
                 SettingsData.hoverGazeAsSelection = hoverGazeAsSelection;
                 SettingsData.defaultMoleculeSize = defaultMoleculeSize;
-
+                SettingsData.twoDimensionalMode = twoDmode;
 
                 settingsControl.Singleton.updateSettings();
                 if (appSettings.Singleton != null)

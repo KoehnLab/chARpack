@@ -11,6 +11,7 @@ using System.Linq;
 using chARpack.Types;
 #if CHARPACK_DEBUG_CONSOLE
 using IngameDebugConsole;
+using System.Threading.Tasks;
 #endif
 
 /*! \mainpage 
@@ -1003,7 +1004,6 @@ namespace chARpack
                 {
                     Destroy(dist.gameObject);
                 }
-
             }
 
             // Angles
@@ -2057,8 +2057,11 @@ namespace chARpack
             AtomSF.setNumFoci(num);
         }
 
-        public void setLicoriceRendering(bool set)
+        public bool licoriceRenderingGuard = false;
+        public bool setLicoriceRendering(bool set)
         {
+            if (licoriceRenderingGuard == set) return false;
+            licoriceRenderingGuard = set;
             var bond_scale_lic = new Vector3(1.5f, 1.5f, 0.5f);
             var bond_scale_normal = new Vector3(1f, 1f, 0.3f);
             if (set)
@@ -2101,6 +2104,7 @@ namespace chARpack
                 }
                 bondRadiusScale = 1f;
             }
+            return true;
         }
         #endregion
 
@@ -2304,7 +2308,7 @@ namespace chARpack
         /// Creates molecules from cmlData, usually used for creation of molecules via network
         /// </summary>
         /// <param name="data">list of cmlData that represents the world state to rebuild</param>
-        public void createFromCML(List<cmlData> data, bool addToUndoStack = true)
+        public async void createFromCML(List<cmlData> data, bool addToUndoStack = true)
         {
             // this method preserves the ids of all objects
             if (data != null)
@@ -2331,6 +2335,27 @@ namespace chARpack
                         for (int i = 0; i < molecule.atomArray.Length; i++)
                         {
                             tempMolecule.atomList[i].keepConfig = molecule.atomArray[i].keepConfig;
+                        }
+                    }
+
+                    var mol2D_generated = false;
+                    if (SettingsData.twoDimensionalMode && LoginData.isServer && molecule.formulaSVGstring == string.Empty)
+                    {
+                        if (StructureFormulaGenerator.Singleton != null)
+                        {
+                            ForceField.Singleton.enableForceFieldMethod(false);
+                            var find = Molecule2D.molecules.Find(x => x.molReference == tempMolecule);
+                            if (find == null)
+                            {
+                                await StructureFormulaGenerator.Singleton.generate3D(tempMolecule);
+                                find = Molecule2D.molecules.Find(x => x.molReference == tempMolecule); // should be there now
+                                while (!find.initialized)
+                                {
+                                    await Task.Delay(100);
+                                }
+                            }
+                            Morph.Singleton.set2Dactive(tempMolecule, find);
+                            mol2D_generated = true;
                         }
                     }
 
@@ -2420,6 +2445,28 @@ namespace chARpack
                                 tempMolecule.transform.rotation = currentCamera.transform.rotation * molecule.relQuat;
                                 //tempMolecule.transform.rotation = Quaternion.LookRotation(currentCamera.transform.forward) * molecule.relQuat;
                             }
+                        }
+                        if (molecule.formulaSVGstring != string.Empty && molecule.formulaCoords != null)
+                        {
+                            tempMolecule.transform.localScale = SettingsData.defaultMoleculeSize * Vector3.one;
+                            ForceField.Singleton.enableForceFieldMethod(false);
+                            var coords_list = new Vector2[molecule.formulaCoords.Length];
+                            for (int i = 0; i < coords_list.Length; i++)
+                            {
+                                coords_list[i] = molecule.formulaCoords[i];
+                            }
+                            var find = Molecule2D.molecules.Find(x => x.molReference == tempMolecule);
+                            if (find == null)
+                            {
+                                Debug.Log("[GlobalCtrl] Generating structure formula from SVG.");
+                                StructureFormulaTo3D.generateFromSVGContent(molecule.moleID, molecule.formulaSVGstring, coords_list.ToList());
+                                find = Molecule2D.molecules.Find(x => x.molReference == tempMolecule); // should be there now
+                                while (!find.initialized)
+                                {
+                                    await Task.Delay(100);
+                                }
+                            }
+                            Morph.Singleton.set2Dactive(tempMolecule, find);
                         }
                         tempMolecule.freeze(molecule.frozen);
                         if (addToUndoStack) undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id, molecule));

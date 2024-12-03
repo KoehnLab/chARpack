@@ -30,6 +30,8 @@ namespace chARpack
         [HideInInspector] public float initial_scale = SettingsData.defaultMoleculeSize;
 
         private List<Tuple<ushort, Vector3>> atomState = new List<Tuple<ushort, Vector3>>();
+        public string svgFormula = string.Empty;
+
 
 #if CHARPACK_MRTK_2_8
         /// <summary>
@@ -568,6 +570,11 @@ namespace chARpack
         public bool getIsInteractable()
         {
             return isInteractable;
+        }
+
+        public float getOpactiy()
+        {
+            return currentOpacity;
         }
 
         float currentOpacity = 1f;

@@ -71,6 +71,7 @@ namespace chARpack
         [JsonProperty] public static float defaultMoleculeSize = 0.8f;
         public static Protocol currentNetworkingProtocol = Protocol.TCP;
         [JsonProperty] public static bool UseKabsch = false;
+        [JsonProperty] public static bool twoDimensionalMode = false;
 
         public static int highlightColorMap
         {

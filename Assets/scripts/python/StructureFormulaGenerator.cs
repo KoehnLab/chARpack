@@ -83,7 +83,7 @@ namespace chARpack
             }
         }
 
-        private async Task generate3D(Molecule mol)
+        public async Task generate3D(Molecule mol)
         {
             var res = await fetchSVGContent(mol);
             if (res == null) return;
@@ -96,7 +96,7 @@ namespace chARpack
             {
                 mol.atomList[i].structure_coords = coords[i];
             }
-
+            mol.svgFormula = svg_content;
             // push content
             StructureFormulaTo3D.generateFromSVGContentUI(svg_content, mol.m_id, coords);
         }

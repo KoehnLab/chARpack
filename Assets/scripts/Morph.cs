@@ -6,11 +6,36 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace chARpack
 {
     public class Morph : MonoBehaviour
     {
+        private static Morph _singleton;
+        public static Morph Singleton
+        {
+            get => _singleton;
+            private set
+            {
+                if (_singleton == null)
+                {
+                    _singleton = value;
+                }
+                else if (_singleton != value)
+                {
+                    Debug.Log($"[{nameof(Morph)}] Instance already exists, destroying duplicate!");
+                    Destroy(value.gameObject);
+                }
+
+            }
+        }
+
+        private void Awake()
+        {
+            Singleton = this;
+        }
+
         bool opacitySeparate = false;
         Dictionary<Molecule, List<Tuple<Atom, Vector3>>> orig3Dpositions = new Dictionary<Molecule, List<Tuple<Atom, Vector3>>>();
         private void Start()
@@ -20,7 +45,19 @@ namespace chARpack
             DebugLogConsole.AddCommand("morphSF2D", "Morphs all Molecule2D", morphSFto2D);
             DebugLogConsole.AddCommand("morphMol2D", "Morphs all Molecule2D", morphMolTo2D);
             DebugLogConsole.AddCommand("morphMol3D", "Morphs all Molecule2D", morphMolTo3D);
+            DebugLogConsole.AddCommand("morph_option_stepped", "First sets position then opacity", setOptionStepped);
+            DebugLogConsole.AddCommand("morph_option_parallel", "Position and Opacity at the same time", SetOptionParallel);
 #endif
+        }
+
+        public void setOptionStepped()
+        {
+            opacitySeparate = true;
+        }
+
+        public void SetOptionParallel()
+        {
+            opacitySeparate = false;
         }
 
         public void morphSFto3D()
@@ -167,6 +204,66 @@ namespace chARpack
             }
         }
 
+        public void set2Dactive(Molecule mol, Molecule2D mol2d)
+        {
+            ForceField.Singleton.enableForceFieldMethod(false);
+            saveOriginalPosition(mol);
+
+            mol2d.setOpacity(1f);
+            mol.setOpacity(0f);
+            reset2Dpositions(mol2d);
+
+            foreach (var a in mol2d.Atoms)
+            {
+                // Interpolate between start and end points
+                var target_pos = mol2d.molReference.transform.InverseTransformPoint(mol2d.transform.TransformPoint(a.initialLocalPosition));
+                a.atomReference.transform.localPosition = target_pos;
+            }
+        }
+
+        public void set3Dactive(Molecule mol, Molecule2D mol2d)
+        {
+            mol2d.setOpacity(0f);
+            mol.setOpacity(1f);
+            reset3Dpositions(mol, mol2d);
+
+            ForceField.Singleton.enableForceFieldMethod(true);
+        }
+
+        public void controlMolMorph(Molecule mol, Molecule2D mol2d, float value)
+        {
+            Assert.IsNotNull(mol);
+            Assert.IsNotNull(mol2d);
+            ForceField.Singleton.enableForceFieldMethod(false);
+            AnimationCurve animationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
+            float posCurveValue;
+            float opaCurveValue;
+
+            if (opacitySeparate)
+            {
+                posCurveValue = animationCurve.Evaluate(Mathf.Clamp(0f, 1f, 2f * value));
+                opaCurveValue = value > 0.5f ? Mathf.Lerp(0f, 1f, (value - 0.5f) * 2f) : 0f;
+            }
+            else
+            {
+                posCurveValue = animationCurve.Evaluate(value);
+                opaCurveValue = Mathf.Lerp(0f, 1f, value);
+
+            }
+            foreach (var a in mol2d.Atoms)
+            {
+                // Interpolate between start and end points
+                var orig_pos = orig3Dpositions[mol].Find(e => e.Item1 == a.atomReference);
+                var target_pos = mol2d.molReference.transform.InverseTransformPoint(mol2d.transform.TransformPoint(a.initialLocalPosition));
+                a.atomReference.transform.localPosition = Vector3.Lerp(orig_pos.Item2, target_pos, posCurveValue);
+            }
+
+            // inverted interpolatio, so the representations morph into each other
+            mol2d.setOpacity(opaCurveValue);
+            mol.setOpacity(1f - opaCurveValue);
+        }
+
         private IEnumerator morphMolTo2DSubroutine()
         {
             ForceField.Singleton.enableForceFieldMethod(false);
@@ -185,33 +282,6 @@ namespace chARpack
                     reset2Dpositions(mol2d);
 
                     float elapsedTime = 0f;
-                    while (elapsedTime < duration)
-                    {
-                        // Increment elapsed time
-                        elapsedTime += Time.fixedDeltaTime;
-                        // Calculate the normalized time (0 to 1)
-                        float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
-                        // Evaluate the curve at the normalized time
-                        float curveValue = animationCurve.Evaluate(normalizedTime);
-                        foreach (var a in mol2d.Atoms)
-                        {
-                            // Interpolate between start and end points
-                            var orig_pos = orig3Dpositions[mol].Find(e => e.Item1 == a.atomReference);
-                            var target_pos = mol2d.molReference.transform.InverseTransformPoint(mol2d.transform.TransformPoint(a.initialLocalPosition));
-                            a.atomReference.transform.localPosition = Vector3.Lerp(orig_pos.Item2, target_pos, curveValue);
-                            if (!opacitySeparate)
-                            {
-                                // Interpolate between start and end points
-                                var opacity = Mathf.Lerp(0f, 1f, curveValue);
-                                mol2d.setOpacity(opacity);
-                                mol.setOpacity(1f - opacity);
-                            }
-
-                        }
-                        yield return null; // wait for next frame
-                    }
-
-                    elapsedTime = 0f;
                     if (opacitySeparate)
                     {
                         while (elapsedTime < duration)
@@ -233,6 +303,32 @@ namespace chARpack
                             yield return null; // wait for next frame
                         }
                     }
+
+                    elapsedTime = 0f;
+                    while (elapsedTime < duration)
+                    {
+                        // Increment elapsed time
+                        elapsedTime += Time.fixedDeltaTime;
+                        // Calculate the normalized time (0 to 1)
+                        float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
+                        // Evaluate the curve at the normalized time
+                        float curveValue = animationCurve.Evaluate(normalizedTime);
+                        foreach (var a in mol2d.Atoms)
+                        {
+                            // Interpolate between start and end points
+                            var orig_pos = orig3Dpositions[mol].Find(e => e.Item1 == a.atomReference);
+                            var target_pos = mol2d.molReference.transform.InverseTransformPoint(mol2d.transform.TransformPoint(a.initialLocalPosition));
+                            a.atomReference.transform.localPosition = Vector3.Lerp(orig_pos.Item2, target_pos, curveValue);
+                        }
+                        if (!opacitySeparate)
+                        {
+                            // Interpolate between start and end points
+                            var opacity = Mathf.Lerp(0f, 1f, curveValue);
+                            mol2d.setOpacity(opacity);
+                            mol.setOpacity(1f - opacity);
+                        }
+                        yield return null; // wait for next frame
+                    }
                 }
             }
         }
@@ -253,6 +349,32 @@ namespace chARpack
                     mol.setOpacity(0f);
 
                     float elapsedTime = 0f;
+                    while (elapsedTime < duration)
+                    {
+                        // Increment elapsed time
+                        elapsedTime += Time.fixedDeltaTime;
+                        // Calculate the normalized time (0 to 1)
+                        float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
+
+                        // Evaluate the curve at the normalized time
+                        float curveValue = animationCurve.Evaluate(normalizedTime);
+                        foreach (var a in mol2d.Atoms)
+                        {
+                            // Interpolate between start and end points
+                            var target_pos = orig3Dpositions[mol].Find(e => e.Item1 == a.atomReference);
+                            var current_pos = mol2d.molReference.transform.InverseTransformPoint(mol2d.transform.TransformPoint(a.initialLocalPosition));
+                            a.atomReference.transform.localPosition = Vector3.Lerp(current_pos, target_pos.Item2, curveValue);
+                        }
+                        if (!opacitySeparate)
+                        {
+                            var opacity = Mathf.Lerp(0f, 1f, curveValue);
+                            mol.setOpacity(opacity);
+                            mol2d.setOpacity(1f - opacity);
+                        }
+                        yield return null; // wait for next frame
+                    }
+
+                    elapsedTime = 0f;
                     if (opacitySeparate)
                     {
                         while (elapsedTime < duration)
@@ -273,34 +395,6 @@ namespace chARpack
 
                             yield return null; // wait for next frame
                         }
-                    }
-
-
-                    elapsedTime = 0f;
-                    while (elapsedTime < duration)
-                    {
-                        // Increment elapsed time
-                        elapsedTime += Time.fixedDeltaTime;
-                        // Calculate the normalized time (0 to 1)
-                        float normalizedTime = Mathf.Clamp01(elapsedTime / duration);
-
-                        // Evaluate the curve at the normalized time
-                        float curveValue = animationCurve.Evaluate(normalizedTime);
-                        foreach (var a in mol2d.Atoms)
-                        {
-                            // Interpolate between start and end points
-                            var target_pos = orig3Dpositions[mol].Find(e => e.Item1 == a.atomReference);
-                            var current_pos = mol2d.molReference.transform.InverseTransformPoint(mol2d.transform.TransformPoint(a.initialLocalPosition));
-                            a.atomReference.transform.localPosition = Vector3.Lerp(current_pos, target_pos.Item2, curveValue);
-
-                            if (!opacitySeparate)
-                            {
-                                var opacity = Mathf.Lerp(0f, 1f, curveValue);
-                                mol.setOpacity(opacity);
-                                mol2d.setOpacity(1f - opacity);
-                            }
-                        }
-                        yield return null; // wait for next frame
                     }
                 }
             }
@@ -323,11 +417,33 @@ namespace chARpack
             }
         }
 
+        private void saveOriginalPosition(Molecule mol)
+        {
+            if (!orig3Dpositions.ContainsKey(mol))
+            {
+                var tmp = new List<Tuple<Atom, Vector3>>();
+                foreach (var atom in mol.atomList)
+                {
+                    tmp.Add(new Tuple<Atom, Vector3>(atom, atom.transform.localPosition));
+                }
+                orig3Dpositions.Add(mol, tmp);
+            }
+        }
+
         private void reset2Dpositions(Molecule2D mol2d)
         {
             foreach (var a in mol2d.Atoms)
             {
                 a.transform.localPosition = a.atomReference.structure_coords;
+            }
+        }
+
+        private void reset3Dpositions(Molecule mol, Molecule2D mol2d)
+        {
+            foreach (var a in mol2d.Atoms)
+            {
+                var target_pos = orig3Dpositions[mol].Find(e => e.Item1 == a.atomReference);
+                a.atomReference.transform.localPosition = target_pos.Item2;
             }
         }
     }

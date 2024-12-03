@@ -459,6 +459,21 @@ namespace chARpack
                 //    //Debug.Log($"setting indicator {go_proj}");
                 //}
 
+                if (SettingsData.twoDimensionalMode)
+                {
+                    foreach (var mol2D in Molecule2D.molecules)
+                    {
+                        var mol = mol2D.molReference;
+                        var lbe = mol.getLongestBBoxEdge() / 1.5f;
+
+                        var mol_projected = projectWSPointToScreen(mol.transform.position);
+                        var distance = Vector3.Distance(mol_projected, mol.transform.position);
+
+                        var morph_amount = Mathf.InverseLerp(lbe, 2f * lbe, distance);
+                        Morph.Singleton.controlMolMorph(mol, mol2D, morph_amount);
+                    }
+                }
+
                 // check if object is getting pushed into the screen
                 if (GlobalCtrl.Singleton != null)
                 {
@@ -885,6 +900,7 @@ namespace chARpack
                 var viewport_coords = getScreenSpaceCoords(proj.Value);
                 if (EventManager.Singleton)
                 {
+                    Debug.Log("[ScreenAlignment] Distant transition grab received");
                     EventManager.Singleton.TransitionGrab(viewport_coords.Value, TransitionManager.InteractionType.DISTANT_GRAB);
                 }
             }
@@ -898,6 +914,7 @@ namespace chARpack
                 var viewport_coords = getScreenSpaceCoords(proj.Value);
                 if (EventManager.Singleton)
                 {
+                    Debug.Log("[ScreenAlignment] Distant transition catch received");
                     EventManager.Singleton.TransitionGrab(viewport_coords.Value, TransitionManager.InteractionType.CATCH);
                 }
             }
@@ -946,6 +963,7 @@ namespace chARpack
                 var viewport_coords = getScreenSpaceCoords(proj.Value);
                 if (EventManager.Singleton)
                 {
+                    Debug.Log("[ScreenAlignment] Close transition grab received");
                     EventManager.Singleton.TransitionGrab(viewport_coords.Value, TransitionManager.InteractionType.CLOSE_GRAB);
                 }
             }

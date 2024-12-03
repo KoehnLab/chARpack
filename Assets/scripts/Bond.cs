@@ -117,7 +117,9 @@ namespace chARpack
             {
                 // reset or nothing
                 GetComponent<Outline>().enabled = false;
-                GetComponentInChildren<Renderer>().material = GlobalCtrl.Singleton.bondMat;
+                var renderer = GetComponentInChildren<Renderer>();
+                renderer.material = GlobalCtrl.Singleton.bondMat;
+                renderer.material.SetFloat("_Alpha", m_molecule.getOpactiy());
             }
             setShaderProperties();
         }

@@ -174,6 +174,8 @@ namespace chARpack.Structs
         public cmlTorsion[] torsionArray;
         public bool frozen;
         public int TransitionTriggeredFromId;
+        public string formulaSVGstring;
+        public SaveableVector2[] formulaCoords;
 
         public cmlData(SaveableVector3 pos, SaveableVector3 scale, SaveableQuaternion quat, Guid id, List<cmlAtom> a, List<cmlBond> b, List<cmlAngle> ang = null, List<cmlTorsion> tor = null, bool keepConfig_ = false)
         {
@@ -191,9 +193,11 @@ namespace chARpack.Structs
             ssBounds = Vector4.zero;
             moleTransitioned = false;
             transitionTriggeredBy = -1;
-            name = "";
+            name = string.Empty;
             frozen = false;
             TransitionTriggeredFromId = -1;
+            formulaSVGstring = string.Empty;
+            formulaCoords = null;
         }
 
         public void assignRelativeQuaternion(Quaternion q)
@@ -234,6 +238,20 @@ namespace chARpack.Structs
         public void setTriggeredFromId(int id)
         {
             TransitionTriggeredFromId = id;
+        }
+
+        public void setFormulaString(string formula)
+        {
+            formulaSVGstring = formula;
+        }
+
+        public void setFormulaCoords(List<Vector2> coords)
+        {
+            formulaCoords = new SaveableVector2[coords.Count];
+            for (int i = 0; i < coords.Count; i++)
+            {
+                formulaCoords[i] = coords[i];
+            }
         }
     }
 

@@ -5,6 +5,11 @@ using System;
 using DataStructures.ViliWonka.KDTree;
 using chARpack.Types;
 using System.IO;
+using System.Xml.Linq;
+using System.Linq;
+using System.Text.RegularExpressions;
+
+
 
 namespace chARpack
 {
@@ -12,6 +17,176 @@ namespace chARpack
     {
         public Material meshMaterial; // Material for the 3D mesh
 
+        private static List<XElement> GetSVGPathElements(string svgContent)
+        {
+
+            //// Load the SVG content into an XElement for parsing
+            //XElement svgRoot = XElement.Parse(svgContent);
+
+            //// Find all <path> elements
+            //return svgRoot.Descendants("path").ToList();
+            try
+            {
+                // Load the SVG content into an XElement for parsing
+                XElement svgRoot = XElement.Parse(svgContent);
+
+                // Debugging: Log the root element
+                Debug.Log("SVG Root: " + svgRoot);
+
+                // Get the namespace of the SVG
+                XNamespace svgNamespace = svgRoot.GetDefaultNamespace();
+
+                // Debugging: Log the namespace
+                Debug.Log("SVG Namespace: " + svgNamespace);
+
+                // Find all <path> elements within the namespace
+                List<XElement> paths = svgRoot.Descendants(svgNamespace + "path").ToList();
+
+                // Debugging: Log the number of paths found
+                Debug.Log("Found Path Elements: " + paths.Count);
+
+                return paths;
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError("Error parsing SVG: " + ex.Message);
+                return new List<XElement>();
+            }
+        }
+
+        static List<object> ParseSVGPathElements(List<XElement> pathElements)
+        {
+            List<object> parsedData = new List<object>();
+            Regex bondRegex = new Regex(@"bond-(\d+).*atom-(\d+).*atom-(\d+)");
+            Regex atomRegex = new Regex(@"atom-(\d+)");
+            Regex bondCoordinatesRegex = new Regex(@"([\d.]+),([\d.]+)");
+            Regex atomCoordinatesRegex = new Regex(@"([\d.]+) ([\d.]+)");
+
+            foreach (XElement path in pathElements)
+            {
+                //Debug.Log($"Element: {path}");
+                string classAttr = path.Attribute("class")?.Value;
+                string dAttr = path.Attribute("d")?.Value;
+
+                if (string.IsNullOrEmpty(classAttr) || string.IsNullOrEmpty(dAttr))
+                    continue;
+
+                Match bondMatch = bondRegex.Match(classAttr);
+                if (bondMatch.Success)
+                {
+                    int bondId = int.Parse(bondMatch.Groups[1].Value);
+                    int atomId1 = int.Parse(bondMatch.Groups[2].Value);
+                    int atomId2 = int.Parse(bondMatch.Groups[3].Value);
+
+                    var matches = bondCoordinatesRegex.Matches(dAttr);
+                    Vector2[] endpoints = null;
+                    Vector2 center = Vector2.zero;
+
+                    float x1 = float.Parse(matches[0].Groups[1].Value);
+                    float y1 = float.Parse(matches[0].Groups[2].Value);
+                    float x2 = float.Parse(matches[1].Groups[1].Value);
+                    float y2 = float.Parse(matches[1].Groups[2].Value);
+
+                    if (matches.Count > 2)
+                    {
+                        float x3 = float.Parse(matches[2].Groups[1].Value);
+                        float y3 = float.Parse(matches[2].Groups[2].Value);
+
+                        // Calculate the midpoint of the last two coordinates
+                        Vector2 midpoint = new Vector2((x2 + x3) / 2, (y2 + y3) / 2);
+
+                        endpoints = new[] { new Vector2(x1, y1), midpoint };
+                    }
+                    else
+                    {
+                        endpoints = new[] { new Vector2(x1, y1), new Vector2(x2, y2) };
+                    }
+                    center = 0.5f * (endpoints[0] + endpoints[1]);
+                    parsedData.Add(new BondDataSVG
+                    {
+                        BondId = bondId,
+                        AtomIds = new List<int> { atomId1, atomId2 },
+                        Endpoints = endpoints,
+                        Center = center
+                    });
+                    continue;
+                }
+
+                Match atomMatch = atomRegex.Match(classAttr);
+                if (atomMatch.Success)
+                {
+                    int atomId = int.Parse(atomMatch.Groups[1].Value);
+                    var matches = atomCoordinatesRegex.Matches(dAttr);
+
+                    if (matches.Count < 1)
+                    {
+                        matches = bondCoordinatesRegex.Matches(dAttr);
+                    }
+
+                    Vector2 center = Vector2.zero;
+                    //foreach (var match in matches)
+                    for (int i = 0; i < matches.Count; i++)
+                    {
+                        float x = float.Parse(matches[i].Groups[1].Value);
+                        float y = float.Parse(matches[i].Groups[2].Value);
+                        center += new Vector2(x, y);
+                    }
+                    center /= matches.Count;
+
+                    parsedData.Add(new AtomDataSVG
+                    {
+                        AtomId = atomId,
+                        Center = center
+                    });
+                }
+            }
+
+            return parsedData;
+        }
+
+        public class BondDataSVG
+        {
+            public int BondId { get; set; }
+            public List<int> AtomIds { get; set; }
+            public Vector2[] Endpoints { get; set; }
+            public Vector2 Center;
+        }
+
+        public class AtomDataSVG
+        {
+            public int AtomId { get; set; }
+            public Vector2 Center;
+        }
+
+        public enum BondType
+        {
+            SINGLE,
+            DOUBLE,
+            SPLITDOUBLE,
+            RINGDOUBLE,
+            SPLITSINGLE,
+            DASHEDWEDGE
+        }
+
+        public class BondDataCollection
+        {
+            public int BondId;
+            public int[] AtomIds;
+            public float[] Offsets;
+            public List<Vector2[]> EndPoints;
+            public Vector2[] FinalEndPoints;
+            public Vector2 FinalCenter;
+            public List<Triple<Mesh, Bounds, Vector3>> MeshData = new List<Triple<Mesh, Bounds, Vector3>>();
+            public BondType BondType;
+            public List<GameObject> elements;
+        }
+
+        public class AtomDataCollection
+        {
+            public int AtomId;
+            public List<Triple<Mesh, Bounds, Vector3>> MeshData = new List<Triple<Mesh, Bounds, Vector3>>();
+            public List<GameObject> elements;
+        }
 
         public static void generateFromSVGContent(Guid mol_id, string svg_content, List<Vector2> coords)
         {
@@ -27,18 +202,97 @@ namespace chARpack
             {
                 mol.atomList[i].structure_coords = coords[i];
             }
+            mol.svgFormula = svg_content;
 
             // Tessellate
             var sceneInfo = SVGParser.ImportSVG(new StringReader(svg_content));
-            var geometries = VectorUtils.TessellateScene(sceneInfo.Scene, new VectorUtils.TessellationOptions
+            var tessellationOptions = new VectorUtils.TessellationOptions
             {
                 StepDistance = 0.1f,
                 SamplingStepSize = 50,
                 MaxCordDeviation = 0.5f,
                 MaxTanAngleDeviation = 0.1f
-            });
+            };
 
-            generate3DRepresentation(geometries, mol_id);
+            var geometries = VectorUtils.TessellateScene(sceneInfo.Scene, tessellationOptions);
+            generate3DRepresentation(geometries, svg_content, mol_id);
+        }
+
+        static public Vector2 CalculateGeometryCenter(VectorUtils.Geometry geometry)
+        {
+            if (geometry.Vertices == null || geometry.Vertices.Length == 0) return Vector2.zero;
+
+            var center = Vector2.zero;
+            foreach (var vertex in geometry.Vertices)
+            {
+                center += vertex;
+            }
+            center /= geometry.Vertices.Length;
+            return center;
+        }
+
+        public static bool ApproximatelyAtTheSamePlace(Vector2 in1, Vector2 in2, float tolerance = 0.5f)
+        {
+            return Vector2.Distance(in1, in2) < tolerance;
+        }
+
+        static public Rect CalculateShapeBounds(Shape shape)
+        {
+            Debug.Log($"[CalculateShapeBounds] num shape contours {shape.Contours.Length}");
+            if (shape == null || shape.Contours == null || shape.Contours.Length == 0)
+                return new Rect();
+
+            Debug.Log($"[CalculateShapeBounds] num shape contours {shape.Contours.Length}");
+
+            Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
+            Vector2 max = new Vector2(float.MinValue, float.MinValue);
+
+            // Loop through each contour in the shape
+            foreach (var contour in shape.Contours)
+            {
+                foreach (var segment in contour.Segments)
+                {
+                    // Check all control points for the segment (Bezier curves have 4 points)
+                    min = Vector2.Min(min, segment.P0);
+                    min = Vector2.Min(min, segment.P1);
+                    min = Vector2.Min(min, segment.P2);
+
+                    max = Vector2.Max(max, segment.P0);
+                    max = Vector2.Max(max, segment.P1);
+                    max = Vector2.Max(max, segment.P2);
+                }
+            }
+
+            Debug.Log($"[CalculateGeometryBounds] shape rect calculated {min.x} {min.y} {max.x} {max.y}");
+
+            return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
+        }
+
+        static bool BoundsAreApproximatelyEqual(Rect boundsA, Rect boundsB, float tolerance = 0.01f)
+        {
+            return Mathf.Abs(boundsA.x - boundsB.x) < tolerance &&
+                   Mathf.Abs(boundsA.y - boundsB.y) < tolerance &&
+                   Mathf.Abs(boundsA.width - boundsB.width) < tolerance &&
+                   Mathf.Abs(boundsA.height - boundsB.height) < tolerance;
+        }
+
+        static Rect CalculateGeometryBounds(VectorUtils.Geometry geometry)
+        {
+            if (geometry.Vertices == null || geometry.Vertices.Length == 0)
+                return new Rect();
+
+            Debug.Log($"[CalculateGeometryBounds] num geo vertices {geometry.Vertices.Length}");
+            Vector2 min = geometry.Vertices[0];
+            Vector2 max = geometry.Vertices[0];
+
+            foreach (var vertex in geometry.Vertices)
+            {
+                min = Vector2.Min(min, vertex);
+                max = Vector2.Max(max, vertex);
+            }
+            Debug.Log($"[CalculateGeometryBounds] geo rect calculated {min.x} {min.y} {max.x} {max.y}");
+
+            return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
         }
 
         public static void generateFromSVGContentUI(string svg_content, Guid mol_id, List<Vector2> coords)
@@ -47,7 +301,408 @@ namespace chARpack
             EventManager.Singleton.Generate3DFormula(mol_id, svg_content, coords);
         }
 
-        public static void generate3DRepresentation(List<VectorUtils.Geometry> geometry, Guid mol_id)
+
+        public static void generate3DRepresentation(List<VectorUtils.Geometry> geometry, string svg_content, Guid mol_id)
+        {
+            //Debug.Log($"[StructureFormulaTo3D] SVG content:\n {svg_content}");
+            //Debug.Log($"[StructureFormulaTo3D] Found {path_elements.Count} path elements in SVG.");
+            //Assert.AreNotEqual(geometry.Count, path_elements.Count);
+            //// Parse the SVG
+            //var svgScene = SVGParser.ImportSVG(new StringReader(svg_content));
+
+            //// Tessellate the entire SVG scene
+            //var tessellationOptions = new VectorUtils.TessellationOptions()
+            //{
+            //    StepDistance = 10f,         // Controls curve approximation (higher = rougher, lower = smoother)
+            //    MaxCordDeviation = 0.5f,    // Maximum deviation allowed for curves
+            //    MaxTanAngleDeviation = 0.1f,// Controls smoothness of curves
+            //    SamplingStepSize = 0.01f    // Sampling step size (affects precision)
+            //};
+
+            //// Get geometry from the SVG scene
+            //var geometry = VectorUtils.TessellateScene(svgScene.Scene, tessellationOptions);
+            var mol = GlobalCtrl.Singleton.List_curMolecules.ElementAtOrNull(mol_id);
+            if (mol == null) return;
+
+            Debug.Log("[StructureFormulaTo3D] Extruding SVG...");
+
+            geometry.RemoveAt(0);
+            // Extrude the geometry into 3D
+            var extrudedMesh = CreateFlatMeshFromGeometry(geometry);
+
+            var em_center_list = new List<Vector3>();
+            foreach (var em in extrudedMesh)
+            {
+                em_center_list.Add(em.Item3);
+            }
+            var em_center_tree = new KDTree();
+            em_center_tree.Build(em_center_list);
+
+            var path_elements = GetSVGPathElements(svg_content);
+            var parsed_data = ParseSVGPathElements(path_elements);
+            var sorted_mesh = new List<Triple<Mesh, Bounds, Vector3>>();
+            var sorted_color = new List<Color>();
+            Debug.Log("Matching geometries");
+            try
+            {
+
+                foreach (var element in parsed_data)
+                {
+                    List<int> res = new List<int>();
+                    var q = new KDQuery();
+
+                    if (element is BondDataSVG bond)
+                    {
+                        q.KNearest(em_center_tree, bond.Center, 1, res);
+                        sorted_mesh.Add(extrudedMesh[res[0]]);
+                        sorted_color.Add(geometry[res[0]].Color);
+                    }
+                    else if (element is AtomDataSVG atom)
+                    {
+                        Debug.Log($"ATOM CENTER: {atom.Center}");
+                        q.KNearest(em_center_tree, atom.Center, 1, res);
+                        Debug.Log($"ATOM RES: {res[0]}");
+                        sorted_mesh.Add(extrudedMesh[res[0]]);
+                        sorted_color.Add(geometry[res[0]].Color);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"{e.Message} {e.StackTrace}");
+            }
+
+
+            Debug.Log($"parsed {parsed_data.Count} matched {sorted_mesh.Count}");
+            //var total_bounds = new Bounds();
+            //foreach (var exmesh in extrudedMesh)
+            //{
+            //    total_bounds.Encapsulate(exmesh.Item2);
+            //}
+
+            // Create a GameObject to display the extruded mesh
+            var mat = Resources.Load<Material>("materials/sfExtrude");
+            var mol2D = new GameObject($"extrude_{mol.name}").AddComponent<Molecule2D>();
+            //mol2D.transform.Rotate(new Vector3(180f, 0f, 0f));
+            //mol2D.transform.position = total_bounds.center;
+            mol2D.molReference = mol;
+            var atom2D_list = new List<Atom2D>();
+            var bond_list = new List<Bond2D>();
+
+            var symbol_object_list = new List<GameObject>();
+            var symbol_point_list = new List<Vector3>();
+
+            var bond_object_list = new List<GameObject>();
+            var bond_point_list = new List<Vector3>();
+            var bond_point_perp_list = new List<Vector3>();
+
+            var bond_eigenvector_list = new List<Vector3>();
+            var bond_eigenvalue_list = new List<float>();
+
+            // sf coords tree
+            Debug.Log("[StructureFormulaTo3D] Generating kd Tree ...");
+            var sf_coords_tree = new KDTree();
+            var atom_sf_coords = new List<Vector3>();
+            var atom_sf_coords_2d = new List<Vector2>();
+            var sf_coords_center = Vector3.zero;
+            foreach (var atom in GlobalCtrl.Singleton.List_curMolecules[mol_id].atomList)
+            {
+                atom_sf_coords.Add(atom.structure_coords);
+                atom_sf_coords_2d.Add(atom.structure_coords);
+                sf_coords_center += new Vector3(atom.structure_coords.x, atom.structure_coords.y, 0f);
+            }
+            sf_coords_tree.Build(atom_sf_coords);
+            sf_coords_center /= GlobalCtrl.Singleton.List_curMolecules[mol_id].atomList.Count;
+            mol2D.transform.position = sf_coords_center;
+
+            Debug.Log("[StructureFormulaTo3D] Parsing path elements...");
+            var bond_data_collection = new List<BondDataCollection>();
+            var atom_data_collection = new List<AtomDataCollection>();
+            Debug.Log($"[StructureFormulaTo3D] Parsing complete. Found {parsed_data.Count} elements.");
+            Debug.Log("[StructureFormulaTo3D] Filling Bond and Atom collections...");
+            foreach (var (entry, i) in parsed_data.WithIndex())
+            {
+                var current_mesh = sorted_mesh[i];
+
+                var child = new GameObject($"Mesh_{i}");
+                child.transform.position = current_mesh.Item3;
+
+                var meshFilter = child.AddComponent<MeshFilter>();
+                var meshRenderer = child.AddComponent<MeshRenderer>();
+                meshFilter.mesh = current_mesh.Item1;
+
+                // material
+                var current_mat = Instantiate(mat) as Material;
+                current_mat.color = sorted_color[i];
+                meshRenderer.material = current_mat;
+
+                child.transform.parent = mol2D.transform;
+
+                if (entry is BondDataSVG bond)
+                {
+                    var find = bond_data_collection.Find(x => x.BondId == bond.BondId);
+                    if (find == null)
+                    {
+                        bond_data_collection.Add(new BondDataCollection());
+                        find = bond_data_collection.Last();
+                        find.BondId = bond.BondId;
+                        find.AtomIds = bond.AtomIds.ToArray();
+                        find.EndPoints = new List<Vector2[]> { bond.Endpoints };
+                        find.elements = new List<GameObject> { child };
+                    }
+                    else
+                    {
+                        find.EndPoints.Add(bond.Endpoints);
+                        find.elements.Add(child);
+                    }
+                    find.MeshData.Add(current_mesh);
+
+
+
+                    //Debug.Log($"Bond ID: {bond.BondId}, Atom IDs: {string.Join(", ", bond.AtomIds)}");
+                    //Debug.Log($"current Bond dict length: {bond_data_collection.Count}; current id {i}");
+                }
+                else if (entry is AtomDataSVG atom)
+                {
+                    var find = atom_data_collection.Find(x => x.AtomId == atom.AtomId);
+                    if (find == null)
+                    {
+                        atom_data_collection.Add(new AtomDataCollection());
+                        find = atom_data_collection.Last();
+                        find.AtomId = atom.AtomId;
+                        find.elements = new List<GameObject> { child };
+                    }
+                    else
+                    {
+                        find.elements.Add(child);
+                    }
+                    find.MeshData.Add(current_mesh);
+
+
+                    //Debug.Log($"Atom ID: {atom.AtomId}");
+                    //Debug.Log($"current aton dict length: {atom_data_collection.Count}; current id {i}");
+                }
+            }
+
+            Debug.Log($"[StructureFormulaTo3D] Found {atom_data_collection.Count} Atom objects, and {bond_data_collection.Count} Bond objects in SVG.");
+
+            Debug.Log("[StructureFormulaTo3D] Classifiying Bonds...");
+            // bond classification
+            foreach (var bond in bond_data_collection)
+            {
+                if (bond.MeshData.Count == 1)
+                {
+                    bond.BondType = BondType.SINGLE;
+                    var offset1 = Vector2.Distance(atom_sf_coords[bond.AtomIds[0]], bond.EndPoints[0][0]);
+                    var offset2 = Vector2.Distance(atom_sf_coords[bond.AtomIds[1]], bond.EndPoints[0][1]);
+                    bond.Offsets = new float[] { offset1, offset2 };
+                    bond.FinalEndPoints = bond.EndPoints[0];
+                    bond.FinalCenter = bond.FinalEndPoints[0] + 0.5f * (bond.FinalEndPoints[1] - bond.FinalEndPoints[0]);
+                }
+                else if (bond.MeshData.Count == 2)
+                {
+                    //Debug.Log($"[StructureFormulaTo3D] Bond0 endpoints {bond.EndPoints[0][0]} {bond.EndPoints[0][1]}");
+                    //Debug.Log($"[StructureFormulaTo3D] Bond1 endpoints {bond.EndPoints[1][0]} {bond.EndPoints[1][1]}");
+                    //Debug.Log($"[StructureFormulaTo3D] Bond[0][0] endpoints {bond.EndPoints[0][0]} Atom[0] {atom_sf_coords_2d[bond.AtomIds[0]]}");
+                    //Debug.Log($"[StructureFormulaTo3D] Bond[0][1] endpoints {bond.EndPoints[0][1]} Atom[1] {atom_sf_coords_2d[bond.AtomIds[1]]}");
+                    if (bond.EndPoints[0][1] == bond.EndPoints[1][0]) // split bond
+                    {
+                        bond.BondType = BondType.SPLITSINGLE;
+                        var offset1 = Vector2.Distance(atom_sf_coords[bond.AtomIds[0]], bond.EndPoints[0][0]);
+                        var offset2 = Vector2.Distance(atom_sf_coords[bond.AtomIds[1]], bond.EndPoints[1][1]);
+                        bond.Offsets = new float[] { offset1, offset2 };
+                        bond.FinalEndPoints = new Vector2[] { bond.EndPoints[0][0], bond.EndPoints[1][1] };
+                        bond.FinalCenter = bond.FinalEndPoints[0] + 0.5f * (bond.FinalEndPoints[1] - bond.FinalEndPoints[0]);
+                    }
+                    else if (Vector2.Distance(bond.EndPoints[0][0], atom_sf_coords_2d[bond.AtomIds[0]]) < 0.5f && Vector2.Distance(bond.EndPoints[0][1], atom_sf_coords_2d[bond.AtomIds[1]]) < 0.5f)
+                    {
+                        bond.BondType = BondType.RINGDOUBLE;
+                        bond.Offsets = new float[] { 0f, 0f };
+                        bond.FinalEndPoints = new Vector2[] { bond.EndPoints[0][0], bond.EndPoints[0][1] };
+                        bond.FinalCenter = bond.FinalEndPoints[0] + 0.5f * (bond.FinalEndPoints[1] - bond.FinalEndPoints[0]);
+                    }
+                    else
+                    {
+                        bond.BondType = BondType.DOUBLE;
+                        var ep1 = 0.5f * (bond.EndPoints[0][0] + bond.EndPoints[1][0]);
+                        var ep2 = 0.5f * (bond.EndPoints[0][1] + bond.EndPoints[1][1]);
+                        bond.FinalEndPoints = new Vector2[] { ep1, ep2 };
+                        var offset1 = Vector2.Distance(atom_sf_coords[bond.AtomIds[0]], bond.FinalEndPoints[0]);
+                        var offset2 = Vector2.Distance(atom_sf_coords[bond.AtomIds[1]], bond.FinalEndPoints[1]);
+                        bond.Offsets = new float[] { offset1, offset2 };
+                        bond.FinalCenter = bond.FinalEndPoints[0] + 0.5f * (bond.FinalEndPoints[1] - bond.FinalEndPoints[0]);
+                    }
+                }
+                else if (bond.MeshData.Count == 4)
+                {
+                    if (bond.EndPoints[0][1] == bond.EndPoints[1][0] && bond.EndPoints[2][1] == bond.EndPoints[3][0])
+                    {
+                        bond.BondType = BondType.SPLITDOUBLE;
+                        var ep1 = 0.5f * (bond.EndPoints[0][0] + bond.EndPoints[2][0]);
+                        var ep2 = 0.5f * (bond.EndPoints[1][1] + bond.EndPoints[3][1]);
+                        bond.FinalEndPoints = new Vector2[] { ep1, ep2 };
+                        var offset1 = Vector2.Distance(atom_sf_coords[bond.AtomIds[0]], bond.FinalEndPoints[0]);
+                        var offset2 = Vector2.Distance(atom_sf_coords[bond.AtomIds[1]], bond.FinalEndPoints[1]);
+                        bond.Offsets = new float[] { offset1, offset2 };
+                        bond.FinalCenter = bond.FinalEndPoints[0] + 0.5f * (bond.FinalEndPoints[1] - bond.FinalEndPoints[0]);
+                    }
+                    else
+                    {
+                        bond.BondType = BondType.DASHEDWEDGE;
+                        var ep1 = atom_sf_coords_2d[bond.AtomIds[0]];
+                        var ep2 = 0.5f * (bond.EndPoints.Last()[0] + bond.EndPoints.Last()[1]);
+                        bond.FinalEndPoints = new Vector2[] { ep1, ep2 };
+                        var offset2 = Vector2.Distance(atom_sf_coords[bond.AtomIds[1]], bond.FinalEndPoints[1]);
+                        bond.Offsets = new float[] { 0f, offset2 };
+                        bond.FinalCenter = bond.FinalEndPoints[0] + 0.5f * (bond.FinalEndPoints[1] - bond.FinalEndPoints[0]);
+                    }
+                }
+                else
+                {
+                    bond.BondType = BondType.DASHEDWEDGE;
+                    var ep1 = atom_sf_coords_2d[bond.AtomIds[0]];
+                    var ep2 = 0.5f * (bond.EndPoints.Last()[0] + bond.EndPoints.Last()[1]);
+                    bond.FinalEndPoints = new Vector2[] { ep1, ep2 };
+                    var offset2 = Vector2.Distance(atom_sf_coords[bond.AtomIds[1]], bond.FinalEndPoints[1]);
+                    bond.Offsets = new float[] { 0f, offset2 };
+                    bond.FinalCenter = bond.FinalEndPoints[0] + 0.5f * (bond.FinalEndPoints[1] - bond.FinalEndPoints[0]);
+                }
+                Debug.Log($"[StructureFormulaTo3D] Detected {bond.BondType}");
+            }
+
+            Debug.Log("[StructureFormulaTo3D] Processing Atoms...");
+            // process atoms
+            for (int i = 0; i < mol.atomList.Count; i++)
+            {
+                var atom = mol.atomList[i];
+
+                var find = atom_data_collection.Find(x => x.AtomId == i);
+                if (find != null)
+                {
+                    var atom2D = new GameObject().AddComponent<Atom2D>();
+                    atom2D.transform.parent = mol2D.transform;
+                    atom2D.transform.position = atom.structure_coords;
+                    foreach (var element in find.elements)
+                    {
+                        element.transform.parent = atom2D.transform;
+                    }
+                    var ref_atom = mol.atomList[i];
+                    atom2D.name = ref_atom.name;
+                    atom2D.atomReference = ref_atom;
+                    atom2D_list.Add(atom2D);
+                }
+                else
+                {
+                    var node_atom = new GameObject().AddComponent<Atom2D>();
+                    node_atom.transform.parent = mol2D.transform;
+
+                    var ref_atom = mol.atomList[i];
+                    node_atom.name = ref_atom.name;
+                    node_atom.atomReference = ref_atom;
+                    node_atom.transform.position = ref_atom.structure_coords;
+                    atom2D_list.Add(node_atom);
+                }
+            }
+
+            // sort atom list and add to mol2d
+            var atom2D_list_sorted = new List<Atom2D>();
+            foreach (var atom in mol.atomList)
+            {
+                var match = atom2D_list.Find(a => a.atomReference == atom);
+                atom2D_list_sorted.Add(match);
+            }
+            mol2D.Atoms = atom2D_list_sorted;
+
+            Debug.Log("[StructureFormulaTo3D] Processing Bonds...");
+            foreach (var bond in bond_data_collection)
+            {
+                var bond_obj = new GameObject("Bond");
+                bond_obj.transform.position = bond.FinalCenter;
+
+                var look_at_endpoint = bond.FinalEndPoints[0].y > bond.FinalEndPoints[1].y ? bond.FinalEndPoints[0] : bond.FinalEndPoints[1];
+                var lower_at_endpoint = bond.FinalEndPoints[0].y > bond.FinalEndPoints[1].y ? bond.FinalEndPoints[1] : bond.FinalEndPoints[0];
+                var target_direction = look_at_endpoint - lower_at_endpoint;
+                // Normalize the target direction to avoid scaling issues
+                target_direction.Normalize();
+
+                // Check if the forward vector is almost aligned with the up vector
+                if (Mathf.Abs(Vector3.Dot(target_direction, Vector3.up)) > 0.99f)
+                {
+                    // If almost aligned with up, use a different up vector to avoid gimbal lock
+                    Vector3 alternativeUp = Vector3.Cross(target_direction, Vector3.right);
+
+                    // If the cross product gives a zero vector (targetDirection is parallel to right), use world forward instead
+                    if (alternativeUp.sqrMagnitude < 0.001f)
+                    {
+                        alternativeUp = Vector3.Cross(target_direction, Vector3.forward);
+                    }
+
+                    // Set the rotation using the alternative up vector
+                    bond_obj.transform.rotation = Quaternion.LookRotation(target_direction, alternativeUp);
+                    bond_obj.transform.Rotate(Vector3.forward, 90f);
+                }
+                else
+                {
+                    // Align normally with the world up vector
+                    bond_obj.transform.rotation = Quaternion.LookRotation(target_direction, Vector3.up);
+                }
+                bond_obj.transform.Rotate(Vector3.forward, 180f);
+                // orient the empty object along length of bond
+                //b2d_obj.transform.LookAt(look_at_endpoint);
+
+
+                // make sure the rotation along the z-axis is well defined
+                //if (b2d_obj.transform.eulerAngles.x.approx(0f, 1f))
+                //{
+                //    Vector3 perp_vector = bond_point_perp_list[final_ep_ids[0]] - bond_point_perp_list[final_ep_ids[1]];
+                //    b2d_obj.transform.Rotate(Vector3.forward, -Vector3.Angle(b2d_obj.transform.up, perp_vector));
+                //}
+                //if (Mathf.Abs(b2d_obj.transform.forward.y).approx(1f))
+                //{
+                //    b2d_obj.transform.Rotate(Vector3.forward, 90f);
+                //}
+
+                // put bond into empty object for correct pivot and orientation
+                bond_obj.transform.parent = mol2D.transform;
+                foreach (var obj in bond.elements)
+                {
+                    obj.transform.parent = bond_obj.transform;
+                }
+
+                var b2d = bond_obj.AddComponent<Bond2D>();
+
+                b2d.atom1ref = mol.atomList[bond.AtomIds[0]];
+                b2d.atom1 = mol2D.Atoms[bond.AtomIds[0]];
+                b2d.atom1ConnectionOffset = bond.Offsets[0];
+                b2d.end1 = bond.FinalEndPoints[0];
+
+                b2d.atom2ref = mol.atomList[bond.AtomIds[1]];
+                b2d.atom2 = mol2D.Atoms[bond.AtomIds[1]];
+                b2d.atom2ConnectionOffset = bond.Offsets[1];
+                b2d.end2 = bond.FinalEndPoints[1];
+
+                b2d.bondReference = b2d.atom1ref.getBond(b2d.atom2ref);
+                var length = Vector3.Distance(bond.FinalEndPoints[0], bond.FinalEndPoints[1]);
+                b2d.initialLength = length;
+                b2d.initialLookAt = b2d.atom1.transform.position.y > b2d.atom2.transform.position.y ? b2d.atom1 : b2d.atom2;
+
+                bond_list.Add(b2d);
+            }
+
+            mol2D.bonds = bond_list;
+            mol2D.transform.Rotate(new Vector3(180f, 0f, 0f));
+
+            mol2D.transform.localScale = 0.002f * Vector3.one;
+            mol2D.transform.position = mol.transform.position;//GlobalCtrl.Singleton.getCurrentSpawnPos();
+
+            mol2D.transform.parent = GlobalCtrl.Singleton.atomWorld.transform;
+            mol2D.align3D();
+
+            Molecule2D.molecules.Add(mol2D);
+
+            }
+
+        public static void generate3DRepresentationGeometryBased(List<VectorUtils.Geometry> geometry, Guid mol_id)
         {
             //// Parse the SVG
             //var svgScene = SVGParser.ImportSVG(new StringReader(svg_content));
@@ -75,8 +730,6 @@ namespace chARpack
             //{
             //    total_bounds.Encapsulate(exmesh.Item2);
             //}
-
-
 
             // Create a GameObject to display the extruded mesh
             var mat = Resources.Load<Material>("materials/sfExtrude");
@@ -466,7 +1119,7 @@ namespace chARpack
                 merge_bond_list.Add(merge_bond);
 
 
-
+                
 
             }
 
@@ -949,8 +1602,6 @@ namespace chARpack
                 mesh.vertices = vertices.ToArray();
                 mesh.triangles = triangles.ToArray();
                 mesh.RecalculateNormals();
-
-
 
                 mesh_list.Add(new Triple<Mesh, Bounds, Vector3>(mesh, bounds, origin));
             }

@@ -2,6 +2,7 @@ using Microsoft.MixedReality.Toolkit;
 using Microsoft.MixedReality.Toolkit.Input;
 using Microsoft.MixedReality.Toolkit.SpatialAwareness;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
@@ -40,6 +41,8 @@ namespace chARpack
             if (NetworkManagerServer.Singleton != null)
             {
                 initDefaultSettings();
+                twoDimensionalModeGuard = SettingsData.twoDimensionalMode;
+                GlobalCtrl.Singleton.licoriceRenderingGuard = SettingsData.licoriceRendering;
             }
             updateSettings();
         }
@@ -90,10 +93,55 @@ namespace chARpack
             {
                 UserServer.showHeads(SettingsData.syncMode == TransitionManager.SyncMode.Sync);
             }
-            GlobalCtrl.Singleton.setLicoriceRendering(SettingsData.licoriceRendering);
-            GlobalCtrl.Singleton.reloadShaders();
-            GlobalCtrl.Singleton.regenerateSingleBondTooltips(); // Regenerate in case length unit was changed
-                                                                 // gaze and pointer highlighting and color interpolation are handled by checking the value in SettingsData directly in the script
+            if (!SettingsData.twoDimensionalMode)
+            {
+                var mode_changed = GlobalCtrl.Singleton.setLicoriceRendering(SettingsData.licoriceRendering);
+                if (mode_changed)
+                {
+                    GlobalCtrl.Singleton.reloadShaders();
+                    GlobalCtrl.Singleton.regenerateSingleBondTooltips(); // Regenerate in case length unit was changed
+                                                                         // gaze and pointer highlighting and color interpolation are handled by checking the value in SettingsData directly in the script
+                }
+            }
+            activate2DMode(SettingsData.twoDimensionalMode);
+        }
+
+        bool twoDimensionalModeGuard = false;
+        private async Task activate2DMode(bool set)
+        {
+            if (twoDimensionalModeGuard == set) return;
+            twoDimensionalModeGuard = set;
+            if (LoginData.isServer)
+            {
+                if (set)
+                {
+                    GlobalCtrl.Singleton.currentCamera.transform.rotation = Quaternion.identity;
+                    GlobalCtrl.Singleton.currentCamera.transform.position = Vector3.zero;
+                    GlobalCtrl.Singleton.currentCamera.orthographic = true;
+                    foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
+                    {
+                        var find = Molecule2D.molecules.Find(x => x.molReference == mol);
+                        if (find == null)
+                        {
+                            await StructureFormulaGenerator.Singleton.generate3D(mol);
+                            find = Molecule2D.molecules.Find(x => x.molReference == mol); // should be there now
+                            while (!find.initialized)
+                            {
+                                await Task.Delay(100);
+                            }
+                        }
+                        Morph.Singleton.set2Dactive(mol, find);
+                    }
+                }
+                else
+                {
+                    GlobalCtrl.Singleton.currentCamera.orthographic = false;
+                    foreach (var mol2d in Molecule2D.molecules)
+                    {
+                        Morph.Singleton.set3Dactive(mol2d.molReference, mol2d);
+                    }
+                }
+            }
         }
 
         public void setForceField(bool value)

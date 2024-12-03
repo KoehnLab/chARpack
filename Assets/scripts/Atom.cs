@@ -15,6 +15,8 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.EventSystems;
 using chARpack.Types;
 using chARpack.ColorPalette;
+using Microsoft.MixedReality.Toolkit;
+
 #if CHARPACK_RUNTIME_GIZMOS
 using RuntimeGizmos;
 #endif
@@ -910,7 +912,10 @@ namespace chARpack
             if (col == 1)
             {
                 // merging
-                GetComponent<Renderer>().material = GlobalCtrl.Singleton.overlapMat;
+                var renderer = GetComponent<Renderer>();
+                renderer.material = GlobalCtrl.Singleton.overlapMat;
+                var current_color = renderer.material.color;
+                renderer.material.color = new Color(current_color.r, current_color.g, current_color.b, m_molecule.getOpactiy());
             }
             else if (col == 2)
             {
@@ -977,11 +982,17 @@ namespace chARpack
                 }
                 if (m_data.m_abbre.ToLower() == "dummy")
                 {
-                    GetComponent<Renderer>().material = GlobalCtrl.Singleton.dummyMatPrefab;
+                    var renderer = GetComponent<Renderer>();
+                    renderer.material = GlobalCtrl.Singleton.dummyMatPrefab;
+                    var current_color = renderer.material.color;
+                    renderer.material.color = new Color(current_color.r, current_color.g, current_color.b, m_molecule.getOpactiy());
                 }
                 else
                 {
-                    GetComponent<Renderer>().material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
+                    var renderer = GetComponent<Renderer>();
+                    renderer.material = GlobalCtrl.Singleton.Dic_AtomMat[m_data.m_id];
+                    var current_color = renderer.material.color;
+                    renderer.material.color = new Color(current_color.r, current_color.g, current_color.b, m_molecule.getOpactiy());
                 }
             }
 

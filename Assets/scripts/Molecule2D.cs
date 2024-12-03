@@ -91,7 +91,8 @@ namespace chARpack
                 foreach (var atom in atoms)
                 {
                     // Make atoms face the camera
-                    atom.transform.forward = -GlobalCtrl.Singleton.currentCamera.transform.forward;
+                    atom.transform.forward = GlobalCtrl.Singleton.currentCamera.transform.forward;
+                    atom.transform.up = -GlobalCtrl.Singleton.currentCamera.transform.up;
                 }
             }
         }
@@ -122,6 +123,8 @@ namespace chARpack
             molReference.transform.localRotation = Quaternion.LookRotation(rotationMatrix.GetRow(2), rotationMatrix.GetRow(1)) * molReference.transform.localRotation;
             molReference.resetMolRotation();
             molReference.transform.localPosition = transform.localPosition;
+            
+            // comment for debug
             initialized = true;
 
             //StartCoroutine(alignAndRelax());

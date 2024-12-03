@@ -28,7 +28,6 @@ namespace chARpack
                 }
                 GlobalCtrl.Singleton.createFromCML(cmlWorld_);
                 EventManager.Singleton.CmlReceiveCompleted();
-
             }
             else
             {

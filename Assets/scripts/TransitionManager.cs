@@ -298,6 +298,7 @@ namespace chARpack
                 {
                     if (mol_test != null)
                     {
+                        Debug.Log($"[initializeTransitionServer] Ivoking event for molecule transition. {triggered_by}");
                         EventManager.Singleton.TransitionMolecule(mol_test, triggered_by, from_id);
                         return;
                     }
@@ -449,7 +450,7 @@ namespace chARpack
         {
 #if CHARPACK_NETWORKING
             if (NetworkManagerClient.Singleton.Client.Id != from_id) return;
-            Debug.Log("[getMoleculeTransitionClient] triggered");
+            Debug.Log("[getMoleculeTransitionClient] animation triggered");
             getTransitionClient(mol.transform, triggered_by, mol.initial_scale);
 #endif
         }
@@ -458,7 +459,7 @@ namespace chARpack
         {
 #if CHARPACK_NETWORKING
             if (NetworkManagerClient.Singleton.Client.Id != from_id) return;
-            Debug.Log("[getGenericObjectTransitionClient] triggered");
+            Debug.Log("[getGenericObjectTransitionClient] animation triggered");
             getTransitionClient(go.transform, triggered_by, go.initial_scale);
 #endif
         }
