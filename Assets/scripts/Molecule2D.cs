@@ -29,11 +29,17 @@ namespace chARpack
             }
         }
 
+        private void OnDestroy()
+        {
+            molecules.Remove(this);
+        }
+
         private void Update()
         {
             if (initialized)
             {
                 transform.position = molReference.transform.position;
+                //transform.rotation = molReference.transform.rotation;
                 foreach (var bond in bonds)
                 {
                     bond.atom1.transform.localPosition = transform.InverseTransformPoint(bond.atom1.atomReference.transform.position);
@@ -88,12 +94,12 @@ namespace chARpack
                         distance / bond.initialLength);
 
                 }
-                foreach (var atom in atoms)
-                {
-                    // Make atoms face the camera
-                    atom.transform.forward = GlobalCtrl.Singleton.currentCamera.transform.forward;
-                    atom.transform.up = -GlobalCtrl.Singleton.currentCamera.transform.up;
-                }
+                //foreach (var atom in atoms)
+                //{
+                //    // Make atoms face the camera
+                //    atom.transform.forward = GlobalCtrl.Singleton.currentCamera.transform.forward;
+                //    atom.transform.up = -GlobalCtrl.Singleton.currentCamera.transform.up;
+                //}
             }
         }
 
@@ -123,7 +129,16 @@ namespace chARpack
             molReference.transform.localRotation = Quaternion.LookRotation(rotationMatrix.GetRow(2), rotationMatrix.GetRow(1)) * molReference.transform.localRotation;
             molReference.resetMolRotation();
             molReference.transform.localPosition = transform.localPosition;
-            
+
+            if (molReference.atomList[0].originalPosition == null)
+            {
+                for (var i = 0; i < molReference.atomList.Count; i++)
+                {
+                    molReference.atomList[i].originalPosition = molReference.atomList[i].transform.localPosition;
+                }
+            }
+
+
             // comment for debug
             initialized = true;
 

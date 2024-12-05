@@ -31,7 +31,7 @@ namespace chARpack
 
         private List<Tuple<ushort, Vector3>> atomState = new List<Tuple<ushort, Vector3>>();
         public string svgFormula = string.Empty;
-
+        public Vector3? onGrabHandPosition = null;
 
 #if CHARPACK_MRTK_2_8
         /// <summary>
@@ -43,6 +43,7 @@ namespace chARpack
         {
             if (isInteractable)
             {
+                onGrabHandPosition = HandTracking.Singleton.getIndexTip();
                 pickupPos = transform.localPosition;
                 pickupRot = transform.localRotation;
 
@@ -91,6 +92,7 @@ namespace chARpack
                 stopwatch?.Stop();
                 if (isGrabbed)
                 {
+                    onGrabHandPosition = null;
                     isGrabbed = false;
                     if (GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.NORMAL ||
                         GlobalCtrl.Singleton.currentInteractionMode == GlobalCtrl.InteractionModes.FRAGMENT_ROTATION)

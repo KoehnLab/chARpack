@@ -113,6 +113,7 @@ namespace chARpack
             twoDimensionalModeGuard = set;
             if (LoginData.isServer)
             {
+#if UNITY_STANDALONE || UNITY_EDITOR
                 if (set)
                 {
                     GlobalCtrl.Singleton.currentCamera.transform.rotation = Quaternion.identity;
@@ -141,6 +142,7 @@ namespace chARpack
                         Morph.Singleton.set3Dactive(mol2d.molReference, mol2d);
                     }
                 }
+#endif
             }
         }
 

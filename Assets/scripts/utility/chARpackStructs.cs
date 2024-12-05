@@ -176,6 +176,7 @@ namespace chARpack.Structs
         public int TransitionTriggeredFromId;
         public string formulaSVGstring;
         public SaveableVector2[] formulaCoords;
+        public SaveableVector3[] originalPositions;
 
         public cmlData(SaveableVector3 pos, SaveableVector3 scale, SaveableQuaternion quat, Guid id, List<cmlAtom> a, List<cmlBond> b, List<cmlAngle> ang = null, List<cmlTorsion> tor = null, bool keepConfig_ = false)
         {
@@ -198,6 +199,7 @@ namespace chARpack.Structs
             TransitionTriggeredFromId = -1;
             formulaSVGstring = string.Empty;
             formulaCoords = null;
+            originalPositions = null;
         }
 
         public void assignRelativeQuaternion(Quaternion q)
@@ -251,6 +253,15 @@ namespace chARpack.Structs
             for (int i = 0; i < coords.Count; i++)
             {
                 formulaCoords[i] = coords[i];
+            }
+        }
+
+        public void setOriginalPositions(List<Vector3> orig_positions)
+        {
+            originalPositions = new SaveableVector3[orig_positions.Count];
+            for (int i = 0; i < orig_positions.Count; i++)
+            {
+                originalPositions[i] = orig_positions[i];
             }
         }
     }

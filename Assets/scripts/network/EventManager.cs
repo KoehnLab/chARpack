@@ -444,6 +444,13 @@ namespace chARpack
             OnGenerate3DFormula?.Invoke(mol_id, svg_string, coords);
         }
 
+        public delegate void SetInterpolationStateAction(bool value);
+        public event SetInterpolationStateAction OnSetInterpolationState;
+        public void SetInterpolationState(bool value)
+        {
+            OnSetInterpolationState?.Invoke(value);
+        }
+
         #endregion
 
 

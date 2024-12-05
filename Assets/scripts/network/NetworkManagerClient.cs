@@ -715,6 +715,26 @@ namespace chARpack
             cml.setTransitionFlag();
             cml.setTransitionTriggeredBy(triggered_by);
             cml.setTriggeredFromId(Client.Id);
+            if (SettingsData.twoDimensionalMode)
+            {
+                if (mol.svgFormula != string.Empty)
+                {
+                    cml.setFormulaString(mol.svgFormula);
+                    var coords = new List<Vector2>();
+                    var origPositions = new List<Vector3>();
+                    foreach (var atom in mol.atomList)
+                    {
+                        coords.Add(atom.structure_coords);
+                        origPositions.Add(atom.originalPosition.Value);
+                    }
+                    cml.setFormulaCoords(coords);
+                    cml.setOriginalPositions(origPositions);
+                }
+                else
+                {
+                    Debug.LogError("[NetworkManagerServer] transition Mol: 2D mode active but no svg formua found.");
+                }
+            }
 
             NetworkUtils.serializeCmlData(ClientToServerID.transitionMolecule, new List<cmlData> { cml }, chunkSize, true);
             EventManager.Singleton.DeleteMolecule(mol.m_id);
@@ -1661,7 +1681,25 @@ namespace chARpack
             NetworkUtils.deserializeFormula(message, ref formulaBytes, ref svg_content, ref svg_coords, chunkSize);
         }
 
-        #endregion
+        [MessageHandler((ushort)ServerToClientID.bcastInterpolationState)]
+        private static void getInterpolationState(Message message)
+        {
+            var state = message.GetBool();
+            if (Morph.Singleton != null)
+            {
+                if (state)
+                {
+                    Morph.Singleton.setOptionStepped();
+                }
+                else
+                {
+                    Morph.Singleton.SetOptionContinous();
+                }
+            }
+        }
 
-    }
+
+            #endregion
+
+        }
 }

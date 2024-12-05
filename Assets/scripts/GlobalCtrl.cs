@@ -2341,6 +2341,7 @@ namespace chARpack
                     var mol2D_generated = false;
                     if (SettingsData.twoDimensionalMode && LoginData.isServer && molecule.formulaSVGstring == string.Empty)
                     {
+#if UNITY_STANDALONE || UNITY_EDITOR
                         if (StructureFormulaGenerator.Singleton != null)
                         {
                             ForceField.Singleton.enableForceFieldMethod(false);
@@ -2357,6 +2358,7 @@ namespace chARpack
                             Morph.Singleton.set2Dactive(tempMolecule, find);
                             mol2D_generated = true;
                         }
+#endif
                     }
 
                     if (SettingsData.syncMode == TransitionManager.SyncMode.Sync)
@@ -2454,6 +2456,7 @@ namespace chARpack
                             for (int i = 0; i < coords_list.Length; i++)
                             {
                                 coords_list[i] = molecule.formulaCoords[i];
+                                tempMolecule.atomList[i].originalPosition = molecule.originalPositions[i];
                             }
                             var find = Molecule2D.molecules.Find(x => x.molReference == tempMolecule);
                             if (find == null)

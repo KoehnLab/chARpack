@@ -464,12 +464,13 @@ namespace chARpack
                     foreach (var mol2D in Molecule2D.molecules)
                     {
                         var mol = mol2D.molReference;
-                        var lbe = mol.getLongestBBoxEdge() / 1.5f;
+                        //var lbbe = mol.getLongestBBoxEdge();
+                        var lbbe = getScreenSizeWS().x;
 
                         var mol_projected = projectWSPointToScreen(mol.transform.position);
                         var distance = Vector3.Distance(mol_projected, mol.transform.position);
 
-                        var morph_amount = Mathf.InverseLerp(lbe, 2f * lbe, distance);
+                        var morph_amount = Mathf.InverseLerp(lbbe/4f, lbbe, distance);
                         Morph.Singleton.controlMolMorph(mol, mol2D, morph_amount);
                     }
                 }

@@ -130,6 +130,7 @@ namespace chARpack
             EventManager.Singleton.OnObjectToTrack += sendObjectToTrack;
             EventManager.Singleton.OnSpawnObjectCollection += sendSpawnObjectCollection;
             EventManager.Singleton.OnRequestResults += requestResults;
+            EventManager.Singleton.OnSetInterpolationState += sendInterpolationState;
         }
 
         private void deactivateAsync()
@@ -143,6 +144,7 @@ namespace chARpack
             EventManager.Singleton.OnObjectToTrack -= sendObjectToTrack;
             EventManager.Singleton.OnSpawnObjectCollection -= sendSpawnObjectCollection;
             EventManager.Singleton.OnRequestResults -= requestResults;
+            EventManager.Singleton.OnSetInterpolationState -= sendInterpolationState;
         }
 
 
@@ -676,11 +678,14 @@ namespace chARpack
                 {
                     cml.setFormulaString(mol.svgFormula);
                     var coords = new List<Vector2>();
+                    var origPositions = new List<Vector3>();
                     foreach (var atom in mol.atomList)
                     {
                         coords.Add(atom.structure_coords);
+                        origPositions.Add(atom.originalPosition.Value);
                     }
                     cml.setFormulaCoords(coords);
+                    cml.setOriginalPositions(origPositions);
                 }
                 else
                 {
@@ -783,6 +788,13 @@ namespace chARpack
         {
             Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastScreenSizeChanged);
             message.AddVector2(SettingsData.serverViewport);
+            Server.SendToAll(message);
+        }
+
+        public void sendInterpolationState(bool state)
+        {
+            Message message = NetworkUtils.createMessage(MessageSendMode.Reliable, ServerToClientID.bcastInterpolationState);
+            message.AddBool(state);
             Server.SendToAll(message);
         }
 

@@ -586,6 +586,7 @@ namespace chARpack
                     {
                         element.transform.parent = atom2D.transform;
                     }
+                    //atom2D.transform.localRotation = Quaternion.Euler(180f, 0f, 0f);
                     var ref_atom = mol.atomList[i];
                     atom2D.name = ref_atom.name;
                     atom2D.atomReference = ref_atom;
@@ -696,11 +697,13 @@ namespace chARpack
             mol2D.transform.position = mol.transform.position;//GlobalCtrl.Singleton.getCurrentSpawnPos();
 
             mol2D.transform.parent = GlobalCtrl.Singleton.atomWorld.transform;
+            mol2D.transform.rotation = GlobalCtrl.Singleton.currentCamera.transform.rotation;
+            mol2D.transform.Rotate(Vector3.right, 180f);
             mol2D.align3D();
 
             Molecule2D.molecules.Add(mol2D);
 
-            }
+        }
 
         public static void generate3DRepresentationGeometryBased(List<VectorUtils.Geometry> geometry, Guid mol_id)
         {

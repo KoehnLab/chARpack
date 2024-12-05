@@ -73,6 +73,7 @@ namespace chARpack
         public Vector2 structure_coords;
         public GameObject structure_interactible;
 
+        public Vector3? originalPosition = null;
 
         /// <summary>
         /// Outlines the current atom in grabColor; is used upon grabbing an atom.
