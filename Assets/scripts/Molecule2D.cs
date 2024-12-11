@@ -39,7 +39,7 @@ namespace chARpack
             if (initialized)
             {
                 transform.position = molReference.transform.position;
-                //transform.rotation = molReference.transform.rotation;
+                //transform.rotation = molReference.transform.rotation * initialRelativeRotation;
                 foreach (var bond in bonds)
                 {
                     bond.atom1.transform.localPosition = transform.InverseTransformPoint(bond.atom1.atomReference.transform.position);
@@ -115,6 +115,7 @@ namespace chARpack
             }
         }
 
+        Quaternion initialRelativeRotation;
         public void align3D()
         {
             var atoms3D = new Vector3[atoms.Count];
@@ -138,6 +139,8 @@ namespace chARpack
                 }
             }
 
+            //initialRelativeRotation = Quaternion.Inverse(transform.rotation) * molReference.transform.rotation;
+            transform.parent = molReference.transform;
 
             // comment for debug
             initialized = true;

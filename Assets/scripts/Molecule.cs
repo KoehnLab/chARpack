@@ -1788,7 +1788,7 @@ namespace chARpack
                 string toolTipText = getTorsionToolTipText(term.eqAngle, term.vk, term.nn, curAngle);
                 toolTipInstance.GetComponent<ServerTorsionTooltip>().focus_id = focus_id;
                 toolTipInstance.GetComponent<ServerTorsionTooltip>().ToolTipText.text = toolTipText;
-                toolTipInstance.GetComponent<ServerTorsionTooltip>().closeButton.onClick.AddListener(delegate { markMoleculeUI(false); });
+                toolTipInstance.GetComponent<ServerTorsionTooltip>().closeButton.onClick.AddListener(delegate { markTorsionTermUI(term, false); });
                 toolTipInstance.GetComponent<ServerTorsionTooltip>().modifyButton.onClick.AddListener(delegate { createServerChangeTorsionWindow(term); });
                 toolTipInstance.GetComponent<ServerTorsionTooltip>().localPosition = rectSave;
                 toolTipInstance.GetComponent<ServerTorsionTooltip>().linkedBond = bond;

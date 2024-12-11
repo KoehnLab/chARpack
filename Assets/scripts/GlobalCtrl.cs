@@ -2387,7 +2387,7 @@ namespace chARpack
                         {
                             tempMolecule.transform.position = getIdealSpawnPos(tempMolecule.transform);
                         }
-
+                        var scale_factor = 0f;
                         if (molecule.ssBounds != Vector4.zero)
                         {
                             tempMolecule.transform.localScale = Vector3.one;
@@ -2405,9 +2405,13 @@ namespace chARpack
                                 var max_mol_size = Mathf.Max(proj_mol_size.x, proj_mol_size.y);
                                 Debug.Log($"[Create:transition] max_mol_size: {max_mol_size}");
 
-                                var scale_factor = max_size / max_mol_size;
+                                scale_factor = max_size / max_mol_size;
                                 Debug.Log($"[Create:transition] scale_factor: {scale_factor}");
-                                tempMolecule.transform.localScale *= scale_factor;
+                                if (!SettingsData.twoDimensionalMode)
+                                {
+                                    tempMolecule.transform.localScale *= scale_factor;
+                                }
+
                             }
                             if (NetworkManagerServer.Singleton != null)
                             {
@@ -2427,9 +2431,12 @@ namespace chARpack
 
                                 if (!current_max_size.approx(0f))
                                 {
-                                    var scale_factor = cml_max_size / current_max_size;
+                                    scale_factor = cml_max_size / current_max_size;
                                     Debug.Log($"[Create:transition] scale_factor {scale_factor}");
-                                    tempMolecule.transform.localScale *= scale_factor;
+                                    if (!SettingsData.twoDimensionalMode)
+                                    {
+                                        tempMolecule.transform.localScale *= scale_factor;
+                                    }
                                 }
                             }
                         }
@@ -2450,7 +2457,7 @@ namespace chARpack
                         }
                         if (molecule.formulaSVGstring != string.Empty && molecule.formulaCoords != null)
                         {
-                            tempMolecule.transform.localScale = SettingsData.defaultMoleculeSize * Vector3.one;
+                            //tempMolecule.transform.localScale = SettingsData.defaultMoleculeSize * Vector3.one;
                             ForceField.Singleton.enableForceFieldMethod(false);
                             var coords_list = new Vector2[molecule.formulaCoords.Length];
                             for (int i = 0; i < coords_list.Length; i++)
@@ -2470,6 +2477,10 @@ namespace chARpack
                                 }
                             }
                             Morph.Singleton.set2Dactive(tempMolecule, find);
+                            if (scale_factor != 0f)
+                            {
+                                tempMolecule.transform.localScale *= scale_factor;
+                            }
                         }
                         tempMolecule.freeze(molecule.frozen);
                         if (addToUndoStack) undoStack.AddChange(new CreateMoleculeAction(tempMolecule.m_id, molecule));
