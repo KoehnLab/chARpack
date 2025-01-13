@@ -1,6 +1,8 @@
 import scine_utilities as su
 import scine_sparrow
 import numpy as np
+import time
+import copy
 
 element_dict = {"H": su.ElementType.H,
                 "C": su.ElementType.C,
@@ -17,7 +19,8 @@ class chARpackSparrow:
         self.calculator = None
         self.method = 'PM6'
         self.initialized = False
-        self.ss_lambda = 1.0
+        self.ss_lambda = None
+        self.ss_beta = 1.0
 
     def setMethod(self, method):
         if (method == self.method): return
@@ -39,6 +42,17 @@ class chARpackSparrow:
         # Configure calculator
         self.calculator.structure = self.structure
         self.calculator.set_required_properties([su.Property.Gradients])
+        self.ss_lambda = np.ones(len(self.structure.elements))
+
+    def readFile(self, file_path):
+        # Get calculator
+        manager = su.core.ModuleManager.get_instance()
+        self.calculator = manager.get('calculator', self.method)
+
+        self.structure = su.io.read(file_path)[0]
+        self.calculator.structure = self.structure
+        self.calculator.set_required_properties([su.Property.Gradients])
+        self.ss_lambda = np.ones(len(self.structure.elements))
 
     def __reInit(self):
         if (self.initialized):
@@ -49,29 +63,39 @@ class chARpackSparrow:
             # Configure calculator
             self.calculator.structure = self.structure
             self.calculator.set_required_properties([su.Property.Gradients])
+            self.ss_lambda = np.ones(len(self.structure.elements))
 
 
-    def run(self, steps = 1):
+    def run(self):
         results = self.calculator.calculate()
         self.steepestDescent(results)
 
     def ang_to_bohr(self, pos):
-        return np.array(pos) / 0.529177210903
+        return np.array(pos) * su.BOHR_PER_ANGSTROM
 
     def bohr_to_ang(self, pos):
-        return np.array(pos) * 0.529177210903
+        return np.array(pos, dtype="float32") / su.BOHR_PER_ANGSTROM
 
     def getPositions(self):
-        pos_in_ang = [self.bohr_to_ang(x) for x in self.calculator.positions]
+        pos_in_ang = np.array([self.bohr_to_ang(x) for x in self.calculator.positions], dtype="float32").flatten()
+        print(pos_in_ang)
         return pos_in_ang
     
     def steepestDescent(self, results):
-        new_positions = []
-        for i in range(len(self.structure.elements)):
-            pos = self.calculator.structure.positions[i] + self.ss_lambda * results.gradients[i]
-            new_positions.append(pos)
+        #new_positions = np.zeros((len(self.calculator.structure.elements),3))
+        #print(f"gradients: {results.gradients}")
+        # new_struct = copy.deepcopy(self.structure)
+        for i in range(len(self.calculator.structure.elements)):
+            pos = self.calculator.structure.positions[i] - self.ss_lambda[i] * results.gradients[i]
+            self.ss_lambda[i] *= self.ss_beta
+            self.calculator.structure.set_position(i, pos)
+            #print(f"old pos: {self.calculator.structure.positions[i]} new pos: {pos}")
+            #new_positions[i] = np.array(pos)
+            #new_struct.set_position(i, pos)
+        # self.structure = new_struct
+        # self.calculator.structure = new_struct
 
-        self.calculator.structure.positions = new_positions
+        #self.calculator.structure.positions = new_positions
 
     # def getIndices(self):
     #     return [x.index for x in self.atoms]
@@ -81,9 +105,30 @@ class chARpackSparrow:
 
     def changeAtomPosition(self, id, pos):
         self.calculator.structure.set_position(id, self.ang_to_bohr(pos))
+        self.ss_lambda[id] = 1.0
 
 
+# if __name__ == "__main__":
+#     sp = chARpackSparrow()
 
+#     elements = ["H", "C", "H", "H", "C", "H", "H", "O", "H"]
+    
+#     positions = [[1.62654, -0.03768, 0.84561],
+#                  [1.01120, -0.04529, -0.06260],
+#                  [1.32526, 0.80308, -0.68471],
+#                  [1.25013, -0.96118, -0.61888],
+#                  [-0.46208, 0.03063, 0.29470],
+#                  [-0.75800, -0.82632, 0.93155],
+#                  [-0.68223, 0.95369, 0.86656],
+#                  [-1.19813, 0.01810, -0.90725],
+#                  [-2.11270, 0.06497, -0.66499]]
+    
+#     sp.setData(positions, elements)
+    
+#     for i in range(1000):
+#         sp.run()
+#         #time.sleep(0.5)
+#         print(sp.getPositions())
 
 # # Calculate
 # results = calculator.calculate()
