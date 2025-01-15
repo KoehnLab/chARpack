@@ -2,9 +2,7 @@ using UnityEngine;
 using Python.Runtime;
 using System.Collections.Generic;
 using System.Collections;
-using System;
 using System.Linq;
-using chARpack.Types;
 using IngameDebugConsole;
 
 
@@ -40,27 +38,32 @@ namespace chARpack
         void Start()
         {
             isRunning = false;
+            isInitialized = false;
             EventManager.Singleton.OnGrabAtom += applyConstraint;
             DebugLogConsole.AddCommand("startSparrow", "starts a simulation using sparrow", startSim);
             DebugLogConsole.AddCommand("stopSparrow", "stops the current simulation", stopSim);
         }
 
+        public bool isInitialized { get; private set; }
         public bool isRunning { get; private set; }
         dynamic sparrow;
         List<Atom> id_convert;
         List<Vector3> sim_result;
+        int num_atoms = 0;
 
         private void prepareSim()
         {
             if (!PythonEnvironmentManager.Singleton)
             {
                 isRunning = false;
+                isInitialized = false;
                 Debug.LogWarning("[RunSparrow] No PythonEnvironmentManager found.");
                 return;
             }
             if (!PythonEnvironmentManager.Singleton.isInitialized)
             {
                 isRunning = false;
+                isInitialized = false;
                 Debug.LogWarning("[RunSparrow] PythonEnvironment not initialized yet.");
                 return;
             }
@@ -75,7 +78,7 @@ namespace chARpack
 
             // Prepare lists
             var posList = new List<Vector3>();
-            int num_atoms = 0;
+            num_atoms = 0;
             var symbolList = new List<string>();
             foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
             {
@@ -128,18 +131,21 @@ namespace chARpack
 
         private IEnumerator spreadSimulation()
         {
-            //yield return new WaitForSeconds(0.1f);
-            yield return sparrow.run();
-            dynamic python_pos_return = sparrow.getPositions();
-            int num_atoms = sparrow.getNumAtoms().As<int>();
-            //Debug.Log($"[RunSparrow] Sparrow has {num_atoms} atoms.");
-            sim_result = new List<Vector3>();
-            for (int i = 0; i < num_atoms; i++)
+            //yield return new WaitForSeconds(1f);
+            using (Py.GIL())
             {
-                sim_result.Add(GlobalCtrl.scale / GlobalCtrl.u2aa * new Vector3(python_pos_return[i][0].As<float>(), python_pos_return[i][1].As<float>(), python_pos_return[i][2].As<float>()));
-                //Debug.Log($"[RunSparrow] Sparrow atom {i} with position {sim_result[i]}");
+                //yield return sparrow.run();
+                dynamic python_pos_return = sparrow.getPositions();
+
+                sim_result = new List<Vector3>();
+                for (int i = 0; i < num_atoms; i++)
+                {
+                    sim_result.Add(GlobalCtrl.scale / GlobalCtrl.u2aa * new Vector3(python_pos_return[i][0].As<float>(), python_pos_return[i][1].As<float>(), python_pos_return[i][2].As<float>()));
+                    //Debug.Log($"[RunSparrow] Sparrow atom {i} with position {sim_result[i]}");
+                }
+                //Debug.Log($"[RunSparrow] {sim_result.ToArray().Print()}");
             }
-            //yield return null;
+            yield return null;
         }
 
         public void applyConstraint(Atom a, bool value)
@@ -155,12 +161,9 @@ namespace chARpack
 
         private void FixedUpdate()
         {
-            if (!isRunning) return;
-            if (sparrow != null)
-            {
-                StartCoroutine(spreadSimulation());
-            }
-            if (sim_result?.Count > 0)
+            if (!isInitialized) return;
+            StartCoroutine(spreadSimulation());
+            if (sim_result?.Count == id_convert.Count)
             {
                 //int offset = 0;
                 //foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
@@ -209,15 +212,25 @@ namespace chARpack
 
         public void stopSim()
         {
+            using (Py.GIL())
+            {
+                sparrow.stopContinuousRun();
+            }
+            isInitialized = false;
             isRunning = false;
         }
 
         public void startSim()
         {
-            if (!isRunning)
+            if (!isInitialized && !isRunning)
             {
                 ForceField.Singleton.enableForceFieldMethodUI(false);
                 prepareSim();
+                isInitialized = !isInitialized;
+                using (Py.GIL())
+                {
+                    sparrow.startContinuousRun();
+                }
                 isRunning = !isRunning;
             }
         }

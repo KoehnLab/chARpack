@@ -3,6 +3,8 @@ import scine_sparrow
 import numpy as np
 import time
 import copy
+from pprint import pprint
+import threading
 
 element_dict = {"H": su.ElementType.H,
                 "C": su.ElementType.C,
@@ -19,8 +21,11 @@ class chARpackSparrow:
         self.calculator = None
         self.method = 'PM6'
         self.initialized = False
+        self.isRunning = False
         self.ss_lambda = None
         self.ss_beta = 1.0
+        self.lock = threading.Lock()
+        self.current_positions = None
 
     def setMethod(self, method):
         if (method == self.method): return
@@ -32,6 +37,7 @@ class chARpackSparrow:
     def setData(self, positions, symbols, indices = None, mol_id = None):
         self.mol_id = mol_id
         self.structure.elements = [element_dict[x] for x in symbols]
+        self.current_positions = positions
         pos_in_bohr = [self.ang_to_bohr(x) for x in positions]
         self.structure.positions = pos_in_bohr
 
@@ -56,11 +62,12 @@ class chARpackSparrow:
 
     def __reInit(self):
         if (self.initialized):
-            self.structure = self.calculator.structure
+            s = copy.deepcopy(self.structure)
             # Get calculator
             manager = su.core.ModuleManager.get_instance()
             self.calculator = manager.get('calculator', self.method)
             # Configure calculator
+            self.structure = s
             self.calculator.structure = self.structure
             self.calculator.set_required_properties([su.Property.Gradients])
             self.ss_lambda = np.ones(len(self.structure.elements))
@@ -69,6 +76,28 @@ class chARpackSparrow:
     def run(self):
         results = self.calculator.calculate()
         self.steepestDescent(results)
+        np.array([self.bohr_to_ang(x) for x in self.structure.positions], dtype="float32").tolist()
+
+    def runWithLock(self):
+        results = self.calculator.calculate()
+        self.steepestDescent(results)
+        self.lock.acquire()
+        self.current_positions = np.array([self.bohr_to_ang(x) for x in self.structure.positions], dtype="float32").tolist()
+        self.lock.release()
+
+
+    def startContinuousRun(self):
+        self.isRunning = True
+        secondary_thread = threading.Thread(target = self.__continuousRun)
+        secondary_thread.daemon = True
+        secondary_thread.start()
+
+    def __continuousRun(self):
+        while self.isRunning:
+            self.runWithLock()
+
+    def stopContinuousRun(self):
+        self.isRunning = False
 
     def ang_to_bohr(self, pos):
         return np.array(pos) * su.BOHR_PER_ANGSTROM
@@ -77,35 +106,33 @@ class chARpackSparrow:
         return np.array(pos, dtype="float32") / su.BOHR_PER_ANGSTROM
 
     def getPositions(self):
-        pos_in_ang = np.array([self.bohr_to_ang(x) for x in self.calculator.positions], dtype="float32").flatten()
-        print(pos_in_ang)
+        self.lock.acquire()
+        pos_in_ang = self.current_positions
+        self.lock.release()
         return pos_in_ang
     
-    def steepestDescent(self, results):
-        #new_positions = np.zeros((len(self.calculator.structure.elements),3))
-        #print(f"gradients: {results.gradients}")
-        # new_struct = copy.deepcopy(self.structure)
-        for i in range(len(self.calculator.structure.elements)):
-            pos = self.calculator.structure.positions[i] - self.ss_lambda[i] * results.gradients[i]
-            self.ss_lambda[i] *= self.ss_beta
-            self.calculator.structure.set_position(i, pos)
-            #print(f"old pos: {self.calculator.structure.positions[i]} new pos: {pos}")
-            #new_positions[i] = np.array(pos)
-            #new_struct.set_position(i, pos)
-        # self.structure = new_struct
-        # self.calculator.structure = new_struct
+    def getPositionOf(self, id):
+        return self.bohr_to_ang(self.structure.positions[id])
 
-        #self.calculator.structure.positions = new_positions
+    def steepestDescent(self, results):
+        #print(f"gradients: {results.gradients}")
+
+        new_positions = self.structure.positions - np.multiply(results.gradients.transpose(), self.ss_lambda).transpose()
+        self.structure.positions = new_positions
+        self.calculator.structure = self.structure
 
     # def getIndices(self):
     #     return [x.index for x in self.atoms]
 
     def getNumAtoms(self):
-        return len(self.calculator.structure.elements)
+        return len(self.structure.elements)
 
     def changeAtomPosition(self, id, pos):
-        self.calculator.structure.set_position(id, self.ang_to_bohr(pos))
+        # self.lock.acquire()
+        self.structure.set_position(id, self.ang_to_bohr(pos))
+        self.calculator.structure = self.structure
         self.ss_lambda[id] = 1.0
+        # self.lock.release()
 
 
 # if __name__ == "__main__":
@@ -122,24 +149,14 @@ class chARpackSparrow:
 #                  [-0.68223, 0.95369, 0.86656],
 #                  [-1.19813, 0.01810, -0.90725],
 #                  [-2.11270, 0.06497, -0.66499]]
-    
+#     print("Initial Positions")
+#     print(positions)
+
 #     sp.setData(positions, elements)
     
+#     #sp.startContinuousRun()
 #     for i in range(1000):
 #         sp.run()
-#         #time.sleep(0.5)
-#         print(sp.getPositions())
-
-# # Calculate
-# results = calculator.calculate()
-# print(results.energy)
-# print(results.gradients)
-
-# # Update positions (without changing the rest of the molecule)
-# new_positions = [[-0.7, 0, 0], [0.9, 0, 0]]
-# calculator.positions = new_positions
-
-# # Recalculate
-# new_results = calculator.calculate()
-# print(new_results.energy)
-# print(new_results.gradients)
+#         print("POSITIONS")
+#         pprint(sp.getPositions())
+#         time.sleep(0.5)

@@ -11,7 +11,6 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using chARpack.ColorPalette;
-using UnityEngine.SceneManagement;
 
 
 namespace chARpack
@@ -258,6 +257,61 @@ namespace chARpack
                         text[2] = newAng;
 
                         toolTipInstance.GetComponent<ServerTorsionTooltip>().ToolTipText.text = string.Join("\n", text);
+                    }
+                }
+            }
+            if (RunSparrow.Singleton != null && RunSparrow.Singleton.isRunning)
+            {
+                var to_remove = new List<Bond>();
+                foreach (var bond in bondList)
+                {
+                    var term = bondTerms.Find(p => p.Contains(bond.atomID1, bond.atomID2));
+                    var current_dist = ((atomList[bond.atomID1].transform.localPosition - atomList[bond.atomID2].transform.localPosition) / ForceField.scalingfactor).magnitude;
+                    if (current_dist > 1.5 * term.eqDist)
+                    {
+                        to_remove.Add(bond);
+                    }
+                }
+                foreach (var bond in to_remove)
+                {
+                    bondList.Remove(bond);
+                    Destroy(bond.gameObject);
+                }
+
+                foreach (var atom1 in atomList)
+                {
+                    foreach (var atom2 in atomList)
+                    {
+                        if (atom1 == atom2) continue;
+
+                        string key1 = string.Format("{0}_{1}", atom1.m_data.m_abbre, atom1.m_data.m_hybridization);
+                        string key2 = string.Format("{0}_{1}", atom2.m_data.m_abbre, atom2.m_data.m_hybridization);
+
+                        float[] value1;
+                        float[] value2;
+
+                        float R01 = ForceField.DREIDINGConst.TryGetValue(key1, out value1) ? value1[0] : 70f;
+                        float R02 = ForceField.DREIDINGConst.TryGetValue(key2, out value2) ? value2[0] : 70f;
+
+                        var dreiding_eqDist = R01 + R02 - 1f;
+
+                        var current_dist = ((atom1.transform.localPosition - atom2.transform.localPosition) / ForceField.scalingfactor).magnitude;
+
+                        var existing_bond = bondList.Find(p => (p.atomID1 == atom1.m_id && p.atomID2 == atom2.m_id) || (p.atomID2 == atom1.m_id && p.atomID1 == atom2.m_id));
+                        var has_bond = existing_bond != null;
+
+                        if (current_dist < 1.05f * dreiding_eqDist)
+                        {
+                            if (has_bond) continue;
+                            var new_bond = Instantiate(GlobalCtrl.Singleton.bondPrefab);
+                            new_bond.f_Init(atom1, atom2, this);
+                        }
+                        else
+                        {
+                            if (!has_bond) continue;
+                            bondList.Remove(existing_bond);
+                            Destroy(existing_bond.gameObject);
+                        }
                     }
                 }
             }
@@ -1113,7 +1167,7 @@ namespace chARpack
         /// </summary>
         public void resetMolPositionAfterMove()
         {
-
+            if (RunSparrow.Singleton != null && RunSparrow.Singleton.isRunning) return;
             // reset molecule position
             Vector3 molCenter = getCenterInAtomWorld();
             var mol_rot = transform.localRotation;
