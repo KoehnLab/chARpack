@@ -262,22 +262,6 @@ namespace chARpack
             }
             if (RunSparrow.Singleton != null && RunSparrow.Singleton.isRunning)
             {
-                var to_remove = new List<Bond>();
-                foreach (var bond in bondList)
-                {
-                    var term = bondTerms.Find(p => p.Contains(bond.atomID1, bond.atomID2));
-                    var current_dist = ((atomList[bond.atomID1].transform.localPosition - atomList[bond.atomID2].transform.localPosition) / ForceField.scalingfactor).magnitude;
-                    if (current_dist > 1.5 * term.eqDist)
-                    {
-                        to_remove.Add(bond);
-                    }
-                }
-                foreach (var bond in to_remove)
-                {
-                    bondList.Remove(bond);
-                    Destroy(bond.gameObject);
-                }
-
                 foreach (var atom1 in atomList)
                 {
                     foreach (var atom2 in atomList)
@@ -300,7 +284,7 @@ namespace chARpack
                         var existing_bond = bondList.Find(p => (p.atomID1 == atom1.m_id && p.atomID2 == atom2.m_id) || (p.atomID2 == atom1.m_id && p.atomID1 == atom2.m_id));
                         var has_bond = existing_bond != null;
 
-                        if (current_dist < 1.05f * dreiding_eqDist)
+                        if (current_dist < 1.1f * dreiding_eqDist)
                         {
                             if (has_bond) continue;
                             var new_bond = Instantiate(GlobalCtrl.Singleton.bondPrefab);

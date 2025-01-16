@@ -210,12 +210,21 @@ namespace chARpack
             }
         }
 
+        private void OnDestroy()
+        {
+            stopSim();
+        }
+
         public void stopSim()
         {
-            using (Py.GIL())
+            if (sparrow != null)
             {
-                sparrow.stopContinuousRun();
+                using (Py.GIL())
+                {
+                    sparrow.stopContinuousRun();
+                }
             }
+
             isInitialized = false;
             isRunning = false;
         }
