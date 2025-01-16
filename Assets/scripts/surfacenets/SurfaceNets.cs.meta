@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 083bbee4770a6c5428c9c7a3dfbcde32
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - surfaceNetsShader: {fileID: 7200000, guid: 726846d4ef0bfa4429bcda59dbf5fce4, type: 3}
+  - voxelFieldTexture: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
