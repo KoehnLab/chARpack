@@ -24,8 +24,8 @@ class chARpackMarchingCubes : MonoBehaviour
 
     int VoxelCount => _dimensions.x * _dimensions.y * _dimensions.z;
 
-    ComputeBuffer _voxelBuffer;
-    MeshBuilder _builder;
+    ComputeBuffer _voxelBuffer = null;
+    MeshBuilder _builder = null;
     bool initialized = false;
 
     private void Start()
@@ -79,7 +79,6 @@ class chARpackMarchingCubes : MonoBehaviour
         }
     }
 
-
     void Initialize(ScalarVolume vol)
     {
         Debug.Log($"Num values: {vol.values.Count}; VoxelCount: {VoxelCount}");
@@ -102,8 +101,10 @@ class chARpackMarchingCubes : MonoBehaviour
 
     void OnDestroy()
     {
-        _voxelBuffer.Dispose();
-        _builder.Dispose();
+        if (_voxelBuffer != null)
+            _voxelBuffer.Dispose();
+        if (_builder != null)
+            _builder.Dispose();
     }
 
     void Update()
