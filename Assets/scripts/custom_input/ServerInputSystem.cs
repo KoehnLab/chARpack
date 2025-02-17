@@ -21,7 +21,7 @@ namespace chARpack
         private void Start()
         {
             var names = QualitySettings.names.ToList();
-            QualitySettings.SetQualityLevel(names.IndexOf("Ultra"));
+            QualitySettings.SetQualityLevel(names.IndexOf("chARpack"));
             var cursor_texture = Resources.Load<Texture2D>("customCursor/cursor");
             Cursor.SetCursor(cursor_texture, Vector3.zero, CursorMode.ForceSoftware);
             system = EventSystem.current;

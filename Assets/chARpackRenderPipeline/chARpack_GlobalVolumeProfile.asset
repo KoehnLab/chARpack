@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-2054160338547429231
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7cca3a380c5a224ca9f7358e2431aaf, type: 3}
+  m_Name: BenDayBloomEffectComponent
+  m_EditorClassIdentifier: 
+  active: 1
+  threshold:
+    m_OverrideState: 1
+    m_Value: 1.06
+  intensity:
+    m_OverrideState: 1
+    m_Value: 5
+  scatter:
+    m_OverrideState: 1
+    m_Value: 0.923
+  clamp:
+    m_OverrideState: 1
+    m_Value: 62333
+  maxIterations:
+    m_OverrideState: 0
+    m_Value: 10
+  tint:
+    m_OverrideState: 0
+    m_Value: {r: 1, g: 1, b: 1, a: 1}
+    hdr: 0
+  dotsDensity:
+    m_OverrideState: 1
+    m_Value: 100
+  dotsCutoff:
+    m_OverrideState: 1
+    m_Value: 0.27
+  scrollDirection:
+    m_OverrideState: 0
+    m_Value: {x: 1, y: 1}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
+  m_Name: chARpack_GlobalVolumeProfile
+  m_EditorClassIdentifier: 
+  components:
+  - {fileID: -2054160338547429231}
+  - {fileID: 4152419686861063319}
+--- !u!114 &4152419686861063319
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88db92712f0f57c4589ad20b24a6a69e, type: 3}
+  m_Name: ToonEffectComponent
+  m_EditorClassIdentifier: 
+  active: 1
+  outlineWidth:
+    m_OverrideState: 1
+    m_Value: 2
+  outlineColor:
+    m_OverrideState: 1
+    m_Value: {r: 0, g: 0, b: 0, a: 1}
+    hdr: 0
+  showOutline:
+    m_OverrideState: 1
+    m_Value: 1
+  showPaint:
+    m_OverrideState: 1
+    m_Value: 0
+  highlightColor:
+    m_OverrideState: 0
+    m_Value: {r: 1, g: 1, b: 1, a: 1}
+    hdr: 0
+  showHighlight:
+    m_OverrideState: 1
+    m_Value: 0
