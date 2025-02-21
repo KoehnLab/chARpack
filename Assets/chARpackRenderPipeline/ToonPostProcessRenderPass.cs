@@ -32,11 +32,10 @@ public class ToonPostProcessRenderPass : ScriptableRenderPass
         if (m_outlineMaterial == null || m_paintMaterial == null || m_highlightMaterial == null) return;
         if (_tempTexture1 == null || _tempTexture2 == null) return;
 
-        CommandBuffer cmd = CommandBufferPool.Get();
-
         VolumeStack stack = VolumeManager.instance.stack;
         m_ToonEffect = stack.GetComponent<ToonEffectComponent>();
 
+        CommandBuffer cmd = CommandBufferPool.Get();
         using (new ProfilingScope(cmd, new ProfilingSampler("Toon Post Process Effect")))
         {
             m_outlineMaterial.SetFloat("_OutlineWidth", m_ToonEffect.outlineWidth.value);
