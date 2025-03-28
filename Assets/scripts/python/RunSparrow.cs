@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using IngameDebugConsole;
+using System;
 
 
 namespace chARpack
@@ -47,6 +48,7 @@ namespace chARpack
         public bool isInitialized { get; private set; }
         public bool isRunning { get; private set; }
         dynamic sparrow;
+        dynamic builtins;
         List<Atom> id_convert;
         List<Vector3> sim_result;
         int num_atoms = 0;
@@ -121,6 +123,7 @@ namespace chARpack
                 }
 
                 // Import your Python script
+                builtins = Py.Import("builtins");
                 dynamic script = Py.Import("test_sparrow");
                 sparrow = script.chARpackSparrow();
                 sparrow.setData(pyPosList, pySymbolList);
@@ -135,13 +138,34 @@ namespace chARpack
             using (Py.GIL())
             {
                 //yield return sparrow.run();
+                sparrow.setCalcMOs(true);
                 dynamic python_pos_return = sparrow.getPositions();
-
-                sim_result = new List<Vector3>();
-                for (int i = 0; i < num_atoms; i++)
+                dynamic python_mo_return = sparrow.getMO();
+                if (builtins.len(python_pos_return) > 0)
                 {
-                    sim_result.Add(GlobalCtrl.scale / GlobalCtrl.u2aa * new Vector3(python_pos_return[i][0].As<float>(), python_pos_return[i][1].As<float>(), python_pos_return[i][2].As<float>()));
-                    //Debug.Log($"[RunSparrow] Sparrow atom {i} with position {sim_result[i]}");
+                    sim_result = new List<Vector3>();
+                    for (int i = 0; i < num_atoms; i++)
+                    {
+                        sim_result.Add(GlobalCtrl.scale / GlobalCtrl.u2aa * new Vector3(python_pos_return[i][0].As<float>(), python_pos_return[i][1].As<float>(), python_pos_return[i][2].As<float>()));
+                        //Debug.Log($"[RunSparrow] Sparrow atom {i} with position {sim_result[i]}");
+                    }
+                }
+                if (builtins.len(python_mo_return.keys()) > 0) {
+                    Debug.Log($"[RunSparrow] Got MO {python_mo_return}");
+                    Debug.Log($"[RunSparrow] Got Orbitals are not all zero {python_mo_return["data"].any()}");
+                    Debug.Log($"[RunSparrow] Got Orbitals MAX: {python_mo_return["data"].max()} MIN: {python_mo_return["data"].min()}");
+                    var volume = new ScalarVolume();
+                    volume.dim = new Vector3Int(python_mo_return["dimensions"][0].As<int>(), python_mo_return["dimensions"][1].As<int>(), python_mo_return["dimensions"][2].As<int>());
+                    volume.spacing = new Vector3(python_mo_return["spacing"][0].As<float>(), python_mo_return["spacing"][1].As<float>(), python_mo_return["spacing"][2].As<float>());
+                    volume.origin = new Vector3(python_mo_return["origin"][0].As<float>(), python_mo_return["origin"][1].As<float>(), python_mo_return["origin"][2].As<float>());
+                    var list = new float[volume.dim[0] * volume.dim[1] * volume.dim[2]];
+                    var d_list = python_mo_return["data"].As<double[]>();
+                    for (int i = 0; i < list.Count(); i++)
+                    {
+                        list[i] = (float)d_list[i];
+                    }
+                    volume.values = list.ToList();
+                    MoleculeOrbitals.Singleton.addOrbital(volume, GlobalCtrl.Singleton.getFirstMarkedObject().GetComponent<Molecule>());
                 }
                 //Debug.Log($"[RunSparrow] {sim_result.ToArray().Print()}");
             }

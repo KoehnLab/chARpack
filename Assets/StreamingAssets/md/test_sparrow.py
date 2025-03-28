@@ -1,10 +1,19 @@
 import scine_utilities as su
 import scine_sparrow
+from queue import Queue
 import numpy as np
 import time
+import re
 import copy
 from pprint import pprint
 import threading
+from typing import List
+from scine_heron.electronic_data.molden_file_reader import MoldenFileReader
+from scine_heron.electronic_data.electronic_data import (Atom, ElectronicData,
+                                                         GaussianOrbital,
+                                                         MolecularOrbital)
+from scine_heron.electronic_data.electronic_data_image_generator import ElectronicDataImageGenerator
+from vtk.util.numpy_support import vtk_to_numpy
 
 element_dict = {"H": su.ElementType.H,
                 "C": su.ElementType.C,
@@ -15,6 +24,8 @@ element_dict = {"H": su.ElementType.H,
 available_methods = ['MNDO', 'AM1', 'RM1', 'PM3', 'PM6', 'DFTB0', 'DFTB2', 'DFTB3']
 
 class chARpackSparrow:
+    MAX_POS_QUEUE = 2
+    MAX_MO_QUEUE = 2
     def __init__(self):
         self.structure = su.AtomCollection()
         self.mol_id = None
@@ -24,8 +35,13 @@ class chARpackSparrow:
         self.isRunning = False
         self.ss_lambda = None
         self.ss_beta = 1.0
-        self.lock = threading.Lock()
-        self.current_positions = None
+        self.pos_queue: Queue = Queue()
+        self.calc_mos = False
+        self.mo_queue: Queue = Queue()
+        self.molden_content = None
+        self.molden_parser = MoldenFileReader()
+        self.mo_index = -1
+
 
     def setMethod(self, method):
         if (method == self.method): return
@@ -37,7 +53,6 @@ class chARpackSparrow:
     def setData(self, positions, symbols, indices = None, mol_id = None):
         self.mol_id = mol_id
         self.structure.elements = [element_dict[x] for x in symbols]
-        self.current_positions = positions
         pos_in_bohr = [self.ang_to_bohr(x) for x in positions]
         self.structure.positions = pos_in_bohr
 
@@ -49,6 +64,9 @@ class chARpackSparrow:
         self.calculator.structure = self.structure
         self.calculator.set_required_properties([su.Property.Gradients])
         self.ss_lambda = np.ones(len(self.structure.elements))
+
+    def setMOIndex(self, id):
+        self.mo_index = id
 
     def readFile(self, file_path):
         # Get calculator
@@ -75,16 +93,30 @@ class chARpackSparrow:
 
     def run(self):
         results = self.calculator.calculate()
+        ## Generate orbitals (volume data)
+        if self.calc_mos:
+            wf_generator = su.core.to_wf_generator(self.calculator)
+            self.molden_content = wf_generator.output_wavefunction()
+            electronic_data = self.molden_parser.read_molden(self.molden_content)
+            image_generator = ElectronicDataImageGenerator(electronic_data)
+            actual_index = self.__get_actual_index(electronic_data, self.mo_index)
+            image = image_generator.generate_mo_image(actual_index)
+            #dims = np.array([*image.GetDimensions()])
+            mo_data = {"dimensions": image.GetDimensions(),
+                    "origin": self.bohr_to_ang(image.GetOrigin()),
+                    "spacing": self.bohr_to_ang(image.GetSpacing()),
+                    #"data": vtk_to_numpy(image.GetPointData().GetScalars()).reshape(dims[::-1]).transpose().flatten()}
+                    "data": vtk_to_numpy(image.GetPointData().GetScalars())}
+            # write molecule orbitals
+            if self.mo_queue.qsize() >= self.MAX_MO_QUEUE:
+                self.mo_queue.get()
+            self.mo_queue.put(mo_data)
+        # Simulation step
         self.steepestDescent(results)
-        np.array([self.bohr_to_ang(x) for x in self.structure.positions], dtype="float32").tolist()
-
-    def runWithLock(self):
-        results = self.calculator.calculate()
-        self.steepestDescent(results)
-        self.lock.acquire()
-        self.current_positions = np.array([self.bohr_to_ang(x) for x in self.structure.positions], dtype="float32").tolist()
-        self.lock.release()
-
+        # write atom positions
+        if self.pos_queue.qsize() >= self.MAX_POS_QUEUE:
+            self.pos_queue.get()
+        self.pos_queue.put(np.array([self.bohr_to_ang(x) for x in self.structure.positions], dtype="float32").tolist())
 
     def startContinuousRun(self):
         self.isRunning = True
@@ -94,7 +126,7 @@ class chARpackSparrow:
 
     def __continuousRun(self):
         while self.isRunning:
-            self.runWithLock()
+            self.run()
 
     def stopContinuousRun(self):
         self.isRunning = False
@@ -105,18 +137,26 @@ class chARpackSparrow:
     def bohr_to_ang(self, pos):
         return np.array(pos, dtype="float32") / su.BOHR_PER_ANGSTROM
 
+    def setCalcMOs(self, value: bool):
+        self.calc_mos = value
+
     def getPositions(self):
-        self.lock.acquire()
-        pos_in_ang = self.current_positions
-        self.lock.release()
-        return pos_in_ang
+        if not self.pos_queue.empty():
+            return self.pos_queue.get()
+        else:
+            return []
+    
+    def getMO(self):
+        if not self.mo_queue.empty():
+            return self.mo_queue.get()
+        else:
+            return {}
     
     def getPositionOf(self, id):
         return self.bohr_to_ang(self.structure.positions[id])
 
     def steepestDescent(self, results):
         #print(f"gradients: {results.gradients}")
-
         new_positions = self.structure.positions - np.multiply(results.gradients.transpose(), self.ss_lambda).transpose()
         self.structure.positions = new_positions
         self.calculator.structure = self.structure
@@ -128,12 +168,15 @@ class chARpackSparrow:
         return len(self.structure.elements)
 
     def changeAtomPosition(self, id, pos):
-        # self.lock.acquire()
         self.structure.set_position(id, self.ang_to_bohr(pos))
         self.calculator.structure = self.structure
         self.ss_lambda[id] = 1.0
-        # self.lock.release()
 
+    def __get_actual_index(self, electronic_data: ElectronicData, orbital_index: int) -> int:
+        i = 0
+        while electronic_data.mo[i].occupation >= 1.0:
+            i += 1
+        return i if orbital_index == -1 else i + 1
 
 # if __name__ == "__main__":
 #     sp = chARpackSparrow()
@@ -153,10 +196,17 @@ class chARpackSparrow:
 #     print(positions)
 
 #     sp.setData(positions, elements)
-    
+#     sp.setCalcMOs(True)
 #     #sp.startContinuousRun()
-#     for i in range(1000):
+#     #time.sleep(20)
+#     for i in range(1):
 #         sp.run()
-#         print("POSITIONS")
-#         pprint(sp.getPositions())
+
+#         mo_data = sp.getMO()
+#         print(mo_data)
+#         #print(data.shape)
+#         #print(sp.getPositions())
+        
+#         # print("POSITIONS")
+#         # pprint(sp.getPositions())
 #         time.sleep(0.5)

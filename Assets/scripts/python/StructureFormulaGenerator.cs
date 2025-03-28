@@ -168,8 +168,8 @@ namespace chARpack
 
             // define outputs
             string svgContent = "";
-            await Task.Run(() =>
-            {
+            //await Task.Run(() =>
+            //{
                 try
                 {
                     // Acquire the GIL before using any Python APIs
@@ -227,9 +227,9 @@ namespace chARpack
                 catch (Exception ex)
                 {
                     Debug.Log("[StructureFormulaGenerator] Could not generate a structure formula. This is expected for small Molecules.");
-                    return;
+                    //return;
                 }
-            });
+            //});
 
             return new Tuple<string, List<Vector2>>(svgContent,coords);
         }
