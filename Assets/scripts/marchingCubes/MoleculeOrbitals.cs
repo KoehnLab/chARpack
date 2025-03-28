@@ -184,7 +184,7 @@ namespace chARpack
                 // Rebuild the isosurface only when the target value has been changed.
                 if (mo.target_iso_value == mo.current_iso_value) continue;
 
-                mo.builder.BuildIsosurface(mo.compute_buffer, TargetValue, _spacing);
+                mo.builder.BuildIsosurface(mo.compute_buffer, mo.target_iso_value, _spacing);
                 mo.game_object.GetComponent<MeshFilter>().sharedMesh = mo.builder.Mesh;
 
                 mo.current_iso_value = mo.target_iso_value;
