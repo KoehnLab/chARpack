@@ -79,6 +79,7 @@ namespace chARpack
             { 
                 foundRendererFeatures = true;
                 ToonOutlineMat = (ToonOutlineRendererFeature as FullScreenPassRendererFeature).passMaterial;
+                setToonShading(UseToonShading);
             }
         }
 
@@ -92,10 +93,14 @@ namespace chARpack
             foreach(var atom in atoms)
             {
                 atom.GetComponent<MeshRenderer>().material.shader = atomShader;
+                atom.GetComponent<OutlinePro>().OutlineWidth = value ? new float[4] { 7f, 7f, 7f, 7f } : new float[4] { 5f, 5f, 5f, 5f };
+                atom.GetComponent<OutlinePro>().NeedsUpdate();
             }
             foreach(var bond in bonds)
             {
                 bond.GetComponentInChildren<MeshRenderer>().material.shader = bondShader;
+                bond.GetComponent<Outline>().OutlineWidth = value ? 7f : 5f;
+                
             }
             GlobalCtrl.Singleton.atomMatPrefab.shader = atomShader;
             GlobalCtrl.Singleton.bondMat.shader = bondShader;

@@ -88,6 +88,8 @@ namespace chARpack
         /// <param name="isOn">if this bond is selected</param>
         public void colorSwapSelect(int col)
         {
+            if (PostProcessingControl.Singleton && PostProcessingControl.Singleton.UseToonShading) GetComponent<Outline>().OutlineWidth = 7f;
+            else GetComponent<Outline>().OutlineWidth = 5f;
             if (col == 2)
             {
                 // single component

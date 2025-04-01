@@ -337,7 +337,6 @@ namespace chARpack
         private void setToonShading(bool value)
         {
             if (PostProcessingControl.Singleton) PostProcessingControl.Singleton.UseToonShading = value;
-            Debug.Log(PostProcessingControl.Singleton.UseToonShading);
         }
     }
 }
