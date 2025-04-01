@@ -1,4 +1,7 @@
 using IngameDebugConsole;
+using SimpleFileBrowser;
+using System.Collections;
+using System.IO;
 using UnityEngine;
 
 public class SurfaceNets : MonoBehaviour
@@ -26,25 +29,60 @@ public class SurfaceNets : MonoBehaviour
 
     void loadData()
     {
-        //var path = "D:\\mol_data\\robert_a\\Pd_spin_vector_density.csv";
-        
+        StartCoroutine(ShowLoadDialogCoroutine());
     }
 
-    void Initialize()
+    IEnumerator ShowLoadDialogCoroutine()
+    {
+        yield return FileBrowser.WaitForLoadDialog(FileBrowser.PickMode.Files);
+
+
+        if (FileBrowser.Success)
+        {
+            if (FileBrowser.Result.Length != 1)
+            {
+                UnityEngine.Debug.LogError("[SurfaceNets] Path from FileBrowser is empty. Abort.");
+                yield break;
+            }
+            FileInfo fi = new FileInfo(FileBrowser.Result[0]);
+            UnityEngine.Debug.Log($"[SurfaceNets] Current extension: {fi.Extension}");
+            if (!fi.Exists)
+            {
+                UnityEngine.Debug.LogError("[SurfaceNets] Something went wrong during path conversion. Abort.");
+                yield break;
+            }
+
+            if(fi.Extension.Contains("csv"))
+            {
+                var volume = CSVToVolume.LoadCSV(fi.FullName);
+                yield return Initialize(volume.dim.x * volume.dim.y * volume.dim.z);
+            }
+            else
+            {
+                yield break;
+            }
+        }
+    }
+
+
+    IEnumerator Initialize(int num_voxels)
     {
         // Set up the compute shader
         kernelHandle = surfaceNetsShader.FindKernel("CSMain");
 
         // Create buffers to hold the results
-        verticesBuffer = new ComputeBuffer(1024 * 1024, sizeof(float) * 3); // 1M vertices max
-        trianglesBuffer = new ComputeBuffer(1024 * 1024, sizeof(int) * 3);  // Adjust based on expected triangles
-        verticesCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);  // Stores the number of vertices
-        verticesCountBuffer.SetData(new int[] { 0 }); // Initialize to zero
+        verticesBuffer = new ComputeBuffer(num_voxels, sizeof(float) * 3);
+        trianglesBuffer = new ComputeBuffer(num_voxels, sizeof(int) * 3);
+        verticesCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
+        verticesCountBuffer.SetData(new int[1] { 0 });
 
+
+        // TODO generate texture
         // Set up the voxel field as a 3D texture
         surfaceNetsShader.SetTexture(kernelHandle, "voxelField", voxelFieldTexture);
         surfaceNetsShader.SetBuffer(kernelHandle, "vertices", verticesBuffer);
         surfaceNetsShader.SetBuffer(kernelHandle, "triangles", trianglesBuffer);
+        surfaceNetsShader.SetBuffer(kernelHandle, "verticesCountBuffer", verticesCountBuffer);
 
         // Set dynamic grid size and threshold as constants in the shader
         surfaceNetsShader.SetInt("gridSizeX", gridSizeX);
@@ -53,9 +91,15 @@ public class SurfaceNets : MonoBehaviour
         surfaceNetsShader.SetFloat("threshold", threshold);
 
         // Dispatch the compute shader
-        surfaceNetsShader.Dispatch(kernelHandle, gridSizeX / 8, gridSizeY / 8, gridSizeZ / 8);
+        // Ensure grid sizes are multiples of 8, adjust if necessary
+        int dispatchX = Mathf.CeilToInt((float)gridSizeX / 8);
+        int dispatchY = Mathf.CeilToInt((float)gridSizeY / 8);
+        int dispatchZ = Mathf.CeilToInt((float)gridSizeZ / 8);
+        surfaceNetsShader.Dispatch(kernelHandle, dispatchX, dispatchY, dispatchZ);
 
         isInitialized = true;
+
+        yield return null;
     }
 
     void OnDestroy()
@@ -77,6 +121,12 @@ public class SurfaceNets : MonoBehaviour
         int[] vertexCountArray = new int[1];
         verticesCountBuffer.GetData(vertexCountArray);
         int verticesCount = vertexCountArray[0];
+        if (verticesCount == 0)
+        {
+            Debug.LogWarning("No vertices were generated!");
+            return;
+        }
+
 
         // Once the compute shader finishes, construct a mesh
         Vector3[] vertices = new Vector3[verticesCount];
@@ -84,6 +134,11 @@ public class SurfaceNets : MonoBehaviour
 
         int[] triangles = new int[trianglesBuffer.count];
         trianglesBuffer.GetData(triangles);
+        if (triangles.Length % 3 != 0)
+        {
+            Debug.LogError("Triangle count is not a multiple of 3!");
+            return;
+        }
 
         Mesh mesh = new Mesh();
         mesh.vertices = vertices;

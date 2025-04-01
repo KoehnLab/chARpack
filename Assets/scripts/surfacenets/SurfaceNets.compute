@@ -1,14 +1,14 @@
 #pragma kernel CSMain
 
 // Buffers for storing results
-RWStructuredBuffer<float3> vertices : register(u0);
-RWStructuredBuffer<int> triangles : register(u1);
+RWStructuredBuffer<float3> vertices;
+RWStructuredBuffer<int> triangles;
 
 // Buffer to store the vertex count (atomic increment)
-RWBuffer<int> verticesCountBuffer : register(u2);
+RWByteAddressBuffer verticesCountBuffer; // Using RWByteAddressBuffer for atomic operations
 
 // Texture for the voxel scalar field (3D texture or similar data source)
-Texture3D<float> voxelField : register(t0);
+Texture3D<float> voxelField;
 
 // Edge table lookup (12 edges in a cube)
 static const int edgeTable[12][2] =
@@ -28,10 +28,25 @@ static const int edgeTable[12][2] =
 };
 
 // Triangular surface lookup (for each possible edge intersection)
-static const int triangleTable[256] = { 0, 7, 25, 30, 98, 101, 123, 124, 168, 175, 177, 182, 202, 205, 211, 212, 772, 771, 797, 794, 870, 865, 895, 888, 940, 939, 949, 946, 974, 969, 983, 976, 1296, 1303, 1289, 1294, 1394, 1397, 1387, 1388, 1464, 1471, 1441, 1446, 1498, 1501, 1475, 1476, 1556, 1555, 1549, 1546, 1654, 1649, 1647, 1640, 1724, 1723, 1701, 1698, 1758, 1753, 1735, 1728, 2624, 2631, 2649, 2654, 2594, 2597, 2619, 2620, 2792, 2799, 2801, 2806, 2698, 2701, 2707, 2708, 2372, 2371, 2397, 2394, 2342, 2337, 2367, 2360, 2540, 2539, 2549, 2546, 2446, 2441, 2455, 2448, 3920, 3927, 3913, 3918, 3890, 3893, 3883, 3884, 4088, 4095, 4065, 4070, 3994, 3997, 3971, 3972, 3156, 3155, 3149, 3146, 3126, 3121, 3119, 3112, 3324, 3323, 3301, 3298, 3230, 3225, 3207, 3200, 3200, 3207, 3225, 3230, 3298, 3301, 3323, 3324, 3112, 3119, 3121, 3126, 3146, 3149, 3155, 3156, 3972, 3971, 3997, 3994, 4070, 4065, 4095, 4088, 3884, 3883, 3893, 3890, 3918, 3913, 3927, 3920, 2448, 2455, 2441, 2446, 2546, 2549, 2539, 2540, 2360, 2367, 2337, 2342, 2394, 2397, 2371, 2372, 2708, 2707, 2701, 2698, 2806, 2801, 2799, 2792, 2620, 2619, 2597, 2594, 2654, 2649, 2631, 2624, 1728, 1735, 1753, 1758, 1698, 1701, 1723, 1724, 1640, 1647, 1649, 1654, 1546, 1549, 1555, 1556, 1476, 1475, 1501, 1498, 1446, 1441, 1471, 1464, 1388, 1387, 1397, 1394, 1294, 1289, 1303, 1296, 976, 983, 969, 974, 946, 949, 939, 940, 888, 895, 865, 870, 794, 797, 771, 772, 212, 211, 205, 202, 182, 177, 175, 168, 124, 123, 101, 98, 30, 25, 7, 0 };
+static const int triangleTable[256] = { 0, 7, 25, 30, 98, 101, 123, 124, 168, 175, 177, 182, 
+    202, 205, 211, 212, 772, 771, 797, 794, 870, 865, 895, 888, 940, 939, 949, 946, 974, 969,
+    983, 976, 1296, 1303, 1289, 1294, 1394, 1397, 1387, 1388, 1464, 1471, 1441, 1446, 1498, 1501, 
+    1475, 1476, 1556, 1555, 1549, 1546, 1654, 1649, 1647, 1640, 1724, 1723, 1701, 1698, 1758, 1753, 
+    1735, 1728, 2624, 2631, 2649, 2654, 2594, 2597, 2619, 2620, 2792, 2799, 2801, 2806, 2698, 2701, 
+    2707, 2708, 2372, 2371, 2397, 2394, 2342, 2337, 2367, 2360, 2540, 2539, 2549, 2546, 2446, 2441, 
+    2455, 2448, 3920, 3927, 3913, 3918, 3890, 3893, 3883, 3884, 4088, 4095, 4065, 4070, 3994, 3997, 
+    3971, 3972, 3156, 3155, 3149, 3146, 3126, 3121, 3119, 3112, 3324, 3323, 3301, 3298, 3230, 3225, 
+    3207, 3200, 3200, 3207, 3225, 3230, 3298, 3301, 3323, 3324, 3112, 3119, 3121, 3126, 3146, 3149, 
+    3155, 3156, 3972, 3971, 3997, 3994, 4070, 4065, 4095, 4088, 3884, 3883, 3893, 3890, 3918, 3913, 
+    3927, 3920, 2448, 2455, 2441, 2446, 2546, 2549, 2539, 2540, 2360, 2367, 2337, 2342, 2394, 2397, 
+    2371, 2372, 2708, 2707, 2701, 2698, 2806, 2801, 2799, 2792, 2620, 2619, 2597, 2594, 2654, 2649, 
+    2631, 2624, 1728, 1735, 1753, 1758, 1698, 1701, 1723, 1724, 1640, 1647, 1649, 1654, 1546, 1549, 
+    1555, 1556, 1476, 1475, 1501, 1498, 1446, 1441, 1471, 1464, 1388, 1387, 1397, 1394, 1294, 1289, 
+    1303, 1296, 976, 983, 969, 974, 946, 949, 939, 940, 888, 895, 865, 870, 794, 797, 771, 772, 212,
+    211, 205, 202, 182, 177, 175, 168, 124, 123, 101, 98, 30, 25, 7, 0 };
 
 // Grid size and threshold (set from C#)
-cbuffer GridParams : register(b0)
+cbuffer GridParams
 {
     int gridSizeX;
     int gridSizeY;
@@ -53,7 +68,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     for (int i = 0; i < 8; ++i)
     {
         int3 corner = voxelPos + edgeTable[i][0];
-        scalarValues[i] = voxelField.Load(corner);
+        scalarValues[i] = voxelField.Load(int4(corner, 0));
         cubeIndex |= ((scalarValues[i] > threshold) ? (1 << i) : 0);
     }
 
@@ -63,44 +78,52 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     int edgeCount = 0;
     for (int i = 0; i < 12; ++i)
     {
-        //Use edge mask to check if it is crossed
-        if (!((edgeMask & (1 << i)) > 0))
+        // Use edge mask to check if it is crossed
+        if ((edgeMask & (1 << i)) == 0)
         {
             continue;
         }
         edges[edgeCount++] = i;
     }
 
+    // Atomic increment of vertex index (using RWByteAddressBuffer)
+    uint currentVertexCount;
+    verticesCountBuffer.Load(0, currentVertexCount); // Load the current vertex count (from address 0)
+    uint newVertexCount = currentVertexCount + edgeCount; // Update the vertex count by adding edgeCount
+    verticesCountBuffer.InterlockedAdd(0, edgeCount, currentVertexCount); // Atomically add edgeCount to the vertex count
+
     // Now generate vertices along those edges and store them
     for (int i = 0; i < edgeCount; ++i)
     {
         int edgeIndex = edges[i];
-        int vertexIndex = atomicAdd(verticesCountBuffer[0], 1); // Manage the vertex index
-        int2 edge = edgeTable[edgeIndex];
+        int2 edge = int2(edgeTable[edgeIndex][0], edgeTable[edgeIndex][1]);
 
         // Interpolate between the two corner points of the edge
-        float3 startPos = float3(voxelPos) + float3(edge[0]);
-        float3 endPos = float3(voxelPos) + float3(edge[1]);
+        float3 startPos = float3(voxelPos) + float3(edge.x, edge.y, 0.0f);
+        float3 endPos = float3(voxelPos) + float3(edge.x, edge.y, 0.0f);
 
         // Linearly interpolate based on the scalar values at the edge endpoints
-        float alpha = (threshold - scalarValues[edge[0]]) / (scalarValues[edge[1]] - scalarValues[edge[0]]);
+        float alpha = (threshold - scalarValues[edge.x]) / (scalarValues[edge.y] - scalarValues[edge.x]);
         float3 vertex = lerp(startPos, endPos, alpha);
 
-        // Store the vertex
-        vertices[vertexIndex] = vertex;
+        // Store the vertex at the correct index
+        vertices[currentVertexCount + i] = vertex;
     }
 
-    // Generate triangles based on the intersected edges
+    // Ensure triangle generation happens correctly based on valid edge intersections
     int triangleIndex = 0;
-    for (int i = 0; !((edgeMask & (1 << i)) > 0); i += 3)
+    for (int i = 0; i < edgeCount; i += 3)
     {
-        int vertex1 = edgeMask & (1 << i);
-        int vertex2 = edgeMask & (1 << (i + 1));
-        int vertex3 = edgeMask & (1 << (i + 2));
+        if (i + 2 < edgeCount)
+        {
+            int vertex1 = currentVertexCount + i;
+            int vertex2 = currentVertexCount + i + 1;
+            int vertex3 = currentVertexCount + i + 2;
 
-        // Store the triangle indices (this is just a simple example)
-        triangles[triangleIndex++] = vertex1;
-        triangles[triangleIndex++] = vertex2;
-        triangles[triangleIndex++] = vertex3;
+            // Store the triangle indices
+            triangles[triangleIndex++] = vertex1;
+            triangles[triangleIndex++] = vertex2;
+            triangles[triangleIndex++] = vertex3;
+        }
     }
 }

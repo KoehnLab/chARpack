@@ -260,6 +260,7 @@ namespace chARpack
                     }
                 }
             }
+#if UNITY_STANDALONE || UNITY_EDITOR
             if (RunSparrow.Singleton != null && RunSparrow.Singleton.isRunning)
             {
                 foreach (var atom1 in atomList)
@@ -299,6 +300,7 @@ namespace chARpack
                     }
                 }
             }
+#endif
         }
 
 
@@ -1151,7 +1153,9 @@ namespace chARpack
         /// </summary>
         public void resetMolPositionAfterMove()
         {
+#if UNITY_STANDALONE || UNITY_EDITOR
             if (RunSparrow.Singleton != null && RunSparrow.Singleton.isRunning) return;
+#endif
             // reset molecule position
             Vector3 molCenter = getCenterInAtomWorld();
             var mol_rot = transform.localRotation;

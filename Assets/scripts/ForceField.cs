@@ -253,7 +253,7 @@ namespace chARpack
             }
         }
 
-        // Update is called once per frame
+
         void FixedUpdate()
         {
             if (LogLevel >= 100 && enableForceField)
