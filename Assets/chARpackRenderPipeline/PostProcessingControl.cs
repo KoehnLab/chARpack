@@ -35,6 +35,10 @@ namespace chARpack
                                         useToonShading = value; } }
         }
 
+        [SerializeField]
+        private float ToonOutlineWidth = 2.0f;
+        public Color ToonOutlineColor = Color.black;
+
         private ScriptableRendererFeature ToonPaintRendererFeature;
         private ScriptableRendererFeature ToonOutlineRendererFeature;
 
@@ -43,6 +47,17 @@ namespace chARpack
         private Shader universalUnlit;
         private Shader bondLit;
         private Shader bondUnlit;
+
+        private Material ToonOutlineMat;
+
+        private void OnValidate()
+        {
+            if (ToonOutlineMat)
+            {
+                ToonOutlineMat.SetFloat("_OutlineWidth", ToonOutlineWidth);
+                ToonOutlineMat.SetColor("_OutlineColor", ToonOutlineColor);
+            }
+        }
 
         private void Awake()
         {
@@ -60,7 +75,11 @@ namespace chARpack
             ToonPaintRendererFeature = rendererFeatures.Find(s => s.name.Equals("ToonPaintRendererFeature"));
             ToonOutlineRendererFeature = rendererFeatures.Find(s => s.name.Equals("ToonOutlineRendererFeature"));
             if (!ToonPaintRendererFeature || !ToonOutlineRendererFeature) foundRendererFeatures = false;
-            else foundRendererFeatures = true;
+            else 
+            { 
+                foundRendererFeatures = true;
+                ToonOutlineMat = (ToonOutlineRendererFeature as FullScreenPassRendererFeature).passMaterial;
+            }
         }
 
         private void setToonShading(bool value)
