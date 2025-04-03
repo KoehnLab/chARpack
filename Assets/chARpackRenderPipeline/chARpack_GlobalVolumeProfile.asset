@@ -109,13 +109,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88db92712f0f57c4589ad20b24a6a69e, type: 3}
   m_Name: ToonEffectComponent
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   outlineWidth:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 1
   outlineColor:
-    m_OverrideState: 0
-    m_Value: {r: 0, g: 0, b: 0, a: 1}
+    m_OverrideState: 1
+    m_Value: {r: 0.5849056, g: 0, b: 0, a: 1}
     hdr: 0
   showOutline:
     m_OverrideState: 1

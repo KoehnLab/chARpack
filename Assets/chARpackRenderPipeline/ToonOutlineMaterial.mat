@@ -118,6 +118,10 @@ Material:
     - _ClearCoatSmoothness: 0
     - _Cull: 2
     - _Cutoff: 0.5
+    - _DepthMax: 0.2
+    - _DepthMin: 0.1
+    - _DepthSensitivityRange: 0.1
+    - _DepthSensitivityStart: 0.1
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
@@ -127,6 +131,10 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Metallic: 0
+    - _NormalAdd: 0
+    - _NormalMulti: -34.27
+    - _NormalSensitivityRange: 5.55
+    - _NormalSensitivityStart: 1.11
     - _OcclusionStrength: 1
     - _OutlineWidth: 2
     - _Parallax: 0.005

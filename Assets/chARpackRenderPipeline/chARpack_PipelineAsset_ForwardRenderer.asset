@@ -1,5 +1,25 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-5950983961018322367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d613f08f173d4dd895bb07b3230baa9, type: 3}
+  m_Name: Toon Highlights Renderer Feature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  injectionPoint: 600
+  fetchColorBuffer: 1
+  requirements: 6
+  passMaterial: {fileID: 2100000, guid: 204f7ff3bf957fd46bbd832f5a1a8cff, type: 2}
+  passIndex: 0
+  bindDepthStencilAttachment: 0
+  m_Version: 1
 --- !u!114 &-2147617091777589875
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36,11 +56,12 @@ MonoBehaviour:
     debugReplacementPS: {fileID: 4800000, guid: cf852408f2e174538bcd9b7fda1c5ae7, type: 3}
     hdrDebugViewPS: {fileID: 4800000, guid: 573620ae32aec764abd4d728906d2587, type: 3}
   m_RendererFeatures:
-  - {fileID: 9187827175853357648}
   - {fileID: 6911995932659750793}
   - {fileID: 7045380200340849213}
   - {fileID: -2147617091777589875}
-  m_RendererFeatureMap: 507a6b2223b8817f891721efad57ec5f3d02e3d4f637c6618d0d0a33a22132e2
+  - {fileID: -5950983961018322367}
+  - {fileID: 9187827175853357648}
+  m_RendererFeatureMap: 891721efad57ec5f3d02e3d4f637c6618d0d0a33a22132e241b274fb9ddb69ad507a6b2223b8817f
   m_UseNativeRenderPass: 1
   postProcessData: {fileID: 11400000, guid: 3bfe2498ccad9cb4d83fcc3a14f3391a, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
@@ -94,7 +115,7 @@ MonoBehaviour:
   m_Active: 1
   m_toonOutlineShader: {fileID: -6465566751694194690, guid: a60c6e44cb8538f43a415100e753a472, type: 3}
   m_toonPaintShader: {fileID: -6465566751694194690, guid: 0a52dd6d0af6e424cb3dd932fca8bc28, type: 3}
-  m_toonHighlightShader: {fileID: 4800000, guid: a14fa254c75c4274b8348773ce634e6d, type: 3}
+  m_toonHighlightShader: {fileID: -6465566751694194690, guid: 2bf538781b62d9e4a952bf7b55aa43c4, type: 3}
 --- !u!114 &7045380200340849213
 MonoBehaviour:
   m_ObjectHideFlags: 0
