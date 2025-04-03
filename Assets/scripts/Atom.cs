@@ -910,6 +910,9 @@ namespace chARpack
         public void colorSwapSelect(int col)
         {
             var outline_component = GetComponent<OutlinePro>();
+            if (PostProcessingControl.Singleton && PostProcessingControl.Singleton.UseToonShading) outline_component.OutlineWidth = new float[4] { 7f, 7f, 7f, 7f };
+            else outline_component.OutlineWidth = outline_radius_current;
+
             if (col == 1)
             {
                 // merging

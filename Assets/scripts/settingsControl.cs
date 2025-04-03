@@ -89,6 +89,7 @@ namespace chARpack
             setSyncMode(SettingsData.syncMode);
             setRandomSeed(SettingsData.randomSeed);
             setHoverGazeSelection(SettingsData.hoverGazeAsSelection);
+            setToonShading(SettingsData.useToonShading);
             if (UserServer.list.Count > 0)
             {
                 UserServer.showHeads(SettingsData.syncMode == TransitionManager.SyncMode.Sync);
@@ -331,6 +332,11 @@ namespace chARpack
             {
                 HeadRayHover.Singleton.enabled = value;
             }
+        }
+
+        private void setToonShading(bool value)
+        {
+            if (PostProcessingControl.Singleton) PostProcessingControl.Singleton.UseToonShading = value;
         }
     }
 }

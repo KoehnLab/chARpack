@@ -55,6 +55,7 @@ namespace chARpack
         public GameObject hoverGazeAsSelectionToggle;
         public GameObject defaultMoleculeScaleSlider;
         public GameObject twoDimToggle;
+        public GameObject toonShadingToggle;
 
         // save load buttons
         public GameObject saveSettingsButton;
@@ -218,6 +219,7 @@ namespace chARpack
             defaultMoleculeScaleSlider.GetComponent<Slider>().value = SettingsData.defaultMoleculeSize;
             defaultMoleculeScaleSlider.GetComponent<UpdateSliderLabel>().updateLabel();
             twoDimToggle.GetComponent<Toggle>().isOn = SettingsData.twoDimensionalMode;
+            toonShadingToggle.GetComponent<Toggle>().isOn = SettingsData.useToonShading;
         }
 
         /// <summary>
@@ -304,6 +306,7 @@ namespace chARpack
             SettingsData.hoverGazeAsSelection = hoverGazeAsSelectionToggle.GetComponent<Toggle>().isOn;
             SettingsData.defaultMoleculeSize = defaultMoleculeScaleSlider.GetComponent<Slider>().value;
             SettingsData.twoDimensionalMode = twoDimToggle.GetComponent<Toggle>().isOn;
+            SettingsData.useToonShading = toonShadingToggle.GetComponent<Toggle>().isOn;
 
             settingsControl.Singleton.updateSettings();
             EventManager.Singleton.UpdateSettings();

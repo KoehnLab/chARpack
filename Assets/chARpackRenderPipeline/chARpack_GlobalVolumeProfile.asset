@@ -34,7 +34,7 @@ MonoBehaviour:
     hdr: 0
   dotsDensity:
     m_OverrideState: 1
-    m_Value: 10
+    m_Value: 100
   dotsCutoff:
     m_OverrideState: 1
     m_Value: 0.4
@@ -109,7 +109,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88db92712f0f57c4589ad20b24a6a69e, type: 3}
   m_Name: ToonEffectComponent
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   outlineWidth:
     m_OverrideState: 1
     m_Value: 2
@@ -118,18 +118,18 @@ MonoBehaviour:
     m_Value: {r: 0, g: 0, b: 0, a: 1}
     hdr: 0
   showOutline:
-    m_OverrideState: 0
-    m_Value: 1
+    m_OverrideState: 1
+    m_Value: 0
   showPaint:
-    m_OverrideState: 0
-    m_Value: 1
+    m_OverrideState: 1
+    m_Value: 0
   highlightColor:
     m_OverrideState: 0
     m_Value: {r: 1, g: 1, b: 1, a: 1}
     hdr: 0
   showHighlight:
-    m_OverrideState: 0
-    m_Value: 1
+    m_OverrideState: 1
+    m_Value: 0
 --- !u!114 &4152419686861063319
 MonoBehaviour:
   m_ObjectHideFlags: 3
