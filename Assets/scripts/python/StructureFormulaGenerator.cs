@@ -4,10 +4,12 @@ using UnityEngine;
 using Python.Runtime;
 using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Concurrent;
+
 #if CHARPACK_DEBUG_CONSOLE
 using IngameDebugConsole;
 #endif
-using System.Threading.Tasks;
+
 
 namespace chARpack
 {
@@ -30,9 +32,10 @@ namespace chARpack
                     Debug.Log($"[{nameof(StructureFormulaGenerator)}] Instance already exists, destroying duplicate!");
                     Destroy(value);
                 }
-
             }
         }
+
+        ConcurrentQueue<Tuple<string, List<Vector2>>> result_queue = new();
 
         private void Awake()
         {
@@ -43,10 +46,6 @@ namespace chARpack
         void Start()
         {
             EventManager.Singleton.OnMolDataChanged += requestStructureFormula;
-            if (SettingsData.autogenerateStructureFormulas)
-            {
-                EventManager.Singleton.OnMoleculeLoaded += immediateRequestStructureFormula;
-            }
 #if CHARPACK_DEBUG_CONSOLE
             DebugLogConsole.AddCommand("generate3Dformula", "Generate mesh from 2D representation", generate3DfromSelected);
 #endif
@@ -62,7 +61,7 @@ namespace chARpack
 
         public void immediateRequestStructureFormula(Molecule mol)
         {
-            generate(mol);
+            StartCoroutine(generate(mol));
         }
 
         private IEnumerator waitAndGenerate(Molecule mol)
@@ -78,15 +77,20 @@ namespace chARpack
                 if ( mol.isMarked ) 
                 {
                     mol.markMolecule(false);
-                    generate3D(mol);
+                    StartCoroutine(generate3D(mol));
                 }
             }
         }
 
-        public async Task generate3D(Molecule mol)
+        public IEnumerator generate3D(Molecule mol)
         {
-            var res = await fetchSVGContent(mol);
-            if (res == null) return;
+            fetchSVGContent(mol);
+            while (result_queue.IsEmpty)
+            {
+                yield return null;
+            }
+
+            result_queue.TryDequeue(out var res);
 
             var svg_content = res.Item1;
             var coords = res.Item2;
@@ -101,11 +105,15 @@ namespace chARpack
             StructureFormulaTo3D.generateFromSVGContentUI(svg_content, mol.m_id, coords);
         }
 
-        private async Task generate(Molecule mol)
+        private IEnumerator generate(Molecule mol)
         {
-            var res = await fetchSVGContent(mol);
-            if (res == null) return;
+            fetchSVGContent(mol);
+            while (result_queue.IsEmpty)
+            {
+                yield return null;
+            }
 
+            result_queue.TryDequeue(out var res);
             var svg_content = res.Item1;
             var coords = res.Item2;
 
@@ -122,7 +130,7 @@ namespace chARpack
             else
             {
                 Debug.LogError("[structureReceiveComplete] Could not find StructureFormulaManager");
-                return;
+                yield break;
             }
 
             //write svg to file
@@ -130,7 +138,7 @@ namespace chARpack
             if (File.Exists(file_path))
             {
                 Debug.Log(file_path + " already exists.");
-                return;
+                yield break;
             }
             var sr = File.CreateText(file_path);
             sr.Write(svg_content);
@@ -138,11 +146,11 @@ namespace chARpack
         }
 
 
-        private async Task<Tuple<string, List<Vector2>>> fetchSVGContent(Molecule mol)
+        private void fetchSVGContent(Molecule mol)
         {
             var coords = new List<Vector2>();
-            if (!PythonEnvironmentManager.Singleton) return null;
-            if (!PythonEnvironmentManager.Singleton.isInitialized) return null;
+            if (!PythonEnvironmentManager.Singleton) return;
+            if (!PythonEnvironmentManager.Singleton.isInitialized) return;
             // Prepare lists
             List<Vector3> posList = new List<Vector3>();
             for (int i = 0; i < mol.atomList.Count; i++)
@@ -168,12 +176,11 @@ namespace chARpack
 
             // define outputs
             string svgContent = "";
-            //await Task.Run(() =>
-            //{
-                try
-                {
-                    // Acquire the GIL before using any Python APIs
-                    using (Py.GIL())
+            try
+            {
+                // Acquire the GIL before using any Python APIs
+                PythonDispatcher.RunInPythonThread(
+                    delegate
                     {
                         // Convert the C# float array to a Python list
                         var pyPosList = new PyList();
@@ -191,23 +198,8 @@ namespace chARpack
                         {
                             pySymbolList.Append(new PyString(s));
                         }
-
-                        //// Import and run the Python script
-                        //dynamic sys = Py.Import("sys");
-                        //sys.path.append(Path.Combine(Application.streamingAssetsPath + "PythonScripts"));
-
-                        //// Import the built-in module
-                        //dynamic builtins = Py.Import("builtins");
-
                         // Import your Python script
                         dynamic script = Py.Import("StructureFormulaPythonBackend");
-
-                        //// Print the attributes of the imported module
-                        //Debug.Log("Attributes of the imported module:");
-                        //foreach (string key in builtins.dir(script))
-                        //{
-                        //    Debug.Log(key);
-                        //}
 
                         // Call the function from the Python script
                         dynamic result = script.gen_structure_formula(pyPosList, pySymbolList);
@@ -222,21 +214,19 @@ namespace chARpack
                             var coord = coordsList[i];
                             coords.Add(new Vector2(coord[0].As<float>(), coord[1].As<float>()));
                         }
+                        result_queue.Enqueue(new Tuple<string, List<Vector2>>(svgContent, coords));
                     }
-                }
-                catch (Exception ex)
-                {
-                    Debug.Log("[StructureFormulaGenerator] Could not generate a structure formula. This is expected for small Molecules.");
-                    //return;
-                }
-            //});
-
-            return new Tuple<string, List<Vector2>>(svgContent,coords);
+                );
+            }
+            catch (Exception ex)
+            {
+                Debug.Log("[StructureFormulaGenerator] Could not generate a structure formula. This is expected for small Molecules.");
+            }
         }
+
         private void OnDestroy()
         {
-            //EventManager.Singleton.OnMolDataChanged -= requestStructureFormula;
-            //EventManager.Singleton.OnMoleculeLoaded -= immediateRequestStructureFormula;
+            EventManager.Singleton.OnMolDataChanged -= requestStructureFormula;
         }
 #endif
         }

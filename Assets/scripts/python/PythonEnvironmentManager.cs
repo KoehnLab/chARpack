@@ -41,6 +41,7 @@ namespace chARpack
 
         public bool isInitialized { get; private set; }
 
+
 #if UNITY_STANDALONE || UNITY_EDITOR
 
         string base_path;
@@ -48,6 +49,8 @@ namespace chARpack
         bool isInstalled = false;
         private static readonly HttpClient client = new HttpClient();
         Thread thread;
+        IntPtr state;
+
         void Start()
         {
             var li_inst = LoadingIndicator.GetPythonInstance();
@@ -179,10 +182,12 @@ namespace chARpack
             PythonEngine.PythonPath = pythonPath;
 
             PythonEngine.Initialize();
-            //PythonEngine.BeginAllowThreads();
+            state = PythonEngine.BeginAllowThreads();
             isInitialized = true;
 
             Debug.Log("[PythonEnvironmentManager] Python environment initialized.");
+
+            PythonDispatcher.Initialize();
         }
 
         async Task downloadEnvironment(Func<float?, bool> progressChanged)
@@ -299,6 +304,7 @@ namespace chARpack
 
         private void OnDestroy()
         {
+            PythonEngine.EndAllowThreads(state);
             // Shutdown the Python engine
             PythonEngine.Shutdown();
         }

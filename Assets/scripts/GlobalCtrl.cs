@@ -2348,7 +2348,7 @@ namespace chARpack
                             var find = Molecule2D.molecules.Find(x => x.molReference == tempMolecule);
                             if (find == null)
                             {
-                                await StructureFormulaGenerator.Singleton.generate3D(tempMolecule);
+                                StartCoroutine(StructureFormulaGenerator.Singleton.generate3D(tempMolecule));
                                 find = Molecule2D.molecules.Find(x => x.molReference == tempMolecule); // should be there now
                                 while (!find.initialized)
                                 {

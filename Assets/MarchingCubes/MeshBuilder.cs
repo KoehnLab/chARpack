@@ -6,7 +6,7 @@ namespace MarchingCubes {
 //
 // Isosurface mesh builder with the marching cubes algorithm
 //
-sealed class MeshBuilder : System.IDisposable
+sealed public class MeshBuilder : System.IDisposable
 {
     #region Public members
 

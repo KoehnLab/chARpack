@@ -261,7 +261,7 @@ namespace chARpack
                 }
             }
 #if UNITY_STANDALONE || UNITY_EDITOR
-            if (RunSparrow.Singleton != null && RunSparrow.Singleton.isRunning)
+            if (RunSparrow.Singleton != null && RunSparrow.Singleton.isRunning.Value)
             {
                 foreach (var atom1 in atomList)
                 {
@@ -1126,6 +1126,18 @@ namespace chARpack
             return max_dist;
         }
 
+
+        public Bounds getBounds()
+        {
+            if (atomList.Count == 0) return new Bounds();
+            var bounds = new Bounds(GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(atomList[0].transform.position), Vector3.zero);
+            for (int i = 1; i < atomList.Count; i++)
+            {
+                bounds.Encapsulate(GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(atomList[i].transform.position));
+            }
+            return bounds;
+        }
+
         /// <summary>
         /// Gets the length of the longest bounding box edge.
         /// </summary>
@@ -1154,7 +1166,7 @@ namespace chARpack
         public void resetMolPositionAfterMove()
         {
 #if UNITY_STANDALONE || UNITY_EDITOR
-            if (RunSparrow.Singleton != null && RunSparrow.Singleton.isRunning) return;
+            if (RunSparrow.Singleton != null && RunSparrow.Singleton.isRunning.Value) return;
 #endif
             // reset molecule position
             Vector3 molCenter = getCenterInAtomWorld();

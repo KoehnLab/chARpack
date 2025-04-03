@@ -6,10 +6,8 @@ using System.Collections;
 using SimpleFileBrowser;
 using System;
 using System.Threading;
-using System.IO.Compression;
 using OpenBabel;
-using System.Web;
-using Unity.VisualScripting;
+
 
 namespace chARpack
 {

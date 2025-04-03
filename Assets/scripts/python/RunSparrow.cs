@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using IngameDebugConsole;
+using System.Threading;
 using System;
+using System.ComponentModel.Design;
 
 
 namespace chARpack
@@ -38,34 +40,44 @@ namespace chARpack
 #if UNITY_STANDALONE || UNITY_EDITOR
         void Start()
         {
-            isRunning = false;
-            isInitialized = false;
-            EventManager.Singleton.OnGrabAtom += applyConstraint;
+            isRunning = new(false);
+            isInitialized = new(false);
             DebugLogConsole.AddCommand("startSparrow", "starts a simulation using sparrow", startSim);
             DebugLogConsole.AddCommand("stopSparrow", "stops the current simulation", stopSim);
+            DebugLogConsole.AddCommand<bool>("sparrowGenerateOrbitals", "stops the current simulation", setGenOrbitals);
         }
 
-        public bool isInitialized { get; private set; }
-        public bool isRunning { get; private set; }
-        dynamic sparrow;
-        dynamic builtins;
-        List<Atom> id_convert;
-        List<Vector3> sim_result;
+        void setGenOrbitals(bool value)
+        {
+            generateOrbitals.Value = value;
+            if (!value) MoleculeOrbitals.Singleton.Clear();
+        }
+
+        public ThreadSafe<bool> isInitialized { get; private set; }
+        public ThreadSafe<bool> isRunning { get; private set; }
+        private ThreadSafe<bool> generateOrbitals = new(true);
+        volatile dynamic sparrow;
+        volatile dynamic builtins;
+        List<Atom> id_convert = new();
+        Queue<List<Vector3>> sim_result = new();
+        const int SIM_QUEUE_MAX_COUNT = 5;
+        Queue<ScalarVolume> mo_result = new();
         int num_atoms = 0;
+        int continousRunID;
 
         private void prepareSim()
         {
             if (!PythonEnvironmentManager.Singleton)
             {
-                isRunning = false;
-                isInitialized = false;
+                isRunning.Value = false;
+                isInitialized.Value = false;
                 Debug.LogWarning("[RunSparrow] No PythonEnvironmentManager found.");
                 return;
             }
             if (!PythonEnvironmentManager.Singleton.isInitialized)
             {
-                isRunning = false;
-                isInitialized = false;
+                isRunning.Value = false;
+                isInitialized.Value = false;
                 Debug.LogWarning("[RunSparrow] PythonEnvironment not initialized yet.");
                 return;
             }
@@ -75,8 +87,9 @@ namespace chARpack
                 Debug.LogWarning("[RunSparrow] Preparing system for empty scene. Abort.");
                 return;
             }
-            sim_result = new List<Vector3>();
-            id_convert = new List<Atom>();
+            sim_result.Clear();
+            mo_result.Clear();
+            id_convert.Clear();
 
             // Prepare lists
             var posList = new List<Vector3>();
@@ -129,109 +142,106 @@ namespace chARpack
                 sparrow.setData(pyPosList, pySymbolList);
             }
 
+            continousRunID = PythonDispatcher.AddContinousAction(
+                delegate
+                {
+                    sparrow.run();
+                    dynamic python_pos_return = sparrow.getPositions();
+                    if (builtins.len(python_pos_return) > 0)
+                    {
+                        var res = new List<Vector3>();
+                        for (int i = 0; i < num_atoms; i++)
+                        {
+                            res.Add(GlobalCtrl.scale / GlobalCtrl.u2aa * new Vector3(python_pos_return[i][0].As<float>(), python_pos_return[i][1].As<float>(), python_pos_return[i][2].As<float>()));
+                            //Debug.Log($"[RunSparrow] Sparrow atom {i} with position {sim_result[i]}");
+                        }
+                        if (sim_result.Count > SIM_QUEUE_MAX_COUNT)
+                        {
+                            sim_result.Dequeue();
+                        }
+                        sim_result.Enqueue(res);
+                    }
+                    if (generateOrbitals.Value)
+                    {
+                        sparrow.generateOrbitals();
+                        dynamic python_mo_return = sparrow.getMO();
+                        if (builtins.len(python_mo_return.keys()) > 0)
+                        {
+                            //Debug.Log($"[RunSparrow] Got MO {python_mo_return}");
+                            //Debug.Log($"[RunSparrow] Got Orbitals are not all zero {python_mo_return["data"].any()}");
+                            //Debug.Log($"[RunSparrow] Got Orbitals MAX: {python_mo_return["data"].max()} MIN: {python_mo_return["data"].min()}");
+                            var volume = new ScalarVolume();
+                            volume.dim = new Vector3Int(python_mo_return["dimensions"][0].As<int>(), python_mo_return["dimensions"][1].As<int>(), python_mo_return["dimensions"][2].As<int>());
+                            volume.spacing = new Vector3(python_mo_return["spacing"][0].As<float>(), python_mo_return["spacing"][1].As<float>(), python_mo_return["spacing"][2].As<float>()) * GlobalCtrl.scale / GlobalCtrl.u2aa;
+                            volume.origin = new Vector3(python_mo_return["origin"][0].As<float>(), python_mo_return["origin"][1].As<float>(), python_mo_return["origin"][2].As<float>()) * GlobalCtrl.scale / GlobalCtrl.u2aa;
+                            var list = new float[volume.dim[0] * volume.dim[1] * volume.dim[2]];
+                            var d_list = python_mo_return["data"].As<double[]>();
+                            for (int i = 0; i < list.Count(); i++)
+                            {
+                                list[i] = (float)d_list[i];
+                            }
+                            volume.values = list.ToList();
+                            mo_result.Enqueue(volume);
+                        }
+                    }
+                    //Debug.Log($"[RunSparrow] {sim_result.ToArray().Print()}");
+                });
+
             Debug.Log("[RunSparrow] Preparation complete.");
         }
 
-        private IEnumerator spreadSimulation()
-        {
-            //yield return new WaitForSeconds(1f);
-            using (Py.GIL())
-            {
-                //yield return sparrow.run();
-                sparrow.setCalcMOs(true);
-                dynamic python_pos_return = sparrow.getPositions();
-                dynamic python_mo_return = sparrow.getMO();
-                if (builtins.len(python_pos_return) > 0)
-                {
-                    sim_result = new List<Vector3>();
-                    for (int i = 0; i < num_atoms; i++)
-                    {
-                        sim_result.Add(GlobalCtrl.scale / GlobalCtrl.u2aa * new Vector3(python_pos_return[i][0].As<float>(), python_pos_return[i][1].As<float>(), python_pos_return[i][2].As<float>()));
-                        //Debug.Log($"[RunSparrow] Sparrow atom {i} with position {sim_result[i]}");
-                    }
-                }
-                if (builtins.len(python_mo_return.keys()) > 0) {
-                    Debug.Log($"[RunSparrow] Got MO {python_mo_return}");
-                    Debug.Log($"[RunSparrow] Got Orbitals are not all zero {python_mo_return["data"].any()}");
-                    Debug.Log($"[RunSparrow] Got Orbitals MAX: {python_mo_return["data"].max()} MIN: {python_mo_return["data"].min()}");
-                    var volume = new ScalarVolume();
-                    volume.dim = new Vector3Int(python_mo_return["dimensions"][0].As<int>(), python_mo_return["dimensions"][1].As<int>(), python_mo_return["dimensions"][2].As<int>());
-                    volume.spacing = new Vector3(python_mo_return["spacing"][0].As<float>(), python_mo_return["spacing"][1].As<float>(), python_mo_return["spacing"][2].As<float>());
-                    volume.origin = new Vector3(python_mo_return["origin"][0].As<float>(), python_mo_return["origin"][1].As<float>(), python_mo_return["origin"][2].As<float>());
-                    var list = new float[volume.dim[0] * volume.dim[1] * volume.dim[2]];
-                    var d_list = python_mo_return["data"].As<double[]>();
-                    for (int i = 0; i < list.Count(); i++)
-                    {
-                        list[i] = (float)d_list[i];
-                    }
-                    volume.values = list.ToList();
-                    MoleculeOrbitals.Singleton.addOrbital(volume, GlobalCtrl.Singleton.getFirstMarkedObject().GetComponent<Molecule>());
-                }
-                //Debug.Log($"[RunSparrow] {sim_result.ToArray().Print()}");
-            }
-            yield return null;
-        }
 
-        public void applyConstraint(Atom a, bool value)
-        {
-            //if (sparrow == null) return;
-            //using (Py.GIL())
-            //{
-            //    var id = id_convert.IndexOf(a);
-            //    sparrow.fixAtom(id, value);
-            //}
-        }
-
-
+        volatile List<Vector3> grabbed_positions = new();
+        volatile List<int> grabbed_ids = new();
         private void FixedUpdate()
         {
-            if (!isInitialized) return;
-            StartCoroutine(spreadSimulation());
-            if (sim_result?.Count == id_convert.Count)
+            if (!isInitialized.Value) return;
+            if (sim_result.Count > 1)
             {
-                //int offset = 0;
-                //foreach (var mol in GlobalCtrl.Singleton.List_curMolecules.Values)
-                //{
-                //    for (int i = 0; i < mol.atomList.Count; i++)
-                //    {
-                //        var atom = mol.atomList[i];
-                //        if (!atom.isGrabbed)
-                //        {
-                //            atom.transform.position = GlobalCtrl.Singleton.atomWorld.transform.TransformPoint(sim_results[offset + i]);
-                //            EventManager.Singleton.MoveAtom(mol.m_id, mol.atomList[i].m_id, mol.atomList[i].transform.localPosition);
-                //        }
-                //    }
-                //    offset += mol.atomList.Count;
-                // }
+                var res = sim_result.Dequeue();
                 for (int i = 0; i < id_convert.Count; i++)
                 {
                     var atom = id_convert[i];
                     if (!atom.isGrabbed)
                     {
-                        //atom.transform.position = GlobalCtrl.Singleton.atomWorld.transform.TransformPoint(sim_result[i]);
-                        atom.transform.localPosition = sim_result[i];
+                        atom.transform.localPosition = res[i];
                         EventManager.Singleton.MoveAtom(atom.m_molecule.m_id, atom.m_id, atom.transform.localPosition);
                     }
                 }
-                sim_result = null;
             }
-            using (Py.GIL())
+            if (generateOrbitals.Value && mo_result.Count > 0)
             {
-                for (int i = 0; i < id_convert.Count; i++)
+                var volume = mo_result.Dequeue();
+                MoleculeOrbitals.Singleton.addOrbital(volume, GlobalCtrl.Singleton.List_curMolecules.First().Value);
+
+            }
+
+            grabbed_positions.Clear();
+            grabbed_ids.Clear();
+            for (int i = 0; i < id_convert.Count; i++)
+            {
+                if (id_convert[i].isGrabbed)
                 {
-                    if (id_convert[i].isGrabbed)
+                    grabbed_positions.Add(id_convert[i].transform.localPosition * GlobalCtrl.u2aa / GlobalCtrl.scale);
+                    grabbed_ids.Add(i);
+                }
+            }
+
+
+            PythonDispatcher.RunInPythonThread(
+                delegate
+                {
+                    for (int j = 0; j < grabbed_positions.Count; j++)
                     {
-                        //var pos = GlobalCtrl.Singleton.atomWorld.transform.InverseTransformPoint(id_convert[i].transform.position) * GlobalCtrl.u2aa / GlobalCtrl.scale;
-                        var pos = id_convert[i].transform.localPosition * GlobalCtrl.u2aa / GlobalCtrl.scale;
                         var pyPos = new PyList();
-                        pyPos.Append(new PyFloat(pos.x));
-                        pyPos.Append(new PyFloat(pos.y));
-                        pyPos.Append(new PyFloat(pos.z));
-                        sparrow.changeAtomPosition(i, pyPos);
+                        pyPos.Append(new PyFloat(grabbed_positions[j].x));
+                        pyPos.Append(new PyFloat(grabbed_positions[j].y));
+                        pyPos.Append(new PyFloat(grabbed_positions[j].z));
+                        sparrow.changeAtomPosition(grabbed_ids[j], pyPos);
                         //Debug.Log($"[RunSparrow] Pushing position change to sparrow. Atom {i} pos {pos}");
                     }
                 }
-            }
+            );
         }
 
         private void OnDestroy()
@@ -243,28 +253,23 @@ namespace chARpack
         {
             if (sparrow != null)
             {
-                using (Py.GIL())
-                {
-                    sparrow.stopContinuousRun();
-                }
+                //PythonDispatcher.RunInPythonThread(sparrow.stopContinuousRun());
             }
 
-            isInitialized = false;
-            isRunning = false;
+            isInitialized.Value = false;
+            isRunning.Value = false;
+            PythonDispatcher.RemoveContinousAction(continousRunID);
         }
 
         public void startSim()
         {
-            if (!isInitialized && !isRunning)
+            if (!isInitialized.Value && !isRunning.Value)
             {
                 ForceField.Singleton.enableForceFieldMethodUI(false);
                 prepareSim();
-                isInitialized = !isInitialized;
-                using (Py.GIL())
-                {
-                    sparrow.startContinuousRun();
-                }
-                isRunning = !isRunning;
+                isInitialized.Value = !isInitialized.Value;
+                //PythonDispatcher.RunInPythonThread(sparrow.startContinuousRun());
+                isRunning.Value = !isRunning.Value;
             }
         }
 #endif

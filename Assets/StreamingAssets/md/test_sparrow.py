@@ -1,3 +1,4 @@
+import os
 import scine_utilities as su
 import scine_sparrow
 from queue import Queue
@@ -7,6 +8,7 @@ import re
 import copy
 from pprint import pprint
 import threading
+import multiprocessing
 from typing import List
 from scine_heron.electronic_data.molden_file_reader import MoldenFileReader
 from scine_heron.electronic_data.electronic_data import (Atom, ElectronicData,
@@ -15,13 +17,24 @@ from scine_heron.electronic_data.electronic_data import (Atom, ElectronicData,
 from scine_heron.electronic_data.electronic_data_image_generator import ElectronicDataImageGenerator
 from vtk.util.numpy_support import vtk_to_numpy
 
-element_dict = {"H": su.ElementType.H,
-                "C": su.ElementType.C,
-                "O": su.ElementType.O,
-                "N": su.ElementType.N,
-                "Cl": su.ElementType.Cl}
+element_dict = su.ElementType.__members__
 
 available_methods = ['MNDO', 'AM1', 'RM1', 'PM3', 'PM6', 'DFTB0', 'DFTB2', 'DFTB3']
+
+
+class StoppableThread(threading.Thread):
+    """Thread class with a stop() method. The thread itself has to check
+    regularly for the stopped() condition."""
+
+    def __init__(self,  *args, **kwargs):
+        super(StoppableThread, self).__init__(*args, **kwargs)
+        self._stop_event = threading.Event()
+
+    def stop(self):
+        self._stop_event.set()
+
+    def stopped(self):
+        return self._stop_event.is_set()
 
 class chARpackSparrow:
     MAX_POS_QUEUE = 2
@@ -36,11 +49,13 @@ class chARpackSparrow:
         self.ss_lambda = None
         self.ss_beta = 1.0
         self.pos_queue: Queue = Queue()
-        self.calc_mos = False
         self.mo_queue: Queue = Queue()
-        self.molden_content = None
         self.molden_parser = MoldenFileReader()
         self.mo_index = -1
+        self.calculator_lock = threading.Lock()
+        os.environ["OMP_NUM_THREADS"] = str(int(0.5 * multiprocessing.cpu_count()))
+        self.orbital_thread = None
+        self.calculator_thread = None
 
 
     def setMethod(self, method):
@@ -59,6 +74,10 @@ class chARpackSparrow:
         # Get calculator
         manager = su.core.ModuleManager.get_instance()
         self.calculator = manager.get('calculator', self.method)
+        self.calculator.log.output.clear() ## deactivates log spam of calculator
+
+        # print(self.calculator.__dir__())
+        # exit()
 
         # Configure calculator
         self.calculator.structure = self.structure
@@ -90,27 +109,36 @@ class chARpackSparrow:
             self.calculator.set_required_properties([su.Property.Gradients])
             self.ss_lambda = np.ones(len(self.structure.elements))
 
+    def generateOrbitals(self):
+        ## Generate orbitals (volume data)
+        st = time.time()
+        self.calculator_lock.acquire()
+        wf_generator = su.core.to_wf_generator(self.calculator)
+        molden_content = wf_generator.output_wavefunction()
+        self.calculator_lock.release()
+        print(f"Time to calc WF: {time.time() - st:0.3f}")
+        electronic_data = self.molden_parser.read_molden(molden_content)
+        image_generator = ElectronicDataImageGenerator(electronic_data)
+        actual_index = self.__get_actual_index(electronic_data, self.mo_index)
+        image = image_generator.generate_mo_image(actual_index)
+        #dims = np.array([*image.GetDimensions()])
+        mo_data = {"dimensions": image.GetDimensions(),
+                "origin": self.bohr_to_ang(image.GetOrigin()).tolist(),
+                "spacing": self.bohr_to_ang(image.GetSpacing()).tolist(),
+                #"data": vtk_to_numpy(image.GetPointData().GetScalars()).reshape(dims[::-1]).transpose().flatten()}
+                "data": vtk_to_numpy(image.GetPointData().GetScalars()),
+                "wf": molden_content}
+        # write molecule orbitals
+        if self.mo_queue.qsize() >= self.MAX_MO_QUEUE:
+            self.mo_queue.get()
+        self.mo_queue.put(mo_data)
+        print(f"Time for full orbital generation: {time.time() - st:0.3f}")
 
     def run(self):
+        self.calculator_lock.acquire()
         results = self.calculator.calculate()
-        ## Generate orbitals (volume data)
-        if self.calc_mos:
-            wf_generator = su.core.to_wf_generator(self.calculator)
-            self.molden_content = wf_generator.output_wavefunction()
-            electronic_data = self.molden_parser.read_molden(self.molden_content)
-            image_generator = ElectronicDataImageGenerator(electronic_data)
-            actual_index = self.__get_actual_index(electronic_data, self.mo_index)
-            image = image_generator.generate_mo_image(actual_index)
-            #dims = np.array([*image.GetDimensions()])
-            mo_data = {"dimensions": image.GetDimensions(),
-                    "origin": self.bohr_to_ang(image.GetOrigin()),
-                    "spacing": self.bohr_to_ang(image.GetSpacing()),
-                    #"data": vtk_to_numpy(image.GetPointData().GetScalars()).reshape(dims[::-1]).transpose().flatten()}
-                    "data": vtk_to_numpy(image.GetPointData().GetScalars())}
-            # write molecule orbitals
-            if self.mo_queue.qsize() >= self.MAX_MO_QUEUE:
-                self.mo_queue.get()
-            self.mo_queue.put(mo_data)
+        self.calculator_lock.release()
+   
         # Simulation step
         self.steepestDescent(results)
         # write atom positions
@@ -120,25 +148,33 @@ class chARpackSparrow:
 
     def startContinuousRun(self):
         self.isRunning = True
-        secondary_thread = threading.Thread(target = self.__continuousRun)
-        secondary_thread.daemon = True
-        secondary_thread.start()
+        self.calculator_thread = StoppableThread(target = self.__continuousCalculate)
+        self.calculator_thread.daemon = True
+        self.calculator_thread.start()
+        self.orbital_thread = StoppableThread(target = self.__continuousOrbitals)
+        self.orbital_thread.daemon = True
+        self.orbital_thread.start()
 
-    def __continuousRun(self):
+    def __continuousCalculate(self):
         while self.isRunning:
             self.run()
 
+    def __continuousOrbitals(self):
+        while self.pos_queue.empty():
+            pass
+        while self.isRunning:
+            self.generateOrbitals()
+
     def stopContinuousRun(self):
         self.isRunning = False
+        self.calculator_thread.stop()
+        self.orbital_thread.stop()
 
     def ang_to_bohr(self, pos):
         return np.array(pos) * su.BOHR_PER_ANGSTROM
 
     def bohr_to_ang(self, pos):
         return np.array(pos, dtype="float32") / su.BOHR_PER_ANGSTROM
-
-    def setCalcMOs(self, value: bool):
-        self.calc_mos = value
 
     def getPositions(self):
         if not self.pos_queue.empty():
@@ -159,7 +195,9 @@ class chARpackSparrow:
         #print(f"gradients: {results.gradients}")
         new_positions = self.structure.positions - np.multiply(results.gradients.transpose(), self.ss_lambda).transpose()
         self.structure.positions = new_positions
+        self.calculator_lock.acquire()
         self.calculator.structure = self.structure
+        self.calculator_lock.release()
 
     # def getIndices(self):
     #     return [x.index for x in self.atoms]
@@ -169,8 +207,15 @@ class chARpackSparrow:
 
     def changeAtomPosition(self, id, pos):
         self.structure.set_position(id, self.ang_to_bohr(pos))
+        self.calculator_lock.acquire()
         self.calculator.structure = self.structure
+        self.calculator_lock.release()
         self.ss_lambda[id] = 1.0
+        # if self.isRunning:
+        #     self.orbital_thread.stop()
+        #     self.orbital_thread = StoppableThread(target = self.__continuousOrbitals)
+        #     self.orbital_thread.daemon = True
+        #     self.orbital_thread.start()
 
     def __get_actual_index(self, electronic_data: ElectronicData, orbital_index: int) -> int:
         i = 0
@@ -178,35 +223,35 @@ class chARpackSparrow:
             i += 1
         return i if orbital_index == -1 else i + 1
 
-# if __name__ == "__main__":
-#     sp = chARpackSparrow()
+if __name__ == "__main__":
+    sp = chARpackSparrow()
 
-#     elements = ["H", "C", "H", "H", "C", "H", "H", "O", "H"]
+    elements = ["H", "C", "H", "H", "C", "H", "H", "O", "H"]
     
-#     positions = [[1.62654, -0.03768, 0.84561],
-#                  [1.01120, -0.04529, -0.06260],
-#                  [1.32526, 0.80308, -0.68471],
-#                  [1.25013, -0.96118, -0.61888],
-#                  [-0.46208, 0.03063, 0.29470],
-#                  [-0.75800, -0.82632, 0.93155],
-#                  [-0.68223, 0.95369, 0.86656],
-#                  [-1.19813, 0.01810, -0.90725],
-#                  [-2.11270, 0.06497, -0.66499]]
-#     print("Initial Positions")
-#     print(positions)
+    positions = [[1.62654, -0.03768, 0.84561],
+                 [1.01120, -0.04529, -0.06260],
+                 [1.32526, 0.80308, -0.68471],
+                 [1.25013, -0.96118, -0.61888],
+                 [-0.46208, 0.03063, 0.29470],
+                 [-0.75800, -0.82632, 0.93155],
+                 [-0.68223, 0.95369, 0.86656],
+                 [-1.19813, 0.01810, -0.90725],
+                 [-2.11270, 0.06497, -0.66499]]
+    print("Initial Positions")
+    print(positions)
 
-#     sp.setData(positions, elements)
-#     sp.setCalcMOs(True)
-#     #sp.startContinuousRun()
-#     #time.sleep(20)
-#     for i in range(1):
-#         sp.run()
+    sp.setData(positions, elements)
+    sp.startContinuousRun()
+    time.sleep(20)
+    # for i in range(1):
+    #     sp.run()
 
-#         mo_data = sp.getMO()
-#         print(mo_data)
-#         #print(data.shape)
-#         #print(sp.getPositions())
+    #     sp.generateOrbitals()
+    #     mo_data = sp.getMO()
+    #     print(mo_data)
+    #     #print(data.shape)
+    #     #print(sp.getPositions())
         
-#         # print("POSITIONS")
-#         # pprint(sp.getPositions())
-#         time.sleep(0.5)
+    #     # print("POSITIONS")
+    #     # pprint(sp.getPositions())
+    #     time.sleep(0.5)
