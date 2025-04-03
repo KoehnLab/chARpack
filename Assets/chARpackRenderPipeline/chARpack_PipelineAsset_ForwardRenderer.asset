@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6d613f08f173d4dd895bb07b3230baa9, type: 3}
-  m_Name: Toon Highlights Renderer Feature
+  m_Name: ToonHighlightsRendererFeature
   m_EditorClassIdentifier: 
   m_Active: 1
-  injectionPoint: 600
+  injectionPoint: 550
   fetchColorBuffer: 1
   requirements: 6
   passMaterial: {fileID: 2100000, guid: 204f7ff3bf957fd46bbd832f5a1a8cff, type: 2}
@@ -35,7 +35,7 @@ MonoBehaviour:
   m_Active: 1
   injectionPoint: 550
   fetchColorBuffer: 1
-  requirements: 4
+  requirements: 6
   passMaterial: {fileID: 2100000, guid: 45c10a317e525c04d8ede6fddd1537e1, type: 2}
   passIndex: 0
   bindDepthStencilAttachment: 0
@@ -131,7 +131,7 @@ MonoBehaviour:
   m_Active: 1
   injectionPoint: 600
   fetchColorBuffer: 1
-  requirements: 4
+  requirements: 6
   passMaterial: {fileID: 2100000, guid: 89c6373cf61817b4d9ca239661ab5cad, type: 2}
   passIndex: 0
   bindDepthStencilAttachment: 0

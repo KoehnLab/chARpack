@@ -13,7 +13,7 @@ public class ToonRenderPostProcessRenderFeature : ScriptableRendererFeature
     private Material m_toonPaintMaterial;
     [SerializeField]
     private Shader m_toonHighlightShader;
-    private Material m_toonHighlightMaterial;
+    private Material m_toonHighlightsMaterial;
 
     private ToonPostProcessRenderPass m_toonRenderPass;
 
@@ -21,11 +21,11 @@ public class ToonRenderPostProcessRenderFeature : ScriptableRendererFeature
     {
         m_toonOutlineMaterial = CoreUtils.CreateEngineMaterial(m_toonOutlineShader);
         m_toonPaintMaterial = CoreUtils.CreateEngineMaterial(m_toonPaintShader);
-        m_toonHighlightMaterial = CoreUtils.CreateEngineMaterial(m_toonHighlightShader);
+        m_toonHighlightsMaterial = CoreUtils.CreateEngineMaterial(m_toonHighlightShader);
 
-        m_toonRenderPass = new ToonPostProcessRenderPass(m_toonOutlineMaterial, m_toonPaintMaterial, m_toonHighlightMaterial)
+        m_toonRenderPass = new ToonPostProcessRenderPass(m_toonOutlineMaterial, m_toonPaintMaterial, m_toonHighlightsMaterial)
         {
-            renderPassEvent = RenderPassEvent.AfterRenderingTransparents
+            renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing
         };
     }
 
@@ -55,9 +55,9 @@ public class ToonRenderPostProcessRenderFeature : ScriptableRendererFeature
         {
             CoreUtils.Destroy(m_toonPaintMaterial);
         }
-        if (m_toonHighlightMaterial != null)
+        if (m_toonHighlightsMaterial != null)
         {
-            CoreUtils.Destroy(m_toonHighlightMaterial);
+            CoreUtils.Destroy(m_toonHighlightsMaterial);
         }
     }
 

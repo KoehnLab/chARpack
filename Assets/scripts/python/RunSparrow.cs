@@ -216,6 +216,8 @@ namespace chARpack
 
             }
 
+
+            // TODO implement with Queue
             grabbed_positions.Clear();
             grabbed_ids.Clear();
             for (int i = 0; i < id_convert.Count; i++)

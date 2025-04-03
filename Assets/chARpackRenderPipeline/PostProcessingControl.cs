@@ -41,6 +41,7 @@ namespace chARpack
 
         private ScriptableRendererFeature ToonPaintRendererFeature;
         private ScriptableRendererFeature ToonOutlineRendererFeature;
+        private ScriptableRendererFeature ToonHighlightsRendererFeature;
 
         private bool foundRendererFeatures;
         private Shader universalLit;
@@ -74,7 +75,8 @@ namespace chARpack
             List<ScriptableRendererFeature> rendererFeatures = GetRendererFeatures();
             ToonPaintRendererFeature = rendererFeatures.Find(s => s.name.Equals("ToonPaintRendererFeature"));
             ToonOutlineRendererFeature = rendererFeatures.Find(s => s.name.Equals("ToonOutlineRendererFeature"));
-            if (!ToonPaintRendererFeature || !ToonOutlineRendererFeature) foundRendererFeatures = false;
+            ToonHighlightsRendererFeature = rendererFeatures.Find(s => s.name.Equals("ToonHighlightsRendererFeature"));
+            if (!ToonPaintRendererFeature || !ToonOutlineRendererFeature || !ToonHighlightsRendererFeature) foundRendererFeatures = false;
             else 
             { 
                 foundRendererFeatures = true;
@@ -107,6 +109,7 @@ namespace chARpack
 
             ToonPaintRendererFeature.SetActive(value);
             ToonOutlineRendererFeature.SetActive(value);
+            ToonHighlightsRendererFeature.SetActive(value);
         }
 
         public static List<ScriptableRendererFeature> GetRendererFeatures()

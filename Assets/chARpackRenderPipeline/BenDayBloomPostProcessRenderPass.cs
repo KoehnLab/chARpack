@@ -27,8 +27,8 @@ public class BenDayBloomPostProcessRenderPass : ScriptableRenderPass
         m_bloomMaterial = bloomMaterial;
         m_compositeMaterial = compositeMaterial;
 
-        renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
-        //renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+        //renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
+        renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
 
         _BloomMipUp = new int[k_MaxPyramidSize];
         _BloomMipDown = new int[k_MaxPyramidSize];

@@ -35268,7 +35268,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a935abeb353c0e346a0d7dea19ff9427, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _spacing: {x: 1, y: 1, z: 1}
   _triangleBudget: 1048576
   _builderCompute: {fileID: 7200000, guid: 9f19ed91e8aa34430ac0ea80fb20eead, type: 3}
 --- !u!1 &1474540223
@@ -45365,6 +45364,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 449f73008b50d344cb336fc7219829e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ToonOutlineWidth: 2
+  ToonOutlineColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!4 &1934698061
 Transform:
   m_ObjectHideFlags: 0
@@ -45374,7 +45375,7 @@ Transform:
   m_GameObject: {fileID: 1934698059}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.07144539, y: -0.013848135, z: 0.5238259}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
