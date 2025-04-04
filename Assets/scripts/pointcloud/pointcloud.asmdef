@@ -1,0 +1,19 @@
+{
+    "name": "pointcloud",
+    "rootNamespace": "chARpack",
+    "references": [
+        "GUID:238f30aa23c5c65468f66d28508be988",
+        "GUID:6d8fe1c4554c9774caa914988d012c4a",
+        "GUID:5511df5c11b459745a53633b6e3f1e4f",
+        "GUID:3de88c88fbbb8f944b9210d496af9762"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

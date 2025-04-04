@@ -1,0 +1,41 @@
+#pragma kernel VoxelDownSample
+
+RWStructuredBuffer<float3> InputPositions;
+RWStructuredBuffer<float4> InputColors;
+RWStructuredBuffer<float3> OutputPositions;
+RWStructuredBuffer<float4> OutputColors;
+RWStructuredBuffer<int> VoxelGrid;
+RWStructuredBuffer<int> OutputCount;
+
+float voxelSize;
+uint numPoints;
+uint voxelGridSize;
+
+//[numthreads(8, 8, 1)]
+[numthreads(64, 1, 1)]
+void VoxelDownSample(uint3 id : SV_DispatchThreadID)
+{
+    //uint index = id.y * 8 + id.x;
+    //if (index >= numPoints) return;
+    uint index = id.x;
+    if (index >= numPoints)
+        return;
+    
+    int3 voxelIndex = int3(floor(InputPositions[index] / voxelSize));
+    int hash = (voxelIndex.x * 73856093 ^ voxelIndex.y * 19349663 ^ voxelIndex.z * 83492791);
+    hash %= voxelGridSize;
+        
+    // Atomic write to ensure only one point per voxel
+    int existingIndex;
+    InterlockedCompareExchange(VoxelGrid[hash], -1, index, existingIndex);
+
+    // Store the result in OutputPoints only if it's the first write
+    if (existingIndex == -1)
+    {
+        int outputIndex;
+        InterlockedAdd(OutputCount[0], 1, outputIndex);
+        
+        OutputPositions[outputIndex] = InputPositions[index];
+        OutputColors[outputIndex] = InputColors[index];
+    }
+}

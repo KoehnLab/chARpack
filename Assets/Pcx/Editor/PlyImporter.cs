@@ -178,7 +178,8 @@ namespace Pcx
                     MeshTopology.Points, 0
                 );
 
-                mesh.UploadMeshData(true);
+                //mesh.UploadMeshData(true);
+                mesh.UploadMeshData(false);
                 return mesh;
             }
             catch (Exception e)
