@@ -16,7 +16,7 @@ MonoBehaviour:
   injectionPoint: 550
   fetchColorBuffer: 1
   requirements: 6
-  passMaterial: {fileID: 2100000, guid: 204f7ff3bf957fd46bbd832f5a1a8cff, type: 2}
+  passMaterial: {fileID: -876546973899608171, guid: 2bf538781b62d9e4a952bf7b55aa43c4, type: 3}
   passIndex: 0
   bindDepthStencilAttachment: 0
   m_Version: 1
@@ -36,7 +36,7 @@ MonoBehaviour:
   injectionPoint: 550
   fetchColorBuffer: 1
   requirements: 6
-  passMaterial: {fileID: 2100000, guid: 45c10a317e525c04d8ede6fddd1537e1, type: 2}
+  passMaterial: {fileID: -876546973899608171, guid: 0a52dd6d0af6e424cb3dd932fca8bc28, type: 3}
   passIndex: 0
   bindDepthStencilAttachment: 0
   m_Version: 1
@@ -112,7 +112,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90ae1a502f5d25743b0dfffb1f6c6e6a, type: 3}
   m_Name: ToonRenderPostProcessRenderFeature
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   m_toonOutlineShader: {fileID: -6465566751694194690, guid: a60c6e44cb8538f43a415100e753a472, type: 3}
   m_toonPaintShader: {fileID: -6465566751694194690, guid: 0a52dd6d0af6e424cb3dd932fca8bc28, type: 3}
   m_toonHighlightShader: {fileID: -6465566751694194690, guid: 2bf538781b62d9e4a952bf7b55aa43c4, type: 3}
@@ -132,7 +132,7 @@ MonoBehaviour:
   injectionPoint: 600
   fetchColorBuffer: 1
   requirements: 6
-  passMaterial: {fileID: 2100000, guid: 89c6373cf61817b4d9ca239661ab5cad, type: 2}
+  passMaterial: {fileID: -876546973899608171, guid: a60c6e44cb8538f43a415100e753a472, type: 3}
   passIndex: 0
   bindDepthStencilAttachment: 0
   m_Version: 1
