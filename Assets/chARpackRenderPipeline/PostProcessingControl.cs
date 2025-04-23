@@ -105,7 +105,12 @@ namespace chARpack
                 
             }
             GlobalCtrl.Singleton.atomMatPrefab.shader = atomShader;
+            GlobalCtrl.Singleton.dummyMatPrefab.shader = atomShader;
             GlobalCtrl.Singleton.bondMat.shader = bondShader;
+            foreach(var mat in GlobalCtrl.Singleton.Dic_AtomMat.Values)
+            {
+                mat.shader = atomShader;
+            }
 
             ToonPaintRendererFeature.SetActive(value);
             ToonOutlineRendererFeature.SetActive(value);
@@ -118,6 +123,13 @@ namespace chARpack
             return typeof(ScriptableRenderer)
                 .GetField("m_RendererFeatures", BindingFlags.NonPublic | BindingFlags.Instance)
                 .GetValue(renderer) as List<ScriptableRendererFeature>;
+        }
+
+        private void OnApplicationQuit()
+        {
+            GlobalCtrl.Singleton.atomMatPrefab.shader = universalLit;
+            GlobalCtrl.Singleton.dummyMatPrefab.shader = universalLit;
+            GlobalCtrl.Singleton.bondMat.shader = bondLit;
         }
     }
 }

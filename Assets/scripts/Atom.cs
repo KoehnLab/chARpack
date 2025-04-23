@@ -249,7 +249,7 @@ namespace chARpack
                 if (EventSystem.current.IsPointerOverGameObject()) { return; }
 #if CHARPACK_RUNTIME_GIZMOS
                 // Handle server GUI interaction
-                if (TransformGizmo.Singleton != null)
+                if (TransformGizmo.Singleton != null && TransformGizmo.Singleton.enabled)
                 {
                     if (TransformGizmo.Singleton.hasAnyAxis()) { return; }
                 }
