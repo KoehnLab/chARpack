@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using UnityEngine;
-using Microsoft.MixedReality.OpenXR;
 using Microsoft.MixedReality.Toolkit.Utilities;
 #if WINDOWS_UWP
+using Microsoft.MixedReality.OpenXR;
 using Windows.Perception.Spatial;
 using Windows.Perception.Spatial.Preview;
 #endif
