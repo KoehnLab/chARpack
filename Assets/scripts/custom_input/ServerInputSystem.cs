@@ -376,7 +376,7 @@ namespace chARpack
                 float move_left_right = Input.GetAxis("Mouse X");
                 float move_up_down = Input.GetAxis("Mouse Y");
                 Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
-                transform.position -= moveSpeed * (move_left_right * rotated + move_up_down * transform.up);
+                transform.position -= 0.025f * (move_left_right * rotated + move_up_down * transform.up);
             }
         }
 
