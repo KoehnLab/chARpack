@@ -98,7 +98,7 @@ namespace chARpack
             if (percentage.HasValue)
             {
                 //Debug.Log($"Download progress {percentage.Value}%");
-                stringUpdates.Enqueue($"Download {percentage.Value}%");
+                stringUpdates.Enqueue($"Downloading {percentage.Value}%");
             }
 
             return false; // return true if you want to cancel the download
@@ -107,7 +107,7 @@ namespace chARpack
         public void extractProgressChanged(float percent)
         {
             stringUpdates.Clear();
-            stringUpdates.Enqueue($"Extract {percent.ToString("0.00")}%");
+            stringUpdates.Enqueue($"Extracting {percent.ToString("0.00")}%");
         }
     }
 }
