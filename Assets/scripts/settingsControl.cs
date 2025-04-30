@@ -89,6 +89,7 @@ namespace chARpack
             setSyncMode(SettingsData.syncMode);
             setRandomSeed(SettingsData.randomSeed);
             setHoverGazeSelection(SettingsData.hoverGazeAsSelection);
+            setHoverMarker(SettingsData.syncMode);
             setToonShading(SettingsData.useToonShading);
             if (UserServer.list.Count > 0)
             {
@@ -337,6 +338,21 @@ namespace chARpack
         private void setToonShading(bool value)
         {
             if (PostProcessingControl.Singleton) PostProcessingControl.Singleton.UseToonShading = value;
+        }
+
+        private void setHoverMarker(TransitionManager.SyncMode mode)
+        {
+            if(HoverMarker.Singleton != null)
+            {
+                if (mode != TransitionManager.SyncMode.Async)
+                {
+                    HoverMarker.Singleton.hide();
+                }
+                else
+                {
+                    HoverMarker.Singleton.show();
+                }
+            }
         }
     }
 }

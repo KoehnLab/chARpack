@@ -80,7 +80,7 @@ namespace chARpack
         public void setSettingsActive(bool value)
         {
             if (value) hide();
-            else show();
+            else if (SettingsData.syncMode == TransitionManager.SyncMode.Async) show();
             settingsActive = value;
         }
 
