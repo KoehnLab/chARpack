@@ -2502,7 +2502,7 @@ namespace chARpack
         /// </summary>
         public void undoUI()
         {
-            if (LoginData.singlePlayer)
+            if (LoginData.singlePlayer || LoginData.isServer)
             {
                 undo();
             }
