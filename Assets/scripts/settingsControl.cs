@@ -99,11 +99,8 @@ namespace chARpack
             {
                 GlobalCtrl.Singleton.reloadShaders();
                 var mode_changed = GlobalCtrl.Singleton.setLicoriceRendering(SettingsData.licoriceRendering);
-                if (mode_changed)
-                {
-                    GlobalCtrl.Singleton.regenerateSingleBondTooltips(); // Regenerate in case length unit was changed
-                                                                         // gaze and pointer highlighting and color interpolation are handled by checking the value in SettingsData directly in the script
-                }
+                GlobalCtrl.Singleton.regenerateSingleBondTooltips(); // Regenerate in case length unit was changed
+                                                                        // gaze and pointer highlighting and color interpolation are handled by checking the value in SettingsData directly in the script
             }
             activate2DMode(SettingsData.twoDimensionalMode);
         }
