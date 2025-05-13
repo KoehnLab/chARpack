@@ -53,6 +53,7 @@ namespace chARpack
                 go.isGrabbed = true;
                 go.processHighlights();
             }
+            mol.initializePositionForUndo();
         }
 
         void OnMouseDrag()
@@ -89,6 +90,7 @@ namespace chARpack
             }
             else
             {
+                mol.addMoveToUndoStack();
                 // check for potential merge
                 GlobalCtrl.Singleton.checkForCollisionsAndMerge(mol);
             }

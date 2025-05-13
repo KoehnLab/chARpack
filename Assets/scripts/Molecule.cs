@@ -105,8 +105,7 @@ namespace chARpack
                         }
                         else
                         {
-                            cmlData after = this.AsCML();
-                            GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
+                            addMoveToUndoStack();
                             var merge_occured = GlobalCtrl.Singleton.checkForCollisionsAndMerge(this);
                             if (SettingsData.allowThrowing && !merge_occured)
                             {
@@ -121,6 +120,17 @@ namespace chARpack
             }
         }
 #endif
+
+        public void addMoveToUndoStack()
+        {
+            cmlData after = this.AsCML();
+            GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
+        }
+
+        public void initializePositionForUndo()
+        {
+            before = this.AsCML();
+        }
 
         private IEnumerator continueMovement(Vector3 initial_velocity)
         {
