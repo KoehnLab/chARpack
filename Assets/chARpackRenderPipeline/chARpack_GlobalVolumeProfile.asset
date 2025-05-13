@@ -109,7 +109,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88db92712f0f57c4589ad20b24a6a69e, type: 3}
   m_Name: ToonEffectComponent
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   outlineWidth:
     m_OverrideState: 1
     m_Value: 2
