@@ -89,6 +89,7 @@ namespace chARpack
             }
             else
             {
+                mol.checkAndRemoveSnapColors();
                 // check for potential merge
                 GlobalCtrl.Singleton.checkForCollisionsAndMerge(mol);
             }
