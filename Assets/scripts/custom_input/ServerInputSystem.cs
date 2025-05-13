@@ -1,7 +1,10 @@
+using Autodesk.Fbx;
+using IngameDebugConsole;
 using RuntimeGizmos;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -30,6 +33,8 @@ namespace chARpack
             prevMoveSpeed = defaultMoveSpeed;
         }
 
+        private GameObject debugConsole;
+
         private void Start()
         {
             var names = QualitySettings.names.ToList();
@@ -37,6 +42,7 @@ namespace chARpack
             var cursor_texture = Resources.Load<Texture2D>("customCursor/cursor");
             Cursor.SetCursor(cursor_texture, Vector3.zero, CursorMode.ForceSoftware);
             system = EventSystem.current;
+            debugConsole = GameObject.Find("IngameDebugConsole");
         }
 
         private Transform mouseIsOverUIElement()
@@ -55,6 +61,24 @@ namespace chARpack
                 }
             }
             return null;
+        }
+
+        private bool mouseIsOverDebugConsole()
+        {
+            if (!debugConsole.GetComponent<DebugLogManager>().IsLogWindowVisible) return false;
+            foreach (MaskableGraphic uiElement in debugConsole.GetComponentsInChildren<MaskableGraphic>())
+            {
+                if (uiElement.gameObject.activeInHierarchy && uiElement.enabled)
+                {
+                    Vector2 tmpLocalPoint;
+                    RectTransformUtility.ScreenPointToLocalPointInRectangle(uiElement.rectTransform, Input.mousePosition, null, out tmpLocalPoint);
+                    if (uiElement.rectTransform.rect.Contains(tmpLocalPoint))
+                    {
+                        return uiElement.transform;
+                    }
+                }
+            }
+            return false;
         }
 
         private void getObjectClickedOn()
@@ -170,6 +194,7 @@ namespace chARpack
 
         void mouseWheelZoom()
         {
+            if (mouseIsOverDebugConsole()) return;
             if (!Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl) && !CreateInputField.Singleton.gameObject.activeSelf)
             {
                 var scroll_amount = Input.GetAxis("Mouse ScrollWheel");
