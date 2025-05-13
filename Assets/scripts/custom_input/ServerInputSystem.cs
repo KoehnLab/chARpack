@@ -11,12 +11,24 @@ namespace chARpack
     // This script should be attached to the main camera of the server scene
     public class ServerInputSystem : MonoBehaviour
     {
-        private float moveSpeed = 0.04f;
+        private float defaultMoveSpeed = 0.04f;
+        private float moveSpeed;
+        private float prevMoveSpeed;
         private float turnSpeed = 1f;
+        private float speedChange = 0.02f;
+        private bool shiftPressed = false;
+        private float timeStartedShowingCameraSpeed;
         private Transform lastObjectClickedOn = null;
         private EventSystem system;
 
         public GameObject showFPS;
+        public GameObject cameraSpeed;
+
+        private void Awake()
+        {
+            moveSpeed = defaultMoveSpeed;
+            prevMoveSpeed = defaultMoveSpeed;
+        }
 
         private void Start()
         {
@@ -140,13 +152,19 @@ namespace chARpack
             selectWholeMolecule();
             otherShortcuts();
 
+            if (!shiftPressed)
+            {
+                prevMoveSpeed = moveSpeed;
+            }
             if (Input.GetKey(KeyCode.LeftShift))
             {
                 moveSpeed = 0.1f;
+                shiftPressed = true;
             }
             else
             {
-                moveSpeed = 0.04f;
+                moveSpeed = prevMoveSpeed;
+                shiftPressed = false;
             }
         }
 
@@ -377,6 +395,21 @@ namespace chARpack
                 float move_up_down = Input.GetAxis("Mouse Y");
                 Vector3 rotated = Quaternion.AngleAxis(90, Vector3.up) * transform.forward;
                 transform.position -= 0.025f * (move_left_right * rotated + move_up_down * transform.up);
+            }
+            if (Input.GetAxis("Mouse ScrollWheel") != 0f)
+            {
+                cameraSpeed.SetActive(true);
+                timeStartedShowingCameraSpeed = Time.time;
+                var scroll_amount = Input.GetAxis("Mouse ScrollWheel");
+                moveSpeed = Mathf.Clamp(moveSpeed + scroll_amount * speedChange, 0.005f, 0.2f);
+                cameraSpeed.GetComponent<TextMeshProUGUI>().text = $"Camera speed: {moveSpeed / defaultMoveSpeed : 0.#}";
+            }
+            else
+            {
+                if (Time.time - timeStartedShowingCameraSpeed > 0.7f)
+                {
+                    cameraSpeed.SetActive(false);
+                }
             }
         }
 
