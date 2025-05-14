@@ -327,6 +327,7 @@ namespace chARpack
                     else
                     {
                         m_molecule.resetMolPositionAfterMove();
+                        m_molecule.checkAndRemoveSnapColors();
                         cmlData after = m_molecule.AsCML();
                         GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
                         EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);
@@ -574,6 +575,7 @@ namespace chARpack
                             else
                             {
                                 m_molecule.resetMolPositionAfterMove();
+                                m_molecule.checkAndRemoveSnapColors();
                                 cmlData after = m_molecule.AsCML();
                                 GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
                                 EventManager.Singleton.StopMoveAtom(m_molecule.m_id, m_id);

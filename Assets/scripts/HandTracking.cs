@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
 using System;
+using UnityEngine.SceneManagement;
 
 
 namespace chARpack
@@ -109,8 +110,11 @@ namespace chARpack
 
         public void playWipeVFX()
         {
-            wipeVFX.transform.position = indexTipPose.position;
-            wipeVFX.GetComponent<VisualEffect>().Play();
+            if (!SceneManager.GetActiveScene().name.Contains("Login"))
+            {
+                wipeVFX.transform.position = indexTipPose.position;
+                wipeVFX.GetComponent<VisualEffect>().Play();
+            }
         }
 
         private Vector3 _indexForward = Vector3.zero;
