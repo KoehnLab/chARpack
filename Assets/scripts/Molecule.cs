@@ -645,7 +645,7 @@ namespace chARpack
                 foreach (var atom in atomList)
                 {
                     var renderer = atom.GetComponent<Renderer>();
-                    foreach (var mat in renderer.materials)
+                    foreach (var mat in renderer.sharedMaterials)
                     {
                         if (mat.HasProperty("_Color"))
                         {

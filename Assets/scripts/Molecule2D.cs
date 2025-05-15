@@ -107,7 +107,7 @@ namespace chARpack
         {
             foreach (var renderer in GetComponentsInChildren<Renderer>())
             {
-                foreach (var mat in renderer.materials)
+                foreach (var mat in renderer.sharedMaterials)
                 {
                     var col = new Color(mat.color.r, mat.color.g, mat.color.b, value);
                     mat.color = col;
