@@ -216,7 +216,7 @@ namespace chARpack
                 if (indexFingerGrab)
                 {
                     indexFingerGrab = false;
-                    if (SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.FLICK))
+                    if (SettingsData.syncMode == TransitionManager.SyncMode.Async && SettingsData.allowedTransitionInteractions.HasFlag(TransitionManager.InteractionType.FLICK))
                     {
                         StartCoroutine(checkForFlick());
                     }
