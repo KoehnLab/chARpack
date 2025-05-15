@@ -2319,6 +2319,7 @@ namespace chARpack
                     tempMolecule.gameObject.transform.localScale = molecule.moleScale;
                     tempMolecule.f_Init(molecule.moleID, atomWorld.transform, molecule);
                     tempMolecule.transform.localRotation = molecule.moleQuat;
+                    //tempMolecule.transform.localPosition = molecule.molePos;
                     tempMolecule.initial_scale = molecule.moleScale.x;
                     List_curMolecules[tempMolecule.m_id] = tempMolecule;
 
@@ -2350,8 +2351,9 @@ namespace chARpack
                             {
                                 StartCoroutine(StructureFormulaGenerator.Singleton.generate3D(tempMolecule));
                                 find = Molecule2D.molecules.Find(x => x.molReference == tempMolecule); // should be there now
-                                while (!find.initialized)
+                                while (find == null || !find.initialized)
                                 {
+                                    find = Molecule2D.molecules.Find(x => x.molReference == tempMolecule); // should be there now
                                     await Task.Delay(100);
                                 }
                             }
