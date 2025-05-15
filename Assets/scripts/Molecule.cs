@@ -11,6 +11,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using chARpack.ColorPalette;
+using Unity.Mathematics;
 
 
 namespace chARpack
@@ -31,6 +32,8 @@ namespace chARpack
         private List<Tuple<ushort, Vector3>> atomState = new List<Tuple<ushort, Vector3>>();
         public string svgFormula = string.Empty;
         public Vector3? onGrabHandPosition = null;
+        public Guid snappedMolID = Guid.Empty;
+        bool snapped = false;
 
 #if CHARPACK_MRTK_2_8
         /// <summary>
@@ -105,8 +108,10 @@ namespace chARpack
                         }
                         else
                         {
-                            cmlData after = this.AsCML();
-                            GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
+                            addMoveToUndoStack();
+
+                            checkAndRemoveSnapColors();
+
                             var merge_occured = GlobalCtrl.Singleton.checkForCollisionsAndMerge(this);
                             if (SettingsData.allowThrowing && !merge_occured)
                             {
@@ -120,7 +125,19 @@ namespace chARpack
                 }
             }
         }
+
 #endif
+
+        public void addMoveToUndoStack()
+        {
+            cmlData after = this.AsCML();
+            GlobalCtrl.Singleton.undoStack.AddChange(new MoveMoleculeAction(before, after));
+        }
+
+        public void initializePositionForUndo()
+        {
+            before = this.AsCML();
+        }
 
         private IEnumerator continueMovement(Vector3 initial_velocity)
         {
@@ -968,6 +985,14 @@ namespace chARpack
             }
             // TODO: Add advanced alignment mode
             // add coloring
+            if (snapped)
+            {
+                removeSnapColorsBothMolecules();
+            }
+            if(otherMol.snapped)
+            {
+                otherMol.removeSnapColorsBothMolecules();
+            }
             setSnapColors(otherMol);
 
             return true;
@@ -989,10 +1014,77 @@ namespace chARpack
             }
         }
 
+        private void removeSnapColors()
+        {
+            foreach (var atom in atomList)
+            {
+                // Append comparison material to end of list
+                List<Material> comp = atom.GetComponent<MeshRenderer>().sharedMaterials.ToList();
+                foreach (var mat in comp)
+                {
+                    if (mat.Equals(compMaterialA) || mat.Equals(compMaterialB))
+                    {
+                        comp.Remove(mat);
+                        break;
+                    }
+                }
+                atom.GetComponent<MeshRenderer>().sharedMaterials = comp.ToArray();
+            }
+            foreach (var bond in bondList)
+            {
+                // Append comparison material to end of list
+                List<Material> comp = bond.GetComponentInChildren<MeshRenderer>().sharedMaterials.ToList();
+                foreach (var mat in comp)
+                {
+                    if (mat.Equals(compMaterialA) || mat.Equals(compMaterialB))
+                    {
+                        comp.Remove(mat);
+                        break;
+                    }
+                }
+                bond.GetComponentInChildren<MeshRenderer>().sharedMaterials = comp.ToArray();
+            }
+            snapped = false;
+            snappedMolID = Guid.Empty;
+        }
+
+        private void removeSnapColorsBothMolecules()
+        {
+            var otherMolID = snappedMolID;
+            removeSnapColors();
+            if (otherMolID != Guid.Empty)
+            {
+                var mol = GlobalCtrl.Singleton.List_curMolecules[otherMolID];
+                if (mol.snappedMolID == m_id)
+                {
+                    mol.removeSnapColors();
+                }
+            }
+        }
+
+        public void checkAndRemoveSnapColors()
+        {
+            if (snapped)
+            {
+                if (GlobalCtrl.Singleton.List_curMolecules.ContainsKey(snappedMolID))
+                {
+                    var mol = GlobalCtrl.Singleton.List_curMolecules[snappedMolID];
+                    if ((transform.position - mol.transform.position).magnitude > 0.05f)
+                    {
+                        removeSnapColorsBothMolecules();
+                    }
+                }
+            }
+        }
+
         public void setSnapColors(Molecule otherMol)
         {
             addSnapColor(ref compMaterialA);
             otherMol.addSnapColor(ref compMaterialB);
+            snappedMolID = otherMol.m_id;
+            otherMol.snappedMolID = m_id;
+            snapped = true;
+            otherMol.snapped = true;
         }
 
         private void closeSnapUI(Guid otherMolID)

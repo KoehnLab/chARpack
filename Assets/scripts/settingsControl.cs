@@ -89,6 +89,7 @@ namespace chARpack
             setSyncMode(SettingsData.syncMode);
             setRandomSeed(SettingsData.randomSeed);
             setHoverGazeSelection(SettingsData.hoverGazeAsSelection);
+            setHoverMarker(SettingsData.syncMode);
             setToonShading(SettingsData.useToonShading);
             if (UserServer.list.Count > 0)
             {
@@ -96,13 +97,10 @@ namespace chARpack
             }
             if (!SettingsData.twoDimensionalMode)
             {
+                GlobalCtrl.Singleton.reloadShaders();
                 var mode_changed = GlobalCtrl.Singleton.setLicoriceRendering(SettingsData.licoriceRendering);
-                if (mode_changed)
-                {
-                    GlobalCtrl.Singleton.reloadShaders();
-                    GlobalCtrl.Singleton.regenerateSingleBondTooltips(); // Regenerate in case length unit was changed
-                                                                         // gaze and pointer highlighting and color interpolation are handled by checking the value in SettingsData directly in the script
-                }
+                GlobalCtrl.Singleton.regenerateSingleBondTooltips(); // Regenerate in case length unit was changed
+                                                                        // gaze and pointer highlighting and color interpolation are handled by checking the value in SettingsData directly in the script
             }
             activate2DMode(SettingsData.twoDimensionalMode);
         }
@@ -337,6 +335,21 @@ namespace chARpack
         private void setToonShading(bool value)
         {
             if (PostProcessingControl.Singleton) PostProcessingControl.Singleton.UseToonShading = value;
+        }
+
+        private void setHoverMarker(TransitionManager.SyncMode mode)
+        {
+            if(HoverMarker.Singleton != null)
+            {
+                if (mode != TransitionManager.SyncMode.Async)
+                {
+                    HoverMarker.Singleton.hide();
+                }
+                else
+                {
+                    HoverMarker.Singleton.show();
+                }
+            }
         }
     }
 }

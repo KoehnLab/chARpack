@@ -43,7 +43,7 @@ namespace chARpack
             hoverMiddleGrab = Resources.Load<Sprite>("hoverMarker/hoverSelect_sprite");
             hoverIndexGrab = Resources.Load<Sprite>("hoverMarker/hoverIndexSelect_sprite");
 
-            gameObject.SetActive(false);
+            //gameObject.SetActive(false);
         }
 
         public void setPosition(Vector2 pos)
@@ -80,7 +80,7 @@ namespace chARpack
         public void setSettingsActive(bool value)
         {
             if (value) hide();
-            else show();
+            else if (SettingsData.syncMode == TransitionManager.SyncMode.Async) show();
             settingsActive = value;
         }
 
