@@ -68,7 +68,7 @@ namespace chARpack
             universalLit = Shader.Find("Universal Render Pipeline/Lit");
             universalUnlit = Shader.Find("Universal Render Pipeline/Unlit");
             bondLit = Shader.Find("Shader Graphs/BondShaderGraph");
-            bondLitTransparent = Shader.Find("Shader Graphs/BondShaderGraph_Transparent");
+            //bondLitTransparent = Shader.Find("Shader Graphs/BondShaderGraph_Transparent");
             bondUnlit = Shader.Find("Shader Graphs/BondShaderGraph_Unlit");
         }
 
@@ -96,7 +96,7 @@ namespace chARpack
             var bonds = GameObject.FindGameObjectsWithTag("Bond");
             foreach(var atom in atoms)
             {
-                SetShaderAndTransparency(atom.GetComponent<MeshRenderer>().material, atomShader, false);
+                SetShaderAndTransparency(atom.GetComponent<MeshRenderer>().material, atomShader, !value);
                 atom.GetComponent<OutlinePro>().OutlineWidth = value ? new float[4] { 7f, 7f, 7f, 7f } : new float[4] { 5f, 5f, 5f, 5f };
                 atom.GetComponent<OutlinePro>().NeedsUpdate();
             }
@@ -106,12 +106,12 @@ namespace chARpack
                 bond.GetComponent<Outline>().OutlineWidth = value ? 7f : 5f;
                 
             }
-            SetShaderAndTransparency(GlobalCtrl.Singleton.atomMatPrefab, atomShader, false);
-            SetShaderAndTransparency(GlobalCtrl.Singleton.dummyMatPrefab, atomShader, false);
+            SetShaderAndTransparency(GlobalCtrl.Singleton.atomMatPrefab, atomShader, !value);
+            SetShaderAndTransparency(GlobalCtrl.Singleton.dummyMatPrefab, atomShader, !value);
             GlobalCtrl.Singleton.bondMat.shader = bondShader;
             foreach(var mat in GlobalCtrl.Singleton.Dic_AtomMat.Values)
             {
-                SetShaderAndTransparency(mat, atomShader, false);
+                SetShaderAndTransparency(mat, atomShader, !value);
             }
 
             ToonPaintRendererFeature.SetActive(value);
@@ -119,37 +119,37 @@ namespace chARpack
             ToonHighlightsRendererFeature.SetActive(value);
         }
 
-        public void setNoPostProcessingAndTransparency()
-        {
-            var atomShader = universalLit;
-            var bondShader = bondLitTransparent;
+        //public void setNoPostProcessingAndTransparency()
+        //{
+        //    var atomShader = universalLit;
+        //    var bondShader = bondLitTransparent;
 
-            var atoms = GameObject.FindGameObjectsWithTag("Atom");
-            var bonds = GameObject.FindGameObjectsWithTag("Bond");
-            foreach (var atom in atoms)
-            {
-                SetShaderAndTransparency(atom.GetComponent<MeshRenderer>().material, atomShader, true);
-                atom.GetComponent<OutlinePro>().OutlineWidth = new float[4] { 5f, 5f, 5f, 5f };
-                atom.GetComponent<OutlinePro>().NeedsUpdate();
-            }
-            foreach (var bond in bonds)
-            {
-                bond.GetComponentInChildren<MeshRenderer>().material.shader = bondShader;
-                bond.GetComponent<Outline>().OutlineWidth = 5f;
+        //    var atoms = GameObject.FindGameObjectsWithTag("Atom");
+        //    var bonds = GameObject.FindGameObjectsWithTag("Bond");
+        //    foreach (var atom in atoms)
+        //    {
+        //        SetShaderAndTransparency(atom.GetComponent<MeshRenderer>().material, atomShader, true);
+        //        atom.GetComponent<OutlinePro>().OutlineWidth = new float[4] { 5f, 5f, 5f, 5f };
+        //        atom.GetComponent<OutlinePro>().NeedsUpdate();
+        //    }
+        //    foreach (var bond in bonds)
+        //    {
+        //        bond.GetComponentInChildren<MeshRenderer>().material.shader = bondShader;
+        //        bond.GetComponent<Outline>().OutlineWidth = 5f;
 
-            }
-            SetShaderAndTransparency(GlobalCtrl.Singleton.atomMatPrefab, atomShader, true);
-            SetShaderAndTransparency(GlobalCtrl.Singleton.dummyMatPrefab, atomShader, true);
-            GlobalCtrl.Singleton.bondMat.shader = bondShader;
-            foreach (var mat in GlobalCtrl.Singleton.Dic_AtomMat.Values)
-            {
-                SetShaderAndTransparency(mat, atomShader, true);
-            }
+        //    }
+        //    SetShaderAndTransparency(GlobalCtrl.Singleton.atomMatPrefab, atomShader, true);
+        //    SetShaderAndTransparency(GlobalCtrl.Singleton.dummyMatPrefab, atomShader, true);
+        //    GlobalCtrl.Singleton.bondMat.shader = bondShader;
+        //    foreach (var mat in GlobalCtrl.Singleton.Dic_AtomMat.Values)
+        //    {
+        //        SetShaderAndTransparency(mat, atomShader, true);
+        //    }
 
-            ToonPaintRendererFeature.SetActive(false);
-            ToonOutlineRendererFeature.SetActive(false);
-            ToonHighlightsRendererFeature.SetActive(false);
-        }
+        //    ToonPaintRendererFeature.SetActive(false);
+        //    ToonOutlineRendererFeature.SetActive(false);
+        //    ToonHighlightsRendererFeature.SetActive(false);
+        //}
 
         private const int MATERIAL_OPAQUE = 0;
         private const int MATERIAL_TRANSPARENT = 1;

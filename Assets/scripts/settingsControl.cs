@@ -336,8 +336,7 @@ namespace chARpack
         {
             if (PostProcessingControl.Singleton) 
             {
-                if (SettingsData.twoDimensionalMode) PostProcessingControl.Singleton.setNoPostProcessingAndTransparency();
-                else PostProcessingControl.Singleton.UseToonShading = value; 
+                PostProcessingControl.Singleton.UseToonShading = value; 
             }
         }
 
