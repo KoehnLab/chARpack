@@ -72,6 +72,21 @@ namespace chARpack
         {
             updateElements();
             transform.SetAsLastSibling();
+            var toggle = twoDimToggle.GetComponent<Toggle>();
+            toggle.onValueChanged.AddListener(delegate { changeToonShadingState(toggle); });
+        }
+
+        void changeToonShadingState(Toggle toggle2d)
+        {
+            if (toggle2d.isOn)
+            {
+                toonShadingToggle.GetComponent<Toggle>().isOn = false;
+                toonShadingToggle.GetComponent<Toggle>().interactable = false;
+            }
+            else
+            {
+                toonShadingToggle.GetComponent<Toggle>().interactable = true;
+            }
         }
 
         IEnumerator ShowSaveDialogCoroutine()
