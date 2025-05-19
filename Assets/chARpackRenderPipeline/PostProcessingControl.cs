@@ -96,8 +96,7 @@ namespace chARpack
             var bonds = GameObject.FindGameObjectsWithTag("Bond");
             foreach(var atom in atoms)
             {
-                atom.GetComponent<MeshRenderer>().material.shader = atomShader;
-                SetMaterialTransparent(atom.GetComponent<MeshRenderer>().material, false);
+                SetShaderAndTransparency(atom.GetComponent<MeshRenderer>().material, atomShader, false);
                 atom.GetComponent<OutlinePro>().OutlineWidth = value ? new float[4] { 7f, 7f, 7f, 7f } : new float[4] { 5f, 5f, 5f, 5f };
                 atom.GetComponent<OutlinePro>().NeedsUpdate();
             }
@@ -107,15 +106,12 @@ namespace chARpack
                 bond.GetComponent<Outline>().OutlineWidth = value ? 7f : 5f;
                 
             }
-            GlobalCtrl.Singleton.atomMatPrefab.shader = atomShader;
-            GlobalCtrl.Singleton.dummyMatPrefab.shader = atomShader;
-            SetMaterialTransparent(GlobalCtrl.Singleton.atomMatPrefab, false);
-            SetMaterialTransparent(GlobalCtrl.Singleton.dummyMatPrefab, false);
+            SetShaderAndTransparency(GlobalCtrl.Singleton.atomMatPrefab, atomShader, false);
+            SetShaderAndTransparency(GlobalCtrl.Singleton.dummyMatPrefab, atomShader, false);
             GlobalCtrl.Singleton.bondMat.shader = bondShader;
             foreach(var mat in GlobalCtrl.Singleton.Dic_AtomMat.Values)
             {
-                mat.shader = atomShader;
-                SetMaterialTransparent(mat, false);
+                SetShaderAndTransparency(mat, atomShader, false);
             }
 
             ToonPaintRendererFeature.SetActive(value);
@@ -132,8 +128,7 @@ namespace chARpack
             var bonds = GameObject.FindGameObjectsWithTag("Bond");
             foreach (var atom in atoms)
             {
-                atom.GetComponent<MeshRenderer>().material.shader = atomShader;
-                SetMaterialTransparent(atom.GetComponent<MeshRenderer>().material, true);
+                SetShaderAndTransparency(atom.GetComponent<MeshRenderer>().material, atomShader, true);
                 atom.GetComponent<OutlinePro>().OutlineWidth = new float[4] { 5f, 5f, 5f, 5f };
                 atom.GetComponent<OutlinePro>().NeedsUpdate();
             }
@@ -143,15 +138,12 @@ namespace chARpack
                 bond.GetComponent<Outline>().OutlineWidth = 5f;
 
             }
-            GlobalCtrl.Singleton.atomMatPrefab.shader = atomShader;
-            GlobalCtrl.Singleton.dummyMatPrefab.shader = atomShader;
-            SetMaterialTransparent(GlobalCtrl.Singleton.atomMatPrefab, true);
-            SetMaterialTransparent(GlobalCtrl.Singleton.dummyMatPrefab, true);
+            SetShaderAndTransparency(GlobalCtrl.Singleton.atomMatPrefab, atomShader, true);
+            SetShaderAndTransparency(GlobalCtrl.Singleton.dummyMatPrefab, atomShader, true);
             GlobalCtrl.Singleton.bondMat.shader = bondShader;
             foreach (var mat in GlobalCtrl.Singleton.Dic_AtomMat.Values)
             {
-                mat.shader = atomShader;
-                SetMaterialTransparent(mat, true);
+                SetShaderAndTransparency(mat, atomShader, true);
             }
 
             ToonPaintRendererFeature.SetActive(false);
@@ -170,6 +162,12 @@ namespace chARpack
             material.SetFloat("_DstBlend", value ? 10 : 0);
             material.SetFloat("_SrcBlend", value ? 5 : 1);
             material.SetFloat("_ZWrite", value ? 0 : 1);
+        }
+        
+        private void SetShaderAndTransparency(Material material, Shader shader, bool transparent)
+        {
+            material.shader = shader;
+            SetMaterialTransparent(material, transparent);
         }
 
         public static List<ScriptableRendererFeature> GetRendererFeatures()
