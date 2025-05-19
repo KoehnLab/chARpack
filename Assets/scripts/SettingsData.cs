@@ -72,7 +72,7 @@ namespace chARpack
         public static Protocol currentNetworkingProtocol = Protocol.TCP;
         [JsonProperty] public static bool UseKabsch = false;
         [JsonProperty] public static bool twoDimensionalMode = false;
-        [JsonProperty] public static bool useToonShading = false;
+        [JsonProperty] public static bool useToonShading = true;
 
         public static int highlightColorMap
         {

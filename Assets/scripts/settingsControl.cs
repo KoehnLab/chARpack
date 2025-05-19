@@ -334,7 +334,11 @@ namespace chARpack
 
         private void setToonShading(bool value)
         {
-            if (PostProcessingControl.Singleton) PostProcessingControl.Singleton.UseToonShading = value;
+            if (PostProcessingControl.Singleton) 
+            {
+                if (SettingsData.twoDimensionalMode) PostProcessingControl.Singleton.setNoPostProcessingAndTransparency();
+                else PostProcessingControl.Singleton.UseToonShading = value; 
+            }
         }
 
         private void setHoverMarker(TransitionManager.SyncMode mode)
