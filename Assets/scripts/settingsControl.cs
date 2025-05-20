@@ -125,8 +125,9 @@ namespace chARpack
                         {
                             StartCoroutine(StructureFormulaGenerator.Singleton.generate3D(mol));
                             find = Molecule2D.molecules.Find(x => x.molReference == mol); // should be there now
-                            while (!find.initialized)
+                            while (find == null || !find.initialized)
                             {
+                                find = Molecule2D.molecules.Find(x => x.molReference == mol); // should be there now
                                 await Task.Delay(100);
                             }
                         }
