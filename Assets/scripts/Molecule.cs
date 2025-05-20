@@ -861,11 +861,11 @@ namespace chARpack
         /// <param name="showToolTip"></param>
         public void markMoleculeUI(bool mark, bool showToolTip = true)
         {
-            if (currentOpacity != 0f)
-            {
-                EventManager.Singleton.SelectMolecule(m_id, mark);
-                markMolecule(mark, showToolTip);
-            }
+            //if (currentOpacity != 0f)
+            //{
+            EventManager.Singleton.SelectMolecule(m_id, mark);
+            markMolecule(mark, showToolTip);
+            //}
         }
 
         /// <summary>
