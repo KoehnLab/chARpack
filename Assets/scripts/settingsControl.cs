@@ -125,8 +125,9 @@ namespace chARpack
                         {
                             StartCoroutine(StructureFormulaGenerator.Singleton.generate3D(mol));
                             find = Molecule2D.molecules.Find(x => x.molReference == mol); // should be there now
-                            while (!find.initialized)
+                            while (find == null || !find.initialized)
                             {
+                                find = Molecule2D.molecules.Find(x => x.molReference == mol); // should be there now
                                 await Task.Delay(100);
                             }
                         }
@@ -334,7 +335,10 @@ namespace chARpack
 
         private void setToonShading(bool value)
         {
-            if (PostProcessingControl.Singleton) PostProcessingControl.Singleton.UseToonShading = value;
+            if (PostProcessingControl.Singleton) 
+            {
+                PostProcessingControl.Singleton.UseToonShading = value; 
+            }
         }
 
         private void setHoverMarker(TransitionManager.SyncMode mode)

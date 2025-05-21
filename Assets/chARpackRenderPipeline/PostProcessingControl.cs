@@ -47,6 +47,7 @@ namespace chARpack
         private Shader universalLit;
         private Shader universalUnlit;
         private Shader bondLit;
+        private Shader bondLitTransparent;
         private Shader bondUnlit;
 
         private Material ToonOutlineMat;
@@ -67,6 +68,7 @@ namespace chARpack
             universalLit = Shader.Find("Universal Render Pipeline/Lit");
             universalUnlit = Shader.Find("Universal Render Pipeline/Unlit");
             bondLit = Shader.Find("Shader Graphs/BondShaderGraph");
+            //bondLitTransparent = Shader.Find("Shader Graphs/BondShaderGraph_Transparent");
             bondUnlit = Shader.Find("Shader Graphs/BondShaderGraph_Unlit");
         }
 
@@ -94,7 +96,7 @@ namespace chARpack
             var bonds = GameObject.FindGameObjectsWithTag("Bond");
             foreach(var atom in atoms)
             {
-                atom.GetComponent<MeshRenderer>().material.shader = atomShader;
+                SetShaderAndTransparency(atom.GetComponent<MeshRenderer>().material, atomShader, !value);
                 atom.GetComponent<OutlinePro>().OutlineWidth = value ? new float[4] { 7f, 7f, 7f, 7f } : new float[4] { 5f, 5f, 5f, 5f };
                 atom.GetComponent<OutlinePro>().NeedsUpdate();
             }
@@ -104,17 +106,68 @@ namespace chARpack
                 bond.GetComponent<Outline>().OutlineWidth = value ? 7f : 5f;
                 
             }
-            GlobalCtrl.Singleton.atomMatPrefab.shader = atomShader;
-            GlobalCtrl.Singleton.dummyMatPrefab.shader = atomShader;
+            SetShaderAndTransparency(GlobalCtrl.Singleton.atomMatPrefab, atomShader, !value);
+            SetShaderAndTransparency(GlobalCtrl.Singleton.dummyMatPrefab, atomShader, !value);
             GlobalCtrl.Singleton.bondMat.shader = bondShader;
             foreach(var mat in GlobalCtrl.Singleton.Dic_AtomMat.Values)
             {
-                mat.shader = atomShader;
+                SetShaderAndTransparency(mat, atomShader, !value);
             }
 
             ToonPaintRendererFeature.SetActive(value);
             ToonOutlineRendererFeature.SetActive(value);
             ToonHighlightsRendererFeature.SetActive(value);
+        }
+
+        //public void setNoPostProcessingAndTransparency()
+        //{
+        //    var atomShader = universalLit;
+        //    var bondShader = bondLitTransparent;
+
+        //    var atoms = GameObject.FindGameObjectsWithTag("Atom");
+        //    var bonds = GameObject.FindGameObjectsWithTag("Bond");
+        //    foreach (var atom in atoms)
+        //    {
+        //        SetShaderAndTransparency(atom.GetComponent<MeshRenderer>().material, atomShader, true);
+        //        atom.GetComponent<OutlinePro>().OutlineWidth = new float[4] { 5f, 5f, 5f, 5f };
+        //        atom.GetComponent<OutlinePro>().NeedsUpdate();
+        //    }
+        //    foreach (var bond in bonds)
+        //    {
+        //        bond.GetComponentInChildren<MeshRenderer>().material.shader = bondShader;
+        //        bond.GetComponent<Outline>().OutlineWidth = 5f;
+
+        //    }
+        //    SetShaderAndTransparency(GlobalCtrl.Singleton.atomMatPrefab, atomShader, true);
+        //    SetShaderAndTransparency(GlobalCtrl.Singleton.dummyMatPrefab, atomShader, true);
+        //    GlobalCtrl.Singleton.bondMat.shader = bondShader;
+        //    foreach (var mat in GlobalCtrl.Singleton.Dic_AtomMat.Values)
+        //    {
+        //        SetShaderAndTransparency(mat, atomShader, true);
+        //    }
+
+        //    ToonPaintRendererFeature.SetActive(false);
+        //    ToonOutlineRendererFeature.SetActive(false);
+        //    ToonHighlightsRendererFeature.SetActive(false);
+        //}
+
+        private const int MATERIAL_OPAQUE = 0;
+        private const int MATERIAL_TRANSPARENT = 1;
+
+        private void SetMaterialTransparent(Material material, bool value)
+        {
+            material.SetFloat("_Surface", value ? MATERIAL_TRANSPARENT : MATERIAL_OPAQUE);
+            material.SetShaderPassEnabled("SHADOWCASTER", !value);
+            material.renderQueue = value ? 3000 : 2000;
+            material.SetFloat("_DstBlend", value ? 10 : 0);
+            material.SetFloat("_SrcBlend", value ? 5 : 1);
+            material.SetFloat("_ZWrite", value ? 0 : 1);
+        }
+        
+        private void SetShaderAndTransparency(Material material, Shader shader, bool transparent)
+        {
+            material.shader = shader;
+            SetMaterialTransparent(material, transparent);
         }
 
         public static List<ScriptableRendererFeature> GetRendererFeatures()

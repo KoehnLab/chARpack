@@ -645,7 +645,7 @@ namespace chARpack
                 foreach (var atom in atomList)
                 {
                     var renderer = atom.GetComponent<Renderer>();
-                    foreach (var mat in renderer.materials)
+                    foreach (var mat in renderer.sharedMaterials)
                     {
                         if (mat.HasProperty("_Color"))
                         {
@@ -861,11 +861,11 @@ namespace chARpack
         /// <param name="showToolTip"></param>
         public void markMoleculeUI(bool mark, bool showToolTip = true)
         {
-            if (currentOpacity != 0f)
-            {
-                EventManager.Singleton.SelectMolecule(m_id, mark);
-                markMolecule(mark, showToolTip);
-            }
+            //if (currentOpacity != 0f)
+            //{
+            EventManager.Singleton.SelectMolecule(m_id, mark);
+            markMolecule(mark, showToolTip);
+            //}
         }
 
         /// <summary>
