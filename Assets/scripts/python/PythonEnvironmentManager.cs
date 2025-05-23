@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Collections;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 
 namespace chARpack
@@ -105,8 +106,8 @@ namespace chARpack
             {
                 li_inst.loadingFinished(true, "Initialized.");
             }
-        }
 
+        }
         private void initEnvironment()
         {
             string[] possibleDllNames = new string[]
@@ -147,7 +148,7 @@ namespace chARpack
                     if (File.Exists(fullPath))
                     {
                         dll_path = fullPath;
-                        zip_path = fullPath.Split('.')[0] + ".zip";
+                        zip_path = python_env_path + ".zip";
                         break;
                     }
                 }
@@ -162,7 +163,13 @@ namespace chARpack
             }
 
             //// Set the path to the embedded Python environment
-            var pythonPath = pythonHome + ";" + Path.Combine(pythonHome, "Lib\\site-packages") + ";" + zip_path + ";" + Path.Combine(pythonHome, "DLLs") + ";" + Path.Combine(Application.streamingAssetsPath, "PythonScripts") + ";" + Path.Combine(Application.streamingAssetsPath, "md");
+            var pythonPath = pythonHome + ";" + 
+                Path.Combine(pythonHome, "Lib") + ";" + 
+                Path.Combine(pythonHome, "Lib\\site-packages") + ";" + 
+                zip_path + ";" + 
+                Path.Combine(pythonHome, "DLLs") + ";" + 
+                Path.Combine(Application.streamingAssetsPath, "PythonScripts") + ";" + 
+                Path.Combine(Application.streamingAssetsPath, "md");
             Environment.SetEnvironmentVariable("PYTHONHOME", null);
             Environment.SetEnvironmentVariable("PYTHONPATH", null);
 
@@ -173,13 +180,16 @@ namespace chARpack
             Debug.Log($"Python home: {pythonHome}");
             Debug.Log($"Python path: {pythonPath}");
 
-
             // Initialize the Python runtime
             Runtime.PythonDLL = dll_path;
 
             // Initialize the Python engine with the embedded Python environment
             PythonEngine.PythonHome = pythonHome;
             PythonEngine.PythonPath = pythonPath;
+            //Environment.CurrentDirectory = pythonHome;
+
+            Environment.SetEnvironmentVariable("PYTHONHOME", pythonHome);
+            Environment.SetEnvironmentVariable("PYTHONPATH", pythonPath);
 
             PythonEngine.Initialize();
             state = PythonEngine.BeginAllowThreads();
